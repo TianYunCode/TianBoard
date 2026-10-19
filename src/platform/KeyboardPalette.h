@@ -89,6 +89,9 @@ private slots:
     void syncLocale(int nLocale);
     void keyboardPaletteButtonSizeChanged(QVariant size);
     void onActivated(bool b);
+
+public slots:
+    // 由 BoardPaletteManager / WebController 连接
     void onDeactivated();
     void showKeyboard(bool show);
     void hideKeyboard();

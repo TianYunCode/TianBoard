@@ -141,7 +141,8 @@ protected:
     virtual void dropEvent( QDropEvent *event );
     virtual void dragMoveEvent( QDragMoveEvent *event );
 
-private slots:
+public slots:
+    // FeaturesNavigatorWidget 的滑块连它；跨类连接必须公开
     void thumbnailSizeChanged(int);
 
 };
@@ -209,12 +210,13 @@ signals:
 public slots:
     void showAdditionalData(AddWidget pWidgetType, AddWidgetState pState = NonModal);
 
+    // FeaturesController 的扫描信号连这两个；跨类连接必须公开
+    void scanStarted();
+    void scanFinished();
+
 private slots:
     void createNewFolderSlot(QString pStr);
     void hideAdditionalData();
-
-    void scanStarted();
-    void scanFinished();
 
 private:
     struct Private;
@@ -237,8 +239,11 @@ signals:
 private slots:
     void accept();
     void reject();
-    void setFileNameList(const QStringList &pLst);
     void reactOnTextChanged(const QString &pStr);
+
+public slots:
+    // FeaturesCentralWidget 转发文件名列表；跨类连接必须公开
+    void setFileNameList(const QStringList &pLst);
 
 private:
     struct Private;
@@ -251,12 +256,15 @@ class FeaturesProgressInfo: public QWidget {
 public:
     FeaturesProgressInfo(QWidget *parent = 0);
 
-private slots:
-    void setCommmonInfoText(const QString &str);
+public slots:
+    // FeaturesCentralWidget 转发扫描进度；跨类连接必须公开
+    void setCommonInfoText(const QString &str);
     void setDetailedInfoText(const QString &str);
-    void setProgressMin(int pValue);
     void setProgressMax(int pValue);
     void increaseProgressValue();
+
+private slots:
+    void setProgressMin(int pValue);
     void sendFeature(Feature pFeature);
 
 private:

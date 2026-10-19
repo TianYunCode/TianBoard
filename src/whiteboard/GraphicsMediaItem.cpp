@@ -408,7 +408,7 @@ void GraphicsMediaItem::copyItemParameters(Item *copy) const
 
         cp->setZValue(this->zValue());
 
-        connect(Application::boardController, SIGNAL(activeSceneChanged()), cp, SLOT(activeSceneChanged()));
+        connect(Application::boardController, &BoardController::activeSceneChanged, cp, &GraphicsMediaItem::activeSceneChanged);
 
     }
 }

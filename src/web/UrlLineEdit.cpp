@@ -139,10 +139,10 @@ void ExLineEdit::focusOutEvent(QFocusEvent *event)
     d->mLineEdit->event(event);
 
     if (d->mLineEdit->completer()) {
+        // QLineEdit::setCompleter() 内部已经把 highlighted 连到它自己的补全回写槽，
+        // 这里只需要补“回车选中”那一路
         connect(d->mLineEdit->completer(), qOverload<const QString &>(&QCompleter::activated),
                          d->mLineEdit, &QLineEdit::setText);
-        connect(d->mLineEdit->completer(), SIGNAL(highlighted(QString)),
-                         d->mLineEdit, SLOT(_q_completionHighlighted(QString)));
     }
     QWidget::focusOutEvent(event);
 }

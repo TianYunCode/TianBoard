@@ -82,14 +82,9 @@ class TabWidget : public QTabWidget
 
         // current tab signals
         void setCurrentTitle(const QString &url);
-        void showStatusBarMessage(const QString &message);
-        void linkHovered(const QString &link);
         void loadProgress(int progress);
         void loadFinished(bool pOk);
         void geometryChangeRequested(const QRect &geometry);
-        void menuBarVisibilityChangeRequested(bool visible);
-        void statusBarVisibilityChangeRequested(bool visible);
-        void toolBarVisibilityChangeRequested(bool visible);
 
     public:
         TabWidget(QWidget *parent = 0);

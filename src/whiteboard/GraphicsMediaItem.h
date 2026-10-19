@@ -77,7 +77,8 @@ public:
 public slots:
     void toggleMute();
     void setMute(bool bMute);
-    void activeSceneChanged();
+    // GraphicsVideoItem 会接管它；连接方拿到的是基类指针，必须靠 vtable 派发
+    virtual void activeSceneChanged();
     void showOnDisplayChanged(bool shown);
 
     virtual void play();
@@ -163,7 +164,7 @@ public slots:
     void videoSizeChanged(QSizeF newSize);
     void hasVideoChanged(bool hasVideo);
     void mediaStateChanged(QMediaPlayer::PlaybackState state);
-    void activeSceneChanged();
+    void activeSceneChanged() override;
 
 protected slots:
     void mediaError(QMediaPlayer::Error errorCode, const QString &errorString);

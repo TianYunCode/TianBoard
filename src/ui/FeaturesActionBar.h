@@ -66,6 +66,9 @@ private slots:
     void onActionRemoveFavorite();
     void onActionTrash();
     void onActionRescanModel();
+
+public slots:
+    // FeaturesWidget 在扫描开始/结束时连这两个；跨类连接必须公开
     void lockIt();
     void unlockIt();
 

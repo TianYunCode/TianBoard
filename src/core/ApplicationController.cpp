@@ -67,7 +67,10 @@ ApplicationController::ApplicationController(BoardView *pControlView,
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mUninoteController, &DesktopAnnotationController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &WebController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, Application::boardController, &BoardController::adjustDisplayViews);
-    connect(mUninoteController, SIGNAL(imageCaptured(const QPixmap &, bool)), this, SLOT(addCapturedPixmap(const QPixmap &, bool)));
+    // 槽第三个参数有默认值，成员指针形式要求参数个数不超过信号，这里显式补默认值
+    connect(mUninoteController, &DesktopAnnotationController::imageCaptured, this, [this](const QPixmap &pixmap, bool pageMode) {
+        addCapturedPixmap(pixmap, pageMode);
+    });
     connect(mUninoteController, &DesktopAnnotationController::restoreBoard, this, &ApplicationController::hideDesktop);
 
     for(int i = 0; i < mDisplayManager->numPreviousViews(); i++)

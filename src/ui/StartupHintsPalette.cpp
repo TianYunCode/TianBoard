@@ -32,7 +32,6 @@ StartupHintsPalette::StartupHintsPalette(QWidget *parent) :
         QString url = Settings::settings()->applicationStartupHintsDirectory() + "/index.html";
         d->mpWebView = new QWebEngineView(this);
         d->boardApi = new WebWidgetBoardAPI(0);
-        //connect(d->mpWebView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
         d->mpWebView->setUrl(QUrl::fromLocalFile(url));
         d->mpWebView->setAcceptDrops(false);
         d->mLayout->addWidget(d->mpWebView);
@@ -40,7 +39,10 @@ StartupHintsPalette::StartupHintsPalette(QWidget *parent) :
         d->mLayout->addLayout(d->mButtonLayout);
         d->mShowNextTime = new QCheckBox(tr("Visible next time"),this);
         d->mShowNextTime->setCheckState(Qt::Checked);
-        connect(d->mShowNextTime,SIGNAL(stateChanged(int)),this,SLOT(onShowNextTimeStateChanged(int)));
+        // stateChanged(int) 在 Qt6 已弃用，改用 toggled 并直接写设置
+        connect(d->mShowNextTime, &QCheckBox::toggled, this, [this](bool checked) {
+            Settings::settings()->appStartupHintsEnabled->setBool(checked);
+        });
         d->mButtonLayout->addStretch();
         d->mButtonLayout->addWidget(d->mShowNextTime);
     }
@@ -79,11 +81,6 @@ void StartupHintsPalette::mouseReleaseEvent(QMouseEvent * event)
     }
 
     FloatingPalette::mouseReleaseEvent(event);
-}
-
-void StartupHintsPalette::onShowNextTimeStateChanged(int state)
-{
-    Settings::settings()->appStartupHintsEnabled->setBool(state == Qt::Checked);
 }
 
 void StartupHintsPalette::showEvent(QShowEvent *event)

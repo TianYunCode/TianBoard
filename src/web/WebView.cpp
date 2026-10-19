@@ -75,9 +75,6 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, NavigationType type, bool
         return false;
     }
 
-    mLoadingUrl = url;
-    emit loadingUrl(mLoadingUrl);
-
 	return true;
 }
 
@@ -90,106 +87,16 @@ QWebEnginePage *WebPage::createWindow(QWebEnginePage::WebWindowType type)
 }
 
 
-void WebPage::handleUnsupportedContent(QNetworkReply *reply)
-{
-    if(reply->url().scheme() == "mailto")
-    {
-        bool result = QDesktopServices::openUrl(reply->url());
-        if (result)
-            return;
-    }
-
-    QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
-    bool isPDF = (contentType == "application/pdf");
-
-    // Delete this big "if (isPDF)" block to get the pdf directly inside the browser
-    if (isPDF)
-    {
-        QMessageBox messageBox(mainWindow());
-        messageBox.setText(tr("Download PDF Document: would you prefer to download the PDF file or add it to the current TianBoard document?"));
-
-        messageBox.addButton(tr("Download"), QMessageBox::AcceptRole);
-        QAbstractButton *addButton = messageBox.addButton(tr("Add to Current Document"), QMessageBox::AcceptRole);
-
-        messageBox.exec();
-        if (messageBox.clickedButton() == addButton)
-        {
-            Application::applicationController->showBoard();
-            Application::boardController->downloadURL(reply->request().url());
-            return;
-        }
-        else
-        {
-            isPDF = false;
-        }
-    }
-
-    if (!isPDF && reply->error() == QNetworkReply::NoError)
-    {
-        if(contentType == "application/widget")
-            BrowserWindow::downloadManager()->handleUnsupportedContent(reply,false, Settings::settings()->userGipLibraryDirectory());
-        else
-            BrowserWindow::downloadManager()->handleUnsupportedContent(reply);
-        return;
-    }
-
-    QFile file;
-    file.setFileName(isPDF ? QLatin1String(":/webbrowser/object-wrapper.html") : QLatin1String(":/webbrowser/notfound.html"));
-
-    bool isOpened = file.open(QIODevice::ReadOnly);
-    Q_ASSERT(isOpened);
-    QString html;
-    if (isPDF)
-    {
-        html = QString(QLatin1String(file.readAll()))
-                        .arg(tr("PDF"))
-                        .arg("application/x-ub-pdf")
-                        .arg(reply->url().toString());
-    }
-    else
-    {
-        QString title = tr("Error loading page: %1").arg(reply->url().toString());
-        html = QString(QLatin1String(file.readAll()))
-                        .arg(title)
-                        .arg(reply->errorString())
-                        .arg(reply->url().toString());
-    }
-
-  //  QList<QWebEnginePage*> frames;
-  //  frames.append(page());
-  //  while (!frames.isEmpty())
-  //  {
-		//QWebEnginePage *frame = frames.takeFirst();
-  //      if (frame->url() == reply->url())
-  //      {
-  //          frame->setHtml(html, reply->url());
-  //          return;
-  //      }
-		//QList<QWebEnginePage *> children = frame->childFrames();
-  //      foreach(QWebEnginePage *frame, children)
-  //          frames.append(frame);
-  //  }
-
-  //  if (mLoadingUrl == reply->url())
-  //  {
-  //      //mainFrame()->setHtml(html, reply->url());
-  //  }
-}
-
 
 WebView::WebView(QWidget* parent)
     : WebTrapWebView(parent)
     , mProgress(0)
     , mPage(new WebPage(this))
 {
-    setObjectName("wbBrowserWebView");
 
     setPage(mPage);
 
-    //QWebEngineView::setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
-
-    connect(page(), SIGNAL(statusBarMessage(const QString&)),
-            this, SLOT(setStatusBarText(const QString&)));
+	//QWebEngineView::setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
     connect(this, &QWebEngineView::loadProgress,
             this, &WebView::setProgress);
@@ -199,9 +106,6 @@ WebView::WebView(QWidget* parent)
 
     connect(this, &QWebEngineView::loadStarted,
             this, &WebView::loadStarted);
-
-    connect(page(), SIGNAL(loadingUrl(const QUrl&)),
-            this, SIGNAL(urlChanged(const QUrl &)));
 
     // 所有标签共用默认 profile，所以必须按 page 过滤，否则一次下载会触发每个标签页。
     if (QWebEngineProfile *prof = page()->profile())
@@ -302,11 +206,6 @@ void WebView::load(const QUrl &url)
 }
 
 
-QString WebView::lastStatusBarText() const
-{
-    return mLastStatusBarText;
-}
-
 
 QUrl WebView::url() const
 {
@@ -345,18 +244,33 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-void WebView::setStatusBarText(const QString &string)
-{
-    //qDebug() << "WebView::setStatusBarText" << string;
-
-    mLastStatusBarText = string;
-}
-
 
 void WebView::downloadRequested(QWebEngineDownloadRequest *item)
 {
     if (!item)
         return;
+
+    // Qt5 时代点击 PDF 走 unsupportedContent，在那里问“下载还是并入当前文档”；
+    // Qt6 没有那个回调，PDF 统一变成下载请求，所以这个选择必须在入口补回来，
+    // 否则教师只能把 PDF 存到磁盘，再手动导入。
+    if (item->mimeType().compare(QLatin1String("application/pdf"), Qt::CaseInsensitive) == 0)
+    {
+        QMessageBox messageBox(this);
+        messageBox.setText(tr("Download PDF Document: would you prefer to download the PDF file or add it to the current TianBoard document?"));
+
+        messageBox.addButton(tr("Download"), QMessageBox::AcceptRole);
+        QAbstractButton *addButton = messageBox.addButton(tr("Add to Current Document"), QMessageBox::AcceptRole);
+
+        messageBox.exec();
+
+        if (messageBox.clickedButton() == addButton)
+        {
+            Application::applicationController->showBoard();
+            Application::boardController->downloadURL(item->url());
+            item->cancel();
+            return;
+        }
+    }
 
     // Qt6 的下载条目自带落盘能力，但本项目的下载管理器（含下载对话框 UI）是按
     // QNetworkRequest 重新抓取实现的，这里延用它，并放弃 WebEngine 自己的下载。

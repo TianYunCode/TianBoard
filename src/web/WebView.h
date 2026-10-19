@@ -52,14 +52,6 @@ protected:
     //    return false;
     //}
 
-signals:
-	void loadingUrl(const QUrl &url);
-
-private slots:
-    // Qt6 WebEngine 没有 QWebPage::unsupportedContent，本槽目前没有调用方；
-    // 想在浏览器标签里恢复 PDF/`.widget` 内联处理，需要改接 QWebEngineProfile::downloadRequested。
-    void handleUnsupportedContent(QNetworkReply *reply);
-
 private:
     friend class WebView;
 
@@ -67,7 +59,6 @@ private:
     Qt::KeyboardModifiers mKeyboardModifiers;
     Qt::MouseButtons mPressedButtons;
     bool mOpenInNewTab;
-    QUrl mLoadingUrl;
 };
 
 class WebView : public WebTrapWebView
@@ -81,7 +72,6 @@ public:
     void load(const QUrl &url);
     QUrl url() const;
 
-    QString lastStatusBarText() const;
     inline int progress() const { return mProgress; }
 
 protected:
@@ -95,13 +85,10 @@ private slots:
     void loadFinished(bool ok);
     void loadStarted();
 
-    void setStatusBarText(const QString &string);
-
     void downloadRequested(QWebEngineDownloadRequest *item);
     void openLinkInNewTab();
 
 private:
-    QString mLastStatusBarText;
     QUrl mInitialUrl;
     int mProgress;
     WebPage *mPage;

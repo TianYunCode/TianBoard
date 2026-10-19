@@ -65,9 +65,10 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
 
     initPosition();
 
-    foreach(const ActionPaletteButton* button, buttons())
+    foreach (ActionPaletteButton *button, buttons())
     {
-        connect(button, SIGNAL(doubleClicked()), this, SLOT(stylusToolDoubleClicked()));
+        // 同名重载：这里要的是无参的那个槽
+        connect(button, &ActionPaletteButton::doubleClicked, this, qOverload<>(&StylusPalette::stylusToolDoubleClicked));
     }
 
 }

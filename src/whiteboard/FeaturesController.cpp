@@ -338,7 +338,6 @@ FeaturesController::FeaturesController(QWidget *pParentWidget) :
     connect(&mCThread, &FeaturesComputingThread::maxFilesCountEvaluated, this, &FeaturesController::maxFilesCountEvaluated);
     connect(&mCThread, &FeaturesComputingThread::scanCategory, this, &FeaturesController::scanCategory);
     connect(&mCThread, &FeaturesComputingThread::scanPath, this, &FeaturesController::scanPath);
-    connect(Application::boardController, &BoardController::npapiWidgetCreated, this, &FeaturesController::createNpApiFeature);
 
     QTimer::singleShot(0, this, &FeaturesController::startThread);
 }
@@ -361,15 +360,6 @@ void FeaturesController::startThread()
             <<  QPair<QUrl, Feature>(trashDirectoryPath, trashElement);
 
     mCThread.compute(computingData, favoriteSet);
-}
-
-void FeaturesController::createNpApiFeature(const QString &str)
-{
-    Q_ASSERT(QFileInfo(str).exists() && QFileInfo(str).isDir());
-
-    QString widgetName = QFileInfo(str).fileName();
-
-    featuresModel->addItem(Feature(QString(appPath + "/Web/" + widgetName), QImage(GraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(str))), widgetName, QUrl::fromLocalFile(str), FEATURE_INTERACTIVE));
 }
 
 void FeaturesController::scanFS()

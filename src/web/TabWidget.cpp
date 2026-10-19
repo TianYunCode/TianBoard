@@ -234,20 +234,12 @@ void TabWidget::currentChanged(int index)
 
     WebView *oldWebView = this->webView(mLineEdits->currentIndex());
     if (oldWebView) {
-        disconnect(oldWebView, SIGNAL(statusBarMessage(const QString&)),
-                this, SIGNAL(showStatusBarMessage(const QString&)));
-        disconnect(oldWebView->page(), SIGNAL(linkHovered(const QString&, const QString&, const QString&)),
-                this, SIGNAL(linkHovered(const QString&)));
         disconnect(oldWebView, &QWebEngineView::loadProgress,
                 this, &TabWidget::loadProgress);
         disconnect(oldWebView, &QWebEngineView::loadFinished,
                 this, &TabWidget::loadFinished);
     }
 
-    connect(webView, SIGNAL(statusBarMessage(const QString&)),
-            this, SIGNAL(showStatusBarMessage(const QString&)));
-    connect(webView->page(), SIGNAL(linkHovered(const QString&, const QString&, const QString&)),
-            this, SIGNAL(linkHovered(const QString&)));
     connect(webView, &QWebEngineView::loadProgress,
             this, &TabWidget::loadProgress);
     connect(webView, &QWebEngineView::loadFinished,
@@ -260,7 +252,6 @@ void TabWidget::currentChanged(int index)
     emit setCurrentTitle(webView->title());
     mLineEdits->setCurrentIndex(index);
     emit loadProgress(webView->progress());
-    emit showStatusBarMessage(webView->lastStatusBarText());
     if (webView->url().isEmpty())
         mLineEdits->currentWidget()->setFocus();
     else
@@ -363,14 +354,11 @@ WebView *TabWidget::newTab(bool makeCurrent)
     urlLineEdit->setWebView(webView);
     connect(webView, &QWebEngineView::loadStarted, this, &TabWidget::webViewLoadStarted);
     connect(webView, &QWebEngineView::loadFinished, this, [this] { webViewIconChanged(); });
-    connect(webView, SIGNAL(iconChanged()), this, SLOT(webViewIconChanged()));
+    connect(webView, &QWebEngineView::iconChanged, this, &TabWidget::webViewIconChanged);
     connect(webView, &QWebEngineView::titleChanged, this, &TabWidget::webViewTitleChanged);
     connect(webView, &QWebEngineView::urlChanged, this, &TabWidget::webViewUrlChanged);
     connect(webView->page(), &QWebEnginePage::windowCloseRequested, this, &TabWidget::windowCloseRequested);
     connect(webView->page(), &QWebEnginePage::geometryChangeRequested, this, &TabWidget::geometryChangeRequested);
-    connect(webView->page(), SIGNAL(menuBarVisibilityChangeRequested(bool)), this, SIGNAL(menuBarVisibilityChangeRequested(bool)));
-    connect(webView->page(), SIGNAL(statusBarVisibilityChangeRequested(bool)), this, SIGNAL(statusBarVisibilityChangeRequested(bool)));
-    connect(webView->page(), SIGNAL(toolBarVisibilityChangeRequested(bool)), this, SIGNAL(toolBarVisibilityChangeRequested(bool)));
 
     connect(webView, &WebTrapWebView::pixmapCaptured, Application::applicationController,
             [] (const QPixmap &pixmap, bool pageMode) {
@@ -755,8 +743,7 @@ void WebActionMapper::childChanged()
 void WebActionMapper::updateCurrent(QWebEnginePage *currentParent)
 {
     if (mCurrentParent)
-        disconnect(mCurrentParent, SIGNAL(destroyed(QObject *)),
-                   this, SLOT(currentDestroyed()));
+        disconnect(mCurrentParent, &QObject::destroyed, this, &WebActionMapper::currentDestroyed);
 
     mCurrentParent = currentParent;
     if (!mRootAction)
@@ -770,8 +757,7 @@ void WebActionMapper::updateCurrent(QWebEnginePage *currentParent)
     QAction *source = mCurrentParent->action(mWebAction);
     mRootAction->setChecked(source->isChecked());
     mRootAction->setEnabled(source->isEnabled());
-    connect(mCurrentParent, SIGNAL(destroyed(QObject *)),
-            this, SLOT(currentDestroyed()));
+    connect(mCurrentParent, &QObject::destroyed, this, &WebActionMapper::currentDestroyed);
 }
 
 

@@ -84,15 +84,6 @@ FeaturesActionBar::FeaturesActionBar( FeaturesController *controller, QWidget* p
     d->mButtonGroup->addButton(d->mpCloseBtn);
     d->mButtonGroup->addButton(d->mpRemoveFavoriteBtn);
     d->mButtonGroup->addButton(d->mpNewFolderBtn);
-    // Connect signals & slots
-    /*connect(mpFavoriteAction,SIGNAL(triggered()), this, SLOT(onActionFavorite()));
-    connect(mpSocialAction,SIGNAL(triggered()), this, SLOT(onActionSocial()));
-    connect(mpSearchAction,SIGNAL(triggered()), this, SLOT(onActionSearch()));
-    connect(mpDeleteAction,SIGNAL(triggered()), this, SLOT(onActionTrash()));
-    connect(mpCloseAction, SIGNAL(triggered()), this, SLOT(onActionClose()));
-    connect(mpRemoveFavorite, SIGNAL(triggered()), this, SLOT(onActionRemoveFavorite()));
-    connect(mSearchBar, SIGNAL(textChanged(QString)), this, SLOT(onSearchTextChanged(QString)));
-    connect(mpNewFolderAction, SIGNAL(triggered()), this, SLOT(onActionNewFolder()));*/
 
     connect(d->mpFavoriteAction, &QAction::triggered, this, &FeaturesActionBar::onActionFavorite);
     connect(d->mSearchBar, &QLineEdit::textChanged, this, &FeaturesActionBar::onSearchTextChanged);

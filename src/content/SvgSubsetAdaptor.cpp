@@ -2188,7 +2188,7 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
 
     GraphicsMediaItem* videoItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
     if(videoItem){
-        videoItem->connect(Application::boardController, SIGNAL(activeSceneChanged()), videoItem, SLOT(activeSceneChanged()));
+        QObject::connect(Application::boardController, &BoardController::activeSceneChanged, videoItem, &GraphicsMediaItem::activeSceneChanged);
     }
 
     graphicsItemFromSvg(videoItem);

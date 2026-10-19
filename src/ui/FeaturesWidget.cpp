@@ -172,11 +172,11 @@ FeaturesWidget::FeaturesWidget(QWidget *parent, const char *name)
     connect(DownloadManager::downloadManager(), &DownloadManager::addDownloadedFileToLibrary
              , this, &FeaturesWidget::onAddDownloadedFileToLibrary);
     connect(d->centralWidget, &FeaturesCentralWidget::lockMainWidget, this, &FeaturesWidget::lockIt);
-    connect(d->centralWidget, SIGNAL(createNewFolderSignal(QString)), d->controller, SLOT(addNewFolder(QString)));
-    connect(d->controller, SIGNAL(scanStarted()), d->centralWidget, SLOT(scanStarted()));
-    connect(d->controller, SIGNAL(scanFinished()), d->centralWidget, SLOT(scanFinished()));
-    connect(d->controller, SIGNAL(scanStarted()), d->mActionBar, SLOT(lockIt()));
-    connect(d->controller, SIGNAL(scanFinished()), d->mActionBar, SLOT(unlockIt()));
+    connect(d->centralWidget, &FeaturesCentralWidget::createNewFolderSignal, d->controller, &FeaturesController::addNewFolder);
+    connect(d->controller, &FeaturesController::scanStarted, d->centralWidget, &FeaturesCentralWidget::scanStarted);
+    connect(d->controller, &FeaturesController::scanFinished, d->centralWidget, &FeaturesCentralWidget::scanFinished);
+    connect(d->controller, &FeaturesController::scanStarted, d->mActionBar, &FeaturesActionBar::lockIt);
+    connect(d->controller, &FeaturesController::scanFinished, d->mActionBar, &FeaturesActionBar::unlockIt);
     connect(d->controller, &FeaturesController::maxFilesCountEvaluated, d->centralWidget, &FeaturesCentralWidget::maxFilesCountEvaluated);
     connect(d->controller, &FeaturesController::featureAddedFromThread, d->centralWidget, &FeaturesCentralWidget::increaseStatusBarValue);
     connect(d->controller, &FeaturesController::scanCategory, d->centralWidget, &FeaturesCentralWidget::scanCategory);
@@ -580,7 +580,7 @@ FeaturesNavigatorWidget::FeaturesNavigatorWidget(QWidget *parent, const char *na
     mainLayer->addWidget(d->mListSlider, 0);
     mainLayer->setContentsMargins(0, 0, 0, 0);
 
-    connect(d->mListSlider, SIGNAL(valueChanged(int)), d->mListView, SLOT(thumbnailSizeChanged(int)));
+    connect(d->mListSlider, &QSlider::valueChanged, d->mListView, &FeaturesListView::thumbnailSizeChanged);
 }
 
 FeaturesListView *FeaturesNavigatorWidget::listView()
@@ -634,17 +634,17 @@ FeaturesCentralWidget::FeaturesCentralWidget(QWidget *parent) : QWidget(parent),
 
     connect(dlg, &FeaturesNewFolderDialog::createNewFolder, this, &FeaturesCentralWidget::createNewFolderSlot);
     connect(dlg, &FeaturesNewFolderDialog::closeDialog, this, &FeaturesCentralWidget::hideAdditionalData);
-    connect(this, SIGNAL(sendFileNameList(QStringList)), dlg, SLOT(setFileNameList(QStringList)));
+    connect(this, &FeaturesCentralWidget::sendFileNameList, dlg, &FeaturesNewFolderDialog::setFileNameList);
 
     //Progress bar to show scanning progress
     FeaturesProgressInfo *progressBar = new FeaturesProgressInfo();
     d->mAdditionalDataContainer->addWidget(progressBar);
     d->mAdditionalDataContainer->setCurrentIndex(ProgressBarWidget);
 
-    connect(this, SIGNAL(maxFilesCountEvaluated(int)), progressBar, SLOT(setProgressMax(int)));
-    connect(this, SIGNAL(increaseStatusBarValue()), progressBar, SLOT(increaseProgressValue()));
-    connect(this, SIGNAL(scanCategory(QString)), progressBar, SLOT(setCommmonInfoText(QString)));
-    connect(this, SIGNAL(scanPath(QString)), progressBar, SLOT(setDetailedInfoText(QString)));
+    connect(this, &FeaturesCentralWidget::maxFilesCountEvaluated, progressBar, &FeaturesProgressInfo::setProgressMax);
+    connect(this, &FeaturesCentralWidget::increaseStatusBarValue, progressBar, &FeaturesProgressInfo::increaseProgressValue);
+    connect(this, &FeaturesCentralWidget::scanCategory, progressBar, &FeaturesProgressInfo::setCommonInfoText);
+    connect(this, &FeaturesCentralWidget::scanPath, progressBar, &FeaturesProgressInfo::setDetailedInfoText);
 
     mLayout->addWidget(d->mStackedWidget, 1);
     mLayout->addWidget(d->mAdditionalDataContainer, 0);
@@ -847,7 +847,7 @@ FeaturesProgressInfo::FeaturesProgressInfo(QWidget *parent) :
     mainLayer->addWidget(d->mProgressBar);
 }
 
-void FeaturesProgressInfo::setCommmonInfoText(const QString &str)
+void FeaturesProgressInfo::setCommonInfoText(const QString &str)
 {
     d->mProgressBar->setFormat(tr("Loading ") + str + " (%p%)");
 }

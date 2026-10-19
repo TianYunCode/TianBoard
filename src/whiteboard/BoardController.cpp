@@ -114,8 +114,7 @@ void BoardController::init()
     connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged
             , this, &BoardController::stylusToolChanged);
 
-    connect(Application::app(), SIGNAL(lastWindowClosed())
-            , this, SLOT(lastWindowClosed()));
+    connect(Application::app(), &QApplication::lastWindowClosed, this, &BoardController::lastWindowClosed);
 
     connect(DownloadManager::downloadManager(), &DownloadManager::downloadModalFinished, this, &BoardController::onDownloadModalFinished);
     connect(DownloadManager::downloadManager(), &DownloadManager::addDownloadedFileToBoard, this,
@@ -1241,7 +1240,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
             else
                 mediaVideoItem->setSourceUrl(contentUrl);
             mediaVideoItem->setUuid(uuid);
-            connect(this, SIGNAL(activeSceneChanged()), mediaVideoItem, SLOT(activeSceneChanged()));
+            connect(this, &BoardController::activeSceneChanged, mediaVideoItem, &GraphicsMediaItem::activeSceneChanged);
         }
 
         DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
@@ -1285,7 +1284,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
             else
                 audioMediaItem->setSourceUrl(contentUrl);
             audioMediaItem->setUuid(uuid);
-            connect(this, SIGNAL(activeSceneChanged()), audioMediaItem, SLOT(activeSceneChanged()));
+            connect(this, &BoardController::activeSceneChanged, audioMediaItem, &GraphicsMediaItem::activeSceneChanged);
         }
 
         DrawingController::drawingController()->setStylusTool(StylusTool::Selector);

@@ -1551,14 +1551,20 @@ void GraphicsScene::textUndoCommandAdded(GraphicsTextItem *textItem)
 GraphicsMediaItem* GraphicsScene::addMedia(const QUrl& pMediaFileUrl, bool shouldPlayAsap, const QPointF& pPos)
 {
     qDebug() << pMediaFileUrl.toLocalFile();
-    if (!QFile::exists(pMediaFileUrl.toLocalFile()))
-    if (!QFile::exists(pMediaFileUrl.toString()))
+
+    // 本地路径与 URL 两种写法都试过再放弃（网络地址只后一种有意义）
+    if (!QFile::exists(pMediaFileUrl.toLocalFile()) && !QFile::exists(pMediaFileUrl.toString()))
         return NULL;
 
     GraphicsMediaItem * mediaItem = GraphicsMediaItem::createMediaItem(pMediaFileUrl);
 
-    if(mediaItem)
-        connect(Application::boardController, SIGNAL(activeSceneChanged()), mediaItem, SLOT(activeSceneChanged()));
+    // createMediaItem 对不支持的媒体类型返回空；原来只在 connect 前判空，
+    // 紧接着就无条件 setPos，等于拖一个不支持的文件进来直接崩。
+    if (!mediaItem)
+        return NULL;
+
+    connect(Application::boardController, &BoardController::activeSceneChanged,
+            mediaItem, &GraphicsMediaItem::activeSceneChanged);
 
     mediaItem->setPos(pPos);
 

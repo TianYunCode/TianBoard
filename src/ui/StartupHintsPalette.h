@@ -31,7 +31,6 @@ private:
     std::unique_ptr<Private> d;
 
 private slots:
-    void onShowNextTimeStateChanged(int state);
     void javaScriptWindowObjectCleared();
 };
 

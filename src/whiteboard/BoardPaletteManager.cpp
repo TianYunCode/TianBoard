@@ -188,7 +188,7 @@ void BoardPaletteManager::setupPalettes()
     {
         mKeyboardPalette = new KeyboardPalette(0);
 #ifndef Q_OS_WIN
-        connect(mKeyboardPalette, SIGNAL(closed()), mKeyboardPalette, SLOT(onDeactivated()));
+        connect(mKeyboardPalette, &KeyboardPalette::closed, mKeyboardPalette, &KeyboardPalette::onDeactivated);
 #endif
     }
 
@@ -196,7 +196,7 @@ void BoardPaletteManager::setupPalettes()
 
     // Add the other palettes
     mStylusPalette = new StylusPalette(mContainer, Settings::settings()->appToolBarOrientationVertical->get().toBool() ? Qt::Vertical : Qt::Horizontal);
-    connect(mStylusPalette, SIGNAL(stylusToolDoubleClicked(int)), Application::boardController, SLOT(stylusToolDoubleClicked(int)));
+    connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked), Application::boardController, &BoardController::stylusToolDoubleClicked, Qt::UniqueConnection);
     mStylusPalette->show(); // always show stylus palette at startup
 
     mZoomPalette = new ZoomPalette(mContainer);
@@ -510,7 +510,7 @@ void BoardPaletteManager::activeSceneChanged()
     int pageIndex = Application::boardController->activeSceneIndex();
 
     if (mStylusPalette)
-        connect(mStylusPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool);
+        connect(mStylusPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool, Qt::UniqueConnection);
 
     if (mpPageNavigWidget)
     {
@@ -518,10 +518,10 @@ void BoardPaletteManager::activeSceneChanged()
     }
 
     if (mZoomPalette)
-        connect(mZoomPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool);
+        connect(mZoomPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool, Qt::UniqueConnection);
 
     if (mBackgroundsPalette) {
-        connect(mBackgroundsPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool);
+        connect(mBackgroundsPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool, Qt::UniqueConnection);
         mBackgroundsPalette->refresh();
     }
 }
@@ -934,7 +934,7 @@ void BoardPaletteManager::changeStylusPaletteOrientation(QVariant var)
         mStylusPalette = new StylusPalette(mContainer, Qt::Horizontal);
     }
 
-    connect(mStylusPalette, SIGNAL(stylusToolDoubleClicked(int)), Application::boardController, SLOT(stylusToolDoubleClicked(int)));
+    connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked), Application::boardController, &BoardController::stylusToolDoubleClicked, Qt::UniqueConnection);
     mStylusPalette->setVisible(bVisible); // always show stylus palette at startup
 }
 

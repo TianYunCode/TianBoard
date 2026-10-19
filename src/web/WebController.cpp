@@ -121,8 +121,8 @@ void WebController::setupPalettes()
         Application::boardController->paletteManager()->setCurrentWebToolsPalette(mToolsCurrentPalette);
 #ifndef Q_OS_WIN
         if (PlatformUtils::hasVirtualKeyboard() && Application::boardController->paletteManager()->mKeyboardPalette)
-            connect(Application::boardController->paletteManager()->mKeyboardPalette, SIGNAL(closed()),
-                    Application::boardController->paletteManager()->mKeyboardPalette, SLOT(onDeactivated()));
+            connect(Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::closed,
+                    Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::onDeactivated);
 #endif
 
         connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this, [this] { customCapture(); });

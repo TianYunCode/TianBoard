@@ -104,7 +104,6 @@ const QString svgIWBNS = "http://www.w3.org/2000/svg";
 const QString xlinkNS = "http://www.w3.org/1999/xlink";
 const QString iwbNS = "http://www.imsglobal.org/xsd/iwb_v1p0";
 const QString dcNSPrefix = "dc";
-const QString wbNSPrefix = "wb";
 const QString svgIWBNSPrefix = "svg";
 const QString xlinkNSPrefix = "xlink";
 const QString iwbNsPrefix = "iwb";

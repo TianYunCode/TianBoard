@@ -239,7 +239,6 @@ class BoardController : public DocumentContainer
         void displayMetadata(QMap<QString, QString> metadata);
         void pageSelectionChanged(int index);
         void centerOnThumbnailRequired(int index);
-        void npapiWidgetCreated(const QString &Url);
 
     protected:
         void setupViews();
@@ -291,7 +290,8 @@ class BoardController : public DocumentContainer
 
         QTimer *mAutosaveTimer;
 
-    private slots:
+    public slots:
+        // BoardPaletteManager 连接它
         void stylusToolDoubleClicked(int tool);
         void boardViewResized(QResizeEvent* event);
         void documentWillBeDeleted(DocumentProxy* pProxy);

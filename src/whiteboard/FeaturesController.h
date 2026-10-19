@@ -202,10 +202,12 @@ signals:
     void scanCategory(const QString &);
     void scanPath(const QString &);
 
-private slots:
+public slots:
+    // FeaturesWidget 转发新建文件夹；跨类连接必须公开
     void addNewFolder(QString name);
+
+private slots:
     void startThread();
-    void createNpApiFeature(const QString &str);
 
 private:
     FeaturesItemDelegate *itemDelegate;
