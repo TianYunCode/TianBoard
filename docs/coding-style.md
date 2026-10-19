@@ -120,6 +120,17 @@ struct BlackoutWidget::Private
   否则语言切换功能覆盖不到新界面。
 * 换行混用 CRLF/LF：`.gitattributes` 里 `* -text` 禁止任何自动转换，提交前不要跑
   全局换行符“整理”。`scripts/format.ps1` 只按 `.clang-format` 排空白，不动行尾。
+* 信号槽：**一律用函数指针形式** `connect(a, &A::sig, b, &B::slot)`，禁止
+  `SIGNAL()`/`SLOT()` 字符串。字符串写错签名不会报错，只在运行时静默不连——本仓
+  清掉 613 处时就是这样挖出一批“看着连了其实没连”的旧连接（favicon、麦克风列表、
+  PDF 导入弹窗等）。规则：
+  - 重载信号/槽用 `qOverload<>()` 消歧；
+  - 成员指针形式要求槽的参数不多于信号，靠默认值多出来的那一位必须写 lambda；
+  - 跨类连接的槽放在 `public slots:`（private slots 只是字符串连接时代留下的假象）；
+  - 同一对信号槽重复 connect 会重复触发，需要幂等时显式加 `Qt::UniqueConnection`
+    （lambda 形式无法 disconnect，所以能 disconnect 的连接要用成员指针形式）；
+  - 派生类遮蔽的同名槽必须声明成 `virtual`（见 `GraphicsMediaItem::activeSceneChanged`），
+    否则字符串形式按 metaobject 走派生实现、指针形式绑到基类实现，静默换行为。
 * 日志：`qDebug()/qWarning()/qCritical()`；应用自己会写用户目录下的 log
   （`main.cpp` 的 `messageOutputHandler`），不要用 `std::cout`。
 * 字符串：面向用户的文案一律 `tr()`，原文不许为了编译而过改；`.ts` 文件由

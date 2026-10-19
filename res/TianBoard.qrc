@@ -156,8 +156,6 @@
         <file>images/addItemToLibrary.svg</file>
         <file>style/treeview-branch-closed.png</file>
         <file>style/treeview-branch-open.png</file>
-        <file>webbrowser/notfound.html</file>
-        <file>webbrowser/object-wrapper.html</file>
         <file>images/libpalette/social.png</file>
         <file>images/flags/en.png</file>
         <file>images/libpalette/notFound.png</file>

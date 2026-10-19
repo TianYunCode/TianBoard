@@ -17,7 +17,7 @@
 <context>
     <name>ApplicationController</name>
     <message>
-        <location filename="../../src/core/ApplicationController.cpp" line="293"/>
+        <location filename="../../src/core/ApplicationController.cpp" line="296"/>
         <source>Web</source>
         <translation type="unfinished"></translation>
     </message>
@@ -51,60 +51,60 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="392"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="394"/>
         <source>Saving document...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="398"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="400"/>
         <source>Document has just been saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="733"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="735"/>
         <source>Deleting page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="743"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="745"/>
         <source>Page %1 deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1095"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1097"/>
         <source>Downloading content %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1103"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1105"/>
         <source>Download finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1221"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1266"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2100"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2135"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1223"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1268"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2102"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2137"/>
         <source>Add file operation failed: file copying error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1365"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1367"/>
         <source>Unknown tool type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1420"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1422"/>
         <source>Unknown content type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2477"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2479"/>
         <source>Add Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2479"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2481"/>
         <source>All Supported (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -912,8 +912,8 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="714"/>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="830"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="704"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="820"/>
         <source>ImportedImage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -983,17 +983,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsMediaItem</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="378"/>
+        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="379"/>
         <source>Media resource couldn&apos;t be resolved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="381"/>
+        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="382"/>
         <source>Unsupported media format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="384"/>
+        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="385"/>
         <source>Media error: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2469,7 +2469,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>StartupHintsPalette</name>
     <message>
-        <location filename="../../src/ui/StartupHintsPalette.cpp" line="41"/>
+        <location filename="../../src/ui/StartupHintsPalette.cpp" line="40"/>
         <source>Visible next time</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2515,8 +2515,8 @@ Do you want to ignore these errors for this host?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="356"/>
-        <location filename="../../src/web/TabWidget.cpp" line="379"/>
+        <location filename="../../src/web/TabWidget.cpp" line="347"/>
+        <location filename="../../src/web/TabWidget.cpp" line="370"/>
         <source>(Untitled)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2633,30 +2633,20 @@ Do you want to ignore these errors for this host?</source>
     </message>
 </context>
 <context>
-    <name>WebPage</name>
+    <name>WebView</name>
     <message>
-        <location filename="../../src/web/WebView.cpp" line="109"/>
+        <location filename="../../src/web/WebView.cpp" line="259"/>
         <source>Download PDF Document: would you prefer to download the PDF file or add it to the current TianBoard document?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebView.cpp" line="111"/>
+        <location filename="../../src/web/WebView.cpp" line="261"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebView.cpp" line="112"/>
+        <location filename="../../src/web/WebView.cpp" line="262"/>
         <source>Add to Current Document</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/web/WebView.cpp" line="145"/>
-        <source>PDF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/web/WebView.cpp" line="151"/>
-        <source>Error loading page: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
