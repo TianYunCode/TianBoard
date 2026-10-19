@@ -1,0 +1,131 @@
+﻿#Requires -Version 5.1
+# ======================================================================
+# verify.ps1 — 一条命令做完"改动是否成立"的判断
+#
+#   powershell -ExecutionPolicy Bypass -F scripts\verify.ps1
+#   .\scripts\verify.ps1 -Configuration release      # 换成 Ninja 那条工具链
+#   .\scripts\verify.ps1 -SkipFormat                # 不跑 format 检查
+#
+# 为什么要有这个脚本（都是踩出来的）：
+#  1. MSBuild /m 下某个工程编译失败时其它工程继续跑，主 exe 不重新链接，磁盘上还是
+#     上一次的好产物 —— 这时候 ctest 照样全绿。所以判定必须看两件事：**构建日志里的
+#     error/LNK 计数为 0**，以及**没有任何源文件比 exe 新**（树上没改动时 MSBuild 本来
+#     就不重链接，所以不能拿"exe 离现在几分钟"当判据）。两样缺一不可。
+#  2. 构建命令的退出码很容易被后面一句 shell 吃掉（`...; grep ...; true` 会让后台
+#     任务报"成功"），所以这里每步都显式取 $LASTEXITCODE。
+#  3. 排版门禁（format.ps1 -Check）和构建一起跑，才不会攒出"以后再格式化"的债。
+# ======================================================================
+param(
+    [ValidateSet('debug', 'release')]
+    [string]$Configuration = 'debug',
+    [switch]$SkipFormat,
+    [string]$CMake = 'D:\Qt\Tools\CMake_64\bin\cmake.exe',
+    [string]$QtRoot = 'D:\Qt\6.9.3\msvc2022_64'
+)
+
+$ErrorActionPreference = 'Stop'
+
+$Root = Split-Path -Parent $PSScriptRoot
+Set-Location $Root
+
+function Invoke-Step {
+    param([string]$Name, [scriptblock]$Body)
+    Write-Host "==> $Name" -ForegroundColor Cyan
+    & $Body
+    $code = $LASTEXITCODE
+    if ($code -ne 0) { throw "$Name 失败（exit $code）" }
+}
+
+# 与 Invoke-Step 同，但失败时先把日志里的报错行贴出来：只给一个退出码，还得人去
+# 翻临时文件，而这一步的意义正是"告诉你是哪个文件哪一行挂了"。日志路径取脚本级
+# 的 $Log（写成参数曾经漏传，结果失败时反而在读日志上再报一次错）。
+function Invoke-LoggedStep {
+    param([string]$Name, [scriptblock]$Body)
+    Write-Host "==> $Name" -ForegroundColor Cyan
+    & $Body
+    $code = $LASTEXITCODE
+    if ($code -ne 0) {
+        $bad = @()
+        if ($script:Log -and (Test-Path $script:Log)) {
+            $bad = @(Get-Content $script:Log -ErrorAction SilentlyContinue |
+                Where-Object { $_ -match 'error C[0-9]{4}|error LNK[0-9]{4}|fatal error|CMake Error' })
+        }
+        $bad | Select-Object -First 12 | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
+        if ($bad.Count -eq 0) { Write-Host "  日志里没有明显的 error 行，完整日志见 $script:Log" -ForegroundColor Yellow }
+        throw "$Name 失败（exit $code）"
+    }
+}
+
+# ---- 1. 配置 + 构建 ----
+# Ninja 那条工具链需要 VsDevCmd 环境，交给 build.ps1 自己处理；VS 生成器不需要。
+if ($Configuration -eq 'release') {
+    $BuildDir = Join-Path $Root 'build-release'
+    $Exe = Join-Path $BuildDir 'bin\RelWithDebInfo\TianBoard.exe'
+    $Log = Join-Path $env:TEMP 'tianboard-verify-release.log'
+
+    Invoke-LoggedStep 'configure + build (Ninja, RelWithDebInfo)' {
+        # 边跑边往屏上打，同时留一份日志供失败时摘错误行。
+        & powershell -NoProfile -ExecutionPolicy Bypass -F (Join-Path $PSScriptRoot 'build.ps1') `
+            -Configuration release -NoTests 2>&1 | Tee-Object -FilePath $Log
+    }
+} else {
+    $BuildDir = Join-Path $Root 'build'
+    $Exe = Join-Path $BuildDir 'bin\Debug\TianBoard.exe'
+    $Log = Join-Path $env:TEMP 'tianboard-verify-debug.log'
+
+    Invoke-LoggedStep 'configure (vs2022-debug)' {
+        & $CMake --preset vs2022-debug *> $Log
+    }
+    Invoke-LoggedStep 'build (Debug)' {
+        # 构建默认目标（ALL_BUILD）：只 --target TianBoard 的话测试可执行不会被编，
+        # 全新构建目录下的 ctest 会全报 Not Run。而"链接没发生"由下一步的时间戳判据抓。
+        & $CMake --build $BuildDir --config Debug -- /m /v:m *> $Log
+    }
+}
+
+# ---- 2. 真正的判定：日志干净 + 产物是新的 ----
+$logText = Get-Content $Log -Raw -ErrorAction SilentlyContinue
+$badLines = @()
+if ($logText) {
+    $badLines = @($logText -split "`r?`n" | Where-Object { $_ -match 'error C[0-9]{4}|error LNK[0-9]{4}|fatal error' })
+}
+if ($badLines.Count -gt 0) {
+    $badLines | Select-Object -First 8 | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
+    throw "构建日志里有 $($badLines.Count) 条 error（日志：$Log）"
+}
+if (-not (Test-Path $Exe)) { throw "没有产物：$Exe —— 构建根本没链接出可执行文件" }
+
+# 判"产物是新的"不能看它离现在多久：树上没改动时 MSBuild 本来就不会重新链接。
+# 正确的判据是**没有任何输入的修改时间晚于产物**——那样一旦某个 .cpp 编挂了、
+# 链接没发生，这个判据就会红。
+$exeTime = (Get-Item $Exe).LastWriteTime
+$inputs = @()
+foreach ($dir in @('src', 'tests')) {
+    $inputs += Get-ChildItem -Path (Join-Path $Root $dir) -Recurse -File |
+        Where-Object { $_.Extension -in '.cpp', '.h', '.qrc' -or $_.Name -eq 'CMakeLists.txt' }
+}
+$inputs += Get-Item (Join-Path $Root 'CMakeLists.txt'), (Join-Path $Root 'CMakePresets.json')
+$stale = @($inputs | Where-Object { $_.LastWriteTime -gt $exeTime })
+if ($stale.Count -gt 0) {
+    $stale | Select-Object -First 6 | ForEach-Object { Write-Host "  比产物新: $($_.FullName.Substring($Root.Length + 1))" -ForegroundColor Red }
+    throw "有 $($stale.Count) 个输入文件比 $([IO.Path]::GetFileName($Exe)) 新 —— 构建没把它们编进去，测试结果不可信"
+}
+Write-Host "  OK: 0 error；$([IO.Path]::GetFileName($Exe)) 不比任何输入旧（$($exeTime.ToString('HH:mm:ss'))）" -ForegroundColor Green
+
+# ---- 3. 测试 ----
+# ctest 是 cmake 的同级程序，不能用 cmake.exe 带 --test-dir 去叫它。
+$Ctest = Join-Path (Split-Path -Parent $CMake) 'ctest.exe'
+if (-not (Test-Path $Ctest)) { throw "找不到 ctest：$Ctest" }
+$ctestConfig = if ($Configuration -eq 'release') { 'RelWithDebInfo' } else { 'Debug' }
+Invoke-Step "ctest ($Configuration)" {
+    & $Ctest --test-dir $BuildDir -C $ctestConfig --output-on-failure
+}
+
+# ---- 4. 排版门禁 ----
+if (-not $SkipFormat) {
+    Invoke-Step 'format -Check' {
+        & powershell -NoProfile -ExecutionPolicy Bypass -F (Join-Path $PSScriptRoot 'format.ps1') -Check
+    }
+}
+
+Write-Host "`n全部通过：构建 0 error、产物不比任何输入旧、测试全绿、排版合规。" -ForegroundColor Green
