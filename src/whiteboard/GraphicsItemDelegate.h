@@ -7,7 +7,7 @@
 #include <QGraphicsVideoItem>
 
 #include "utils/Enums.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 class QGraphicsSceneMouseEvent;
 class QGraphicsItem;

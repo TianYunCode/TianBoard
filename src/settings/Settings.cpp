@@ -1,4 +1,4 @@
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include <QtWidgets>
 
@@ -7,9 +7,8 @@
 #include "utils/CryptoUtils.h"
 
 #include "utils/Enums.h"
-#include "core/Setting.h"
+#include "settings/Setting.h"
 
-#include "whiteboard/ToolsManager.h"
 
 
 QPointer<Settings> Settings::sSingleton = 0;
@@ -373,13 +372,10 @@ void Settings::init()
     recordingWindowsMediaBitsPerSecond = new Setting(this, "Recording", "WindowsMediaBitsPerSecond", 1700000);
     recordingQuickTimeQuality = new Setting(this, "Recording", "QuickTimeQuality", "High");
 
-    communityUser = new Setting(this, "Community", "Username", "");
-    communityPsw = new Setting(this, "Community", "Password", "");
-    communityCredentialsPersistence = new Setting(this,"Community", "CredentialsPersistence",false);
 
-    QStringList uris = ToolsManager::manager()->allToolIDs();
-
-    favoritesNativeToolUris = new Setting(this, "App", "FavoriteToolURIs", uris);
+    // 默认值曾经是 ToolsManager 的全部内置工具：构造期去拿工具表会连带建起
+    // 七个带 tr() 的标签，取词时机不对；这里留空，由唯一的读方自己兜默认。
+    favoritesNativeToolUris = new Setting(this, "App", "FavoriteToolURIs", QStringList());
 
     // removed in version 4.4.b.2
     mUserSettings->remove("Recording/RecordMicrophone");
@@ -412,8 +408,6 @@ void Settings::init()
     emptyTrashForOlderDocuments = new Setting(this, "Document", "emptyTrashForOlderDocuments", false);
     emptyTrashDaysValue = new Setting(this, "Document", "emptyTrashDaysValue", 30);
 
-    cleanNonPersistentSettings();
-    checkNewSettings();
 }
 
 
@@ -1261,31 +1255,6 @@ void Settings::setProxyPassword(const QString& password)
 
 }
 
-QString Settings::communityUsername()
-{
-    return communityUser->get().toString();
-}
-
-void Settings::setCommunityUsername(const QString &username)
-{
-    communityUser->set(QVariant(username));
-}
-
-QString Settings::communityPassword()
-{
-    return communityPsw->get().toString();
-}
-
-void Settings::setCommunityPassword(const QString &password)
-{
-    communityPsw->set(QVariant(password));
-}
-
-void Settings::setCommunityPersistence(const bool persistence)
-{
-    communityCredentialsPersistence->set(QVariant(persistence));
-}
-
 int Settings::libraryIconSize(){
     return libIconSize->get().toInt();
 }
@@ -1327,15 +1296,6 @@ QString Settings::replaceWildcard(QString& path)
 void Settings::closing()
 {
     save();
-    cleanNonPersistentSettings();
-}
-
-void Settings::cleanNonPersistentSettings()
-{
-    if(!communityCredentialsPersistence->get().toBool()){
-        communityPsw->set(QVariant(""));
-        communityUser->set(QVariant(""));
-    }
 
 }
 
@@ -1365,9 +1325,8 @@ void Settings::checkNewSettings()
      * Thus this method can be removed when it is no longer deemed useful.
      */
 
-    // OB 1.3 introduced an extra pen color;  for simplicity, if the old settings
-    // are still present (i.e only 4 selected pen colors), we just reset all color settings.
-    // Having too few colors actually causes TianBoard to crash, hence these measures.
+    // 调色板从 4 色扩到 5 色之后写的老配置只有 4 个选中项，读回来会让画笔取到越界的
+    // 下标直接崩；与其做增量迁移，不如整组颜色重置成 init() 里的默认值。
 
     QList<ColorListSetting*> colorSettings;
     colorSettings << boardPenDarkBackgroundSelectedColors

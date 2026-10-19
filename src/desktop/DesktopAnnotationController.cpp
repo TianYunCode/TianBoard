@@ -7,7 +7,7 @@
 #include "core/Application.h"
 #include "core/ApplicationController.h"
 #include "core/DisplayManager.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "web/WebController.h"
 

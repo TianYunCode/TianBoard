@@ -6,8 +6,8 @@
 
 #include "utils/FileSystemUtils.h"
 
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/Application.h"
 
 #include "ui/MainWindow.h"

@@ -1,5 +1,5 @@
 #include "ui/LeftPalette.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 
 struct LeftPalette::Private

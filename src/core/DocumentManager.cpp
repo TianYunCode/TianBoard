@@ -22,7 +22,7 @@
 #include "whiteboard/BoardController.h"
 
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/PersistenceManager.h"
 
 #include "content/ExportWeb.h"

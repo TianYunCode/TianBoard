@@ -7,7 +7,7 @@
 #include "ui/StartupHintsPalette.h"
 
 #include "utils/Globals.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 struct StartupHintsPalette::Private
 {

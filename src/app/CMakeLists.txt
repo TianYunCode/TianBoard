@@ -31,6 +31,7 @@ target_link_libraries(TianBoard PRIVATE
     tb_api
     tb_utils
     tb_platform
+    tb_settings
     tb_model
     tb_content
     tb_whiteboard

@@ -11,7 +11,7 @@
 
 #include "whiteboard/BoardController.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/Application.h"
 
 #include "model/DocumentProxy.h"

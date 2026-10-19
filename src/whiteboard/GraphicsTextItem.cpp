@@ -9,7 +9,7 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 #include "whiteboard/DrawingController.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 QColor GraphicsTextItem::lastUsedTextColor = QColor(Qt::black);
 

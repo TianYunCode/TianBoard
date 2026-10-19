@@ -5,7 +5,7 @@
 #include <QtNetwork>
 
 #include "utils/Enums.h"
-#include "core/Setting.h"
+#include "settings/Setting.h"
 
 class Settings : public QObject
 {
@@ -18,7 +18,6 @@ class Settings : public QObject
     private:
         Settings(QObject *parent = 0);
         virtual ~Settings();
-        void cleanNonPersistentSettings();
 
     public:
         QStringList* supportedKeyboardSizes;
@@ -81,12 +80,6 @@ class Settings : public QObject
         QString proxyPassword();
         void setProxyPassword(const QString& password);
 
-        QString communityUsername();
-        void setCommunityUsername(const QString& username);
-        QString communityPassword();
-        void setCommunityPassword(const QString& password);
-        bool getCommunityDataPersistence(){return communityCredentialsPersistence->get().toBool();}
-        void setCommunityPersistence(const bool persistence);
 
         int libraryIconSize();
         void setLibraryIconsize(const int& size);
@@ -344,9 +337,6 @@ class Settings : public QObject
         Setting* leftLibPaletteDesktopModeWidth;
         Setting* leftLibPaletteDesktopModeIsCollapsed;
 
-        Setting* communityUser;
-        Setting* communityPsw;
-        Setting* communityCredentialsPersistence;
 
         Setting* pageSize;
 

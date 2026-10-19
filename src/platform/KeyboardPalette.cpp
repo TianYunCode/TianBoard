@@ -3,7 +3,7 @@
 #include <QSize>
 
 #include "platform/KeyboardPalette.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "core/Application.h"
 #include "ui/MainWindow.h"

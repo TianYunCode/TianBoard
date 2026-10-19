@@ -10,8 +10,8 @@
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/PersistenceManager.h"
 #include "core/ApplicationController.h"
 #include "core/DocumentManager.h"
@@ -59,7 +59,7 @@
 
 #include "whiteboard/BoardPaletteManager.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 
 BoardController::BoardController(MainWindow* mainWindow)

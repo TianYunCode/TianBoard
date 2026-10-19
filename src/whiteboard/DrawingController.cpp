@@ -1,6 +1,6 @@
 #include "whiteboard/DrawingController.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/Application.h"
 
 #include "whiteboard/GraphicsScene.h"

@@ -9,7 +9,7 @@
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/CoreGraphicsScene.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "whiteboard/Item.h"
 #include "ui/ThumbnailView.h"
 #include "model/DocumentProxy.h"

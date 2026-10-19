@@ -7,7 +7,7 @@
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/FeaturesController.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "whiteboard/ToolsManager.h"
 #include "utils/FileSystemUtils.h"
 #include "platform/PlatformUtils.h"

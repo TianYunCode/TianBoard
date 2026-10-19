@@ -25,7 +25,7 @@ class IwbSubsetAdaptor
 {
 public:
     IwbSubsetAdaptor();
-    static bool ConvertIwbFileToWbz(QString &iwbSourceFile, DocumentProxy* pDocument);
+    static bool convertIwbFileToDocumentPackage(QString &iwbSourceFile, DocumentProxy* pDocument);
 
 private:
     class IwbSubsetReader

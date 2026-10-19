@@ -1,6 +1,6 @@
 #include "ui/FavoriteToolPalette.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsWidgetItem.h"
@@ -27,7 +27,11 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
 
     QList<QAction*> toolsActions;
 
+    // 内置工具的全集以前是这条设置的默认值；Settings 不再认识 ToolsManager，
+    // 没设置过就按“全部内置工具”兜底（这条设置从来没有写方，行为不变）。
     QStringList favoritesToolUris = Settings::settings()->favoritesNativeToolUris->get().toStringList();
+    if (favoritesToolUris.isEmpty())
+        favoritesToolUris = ToolsManager::manager()->allToolIDs();
 
     foreach(QString uri, favoritesToolUris)
     {

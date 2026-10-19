@@ -5,7 +5,7 @@
 #include <QStyleOption>
 
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "whiteboard/DrawingController.h"
 

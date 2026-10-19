@@ -7,7 +7,7 @@
 #include "whiteboard/GraphicsItemZLevelUndoCommand.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
 #include "whiteboard/BoardController.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/Application.h"
 #include "ui/Resources.h"
 #include "ui/MainWindow.h"

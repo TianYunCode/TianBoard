@@ -10,10 +10,10 @@
 #include "utils/GeometryUtils.h"
 #include "platform/PlatformUtils.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/MimeData.h"
 #include "core/Application.h"
-#include "core/Setting.h"
+#include "settings/Setting.h"
 #include "core/PersistenceManager.h"
 #include "utils/Enums.h"
 

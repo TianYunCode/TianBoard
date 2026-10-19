@@ -1,8 +1,8 @@
-#include "core/Setting.h"
+#include "settings/Setting.h"
 
 #include <QtWidgets>
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 
 Setting::Setting(Settings* parent) :

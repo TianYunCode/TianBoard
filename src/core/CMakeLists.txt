@@ -1,13 +1,12 @@
 # ======================================================================
 # core — 应用与各类服务/控制器：Application（QApplication 子类，单实例）、
-#        ApplicationController（启动与模式切换）、Settings/Setting（配置）、
-#        DisplayManager/VirtualDesktop（多屏）、LanguageManager（取词）、
-#        PersistenceManager（.tbz 落盘）、DocumentManager（文档库）、
-#        SceneCache（场景缓存）、样式与资源（Resources 在 ui/，此处是控制器）、
-#        DownloadManager、NetworkAccessManager/HttpGet/AutoSaver
+#        ApplicationController（启动与模式切换）、DisplayManager/VirtualDesktop
+#        （多屏）、LanguageManager（取词）、PersistenceManager（.tbz 落盘）、
+#        DocumentManager（文档库）、NetworkAccessManager/HttpGet/AutoSaver
 #        （原 network/；ProxyDialog 归 ui/）、MimeData、TextTools、IdleTimer、
 #        ForeignObjectsHandler。
-#        Enums.h 与 resource.h 不在这里：前者是纯定义（utils/），后者归可执行目标（app/）。
+#        配置层 Settings/Setting 已经抽到 src/settings/；Enums.h 与 resource.h
+#        也不在这里：前者是纯定义（utils/），后者归可执行目标（app/）。
 #
 # 允许依赖：几乎所有模块 —— 服务层本来就是装配点。拆环时要先把它对 ui/
 # whiteboard 的具体类依赖换成接口（见 docs/architecture.md 的债表）。
@@ -44,10 +43,6 @@ add_library(tb_core OBJECT
     PreferencesController.h
     SceneCache.cpp
     SceneCache.h
-    Setting.cpp
-    Setting.h
-    Settings.cpp
-    Settings.h
     TextTools.cpp
     TextTools.h
     VirtualDesktop.cpp

@@ -2,8 +2,8 @@
 
 #include "ui/ScreenMirror.h"
 
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
 

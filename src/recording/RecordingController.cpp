@@ -6,8 +6,8 @@
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/DisplayManager.h"
 
 #include "whiteboard/BoardController.h"

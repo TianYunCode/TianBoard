@@ -6,7 +6,7 @@
 
 #include "platform/PlatformUtils.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/Application.h"
 #include "core/PreferencesController.h"
 #include "core/DownloadManager.h"

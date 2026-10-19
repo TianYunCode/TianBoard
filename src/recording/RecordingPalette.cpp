@@ -6,7 +6,7 @@
 
 #include "ui/Resources.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "ui/MainWindow.h"
 

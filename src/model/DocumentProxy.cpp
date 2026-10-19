@@ -5,7 +5,7 @@
 
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/DocumentManager.h"
 
 #include "content/MetadataDcSubsetAdaptor.h"

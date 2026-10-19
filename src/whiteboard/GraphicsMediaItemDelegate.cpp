@@ -8,7 +8,7 @@
 
 #include "whiteboard/GraphicsScene.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/Application.h"
 #include "core/ApplicationController.h"
 #include "core/DisplayManager.h"

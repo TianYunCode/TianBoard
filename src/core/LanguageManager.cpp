@@ -7,7 +7,7 @@
 #include <QSettings>
 #include <QTranslator>
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "platform/PlatformUtils.h"
 
 

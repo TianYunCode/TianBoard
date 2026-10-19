@@ -5,7 +5,7 @@
 #include "utils/FileSystemUtils.h"
 
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 
 void messageOutputHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {

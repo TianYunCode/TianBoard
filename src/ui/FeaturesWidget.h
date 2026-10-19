@@ -24,7 +24,7 @@
 #include <memory>
 
 #include "ui/DockPaletteWidget.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "whiteboard/FeaturesController.h"
 #include "api/WebWidgetBoardAPI.h"
 #include "ui/FeaturesActionBar.h"

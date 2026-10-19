@@ -4,8 +4,8 @@
 
 #include "core/PersistenceManager.h"
 #include "core/Application.h"
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 
 #include "model/DocumentProxy.h"
 

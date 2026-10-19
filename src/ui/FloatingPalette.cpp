@@ -5,7 +5,7 @@
 
 #include "platform/PlatformUtils.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 
 struct FloatingPalette::Private

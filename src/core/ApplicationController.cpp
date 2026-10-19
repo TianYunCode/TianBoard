@@ -7,8 +7,8 @@
 
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/DocumentManager.h"
 #include "core/DisplayManager.h"
 

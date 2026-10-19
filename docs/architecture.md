@@ -13,7 +13,8 @@
 ```text
 src/
   ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配
-  ├─ core/         应用与各类服务/控制器（Application、ApplicationController、Settings、
+  ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
+  ├─ core/         应用与各类服务/控制器（Application、ApplicationController、
   │                DisplayManager/VirtualDesktop、LanguageManager、PersistenceManager、
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager…）
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentController、
@@ -31,7 +32,7 @@ src/
   ├─ platform/     平台相关实现：PlatformUtils*、WindowCapture*、CustomCaptureWindow*、
   │                KeyboardPalette*
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、
-                   Globals、CoreGraphicsScene、CryptoUtils、Enums.h
+                   Globals、CryptoUtils、Enums.h（唯一的 STATIC 模块，出边为零）
 third/             内联第三方：quazip+zlib、openssl 静态库、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/             Qt Test 用例（7 个）
@@ -51,7 +52,14 @@ docs/              本文与编码规范、疑点台账
 | `tools/` | `whiteboard/` | 尺规、量角器、窗帘都是画板工具，与 domain/ 的图形项同属画板热路径 |
 
 `core/WB.h` → `utils/Enums.h`（纯全局枚举与 typedef，和 Globals.h 同类）；
-`core/resource.h` → `app/`（只被 TianBoard.rc 用）。
+`core/resource.h` → `app/`（只被 TianBoard.rc 用）；
+`utils/CoreGraphicsScene.*` → `whiteboard/`（它是 `GraphicsScene` 的基类，本属画板）。
+
+`core/Settings.h`、`core/Setting.h` → `settings/`（2026-10 的第二次拆分）。原来每个模块
+为了读一个开关都要 include `core/Settings.h`，而 core 是装配点，这一发 include 顺带把
+`core/Application.h` 的整棵依赖拖进调用方。拆出来之后 settings 的出边只有
+`platform/PlatformUtils.h`（拿资源目录）和 utils 的三个纯工具头，13 个模块里有 11 个
+都可以只依赖它而不碰 core（不依赖它的只有 utils 和 settings 本身）。
 
 ## 二、运行结构
 
@@ -82,7 +90,7 @@ TianBoard.exe
   只给 `${CMAKE_SOURCE_DIR}/src`；`CMAKE_INCLUDE_CURRENT_DIR` 显式关闭，所以裸写
   直接编译失败，规矩由编译器兜住而不是靠人自觉。唯一的额外一条：`tb_sdk` 的接口上带
   仓库根，因为 `core/Application.h` 引用 `"third/singleapp/qtsingleapplication.h"`，而
-  `Application.h` 被 core 之外的全部 11 个模块直接 include；内联第三方按它原本的仓库根
+  `Application.h` 被 core 之外的 10 个模块直接 include；内联第三方按它原本的仓库根
   相对路径引用，
   `third/` 不动（见根 `CMakeLists.txt` 里的注释），`src/` 的前缀规矩不受影响——仓库根下
   已经没有模块目录了。
@@ -104,13 +112,17 @@ TianBoard.exe
   PATH 上，`scripts/build.ps1` 内部就是先 `call VsDevCmd.bat` 再 `cmake --preset`）。
   产物按生成器各归各的二进制目录：`build/bin/<配置>/` 与 `build-debug/bin/Debug/`。
 
-## 四、为什么现在是 OBJECT 库而不是 STATIC 库
+## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
-目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步做不到**：代码里
-存在 23 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
+代码里存在 22 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
+
+已经做到的一个：`tb_utils` 是真 `STATIC`。它出边为零，链进去的 .obj 只会被引用它的
+模块用到，跨模块的 `#include` 一旦越界就在编译期失败，而不是等到链接期靠符号缺失才发现。
+这个配方对其它模块同样成立。
 
 换成 STATIC 的前置条件：该模块的出边全部落在比它低的层（下表），且没有对上的
 include。
@@ -122,21 +134,19 @@ include。
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 34 / 86 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Settings/Application |
-| `core` ↔ `ui` | 11 / 57 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application/Settings |
-| `content` ↔ `core` | 56 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `core` ↔ `whiteboard` | 33 / 66 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 11 / 41 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
+| `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `content` ↔ `whiteboard` | 50 / 3 | `whiteboard/GraphicsWidgetItem.*` 反向认 content |
-| `ui` ↔ `whiteboard` | 42 / 47 | 调色板与画板互相认 |
-| `core` ↔ `model` | 10 / 17 | `core/DocumentManager` ↔ `model/DocumentController` |
+| `ui` ↔ `whiteboard` | 43 / 47 | 调色板与画板互相认 |
+| `core` ↔ `model` | 11 / 13 | `core/DocumentManager` ↔ `model/DocumentController` |
 | `model` ↔ `ui` | 8 / 11 | `model/DocumentController.cpp` 直接建 ThumbnailView/MainWindow |
 | `model` ↔ `whiteboard` | 6 / 9 | 文档页与图形场景互认 |
 | `model` ↔ `content` | 22 / 5 | `model/DocumentContainer.cpp` 直接调 ThumbnailAdaptor |
-| `core` ↔ `web` | 2 / 24 | `core/Application.cpp` 认 WebController |
-| `core` ↔ `desktop` | 2 / 10 | `core/ApplicationController.cpp` 认 DesktopPalette |
-| `core` ↔ `recording` | 2 / 10 | ApplicationController/PreferencesController 认 RecordingController |
-| `core` ↔ `platform` | 6 / 4 | `platform/KeyboardPalette.cpp` 认 Settings/Application |
-| `core` ↔ `utils` | 11 / 2 | `utils/CryptoUtils.h`、`utils/FileSystemUtils.cpp` 反向认 `core/Application.h` |
-| `utils` ↔ `whiteboard` | 2 / 44 | `utils/CoreGraphicsScene.cpp` 认两个图形项 |
+| `core` ↔ `web` | 2 / 18 | `core/Application.cpp` 认 WebController |
+| `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
+| `core` ↔ `recording` | 2 / 7 | ApplicationController/PreferencesController 认 RecordingController |
+| `core` ↔ `platform` | 5 / 3 | `platform/KeyboardPalette.cpp` 认 Application |
 | `api` ↔ `whiteboard` | 8 / 2 | `whiteboard/GraphicsWidgetItem.cpp` 反向认 api 门面 |
 | `content` ↔ `ui` | 2 / 4 | `content/ExportAdaptor.cpp` 弹 MessagesDialog/MainWindow |
 | `platform` ↔ `ui` | 4 / 6 | `platform/KeyboardPalette.h` 认 `ui/ActionPalette.h` |
@@ -144,53 +154,61 @@ include。
 | `platform` ↔ `desktop` | 5 / 2 | WindowCapture_win 认 DesktopPalette/AnnotationController |
 | `desktop` ↔ `whiteboard` | 9 / 2 | BoardView 反向认 DesktopAnnotationController |
 | `recording` ↔ `whiteboard` | 4 / 2 | BoardController 反向认 RecordingController |
-| `web` ↔ `whiteboard` | 6 / 7 | 互相认控制器与图形项 |
+| `web` ↔ `whiteboard` | 5 / 7 | 互相认控制器与图形项 |
+| `settings` ↔ `platform` | 1 / 1 | `settings/Settings.cpp` 认 `platform/PlatformUtils.h`（资源目录）；`platform/*.cpp` 读设置 |
+
+`utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
+`CoreGraphicsScene.cpp` → 两个图形项）已经在前面两次提交里断掉，utils 现在不在任何环上。
 
 ### 拆环顺序（从叶子往根拆）
 
 按下面这个顺序拆，每一步都能把某个模块的出边降到“只指向更低的层”，然后就该模块
 从 `OBJECT` 改成 `STATIC`。
 
-1. **`utils/`**（被 10 个模块依赖，它一脏全线脏；只有 2 条向上的边）
-   * `utils/CryptoUtils.h`、`utils/FileSystemUtils.cpp` 里 `core/Application.h` 是
-     “顺手拿全局单例要设置/路径”——把需要的值作为参数传进来。
-   * `utils/CoreGraphicsScene.cpp` 认 `whiteboard/GraphicsMediaItem.h`、
-     `GraphicsGroupContainerItem.h`——这个类本来是画板侧的场景基类，长期归属应是
-     `whiteboard/`，搬走即可（搬迁属于行为不变的第二步）。
-2. **`api/`**：断开 `whiteboard/GraphicsWidgetItem.cpp` → api 的反向边（小部件经
+1. ~~**`utils/`**~~（已完成：出边为零，已收紧成 STATIC）
+2. **`settings/`**：只剩一条真边——`Settings.cpp` 要 `PlatformUtils` 的资源目录。
+   把“资源目录在哪”作为参数，或抽一个 `ISettingsHost` 由 app/ 在构造期注入，
+   settings 就只依赖 utils。另一向 `platform → settings`（平台代码读设置）本来就是
+   上指向下，不用动。
+3. **`api/`**：断开 `whiteboard/GraphicsWidgetItem.cpp` → api 的反向边（小部件经
    QObject 消息桥调用画板能力，改为画板侧注册回调/接口，api 只认下层的 whiteboard）。
-3. **`model/`**：断开 `model` → `ui`（DocumentController 直接实例化缩略图视图）与
+4. **`model/`**：断开 `model` → `ui`（DocumentController 直接实例化缩略图视图）与
    `model` → `content`（DocumentContainer 直接调 ThumbnailAdaptor）。两处都要抽接口：
    `IThumbnailProvider`、`IDocumentStore`，由装配层（core/app）注入。
-4. **`platform/`**：`KeyboardPalette` 认 `ui/MainWindow`、`ui/ActionPalette`；
+5. **`platform/`**：`KeyboardPalette` 认 `ui/MainWindow`、`ui/ActionPalette`；
    `WindowCapture_win` 认 `desktop/*` 与 `whiteboard/BoardView`。平台层应当只暴露
    “捕获一块画面”“弹一个键盘”，由调用方实现宿主接口。
-5. **`content/`**：主要脏边是 `content/ExportAdaptor.cpp` → `ui/MainWindow`、
+6. **`content/`**：主要脏边是 `content/ExportAdaptor.cpp` → `ui/MainWindow`、
    `ui/MessagesDialog`（导出进度与错误框）。导出器改为回报状态，界面自己决定怎么显示。
-6. **`desktop/` + `recording/` + `web/`**：把 `BoardView`/`BoardController` 对这三者的
+7. **`desktop/` + `recording/` + `web/`**：把 `BoardView`/`BoardController` 对这三者的
    直接调用换成控制器之间的事件转发（白板只发“进入桌面批注”“开始录制”这类请求）。
-7. **`ui/` ↔ `whiteboard/`（最大的一组，42/47）**：拆成“画板拥有视图，调色板经
+8. **`ui/` ↔ `whiteboard/`（最大的一组，43/47）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
-8. **`core/`**（最后）：core 是装配点，`core` → `ui`/`whiteboard` 的边要换成接口 +
+9. **`core/`**（最后）：core 是装配点，`core` → `ui`/`whiteboard` 的边要换成接口 +
    构造期注入，或者把 `ApplicationController` 上提到 `app/`，让 core 退化成纯服务集合。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
 ## 六、模块依赖边全表（现状态，供拆环时核对）
 
-出边（本模块 include 别的模块）：
+出边（本模块 include 别的模块；`x → y : n` 表示 x 里有 n 处 `#include "y/…"`，
+由 `src/` 全量扫描得到）：
 
 ```text
-api         -> content, core, model, utils, web, whiteboard
-app         -> core, platform, utils
-content     -> core, model, platform, ui, utils, whiteboard
-core        -> content, desktop, model, platform, recording, ui, utils, web, whiteboard
-desktop     -> core, platform, ui, web, whiteboard
-model       -> content, core, platform, ui, utils, whiteboard
-platform    -> core, desktop, ui, utils, whiteboard
-recording   -> core, platform, ui, utils, web, whiteboard
-ui          -> api, content, core, model, platform, utils, whiteboard
-utils       -> core, whiteboard
-web         -> core, platform, ui, utils, whiteboard
-whiteboard  -> api, content, core, desktop, model, platform, recording, ui, utils, web
+api         -> content:1, core:6, model:1, settings:1, utils:2, web:1, whiteboard:8
+app         -> core:1, platform:1, settings:1, utils:1
+content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:50
+core        -> content:15, desktop:2, model:11, platform:5, recording:2, settings:15,
+               ui:11, utils:7, web:2, whiteboard:33
+desktop     -> core:7, platform:5, settings:3, ui:10, web:1, whiteboard:9
+model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:4, whiteboard:6
+platform    -> core:3, desktop:2, settings:1, ui:4, utils:1, whiteboard:1
+recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
+settings    -> platform:1, utils:4
+ui          -> api:4, content:4, core:41, model:11, platform:6, settings:16, utils:9,
+               whiteboard:43
+utils       -> （无出边）
+web         -> core:18, platform:3, settings:5, ui:4, utils:2, whiteboard:5
+whiteboard  -> api:2, content:3, core:66, desktop:2, model:9, platform:8, recording:2,
+               settings:20, ui:47, utils:42, web:7
 ```

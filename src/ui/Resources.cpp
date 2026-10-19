@@ -3,7 +3,7 @@
 #include <QtWidgets>
 
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "utils/FileSystemUtils.h"
 
 

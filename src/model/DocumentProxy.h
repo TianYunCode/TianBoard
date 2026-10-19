@@ -4,7 +4,7 @@
 
 #include "utils/StringUtils.h"
 
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 class GraphicsScene;
 

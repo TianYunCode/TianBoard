@@ -168,14 +168,16 @@ target_include_directories(tb_sdk INTERFACE ${CMAKE_SOURCE_DIR})
 target_compile_definitions(tb_sdk INTERFACE
     UNICODE _UNICODE WIN32
     _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
+    TIANBOARD_VERSION="${PROJECT_VERSION}"
 )
 
 # ==========================================================================
 # 模块（OBJECT 库）。被依赖的先加，纯为可读性，OBJECT 库之间没有链接顺序要求。
 # ==========================================================================
 add_subdirectory(src/utils)
-add_subdirectory(src/api)
 add_subdirectory(src/platform)
+add_subdirectory(src/settings)
+add_subdirectory(src/api)
 add_subdirectory(src/model)
 add_subdirectory(src/content)
 add_subdirectory(src/whiteboard)

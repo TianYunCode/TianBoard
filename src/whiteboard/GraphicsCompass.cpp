@@ -1,7 +1,7 @@
 #include "whiteboard/GraphicsCompass.h"
 #include "whiteboard/GraphicsScene.h"
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "ui/Resources.h"
 #include "whiteboard/GraphicsScene.h"
 

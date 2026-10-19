@@ -12,8 +12,8 @@
 #include "utils/FileSystemUtils.h"
 
 #include "core/Application.h"
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/ForeignObjectsHandler.h"
 
 #include "model/DocumentProxy.h"

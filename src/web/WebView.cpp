@@ -5,7 +5,7 @@
 #include "core/Application.h"
 #include "core/ApplicationController.h"
 #include "whiteboard/BoardController.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "core/NetworkAccessManager.h"
 

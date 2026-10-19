@@ -2,7 +2,7 @@
 
 #include "core/Application.h"
 #include "core/MimeData.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "whiteboard/BoardController.h"
 

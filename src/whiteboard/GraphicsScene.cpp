@@ -11,7 +11,7 @@
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "core/ApplicationController.h"
 #include "core/DisplayManager.h"
 #include "core/PersistenceManager.h"
