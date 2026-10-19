@@ -36,10 +36,7 @@
 #include "ui/Resources.h"
 #include "ui/ThumbnailWidget.h"
 
-
-#include "utils/CryptoUtils.h"
 #include "whiteboard/ToolsManager.h"
-
 #include "core/DisplayManager.h"
 
 QPointer<QUndoStack> Application::undoStack;
@@ -131,8 +128,6 @@ Application::~Application() {
     DrawingController::destroy();
 
     Settings::destroy();
-
-    CryptoUtils::destroy();
 
     ToolsManager::destroy();
 

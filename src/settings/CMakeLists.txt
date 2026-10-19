@@ -3,7 +3,7 @@
 #            （单条配置的代理，带 changed(QVariant) 信号，界面直接连它）。
 #
 # 从 core/ 抽出来是因为它两边都不该认识：
-#   - 向下只用 utils/（FileSystemUtils、CryptoUtils、Enums）；
+#   - 向下只用 utils/（FileSystemUtils、Enums）；
 #   - 向上被 62 个外部文件 include，是几乎每个模块都要用的服务。
 # 留在 core/ 里，core 就同时是“装配点”和“被所有人依赖的服务”，现存的双向环
 # 有一大半是这么来的。历史上它还在构造期去拉 whiteboard/ToolsManager 要内置工具

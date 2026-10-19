@@ -74,9 +74,6 @@ public:
 
     static bool expandZipToDir(const QFile &pZipFile, const QDir &pTargetDir);
 
-    static QString md5InHex(const QByteArray &pByteArray);
-    static QString md5(const QByteArray &pByteArray);
-
     static QString nextAvailableFileName(const QString &filename, const QString &inter = QString(""));
 
     static QString readTextFile(QString path);

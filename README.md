@@ -18,7 +18,9 @@ ARCHIVE 输出，若把各配置钉死到同一个 `bin/`，Debug 与 Release �
 所以按配置分目录。同目录会铺好 `etc/`、`library/`、`customizations/`、
 `Language/`——程序按可执行文件所在目录解析这些资源，因此必须同级。
 
-QuaZip 与 zlib 源码内联在 `third/quazip/`，由 CMake 静态编译，构建时不需要联网。OpenSSL 用 `third/openssl/` 下的静态库，不需要额外部署 DLL。
+QuaZip 与 zlib 源码内联在 `third/quazip/`，由 CMake 静态编译，构建时不需要联网。工程不依赖
+OpenSSL：原先用的那两处（代理密码的 AES、两个 md5 助手）一个换成 Windows 凭据管理器、一个
+根本没有调用点，`third/openssl/` 已整个删除。
 
 ## 自测
 
@@ -75,7 +77,7 @@ src/recording    录屏：画面与声音采集、录制调色板、Windows Medi
 src/ui           全部界面控件与调色板
 src/platform     平台相关实现：PlatformUtils*、WindowCapture*、KeyboardPalette*
 src/utils        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、Enums.h…
-third/           内联的 quazip/zlib、openssl 静态库与 qtsingleapplication
+third/           内联的 quazip/zlib 与 qtsingleapplication
 res/             images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/           Qt Test 用例（7 个）
 docs/            架构说明、编码规范、疑点台账

@@ -42,18 +42,13 @@ target_link_libraries(TianBoard PRIVATE
     tb_core
 )
 
-# tb_sdk 给 Qt/QuaZip/OpenSSL 头与编译定义；下面这些是只有最终可执行才需要的
-# 链接项（OBJECT 库的 PRIVATE 链接不会自动带过来）。
+# tb_sdk 给 Qt/QuaZip 头与编译定义；下面这些是只有最终可执行才需要的
+# 链接项（OBJECT 库的 PRIVATE 链接不会自动带过来）。advapi32 是凭据管理器
+# （CredRead/CredWrite，见 src/platform/CredentialStore_win.cpp）要的，crypt32 留给
+# 以后要哈希/加解密时再说。
 target_link_libraries(TianBoard PRIVATE
     tb_sdk
     winmm wmvcore ole32 oleaut32 user32 gdi32 advapi32 ws2_32 crypt32 bcrypt
-)
-
-# OpenSSL 1.1.1 静态库（仓库自带，不需要额外部署 DLL）
-set(TIANBOARD_OPENSSL_STATIC_DIR ${CMAKE_SOURCE_DIR}/third/openssl/lib/VC/static)
-target_link_libraries(TianBoard PRIVATE
-    debug     ${TIANBOARD_OPENSSL_STATIC_DIR}/libcrypto64MDd.lib
-    optimized ${TIANBOARD_OPENSSL_STATIC_DIR}/libcrypto64MD.lib
 )
 
 if(TARGET TianBoardTranslations)

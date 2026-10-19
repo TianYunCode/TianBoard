@@ -42,5 +42,5 @@ add_library(tb_web OBJECT
 # 规矩本身写在 docs/coding-style.md。
 target_include_directories(tb_web PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
-# 依赖面：Qt 模块、OpenSSL 头、编译定义都来自 tb_sdk（见根 CMakeLists.txt）
+# 依赖面：Qt 模块与编译定义都来自 tb_sdk（见根 CMakeLists.txt）
 target_link_libraries(tb_web PRIVATE tb_sdk)

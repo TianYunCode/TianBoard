@@ -33,9 +33,9 @@ src/
   ├─ platform/     平台相关实现：PlatformUtils*、WindowCapture*、CustomCaptureWindow*、
   │                KeyboardPalette*
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
-                   applicationResourcesDirectory）、Globals、CryptoUtils、Enums.h
+                   applicationResourcesDirectory）、Globals、Enums.h
                    （出边为零，最底一层）
-third/             内联第三方：quazip+zlib、openssl 静态库、qtsingleapplication
+third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/             Qt Test 用例（7 个）
 packaging/         Inno Setup 脚本与打包脚本
@@ -82,6 +82,12 @@ TianBoard.exe
 运行期目录约定：`FileSystemUtils::applicationResourcesDirectory()` 返回可执行文件所在
 目录，因此 `etc/`、`library/`、`customizations/`、`Language/` 必须与 exe 同级，由
 `src/app/CMakeLists.txt` 的 POST_BUILD 步骤铺好；`tst_smoke` 会显式校验这一点。
+
+代理的用户名/密码不进 INI，走 Windows 凭据管理器（`src/platform/CredentialStore_win.cpp`，
+generic 凭据，target 名 `TianBoard/HttpProxy`）。以前它们是 `Vault/*` 两段密文，密钥和
+salt 写死在源码里——任何拿到二进制的人都能解，等于没加密，还为此在仓库里养了 72MB 的
+OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也没有代码认得的键之外
+的残留（脚本核对过每一条 `Section/Key`）。
 
 ## 三、构建形态
 

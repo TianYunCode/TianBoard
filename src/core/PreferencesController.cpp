@@ -2,6 +2,7 @@
 
 #include <QDate>
 
+#include "platform/CredentialStore.h"
 #include "settings/Settings.h"
 #include "core/Application.h"
 
@@ -1480,8 +1481,9 @@ void PreferencesController::init() {
         settings->swapControlAndDisplayScreens->get().toBool());
     mPreferencesUI->webHomePage->setText(settings->webHomePage->get().toString());
 
-    mPreferencesUI->proxyUsername->setText(settings->proxyUsername());
-    mPreferencesUI->proxyPassword->setText(settings->proxyPassword());
+    const ProxyCredentials proxyCredentials = CredentialStore::proxyCredentials();
+    mPreferencesUI->proxyUsername->setText(proxyCredentials.userName);
+    mPreferencesUI->proxyPassword->setText(proxyCredentials.password);
 
     mPreferencesUI->toolbarAtTopRadioButton->setChecked(settings->appToolBarPositionedAtTop->get().toBool());
     mPreferencesUI->toolbarAtBottomRadioButton->setChecked(
@@ -1519,8 +1521,8 @@ void PreferencesController::close() {
     QString homePage = mPreferencesUI->webHomePage->text();
 
     Settings::settings()->webHomePage->set(homePage);
-    Settings::settings()->setProxyUsername(mPreferencesUI->proxyUsername->text());
-    Settings::settings()->setProxyPassword(mPreferencesUI->proxyPassword->text());
+    CredentialStore::setProxyCredentials(mPreferencesUI->proxyUsername->text(),
+                                         mPreferencesUI->proxyPassword->text());
 
     mPreferencesWindow->accept();
 }

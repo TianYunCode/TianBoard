@@ -8,6 +8,7 @@
 
 #include "core/Application.h"
 #include "core/ApplicationController.h"
+#include "platform/CredentialStore.h"
 #include "settings/Settings.h"
 
 #include "ui/ProxyDialog.h"
@@ -81,8 +82,9 @@ void NetworkAccessManager::authenticationRequired(QNetworkReply *reply, QAuthent
 
     // Pre-fill with the proxy credentials stored by the preferences dialog, the
     // same pair proxyAuthenticationRequired() uses silently.
-    dialog.setUserName(Settings::settings()->proxyUsername());
-    dialog.setPassword(Settings::settings()->proxyPassword());
+    const ProxyCredentials stored = CredentialStore::proxyCredentials();
+    dialog.setUserName(stored.userName);
+    dialog.setPassword(stored.password);
 
     if (dialog.exec() == QDialog::Accepted) {
         if (auth) {
@@ -90,22 +92,19 @@ void NetworkAccessManager::authenticationRequired(QNetworkReply *reply, QAuthent
             auth->setPassword(dialog.password());
         }
 
-        if (dialog.shouldSaveCredentials()) {
-            Settings::settings()->setProxyUsername(dialog.userName());
-            Settings::settings()->setProxyPassword(dialog.password());
-        }
+        if (dialog.shouldSaveCredentials())
+            CredentialStore::setProxyCredentials(dialog.userName(), dialog.password());
     }
 }
 
 void NetworkAccessManager::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *auth) {
     Q_UNUSED(proxy);
 
-    QString username = Settings::settings()->proxyUsername();
-    QString password = Settings::settings()->proxyPassword();
+    const ProxyCredentials stored = CredentialStore::proxyCredentials();
 
-    if (username.length() > 0 || password.length() > 0) {
-        auth->setUser(username);
-        auth->setPassword(password);
+    if (!stored.isEmpty()) {
+        auth->setUser(stored.userName);
+        auth->setPassword(stored.password);
     }
 
     mProxyAuthenticationCount++;

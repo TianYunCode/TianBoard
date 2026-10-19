@@ -1,6 +1,7 @@
 # ======================================================================
 # platform — 平台相关实现（Win32）：PlatformUtils、窗口捕获（WindowCapture*、
-#            CustomCaptureWindow）、屏幕键盘（KeyboardPalette*）。
+#            CustomCaptureWindow）、屏幕键盘（KeyboardPalette*）、凭据管理器
+#            （CredentialStore_win）。
 #
 # 从 utils/ 与 desktop/、ui/ 里挑出来的、只有这几个文件是真按平台分的；
 # KeyboardPalette.h 与 PlatformUtils.h 的对外接口名字保持原样，其余模块
@@ -11,6 +12,8 @@
 # ======================================================================
 
 add_library(tb_platform OBJECT
+    CredentialStore.h
+    CredentialStore_win.cpp
     CustomCaptureWindow.cpp
     CustomCaptureWindow.h
     KeyboardPalette.cpp
@@ -30,5 +33,5 @@ add_library(tb_platform OBJECT
 # 规矩本身写在 docs/coding-style.md。
 target_include_directories(tb_platform PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
-# 依赖面：Qt 模块、OpenSSL 头、编译定义都来自 tb_sdk（见根 CMakeLists.txt）
+# 依赖面：Qt 模块与编译定义都来自 tb_sdk（见根 CMakeLists.txt）
 target_link_libraries(tb_platform PRIVATE tb_sdk)

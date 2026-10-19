@@ -16,7 +16,7 @@
 #   src/ui/           全部界面控件与调色板
 #   src/platform/     平台相关实现：平台工具、窗口捕获、键盘面板
 #   src/utils/        纯工具：字符串/几何/版本/文件/WB.h 全局定义
-#   third/            内联第三方（quazip+zlib、openssl 静态库、qtsingleapplication）
+#   third/            内联第三方（quazip+zlib、qtsingleapplication）
 #   res/ tests/ docs/ packaging/ scripts/
 #
 # 模块一律做成 OBJECT 库（add_library(tb_<module> OBJECT ...)），全部并进
@@ -141,7 +141,7 @@ target_include_directories(tb_singleapp PRIVATE
 target_link_libraries(tb_singleapp PRIVATE tb_sdk)
 
 # ==========================================================================
-# tb_sdk — 全模块共用的外部依赖面（Qt 模块、OpenSSL 头、编译定义）
+# tb_sdk — 全模块共用的外部依赖面（Qt 模块与编译定义）
 #
 # 各模块 target_link_libraries(tb_<module> PRIVATE tb_sdk) 即得；它不带任何
 # TianBoard 自己的头文件路径 —— 那部分留给各模块的 target_include_directories，
@@ -156,9 +156,6 @@ target_link_libraries(tb_sdk INTERFACE
     Qt6::Core5Compat
     QuaZip::QuaZip
 )
-# OpenSSL 1.1.1 的头是 CryptoUtils/FileSystemUtils 的公开依赖，故进接口；
-# 静态库只在最终可执行上链接（见 src/app/CMakeLists.txt）。
-target_include_directories(tb_sdk INTERFACE ${CMAKE_SOURCE_DIR}/third/openssl/include)
 # 这一条只为一个 include 服务：core/Application.h 里
 #   #include "third/singleapp/qtsingleapplication.h"
 # 内联第三方保持仓库根相对引用（third/ 不动，它的引用方式也不动）。

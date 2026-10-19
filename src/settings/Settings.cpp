@@ -3,7 +3,6 @@
 #include <QtWidgets>
 
 #include "utils/FileSystemUtils.h"
-#include "utils/CryptoUtils.h"
 
 #include "utils/Enums.h"
 #include "settings/Setting.h"
@@ -1138,61 +1137,6 @@ QNetworkProxy *Settings::httpProxy() {
     return proxy;
 }
 
-
-void Settings::setPassword(const QString &id, const QString &password) {
-    QString encrypted = CryptoUtils::instance()->symetricEncrypt(password);
-
-    mUserSettings->setValue(QString("Vault/") + id, encrypted);
-}
-
-
-void Settings::removePassword(const QString &id) {
-    mUserSettings->remove(QString("Vault/") + id);
-}
-
-
-QString Settings::password(const QString &id) {
-    QString encrypted = mUserSettings->value(QString("Vault/") + id).toString();
-
-    QString result = "";
-
-    if (encrypted.length() > 0)
-        result = CryptoUtils::instance()->symetricDecrypt(encrypted);
-
-    return result;
-}
-
-
-QString Settings::proxyUsername() {
-    QString idUsername = "http.proxy.user";
-    return password(idUsername);
-}
-
-
-void Settings::setProxyUsername(const QString &username) {
-    QString idUsername = "http.proxy.user";
-
-    if (username.length() > 0)
-        setPassword(idUsername, username);
-    else
-        removePassword(idUsername);
-}
-
-
-QString Settings::proxyPassword() {
-    QString idPassword = "http.proxy.pass";
-    return password(idPassword);
-}
-
-
-void Settings::setProxyPassword(const QString &password) {
-    QString idPassword = "http.proxy.pass";
-
-    if (password.length() > 0)
-        setPassword(idPassword, password);
-    else
-        removePassword(idPassword);
-}
 
 int Settings::libraryIconSize() {
     return libIconSize->get().toInt();
