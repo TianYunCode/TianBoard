@@ -2,7 +2,7 @@
 # 上游：QuaZip 1.5 (LGPL-2.1 with Qt exception) / zlib 1.3.1 (zlib license)
 # 对外暴露 imported-style 别名 QuaZip::QuaZip，公开头文件目录含 quazip/ 与 zlib/。
 
-add_library(wbz_zlib STATIC
+add_library(tb_zlib STATIC
     zlib/adler32.c
     zlib/compress.c
     zlib/crc32.c
@@ -20,11 +20,11 @@ add_library(wbz_zlib STATIC
     zlib/zutil.c
 )
 
-target_include_directories(wbz_zlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
-target_compile_definitions(wbz_zlib PRIVATE _CRT_SECURE_NO_WARNINGS)
-set_target_properties(wbz_zlib PROPERTIES POSITION_INDEPENDENT_CODE OFF)
+target_include_directories(tb_zlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
+target_compile_definitions(tb_zlib PRIVATE _CRT_SECURE_NO_WARNINGS)
+set_target_properties(tb_zlib PROPERTIES POSITION_INDEPENDENT_CODE OFF)
 
-add_library(wbz_quazip STATIC
+add_library(tb_quazip STATIC
     quazip/JlCompress.cpp
     quazip/qioapi.cpp
     quazip/quaadler32.cpp
@@ -41,8 +41,8 @@ add_library(wbz_quazip STATIC
     quazip/zip.c
 )
 
-target_link_libraries(wbz_quazip PUBLIC Qt6::Core Qt6::Core5Compat wbz_zlib)
-target_include_directories(wbz_quazip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/quazip)
-target_compile_definitions(wbz_quazip PUBLIC QUAZIP_STATIC PRIVATE _CRT_SECURE_NO_WARNINGS)
+target_link_libraries(tb_quazip PUBLIC Qt6::Core Qt6::Core5Compat tb_zlib)
+target_include_directories(tb_quazip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/quazip)
+target_compile_definitions(tb_quazip PUBLIC QUAZIP_STATIC PRIVATE _CRT_SECURE_NO_WARNINGS)
 
-add_library(QuaZip::QuaZip ALIAS wbz_quazip)
+add_library(QuaZip::QuaZip ALIAS tb_quazip)

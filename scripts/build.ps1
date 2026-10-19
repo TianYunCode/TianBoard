@@ -7,12 +7,14 @@
 #   .\scripts\build.ps1 -Fresh            # 删掉二进制目录重新配置
 #
 # 与 CMakePresets.json 的对应关系：debug -> build-debug/，release ->
-# build-release/（RelWithDebInfo，带 pdb）。产物一律落 build\bin\TianBoard.exe，
-# etc/ library/ customizations/ Language/ 由 POST_BUILD 铺在 exe 同级 —— 程序按
-# 可执行文件所在目录解析这些资源，测试（tst_smoke）也按这个前提校验。
+# build-release/（RelWithDebInfo，带 pdb）。单配置生成器的产物落
+# build-<配置>\bin\<构建类型>\TianBoard.exe（静态库是 ARCHIVE 输出，各配置必须
+# 分目录，否则互相覆盖），etc/ library/ customizations/ Language/ 由 POST_BUILD
+# 铺在 exe 同级 —— 程序按可执行文件所在目录解析这些资源，测试（tst_smoke）也按
+# 这个前提校验。
 #
 # IDE / 现有工具链不必用本脚本：那一对 VS 预设（vs2022-debug / vs2022-release）
-# 用多配置生成器，中间产物在 build/，产物同样落 build\bin\。
+# 用多配置生成器，中间产物在 build/，产物落 build\bin\<配置>\。
 #
 # cl/cmake/ninja 的路径默认 D:\ 盘安装位置，换机用环境变量覆盖：
 #   TIANBOARD_QT_ROOT / TIANBOARD_CMAKE / TIANBOARD_NINJA / TIANBOARD_VSDEVCMD
@@ -79,6 +81,8 @@ $CommandFile = Join-Path $BuildDir 'build.cmd'
 @echo off
 call "$VsDevCmd" -arch=x64 -host_arch=x64
 if errorlevel 1 exit /b %errorlevel%
+cd /d "$Root"
+if errorlevel 1 exit /b %errorlevel%
 "$CMake" --preset $Configuration
 if errorlevel 1 exit /b %errorlevel%
 "$CMake" --build "$BuildDir"
@@ -89,15 +93,20 @@ exit /b %errorlevel%
 if ($LASTEXITCODE -ne 0) { throw "Build failed with exit code $LASTEXITCODE" }
 
 # ---- 校验产物布局：exe 与四个运行期目录同级 ----
-$BinDir = Join-Path $Root 'build\bin'
+# 单配置生成器也按配置分子目录（与多配置生成器保持同一个形状，见
+# docs/code-suspicions.md 第五节第一条）。
+$BinDir = Join-Path $BuildDir "bin\$BuildType"
 $Exe = Join-Path $BinDir 'TianBoard.exe'
 if (-not (Test-Path $Exe)) { throw "Missing build artifact: $Exe" }
 $missing = @('etc', 'library', 'customizations') | Where-Object { -not (Test-Path (Join-Path $BinDir $_)) }
 if ($missing) { throw "Missing runtime directories next to the exe: $($missing -join ', ') (POST_BUILD 铺的，检查 res/)" }
 
 if (-not $NoTests) {
-    # ctest 从同一个二进制目录跑；-C 只在多配置生成器上有意义，Ninja 是单配置。
-    & $CMake --build "$BuildDir" --target test
+    # 根 CMakeLists 只 enable_testing()，没有 include(CTest)，所以不存在 test 目标；
+    # 直接调 ctest，测试可执行已经随 --build 一起编好了。Ninja 是单配置，不用 -C。
+    $Ctest = Join-Path (Split-Path -Parent $CMake) 'ctest.exe'
+    if (-not (Test-Path $Ctest)) { throw "Missing test tool: $Ctest" }
+    & $Ctest --test-dir "$BuildDir" --output-on-failure
     if ($LASTEXITCODE -ne 0) { throw "ctest failed with exit code $LASTEXITCODE" }
 }
 

@@ -73,7 +73,7 @@ endif()
 # TIANBOARD_EXE 定位，路径只有一处，部署与打包脚本也只需要认这一处。
 # 产物按"每个 binary 目录 + 每个配置"分开放：${CMAKE_BINARY_DIR}/bin/<CONFIG>/。
 # 之前把三种输出统一钉死到源目录下的单个 build/bin 是有 bug 的做法：静态库属于
-# ARCHIVE 输出，多配置生成器（VS）下 Debug 与 Release 的 wbz_quazip.lib 同名互相
+# ARCHIVE 输出，多配置生成器（VS）下 Debug 与 Release 的 tb_quazip.lib 同名互相
 # 覆盖，实测踩过一次 —— Release 构建之后紧接着的 Debug 链接拿到 Release 的 .obj，
 # 报 LNK1319 / LNK2038 RuntimeLibrary 不匹配。而且两个不同的 binary 目录
 # （build-debug/ 与 build-release/，或隔离构建目录）也会共用同一处互相污染。

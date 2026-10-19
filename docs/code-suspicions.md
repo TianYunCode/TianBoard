@@ -113,13 +113,19 @@
 ## 五、构建与仓库层面的坑（记下来免得踩回去）
 
 - **产物目录必须是 `${CMAKE_BINARY_DIR}/bin/<Config>/`，不能钉死到单一 `build/bin/`**。
-  静态库属于 ARCHIVE 输出，多配置生成器下 Debug 与 Release 的 `wbz_quazip.lib` 同名，
+  静态库属于 ARCHIVE 输出，多配置生成器下 Debug 与 Release 的 `tb_quazip.lib` 同名，
   钉死就互相覆盖：实测先构建 Release 再构建 Debug，Debug 会链到 Release 的 `.obj`，
   报 LNK1319 + 一串 LNK2038 RuntimeLibrary/`_ITERATOR_DEBUG_LEVEL` 不匹配。
   另外路径要相对 `CMAKE_BINARY_DIR`，否则两个隔离构建目录共用同一处照样串。
   `tst_smoke` 通过 `TIANBOARD_EXE`（`$<TARGET_FILE:TianBoard>`）拿路径，
   POST_BUILD 铺的 `etc/ library/ customizations/ Language/` 经 `$<TARGET_FILE_DIR>` 走，
   所以分目录不需要改别处。
+- **`cmake --preset` 之前从来没跑成功过**：`CMakePresets.json` 用了 `"comment"`（合法字段是
+  `"description"`）和 buildPresets 里的 `"config"`（合法字段是 `"configuration"`），CMake
+  直接报 `Invalid extra field`。`scripts/build.ps1` 也带着两条过期假设：产物路径写死
+  `build\bin\TianBoard.exe`（实际是 `<二进制目录>\bin\<配置>\`），以及 `--build ... --target test`
+  —— 根 CMakeLists 只有 `enable_testing()` 没有 `include(CTest)`，根本没有 `test` 目标，
+  要直接调 `ctest --test-dir`。**教训：只要没被真正执行过的构建入口，就要当作坏的。**
 - **改了源文件清单必须先重新 configure 再构建**。MSBuild 生成器不会因为清单变化自动重跑
   配置，`AutogenInfo.json` 里留着已删除文件的条目时报错只有一句
   “Info error in info file”，看不出根因。

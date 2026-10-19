@@ -9,7 +9,7 @@
       "architecture": { "value": "x64", "strategy": "set" },
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": { "CMAKE_PREFIX_PATH": "D:/Qt/6.9.3/msvc2022_64" },
-      "comment": "多配置生成器：build/ 下一份 .sln，配置由 --config 决定（Debug / Release / RelWithDebInfo），不用 CMAKE_BUILD_TYPE；产物统一落 build/bin。IDE 与现有工具链走这一对。"
+      "description": "多配置生成器：build/ 下一份 .sln，配置由 --config 决定（Debug / Release / RelWithDebInfo），不用 CMAKE_BUILD_TYPE；产物落 build/bin/<Config>（静态库是 ARCHIVE 输出，各配置必须分目录，否则 Debug 与 Release 互相覆盖）。IDE 与现有工具链走这一对。"
     },
     { "name": "vs2022-debug", "displayName": "Debug (VS2022 x64)", "inherits": "vs-base" },
     { "name": "vs2022-release", "displayName": "Release (VS2022 x64)", "inherits": "vs-base" },
@@ -21,7 +21,7 @@
         "CMAKE_PREFIX_PATH": "D:/Qt/6.9.3/msvc2022_64",
         "CMAKE_MAKE_PROGRAM": "D:/Qt/Tools/Ninja/ninja.exe"
       },
-      "comment": "cl/link 由 VsDevCmd 环境提供：用 scripts/build.ps1，或在 VS 开发者命令行里 cmake --preset。中间产物按配置分目录（build-debug / build-release），产物仍落 build/bin。"
+      "description": "单配置生成器：cl/link 必须由 VsDevCmd 环境提供，所以这两套只能在“Developer Command Prompt for VS 2022”里用，或在脚本里先 call VsDevCmd.bat。中间产物按配置分目录（build-debug / build-release），产物仍落 build/bin/<Config>。"
     },
     {
       "name": "debug",
@@ -39,20 +39,22 @@
     }
   ],
   "buildPresets": [
-    { "name": "vs2022-debug", "displayName": "build Debug (VS)", "configurePreset": "vs2022-debug", "config": "Debug", "jobs": 8 },
-    { "name": "vs2022-release", "displayName": "build Release (VS, 带 pdb)", "configurePreset": "vs2022-release", "config": "Release", "jobs": 8 },
+    { "name": "vs2022-debug", "displayName": "build Debug (VS)", "configurePreset": "vs2022-debug", "configuration": "Debug", "jobs": 8 },
+    { "name": "vs2022-release", "displayName": "build Release (VS, 带 pdb)", "configurePreset": "vs2022-release", "configuration": "Release", "jobs": 8 },
     { "name": "debug", "configurePreset": "debug", "jobs": 8 },
     { "name": "release", "configurePreset": "release", "jobs": 8 }
   ],
   "testPresets": [
     {
       "name": "vs2022-debug",
+      "displayName": "ctest Debug (VS)",
       "configurePreset": "vs2022-debug",
       "configuration": "Debug",
       "output": { "outputOnFailure": true }
     },
     {
       "name": "debug",
+      "displayName": "ctest Debug (Ninja)",
       "configurePreset": "debug",
       "output": { "outputOnFailure": true }
     }

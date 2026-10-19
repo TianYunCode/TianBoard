@@ -91,15 +91,18 @@ TianBoard.exe
   `deploy` 目标、`TIANBOARD_EXE`（tst_smoke 定位应用）与打包脚本全部经
   `$<TARGET_FILE_DIR:TianBoard>` 跟着走。
   为什么不钉死到单一目录：静态库是 ARCHIVE 输出，多配置生成器下 Debug 与 Release 的
-  `wbz_quazip.lib` 同名，钉死就会互相覆盖 —— 实测踩过：先构建 Release 再构建 Debug，
+  `tb_quazip.lib` 同名，钉死就会互相覆盖 —— 实测踩过：先构建 Release 再构建 Debug，
   Debug 链接到 Release 的 `.obj`，报 LNK1319 / LNK2038 RuntimeLibrary 不匹配。
   同理，路径必须相对 `CMAKE_BINARY_DIR` 而不是 `CMAKE_SOURCE_DIR`，否则
   `build-debug/` 与 `build-release/` 两个隔离目录会共用同一处互相污染。
 * 单配置默认 `RelWithDebInfo`；MSVC 的纯 Release 也补 `/Zi` + `/DEBUG`，现场崩溃要能
   对着 pdb 看栈。`/utf-8`（源码里有中文注释）与 `/MP` 全局给。
-* `CMakePresets.json`：`vs2022-debug` / `vs2022-release`（VS 生成器，`build/`，IDE 与
-  现有工具链用这对）+ `debug` / `release`（Ninja，`build-debug` / `build-release`，
-  需要 VsDevCmd 环境，用 `scripts/build.ps1`）。
+* `CMakePresets.json`：`vs2022-debug` / `vs2022-release`（VS 生成器，中间产物 `build/`，
+  IDE 与现有工具链用这对）+ `debug` / `release`（Ninja，中间产物 `build-debug` /
+  `build-release`，需要 VsDevCmd 环境，用 `scripts/build.ps1`）。两对都已实测跑通：
+  VS 那对是日常构建路径，Ninja 那对要在开发者命令提示符里跑（cl/link 不在普通 shell 的
+  PATH 上，`scripts/build.ps1` 内部就是先 `call VsDevCmd.bat` 再 `cmake --preset`）。
+  产物按生成器各归各的二进制目录：`build/bin/<配置>/` 与 `build-debug/bin/Debug/`。
 
 ## 四、为什么现在是 OBJECT 库而不是 STATIC 库
 
