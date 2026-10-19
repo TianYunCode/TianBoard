@@ -3,30 +3,20 @@
 #include <QtWebEngineWidgets>
 #include <QWebEnginePage>
 
-class WebKitUtils
-{
+class WebKitUtils {
+public:
+    WebKitUtils();
+    virtual ~WebKitUtils();
+
+    class HtmlObject {
     public:
-        WebKitUtils();
-        virtual ~WebKitUtils();
+        HtmlObject(const QString &pSource, int pWidth, int pHeight)
+            : source(pSource), width(pWidth), height(pHeight) {}
 
-        class HtmlObject
-        {
-            public:
-                HtmlObject(const QString& pSource, int pWidth, int pHeight)
-                    : source(pSource)
-                    , width(pWidth)
-                    , height(pHeight)
-                {
-         
-                }
+        QString source;
+        int width;
+        int height;
+    };
 
-                QString source;
-                int width;
-                int height;
-
-        };
-
-        static QList<WebKitUtils::HtmlObject> objectsInFrame(QWebEnginePage* frame);
-
+    static QList<WebKitUtils::HtmlObject> objectsInFrame(QWebEnginePage *frame);
 };
-

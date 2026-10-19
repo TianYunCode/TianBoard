@@ -13,20 +13,16 @@
 #include "ui/DockPaletteWidget.h"
 #include "model/DocumentProxy.h"
 
-class PageNavigationWidget : public DockPaletteWidget
-{
+class PageNavigationWidget : public DockPaletteWidget {
     Q_OBJECT
 public:
-    PageNavigationWidget(QWidget* parent=0, const char* name="PageNavigationWidget");
+    PageNavigationWidget(QWidget *parent = 0, const char *name = "PageNavigationWidget");
     ~PageNavigationWidget();
 
-    bool visibleInMode(DockWidgetMode mode)
-    {
-        return mode == DockWidgetMode::Board;
-    }
+    bool visibleInMode(DockWidgetMode mode) { return mode == DockWidgetMode::Board; }
 
 signals:
-    void resizeRequest(QResizeEvent* event);
+    void resizeRequest(QResizeEvent *event);
 
 public slots:
     void setPageNumber(int current, int total);
@@ -40,13 +36,11 @@ private:
     int customMargin();
     int border();
 
-    DocumentNavigator* mNavigator;
-    QVBoxLayout* mLayout;
-    QHBoxLayout* mHLayout;
-    QLabel* mPageNbr;
-    QLabel* mClock;
+    DocumentNavigator *mNavigator;
+    QVBoxLayout *mLayout;
+    QHBoxLayout *mHLayout;
+    QLabel *mPageNbr;
+    QLabel *mClock;
     QString mTimeFormat;
     int mTimerID;
-
 };
-

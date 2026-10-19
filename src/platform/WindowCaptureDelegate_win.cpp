@@ -4,39 +4,29 @@
 
 
 WindowCaptureDelegate::WindowCaptureDelegate(QObject *parent)
-    :QObject(parent)
-        , mIsCapturing(false)
-        , mCancel(false)
-        , mLastPoint(0, 0)
-        , mCurrentWindow(nullptr)
-{
+    : QObject(parent), mIsCapturing(false), mCancel(false), mLastPoint(0, 0), mCurrentWindow(nullptr) {
     // NOOP
 }
 
 
-WindowCaptureDelegate::~WindowCaptureDelegate(void)
-{
+WindowCaptureDelegate::~WindowCaptureDelegate(void) {
     // NOOP
 }
 
 
-const QPixmap WindowCaptureDelegate::getCapturedWindow()
-{
+const QPixmap WindowCaptureDelegate::getCapturedWindow() {
     return mCapturedPixmap;
 }
 
 
-int WindowCaptureDelegate::execute()
-{
+int WindowCaptureDelegate::execute() {
     mIsCapturing = true;
     mCancel = false;
     qApp->installEventFilter(this);
 
-    while (mIsCapturing && !mCancel)
-    {
+    while (mIsCapturing && !mCancel) {
         QPoint curPos = QCursor::pos();
-        if (mLastPoint != curPos)
-        {
+        if (mLastPoint != curPos) {
             processPos(curPos);
             mLastPoint = curPos;
         }
@@ -44,8 +34,7 @@ int WindowCaptureDelegate::execute()
         qApp->processEvents();
     }
 
-    if (!mCancel && mCurrentWindow)
-    {
+    if (!mCancel && mCurrentWindow) {
         BringWindowToTop(mCurrentWindow);
         RedrawWindow(mCurrentWindow, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
         QWaitCondition sleep;
@@ -55,17 +44,14 @@ int WindowCaptureDelegate::execute()
         mutex.unlock();
         mCapturedPixmap = QGuiApplication::primaryScreen()->grabWindow((WId)mCurrentWindow);
         return QDialog::Accepted;
-    }
-    else
-    {
+    } else {
         RedrawWindow(NULL, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
         return QDialog::Rejected;
     }
 }
 
 
-void WindowCaptureDelegate::processPos(QPoint pPoint)
-{
+void WindowCaptureDelegate::processPos(QPoint pPoint) {
     POINT wPoint;
 
     // QCursor::pos() gives Qt logical coordinates while ChildWindowFromPointEx
@@ -78,19 +64,16 @@ void WindowCaptureDelegate::processPos(QPoint pPoint)
     HWND desktop = GetDesktopWindow();
     HWND newWindow = ChildWindowFromPointEx(desktop, wPoint, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT);
 
-    if (mCurrentWindow != newWindow && newWindow != desktop)
-    {
+    if (mCurrentWindow != newWindow && newWindow != desktop) {
         RedrawWindow(NULL, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
         mCurrentWindow = newWindow;
     }
 }
 
 
-void WindowCaptureDelegate::drawSelectionRect()
-{
+void WindowCaptureDelegate::drawSelectionRect() {
     RECT windowRect;
-    if (GetWindowRect(mCurrentWindow, &windowRect))
-    {
+    if (GetWindowRect(mCurrentWindow, &windowRect)) {
         HDC hDC;
         HPEN hOldPen;
         HBRUSH hOldBrush;
@@ -110,20 +93,15 @@ void WindowCaptureDelegate::drawSelectionRect()
 }
 
 
-bool WindowCaptureDelegate::eventFilter(QObject *target, QEvent *event)
-{
+bool WindowCaptureDelegate::eventFilter(QObject *target, QEvent *event) {
     Q_UNUSED(target);
 
     // once the application is deactivated, it means that the user clicked somewhere else and we shall
     // take the capture
-    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::WindowDeactivate)
-    {
+    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::WindowDeactivate) {
         mIsCapturing = false;
-    }
-    else if (event->type() == QEvent::KeyPress)
-    {
+    } else if (event->type() == QEvent::KeyPress) {
         mCancel = true;
     }
     return true;
 }
-

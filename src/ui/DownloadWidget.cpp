@@ -9,13 +9,12 @@
 
 #include "core/Application.h"
 
-struct DownloadWidget::Private
-{
-    QVBoxLayout* mpLayout{nullptr};
-    QHBoxLayout* mpBttnLayout{nullptr};
-    QTreeWidget* mpTree{nullptr};
-    QPushButton* mpCancelBttn{nullptr};
-    QTreeWidgetItem* mpItem{nullptr};
+struct DownloadWidget::Private {
+    QVBoxLayout *mpLayout{nullptr};
+    QHBoxLayout *mpBttnLayout{nullptr};
+    QTreeWidget *mpTree{nullptr};
+    QPushButton *mpCancelBttn{nullptr};
+    QTreeWidgetItem *mpItem{nullptr};
     DownloadProgressDelegate mProgressBarDelegate;
 };
 
@@ -24,9 +23,7 @@ struct DownloadWidget::Private
  * @param parent as the parent widget
  * @param name as the widget object name
  */
-DownloadWidget::DownloadWidget(QWidget *parent, const char *name):QWidget(parent)
-  , d(new Private)
-{
+DownloadWidget::DownloadWidget(QWidget *parent, const char *name) : QWidget(parent), d(new Private) {
     setObjectName(name);
     setWindowTitle(tr("Downloading files"));
     SET_STYLE_SHEET();
@@ -52,9 +49,12 @@ DownloadWidget::DownloadWidget(QWidget *parent, const char *name):QWidget(parent
     d->mpBttnLayout->addWidget(d->mpCancelBttn, 0);
     d->mpLayout->addLayout(d->mpBttnLayout);
 
-    connect(DownloadManager::downloadManager(), &DownloadManager::fileAddedToDownload, this, &DownloadWidget::onFileAddedToDownload);
-    connect(DownloadManager::downloadManager(), &DownloadManager::downloadUpdated, this, &DownloadWidget::onDownloadUpdated);
-    connect(DownloadManager::downloadManager(), qOverload<int>(&DownloadManager::downloadFinished), this, &DownloadWidget::onDownloadFinished);
+    connect(DownloadManager::downloadManager(), &DownloadManager::fileAddedToDownload, this,
+            &DownloadWidget::onFileAddedToDownload);
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadUpdated, this,
+            &DownloadWidget::onDownloadUpdated);
+    connect(DownloadManager::downloadManager(), qOverload<int>(&DownloadManager::downloadFinished), this,
+            &DownloadWidget::onDownloadFinished);
     connect(d->mpCancelBttn, &QPushButton::clicked, this, &DownloadWidget::onCancelClicked);
     connect(d->mpTree, &QTreeWidget::itemClicked, this, &DownloadWidget::onItemClicked);
 }
@@ -62,25 +62,20 @@ DownloadWidget::DownloadWidget(QWidget *parent, const char *name):QWidget(parent
 /**
  * \brief Destructor
  */
-DownloadWidget::~DownloadWidget()
-{
-    if(NULL != d->mpCancelBttn)
-    {
+DownloadWidget::~DownloadWidget() {
+    if (NULL != d->mpCancelBttn) {
         delete d->mpCancelBttn;
         d->mpCancelBttn = NULL;
     }
-    if(NULL != d->mpTree)
-    {
+    if (NULL != d->mpTree) {
         delete d->mpTree;
         d->mpTree = NULL;
     }
-    if(NULL != d->mpBttnLayout)
-    {
+    if (NULL != d->mpBttnLayout) {
         delete d->mpBttnLayout;
         d->mpBttnLayout = NULL;
     }
-    if(NULL != d->mpLayout)
-    {
+    if (NULL != d->mpLayout) {
         delete d->mpLayout;
         d->mpLayout = NULL;
     }
@@ -89,10 +84,8 @@ DownloadWidget::~DownloadWidget()
 /**
  * \brief Refresh the tree of downloaded files
  */
-void DownloadWidget::onFileAddedToDownload()
-{
-    if(NULL != d->mpTree)
-    {
+void DownloadWidget::onFileAddedToDownload() {
+    if (NULL != d->mpTree) {
         d->mpTree->clear();
         addCurrentDownloads();
         addPendingDownloads();
@@ -102,12 +95,10 @@ void DownloadWidget::onFileAddedToDownload()
 /**
  * \brief Add the current downloads
  */
-void DownloadWidget::addCurrentDownloads()
-{
+void DownloadWidget::addCurrentDownloads() {
     QVector<sDownloadFileDesc> actualDL = DownloadManager::downloadManager()->currentDownloads();
     qDebug() << "Actual downloads size: " << actualDL.size();
-    for(int i=0; i<actualDL.size();i++)
-    {
+    for (int i = 0; i < actualDL.size(); i++) {
         d->mpItem = new QTreeWidgetItem(d->mpTree);
         d->mpItem->setText(eItemColumn_Desc, actualDL.at(i).name);
         d->mpItem->setData(eItemColumn_Desc, Qt::UserRole, QVariant(actualDL.at(i).id));
@@ -118,18 +109,16 @@ void DownloadWidget::addCurrentDownloads()
         d->mpItem->setData(eItemColumn_Desc, Qt::UserRole + 1, actualDL.at(i).totalSize);
         d->mpItem->setData(eItemColumn_Desc, Qt::UserRole + 2, actualDL.at(i).id);
         d->mpTree->addTopLevelItem(d->mpItem);
-        d->mpTree->setItemDelegateForRow(((i+1)*2)-1, &d->mProgressBarDelegate);
+        d->mpTree->setItemDelegateForRow(((i + 1) * 2) - 1, &d->mProgressBarDelegate);
     }
 }
 
 /**
  * \brief Add the pending downloads
  */
-void DownloadWidget::addPendingDownloads()
-{
+void DownloadWidget::addPendingDownloads() {
     QVector<sDownloadFileDesc> pendingDL = DownloadManager::downloadManager()->pendingDownloads();
-    for(int i=0; i<pendingDL.size(); i++)
-    {
+    for (int i = 0; i < pendingDL.size(); i++) {
         d->mpItem = new QTreeWidgetItem(d->mpTree);
         d->mpItem->setText(eItemColumn_Desc, pendingDL.at(i).name);
         d->mpItem->setData(eItemColumn_Desc, Qt::UserRole, QVariant(pendingDL.at(i).id));
@@ -143,18 +132,13 @@ void DownloadWidget::addPendingDownloads()
  * @param crnt as the current transfered size
  * @param total as the total size of the file
  */
-void DownloadWidget::onDownloadUpdated(int id, qint64 crnt, qint64 total)
-{
-    if(NULL != d->mpTree)
-    {
-        QAbstractItemModel* model = d->mpTree->model();
-        if(NULL != model)
-        {
-            for(int i=0; i< model->rowCount(); i++)
-            {
+void DownloadWidget::onDownloadUpdated(int id, qint64 crnt, qint64 total) {
+    if (NULL != d->mpTree) {
+        QAbstractItemModel *model = d->mpTree->model();
+        if (NULL != model) {
+            for (int i = 0; i < model->rowCount(); i++) {
                 QModelIndex currentIndex = model->index(i, eItemColumn_Desc);
-                if(id == currentIndex.data(Qt::UserRole + 2))
-                {
+                if (id == currentIndex.data(Qt::UserRole + 2)) {
                     // We found the right item, now we update the progress bar
                     model->setData(currentIndex, crnt, Qt::UserRole);
                     model->setData(currentIndex, total, Qt::UserRole + 1);
@@ -169,8 +153,7 @@ void DownloadWidget::onDownloadUpdated(int id, qint64 crnt, qint64 total)
  * \brief Handles the download finish notification
  * @param id as the downloaded file id
  */
-void DownloadWidget::onDownloadFinished(int id)
-{
+void DownloadWidget::onDownloadFinished(int id) {
     Q_UNUSED(id);
     // Refresh the file's list
     onFileAddedToDownload();
@@ -179,8 +162,7 @@ void DownloadWidget::onDownloadFinished(int id)
 /**
  * \brief Handles the Cancel button action
  */
-void DownloadWidget::onCancelClicked()
-{
+void DownloadWidget::onCancelClicked() {
     DownloadManager::downloadManager()->cancelDownloads();
 }
 
@@ -189,31 +171,26 @@ void DownloadWidget::onCancelClicked()
  * @param pItem as the item clicked
  * @param col as the column containing the item clicked
  */
-void DownloadWidget::onItemClicked(QTreeWidgetItem *pItem, int col)
-{
-    if( eItemColumn_Close == col
-            && "" != pItem->text(eItemColumn_Desc)){
-
+void DownloadWidget::onItemClicked(QTreeWidgetItem *pItem, int col) {
+    if (eItemColumn_Close == col && "" != pItem->text(eItemColumn_Desc)) {
         // Stop the download of the clicked item and remove it from the list
-        DownloadManager::downloadManager()->cancelDownload(pItem->data(eItemColumn_Desc, Qt::UserRole).toInt());
+        DownloadManager::downloadManager()->cancelDownload(
+            pItem->data(eItemColumn_Desc, Qt::UserRole).toInt());
     }
 }
 
 // ---------------------------------------------------------------------------------------------
-DownloadProgressDelegate::DownloadProgressDelegate(QObject *parent):QItemDelegate(parent)
-{
+DownloadProgressDelegate::DownloadProgressDelegate(QObject *parent) : QItemDelegate(parent) {}
 
-}
-
-void DownloadProgressDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
+void DownloadProgressDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                                     const QModelIndex &index) const {
     QStyleOptionProgressBar opt;
     opt.rect = option.rect;
     opt.minimum = 0;
     opt.maximum = index.data(Qt::UserRole + 1).toInt();
     opt.progress = index.data(Qt::UserRole).toInt();
 
-    if(0 == index.column()){
+    if (0 == index.column()) {
         QApplication::style()->drawControl(QStyle::CE_ProgressBar, &opt, painter, 0);
     }
 }

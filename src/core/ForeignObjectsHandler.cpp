@@ -31,8 +31,7 @@ const QString thumbSuff = ".png";
 const QString scanDirs = "audios,images,videos,teacherGuideObjects,widgets";
 const QStringList trashFilter = QStringList() << "*.swf";
 
-static QString strIdFrom(const QString &filePath)
-{
+static QString strIdFrom(const QString &filePath) {
     if ((filePath).isEmpty()) {
         return QString();
     }
@@ -45,8 +44,7 @@ static QString strIdFrom(const QString &filePath)
     return rx.cap();
 }
 
-static bool rm_r(const QString &rmPath)
-{
+static bool rm_r(const QString &rmPath) {
     QFileInfo fi(rmPath);
     if (!fi.exists()) {
         qDebug() << rmPath << "does not exist";
@@ -71,8 +69,7 @@ static bool rm_r(const QString &rmPath)
     return false;
 }
 
-static bool cp_rf(const QString &what, const QString &where)
-{
+static bool cp_rf(const QString &what, const QString &where) {
     QFileInfo whatFi(what);
     QFileInfo whereFi = QFileInfo(where);
 
@@ -80,7 +77,8 @@ static bool cp_rf(const QString &what, const QString &where)
         qDebug() << what << "does not exist" << Q_FUNC_INFO;
         return false;
     } else if (whatFi.isFile()) {
-        QString whereDir = where.section("/", 0, -2, QString::SectionSkipEmpty | QString::SectionIncludeLeadingSep);
+        QString whereDir =
+            where.section("/", 0, -2, QString::SectionSkipEmpty | QString::SectionIncludeLeadingSep);
         QString newFilePath = where;
         if (!whereFi.exists()) {
             QDir().mkpath(whereDir);
@@ -96,7 +94,6 @@ static bool cp_rf(const QString &what, const QString &where)
         }
         return true;
     } else if (whatFi.isDir()) {
-
         if (whereFi.isFile() && whereFi.fileName().toLower() == whatFi.fileName().toLower()) {
             qDebug() << "can't copy dir" << what << "to file" << where << Q_FUNC_INFO;
             return false;
@@ -109,15 +106,14 @@ static bool cp_rf(const QString &what, const QString &where)
         QFileInfoList fList = QDir(what).entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
         foreach (QFileInfo sub, fList) {
             if (!cp_rf(sub.absoluteFilePath(), where + "/" + sub.fileName()))
-            return false;
+                return false;
         }
         return true;
     }
     return true;
 }
 
-static QString thumbFileNameFrom(const QString &filePath)
-{
+static QString thumbFileNameFrom(const QString &filePath) {
     if (filePath.isEmpty()) {
         return QString();
     }
@@ -129,13 +125,11 @@ static QString thumbFileNameFrom(const QString &filePath)
 }
 
 
-QString svgPageName(int pageIndex)
-{
+QString svgPageName(int pageIndex) {
     return QString("page%1.svg").arg(pageIndex, 3, 10, QLatin1Char('0'));
 }
 
-static QDomDocument createDomFromSvg(const QString &svgUrl)
-{
+static QDomDocument createDomFromSvg(const QString &svgUrl) {
     Q_ASSERT(QFile::exists(svgUrl));
     QString mFoldersXmlStorageName = svgUrl;
 
@@ -145,15 +139,15 @@ static QDomDocument createDomFromSvg(const QString &svgUrl)
         if (inFile.open(QIODevice::ReadOnly)) {
             QString domString(inFile.readAll());
 
-            int errorLine = 0; int errorColumn = 0;
+            int errorLine = 0;
+            int errorColumn = 0;
             QString errorStr;
 
             if (xmlDom.setContent(domString, &errorStr, &errorLine, &errorColumn)) {
                 return xmlDom;
             } else {
                 qDebug() << "Error reading content of " << mFoldersXmlStorageName << Qt::endl
-                         << "Error:" << inFile.errorString()
-                         << "Line:" << errorLine
+                         << "Error:" << inFile.errorString() << "Line:" << errorLine
                          << "Column:" << errorColumn;
             }
             inFile.close();
@@ -166,16 +160,15 @@ static QDomDocument createDomFromSvg(const QString &svgUrl)
     return QDomDocument();
 }
 
-class Cleaner
-{
+class Cleaner {
 public:
-    void cure(const QUrl &dir)
-    {
+    void cure(const QUrl &dir) {
         mCurrentDir = dir.toLocalFile();
         cleanTrash();
 
         // Gathering information from svg files
-        QFileInfoList svgInfos = QDir(mCurrentDir).entryInfoList(QStringList() << "*.svg", QDir::NoDotAndDotDot | QDir::Files);
+        QFileInfoList svgInfos =
+            QDir(mCurrentDir).entryInfoList(QStringList() << "*.svg", QDir::NoDotAndDotDot | QDir::Files);
         foreach (QFileInfo svgInfo, svgInfos) {
             cureIdsFromSvgDom(createDomFromSvg(svgInfo.absoluteFilePath()));
         }
@@ -209,25 +202,22 @@ public:
     }
 
 private:
-    void cleanTrash()
-    {
+    void cleanTrash() {
         QFileInfoList ifs = QDir(mCurrentDir).entryInfoList(trashFilter, QDir::NoDotAndDotDot | QDir::Files);
         foreach (QFileInfo ifo, ifs) {
             rm_r(ifo.absoluteFilePath());
         }
     }
 
-    void cureIdsFromSvgDom(const QDomDocument &dom)
-    {
+    void cureIdsFromSvgDom(const QDomDocument &dom) {
         Q_ASSERT(!dom.isNull());
 
         QDomElement nextElement = dom.documentElement().firstChildElement();
         while (!nextElement.isNull()) {
             QString nextTag = nextElement.tagName();
             qDebug() << "Tag name of the next parsed element is" << nextTag;
-            if (nextTag == tGroups)
-            {
-               nextElement = nextElement.firstChildElement("group");
+            if (nextTag == tGroups) {
+                nextElement = nextElement.firstChildElement("group");
             }
 
             invokeFromText(nextTag, nextElement);
@@ -235,8 +225,7 @@ private:
         }
     }
 
-    void fitIdsFromFileSystem()
-    {
+    void fitIdsFromFileSystem() {
         QString absPrefix = mCurrentDir + "/";
         QStringList dirsList = scanDirs.split(",", Qt::SkipEmptyParts);
         foreach (QString dirName, dirsList) {
@@ -246,11 +235,9 @@ private:
             }
             fitIdsFromDir(absPath);
         }
-
     }
 
-    void fitIdsFromDir(const QString &scanDir)
-    {
+    void fitIdsFromDir(const QString &scanDir) {
         QFileInfoList fileList = QDir(scanDir).entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
         foreach (QFileInfo nInfo, fileList) {
             QString uid = strIdFrom(nInfo.fileName());
@@ -261,25 +248,20 @@ private:
         }
     }
 
-    void findRedundandElements(QVector<QString> &v)
-    {
+    void findRedundandElements(QVector<QString> &v) {
         // Taking information from the physical file system
         QStringList domIds = mDomIdsMap.keys();
         QStringList presentIds = mPresentIdsMap.keys();
         v.resize(qMax(domIds.count(), presentIds.count()));
         QVector<QString>::iterator it_diff;
 
-        it_diff=std::set_symmetric_difference(domIds.begin(), domIds.end()
-                                              , presentIds.begin(), presentIds.end()
-                                              , v.begin());
+        it_diff = std::set_symmetric_difference(domIds.begin(), domIds.end(), presentIds.begin(),
+                                                presentIds.end(), v.begin());
         v.resize(it_diff - v.begin());
     }
 
-    void invokeFromText(const QString &what, const QDomElement &element)
-    {
-        if (what == tVideo
-                || what == tAudio
-                || what == tImage) {
+    void invokeFromText(const QString &what, const QDomElement &element) {
+        if (what == tVideo || what == tAudio || what == tImage) {
             mediaToContainer(element);
         } else if (what == tForeignObject) {
             foreingObjectToContainer(element);
@@ -298,8 +280,7 @@ private:
     }
 
     // When exporting, reduce the size of the document package
-    void cleanObjectFolder(const QDomElement &element)
-    {
+    void cleanObjectFolder(const QDomElement &element) {
         //QDomElement preference = element.firstChildElement("tb:preference");
 
         //N/C - NNE - 20141021
@@ -307,17 +288,17 @@ private:
 
         QVector<QString> objectsIdUsed;
 
-        for(int i = 0; i < childrenNode.size(); i++){
+        for (int i = 0; i < childrenNode.size(); i++) {
             QDomElement preference = childrenNode.at(i).toElement();
 
-            if(!preference.isNull()){
+            if (!preference.isNull()) {
                 QString value = preference.attribute("value");
 
                 int findPos = value.indexOf("objects/");
                 int endPos;
 
                 //find all objects used
-                while(findPos != -1){
+                while (findPos != -1) {
                     endPos = value.indexOf("\"", findPos);
                     objectsIdUsed << value.mid(findPos, endPos - findPos);
                     findPos = value.indexOf("objects/", endPos);
@@ -339,17 +320,15 @@ private:
         for (int i = 0; i < list.size(); i++) {
             QFileInfo fileInfo = list.at(i);
 
-            if(!objectsIdUsed.contains("objects/"+fileInfo.fileName())){
+            if (!objectsIdUsed.contains("objects/" + fileInfo.fileName())) {
                 QFile(fileInfo.filePath()).remove();
             }
-
         }
     }
     // N/C - NNE - 20140317 : END
 
     //N/C - NNE - 20140520
-    void addResourceIdToSvg(const QDomElement& element)
-    {
+    void addResourceIdToSvg(const QDomElement &element) {
         QDomElement textContent = element.firstChildElement("itemTextContent");
 
         QString value = textContent.text();
@@ -358,7 +337,7 @@ private:
         int endPos;
 
         //find all objects used
-        while(findPos != -1){
+        while (findPos != -1) {
             endPos = value.indexOf("\"", findPos);
 
             QString path = value.mid(findPos, endPos - findPos);
@@ -372,8 +351,7 @@ private:
     }
     //N/C - NNE - 20140520 : END
 
-    void pullActionFromElement(const QDomElement &element)
-    {
+    void pullActionFromElement(const QDomElement &element) {
         if (!element.hasAttribute(aActionMedia)) {
             return;
         }
@@ -391,11 +369,9 @@ private:
         mDomIdsMap.insert(uid, path);
     }
 
-    void teacherGuideToContainer(const QDomElement &element)
-    {
+    void teacherGuideToContainer(const QDomElement &element) {
         QDomElement nMediaElement = element.firstChildElement(tMedia);
         while (!nMediaElement.isNull()) {
-
             QString path = nMediaElement.attribute(aRelativePath);
             if (path.isNull()) {
                 continue;
@@ -411,8 +387,7 @@ private:
         }
     }
 
-    void mediaToContainer(const QDomElement &element)
-    {
+    void mediaToContainer(const QDomElement &element) {
         QString path = element.attribute(aHref);
         if (path.isNull()) {
             return;
@@ -424,8 +399,7 @@ private:
         mDomIdsMap.insert(uid, path);
     }
 
-    void foreingObjectToContainer(const QDomElement &element)
-    {
+    void foreingObjectToContainer(const QDomElement &element) {
         QString type = element.attribute(aType);
         if (type == vText) { // We don't have to care of the text object
             return;
@@ -451,11 +425,9 @@ private:
     QMap<QString, QString> mPresentIdsMap;
 };
 
-class PageCopier
-{
+class PageCopier {
 public:
-    void copyPage (const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex)
-    {
+    void copyPage(const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex) {
         mFromDir = fromDir.toLocalFile();
         mToDir = toDir.toLocalFile();
         mFromIndex = fromIndex;
@@ -478,12 +450,11 @@ public:
     }
 
 private:
-    void cureIdsFromSvgDom(const QDomDocument &dom)
-    {
+    void cureIdsFromSvgDom(const QDomDocument &dom) {
         Q_ASSERT(!dom.isNull());
 
         QDomElement nextElement = dom.documentElement().firstChildElement();
-        while (!nextElement.isNull( )) {
+        while (!nextElement.isNull()) {
             qDebug() << "Tag name of the next parsed element is" << nextElement.tagName();
             QString nextTag = nextElement.tagName();
             cureFromText(nextTag, nextElement);
@@ -491,11 +462,8 @@ private:
         }
     }
 
-    void cureFromText(const QString &tagName, QDomElement element)
-    {
-        if (tagName == tVideo
-                || tagName == tAudio
-                || tagName == tImage) {
+    void cureFromText(const QString &tagName, QDomElement element) {
+        if (tagName == tVideo || tagName == tAudio || tagName == tImage) {
             QString newRelative = cureNCopy(element.attribute(aHref));
             element.setAttribute(aHref, newRelative);
             if (element.hasAttribute(aActionMedia)) {
@@ -508,7 +476,7 @@ private:
             if (reqExt == vReqExt) { //pdf reference
                 QString ref = element.attribute(aHref);
                 int i = ref.indexOf("#page");
-                QString dest = ref.replace(i, ref.length()-i, "");
+                QString dest = ref.replace(i, ref.length() - i, "");
                 if (!QFileInfo::exists(dest))
                     cureNCopy(dest, false);
                 if (ref.isEmpty()) {
@@ -538,20 +506,16 @@ private:
         }
     }
 
-    QString cureNCopy(const QString &relativePath, bool createNewUuid=true)
-    {
+    QString cureNCopy(const QString &relativePath, bool createNewUuid = true) {
         QString relative = relativePath;
-        if (createNewUuid)
-        {
+        if (createNewUuid) {
             QUuid newUuid = QUuid::createUuid();
             QString newPath = relative.replace(QRegularExpression("\\{.*\\}"), newUuid.toString());
 
             cp_rf(mFromDir + "/" + relativePath, mToDir + "/" + newPath);
 
             return newPath;
-        }
-        else
-        {
+        } else {
             cp_rf(mFromDir + "/" + relativePath, mToDir + "/" + relativePath);
             return relativePath;
         }
@@ -565,22 +529,17 @@ private:
 };
 
 class ForeighnObjectsHandlerPrivate {
-    ForeighnObjectsHandlerPrivate(ForeighnObjectsHandler *pq)
-        : q(pq)
-    {
-    }
+    ForeighnObjectsHandlerPrivate(ForeighnObjectsHandler *pq) : q(pq) {}
 
 public:
-    void cure(const QUrl &dir)
-    {
+    void cure(const QUrl &dir) {
         Cleaner *cleaner = new Cleaner;
         cleaner->cure(dir);
         delete cleaner;
         cleaner = 0;
     }
 
-    void copyPage (const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex)
-    {
+    void copyPage(const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex) {
         PageCopier *copier = new PageCopier;
         copier->copyPage(fromDir, fromIndex, toDir, toIndex);
         delete copier;
@@ -592,31 +551,22 @@ private:
     friend class ForeighnObjectsHandler;
 };
 
-ForeighnObjectsHandler::ForeighnObjectsHandler()
-    : d(new ForeighnObjectsHandlerPrivate(this))
-{
+ForeighnObjectsHandler::ForeighnObjectsHandler() : d(new ForeighnObjectsHandlerPrivate(this)) {}
 
-}
-
-ForeighnObjectsHandler::~ForeighnObjectsHandler()
-{
+ForeighnObjectsHandler::~ForeighnObjectsHandler() {
     delete d;
 }
 
-void ForeighnObjectsHandler::cure(const QList<QUrl> &dirs)
-{
+void ForeighnObjectsHandler::cure(const QList<QUrl> &dirs) {
     foreach (QUrl dir, dirs) {
         cure(dir);
     }
 }
 
-void ForeighnObjectsHandler::cure(const QUrl &dir)
-{
+void ForeighnObjectsHandler::cure(const QUrl &dir) {
     d->cure(dir);
 }
 
-void ForeighnObjectsHandler::copyPage(const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex)
-{
+void ForeighnObjectsHandler::copyPage(const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex) {
     d->copyPage(fromDir, fromIndex, toDir, toIndex);
 }
-

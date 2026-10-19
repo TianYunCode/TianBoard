@@ -14,21 +14,16 @@
 #include "ui/MessagesDialog.h"
 
 
-ExportAdaptor::ExportAdaptor(QObject *parent)
-    : QObject(parent)
-    , mIsVerbose(true)
-{
+ExportAdaptor::ExportAdaptor(QObject *parent) : QObject(parent), mIsVerbose(true) {
     // NOOP
 }
 
 
-ExportAdaptor::~ExportAdaptor()
-{
+ExportAdaptor::~ExportAdaptor() {
     // NOOP
 }
 
-QString ExportAdaptor::askForFileName(DocumentProxy* pDocument, const QString& pDialogTitle)
-{
+QString ExportAdaptor::askForFileName(DocumentProxy *pDocument, const QString &pDialogTitle) {
     QString defaultName;
 
     defaultName += pDocument->metaData(Settings::documentName).toString() + exportExtention();
@@ -37,17 +32,16 @@ QString ExportAdaptor::askForFileName(DocumentProxy* pDocument, const QString& p
 
     QString defaultPath = Settings::settings()->lastExportFilePath->get().toString() + "/" + defaultName;
 
-    QString filename = QFileDialog::getSaveFileName(Application::mainWindow, pDialogTitle, defaultPath, QString());
+    QString filename =
+        QFileDialog::getSaveFileName(Application::mainWindow, pDialogTitle, defaultPath, QString());
 
-    if (filename.size() == 0)
-    {
+    if (filename.size() == 0) {
         return filename;
     }
 
     // add extension if needed
     QFileInfo fileNameInfo(filename);
-    if (fileNameInfo.suffix() != exportExtention().mid(1, exportExtention().length() - 1))
-    {
+    if (fileNameInfo.suffix() != exportExtention().mid(1, exportExtention().length() - 1)) {
         filename += exportExtention();
     }
     Settings::settings()->lastExportFilePath->set(QVariant(fileNameInfo.absolutePath()));
@@ -56,22 +50,19 @@ QString ExportAdaptor::askForFileName(DocumentProxy* pDocument, const QString& p
     return filename;
 }
 
-QString ExportAdaptor::askForDirName(DocumentProxy* pDocument, const QString& pDialogTitle)
-{
+QString ExportAdaptor::askForDirName(DocumentProxy *pDocument, const QString &pDialogTitle) {
     QString defaultPath = Settings::settings()->lastExportDirPath->get().toString();
 
     QString container = QFileDialog::getExistingDirectory(Application::mainWindow, pDialogTitle, defaultPath);
 
     QString dirname;
 
-    if (container.size() > 0)
-    {
+    if (container.size() > 0) {
         Settings::settings()->lastExportDirPath->set(QVariant(container));
 
         QString docname;
 
-        if (pDocument->metaData(Settings::documentGroupName).toString().length() > 0)
-        {
+        if (pDocument->metaData(Settings::documentGroupName).toString().length() > 0) {
             docname += pDocument->metaData(Settings::documentGroupName).toString() + QString(" ");
         }
 
@@ -86,8 +77,7 @@ QString ExportAdaptor::askForDirName(DocumentProxy* pDocument, const QString& pD
     return dirname;
 }
 
-void ExportAdaptor::persistLocally(DocumentProxy* pDocumentProxy, const QString& pDialogTitle)
-{
+void ExportAdaptor::persistLocally(DocumentProxy *pDocumentProxy, const QString &pDialogTitle) {
     if (!pDocumentProxy)
         return;
 
@@ -106,7 +96,8 @@ void ExportAdaptor::persistLocally(DocumentProxy* pDocumentProxy, const QString&
         if (!info.isWritable()) {
             QMessageBox errorBox;
             errorBox.setWindowTitle(tr("Export failed"));
-            errorBox.setText(tr("Unable to export to the selected location. You do not have the permissions necessary to save the file."));
+            errorBox.setText(tr("Unable to export to the selected location. You do not have the permissions "
+                                "necessary to save the file."));
             errorBox.setIcon(QMessageBox::Critical);
             errorBox.exec();
 
@@ -127,8 +118,7 @@ void ExportAdaptor::persistLocally(DocumentProxy* pDocumentProxy, const QString&
     }
 }
 
-bool ExportAdaptor::persistsDocument(DocumentProxy* pDocument, const QString& filename)
-{
+bool ExportAdaptor::persistsDocument(DocumentProxy *pDocument, const QString &filename) {
     // Implemented in child classes
 
     Q_UNUSED(pDocument);
@@ -136,11 +126,10 @@ bool ExportAdaptor::persistsDocument(DocumentProxy* pDocument, const QString& fi
     return false;
 }
 
-void ExportAdaptor::showErrorsList(QList<QString> errorsList)
-{
-    if (errorsList.count())
-    {
-        MessagesDialog *dialog = new MessagesDialog(tr("Warnings during export was appeared"), Application::mainWindow);
+void ExportAdaptor::showErrorsList(QList<QString> errorsList) {
+    if (errorsList.count()) {
+        MessagesDialog *dialog =
+            new MessagesDialog(tr("Warnings during export was appeared"), Application::mainWindow);
         dialog->setMessages(errorsList);
         dialog->show();
     }

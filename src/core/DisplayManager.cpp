@@ -12,17 +12,15 @@
 #include "ui/BlackoutWidget.h"
 
 
-
 #include "core/VirtualDesktop.h"
 
 DisplayManager::DisplayManager(QObject *parent)
-    : QObject(parent)
-    , mControlScreenIndex(-1)
-    , mDisplayScreenIndex(-1)
-    , mControlWidget(0)
-    , mDisplayWidget(0)
-    , mDesktopWidget(0)
-{
+    : QObject(parent),
+      mControlScreenIndex(-1),
+      mDisplayScreenIndex(-1),
+      mControlWidget(0),
+      mDisplayWidget(0),
+      mDesktopWidget(0) {
     mDesktop = VirtualDesktop::instance();
 
     mUseMultiScreen = Settings::settings()->appUseMultiscreen->get().toBool();
@@ -34,44 +32,34 @@ DisplayManager::DisplayManager(QObject *parent)
 }
 
 
-void DisplayManager::initScreenIndexes()
-{
+void DisplayManager::initScreenIndexes() {
     int screenCount = numScreens();
 
     mScreenIndexesRoles.clear();
 
-    if (screenCount > 0)
-    {
+    if (screenCount > 0) {
         mControlScreenIndex = mDesktop->primaryScreen();
-        if (screenCount > 1 && Settings::settings()->swapControlAndDisplayScreens->get().toBool())
-        {
-            mControlScreenIndex = mControlScreenIndex^1;
+        if (screenCount > 1 && Settings::settings()->swapControlAndDisplayScreens->get().toBool()) {
+            mControlScreenIndex = mControlScreenIndex ^ 1;
         }
 
         mScreenIndexesRoles << Control;
-    }
-    else
-    {
+    } else {
         mControlScreenIndex = -1;
     }
 
-    if (screenCount > 1 && mUseMultiScreen)
-    {
+    if (screenCount > 1 && mUseMultiScreen) {
         mDisplayScreenIndex = mControlScreenIndex != 0 ? 0 : 1;
         mScreenIndexesRoles << Display;
-    }
-    else
-    {
+    } else {
         mDisplayScreenIndex = -1;
     }
 
     mPreviousScreenIndexes.clear();
 
-    if (screenCount > 2)
-    {
-        for(int i = 2; i < screenCount; i++)
-        {
-            if(mControlScreenIndex == i)
+    if (screenCount > 2) {
+        for (int i = 2; i < screenCount; i++) {
+            if (mControlScreenIndex == i)
                 mPreviousScreenIndexes.append(1);
             else
                 mPreviousScreenIndexes.append(i);
@@ -79,12 +67,10 @@ void DisplayManager::initScreenIndexes()
     }
 }
 
-void DisplayManager::swapDisplayScreens(bool swap)
-{
+void DisplayManager::swapDisplayScreens(bool swap) {
     initScreenIndexes();
 
-    if (swap && !mPreviousScreenIndexes.isEmpty())
-    {
+    if (swap && !mPreviousScreenIndexes.isEmpty()) {
         // As it s a really specific ask and we don't have much time to handle it correctly
         // this code handles only the swap between the main display screen and the first previous one
         int displayScreenIndex = mDisplayScreenIndex;
@@ -100,14 +86,12 @@ void DisplayManager::swapDisplayScreens(bool swap)
 }
 
 
-DisplayManager::~DisplayManager()
-{
+DisplayManager::~DisplayManager() {
     // NOOP
 }
 
 
-int DisplayManager::numScreens()
-{
+int DisplayManager::numScreens() {
     int screenCount = mDesktop->screenCount();
     // Some window managers report two screens when the two monitors are in "cloned" mode; this hack ensures
     // that we consider this as just one screen.
@@ -119,30 +103,24 @@ int DisplayManager::numScreens()
 }
 
 
-int DisplayManager::numPreviousViews()
-{
+int DisplayManager::numPreviousViews() {
     return mPreviousScreenIndexes.size();
 }
 
 
-void DisplayManager::setControlWidget(QWidget* pControlWidget)
-{
-    if(hasControl() && pControlWidget && (pControlWidget != mControlWidget))
+void DisplayManager::setControlWidget(QWidget *pControlWidget) {
+    if (hasControl() && pControlWidget && (pControlWidget != mControlWidget))
         mControlWidget = pControlWidget;
 }
 
-void DisplayManager::setDesktopWidget(QWidget* pControlWidget )
-{
-    if(pControlWidget && (pControlWidget != mControlWidget))
+void DisplayManager::setDesktopWidget(QWidget *pControlWidget) {
+    if (pControlWidget && (pControlWidget != mControlWidget))
         mDesktopWidget = pControlWidget;
 }
 
-void DisplayManager::setDisplayWidget(QWidget* pDisplayWidget)
-{
-    if(pDisplayWidget && (pDisplayWidget != mDisplayWidget))
-    {
-        if (mDisplayWidget)
-        {
+void DisplayManager::setDisplayWidget(QWidget *pDisplayWidget) {
+    if (pDisplayWidget && (pDisplayWidget != mDisplayWidget)) {
+        if (mDisplayWidget) {
             mDisplayWidget->hide();
             pDisplayWidget->setGeometry(mDisplayWidget->geometry());
             pDisplayWidget->setWindowFlags(mDisplayWidget->windowFlags());
@@ -155,30 +133,25 @@ void DisplayManager::setDisplayWidget(QWidget* pDisplayWidget)
 }
 
 
-void DisplayManager::setPreviousDisplaysWidgets(QList<BoardView*> pPreviousViews)
-{
+void DisplayManager::setPreviousDisplaysWidgets(QList<BoardView *> pPreviousViews) {
     mPreviousDisplayWidgets = pPreviousViews;
 }
 
 
-QRect DisplayManager::controlGeometry()
-{
+QRect DisplayManager::controlGeometry() {
     return mDesktop->screenGeometry(mControlScreenIndex);
 }
 
-QRect DisplayManager::displayGeometry()
-{
+QRect DisplayManager::displayGeometry() {
     return mDesktop->screenGeometry(mDisplayScreenIndex);
 }
 
-void DisplayManager::reinitScreens(bool swap)
-{
+void DisplayManager::reinitScreens(bool swap) {
     Q_UNUSED(swap);
     adjustScreens(-1);
 }
 
-void DisplayManager::adjustScreens(int screen)
-{
+void DisplayManager::adjustScreens(int screen) {
     Q_UNUSED(screen);
 
     initScreenIndexes();
@@ -189,42 +162,32 @@ void DisplayManager::adjustScreens(int screen)
 }
 
 
-void DisplayManager::positionScreens()
-{
-
-    if(mDesktopWidget && mControlScreenIndex > -1)
-    {
+void DisplayManager::positionScreens() {
+    if (mDesktopWidget && mControlScreenIndex > -1) {
         mDesktopWidget->hide();
         mDesktopWidget->setGeometry(mDesktop->screenGeometry(mControlScreenIndex));
     }
-    if (mControlWidget && mControlScreenIndex > -1)
-    {
+    if (mControlWidget && mControlScreenIndex > -1) {
         mControlWidget->hide();
         mControlWidget->setGeometry(mDesktop->screenGeometry(mControlScreenIndex));
         PlatformUtils::showFullScreen(mControlWidget);
     }
 
-    if (mDisplayWidget && mDisplayScreenIndex > -1)
-    {
+    if (mDisplayWidget && mDisplayScreenIndex > -1) {
         mDisplayWidget->hide();
         mDisplayWidget->setGeometry(mDesktop->screenGeometry(mDisplayScreenIndex));
         PlatformUtils::showFullScreen(mDisplayWidget);
-    }
-    else if(mDisplayWidget)
-    {
+    } else if (mDisplayWidget) {
         mDisplayWidget->hide();
     }
 
-    for (int wi = mPreviousScreenIndexes.size(); wi < mPreviousDisplayWidgets.size(); wi++)
-    {
+    for (int wi = mPreviousScreenIndexes.size(); wi < mPreviousDisplayWidgets.size(); wi++) {
         mPreviousDisplayWidgets.at(wi)->hide();
     }
 
-    for (int psi = 0; psi < mPreviousScreenIndexes.size(); psi++)
-    {
-        if (mPreviousDisplayWidgets.size() > psi)
-        {
-            QWidget* previous = mPreviousDisplayWidgets.at(psi);
+    for (int psi = 0; psi < mPreviousScreenIndexes.size(); psi++) {
+        if (mPreviousDisplayWidgets.size() > psi) {
+            QWidget *previous = mPreviousDisplayWidgets.at(psi);
             previous->setGeometry(mDesktop->screenGeometry(mPreviousScreenIndexes.at(psi)));
             PlatformUtils::showFullScreen(previous);
         }
@@ -232,12 +195,10 @@ void DisplayManager::positionScreens()
 
     if (mControlWidget && mControlScreenIndex > -1)
         mControlWidget->activateWindow();
-
 }
 
 
-void DisplayManager::blackout()
-{
+void DisplayManager::blackout() {
     QList<int> screenIndexes;
 
     if (mControlScreenIndex > -1)
@@ -248,8 +209,7 @@ void DisplayManager::blackout()
 
     screenIndexes << mPreviousScreenIndexes;
 
-    for (int i = 0; i < screenIndexes.size(); i++)
-    {
+    for (int i = 0; i < screenIndexes.size(); i++) {
         int screenIndex = screenIndexes.at(i);
 
         BlackoutWidget *blackoutWidget = new BlackoutWidget(); //deleted in DisplayManager::unBlackout
@@ -265,16 +225,13 @@ void DisplayManager::blackout()
 
     PlatformUtils::fadeDisplayOut();
 
-    foreach(BlackoutWidget *blackoutWidget, mBlackoutWidgets)
-    {
+    foreach (BlackoutWidget *blackoutWidget, mBlackoutWidgets) {
         PlatformUtils::showFullScreen(blackoutWidget);
     }
 }
 
-void DisplayManager::unBlackout()
-{
-    while (!mBlackoutWidgets.isEmpty())
-    {
+void DisplayManager::unBlackout() {
+    while (!mBlackoutWidgets.isEmpty()) {
         // the widget is also destroyed thanks to its Qt::WA_DeleteOnClose attribute
         mBlackoutWidgets.takeFirst()->close();
     }
@@ -282,19 +239,15 @@ void DisplayManager::unBlackout()
     PlatformUtils::fadeDisplayIn();
 
     Application::boardController->freezeWebWidgets(false);
-
 }
 
 
-void DisplayManager::setRoleToScreen(DisplayRole role, int screenIndex)
-{
+void DisplayManager::setRoleToScreen(DisplayRole role, int screenIndex) {
     Q_UNUSED(role);
     Q_UNUSED(screenIndex);
 }
 
 
-void DisplayManager::setUseMultiScreen(bool pUse)
-{
+void DisplayManager::setUseMultiScreen(bool pUse) {
     mUseMultiScreen = pUse;
 }
-

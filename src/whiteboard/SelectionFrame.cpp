@@ -16,29 +16,31 @@
 #include "whiteboard/DrawingController.h"
 
 SelectionFrame::SelectionFrame()
-    : mThickness(Settings::settings()->objectFrameWidth)
-    , mAntiscaleRatio(1.0)
-    , mRotationAngle(0)
-    , mDeleteButton(0)
-    , mDuplicateButton(0)
-    , mZOrderUpButton(0)
-    , mZOrderDownButton(0)
-    , mGroupButton(0)
-    , mRotateButton(0)
-{
+    : mThickness(Settings::settings()->objectFrameWidth),
+      mAntiscaleRatio(1.0),
+      mRotationAngle(0),
+      mDeleteButton(0),
+      mDuplicateButton(0),
+      mZOrderUpButton(0),
+      mZOrderDownButton(0),
+      mGroupButton(0),
+      mRotateButton(0) {
     setLocalBrush(QBrush(Settings::paletteColor));
     setPen(Qt::NoPen);
     setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::SelectionFrame)); //Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(
+            itemLayerType::SelectionFrame)); //Necessary to set if we want z value to be assigned correctly
     setFlags(QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsSelectable | ItemIsMovable);
 
-    connect(Application::boardController, &BoardController::zoomChanged, this, &SelectionFrame::onZoomChanged);
+    connect(Application::boardController, &BoardController::zoomChanged, this,
+            &SelectionFrame::onZoomChanged);
 
     onZoomChanged(Application::boardController->currentZoom());
 }
 
-void SelectionFrame::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void SelectionFrame::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
@@ -48,20 +50,19 @@ void SelectionFrame::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     if (rect().width() > 1 && rect().height() > 1) {
         QPainterPath extruded;
-        extruded.addRect(shRect.adjusted(adjThickness(), adjThickness(), (adjThickness() * -1), (adjThickness() * -1)));
+        extruded.addRect(
+            shRect.adjusted(adjThickness(), adjThickness(), (adjThickness() * -1), (adjThickness() * -1)));
         path = path.subtracted(extruded);
     }
 
     painter->fillPath(path, mLocalBrush);
 }
 
-QRectF SelectionFrame::boundingRect() const
-{
+QRectF SelectionFrame::boundingRect() const {
     return rect().adjusted(-adjThickness(), -adjThickness(), adjThickness(), adjThickness());
 }
 
-QPainterPath SelectionFrame::shape() const
-{
+QPainterPath SelectionFrame::shape() const {
     QPainterPath resShape;
     QRectF ownRect = rect();
     QRectF shRect = ownRect.adjusted(-adjThickness(), -adjThickness(), adjThickness(), adjThickness());
@@ -76,8 +77,7 @@ QPainterPath SelectionFrame::shape() const
     return resShape;
 }
 
-void SelectionFrame::setEnclosedItems(const QList<QGraphicsItem*> pGraphicsItems)
-{
+void SelectionFrame::setEnclosedItems(const QList<QGraphicsItem *> pGraphicsItems) {
     mButtons.clear();
     mButtons.append(mDeleteButton);
     mRotationAngle = 0;
@@ -114,16 +114,15 @@ void SelectionFrame::setEnclosedItems(const QList<QGraphicsItem*> pGraphicsItems
         QColor baseColor = Settings::paletteColor;
         baseColor.setAlphaF(baseColor.alphaF() / 3);
         setLocalBrush(QBrush(baseColor));
-    }
-    else
+    } else
         setLocalBrush(QBrush(Settings::paletteColor));
 }
 
-void SelectionFrame::updateRect()
-{
+void SelectionFrame::updateRect() {
     QRegion resultRegion;
     foreach (GraphicsItemDelegate *curDelegateItem, mEnclosedtems) {
-        resultRegion |= curDelegateItem->delegated()->boundingRegion(curDelegateItem->delegated()->sceneTransform());
+        resultRegion |=
+            curDelegateItem->delegated()->boundingRegion(curDelegateItem->delegated()->sceneTransform());
     }
 
     QRectF result = resultRegion.boundingRect();
@@ -136,13 +135,11 @@ void SelectionFrame::updateRect()
     }
 }
 
-void SelectionFrame::updateScale()
-{
+void SelectionFrame::updateScale() {
     setScale(-Application::boardController->currentZoom());
 }
 
-void SelectionFrame::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+void SelectionFrame::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     mPressedPos = mLastMovedPos = event->pos();
     mLastTranslateOffset = QPointF();
     mRotationAngle = 0;
@@ -154,8 +151,7 @@ void SelectionFrame::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
+void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (mIsLocked)
         return;
 
@@ -163,55 +159,48 @@ void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     QPointF rotCenter = mapToScene(rect().center());
 
     foreach (GraphicsItemDelegate *curDelegate, mEnclosedtems) {
-
         switch (static_cast<int>(mOperationMode)) {
-        case om_moving : {
-            QGraphicsItem *item = curDelegate->delegated();
-            QTransform ownTransform = item->transform();
-            QTransform dTransform(
-                        ownTransform.m11()
-                        , ownTransform.m12()
-                        , ownTransform.m13()
+            case om_moving: {
+                QGraphicsItem *item = curDelegate->delegated();
+                QTransform ownTransform = item->transform();
+                QTransform dTransform(ownTransform.m11(), ownTransform.m12(), ownTransform.m13()
 
-                        , ownTransform.m21()
-                        , ownTransform.m22()
-                        , ownTransform.m23()
+                                                                                  ,
+                                      ownTransform.m21(), ownTransform.m22(), ownTransform.m23()
 
-                        , ownTransform.m31() + (dp - mLastTranslateOffset).x()
-                        , ownTransform.m32() + (dp - mLastTranslateOffset).y()
-                        , ownTransform.m33()
-                        );
+                                                                                  ,
+                                      ownTransform.m31() + (dp - mLastTranslateOffset).x(),
+                                      ownTransform.m32() + (dp - mLastTranslateOffset).y(),
+                                      ownTransform.m33());
 
-            item->setTransform(dTransform);
-        } break;
+                item->setTransform(dTransform);
+            } break;
 
-        case om_rotating : {
-            QLineF startLine(sceneBoundingRect().center(), event->lastScenePos());
-            QLineF currentLine(sceneBoundingRect().center(), event->scenePos());
-            qreal dAngle = startLine.angleTo(currentLine);
+            case om_rotating: {
+                QLineF startLine(sceneBoundingRect().center(), event->lastScenePos());
+                QLineF currentLine(sceneBoundingRect().center(), event->scenePos());
+                qreal dAngle = startLine.angleTo(currentLine);
 
-            QGraphicsItem *item = curDelegate->delegated();
-            QTransform ownTransform = item->transform();
+                QGraphicsItem *item = curDelegate->delegated();
+                QTransform ownTransform = item->transform();
 
 
-            QPointF nextRotCenter = item->mapFromScene(rotCenter);
+                QPointF nextRotCenter = item->mapFromScene(rotCenter);
 
-            qreal cntrX = nextRotCenter.x();
-            qreal cntrY = nextRotCenter.y();
+                qreal cntrX = nextRotCenter.x();
+                qreal cntrY = nextRotCenter.y();
 
-            ownTransform.translate(cntrX, cntrY);
-            mRotationAngle -= dAngle;
-            ownTransform.rotate(-dAngle);
-            ownTransform.translate(-cntrX, -cntrY);
+                ownTransform.translate(cntrX, cntrY);
+                mRotationAngle -= dAngle;
+                ownTransform.rotate(-dAngle);
+                ownTransform.translate(-cntrX, -cntrY);
 
-            item->update();
-            item->setTransform(ownTransform, false);
+                item->update();
+                item->setTransform(ownTransform, false);
 
-            qDebug() << "curAngle" << mRotationAngle;
-        } break;
-
+                qDebug() << "curAngle" << mRotationAngle;
+            } break;
         }
-
     }
 
     updateRect();
@@ -219,8 +208,7 @@ void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     mLastTranslateOffset = dp;
 }
 
-void SelectionFrame::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
-{
+void SelectionFrame::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
     mPressedPos = mLastMovedPos = mLastTranslateOffset = QPointF();
 
     if (mOperationMode == om_moving || mOperationMode == om_rotating) {
@@ -231,17 +219,13 @@ void SelectionFrame::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
         Application::undoStack->endMacro();
     }
     mOperationMode = om_idle;
-
 }
 
-void SelectionFrame::onZoomChanged(qreal pZoom)
-{
+void SelectionFrame::onZoomChanged(qreal pZoom) {
     mAntiscaleRatio = 1 / (Application::boardController->systemScaleFactor() * pZoom);
-
 }
 
-void SelectionFrame::remove()
-{
+void SelectionFrame::remove() {
     Application::undoStack->beginMacro(Settings::undoCommandTransactionName);
     foreach (GraphicsItemDelegate *d, mEnclosedtems) {
         d->remove(true);
@@ -251,14 +235,12 @@ void SelectionFrame::remove()
     updateRect();
 }
 
-static bool sortByZ(GraphicsItemDelegate* A, GraphicsItemDelegate* B)
-{
-    return (A->delegated()->data(GraphicsItemData::ItemOwnZValue).toReal()
-            < B->delegated()->data(GraphicsItemData::ItemOwnZValue).toReal() );
+static bool sortByZ(GraphicsItemDelegate *A, GraphicsItemDelegate *B) {
+    return (A->delegated()->data(GraphicsItemData::ItemOwnZValue).toReal() <
+            B->delegated()->data(GraphicsItemData::ItemOwnZValue).toReal());
 }
 
-void SelectionFrame::duplicate()
-{
+void SelectionFrame::duplicate() {
     Application::undoStack->beginMacro(Settings::undoCommandTransactionName);
 
     // The mEnclosedtems list items are in order of selection. To avoid losing their
@@ -273,42 +255,38 @@ void SelectionFrame::duplicate()
     updateRect();
 }
 
-void SelectionFrame::increaseZlevelUp()
-{
-    QList<QGraphicsItem*> selItems = sortedByZ(scene()->selectedItems());
+void SelectionFrame::increaseZlevelUp() {
+    QList<QGraphicsItem *> selItems = sortedByZ(scene()->selectedItems());
 
-    QList<QGraphicsItem*>::iterator itemIt = selItems.end();
-    while(itemIt != selItems.begin()){
+    QList<QGraphicsItem *>::iterator itemIt = selItems.end();
+    while (itemIt != selItems.begin()) {
         itemIt--;
-        QGraphicsItem* item = *itemIt;
+        QGraphicsItem *item = *itemIt;
         ubscene()->changeZLevelTo(item, ZLayerController::up);
     }
 
     addSelectionUndo(selItems, ZLayerController::up);
 }
 
-void SelectionFrame::increaseZlevelTop()
-{
-    QList<QGraphicsItem*> selItems = sortedByZ(scene()->selectedItems());
+void SelectionFrame::increaseZlevelTop() {
+    QList<QGraphicsItem *> selItems = sortedByZ(scene()->selectedItems());
     foreach (QGraphicsItem *item, selItems) {
         ubscene()->changeZLevelTo(item, ZLayerController::top);
     }
     addSelectionUndo(selItems, ZLayerController::top);
 }
 
-void SelectionFrame::increaseZlevelDown()
-{
-    QList<QGraphicsItem*> selItems = sortedByZ(scene()->selectedItems());
+void SelectionFrame::increaseZlevelDown() {
+    QList<QGraphicsItem *> selItems = sortedByZ(scene()->selectedItems());
     foreach (QGraphicsItem *item, selItems) {
         ubscene()->changeZLevelTo(item, ZLayerController::down);
     }
     addSelectionUndo(selItems, ZLayerController::down);
 }
 
-void SelectionFrame::increaseZlevelBottom()
-{
-    QList<QGraphicsItem*> selItems = sortedByZ(scene()->selectedItems());
-    QListIterator<QGraphicsItem*> iter(selItems);
+void SelectionFrame::increaseZlevelBottom() {
+    QList<QGraphicsItem *> selItems = sortedByZ(scene()->selectedItems());
+    QListIterator<QGraphicsItem *> iter(selItems);
     iter.toBack();
     while (iter.hasPrevious()) {
         ubscene()->changeZLevelTo(iter.previous(), ZLayerController::bottom);
@@ -316,8 +294,7 @@ void SelectionFrame::increaseZlevelBottom()
     addSelectionUndo(selItems, ZLayerController::bottom);
 }
 
-void SelectionFrame::groupItems()
-{
+void SelectionFrame::groupItems() {
     GraphicsGroupContainerItem *groupItem = ubscene()->createGroup(enclosedGraphicsItems());
 
     groupItem->setSelected(true);
@@ -325,16 +302,16 @@ void SelectionFrame::groupItems()
     qDebug() << "Grouping items";
 }
 
-void SelectionFrame::addSelectionUndo(QList<QGraphicsItem*> items, ZLayerController::moveDestination dest){
-    if(!items.empty()){
+void SelectionFrame::addSelectionUndo(QList<QGraphicsItem *> items, ZLayerController::moveDestination dest) {
+    if (!items.empty()) {
         qreal topItemLevel = items.at(0)->data(GraphicsItemData::ItemOwnZValue).toReal();
-        GraphicsItemZLevelUndoCommand* cmd = new GraphicsItemZLevelUndoCommand(ubscene(), items, topItemLevel, dest);
+        GraphicsItemZLevelUndoCommand *cmd =
+            new GraphicsItemZLevelUndoCommand(ubscene(), items, topItemLevel, dest);
         Application::undoStack->push(cmd);
     }
 }
 
-void SelectionFrame::placeButtons()
-{
+void SelectionFrame::placeButtons() {
     if (!mButtons.count()) {
         return;
     }
@@ -356,8 +333,8 @@ void SelectionFrame::placeButtons()
     mDeleteButton->show();
 
     int i = 1, j = 0, k = 0;
-    while ((i + j + k) < mButtons.size())  {
-        DelegateButton* button = mButtons[i + j];
+    while ((i + j + k) < mButtons.size()) {
+        DelegateButton *button = mButtons[i + j];
 
         if (button->getSection() == Qt::TopLeftSection) {
             button->setParentItem(this);
@@ -374,12 +351,11 @@ void SelectionFrame::placeButtons()
         } else {
             ++k;
         }
-            button->show();
+        button->show();
     }
 }
 
-void SelectionFrame::placeExceptionButton(DelegateButton *pButton, QTransform pTransform)
-{
+void SelectionFrame::placeExceptionButton(DelegateButton *pButton, QTransform pTransform) {
     QRectF frRect = boundingRect();
 
     if (pButton == mRotateButton) {
@@ -390,10 +366,8 @@ void SelectionFrame::placeExceptionButton(DelegateButton *pButton, QTransform pT
     }
 }
 
-void SelectionFrame::clearButtons()
-{
-    foreach (DelegateButton *b, mButtons)
-    {
+void SelectionFrame::clearButtons() {
+    foreach (DelegateButton *b, mButtons) {
         b->setParentItem(0);
         b->hide();
     }
@@ -401,23 +375,21 @@ void SelectionFrame::clearButtons()
     mButtons.clear();
 }
 
-inline GraphicsScene *SelectionFrame::ubscene()
-{
-    return qobject_cast<GraphicsScene*>(scene());
+inline GraphicsScene *SelectionFrame::ubscene() {
+    return qobject_cast<GraphicsScene *>(scene());
 }
 
-void SelectionFrame::setCursorFromAngle(QString angle)
-{
+void SelectionFrame::setCursorFromAngle(QString angle) {
     QWidget *controlViewport = Application::boardController->controlView()->viewport();
 
-    QSize cursorSize(45,30);
+    QSize cursorSize(45, 30);
 
 
     QImage mask_img(cursorSize, QImage::Format_Mono);
     mask_img.fill(0xff);
     QPainter mask_ptr(&mask_img);
-    mask_ptr.setBrush( QBrush( QColor(0, 0, 0) ) );
-    mask_ptr.drawRoundedRect(0,0, cursorSize.width()-1, cursorSize.height()-1, 6, 6);
+    mask_ptr.setBrush(QBrush(QColor(0, 0, 0)));
+    mask_ptr.drawRoundedRect(0, 0, cursorSize.width() - 1, cursorSize.height() - 1, 6, 6);
     QBitmap bmpMask = QBitmap::fromImage(mask_img);
 
 
@@ -429,20 +401,20 @@ void SelectionFrame::setCursorFromAngle(QString angle)
     painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     painter.setBrush(QBrush(Qt::white));
     painter.setPen(QPen(QColor(Qt::black)));
-    painter.drawRoundedRect(1,1,cursorSize.width()-2,cursorSize.height()-2,6,6);
+    painter.drawRoundedRect(1, 1, cursorSize.width() - 2, cursorSize.height() - 2, 6, 6);
     painter.setFont(QFont("Arial", 10));
-    painter.drawText(1,1,cursorSize.width(),cursorSize.height(), Qt::AlignCenter, angle.append(QChar(176)));
+    painter.drawText(1, 1, cursorSize.width(), cursorSize.height(), Qt::AlignCenter,
+                     angle.append(QChar(176)));
     painter.end();
 
     pixCursor.setMask(bmpMask);
     controlViewport->setCursor(QCursor(pixCursor));
 }
 
-QList<QGraphicsItem*> SelectionFrame::sortedByZ(const QList<QGraphicsItem *> &pItems)
-{
+QList<QGraphicsItem *> SelectionFrame::sortedByZ(const QList<QGraphicsItem *> &pItems) {
     //select only items wiht the same z-level as item's one and push it to sortedItems QMultiMap
     // It means: keep only the selected items and remove the selection frame from the list
-    QMultiMap<qreal, QGraphicsItem*> sortedItems;
+    QMultiMap<qreal, QGraphicsItem *> sortedItems;
     foreach (QGraphicsItem *tmpItem, pItems) {
         if (tmpItem->type() == Type) {
             continue;
@@ -453,9 +425,8 @@ QList<QGraphicsItem*> SelectionFrame::sortedByZ(const QList<QGraphicsItem *> &pI
     return sortedItems.values();
 }
 
-QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
-
-    QList<DelegateButton*> result;
+QList<DelegateButton *> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
+    QList<DelegateButton *> result;
 
     if (!mDeleteButton) {
         mDeleteButton = new DelegateButton(":/images/close.svg", this, 0, Qt::TopLeftSection);
@@ -468,7 +439,7 @@ QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
             mDuplicateButton = new DelegateButton(":/images/duplicate.svg", this, 0, Qt::TopLeftSection);
             connect(mDuplicateButton, &DelegateButton::clicked, this, &SelectionFrame::duplicate);
         }
-        result <<  mDuplicateButton;
+        result << mDuplicateButton;
     }
 
     if (mEnclosedtems.count() >= 1) {
@@ -489,10 +460,12 @@ QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
         }
 
         if (!mZOrderDownButton) {
-            mZOrderDownButton = new DelegateButton(":/images/z_layer_down.svg", this, 0, Qt::BottomLeftSection);
+            mZOrderDownButton =
+                new DelegateButton(":/images/z_layer_down.svg", this, 0, Qt::BottomLeftSection);
             mZOrderDownButton->setShowProgressIndicator(true);
             connect(mZOrderDownButton, &DelegateButton::clicked, this, &SelectionFrame::increaseZlevelDown);
-            connect(mZOrderDownButton, &DelegateButton::longClicked, this, &SelectionFrame::increaseZlevelBottom);
+            connect(mZOrderDownButton, &DelegateButton::longClicked, this,
+                    &SelectionFrame::increaseZlevelBottom);
         }
 
         result << mZOrderUpButton;
@@ -512,14 +485,11 @@ QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
     return result;
 }
 
-QList<QGraphicsItem*> SelectionFrame::enclosedGraphicsItems()
-{
-    QList<QGraphicsItem*> result;
+QList<QGraphicsItem *> SelectionFrame::enclosedGraphicsItems() {
+    QList<QGraphicsItem *> result;
     foreach (GraphicsItemDelegate *d, mEnclosedtems) {
         result << d->delegated();
     }
 
     return result;
 }
-
-

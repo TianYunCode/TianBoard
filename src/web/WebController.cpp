@@ -29,50 +29,45 @@
 #include "whiteboard/BoardPaletteManager.h"
 
 
-WebController::WebController(MainWindow* mainWindow)
-    : QObject(mainWindow->centralWidget())
-    , mMainWindow(mainWindow)
-    , mCurrentWebBrowser(0)
-    , mBrowserWidget(0)
-    , mToolsCurrentPalette(0)
-{
- }
+WebController::WebController(MainWindow *mainWindow)
+    : QObject(mainWindow->centralWidget()),
+      mMainWindow(mainWindow),
+      mCurrentWebBrowser(0),
+      mBrowserWidget(0),
+      mToolsCurrentPalette(0) {}
 
 
-WebController::~WebController()
-{
+WebController::~WebController() {
     // NOOP
 }
 
-void WebController::webBrowserInstance()
-{
+void WebController::webBrowserInstance() {
     QString webHomePage = Settings::settings()->webHomePage->get().toString();
     QUrl currentUrl = BrowserWindow::guessUrlFromString(webHomePage);
 
-    if (Settings::settings()->webUseExternalBrowser->get().toBool())
-    {
+    if (Settings::settings()->webUseExternalBrowser->get().toBool()) {
         QDesktopServices::openUrl(currentUrl);
-    }
-    else
-    {
-        if (!mCurrentWebBrowser)
-        {
+    } else {
+        if (!mCurrentWebBrowser) {
             mCurrentWebBrowser = new BrowserWindow(mMainWindow->centralWidget(), mMainWindow);
 
             mMainWindow->addWebWidget(mCurrentWebBrowser);
 
-            connect(mCurrentWebBrowser, &BrowserWindow::activeViewChange, this, &WebController::setSourceWidget);
+            connect(mCurrentWebBrowser, &BrowserWindow::activeViewChange, this,
+                    &WebController::setSourceWidget);
 
             BrowserWindow::downloadManager()->setParent(mCurrentWebBrowser, Qt::Tool);
 
-            Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().webToolBar, mMainWindow->ui().actionBoard, 32);
+            Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().webToolBar,
+                                                                 mMainWindow->ui().actionBoard, 32);
             Application::app()->decorateActionMenu(mMainWindow->ui().actionMenu);
 
             showTabAtTop(Settings::settings()->appToolBarPositionedAtTop->get().toBool());
 
             adaptToolBar();
 
-            connect(mCurrentWebBrowser, &BrowserWindow::activeViewPageChanged, this, &WebController::activePageChanged);
+            connect(mCurrentWebBrowser, &BrowserWindow::activeViewPageChanged, this,
+                    &WebController::activePageChanged);
 
             mCurrentWebBrowser->loadUrl(currentUrl);
 
@@ -92,70 +87,66 @@ void WebController::webBrowserInstance()
     }
 }
 
-void WebController::show()
-{
+void WebController::show() {
     webBrowserInstance();
 }
 
-void WebController::setSourceWidget(QWidget* pWidget)
-{
+void WebController::setSourceWidget(QWidget *pWidget) {
     mBrowserWidget = pWidget;
     Application::applicationController->setMirrorSourceWidget(pWidget);
 }
 
-void WebController::activePageChanged()
-{
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
-    {
+void WebController::activePageChanged() {
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
         mMainWindow->ui().actionWebTrap->setChecked(false);
 
         emit activeWebPageChanged(mCurrentWebBrowser->currentTabWebView());
     }
 }
 
-void WebController::setupPalettes()
-{
-    if(!mToolsCurrentPalette)
-    {
+void WebController::setupPalettes() {
+    if (!mToolsCurrentPalette) {
         mToolsCurrentPalette = new WebToolsPalette(Application::mainWindow);
         Application::boardController->paletteManager()->setCurrentWebToolsPalette(mToolsCurrentPalette);
 #ifndef Q_OS_WIN
-        if (PlatformUtils::hasVirtualKeyboard() && Application::boardController->paletteManager()->mKeyboardPalette)
-            connect(Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::closed,
-                    Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::onDeactivated);
+        if (PlatformUtils::hasVirtualKeyboard() &&
+            Application::boardController->paletteManager()->mKeyboardPalette)
+            connect(Application::boardController->paletteManager()->mKeyboardPalette,
+                    &KeyboardPalette::closed,
+                    Application::boardController->paletteManager()->mKeyboardPalette,
+                    &KeyboardPalette::onDeactivated);
 #endif
 
-        connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this, [this] { customCapture(); });
+        connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this,
+                [this] { customCapture(); });
 
-        connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this, &WebController::toogleMirroring);
+        connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this,
+                &WebController::toogleMirroring);
         connect(mMainWindow->ui().actionWebTrap, &QAction::toggled, this, &WebController::toggleWebTrap);
 
         mToolsCurrentPalette->hide();
         mToolsCurrentPalette->adjustSizeAndPosition();
 
-        if (controlView()){
+        if (controlView()) {
             int left = controlView()->width() - 20 - mToolsCurrentPalette->width();
             int top = (controlView()->height() - mToolsCurrentPalette->height()) / 2;
             mToolsCurrentPalette->setCustomPosition(true);
             mToolsCurrentPalette->move(left, top);
         }
-        
-		connect(mMainWindow->ui().actionWebTools, &QAction::triggered, this, &WebController::triggerWebTools);
-		mMainWindow->ui().actionWebTools->trigger();
+
+        connect(mMainWindow->ui().actionWebTools, &QAction::triggered, this, &WebController::triggerWebTools);
+        mMainWindow->ui().actionWebTools->trigger();
     }
 }
 
 
-
-void WebController::toggleWebTrap(bool checked)
-{
+void WebController::toggleWebTrap(bool checked) {
     if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
         mCurrentWebBrowser->currentTabWebView()->setIsTrapping(checked);
 }
 
 
-void WebController::customCapture()
-{
+void WebController::customCapture() {
     mToolsCurrentPalette->setVisible(false);
     qApp->processEvents();
 
@@ -163,8 +154,7 @@ void WebController::customCapture()
 
     customCaptureWindow.show();
 
-    if (customCaptureWindow.execute(getScreenPixmap()) == QDialog::Accepted)
-    {
+    if (customCaptureWindow.execute(getScreenPixmap()) == QDialog::Accepted) {
         QPixmap selectedPixmap = customCaptureWindow.getSelectedPixmap();
         emit imageCaptured(selectedPixmap, false, mCurrentWebBrowser->currentTabWebView()->url());
     }
@@ -173,14 +163,12 @@ void WebController::customCapture()
 }
 
 
-void WebController::toogleMirroring(bool checked)
-{
+void WebController::toogleMirroring(bool checked) {
     Application::applicationController->mirroringEnabled(checked);
 }
 
 
-QPixmap WebController::getScreenPixmap()
-{
+QPixmap WebController::getScreenPixmap() {
     VirtualDesktop *desktop = VirtualDesktop::instance();
     // we capture the screen in which the mouse is.
     const QPoint cursorPos = QCursor::pos();
@@ -190,24 +178,21 @@ QPixmap WebController::getScreenPixmap()
 }
 
 
-void WebController::screenLayoutChanged()
-{
-    bool hasDisplay = (Application::applicationController &&
-                       Application::applicationController->displayManager() &&
-                       Application::applicationController->displayManager()->hasDisplay());
+void WebController::screenLayoutChanged() {
+    bool hasDisplay =
+        (Application::applicationController && Application::applicationController->displayManager() &&
+         Application::applicationController->displayManager()->hasDisplay());
 
     Application::mainWindow->ui().actionWebShowHideOnDisplay->setVisible(hasDisplay);
 }
 
 
-void WebController::closing()
-{
+void WebController::closing() {
     //NOOP
 }
 
 
-void WebController::adaptToolBar()
-{
+void WebController::adaptToolBar() {
     bool highResolution = mMainWindow->width() > 1024;
 
     mMainWindow->ui().actionWebReload->setVisible(highResolution);
@@ -215,31 +200,25 @@ void WebController::adaptToolBar()
 
     //if(mCurrentWebBrowser )
     //    mCurrentWebBrowser->adaptToolBar(highResolution);
-
 }
 
 
-void WebController::showTabAtTop(bool attop)
-{
+void WebController::showTabAtTop(bool attop) {
     if (mCurrentWebBrowser)
         mCurrentWebBrowser->showTabAtTop(attop);
 }
 
-void WebController::loadUrl(const QUrl& url)
-{
+void WebController::loadUrl(const QUrl &url) {
     Application::applicationController->showInternet();
     if (Settings::settings()->webUseExternalBrowser->get().toBool())
 
         QDesktopServices::openUrl(url);
     else
         mCurrentWebBrowser->loadUrlInNewTab(url);
-
-
 }
 
 
-QWebEngineView* WebController::createNewTab()
-{
+QWebEngineView *WebController::createNewTab() {
     if (mCurrentWebBrowser)
         Application::applicationController->showInternet();
 
@@ -247,43 +226,35 @@ QWebEngineView* WebController::createNewTab()
 }
 
 
-void WebController::copy()
-{
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
-    {
-        QWebEngineView* webView = mCurrentWebBrowser->currentTabWebView();
+void WebController::copy() {
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+        QWebEngineView *webView = mCurrentWebBrowser->currentTabWebView();
         QAction *act = webView->pageAction(QWebEnginePage::Copy);
-        if(act)
+        if (act)
             act->trigger();
     }
 }
 
 
-void WebController::paste()
-{
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
-    {
-        QWebEngineView* webView = mCurrentWebBrowser->currentTabWebView();
+void WebController::paste() {
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+        QWebEngineView *webView = mCurrentWebBrowser->currentTabWebView();
         QAction *act = webView->pageAction(QWebEnginePage::Paste);
-        if(act)
+        if (act)
             act->trigger();
     }
 }
 
 
-void WebController::cut()
-{
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
-    {
-        QWebEngineView* webView = mCurrentWebBrowser->currentTabWebView();
+void WebController::cut() {
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+        QWebEngineView *webView = mCurrentWebBrowser->currentTabWebView();
         QAction *act = webView->pageAction(QWebEnginePage::Cut);
-        if(act)
+        if (act)
             act->trigger();
     }
 }
 
-void WebController::triggerWebTools(bool checked)
-{
-	mToolsCurrentPalette->setVisible(checked);
-
+void WebController::triggerWebTools(bool checked) {
+    mToolsCurrentPalette->setVisible(checked);
 }

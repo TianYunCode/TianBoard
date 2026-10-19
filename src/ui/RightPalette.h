@@ -4,11 +4,10 @@
 
 #include <memory>
 
-class RightPalette : public DockPalette
-{
+class RightPalette : public DockPalette {
     Q_OBJECT
 public:
-    RightPalette(QWidget* parent=0, const char* name="RightPalette");
+    RightPalette(QWidget *parent = 0, const char *name = "RightPalette");
     ~RightPalette();
     bool switchMode(DockWidgetMode mode);
 
@@ -23,6 +22,4 @@ protected:
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

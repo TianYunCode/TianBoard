@@ -10,9 +10,7 @@
 
 
 GraphicsGroupContainerItem::GraphicsGroupContainerItem(QGraphicsItem *parent)
-    : QGraphicsItem(parent)
-    , mCurrentItem(NULL)
-{
+    : QGraphicsItem(parent), mCurrentItem(NULL) {
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
 
     setDelegate(new GraphicsGroupContainerItemDelegate(this, 0));
@@ -25,15 +23,14 @@ GraphicsGroupContainerItem::GraphicsGroupContainerItem(QGraphicsItem *parent)
 
     setUuid(QUuid::createUuid());
 
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
 }
 
-GraphicsGroupContainerItem::~GraphicsGroupContainerItem()
-{
-}
+GraphicsGroupContainerItem::~GraphicsGroupContainerItem() {}
 
-void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
-{
+void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
     if (!item) {
         qWarning("GraphicsGroupContainerItem::addToGroup: cannot add null item");
         return;
@@ -54,12 +51,11 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
         if (!GraphicsItem::isLocked(this) && GraphicsItem::isLocked(item)) {
             Delegate()->setLocked(true);
         }
-    }
-    else {
+    } else {
         Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, GraphicsItem::isFlippable(item));
         Delegate()->setFrameFlag(GF_REVOLVABLE, GraphicsItem::isRotatable(item));
         Delegate()->setLocked(GraphicsItem::isLocked(item));
-    }        
+    }
 
     if (item->data(GraphicsItemData::ItemLayerType) == ItemLayerType::Control)
         setData(GraphicsItemData::ItemLayerType, item->data(GraphicsItemData::ItemLayerType));
@@ -69,14 +65,15 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
     QTransform itemTransform = item->itemTransform(this, &ok);
 
     if (!ok) {
-        qWarning("GraphicsGroupContainerItem::addToGroup: could not find a valid transformation from item to group coordinates");
+        qWarning("GraphicsGroupContainerItem::addToGroup: could not find a valid transformation from item to "
+                 "group coordinates");
         return;
     }
 
     //setting item flags to given item
     item->setSelected(false);
     item->setFlag(QGraphicsItem::ItemIsSelectable, false);
-    item->setFlag( QGraphicsItem::ItemIsMovable, false);
+    item->setFlag(QGraphicsItem::ItemIsMovable, false);
     item->setFlag(QGraphicsItem::ItemIsFocusable, true);
 
     QTransform newItemTransform(itemTransform);
@@ -97,13 +94,13 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
     // removing additional transformations properties applied with itemTransform()
     QPointF origin = item->transformOriginPoint();
     QMatrix4x4 m;
-    QList<QGraphicsTransform*> transformList = item->transformations();
+    QList<QGraphicsTransform *> transformList = item->transformations();
     for (int i = 0; i < transformList.size(); ++i)
         transformList.at(i)->applyTo(&m);
     newItemTransform *= m.toTransform().inverted();
     newItemTransform.translate(origin.x(), origin.y());
     newItemTransform.rotate(-item->rotation());
-    newItemTransform.scale(1/item->scale(), 1/item->scale());
+    newItemTransform.scale(1 / item->scale(), 1 / item->scale());
     newItemTransform.translate(-origin.x(), -origin.y());
 
     // ### Expensive, we could maybe use dirtySceneTransform bit for optimization
@@ -114,45 +111,39 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
     itemsBoundingRect |= itemTransform.mapRect(item->boundingRect() | item->childrenBoundingRect());
     update();
 }
-void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item)
-{
+void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item) {
     if (!item) {
         qDebug() << "can't specify the item because of the null pointer";
         return;
     }
 
     CoreGraphicsScene *groupScene = corescene();
-    if (groupScene)
-    {
+    if (groupScene) {
         groupScene->addItemToDeletion(item);
     }
 
     pRemoveFromGroup(item);
 
     item->setFlags(ItemIsSelectable | ItemIsFocusable);
-
 }
 
-void GraphicsGroupContainerItem::deselectCurrentItem()
-{
-    if (mCurrentItem && (mCurrentItem->type() == GraphicsMediaItem::Type
-                         || mCurrentItem->type() == GraphicsVideoItem::Type
-                         || mCurrentItem->type() == GraphicsAudioItem::Type))
-    {
-        dynamic_cast<GraphicsMediaItem*>(mCurrentItem)->Delegate()->getToolBarItem()->hide();
+void GraphicsGroupContainerItem::deselectCurrentItem() {
+    if (mCurrentItem &&
+        (mCurrentItem->type() == GraphicsMediaItem::Type || mCurrentItem->type() == GraphicsVideoItem::Type ||
+         mCurrentItem->type() == GraphicsAudioItem::Type)) {
+        dynamic_cast<GraphicsMediaItem *>(mCurrentItem)->Delegate()->getToolBarItem()->hide();
 
         mCurrentItem->setSelected(false);
         mCurrentItem = NULL;
     }
 }
 
-QRectF GraphicsGroupContainerItem::boundingRect() const
-{
+QRectF GraphicsGroupContainerItem::boundingRect() const {
     return itemsBoundingRect;
 }
 
-void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                                       QWidget *widget) {
     Q_UNUSED(widget);
     Q_UNUSED(painter);
     Q_UNUSED(option);
@@ -160,15 +151,13 @@ void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGrap
     Delegate()->postpaint(painter, option, widget);
 }
 
-CoreGraphicsScene *GraphicsGroupContainerItem::corescene()
-{
-    CoreGraphicsScene *castScene = dynamic_cast<CoreGraphicsScene*>(QGraphicsItem::scene());
+CoreGraphicsScene *GraphicsGroupContainerItem::corescene() {
+    CoreGraphicsScene *castScene = dynamic_cast<CoreGraphicsScene *>(QGraphicsItem::scene());
 
     return castScene;
 }
 
-GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplication() const
-{
+GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplication() const {
     GraphicsGroupContainerItem *copy = new GraphicsGroupContainerItem();
 
     copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
@@ -179,16 +168,15 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplicati
 }
 
 
-GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const
-{
+GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const {
     GraphicsGroupContainerItem *copy = new GraphicsGroupContainerItem();
 
     copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
 
     foreach (QGraphicsItem *it, childItems()) {
-        Item *childAsItem = dynamic_cast<Item*>(it);
+        Item *childAsItem = dynamic_cast<Item *>(it);
         if (childAsItem) {
-            QGraphicsItem *cloneItem = dynamic_cast<QGraphicsItem*>(childAsItem->deepCopy());
+            QGraphicsItem *cloneItem = dynamic_cast<QGraphicsItem *>(childAsItem->deepCopy());
             copy->addToGroup(cloneItem);
         }
     }
@@ -198,12 +186,9 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const
 }
 
 
-
-void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const
-{
-    GraphicsGroupContainerItem *cp = dynamic_cast<GraphicsGroupContainerItem*>(copy);
-    if (cp)
-    {
+void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const {
+    GraphicsGroupContainerItem *cp = dynamic_cast<GraphicsGroupContainerItem *>(copy);
+    if (cp) {
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
         cp->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -213,14 +198,14 @@ void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const
     }
 }
 
-void GraphicsGroupContainerItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsGroupContainerItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    setData(GraphicsItemData::ItemUuid,
+            QVariant(
+                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
 void GraphicsGroupContainerItem::destroy(bool canUndo) {
-
     foreach (QGraphicsItem *item, childItems()) {
         pRemoveFromGroup(item);
         item->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -230,70 +215,55 @@ void GraphicsGroupContainerItem::destroy(bool canUndo) {
     remove(canUndo);
 }
 
-void GraphicsGroupContainerItem::clearSource()
-{
-    foreach(QGraphicsItem *child, childItems())
-    {
+void GraphicsGroupContainerItem::clearSource() {
+    foreach (QGraphicsItem *child, childItems()) {
         GraphicsItem *item = dynamic_cast<GraphicsItem *>(child);
-        if (item)
-        {
+        if (item) {
             item->clearSource();
         }
     }
 }
 
-void GraphicsGroupContainerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsGroupContainerItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mousePressEvent(event)) {
         //NOOP
     } else {
-
-    QGraphicsItem::mousePressEvent(event);
+        QGraphicsItem::mousePressEvent(event);
         setSelected(true);
     }
-
-
 }
 
-void GraphicsGroupContainerItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsGroupContainerItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
         // NOOP;
     } else {
         QGraphicsItem::mouseMoveEvent(event);
     }
-
 }
 
-void GraphicsGroupContainerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-//    mDelegate->mouseReleaseEvent(event);
+void GraphicsGroupContainerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+    //    mDelegate->mouseReleaseEvent(event);
     QGraphicsItem::mouseReleaseEvent(event);
 }
 
-QVariant GraphicsGroupContainerItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
+QVariant GraphicsGroupContainerItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     QVariant newValue = Delegate()->itemChange(change, value);
 
-    foreach(QGraphicsItem *child, childItems())
-    {
-        GraphicsItem *item = dynamic_cast<GraphicsItem*>(child);
-        if (item)
-        {
+    foreach (QGraphicsItem *child, childItems()) {
+        GraphicsItem *item = dynamic_cast<GraphicsItem *>(child);
+        if (item) {
             item->Delegate()->positionHandles();
         }
     }
 
-    if (QGraphicsItem::ItemSelectedChange == change)
-    {
+    if (QGraphicsItem::ItemSelectedChange == change) {
         deselectCurrentItem();
     }
 
     return QGraphicsItem::itemChange(change, newValue);
 }
 
-void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
-{
+void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
     if (!item) {
         qWarning("QGraphicsItemGroup::removeFromGroup: cannot remove null item");
         return;
@@ -314,13 +284,12 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
                 if (!GraphicsItem::isRotatable(item)) {
                     rotatableNow = false;
                 }
-                if(GraphicsItem::isLocked(item))
+                if (GraphicsItem::isLocked(item))
                     lockedNow = true;
 
                 if (!rotatableNow && !flippableNow && lockedNow) {
                     break;
                 }
-
             }
             Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, flippableNow);
             Delegate()->setFrameFlag(GF_REVOLVABLE, rotatableNow);
@@ -341,8 +310,7 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
     item->setPos(oldPos);
 
     GraphicsScene *Scene = dynamic_cast<GraphicsScene *>(item->scene());
-    if (Scene)
-    {
+    if (Scene) {
         Scene->addItem(item);
     }
 
@@ -354,7 +322,7 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
     // with itemTransform() or sceneTransform()
     QPointF origin = item->transformOriginPoint();
     QMatrix4x4 m;
-    QList<QGraphicsTransform*> transformList = item->transformations();
+    QList<QGraphicsTransform *> transformList = item->transformations();
     for (int i = 0; i < transformList.size(); ++i)
         transformList.at(i)->applyTo(&m);
     itemTransform *= m.toTransform().inverted();
@@ -366,7 +334,7 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
     // ### Expensive, we could maybe use dirtySceneTransform bit for optimization
 
     item->setTransform(itemTransform);
-//    item->d_func()->setIsMemberOfGroup(item->group() != 0);
+    //    item->d_func()->setIsMemberOfGroup(item->group() != 0);
 
     // ### Quite expensive. But removeFromGroup() isn't called very often.
     prepareGeometryChange();

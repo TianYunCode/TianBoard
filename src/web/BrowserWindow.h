@@ -13,12 +13,11 @@ class MainWindow;
 class WebDownloadManager;
 
 
-class BrowserWindow : public QWidget
-{
+class BrowserWindow : public QWidget {
     Q_OBJECT;
 
 public:
-    BrowserWindow(QWidget *parent = 0, MainWindow* mainWindow = 0);
+    BrowserWindow(QWidget *parent = 0, MainWindow *mainWindow = 0);
     ~BrowserWindow();
     QSize sizeHint() const;
 
@@ -40,7 +39,7 @@ public slots:
 
     WebView *createNewTab();
 
-    WebView* paintWidget();
+    WebView *paintWidget();
 
     void tabCurrentChanged(int);
 
@@ -52,7 +51,7 @@ public slots:
 
 signals:
     void activeViewPageChanged();
-    void activeViewChange(QWidget*);
+    void activeViewChange(QWidget *);
     void mirroringEnabled(bool checked);
 
 protected:
@@ -88,5 +87,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-
-

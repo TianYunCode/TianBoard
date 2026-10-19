@@ -3,8 +3,7 @@
 #include <QtWidgets>
 #include <QTableView>
 
-class EditTableView : public QTableView
-{
+class EditTableView : public QTableView {
     Q_OBJECT;
 
 public:
@@ -15,5 +14,3 @@ public slots:
     void removeOne();
     void removeAll();
 };
-
-

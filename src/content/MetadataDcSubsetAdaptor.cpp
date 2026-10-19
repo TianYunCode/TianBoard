@@ -16,31 +16,25 @@ const QString MetadataDcSubsetAdaptor::nsDc = "http://purl.org/dc/elements/1.1/"
 const QString MetadataDcSubsetAdaptor::metadataFilename = "metadata.rdf";
 
 
-MetadataDcSubsetAdaptor::MetadataDcSubsetAdaptor()
-{
-
-}
+MetadataDcSubsetAdaptor::MetadataDcSubsetAdaptor() {}
 
 
-MetadataDcSubsetAdaptor::~MetadataDcSubsetAdaptor()
-{
+MetadataDcSubsetAdaptor::~MetadataDcSubsetAdaptor() {
     // NOOP
 }
 
 
-void MetadataDcSubsetAdaptor::persist(DocumentProxy* proxy)
-{
-    if(!QDir(proxy->persistencePath()).exists()){
+void MetadataDcSubsetAdaptor::persist(DocumentProxy *proxy) {
+    if (!QDir(proxy->persistencePath()).exists()) {
         //In this case the a document is an empty document so we do not persist it
         return;
     }
     QString fileName = proxy->persistencePath() + "/" + metadataFilename;
     qWarning() << "Persisting document; path is" << fileName;
     QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-    {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qCritical() << "cannot open " << fileName << " for writing ...";
-        qCritical() << "error : "  << file.errorString();
+        qCritical() << "error : " << file.errorString();
         return;
     }
 
@@ -66,13 +60,16 @@ void MetadataDcSubsetAdaptor::persist(DocumentProxy* proxy)
     xmlWriter.writeTextElement(Settings::documentNamespaceUri, "version", Settings::currentFileVersion);
     QString width = QString::number(proxy->defaultDocumentSize().width());
     QString height = QString::number(proxy->defaultDocumentSize().height());
-    xmlWriter.writeTextElement(Settings::documentNamespaceUri, "size", QString("%1x%2").arg(width).arg(height));
+    xmlWriter.writeTextElement(Settings::documentNamespaceUri, "size",
+                               QString("%1x%2").arg(width).arg(height));
 
-    xmlWriter.writeTextElement(Settings::documentNamespaceUri, "updated-at", StringUtils::toUtcIsoDateTime(QDateTime::currentDateTimeUtc()));
+    xmlWriter.writeTextElement(Settings::documentNamespaceUri, "updated-at",
+                               StringUtils::toUtcIsoDateTime(QDateTime::currentDateTimeUtc()));
 
-    xmlWriter.writeTextElement(Settings::documentNamespaceUri, "page-count", QString::number(proxy->pageCount()));
+    xmlWriter.writeTextElement(Settings::documentNamespaceUri, "page-count",
+                               QString::number(proxy->pageCount()));
 
-    xmlWriter.writeEndElement(); 
+    xmlWriter.writeEndElement();
     xmlWriter.writeEndElement();
 
     xmlWriter.writeEndDocument();
@@ -82,9 +79,7 @@ void MetadataDcSubsetAdaptor::persist(DocumentProxy* proxy)
 }
 
 
-QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
-{
-
+QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
     QMap<QString, QVariant> metadata;
 
     QString fileName = pPath + "/" + metadataFilename;
@@ -95,54 +90,36 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
     bool updatedAtFound = false;
     QString date;
 
-    if (file.exists())
-    {
-        if (!file.open(QIODevice::ReadOnly))
-        {
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly)) {
             qWarning() << "Cannot open file " << fileName << " for reading ...";
             return metadata;
         }
 
         QXmlStreamReader xml(&file);
 
-        while (!xml.atEnd())
-        {
+        while (!xml.atEnd()) {
             xml.readNext();
 
-            if (xml.isStartElement())
-            {
+            if (xml.isStartElement()) {
                 QString docVersion = "4.1"; // untagged doc version 4.1
 
-                if (xml.name() == "title")
-                {
+                if (xml.name() == "title") {
                     metadata.insert(Settings::documentName, xml.readElementText());
-                }
-                else if (xml.name() == "type")
-                {
+                } else if (xml.name() == "type") {
                     metadata.insert(Settings::documentGroupName, xml.readElementText());
-                }
-                else if (xml.name() == "date")
-                {
+                } else if (xml.name() == "date") {
                     date = xml.readElementText();
-                }
-                else if (xml.name() == "identifier")
-                {
-                        metadata.insert(Settings::documentIdentifer, xml.readElementText());
-                }
-                else if (xml.name() == "version"
-                        && xml.namespaceUri() == Settings::documentNamespaceUri)
-                {
-                        docVersion = xml.readElementText();
-                }
-                else if (xml.name() == "size"
-                        && xml.namespaceUri() == Settings::documentNamespaceUri)
-                {
+                } else if (xml.name() == "identifier") {
+                    metadata.insert(Settings::documentIdentifer, xml.readElementText());
+                } else if (xml.name() == "version" && xml.namespaceUri() == Settings::documentNamespaceUri) {
+                    docVersion = xml.readElementText();
+                } else if (xml.name() == "size" && xml.namespaceUri() == Settings::documentNamespaceUri) {
                     QString size = xml.readElementText();
                     QStringList sizeParts = size.split("x");
                     bool ok = false;
                     int width, height;
-                    if (sizeParts.count() >= 2)
-                    {
+                    if (sizeParts.count() >= 2) {
                         bool widthOK, heightOK;
                         width = sizeParts.at(0).toInt(&widthOK);
                         height = sizeParts.at(1).toInt(&heightOK);
@@ -157,30 +134,24 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
 
                         metadata.insert(Settings::documentSize, QVariant(docSize));
                     }
-                    if (!ok)
-                    {
+                    if (!ok) {
                         qWarning() << "Invalid document size:" << size;
                     }
 
                     sizeFound = true;
 
-                }
-                else if (xml.name() == "updated-at"
-                        && xml.namespaceUri() == Settings::documentNamespaceUri)
-                {
+                } else if (xml.name() == "updated-at" &&
+                           xml.namespaceUri() == Settings::documentNamespaceUri) {
                     metadata.insert(Settings::documentUpdatedAt, xml.readElementText());
                     updatedAtFound = true;
-                }
-                else if (xml.name() == "page-count"
-                        && xml.namespaceUri() == Settings::documentNamespaceUri)
-                {
+                } else if (xml.name() == "page-count" &&
+                           xml.namespaceUri() == Settings::documentNamespaceUri) {
                     metadata.insert(Settings::documentPageCount, xml.readElementText());
                 }
                 metadata.insert(Settings::documentVersion, docVersion);
             }
 
-            if (xml.hasError())
-            {
+            if (xml.hasError()) {
                 qWarning() << "error parsing metadata.rdf file " << xml.errorString();
             }
         }
@@ -188,9 +159,8 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
         file.close();
     }
 
-    if (!sizeFound)
-    {
-        VirtualDesktop* dw = VirtualDesktop::instance();
+    if (!sizeFound) {
+        VirtualDesktop *dw = VirtualDesktop::instance();
         int controlScreenIndex = dw->primaryScreen();
 
         QSize docSize = dw->screenGeometry(controlScreenIndex).size();
@@ -203,9 +173,9 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
 
     // this is necessary to update the old files date
     QString dateString = metadata.value(Settings::documentDate).toString();
-    if(dateString.length() < 10){
+    if (dateString.length() < 10) {
         metadata.remove(Settings::documentDate);
-        metadata.insert(Settings::documentDate,dateString+"T00:00:00Z");
+        metadata.insert(Settings::documentDate, dateString + "T00:00:00Z");
     }
 
     if (!updatedAtFound) {
@@ -217,4 +187,3 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
 
     return metadata;
 }
-

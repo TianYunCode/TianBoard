@@ -8,8 +8,7 @@
 
 class DocumentProxy;
 
-class ExportIwb : public ExportAdaptor
-{
+class ExportIwb : public ExportAdaptor {
     Q_OBJECT
 
 public:
@@ -18,7 +17,6 @@ public:
 
     virtual QString exportName();
     virtual QString exportExtention();
-    virtual void persist(DocumentProxy* pDocument);
+    virtual void persist(DocumentProxy *pDocument);
     virtual bool associatedActionactionAvailableFor(const QModelIndex &selectedIndex);
 };
-

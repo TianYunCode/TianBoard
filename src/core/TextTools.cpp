@@ -1,19 +1,18 @@
 #include <QDebug>
 #include "core/TextTools.h"
 
-QString TextTools::cleanHtmlCData(const QString &_html){
-
+QString TextTools::cleanHtmlCData(const QString &_html) {
     QString clean = "";
 
 
-    for(int i = 0; i < _html.length(); i+=1){
-        if(_html.at(i) != '\0')
+    for (int i = 0; i < _html.length(); i += 1) {
+        if (_html.at(i) != '\0')
             clean.append(_html.at(i));
     }
     return clean;
 }
 
-QString TextTools::cleanHtml(const QString& _html){
+QString TextTools::cleanHtml(const QString &_html) {
     const QString START_TAG = "<!doctype";
     const QString END_TAG = "</html";
 

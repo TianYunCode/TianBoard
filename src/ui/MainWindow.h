@@ -13,15 +13,13 @@ class QMenu;
 class QStackedLayout;
 class QWidget;
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-
     MainWindow(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
     ~MainWindow() override;
 
-    MainWindowUi& ui();
+    MainWindowUi &ui();
 
     void addBoardWidget(QWidget *pWidget);
     void switchToBoardWidget();
@@ -51,7 +49,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
 
-    QMenu* createPopupMenu() override { return nullptr; }
+    QMenu *createPopupMenu() override { return nullptr; }
 
 private:
 #if defined(Q_OS_OSX)
@@ -61,4 +59,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

@@ -3,22 +3,19 @@
 #include <QtWidgets>
 
 
-struct ProxyDialog::Private
-{
-    QGridLayout* gridLayout{nullptr};
-    QLabel* iconLabel{nullptr};
-    QLabel* introLabel{nullptr};
-    QLabel* usernameLabel{nullptr};
-    QLineEdit* userNameLineEdit{nullptr};
-    QLabel* passwordLabel{nullptr};
-    QLineEdit* passwordLineEdit{nullptr};
-    QDialogButtonBox* buttonBox{nullptr};
-    QCheckBox* saveCredentials{nullptr};
+struct ProxyDialog::Private {
+    QGridLayout *gridLayout{nullptr};
+    QLabel *iconLabel{nullptr};
+    QLabel *introLabel{nullptr};
+    QLabel *usernameLabel{nullptr};
+    QLineEdit *userNameLineEdit{nullptr};
+    QLabel *passwordLabel{nullptr};
+    QLineEdit *passwordLineEdit{nullptr};
+    QDialogButtonBox *buttonBox{nullptr};
+    QCheckBox *saveCredentials{nullptr};
 };
 
-ProxyDialog::ProxyDialog(QWidget *parent)
-    : QDialog(parent), d(new Private)
-{
+ProxyDialog::ProxyDialog(QWidget *parent) : QDialog(parent), d(new Private) {
     if (objectName().isEmpty())
         setObjectName("ProxyDialog");
     resize(369, 161);
@@ -59,7 +56,7 @@ ProxyDialog::ProxyDialog(QWidget *parent)
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setObjectName("buttonBox");
     d->buttonBox->setOrientation(Qt::Horizontal);
-    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     d->gridLayout->addWidget(d->buttonBox, 6, 0, 1, 3);
 
     d->saveCredentials = new QCheckBox(this);
@@ -70,7 +67,8 @@ ProxyDialog::ProxyDialog(QWidget *parent)
     // The designer form left "ICON" as a placeholder text, the dialog asks a
     // question, so show the standard question icon instead of that text.
     d->iconLabel->setText(QString());
-    d->iconLabel->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this).pixmap(32, 32));
+    d->iconLabel->setPixmap(
+        style()->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this).pixmap(32, 32));
 
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, qOverload<>(&QDialog::accept));
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, qOverload<>(&QDialog::reject));
@@ -78,32 +76,26 @@ ProxyDialog::ProxyDialog(QWidget *parent)
 
 ProxyDialog::~ProxyDialog() = default;
 
-void ProxyDialog::setIntroText(const QString &text)
-{
+void ProxyDialog::setIntroText(const QString &text) {
     d->introLabel->setText(text);
 }
 
-void ProxyDialog::setUserName(const QString &userName)
-{
+void ProxyDialog::setUserName(const QString &userName) {
     d->userNameLineEdit->setText(userName);
 }
 
-void ProxyDialog::setPassword(const QString &password)
-{
+void ProxyDialog::setPassword(const QString &password) {
     d->passwordLineEdit->setText(password);
 }
 
-QString ProxyDialog::userName() const
-{
+QString ProxyDialog::userName() const {
     return d->userNameLineEdit->text();
 }
 
-QString ProxyDialog::password() const
-{
+QString ProxyDialog::password() const {
     return d->passwordLineEdit->text();
 }
 
-bool ProxyDialog::shouldSaveCredentials() const
-{
+bool ProxyDialog::shouldSaveCredentials() const {
     return d->saveCredentials->isChecked();
 }

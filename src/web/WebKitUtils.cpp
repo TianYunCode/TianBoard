@@ -3,25 +3,21 @@
 #include "web/WebKitUtils.h"
 
 
-WebKitUtils::WebKitUtils()
-{
+WebKitUtils::WebKitUtils() {
     // NOOP
 }
 
-WebKitUtils::~WebKitUtils()
-{
+WebKitUtils::~WebKitUtils() {
     // NOOP
 }
 
-QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage* frame)
-{
+QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage *frame) {
     QList<WebKitUtils::HtmlObject> htmlObjects;
 
-    if (frame)
-    {
+    if (frame) {
         frame->runJavaScript("window.document.getElementsByTagName('embed').length");
 
-       /* bool ok;
+        /* bool ok;
 
         int count = res.toInt(&ok);
         if (ok)
@@ -68,5 +64,3 @@ QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage* frame
 
     return htmlObjects;
 }
-
-

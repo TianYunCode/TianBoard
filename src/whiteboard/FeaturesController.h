@@ -26,13 +26,12 @@ class FeaturesPathProxyModel;
 class FeaturesListView;
 class Feature;
 
-class FeaturesComputingThread : public QThread
-{
+class FeaturesComputingThread : public QThread {
     Q_OBJECT
 public:
     explicit FeaturesComputingThread(QObject *parent = 0);
     virtual ~FeaturesComputingThread();
-        void compute(const QList<QPair<QUrl, Feature> > &pScanningData, QSet<QUrl> *pFavoritesSet);
+    void compute(const QList<QPair<QUrl, Feature>> &pScanningData, QSet<QUrl> *pFavoritesSet);
 
 protected:
     void run();
@@ -47,25 +46,24 @@ signals:
     void scanPath(const QString &str);
 
 private:
-    void scanFS(const QUrl & currentPath, const QString & currVirtualPath, const QSet<QUrl> &pFavoriteSet);
-    void scanAll(QList<QPair<QUrl, Feature> > pScanningData, const QSet<QUrl> &pFavoriteSet);
+    void scanFS(const QUrl &currentPath, const QString &currVirtualPath, const QSet<QUrl> &pFavoriteSet);
+    void scanAll(QList<QPair<QUrl, Feature>> pScanningData, const QSet<QUrl> &pFavoriteSet);
     int featuresCount(const QUrl &pPath);
-    int featuresCountAll(QList<QPair<QUrl, Feature> > pScanningData);
+    int featuresCountAll(QList<QPair<QUrl, Feature>> pScanningData);
 
 private:
     QMutex mMutex;
     QWaitCondition mWaitCondition;
     QUrl mScanningPath;
     QString mScanningVirtualPath;
-    QList<QPair<QUrl, Feature> > mScanningData;
+    QList<QPair<QUrl, Feature>> mScanningData;
     QSet<QUrl> mFavoriteSet;
     bool restart;
     bool abort;
 };
 
 
-enum FeatureElementType
-{
+enum FeatureElementType {
     FEATURE_CATEGORY,
     FEATURE_VIRTUALFOLDER,
     FEATURE_FOLDER,
@@ -82,31 +80,31 @@ enum FeatureElementType
     FEATURE_INVALID
 };
 
-class Feature
-{
+class Feature {
 public:
-    Feature() {;}
-    Feature(const QString &url, const QImage &icon, const QString &name, const QUrl &realPath, FeatureElementType type = FEATURE_CATEGORY);
+    Feature() { ; }
+    Feature(const QString &url, const QImage &icon, const QString &name, const QUrl &realPath,
+            FeatureElementType type = FEATURE_CATEGORY);
     virtual ~Feature();
     QString getName() const { return mName; }
-    QString getDisplayName() const {return mDisplayName;}
-    QImage getThumbnail() const {return mThumbnail;}
+    QString getDisplayName() const { return mDisplayName; }
+    QImage getThumbnail() const { return mThumbnail; }
     QString getVirtualPath() const { return virtualDir; }
     QUrl getFullPath() const { return mPath; }
-    QString getFullVirtualPath() const { return  virtualDir + "/" + mName; }
+    QString getFullVirtualPath() const { return virtualDir + "/" + mName; }
     QString getUrl() const;
-    void setFullPath(const QUrl &newPath) {mPath = newPath;}
-    void setFullVirtualPath(const QString &newVirtualPath) {virtualDir = newVirtualPath;}
+    void setFullPath(const QUrl &newPath) { mPath = newPath; }
+    void setFullVirtualPath(const QString &newVirtualPath) { virtualDir = newVirtualPath; }
     FeatureElementType getType() const { return elementType; }
 
     bool isFolder() const;
     bool allowedCopy() const;
     bool isDeletable() const;
     bool inTrash() const;
-    bool operator ==( const Feature &f )const;
-    bool operator !=( const Feature &f )const;
-    const QMap<QString,QString> & getMetadata() const { return metadata; }
-    void setMetadata( const QMap<QString,QString> &data ) { metadata = data; }
+    bool operator==(const Feature &f) const;
+    bool operator!=(const Feature &f) const;
+    const QMap<QString, QString> &getMetadata() const { return metadata; }
+    void setMetadata(const QMap<QString, QString> &data) { metadata = data; }
 
 private:
     QString getNameFromVirtualPath(const QString &pVirtPath);
@@ -120,35 +118,35 @@ private:
     QString mDisplayName;
     QUrl mPath;
     FeatureElementType elementType;
-    QMap<QString,QString> metadata;
+    QMap<QString, QString> metadata;
 };
-Q_DECLARE_METATYPE( Feature )
+Q_DECLARE_METATYPE(Feature)
 
-class FeaturesController : public QObject
-{
-friend class FeaturesWidget;
+class FeaturesController : public QObject {
+    friend class FeaturesWidget;
 
-Q_OBJECT
+    Q_OBJECT
 
 public:
     FeaturesController(QWidget *parentWidget);
     virtual ~FeaturesController();
 
-    QList <Feature>* getFeatures() const {return featuresList;}
+    QList<Feature> *getFeatures() const { return featuresList; }
 
-    const QString& getRootPath()const {return rootPath;}
+    const QString &getRootPath() const { return rootPath; }
     void scanFS();
 
     void addItemToPage(const Feature &item);
     void addItemAsBackground(const Feature &item);
-    const Feature& getCurrentElement()const {return currentElement;}
-    void setCurrentElement( const Feature &elem ) {currentElement = elem;}
-    const Feature & getTrashElement () const { return trashElement; }
+    const Feature &getCurrentElement() const { return currentElement; }
+    void setCurrentElement(const Feature &elem) { currentElement = elem; }
+    const Feature &getTrashElement() const { return trashElement; }
 
-    void addDownloadedFile( const QUrl &sourceUrl, const QByteArray &pData, const QString pContentSource, const QString pTitle );
+    void addDownloadedFile(const QUrl &sourceUrl, const QByteArray &pData, const QString pContentSource,
+                           const QString pTitle);
 
-    Feature moveItemToFolder( const QUrl &url, const Feature &destination );
-    Feature copyItemToFolder( const QUrl &url, const Feature &destination );
+    Feature moveItemToFolder(const QUrl &url, const Feature &destination);
+    Feature copyItemToFolder(const QUrl &url, const Feature &destination);
     void moveExternalData(const QUrl &url, const Feature &destination);
 
     void rescanModel();
@@ -158,23 +156,23 @@ public:
     void searchStarted(const QString &pattern, QListView *pOnView);
     void refreshModels();
 
-    void deleteItem( const QUrl &url );
+    void deleteItem(const QUrl &url);
     void deleteItem(const Feature &pFeature);
-    bool isTrash( const QUrl &url );
+    bool isTrash(const QUrl &url);
     void moveToTrash(Feature feature, bool deleteManualy = false);
-    void addToFavorite( const QUrl &path );
+    void addToFavorite(const QUrl &path);
     void removeFromFavorite(const QUrl &path, bool deleteManualy = false);
     void importImage(const QImage &image, const QString &fileName = QString());
-    void importImage( const QImage &image, const Feature &destination, const QString &fileName = QString() );
+    void importImage(const QImage &image, const Feature &destination, const QString &fileName = QString());
     QStringList getFileNamesInFolders();
 
-    void fileSystemScan(const QUrl &currPath, const QString & currVirtualPath);
+    void fileSystemScan(const QUrl &currPath, const QString &currVirtualPath);
     int featuresCount(const QUrl &currPath);
-    static FeatureElementType fileTypeFromUrl( const QString &path );
+    static FeatureElementType fileTypeFromUrl(const QString &path);
 
-    static QString fileNameFromUrl( const QUrl &url );
-    static QImage getIcon( const QString &path, FeatureElementType pFType );
-    static bool isDeletable( const QUrl &url );
+    static QString fileNameFromUrl(const QUrl &url);
+    static QImage getIcon(const QString &path, FeatureElementType pFType);
+    static bool isDeletable(const QUrl &url);
     static QString categoryNameForVirtualPath(const QString &str);
 
     static const QString virtualRootName;
@@ -226,10 +224,11 @@ private:
     //void addImageToCurrentPage( const QString &path );
     void loadFavoriteList();
     void saveFavoriteList();
-    QString uniqNameForFeature(const Feature &feature, const QString &pName = "Imported", const QString &pExtention = "") const;
+    QString uniqNameForFeature(const Feature &feature, const QString &pName = "Imported",
+                               const QString &pExtention = "") const;
     QString adjustName(const QString &str);
 
-    QList <Feature> *featuresList;
+    QList<Feature> *featuresList;
 
     QUrl mUserAudioDirectoryPath;
     QUrl mUserVideoDirectoryPath;
@@ -258,11 +257,10 @@ private:
     Feature applicationsElement;
     Feature shapesElement;
 
-    QSet <QUrl> *favoriteSet;
+    QSet<QUrl> *favoriteSet;
 
 public:
     Feature trashElement;
-    Feature getDestinationFeatureForUrl( const QUrl &url );
+    Feature getDestinationFeatureForUrl(const QUrl &url);
     Feature getDestinationFeatureForMimeType(const QString &pMmimeType);
-
 };

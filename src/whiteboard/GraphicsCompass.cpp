@@ -16,23 +16,22 @@ const QColor GraphicsCompass::sDarkBackgroundMiddleFillColor = QColor(0xb5, 0xb5
 const QColor GraphicsCompass::sDarkBackgroundEdgeFillColor = QColor(0xdd, 0xdd, 0xdd, sFillTransparency);
 const QColor GraphicsCompass::sDarkBackgroundDrawColor = QColor(0xff, 0xff, 0xff, sDrawTransparency);
 
-const int GraphicsCompass::sMinRadius = GraphicsCompass::sNeedleLength + GraphicsCompass::sNeedleBaseLength
-        + 24 + GraphicsCompass::sDefaultRect.height() + 24 + GraphicsCompass::sPencilBaseLength
-        + GraphicsCompass::sPencilLength;
+const int GraphicsCompass::sMinRadius = GraphicsCompass::sNeedleLength + GraphicsCompass::sNeedleBaseLength +
+                                        24 + GraphicsCompass::sDefaultRect.height() + 24 +
+                                        GraphicsCompass::sPencilBaseLength + GraphicsCompass::sPencilLength;
 
 GraphicsCompass::GraphicsCompass()
-    : QGraphicsRectItem()
-    , mResizing(false)
-    , mRotating(false)
-    , mDrawing(false)
-    , mShowButtons(false)
-    , mSpanAngleInDegrees(0)
-    , mDrewCircle(false)
-    , mCloseSvgItem(0)
-    , mResizeSvgItem(0)
-    , mAntiScaleRatio(1.0)
-    , mDrewCenterCross(false)
-{
+    : QGraphicsRectItem(),
+      mResizing(false),
+      mRotating(false),
+      mDrawing(false),
+      mShowButtons(false),
+      mSpanAngleInDegrees(0),
+      mDrewCircle(false),
+      mCloseSvgItem(0),
+      mResizeSvgItem(0),
+      mAntiScaleRatio(1.0),
+      mDrewCenterCross(false) {
     setRect(sDefaultRect);
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -54,48 +53,46 @@ GraphicsCompass::GraphicsCompass()
 
     unsetCursor();
 
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::CppTool)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::CppTool)); //Necessary to set if we want z value to be assigned correctly
     setFlag(QGraphicsItem::ItemIsSelectable, false);
 
-    connect(Application::boardController, &BoardController::penColorChanged, this, &GraphicsCompass::penColorChanged);
+    connect(Application::boardController, &BoardController::penColorChanged, this,
+            &GraphicsCompass::penColorChanged);
     connect(DrawingController::drawingController(), &DrawingController::lineWidthIndexChanged, this,
             [this](int) { lineWidthChanged(); });
 }
 
-GraphicsCompass::~GraphicsCompass()
-{
+GraphicsCompass::~GraphicsCompass() {
     // NOOP
 }
 
-Item* GraphicsCompass::deepCopy() const
-{
-   GraphicsCompass* copy = new GraphicsCompass();
+Item *GraphicsCompass::deepCopy() const {
+    GraphicsCompass *copy = new GraphicsCompass();
 
     copyItemParameters(copy);
 
-   return copy;
+    return copy;
 }
 
-void GraphicsCompass::copyItemParameters(Item *copy) const
-{
-    GraphicsCompass *cp = dynamic_cast<GraphicsCompass*>(copy);
-    if (cp)
-    {
+void GraphicsCompass::copyItemParameters(Item *copy) const {
+    GraphicsCompass *cp = dynamic_cast<GraphicsCompass *>(copy);
+    if (cp) {
         cp->setPos(this->pos());
         cp->setRect(this->rect());
         cp->setTransform(this->transform());
     }
 }
 
-void GraphicsCompass::paint(QPainter *painter, const QStyleOptionGraphicsItem *styleOption, QWidget *widget)
-{
+void GraphicsCompass::paint(QPainter *painter, const QStyleOptionGraphicsItem *styleOption, QWidget *widget) {
     Q_UNUSED(styleOption);
     Q_UNUSED(widget);
 
     painter->setBrush(edgeFillColor());
 
 
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio =
+        1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);
 
@@ -147,15 +144,14 @@ void GraphicsCompass::paint(QPainter *painter, const QStyleOptionGraphicsItem *s
     painter->fillPath(pencilBaseShape(), middleFillColor());
     painter->drawPath(pencilBaseShape());
 
-    if (mResizing || mRotating || mDrawing || (mShowButtons && rect().width() > sDisplayRadiusOnPencilArmMinLength))
+    if (mResizing || mRotating || mDrawing ||
+        (mShowButtons && rect().width() > sDisplayRadiusOnPencilArmMinLength))
         paintRadiusDisplay(painter);
 }
 
 
-QVariant GraphicsCompass::itemChange(GraphicsItemChange change, const QVariant &value)
-{
-    if (change == QGraphicsItem::ItemSceneChange)
-    {
+QVariant GraphicsCompass::itemChange(GraphicsItemChange change, const QVariant &value) {
+    if (change == QGraphicsItem::ItemSceneChange) {
         mCloseSvgItem->setParentItem(this);
         mResizeSvgItem->setParentItem(this);
     }
@@ -163,35 +159,28 @@ QVariant GraphicsCompass::itemChange(GraphicsItemChange change, const QVariant &
     return QGraphicsRectItem::itemChange(change, value);
 }
 
-void GraphicsCompass::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (DrawingController::drawingController ()->stylusTool() != StylusTool::Selector &&
-        DrawingController::drawingController ()->stylusTool() != StylusTool::Play)
+void GraphicsCompass::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    if (DrawingController::drawingController()->stylusTool() != StylusTool::Selector &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Play)
         return;
 
     bool closing = false;
 
-    if (resizeButtonRect().contains(event->pos()))
-    {
+    if (resizeButtonRect().contains(event->pos())) {
         mResizing = true;
         mRotating = false;
         event->accept();
         qDebug() << "resizing";
-    }
-    else if (hingeRect().contains(event->pos()))
-    {
+    } else if (hingeRect().contains(event->pos())) {
         mRotating = true;
         mResizing = false;
         event->accept();
         qDebug() << "hinge";
-    }
-    else if (!closeButtonRect().contains(event->pos()))
-    {
+    } else if (!closeButtonRect().contains(event->pos())) {
         qDebug() << "the rest";
 
         mDrawing = event->pos().x() > rect().right() - sPencilLength - sPencilBaseLength;
-        if (mDrawing)
-        {
+        if (mDrawing) {
             qDebug() << "drawing";
             mSpanAngleInDegrees = 0;
             mSceneArcStartPoint = mapToScene(pencilPosition());
@@ -199,36 +188,28 @@ void GraphicsCompass::mousePressEvent(QGraphicsSceneMouseEvent *event)
             scene()->moveTo(mSceneArcStartPoint);
         }
         QGraphicsRectItem::mousePressEvent(event);
-    }
-    else
+    } else
         closing = true;
 
     mResizeSvgItem->setVisible(mShowButtons && mResizing);
     mCloseSvgItem->setVisible(mShowButtons && closing);
 }
 
-void GraphicsCompass::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (DrawingController::drawingController ()->stylusTool() != StylusTool::Selector &&
-        DrawingController::drawingController ()->stylusTool() != StylusTool::Play)
+void GraphicsCompass::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (DrawingController::drawingController()->stylusTool() != StylusTool::Selector &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Play)
         return;
 
-    if (!mResizing && !mRotating && !mDrawing)
-    {
+    if (!mResizing && !mRotating && !mDrawing) {
         QGraphicsRectItem::mouseMoveEvent(event);
         mDrewCenterCross = false;
-    }
-    else
-    {
-        if (mResizing)
-        {
+    } else {
+        if (mResizing) {
             QPointF delta = event->pos() - event->lastPos();
             if (rect().width() + delta.x() < sMinRadius)
                 delta.setX(sMinRadius - rect().width());
             setRect(QRectF(rect().topLeft(), QSizeF(rect().width() + delta.x(), rect().height())));
-        }
-        else
-        {
+        } else {
             QLineF currentLine(needlePosition(), event->pos());
             QLineF lastLine(needlePosition(), event->lastPos());
             qreal deltaAngle = currentLine.angleTo(lastLine);
@@ -238,8 +219,7 @@ void GraphicsCompass::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                 deltaAngle += 360;
             rotateAroundNeedle(deltaAngle);
 
-            if (mDrawing)
-            {
+            if (mDrawing) {
                 mSpanAngleInDegrees += deltaAngle;
                 if (mSpanAngleInDegrees >= 1080)
                     mSpanAngleInDegrees -= 360;
@@ -252,36 +232,26 @@ void GraphicsCompass::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void GraphicsCompass::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (DrawingController::drawingController ()->stylusTool() != StylusTool::Selector &&
-        DrawingController::drawingController ()->stylusTool() != StylusTool::Play)
+void GraphicsCompass::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+    if (DrawingController::drawingController()->stylusTool() != StylusTool::Selector &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Play)
         return;
 
-    if (mResizing)
-    {
+    if (mResizing) {
         event->accept();
-    }
-    else if (mRotating)
-    {
+    } else if (mRotating) {
         updateResizeCursor();
         updateDrawCursor();
         event->accept();
-    }
-    else if (mDrawing)
-    {
+    } else if (mDrawing) {
         updateResizeCursor();
         updateDrawCursor();
         mDrewCenterCross = false;
         event->accept();
-    }
-    else if (closeButtonRect().contains(event->pos()))
-    {
+    } else if (closeButtonRect().contains(event->pos())) {
         hide();
         event->accept();
-    }
-    else
-    {
+    } else {
         QGraphicsRectItem::mouseReleaseEvent(event);
     }
 
@@ -293,10 +263,9 @@ void GraphicsCompass::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         scene()->setModified(true);
 }
 
-void GraphicsCompass::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    if (DrawingController::drawingController ()->stylusTool() != StylusTool::Selector &&
-        DrawingController::drawingController ()->stylusTool() != StylusTool::Play)
+void GraphicsCompass::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
+    if (DrawingController::drawingController()->stylusTool() != StylusTool::Selector &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Play)
         return;
 
     mOuterCursor = cursor();
@@ -306,8 +275,7 @@ void GraphicsCompass::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     mResizeSvgItem->setParentItem(this);
 
     mCloseSvgItem->setVisible(mShowButtons);
-    if (mShowButtons)
-    {
+    if (mShowButtons) {
         if (hingeRect().contains(event->pos()))
             setCursor(rotateCursor());
         else if (event->pos().x() > rect().right() - sPencilLength - sPencilBaseLength)
@@ -323,10 +291,9 @@ void GraphicsCompass::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     update();
 }
 
-void GraphicsCompass::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    if (DrawingController::drawingController ()->stylusTool() != StylusTool::Selector &&
-        DrawingController::drawingController ()->stylusTool() != StylusTool::Play)
+void GraphicsCompass::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
+    if (DrawingController::drawingController()->stylusTool() != StylusTool::Selector &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Play)
         return;
 
     mShowButtons = false;
@@ -337,17 +304,15 @@ void GraphicsCompass::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     update();
 }
 
-void GraphicsCompass::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-    if (DrawingController::drawingController ()->stylusTool() != StylusTool::Selector &&
-        DrawingController::drawingController ()->stylusTool() != StylusTool::Play)
+void GraphicsCompass::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
+    if (DrawingController::drawingController()->stylusTool() != StylusTool::Selector &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Play)
         return;
 
     mShowButtons = shape().contains(event->pos());
     mCloseSvgItem->setVisible(mShowButtons);
     mResizeSvgItem->setVisible(mShowButtons);
-    if (mShowButtons)
-    {
+    if (mShowButtons) {
         if (hingeRect().contains(event->pos()))
             setCursor(rotateCursor());
         else if (event->pos().x() > rect().right() - sPencilLength - sPencilBaseLength)
@@ -358,40 +323,31 @@ void GraphicsCompass::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
             setCursor(closeCursor());
         else
             setCursor(moveCursor());
-    }
-    else
-    {
+    } else {
         setCursor(mOuterCursor);
     }
     event->accept();
     update();
 }
 
-void GraphicsCompass::paintAngleDisplay(QPainter *painter)
-{
+void GraphicsCompass::paintAngleDisplay(QPainter *painter) {
     qreal angle = angleInDegrees();
 
-    qreal angleValue = mDrawing ? - mSpanAngleInDegrees : angle;
+    qreal angleValue = mDrawing ? -mSpanAngleInDegrees : angle;
     QString angleText = QString("%1").arg(angleValue, 0, 'f', 1) + "°";
 
     painter->save();
     painter->setFont(font());
-        QFontMetricsF fm(painter->font());
+    QFontMetricsF fm(painter->font());
     painter->translate(hingeRect().center());
     painter->rotate(angle);
-        painter->drawText(
-        QRectF(
-            - fm.horizontalAdvance(angleText) / 2,
-            - fm.height() / 2,
-            fm.horizontalAdvance(angleText),
-            fm.height()),
-        Qt::AlignTop,
-        angleText);
+    painter->drawText(QRectF(-fm.horizontalAdvance(angleText) / 2, -fm.height() / 2,
+                             fm.horizontalAdvance(angleText), fm.height()),
+                      Qt::AlignTop, angleText);
     painter->restore();
 }
 
-void GraphicsCompass::paintRadiusDisplay(QPainter *painter)
-{
+void GraphicsCompass::paintRadiusDisplay(QPainter *painter) {
     double pixelsPerCentimeter = Application::boardController->activeScene()->backgroundGridSize();
 
     qreal radiusInCentimeters = rect().width() / pixelsPerCentimeter;
@@ -406,9 +362,12 @@ void GraphicsCompass::paintRadiusDisplay(QPainter *painter)
     QPointF textCenter;
 
     if (onPencilArm)
-        textCenter = QPointF(rect().right() - sPencilBaseLength - sPencilLength - fm.horizontalAdvance(radiusText) / 2 - 24 - 8, rect().center().y());
+        textCenter = QPointF(rect().right() - sPencilBaseLength - sPencilLength -
+                                 fm.horizontalAdvance(radiusText) / 2 - 24 - 8,
+                             rect().center().y());
     else
-        textCenter = QPointF((rect().left() + sNeedleLength + sNeedleBaseLength + hingeRect().left()) / 2, rect().center().y());
+        textCenter = QPointF((rect().left() + sNeedleLength + sNeedleBaseLength + hingeRect().left()) / 2,
+                             rect().center().y());
 
     painter->translate(textCenter);
     qreal angle = angleInDegrees();
@@ -418,60 +377,45 @@ void GraphicsCompass::paintRadiusDisplay(QPainter *painter)
         angle += 360;
     if (angle <= -90 || angle > 90)
         painter->rotate(180);
-    painter->drawText(
-        QRectF(
-            - fm.horizontalAdvance(radiusText) / 2,
-            - rect().height() / 2,
-            fm.horizontalAdvance(radiusText),
-            rect().height()),
-        Qt::AlignVCenter,
-        radiusText);
+    painter->drawText(QRectF(-fm.horizontalAdvance(radiusText) / 2, -rect().height() / 2,
+                             fm.horizontalAdvance(radiusText), rect().height()),
+                      Qt::AlignVCenter, radiusText);
     painter->restore();
 }
 
-QCursor GraphicsCompass::moveCursor() const
-{
+QCursor GraphicsCompass::moveCursor() const {
     return Qt::SizeAllCursor;
 }
 
-QCursor GraphicsCompass::resizeCursor() const
-{
+QCursor GraphicsCompass::resizeCursor() const {
     return mResizeCursor;
 }
 
-QCursor GraphicsCompass::rotateCursor() const
-{
+QCursor GraphicsCompass::rotateCursor() const {
     return Resources::resources()->rotateCursor;
 }
 
-QCursor GraphicsCompass::closeCursor() const
-{
+QCursor GraphicsCompass::closeCursor() const {
     return Qt::ArrowCursor;
 }
 
-QCursor GraphicsCompass::drawCursor() const
-{
+QCursor GraphicsCompass::drawCursor() const {
     return mDrawCursor;
 }
 
-QRectF GraphicsCompass::hingeRect() const
-{
+QRectF GraphicsCompass::hingeRect() const {
     QRectF rotationRect(rect().width() / 2 - rect().height() / 2, 0, rect().height(), rect().height());
     rotationRect.translate(rect().topLeft());
     return rotationRect;
 }
 
-QRectF GraphicsCompass::closeButtonRect() const
-{
+QRectF GraphicsCompass::closeButtonRect() const {
     QPixmap closePixmap(":/images/closeTool.svg");
 
-    QSizeF closeRectSize(
-        closePixmap.width() * mAntiScaleRatio,
-        closePixmap.height() * mAntiScaleRatio);
+    QSizeF closeRectSize(closePixmap.width() * mAntiScaleRatio, closePixmap.height() * mAntiScaleRatio);
 
-    QPointF closeRectTopLeft(
-        sNeedleLength + sNeedleBaseLength + 4,
-        (rect().height() - closeRectSize.height()) / 2);
+    QPointF closeRectTopLeft(sNeedleLength + sNeedleBaseLength + 4,
+                             (rect().height() - closeRectSize.height()) / 2);
 
     QRectF closeRect(closeRectTopLeft, closeRectSize);
     closeRect.translate(rect().topLeft());
@@ -479,17 +423,13 @@ QRectF GraphicsCompass::closeButtonRect() const
     return closeRect;
 }
 
-QRectF GraphicsCompass::resizeButtonRect() const
-{
+QRectF GraphicsCompass::resizeButtonRect() const {
     QPixmap resizePixmap(":/images/resizeCompass.svg");
 
-    QSizeF resizeRectSize(
-        resizePixmap.width() * mAntiScaleRatio,
-        resizePixmap.height() * mAntiScaleRatio);
+    QSizeF resizeRectSize(resizePixmap.width() * mAntiScaleRatio, resizePixmap.height() * mAntiScaleRatio);
 
-    QPointF resizeRectTopLeft(
-        rect().width() - sPencilLength - sPencilBaseLength - resizeRectSize.width() - 4,
-        (rect().height() - resizeRectSize.height()) / 2);
+    QPointF resizeRectTopLeft(rect().width() - sPencilLength - sPencilBaseLength - resizeRectSize.width() - 4,
+                              (rect().height() - resizeRectSize.height()) / 2);
 
     QRectF resizeRect(resizeRectTopLeft, resizeRectSize);
     resizeRect.translate(rect().topLeft());
@@ -497,19 +437,16 @@ QRectF GraphicsCompass::resizeButtonRect() const
     return resizeRect;
 }
 
-void GraphicsCompass::rotateAroundNeedle(qreal angle)
-{
+void GraphicsCompass::rotateAroundNeedle(qreal angle) {
     QTransform transform;
     transform.translate(needlePosition().x(), needlePosition().y());
     transform.rotate(angle);
-    transform.translate(- needlePosition().x(), - needlePosition().y());
+    transform.translate(-needlePosition().x(), -needlePosition().y());
     setTransform(transform, true);
 }
 
-void GraphicsCompass::drawArc()
-{
-    if (!mDrewCenterCross)
-    {
+void GraphicsCompass::drawArc() {
+    if (!mDrewCenterCross) {
         paintCenterCross();
         mDrewCenterCross = true;
         scene()->moveTo(mSceneArcStartPoint);
@@ -520,56 +457,49 @@ void GraphicsCompass::drawArc()
         arcSpanAngle = 360;
     else if (arcSpanAngle < -360)
         arcSpanAngle = -360;
-    if (!mDrewCircle || (-360 != arcSpanAngle && 360 != arcSpanAngle))
-    {
+    if (!mDrewCircle || (-360 != arcSpanAngle && 360 != arcSpanAngle)) {
         mDrewCircle = (-360 == arcSpanAngle || 360 == arcSpanAngle);
         scene()->drawArcTo(sceneNeedlePosition, arcSpanAngle);
     }
 }
 
-void GraphicsCompass::updateResizeCursor()
-{
+void GraphicsCompass::updateResizeCursor() {
     QPixmap pix(":/images/cursors/resize.png");
     qreal angle = angleInDegrees();
 
     QTransform tr;
-    tr.rotate(- angle);
-    mResizeCursor = QCursor(pix.transformed(tr, Qt::SmoothTransformation), pix.width() / 2,  pix.height() / 2);
+    tr.rotate(-angle);
+    mResizeCursor = QCursor(pix.transformed(tr, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
 }
 
-void GraphicsCompass::updateDrawCursor()
-{
+void GraphicsCompass::updateDrawCursor() {
     QPixmap pix(":/images/cursors/drawCompass.png");
     qreal angle = angleInDegrees();
 
     QTransform tr;
-    tr.rotate(- angle);
-    mDrawCursor = QCursor(pix.transformed(tr, Qt::SmoothTransformation), pix.width() / 2,  pix.height() / 2);
+    tr.rotate(-angle);
+    mDrawCursor = QCursor(pix.transformed(tr, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
 }
 
-void GraphicsCompass::paintCenterCross()
-{
+void GraphicsCompass::paintCenterCross() {
     QPointF needleCrossCenter = mapToScene(needlePosition());
     scene()->moveTo(QPointF(needleCrossCenter.x() - 5, needleCrossCenter.y()));
     scene()->drawLineTo(QPointF(needleCrossCenter.x() + 5, needleCrossCenter.y()), 1,
-        DrawingController::drawingController()->stylusTool() == StylusTool::Line);
+                        DrawingController::drawingController()->stylusTool() == StylusTool::Line);
     scene()->moveTo(QPointF(needleCrossCenter.x(), needleCrossCenter.y() - 5));
     scene()->drawLineTo(QPointF(needleCrossCenter.x(), needleCrossCenter.y() + 5), 1,
-        DrawingController::drawingController()->stylusTool() == StylusTool::Line);
+                        DrawingController::drawingController()->stylusTool() == StylusTool::Line);
 }
 
-QPointF GraphicsCompass::needlePosition() const
-{
+QPointF GraphicsCompass::needlePosition() const {
     return QPointF(rect().x(), rect().y() + rect().height() / 2);
 }
 
-QPointF GraphicsCompass::pencilPosition() const
-{
+QPointF GraphicsCompass::pencilPosition() const {
     return QPointF(rect().right(), rect().center().y());
 }
 
-QPainterPath GraphicsCompass::shape() const
-{
+QPainterPath GraphicsCompass::shape() const {
     QPainterPath path = needleShape();
     path = path.united(needleBaseShape());
     path = path.united(needleArmShape());
@@ -580,178 +510,146 @@ QPainterPath GraphicsCompass::shape() const
     return path;
 }
 
-QPainterPath GraphicsCompass::needleShape() const
-{
+QPainterPath GraphicsCompass::needleShape() const {
     QPainterPath path;
     path.moveTo(rect().left(), rect().center().y());
-    path.lineTo(rect().left() + sNeedleLength, rect().center().y() - sNeedleWidth/2);
-    path.lineTo(rect().left() + sNeedleLength, rect().center().y() + sNeedleWidth/2);
+    path.lineTo(rect().left() + sNeedleLength, rect().center().y() - sNeedleWidth / 2);
+    path.lineTo(rect().left() + sNeedleLength, rect().center().y() + sNeedleWidth / 2);
     path.closeSubpath();
     return path;
 }
 
-QPainterPath GraphicsCompass::needleBaseShape() const
-{
-    int smallHalfSide = sNeedleBaseWidth/2 - sCornerRadius;
+QPainterPath GraphicsCompass::needleBaseShape() const {
+    int smallHalfSide = sNeedleBaseWidth / 2 - sCornerRadius;
 
     QPainterPath path;
     path.moveTo(rect().left() + sNeedleLength, rect().center().y() - smallHalfSide);
-    path.arcTo(
-        rect().left() + sNeedleLength,
-        rect().center().y() - smallHalfSide - sCornerRadius,
-        sCornerRadius*2, sCornerRadius*2,
-        180, -90);
-    path.lineTo(rect().left() + sNeedleLength + sNeedleBaseLength, rect().center().y() - sNeedleBaseWidth/2);
-    path.lineTo(rect().left() + sNeedleLength + sNeedleBaseLength, rect().center().y() + sNeedleBaseWidth/2);
-    path.lineTo(rect().left() + sNeedleLength + sCornerRadius, rect().center().y() + smallHalfSide + sCornerRadius);
-    path.arcTo(
-        rect().left() + sNeedleLength,
-        rect().center().y() + smallHalfSide - sCornerRadius,
-        sCornerRadius*2, sCornerRadius*2,
-        -90, -90);
+    path.arcTo(rect().left() + sNeedleLength, rect().center().y() - smallHalfSide - sCornerRadius,
+               sCornerRadius * 2, sCornerRadius * 2, 180, -90);
+    path.lineTo(rect().left() + sNeedleLength + sNeedleBaseLength,
+                rect().center().y() - sNeedleBaseWidth / 2);
+    path.lineTo(rect().left() + sNeedleLength + sNeedleBaseLength,
+                rect().center().y() + sNeedleBaseWidth / 2);
+    path.lineTo(rect().left() + sNeedleLength + sCornerRadius,
+                rect().center().y() + smallHalfSide + sCornerRadius);
+    path.arcTo(rect().left() + sNeedleLength, rect().center().y() + smallHalfSide - sCornerRadius,
+               sCornerRadius * 2, sCornerRadius * 2, -90, -90);
     path.closeSubpath();
 
     return path;
 }
 
-QPainterPath GraphicsCompass::needleArmShape() const
-{
-    int smallHalfSide = sNeedleArmLeftWidth/2 - sCornerRadius;
+QPainterPath GraphicsCompass::needleArmShape() const {
+    int smallHalfSide = sNeedleArmLeftWidth / 2 - sCornerRadius;
 
     QPainterPath path;
     path.moveTo(rect().left() + sNeedleLength + sNeedleBaseLength, rect().center().y() - smallHalfSide);
-    path.arcTo(
-        rect().left() + sNeedleLength + sNeedleBaseLength,
-        rect().center().y() - sNeedleArmLeftWidth/2,
-        sCornerRadius*2, sCornerRadius*2,
-        180, -90);
-    path.lineTo(hingeRect().left(), rect().center().y() - sNeedleArmRigthWidth/2);
-    path.lineTo(hingeRect().left(), rect().center().y() + sNeedleArmRigthWidth/2);
-    path.lineTo(rect().left() + sNeedleLength + sNeedleBaseLength + sCornerRadius, rect().center().y() + sNeedleArmLeftWidth/2);
-    path.arcTo(
-        rect().left() + sNeedleLength + sNeedleBaseLength,
-        rect().center().y() + smallHalfSide - sCornerRadius,
-        sCornerRadius*2, sCornerRadius*2,
-        -90, -90);
+    path.arcTo(rect().left() + sNeedleLength + sNeedleBaseLength,
+               rect().center().y() - sNeedleArmLeftWidth / 2, sCornerRadius * 2, sCornerRadius * 2, 180, -90);
+    path.lineTo(hingeRect().left(), rect().center().y() - sNeedleArmRigthWidth / 2);
+    path.lineTo(hingeRect().left(), rect().center().y() + sNeedleArmRigthWidth / 2);
+    path.lineTo(rect().left() + sNeedleLength + sNeedleBaseLength + sCornerRadius,
+                rect().center().y() + sNeedleArmLeftWidth / 2);
+    path.arcTo(rect().left() + sNeedleLength + sNeedleBaseLength,
+               rect().center().y() + smallHalfSide - sCornerRadius, sCornerRadius * 2, sCornerRadius * 2, -90,
+               -90);
     path.closeSubpath();
     return path;
 }
 
-QPainterPath GraphicsCompass::hingeShape() const
-{
+QPainterPath GraphicsCompass::hingeShape() const {
     QPainterPath path;
     path.moveTo(hingeRect().left() + sCornerRadius, hingeRect().top());
     path.lineTo(hingeRect().right() - sCornerRadius, hingeRect().top());
-    path.arcTo(
-        hingeRect().right() - sCornerRadius*2,
-        hingeRect().top(),
-        sCornerRadius*2, sCornerRadius*2,
-        90, -90);
+    path.arcTo(hingeRect().right() - sCornerRadius * 2, hingeRect().top(), sCornerRadius * 2,
+               sCornerRadius * 2, 90, -90);
     path.lineTo(hingeRect().right(), hingeRect().bottom() - sCornerRadius);
-    path.arcTo(
-        hingeRect().right() - sCornerRadius*2,
-        hingeRect().bottom() - sCornerRadius*2,
-        sCornerRadius*2, sCornerRadius*2,
-        0, -90);
+    path.arcTo(hingeRect().right() - sCornerRadius * 2, hingeRect().bottom() - sCornerRadius * 2,
+               sCornerRadius * 2, sCornerRadius * 2, 0, -90);
     path.lineTo(hingeRect().left() + sCornerRadius, hingeRect().bottom());
-    path.arcTo(
-        hingeRect().left(),
-        hingeRect().bottom() - sCornerRadius*2,
-        sCornerRadius*2, sCornerRadius*2,
-        -90, -90);
+    path.arcTo(hingeRect().left(), hingeRect().bottom() - sCornerRadius * 2, sCornerRadius * 2,
+               sCornerRadius * 2, -90, -90);
     path.lineTo(hingeRect().left(), hingeRect().top() + sCornerRadius);
-    path.arcTo(
-        hingeRect().left(),
-        hingeRect().top(),
-        sCornerRadius*2, sCornerRadius*2,
-        -180, -90);
+    path.arcTo(hingeRect().left(), hingeRect().top(), sCornerRadius * 2, sCornerRadius * 2, -180, -90);
     path.closeSubpath();
     return path;
 }
 
-QPainterPath GraphicsCompass::pencilShape() const
-{
+QPainterPath GraphicsCompass::pencilShape() const {
     int penWidthIndex = Settings::settings()->penWidthIndex();
     int logicalCompassPencilWidth = penWidthIndex > 1 ? 8 : (penWidthIndex > 0 ? 4 : 2);
     QPainterPath path;
     path.moveTo(rect().right() - sPencilLength, rect().center().y() - logicalCompassPencilWidth / 2);
-    path.lineTo(rect().right() - logicalCompassPencilWidth / 2, rect().center().y() - logicalCompassPencilWidth / 2);
-    QRectF tipRect(rect().right() - logicalCompassPencilWidth, rect().center().y() - logicalCompassPencilWidth / 2, logicalCompassPencilWidth, logicalCompassPencilWidth);
+    path.lineTo(rect().right() - logicalCompassPencilWidth / 2,
+                rect().center().y() - logicalCompassPencilWidth / 2);
+    QRectF tipRect(rect().right() - logicalCompassPencilWidth,
+                   rect().center().y() - logicalCompassPencilWidth / 2, logicalCompassPencilWidth,
+                   logicalCompassPencilWidth);
     path.arcTo(tipRect, 90, -180);
     path.lineTo(rect().right() - sPencilLength, rect().center().y() + logicalCompassPencilWidth / 2);
     path.closeSubpath();
     return path;
 }
 
-QPainterPath GraphicsCompass::pencilBaseShape() const
-{
+QPainterPath GraphicsCompass::pencilBaseShape() const {
     QPainterPath path;
-    path.moveTo(rect().right() - sPencilLength - sPencilBaseLength, rect().center().y() - sPencilBaseWidth/2);
-    path.lineTo(rect().right() - sPencilLength - sCornerRadius, rect().center().y() - sPencilBaseWidth/2);
-    path.arcTo(
-        rect().right() - sPencilLength - sCornerRadius*2, rect().center().y() - sPencilBaseWidth/2,
-        sCornerRadius*2, sCornerRadius*2,
-        90, -90);
-    path.lineTo(rect().right() - sPencilLength, rect().center().y() + sPencilBaseWidth/2 - sCornerRadius);
-    path.arcTo(
-        rect().right() - sPencilLength - sCornerRadius*2, rect().center().y() + sPencilBaseWidth/2 - sCornerRadius*2,
-        sCornerRadius*2, sCornerRadius*2,
-        0, -90);
-    path.lineTo(rect().right() - sPencilLength - sPencilBaseLength, rect().center().y() + sPencilBaseWidth/2);
+    path.moveTo(rect().right() - sPencilLength - sPencilBaseLength,
+                rect().center().y() - sPencilBaseWidth / 2);
+    path.lineTo(rect().right() - sPencilLength - sCornerRadius, rect().center().y() - sPencilBaseWidth / 2);
+    path.arcTo(rect().right() - sPencilLength - sCornerRadius * 2, rect().center().y() - sPencilBaseWidth / 2,
+               sCornerRadius * 2, sCornerRadius * 2, 90, -90);
+    path.lineTo(rect().right() - sPencilLength, rect().center().y() + sPencilBaseWidth / 2 - sCornerRadius);
+    path.arcTo(rect().right() - sPencilLength - sCornerRadius * 2,
+               rect().center().y() + sPencilBaseWidth / 2 - sCornerRadius * 2, sCornerRadius * 2,
+               sCornerRadius * 2, 0, -90);
+    path.lineTo(rect().right() - sPencilLength - sPencilBaseLength,
+                rect().center().y() + sPencilBaseWidth / 2);
     path.closeSubpath();
 
     return path;
 }
 
-QPainterPath GraphicsCompass::pencilArmShape() const
-{
+QPainterPath GraphicsCompass::pencilArmShape() const {
     QPainterPath path;
-    path.moveTo(hingeRect().right(), rect().center().y() - sPencilArmLeftWidth/2);
-    path.lineTo(rect().right() - sPencilLength - sPencilBaseLength - sCornerRadius, rect().center().y() - sPencilArmRightWidth/2);
-    path.arcTo(
-        rect().right() - sPencilLength - sPencilBaseLength - sCornerRadius*2, rect().center().y() - sPencilArmRightWidth/2,
-        sCornerRadius*2, sCornerRadius*2,
-        90, -90);
-    path.lineTo(rect().right() - sPencilLength - sPencilBaseLength, rect().center().y() + sPencilArmRightWidth/2 - sCornerRadius);
-    path.arcTo(
-        rect().right() - sPencilLength - sPencilBaseLength - sCornerRadius*2, rect().center().y() + sPencilArmRightWidth/2 - sCornerRadius*2,
-        sCornerRadius*2, sCornerRadius*2,
-        0, -90);
-    path.lineTo(hingeRect().right(), rect().center().y() + sPencilArmLeftWidth/2);
+    path.moveTo(hingeRect().right(), rect().center().y() - sPencilArmLeftWidth / 2);
+    path.lineTo(rect().right() - sPencilLength - sPencilBaseLength - sCornerRadius,
+                rect().center().y() - sPencilArmRightWidth / 2);
+    path.arcTo(rect().right() - sPencilLength - sPencilBaseLength - sCornerRadius * 2,
+               rect().center().y() - sPencilArmRightWidth / 2, sCornerRadius * 2, sCornerRadius * 2, 90, -90);
+    path.lineTo(rect().right() - sPencilLength - sPencilBaseLength,
+                rect().center().y() + sPencilArmRightWidth / 2 - sCornerRadius);
+    path.arcTo(rect().right() - sPencilLength - sPencilBaseLength - sCornerRadius * 2,
+               rect().center().y() + sPencilArmRightWidth / 2 - sCornerRadius * 2, sCornerRadius * 2,
+               sCornerRadius * 2, 0, -90);
+    path.lineTo(hingeRect().right(), rect().center().y() + sPencilArmLeftWidth / 2);
     path.closeSubpath();
     return path;
 }
 
-GraphicsScene* GraphicsCompass::scene() const
-{
-    return static_cast<GraphicsScene*>(QGraphicsRectItem::scene());
+GraphicsScene *GraphicsCompass::scene() const {
+    return static_cast<GraphicsScene *>(QGraphicsRectItem::scene());
 }
 
-QColor GraphicsCompass::drawColor() const
-{
+QColor GraphicsCompass::drawColor() const {
     return scene()->isDarkBackground() ? sDarkBackgroundDrawColor : sLightBackgroundDrawColor;
 }
 
-QColor GraphicsCompass::middleFillColor() const
-{
+QColor GraphicsCompass::middleFillColor() const {
     return scene()->isDarkBackground() ? sDarkBackgroundMiddleFillColor : sLightBackgroundMiddleFillColor;
 }
 
-QColor GraphicsCompass::edgeFillColor() const
-{
+QColor GraphicsCompass::edgeFillColor() const {
     return scene()->isDarkBackground() ? sDarkBackgroundEdgeFillColor : sLightBackgroundEdgeFillColor;
 }
 
-QFont GraphicsCompass::font() const
-{
+QFont GraphicsCompass::font() const {
     QFont font("Arial");
     font.setPixelSize(16);
     font.setBold(true);
     return font;
 }
 
-qreal GraphicsCompass::angleInDegrees() const
-{
+qreal GraphicsCompass::angleInDegrees() const {
     QRectF itemRect = boundingRect();
     QTransform itemTransform = sceneTransform();
     QPointF topLeft = itemTransform.map(itemRect.topLeft());
@@ -760,14 +658,12 @@ qreal GraphicsCompass::angleInDegrees() const
     return topLine.angle();
 }
 
-void GraphicsCompass::penColorChanged()
-{
+void GraphicsCompass::penColorChanged() {
     QRect pencilRect(rect().right() - sPencilLength, rect().top(), sPencilLength, rect().height());
     update(pencilRect);
 }
 
-void GraphicsCompass::lineWidthChanged()
-{
+void GraphicsCompass::lineWidthChanged() {
     QRect pencilRect(rect().right() - sPencilLength, rect().top(), sPencilLength, rect().height());
     update(pencilRect);
 }

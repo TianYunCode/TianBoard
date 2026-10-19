@@ -3,7 +3,6 @@
 #include <QtCore>
 
 class AutoSaver : public QObject {
-
     Q_OBJECT;
 
 public:
@@ -20,7 +19,4 @@ protected:
 private:
     QBasicTimer mTimer;
     QElapsedTimer mFirstChange;
-
 };
-
-

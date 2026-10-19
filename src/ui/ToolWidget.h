@@ -10,17 +10,16 @@ class QWidget;
 class GraphicsScene;
 class QWebEngineView;
 
-class ToolWidget : public QWidget
-{
+class ToolWidget : public QWidget {
     Q_OBJECT
 
 public:
-    ToolWidget(const QUrl& pUrl, QWidget* pParent = 0);
-    ToolWidget(GraphicsWidgetItem* pWidget, QWidget* pParent = 0);
+    ToolWidget(const QUrl &pUrl, QWidget *pParent = 0);
+    ToolWidget(GraphicsWidgetItem *pWidget, QWidget *pParent = 0);
     virtual ~ToolWidget();
 
     void remove();
-    void centerOn(const QPoint& pos);
+    void centerOn(const QPoint &pos);
 
     QPoint naturalCenter() const;
 
@@ -40,4 +39,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

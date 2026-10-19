@@ -57,19 +57,16 @@ class FeaturesCentralWidget;
 class FeaturesNewFolderDialog;
 class FeaturesProgressBar;
 
-class FeaturesWidget : public DockPaletteWidget
-{
+class FeaturesWidget : public DockPaletteWidget {
     Q_OBJECT
 public:
-    FeaturesWidget(QWidget* parent=0, const char* name="FeaturesWidget");
+    FeaturesWidget(QWidget *parent = 0, const char *name = "FeaturesWidget");
     virtual ~FeaturesWidget();
 
-    bool visibleInMode(DockWidgetMode mode)
-    {
-        return mode == DockWidgetMode::Board
-            || mode == DockWidgetMode::Desktop;
+    bool visibleInMode(DockWidgetMode mode) {
+        return mode == DockWidgetMode::Board || mode == DockWidgetMode::Desktop;
     }
-    FeaturesController * getFeaturesController() const;
+    FeaturesController *getFeaturesController() const;
     void importImage(const QImage &image, const QString &fileName = QString());
 
     static const int minThumbnailSize = 20;
@@ -80,21 +77,22 @@ public:
     static const char *objNameFeatureList;
 
 public:
-    int scrollbarHorisontalPadding() const { return 10;}
-    int scrollbarVerticalIndent() const { return 0;}
+    int scrollbarHorisontalPadding() const { return 10; }
+    int scrollbarVerticalIndent() const { return 0; }
 
 signals:
     void sendFileNameList(const QStringList lst);
 
 private slots:
-    void onPreviewLoaded(int id, bool pSuccess, QUrl sourceUrl, QUrl originalUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
-    void currentSelected( const QModelIndex & );
-    void searchStarted( const QString & );
+    void onPreviewLoaded(int id, bool pSuccess, QUrl sourceUrl, QUrl originalUrl, QString pContentTypeHeader,
+                         QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
+    void currentSelected(const QModelIndex &);
+    void searchStarted(const QString &);
     void createNewFolder();
-    void deleteElements( const FeaturesMimeData * );
-    void addToFavorite( const FeaturesMimeData  *);
-    void removeFromFavorite( const FeaturesMimeData * );
-    void onDisplayMetadata( QMap<QString,QString> );
+    void deleteElements(const FeaturesMimeData *);
+    void addToFavorite(const FeaturesMimeData *);
+    void removeFromFavorite(const FeaturesMimeData *);
+    void onDisplayMetadata(QMap<QString, QString>);
     void onAddDownloadedFileToLibrary(bool, QUrl, QString, QByteArray, QString pTitle);
     void addElementsToFavorite();
     void removeElementsFromFavorite();
@@ -111,8 +109,7 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeaturesMimeData : public QMimeData
-{
+class FeaturesMimeData : public QMimeData {
     Q_OBJECT
 
 public:
@@ -128,60 +125,45 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeaturesListView : public QListView
-{
+class FeaturesListView : public QListView {
     Q_OBJECT
 
 public:
-    FeaturesListView( QWidget* parent=0, const char* name="FeaturesListView" );
-    virtual ~FeaturesListView() {;}
+    FeaturesListView(QWidget *parent = 0, const char *name = "FeaturesListView");
+    virtual ~FeaturesListView() { ; }
 
 protected:
-    virtual void dragEnterEvent( QDragEnterEvent *event );
-    virtual void dropEvent( QDropEvent *event );
-    virtual void dragMoveEvent( QDragMoveEvent *event );
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dropEvent(QDropEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
 
 public slots:
     // FeaturesNavigatorWidget 的滑块连它；跨类连接必须公开
     void thumbnailSizeChanged(int);
-
 };
 
-class FeaturesNavigatorWidget: public QWidget
-{
+class FeaturesNavigatorWidget : public QWidget {
     Q_OBJECT
 
 public:
-    FeaturesNavigatorWidget(QWidget *parent, const char* name = "");
+    FeaturesNavigatorWidget(QWidget *parent, const char *name = "");
     FeaturesListView *listView();
     void setSliderPosition(int pValue);
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
 
-class FeaturesCentralWidget : public QWidget
-{
-  Q_OBJECT
+class FeaturesCentralWidget : public QWidget {
+    Q_OBJECT
 
 public:
-    enum StackElement{
-        MainList = 0,
-        FeaturePropertiesList,
-        FeaturesWebView
-    };
+    enum StackElement { MainList = 0, FeaturePropertiesList, FeaturesWebView };
 
-    enum AddWidget {
-        NewFolderDialog = 0,
-        ProgressBarWidget
-    };
+    enum AddWidget { NewFolderDialog = 0, ProgressBarWidget };
 
-    enum AddWidgetState {
-        NonModal = 0,
-        Modal
-    };
+    enum AddWidgetState { NonModal = 0, Modal };
 
     FeaturesCentralWidget(QWidget *parent = 0);
     void setSliderPosition(int pValue);
@@ -201,7 +183,7 @@ signals:
     void createNewFolderSignal(QString pStr);
     void sendFileNameList(const QStringList lst);
 
-//    progressbar widget related signals
+    //    progressbar widget related signals
     void maxFilesCountEvaluated(int pValue);
     void increaseStatusBarValue();
     void scanCategory(const QString &);
@@ -223,8 +205,7 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeaturesNewFolderDialog : public QWidget
-{
+class FeaturesNewFolderDialog : public QWidget {
     Q_OBJECT
 
 public:
@@ -250,7 +231,7 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeaturesProgressInfo: public QWidget {
+class FeaturesProgressInfo : public QWidget {
     Q_OBJECT
 
 public:
@@ -272,11 +253,10 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeaturesWebWidget : public QWidget
-{
+class FeaturesWebWidget : public QWidget {
     Q_OBJECT
 public:
-    FeaturesWebWidget(QWidget* parent = 0, const char* name = "FeaturesWebWidget");
+    FeaturesWebWidget(QWidget *parent = 0, const char *name = "FeaturesWebWidget");
     virtual ~FeaturesWebWidget();
 
     void showElement(const Feature &elem);
@@ -290,11 +270,10 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeatureProperties : public QWidget
-{
+class FeatureProperties : public QWidget {
     Q_OBJECT
 public:
-    FeatureProperties(QWidget* parent=0, const char* name="FeatureProperties");
+    FeatureProperties(QWidget *parent = 0, const char *name = "FeatureProperties");
     ~FeatureProperties();
 
     void showElement(const Feature &elem);
@@ -320,15 +299,13 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class FeatureItemButton : public QPushButton
-{
+class FeatureItemButton : public QPushButton {
 public:
-    FeatureItemButton(QWidget* parent=0, const char* name="FeatureItemButton");
+    FeatureItemButton(QWidget *parent = 0, const char *name = "FeatureItemButton");
     ~FeatureItemButton();
 };
 
-class FeaturesModel : public QAbstractListModel
-{
+class FeaturesModel : public QAbstractListModel {
     Q_OBJECT
 
 signals:
@@ -338,75 +315,78 @@ public:
     FeaturesModel(QList<Feature> *pFeaturesList, QObject *parent = 0);
     virtual ~FeaturesModel();
 
-    void deleteFavoriteItem( const QString &path );
-    void deleteItem( const QString &path );
+    void deleteFavoriteItem(const QString &path);
+    void deleteItem(const QString &path);
     void deleteItem(const Feature &feature);
 
-    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    QMimeData *mimeData( const QModelIndexList &indexes ) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
     QStringList mimeTypes() const;
-    int rowCount( const QModelIndex &parent ) const;
-    Qt::ItemFlags flags( const QModelIndex &index ) const;
-    bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    int rowCount(const QModelIndex &parent) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column,
+                      const QModelIndex &parent);
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRow(int row, const QModelIndex &parent = QModelIndex());
     //bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     //bool insertRow(int row, const QModelIndex &parent = QModelIndex());
 
-    void moveData(const Feature &source, const Feature &destination, Qt::DropAction action, bool deleteManualy = false);
+    void moveData(const Feature &source, const Feature &destination, Qt::DropAction action,
+                  bool deleteManualy = false);
     Qt::DropActions supportedDropActions() const { return Qt::MoveAction | Qt::CopyAction; }
     Qt::DropActions supportedDragActions() const { return Qt::MoveAction | Qt::CopyAction; }
 
-//    void setFeaturesList(QList <Feature> *flist ) { featuresList = flist; }
+    //    void setFeaturesList(QList <Feature> *flist ) { featuresList = flist; }
 
 public slots:
-    void addItem( const Feature &item );
+    void addItem(const Feature &item);
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
 
-class FeaturesProxyModel : public QSortFilterProxyModel
-{
+class FeaturesProxyModel : public QSortFilterProxyModel {
     Q_OBJECT
 public:
-    FeaturesProxyModel(QObject *parent = 0) : QSortFilterProxyModel(parent) {;}
+    FeaturesProxyModel(QObject *parent = 0) : QSortFilterProxyModel(parent) { ; }
     virtual ~FeaturesProxyModel() {}
+
 protected:
-    virtual bool filterAcceptsRow ( int sourceRow, const QModelIndex & sourceParent ) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 };
 
-class FeaturesSearchProxyModel : public QSortFilterProxyModel
-{
+class FeaturesSearchProxyModel : public QSortFilterProxyModel {
     Q_OBJECT
 public:
     FeaturesSearchProxyModel(QObject *parent = 0);
     virtual ~FeaturesSearchProxyModel();
     void setFilterPrefix(const QString &newPrefix);
+
 protected:
-    virtual bool filterAcceptsRow ( int sourceRow, const QModelIndex & sourceParent ) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
 
-class FeaturesPathProxyModel : public QSortFilterProxyModel
-{
+class FeaturesPathProxyModel : public QSortFilterProxyModel {
     Q_OBJECT
 public:
     FeaturesPathProxyModel(QObject *parent = 0);
     virtual ~FeaturesPathProxyModel();
-    void setPath( const QString &p );
+    void setPath(const QString &p);
+
 protected:
-    virtual bool filterAcceptsRow ( int sourceRow, const QModelIndex & sourceParent ) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
 
-class FeaturesItemDelegate : public QStyledItemDelegate
-{
+class FeaturesItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
     FeaturesItemDelegate(QObject *parent = 0, const QListView *lw = 0);
@@ -414,22 +394,22 @@ public:
     //FeaturesItemDelegate(const QListView *lw = 0) { listView = lw; };
     //void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     //QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    virtual QString    displayText ( const QVariant & value, const QLocale & locale ) const;
+    virtual QString displayText(const QVariant &value, const QLocale &locale) const;
+
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
 
-class FeaturesPathItemDelegate : public QStyledItemDelegate
-{
+class FeaturesPathItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
     FeaturesPathItemDelegate(QObject *parent = 0);
     ~FeaturesPathItemDelegate();
-    virtual QString    displayText ( const QVariant & value, const QLocale & locale ) const;
-    void paint( QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    virtual QString displayText(const QVariant &value, const QLocale &locale) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

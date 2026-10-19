@@ -33,33 +33,30 @@
 #include "whiteboard/DrawingController.h"
 
 
-DelegateButton::DelegateButton(const QString & fileName, QGraphicsItem* pDelegated, QGraphicsItem * parent, Qt::WindowFrameSection section)
-    : QGraphicsSvgItem(fileName, parent)
-    , mDelegated(pDelegated)
-    , mIsTransparentToMouseEvent(false)
-    , mIsPressed(false)
-    , mProgressTimerId(-1)
-    , mPressProgres(0)
-    , mShowProgressIndicator(false)
-    , mButtonAlignmentSection(section)
-{
+DelegateButton::DelegateButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent,
+                               Qt::WindowFrameSection section)
+    : QGraphicsSvgItem(fileName, parent),
+      mDelegated(pDelegated),
+      mIsTransparentToMouseEvent(false),
+      mIsPressed(false),
+      mProgressTimerId(-1),
+      mPressProgres(0),
+      mShowProgressIndicator(false),
+      mButtonAlignmentSection(section) {
     setAcceptedMouseButtons(Qt::LeftButton);
     setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
     setCacheMode(QGraphicsItem::NoCache); /* 必须 NoCache：抓屏时位图要随窗口刷新，教师屏才能与副屏同步 */
 }
 
-DelegateButton::~DelegateButton()
-{
+DelegateButton::~DelegateButton() {
     // NOOP
 }
 
-void DelegateButton::setFileName(const QString & fileName)
-{
-    QGraphicsSvgItem::setSharedRenderer(new QSvgRenderer (fileName, this));
+void DelegateButton::setFileName(const QString &fileName) {
+    QGraphicsSvgItem::setSharedRenderer(new QSvgRenderer(fileName, this));
 }
 
-void DelegateButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+void DelegateButton::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (mShowProgressIndicator) {
         QTimer::singleShot(300, this, &DelegateButton::startShowProgress);
     }
@@ -72,8 +69,7 @@ void DelegateButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
     event->setAccepted(!mIsTransparentToMouseEvent);
 }
 
-void DelegateButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void DelegateButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     if (mShowProgressIndicator && mProgressTimerId != -1) {
         killTimer(mProgressTimerId);
         mPressProgres = 0;
@@ -93,8 +89,7 @@ void DelegateButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     update();
 }
 
-void DelegateButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void DelegateButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     painter->save();
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
     QGraphicsSvgItem::paint(painter, option, widget);
@@ -109,56 +104,56 @@ void DelegateButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
         painter->setPen(pen);
 
         int spanAngle = qMin(mPressProgres, Settings::longClickInterval) * 360 / Settings::longClickInterval;
-        painter->drawArc(option->rect.adjusted(pen.width(), pen.width(), -pen.width(), -pen.width()), 16 * 90, -16 * spanAngle);
+        painter->drawArc(option->rect.adjusted(pen.width(), pen.width(), -pen.width(), -pen.width()), 16 * 90,
+                         -16 * spanAngle);
 
         painter->restore();
     }
 }
 
-void DelegateButton::timerEvent(QTimerEvent *event)
-{
+void DelegateButton::timerEvent(QTimerEvent *event) {
     if (event->timerId() == mProgressTimerId) {
         mPressProgres = qAbs(QTime::currentTime().msecsTo(mPressedTime));
         update();
     }
 }
 
-void DelegateButton::startShowProgress()
-{
+void DelegateButton::startShowProgress() {
     if (mIsPressed) {
-         mProgressTimerId = startTimer(37);
+        mProgressTimerId = startTimer(37);
     }
 }
 
-GraphicsItemDelegate::GraphicsItemDelegate(QGraphicsItem* pDelegated, QObject * parent, GraphicsFlags fls)
-    : QObject(parent)
-    , mDelegated(pDelegated)
-    , mDeleteButton(NULL)
-    , mDuplicateButton(NULL)
-    , mMenuButton(NULL)
-    , mZOrderUpButton(0)
-    , mZOrderDownButton(0)
-    , mMenu(0)
-    , mLockAction(0)
-    , mShowOnDisplayAction(0)
-    , mGotoContentSourceAction(0)
-    , mFrame(0)
-    , mFrameWidth(Settings::settings()->objectFrameWidth)
-    , mAntiScaleRatio(1.0)
-    , mToolBarItem(NULL)
-    , mMimeData(NULL)
-{
+GraphicsItemDelegate::GraphicsItemDelegate(QGraphicsItem *pDelegated, QObject *parent, GraphicsFlags fls)
+    : QObject(parent),
+      mDelegated(pDelegated),
+      mDeleteButton(NULL),
+      mDuplicateButton(NULL),
+      mMenuButton(NULL),
+      mZOrderUpButton(0),
+      mZOrderDownButton(0),
+      mMenu(0),
+      mLockAction(0),
+      mShowOnDisplayAction(0),
+      mGotoContentSourceAction(0),
+      mFrame(0),
+      mFrameWidth(Settings::settings()->objectFrameWidth),
+      mAntiScaleRatio(1.0),
+      mToolBarItem(NULL),
+      mMimeData(NULL) {
     setFrameFlags(fls);
-    connect(Application::boardController, &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
+    connect(Application::boardController, &BoardController::zoomChanged, this,
+            &GraphicsItemDelegate::onZoomChanged);
 }
 
-void GraphicsItemDelegate::createControls()
-{
+void GraphicsItemDelegate::createControls() {
     if (testFrameFlags(GF_TOOLBAR_USED) && !mToolBarItem)
         mToolBarItem = new GraphicsToolBarItem(mDelegated);
 
     if (!mFrame) {
-        mFrame = new GraphicsDelegateFrame(this, QRectF(0, 0, 0, 0), mFrameWidth, testFrameFlags(GF_RESPECT_RATIO), testFrameFlags(GF_TITLE_BAR_USED));
+        mFrame =
+            new GraphicsDelegateFrame(this, QRectF(0, 0, 0, 0), mFrameWidth, testFrameFlags(GF_RESPECT_RATIO),
+                                      testFrameFlags(GF_TITLE_BAR_USED));
         mFrame->hide();
         mFrame->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
@@ -167,8 +162,9 @@ void GraphicsItemDelegate::createControls()
         mDeleteButton = new DelegateButton(":/images/close.svg", mDelegated, mFrame, Qt::TopLeftSection);
         mButtons << mDeleteButton;
         connect(mDeleteButton, &DelegateButton::clicked, this, [this]() { remove(); });
-        if (testFrameFlags(GF_DUPLICATION_ENABLED)){
-            mDuplicateButton = new DelegateButton(":/images/duplicate.svg", mDelegated, mFrame, Qt::TopLeftSection);
+        if (testFrameFlags(GF_DUPLICATION_ENABLED)) {
+            mDuplicateButton =
+                new DelegateButton(":/images/duplicate.svg", mDelegated, mFrame, Qt::TopLeftSection);
             connect(mDuplicateButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::duplicate);
             mButtons << mDuplicateButton;
         }
@@ -181,39 +177,39 @@ void GraphicsItemDelegate::createControls()
     }
 
     if (!mZOrderUpButton) {
-        mZOrderUpButton = new DelegateButton(":/images/z_layer_up.svg", mDelegated, mFrame, Qt::BottomLeftSection);
+        mZOrderUpButton =
+            new DelegateButton(":/images/z_layer_up.svg", mDelegated, mFrame, Qt::BottomLeftSection);
         mZOrderUpButton->setShowProgressIndicator(true);
         connect(mZOrderUpButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::increaseZLevelUp);
-        connect(mZOrderUpButton, &DelegateButton::longClicked, this, &GraphicsItemDelegate::increaseZlevelTop);
+        connect(mZOrderUpButton, &DelegateButton::longClicked, this,
+                &GraphicsItemDelegate::increaseZlevelTop);
         mButtons << mZOrderUpButton;
     }
 
     if (!mZOrderDownButton) {
-        mZOrderDownButton = new DelegateButton(":/images/z_layer_down.svg", mDelegated, mFrame, Qt::BottomLeftSection);
+        mZOrderDownButton =
+            new DelegateButton(":/images/z_layer_down.svg", mDelegated, mFrame, Qt::BottomLeftSection);
         mZOrderDownButton->setShowProgressIndicator(true);
         connect(mZOrderDownButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::increaseZLevelDown);
-        connect(mZOrderDownButton, &DelegateButton::longClicked, this, &GraphicsItemDelegate::increaseZlevelBottom);
+        connect(mZOrderDownButton, &DelegateButton::longClicked, this,
+                &GraphicsItemDelegate::increaseZlevelBottom);
         mButtons << mZOrderDownButton;
     }
 
 
-
     buildButtons();
 
-    foreach(DelegateButton* button, mButtons)
-    {
+    foreach (DelegateButton *button, mButtons) {
         button->hide();
         button->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
 }
 
-void GraphicsItemDelegate::freeControls()
-{
+void GraphicsItemDelegate::freeControls() {
     QGraphicsScene *controlsScene = delegated()->scene();
     Q_ASSERT(controlsScene);
 
-    if (mFrame)
-    {
+    if (mFrame) {
         if (controlsScene)
             controlsScene->removeItem(mFrame);
         mFrame->deleteLater();
@@ -222,81 +218,72 @@ void GraphicsItemDelegate::freeControls()
     freeButtons();
 }
 
-void GraphicsItemDelegate::showControls()
-{
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+void GraphicsItemDelegate::showControls() {
+    mAntiScaleRatio =
+        1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
     positionHandles();
 }
 
-bool GraphicsItemDelegate::controlsExist() const
-{
-    return mFrame
-            && mDeleteButton
-            && mMenuButton
-            && mZOrderUpButton
-            && mZOrderDownButton
-            ;
+bool GraphicsItemDelegate::controlsExist() const {
+    return mFrame && mDeleteButton && mMenuButton && mZOrderUpButton && mZOrderDownButton;
 }
 
-GraphicsItemDelegate::~GraphicsItemDelegate()
-{
+GraphicsItemDelegate::~GraphicsItemDelegate() {
     if (Application::boardController)
-        disconnect(Application::boardController, &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
+        disconnect(Application::boardController, &BoardController::zoomChanged, this,
+                   &GraphicsItemDelegate::onZoomChanged);
     // do not release mMimeData.
     // the mMimeData is owned by QDrag since the setMimeData call as specified in the documentation
 }
 
 
-
-QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
-{
+QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) {
     GraphicsScene *ownerScene = owningScene();
     switch (static_cast<int>(change)) {
-
-    case QGraphicsItem::ItemSelectedHasChanged : {
-        if (ownerScene) {
-            if (value.toBool()) { //selected(true)
-                ownerScene->setSelectedZLevel(delegated());
-            } else {
-                ownerScene->setOwnZlevel(delegated());
-                freeControls();
+        case QGraphicsItem::ItemSelectedHasChanged: {
+            if (ownerScene) {
+                if (value.toBool()) { //selected(true)
+                    ownerScene->setSelectedZLevel(delegated());
+                } else {
+                    ownerScene->setOwnZlevel(delegated());
+                    freeControls();
+                }
             }
-        }
 
-    } break;
-    case QGraphicsItem::ItemVisibleHasChanged :
-    {
-        bool shownOnDisplay = mDelegated->data(GraphicsItemData::ItemLayerType).toInt() != ItemLayerType::Control;
-        showHide(shownOnDisplay);
-        break;
-    }
-    case QGraphicsItem::ItemPositionHasChanged :
-    case QGraphicsItem::ItemTransformHasChanged :
-    case QGraphicsItem::ItemZValueHasChanged :
-        if (!controlsExist()) {
+        } break;
+        case QGraphicsItem::ItemVisibleHasChanged: {
+            bool shownOnDisplay =
+                mDelegated->data(GraphicsItemData::ItemLayerType).toInt() != ItemLayerType::Control;
+            showHide(shownOnDisplay);
             break;
         }
-        mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
-        positionHandles();
-        if (ownerScene) {
-            ownerScene->setModified(true);
-        }
-        break;
+        case QGraphicsItem::ItemPositionHasChanged:
+        case QGraphicsItem::ItemTransformHasChanged:
+        case QGraphicsItem::ItemZValueHasChanged:
+            if (!controlsExist()) {
+                break;
+            }
+            mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() *
+                                   Application::boardController->currentZoom());
+            positionHandles();
+            if (ownerScene) {
+                ownerScene->setModified(true);
+            }
+            break;
     }
 
     return value;
 }
 
-GraphicsScene *GraphicsItemDelegate::owningScene()
-{
-    GraphicsScene *castScene = dynamic_cast<GraphicsScene*>(delegated()->scene());
+GraphicsScene *GraphicsItemDelegate::owningScene() {
+    GraphicsScene *castScene = dynamic_cast<GraphicsScene *>(delegated()->scene());
 
     return castScene;
 }
 
 /** Used to render custom data after the main "Paint" operation is finished */
-void GraphicsItemDelegate::postpaint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsItemDelegate::postpaint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                                     QWidget *widget) {
     Q_UNUSED(widget)
     if (option->state & QStyle::State_Selected && !controlsExist()) {
         painter->save();
@@ -308,32 +295,26 @@ void GraphicsItemDelegate::postpaint(QPainter *painter, const QStyleOptionGraphi
     }
 }
 
-bool GraphicsItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     mDragStartPosition = event->pos();
 
     startUndoStep();
 
-    if (!delegated()->isSelected())
-    {
+    if (!delegated()->isSelected()) {
         delegated()->setSelected(true);
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
 
-void GraphicsItemDelegate::setMimeData(QMimeData *mimeData)
-{
+void GraphicsItemDelegate::setMimeData(QMimeData *mimeData) {
     mMimeData = mimeData;
 }
 
-bool GraphicsItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if(mMimeData) {
-        QDrag* mDrag = new QDrag(event->widget());
+bool GraphicsItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (mMimeData) {
+        QDrag *mDrag = new QDrag(event->widget());
         mDrag->setMimeData(mMimeData);
         if (!mDragPixmap.isNull()) {
             mDrag->setPixmap(mDragPixmap);
@@ -346,23 +327,20 @@ bool GraphicsItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return false;
 }
 
-bool GraphicsItemDelegate::wheelEvent(QGraphicsSceneWheelEvent *event)
-{
+bool GraphicsItemDelegate::wheelEvent(QGraphicsSceneWheelEvent *event) {
     Q_UNUSED(event);
-    if( delegated()->isSelected() )
+    if (delegated()->isSelected())
         return true;
     else
         return false;
 }
 
-bool GraphicsItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
 
     //Deselect all the rest selected items if no ctrl key modifier
-    if (delegated()->scene()
-            && delegated()->scene()->selectedItems().count()
-            && event->modifiers() != Qt::ControlModifier) {
+    if (delegated()->scene() && delegated()->scene()->selectedItems().count() &&
+        event->modifiers() != Qt::ControlModifier) {
         foreach (QGraphicsItem *item, delegated()->scene()->selectedItems()) {
             if (item != delegated()) {
                 item->setSelected(false);
@@ -375,35 +353,30 @@ bool GraphicsItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     return true;
 }
 
-void GraphicsItemDelegate::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
+void GraphicsItemDelegate::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     Q_UNUSED(event)
-
 }
 
-void GraphicsItemDelegate::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
+void GraphicsItemDelegate::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     Q_UNUSED(event)
-
 }
 
-bool GraphicsItemDelegate::keyPressEvent(QKeyEvent *event)
-{
+bool GraphicsItemDelegate::keyPressEvent(QKeyEvent *event) {
     Q_UNUSED(event);
     return true;
 }
 
-bool GraphicsItemDelegate::keyReleaseEvent(QKeyEvent *event)
-{
+bool GraphicsItemDelegate::keyReleaseEvent(QKeyEvent *event) {
     Q_UNUSED(event);
     return true;
 }
 
-QGraphicsItem *GraphicsItemDelegate::delegated()
-{
+QGraphicsItem *GraphicsItemDelegate::delegated() {
     QGraphicsItem *curDelegate = 0;
     if (mDelegated->parentItem() && mDelegated->parentItem()->type() == GraphicsGroupContainerItem::Type) {
-        curDelegate = mDelegated->parentItem(); // considering delegated item as an item's group which contains everything
+        curDelegate =
+            mDelegated
+                ->parentItem(); // considering delegated item as an item's group which contains everything
     } else {
         curDelegate = mDelegated;
     }
@@ -411,14 +384,14 @@ QGraphicsItem *GraphicsItemDelegate::delegated()
     return curDelegate;
 }
 
-void GraphicsItemDelegate::positionHandles()
-{
+void GraphicsItemDelegate::positionHandles() {
     if (!controlsExist()) {
         return;
     }
 
     if (mDelegated->isSelected()) {
-        bool shownOnDisplay = mDelegated->data(GraphicsItemData::ItemLayerType).toInt() != ItemLayerType::Control;
+        bool shownOnDisplay =
+            mDelegated->data(GraphicsItemData::ItemLayerType).toInt() != ItemLayerType::Control;
         showHide(shownOnDisplay);
         mDelegated->setData(GraphicsItemData::ItemLocked, QVariant(isLocked()));
         updateFrame();
@@ -428,17 +401,16 @@ void GraphicsItemDelegate::positionHandles()
 
         updateButtons(true);
 
-        if (mToolBarItem && mToolBarItem->isVisibleOnBoard())
-        {
+        if (mToolBarItem && mToolBarItem->isVisibleOnBoard()) {
             mToolBarItem->positionHandles();
             mToolBarItem->update();
             mToolBarItem->show();
         }
     } else {
-        foreach(DelegateButton* button, mButtons)
+        foreach (DelegateButton *button, mButtons)
             button->hide();
 
-        if(mFrame)
+        if (mFrame)
             mFrame->hide();
 
         if (mToolBarItem)
@@ -446,8 +418,7 @@ void GraphicsItemDelegate::positionHandles()
     }
 }
 
-void GraphicsItemDelegate::setZOrderButtonsVisible(bool visible)
-{
+void GraphicsItemDelegate::setZOrderButtonsVisible(bool visible) {
     if (visible) {
         updateFrame();
         updateButtons();
@@ -459,8 +430,8 @@ void GraphicsItemDelegate::setZOrderButtonsVisible(bool visible)
         mZOrderUpButton->setParentItem(mDelegated);
         mZOrderDownButton->setParentItem(mDelegated);
 
-        mZOrderUpButton->setPos(newUpPoint + QPointF(0,0));
-        mZOrderDownButton->setPos(newDownPoint + QPointF(0,0));
+        mZOrderUpButton->setPos(newUpPoint + QPointF(0, 0));
+        mZOrderDownButton->setPos(newDownPoint + QPointF(0, 0));
 
         mZOrderUpButton->show();
         mZOrderDownButton->show();
@@ -471,33 +442,29 @@ void GraphicsItemDelegate::setZOrderButtonsVisible(bool visible)
     }
 }
 
-void GraphicsItemDelegate::remove(bool canUndo)
-{
-    GraphicsScene* scene = dynamic_cast<GraphicsScene*>(mDelegated->scene());
-    if (scene)
-    {
-        if (mFrame && !mFrame->scene() && mDelegated->scene())
-        {
+void GraphicsItemDelegate::remove(bool canUndo) {
+    GraphicsScene *scene = dynamic_cast<GraphicsScene *>(mDelegated->scene());
+    if (scene) {
+        if (mFrame && !mFrame->scene() && mDelegated->scene()) {
             mDelegated->scene()->addItem(mFrame);
             mFrame->setAntiScale(mAntiScaleRatio);
             mFrame->positionHandles();
             updateButtons(true);
 
-            foreach(DelegateButton* button, mButtons) {
+            foreach (DelegateButton *button, mButtons) {
                 scene->removeItem(button);
             }
             scene->removeItem(mFrame);
         }
 
         /* this is performed because when removing delegated from scene while it contains flash content, segfault happens because of QGraphicsScene::removeItem() */
-        GraphicsWidgetItem *mDelegated_casted = dynamic_cast<GraphicsWidgetItem*>(mDelegated);
-  /*      if (mDelegated_casted)
+        GraphicsWidgetItem *mDelegated_casted = dynamic_cast<GraphicsWidgetItem *>(mDelegated);
+        /*      if (mDelegated_casted)
             mDelegated_casted->setHtml(QString());*/
 
         scene->removeItem(mDelegated);
 
-        if (canUndo)
-        {
+        if (canUndo) {
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(scene, mDelegated, 0);
             Application::undoStack->push(uc);
         }
@@ -505,48 +472,41 @@ void GraphicsItemDelegate::remove(bool canUndo)
 }
 
 
-bool GraphicsItemDelegate::isLocked() const
-{
+bool GraphicsItemDelegate::isLocked() const {
     return mDelegated->data(GraphicsItemData::ItemLocked).toBool();
 }
 
 
-void GraphicsItemDelegate::duplicate()
-{
-    Application::boardController->duplicateItem(dynamic_cast<Item*>(delegated()));
+void GraphicsItemDelegate::duplicate() {
+    Application::boardController->duplicateItem(dynamic_cast<Item *>(delegated()));
 }
 
-void GraphicsItemDelegate::increaseZLevelUp()
-{
+void GraphicsItemDelegate::increaseZLevelUp() {
     GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::up, true);
     }
 }
-void GraphicsItemDelegate::increaseZlevelTop()
-{
+void GraphicsItemDelegate::increaseZlevelTop() {
     GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::top, true);
     }
 }
-void GraphicsItemDelegate::increaseZLevelDown()
-{
+void GraphicsItemDelegate::increaseZLevelDown() {
     GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::down, true);
     }
 }
-void GraphicsItemDelegate::increaseZlevelBottom()
-{
+void GraphicsItemDelegate::increaseZlevelBottom() {
     GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::bottom, true);
     }
 }
 
-void GraphicsItemDelegate::lock(bool locked)
-{
+void GraphicsItemDelegate::lock(bool locked) {
     setLockedRecurs(locked, mDelegated);
     mDelegated->update();
 
@@ -555,17 +515,14 @@ void GraphicsItemDelegate::lock(bool locked)
 }
 
 
-void GraphicsItemDelegate::setLockedRecurs(const QVariant &pLock, QGraphicsItem *pItem)
-{
+void GraphicsItemDelegate::setLockedRecurs(const QVariant &pLock, QGraphicsItem *pItem) {
     pItem->setData(GraphicsItemData::ItemLocked, pLock);
-    foreach (QGraphicsItem *insideItem, pItem->childItems())
-    {
+    foreach (QGraphicsItem *insideItem, pItem->childItems()) {
         setLockedRecurs(pLock, insideItem);
     }
 }
 
-void GraphicsItemDelegate::showHide(bool show)
-{
+void GraphicsItemDelegate::showHide(bool show) {
     QVariant showFlag = QVariant(show ? ItemLayerType::Object : ItemLayerType::Control);
     showHideRecurs(showFlag, mDelegated);
     mDelegated->update();
@@ -573,8 +530,7 @@ void GraphicsItemDelegate::showHide(bool show)
     emit showOnDisplayChanged(show);
 }
 
-void GraphicsItemDelegate::showHideRecurs(const QVariant &pShow, QGraphicsItem *pItem)
-{
+void GraphicsItemDelegate::showHideRecurs(const QVariant &pShow, QGraphicsItem *pItem) {
     pItem->setData(GraphicsItemData::ItemLayerType, pShow);
     foreach (QGraphicsItem *insideItem, pItem->childItems()) {
         showHideRecurs(pShow, insideItem);
@@ -584,47 +540,38 @@ void GraphicsItemDelegate::showHideRecurs(const QVariant &pShow, QGraphicsItem *
 /**
  * @brief Set delegate as background for the scene, replacing any existing background.
  */
-void GraphicsItemDelegate::setAsBackground()
-{
-    GraphicsScene* scene = owningScene();
-    QGraphicsItem* item = delegated();
+void GraphicsItemDelegate::setAsBackground() {
+    GraphicsScene *scene = owningScene();
+    QGraphicsItem *item = delegated();
 
     if (scene && item) {
         startUndoStep();
 
         item->resetTransform();
-        item->setPos(item->sceneBoundingRect().width()/-2., item->sceneBoundingRect().height()/-2.);
+        item->setPos(item->sceneBoundingRect().width() / -2., item->sceneBoundingRect().height() / -2.);
 
         scene->setAsBackgroundObject(item, true);
 
-        GraphicsItemTransformUndoCommand *uc =
-                new GraphicsItemTransformUndoCommand(mDelegated,
-                                                       mPreviousPosition,
-                                                       mPreviousTransform,
-                                                       mPreviousZValue,
-                                                       mPreviousSize,
-                                                       true);
+        GraphicsItemTransformUndoCommand *uc = new GraphicsItemTransformUndoCommand(
+            mDelegated, mPreviousPosition, mPreviousTransform, mPreviousZValue, mPreviousSize, true);
         Application::undoStack->push(uc);
     }
 }
 
-void GraphicsItemDelegate::gotoContentSource()
-{
-    Item* item = dynamic_cast<Item*>(mDelegated);
+void GraphicsItemDelegate::gotoContentSource() {
+    Item *item = dynamic_cast<Item *>(mDelegated);
 
-    if(item && !item->sourceUrl().isEmpty())
-    {
+    if (item && !item->sourceUrl().isEmpty()) {
         Application::applicationController->showInternet();
         Application::webController->loadUrl(item->sourceUrl());
     }
 }
 
-void GraphicsItemDelegate::startUndoStep()
-{
+void GraphicsItemDelegate::startUndoStep() {
     mPreviousPosition = mDelegated->pos();
     mPreviousTransform = mDelegated->transform();
     mPreviousZValue = mDelegated->zValue();
-    ResizableGraphicsItem* resizableItem = dynamic_cast<ResizableGraphicsItem*>(mDelegated);
+    ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(mDelegated);
 
     if (resizableItem)
         mPreviousSize = resizableItem->size();
@@ -633,50 +580,39 @@ void GraphicsItemDelegate::startUndoStep()
 }
 
 
-void GraphicsItemDelegate::commitUndoStep()
-{
-    ResizableGraphicsItem* resizableItem = dynamic_cast<ResizableGraphicsItem*>(mDelegated);
+void GraphicsItemDelegate::commitUndoStep() {
+    ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(mDelegated);
 
-    if (mDelegated->pos() != mPreviousPosition
-        || mDelegated->transform() != mPreviousTransform
-        || mDelegated->zValue() != mPreviousZValue
-        || (resizableItem && resizableItem->size() != mPreviousSize))
-    {
-        GraphicsItemTransformUndoCommand *uc =
-                new GraphicsItemTransformUndoCommand(mDelegated,
-                                                       mPreviousPosition,
-                                                       mPreviousTransform,
-                                                       mPreviousZValue,
-                                                       mPreviousSize);
+    if (mDelegated->pos() != mPreviousPosition || mDelegated->transform() != mPreviousTransform ||
+        mDelegated->zValue() != mPreviousZValue ||
+        (resizableItem && resizableItem->size() != mPreviousSize)) {
+        GraphicsItemTransformUndoCommand *uc = new GraphicsItemTransformUndoCommand(
+            mDelegated, mPreviousPosition, mPreviousTransform, mPreviousZValue, mPreviousSize);
 
         Application::undoStack->push(uc);
     }
 }
 
-void GraphicsItemDelegate::onZoomChanged()
-{
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+void GraphicsItemDelegate::onZoomChanged() {
+    mAntiScaleRatio =
+        1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
 
     positionHandles();
 }
 
-void GraphicsItemDelegate::buildButtons()
-{
+void GraphicsItemDelegate::buildButtons() {}
+
+void GraphicsItemDelegate::freeButtons() {
+    //Previously deleted with the frame
+    // Rimplement for some specific behavior
+    mButtons.clear();
+    mDeleteButton = 0;
+    mMenuButton = 0;
+    mZOrderUpButton = 0;
+    mZOrderDownButton = 0;
 }
 
-void GraphicsItemDelegate::freeButtons()
-{
-   //Previously deleted with the frame
-   // Rimplement for some specific behavior
-   mButtons.clear();
-   mDeleteButton = 0;
-   mMenuButton = 0;
-   mZOrderUpButton = 0;
-   mZOrderDownButton = 0;
-}
-
-void GraphicsItemDelegate::decorateMenu(QMenu* menu)
-{
+void GraphicsItemDelegate::decorateMenu(QMenu *menu) {
     mLockAction = menu->addAction(tr("Locked"), this, &GraphicsItemDelegate::lock);
     QIcon lockIcon;
     lockIcon.addPixmap(QPixmap(":/images/locked.svg"), QIcon::Normal, QIcon::On);
@@ -684,7 +620,8 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
     mLockAction->setIcon(lockIcon);
     mLockAction->setCheckable(true);
 
-    mShowOnDisplayAction = mMenu->addAction(tr("Visible on Extended Screen"), this, &GraphicsItemDelegate::showHide);
+    mShowOnDisplayAction =
+        mMenu->addAction(tr("Visible on Extended Screen"), this, &GraphicsItemDelegate::showHide);
     mShowOnDisplayAction->setCheckable(true);
 
     QIcon showIcon;
@@ -693,7 +630,8 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
     mShowOnDisplayAction->setIcon(showIcon);
 
     if (delegated()->data(GraphicsItemData::ItemCanBeSetAsBackground).toBool()) {
-        mSetAsBackgroundAction = mMenu->addAction(tr("Set as background"), this, &GraphicsItemDelegate::setAsBackground);
+        mSetAsBackgroundAction =
+            mMenu->addAction(tr("Set as background"), this, &GraphicsItemDelegate::setAsBackground);
         mSetAsBackgroundAction->setCheckable(false);
 
         QIcon backgroundIcon;
@@ -701,9 +639,9 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
         mSetAsBackgroundAction->setIcon(backgroundIcon);
     }
 
-    if (testFrameFlags(GF_SHOW_CONTENT_SOURCE))
-    {
-        mGotoContentSourceAction = menu->addAction(tr("Go to Content Source"), this, &GraphicsItemDelegate::gotoContentSource);
+    if (testFrameFlags(GF_SHOW_CONTENT_SOURCE)) {
+        mGotoContentSourceAction =
+            menu->addAction(tr("Go to Content Source"), this, &GraphicsItemDelegate::gotoContentSource);
 
         QIcon sourceIcon;
         sourceIcon.addPixmap(QPixmap(":/images/toolbar/web.png"), QIcon::Normal, QIcon::On);
@@ -711,42 +649,36 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
     }
 }
 
-void GraphicsItemDelegate::updateMenuActionState()
-{
+void GraphicsItemDelegate::updateMenuActionState() {
     if (mLockAction)
         mLockAction->setChecked(isLocked());
 
-    if (mShowOnDisplayAction)
-    {
+    if (mShowOnDisplayAction) {
         bool isControl = mDelegated->data(GraphicsItemData::ItemLayerType) == ItemLayerType::Control;
         mShowOnDisplayAction->setChecked(!isControl);
     }
 
-    if (mGotoContentSourceAction)
-    {
-        Item* item = dynamic_cast<Item*>(mDelegated);
+    if (mGotoContentSourceAction) {
+        Item *item = dynamic_cast<Item *>(mDelegated);
         mGotoContentSourceAction->setEnabled(item && !item->sourceUrl().isEmpty());
     }
 }
 
-void GraphicsItemDelegate::showMenu()
-{
-    if (!mMenu)
-    {
+void GraphicsItemDelegate::showMenu() {
+    if (!mMenu) {
         mMenu = new QMenu(Application::boardController->controlView());
         decorateMenu(mMenu);
     }
 
     updateMenuActionState();
 
-    BoardView* cv = Application::boardController->controlView();
+    BoardView *cv = Application::boardController->controlView();
     QRect pinPos = cv->mapFromScene(mMenuButton->sceneBoundingRect()).boundingRect();
 
     mMenu->exec(cv->mapToGlobal(pinPos.bottomRight()));
 }
 
-void GraphicsItemDelegate::setLocked(bool pLocked)
-{
+void GraphicsItemDelegate::setLocked(bool pLocked) {
     Q_ASSERT(mDelegated);
 
     if (mDelegated) {
@@ -754,8 +686,7 @@ void GraphicsItemDelegate::setLocked(bool pLocked)
     }
 }
 
-void GraphicsItemDelegate::updateFrame()
-{
+void GraphicsItemDelegate::updateFrame() {
     if (mFrame && !mFrame->scene() && mDelegated->scene())
         mDelegated->scene()->addItem(mFrame);
 
@@ -763,8 +694,7 @@ void GraphicsItemDelegate::updateFrame()
     mFrame->positionHandles();
 }
 
-void GraphicsItemDelegate::updateButtons(bool showUpdated)
-{
+void GraphicsItemDelegate::updateButtons(bool showUpdated) {
     QTransform tr;
     tr.scale(mAntiScaleRatio, mAntiScaleRatio);
 
@@ -774,13 +704,14 @@ void GraphicsItemDelegate::updateButtons(bool showUpdated)
     qreal topX = mFrame->rect().left() - mDeleteButton->renderer()->viewBox().width() * mAntiScaleRatio / 2;
     qreal topY = mFrame->rect().top() - mDeleteButton->renderer()->viewBox().height() * mAntiScaleRatio / 2;
 
-    qreal bottomX = mFrame->rect().left() - mDeleteButton->renderer()->viewBox().width() * mAntiScaleRatio / 2;
-    qreal bottomY = mFrame->rect().bottom() - mDeleteButton->renderer()->viewBox().height() * mAntiScaleRatio / 2;
+    qreal bottomX =
+        mFrame->rect().left() - mDeleteButton->renderer()->viewBox().width() * mAntiScaleRatio / 2;
+    qreal bottomY =
+        mFrame->rect().bottom() - mDeleteButton->renderer()->viewBox().height() * mAntiScaleRatio / 2;
 
     mDeleteButton->setPos(topX, topY);
 
-    if (!mDeleteButton->scene())
-    {
+    if (!mDeleteButton->scene()) {
         if (mDelegated->scene())
             mDelegated->scene()->addItem(mDeleteButton);
     }
@@ -791,36 +722,32 @@ void GraphicsItemDelegate::updateButtons(bool showUpdated)
     int i = 1, j = 0, k = 0, l = 0;
     int frameButtonHeight = mDeleteButton->boundingRect().size().height();
     qreal topXTitleBar = topX + (1.6 * mFrameWidth * mAntiScaleRatio);
-    qreal topYTitleBar = topY + frameButtonHeight *mAntiScaleRatio;
+    qreal topYTitleBar = topY + frameButtonHeight * mAntiScaleRatio;
 
 #ifndef Q_OS_LINUX
     topYTitleBar += 5;
 #endif
 
-    while ((i + j + k + l) < mButtons.size())  {
-        DelegateButton* button = mButtons[i + j + k + l];
+    while ((i + j + k + l) < mButtons.size()) {
+        DelegateButton *button = mButtons[i + j + k + l];
 
         if (button->getSection() == Qt::TopLeftSection) {
             button->setParentItem(mFrame);
             button->setPos(topX + (i++ * 1.6 * mFrameWidth * mAntiScaleRatio), topY);
             button->setTransform(tr);
-        }
-        else if (button->getSection() == Qt::BottomLeftSection) {
+        } else if (button->getSection() == Qt::BottomLeftSection) {
             button->setParentItem(mFrame);
             button->setPos(bottomX + (++j * 1.6 * mFrameWidth * mAntiScaleRatio), bottomY);
             button->setTransform(tr);
-        }
-        else if (button->getSection() == Qt::TitleBarArea){
+        } else if (button->getSection() == Qt::TitleBarArea) {
             button->setParentItem(mFrame);
             button->setPos(topXTitleBar + (k++ * (frameButtonHeight + 5) * mAntiScaleRatio), topYTitleBar);
             button->setTransform(tr);
             button->setTransform(QTransform::fromScale(0.8, 0.8), true);
-        }
-        else if(button->getSection() == Qt::NoSection){
+        } else if (button->getSection() == Qt::NoSection) {
             ++l;
         }
-        if (!button->scene())
-        {
+        if (!button->scene()) {
             if (mDelegated->scene())
                 mDelegated->scene()->addItem(button);
         }
@@ -831,18 +758,16 @@ void GraphicsItemDelegate::updateButtons(bool showUpdated)
     }
 }
 
-void GraphicsItemDelegate::setButtonsVisible(bool visible)
-{
-    foreach(DelegateButton* pButton, mButtons){
+void GraphicsItemDelegate::setButtonsVisible(bool visible) {
+    foreach (DelegateButton *pButton, mButtons) {
         pButton->setVisible(visible);
     }
 }
 
-void GraphicsItemDelegate::setFrameFlags(GraphicsFlags pf)
-{
+void GraphicsItemDelegate::setFrameFlags(GraphicsFlags pf) {
     mFlags = pf;
 
-    Q_ASSERT (mDelegated);
+    Q_ASSERT(mDelegated);
     if (!mDelegated) {
         return;
     }
@@ -856,22 +781,20 @@ void GraphicsItemDelegate::setFrameFlags(GraphicsFlags pf)
     }
 }
 
-void GraphicsItemDelegate::setFrameFlag(GraphicsFlags pf, bool set)
-{
+void GraphicsItemDelegate::setFrameFlag(GraphicsFlags pf, bool set) {
     GraphicsFlags fls = mFlags;
     set ? fls |= pf : fls &= ~pf;
 
     setFrameFlags(fls);
 }
 
-GraphicsToolBarItem::GraphicsToolBarItem(QGraphicsItem * parent) :
-    QGraphicsRectItem(parent),
-    mShifting(true),
-    mVisible(false),
-    mMinWidth(200),
-    mInitialHeight(26),
-    mElementsPadding(2)
-{
+GraphicsToolBarItem::GraphicsToolBarItem(QGraphicsItem *parent)
+    : QGraphicsRectItem(parent),
+      mShifting(true),
+      mVisible(false),
+      mMinWidth(200),
+      mInitialHeight(26),
+      mElementsPadding(2) {
     QRectF rect = this->rect();
     rect.setHeight(mInitialHeight);
     rect.setWidth(parent->boundingRect().width());
@@ -884,24 +807,20 @@ GraphicsToolBarItem::GraphicsToolBarItem(QGraphicsItem * parent) :
 }
 
 
-void GraphicsToolBarItem::positionHandles()
-{
+void GraphicsToolBarItem::positionHandles() {
     int itemXOffset = 0;
-    foreach (QGraphicsItem* item, mItemsOnToolBar)
-    {
+    foreach (QGraphicsItem *item, mItemsOnToolBar) {
         item->setPos(itemXOffset, 0);
-        itemXOffset += (item->boundingRect().width()+mElementsPadding);
+        itemXOffset += (item->boundingRect().width() + mElementsPadding);
         item->show();
     }
 }
 
-void GraphicsToolBarItem::update()
-{
+void GraphicsToolBarItem::update() {
     QGraphicsRectItem::update();
 }
 
-void GraphicsToolBarItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsToolBarItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
@@ -913,35 +832,30 @@ void GraphicsToolBarItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->fillPath(path, brush());
 }
 
-MediaTimer::MediaTimer(QGraphicsItem * parent): QGraphicsRectItem(parent)
-{
-    val        = 0;
+MediaTimer::MediaTimer(QGraphicsItem *parent) : QGraphicsRectItem(parent) {
+    val = 0;
     smallPoint = false;
     setNumDigits(6);
 }
 
-MediaTimer::~MediaTimer()
-{}
-void MediaTimer::positionHandles()
-{
+MediaTimer::~MediaTimer() {}
+void MediaTimer::positionHandles() {
     digitSpace = smallPoint ? 2 : 1;
-    ySegLen    = rect().height()*5/12;
-    xSegLen    = ySegLen*2/3;
-    segLen     = xSegLen;
-    xAdvance   = segLen*(5 + digitSpace)/5;
-    xOffset    = (rect().width() - ndigits*xAdvance + segLen/5)/2;
-    yOffset    = rect().height() - ySegLen*2;
+    ySegLen = rect().height() * 5 / 12;
+    xSegLen = ySegLen * 2 / 3;
+    segLen = xSegLen;
+    xAdvance = segLen * (5 + digitSpace) / 5;
+    xOffset = (rect().width() - ndigits * xAdvance + segLen / 5) / 2;
+    yOffset = rect().height() - ySegLen * 2;
 
-    setRect(rect().x(), rect().y(), xOffset + xAdvance*ndigits, rect().height());
+    setRect(rect().x(), rect().y(), xOffset + xAdvance * ndigits, rect().height());
 }
 
-void MediaTimer::drawString(const QString &s, QPainter &p,
-                                   QBitArray *newPoints, bool newString)
-{
-    QPoint  pos;
+void MediaTimer::drawString(const QString &s, QPainter &p, QBitArray *newPoints, bool newString) {
+    QPoint pos;
 
-    for (int i=0;  i<ndigits; i++) {
-        pos = QPoint(xOffset + xAdvance*i, yOffset);
+    for (int i = 0; i < ndigits; i++) {
+        pos = QPoint(xOffset + xAdvance * i, yOffset);
         if (newString)
             drawDigit(pos, p, segLen, s[i].toLatin1(), digitStr[i].toLatin1());
         else
@@ -964,200 +878,195 @@ void MediaTimer::drawString(const QString &s, QPainter &p,
     }
 }
 
-void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, int segLen,
-                                  char newCh, char oldCh)
-{
-     char updates[18][2];        // can hold 2 times number of segments, only
-                                 // first 9 used if segment table is correct
-     int  nErases;
-     int  nUpdates;
-     const char *segs;
-     int  i,j;
+void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, int segLen, char newCh, char oldCh) {
+    char updates[18][2]; // can hold 2 times number of segments, only
+                         // first 9 used if segment table is correct
+    int nErases;
+    int nUpdates;
+    const char *segs;
+    int i, j;
 
-     const char erase      = 0;
-     const char draw       = 1;
-     const char leaveAlone = 2;
+    const char erase = 0;
+    const char draw = 1;
+    const char leaveAlone = 2;
 
-     segs = getSegments(oldCh);
-     for (nErases=0; segs[nErases] != 99; nErases++) {
-         updates[nErases][0] = erase;            // get segments to erase to
-         updates[nErases][1] = segs[nErases];    // remove old char
-     }
-     nUpdates = nErases;
-     segs = getSegments(newCh);
-     for(i = 0 ; segs[i] != 99 ; i++) {
-         for (j=0;  j<nErases; j++)
-             if (segs[i] == updates[j][1]) {   // same segment ?
-                 updates[j][0] = leaveAlone;     // yes, already on screen
-                 break;
-             }
-         if (j == nErases) {                   // if not already on screen
-             updates[nUpdates][0] = draw;
-             updates[nUpdates][1] = segs[i];
-             nUpdates++;
-         }
-     }
-     for (i=0; i<nUpdates; i++) {
-         if (updates[i][0] == draw)
-             drawSegment(pos, updates[i][1], p, segLen);
-         if (updates[i][0] == erase)
-             drawSegment(pos, updates[i][1], p, segLen, true);
-     }
+    segs = getSegments(oldCh);
+    for (nErases = 0; segs[nErases] != 99; nErases++) {
+        updates[nErases][0] = erase;         // get segments to erase to
+        updates[nErases][1] = segs[nErases]; // remove old char
+    }
+    nUpdates = nErases;
+    segs = getSegments(newCh);
+    for (i = 0; segs[i] != 99; i++) {
+        for (j = 0; j < nErases; j++)
+            if (segs[i] == updates[j][1]) { // same segment ?
+                updates[j][0] = leaveAlone; // yes, already on screen
+                break;
+            }
+        if (j == nErases) { // if not already on screen
+            updates[nUpdates][0] = draw;
+            updates[nUpdates][1] = segs[i];
+            nUpdates++;
+        }
+    }
+    for (i = 0; i < nUpdates; i++) {
+        if (updates[i][0] == draw)
+            drawSegment(pos, updates[i][1], p, segLen);
+        if (updates[i][0] == erase)
+            drawSegment(pos, updates[i][1], p, segLen, true);
+    }
 }
 
-char MediaTimer::segments [][8] =
-        {
-              { 0, 1, 2, 4, 5, 6,99, 0},             // 0    0
-              { 2, 5,99, 0, 0, 0, 0, 0},             // 1    1
-              { 0, 2, 3, 4, 6,99, 0, 0},             // 2    2
-              { 0, 2, 3, 5, 6,99, 0, 0},             // 3    3
-              { 1, 2, 3, 5,99, 0, 0, 0},             // 4    4
-              { 0, 1, 3, 5, 6,99, 0, 0},             // 5    5
-              { 0, 1, 3, 4, 5, 6,99, 0},             // 6    6
-              { 0, 2, 5,99, 0, 0, 0, 0},             // 7    7
-              { 0, 1, 2, 3, 4, 5, 6,99},             // 8    8
-              { 0, 1, 2, 3, 5, 6,99, 0},             // 9    9
-              { 8, 9,99, 0, 0, 0, 0, 0},             // 10   :
-              {99, 0, 0, 0, 0, 0, 0, 0}              // 11   empty
-        };
+char MediaTimer::segments[][8] = {
+    {0, 1, 2, 4, 5, 6, 99, 0}, // 0    0
+    {2, 5, 99, 0, 0, 0, 0, 0}, // 1    1
+    {0, 2, 3, 4, 6, 99, 0, 0}, // 2    2
+    {0, 2, 3, 5, 6, 99, 0, 0}, // 3    3
+    {1, 2, 3, 5, 99, 0, 0, 0}, // 4    4
+    {0, 1, 3, 5, 6, 99, 0, 0}, // 5    5
+    {0, 1, 3, 4, 5, 6, 99, 0}, // 6    6
+    {0, 2, 5, 99, 0, 0, 0, 0}, // 7    7
+    {0, 1, 2, 3, 4, 5, 6, 99}, // 8    8
+    {0, 1, 2, 3, 5, 6, 99, 0}, // 9    9
+    {8, 9, 99, 0, 0, 0, 0, 0}, // 10   :
+    {99, 0, 0, 0, 0, 0, 0, 0}  // 11   empty
+};
 
-const char* MediaTimer::getSegments(char ch)               // gets list of segments for ch
+const char *MediaTimer::getSegments(char ch) // gets list of segments for ch
 {
-     if (ch >= '0' && ch <= '9')
+    if (ch >= '0' && ch <= '9')
         return segments[ch - '0'];
-     if (ch == ':')
+    if (ch == ':')
         return segments[10];
-     if (ch == ' ')
+    if (ch == ' ')
         return segments[11];
 
-     return NULL;
+    return NULL;
 }
 
-void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
-                                    int segLen, bool erase)
-{
+void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p, int segLen, bool erase) {
     Q_UNUSED(erase);
 
     QPoint ppt;
     QPoint pt = pos;
-    int width = segLen/5;
+    int width = segLen / 5;
 
-#define LINETO(X,Y) addPoint(a, QPoint(pt.x() + (X),pt.y() + (Y)))
+#define LINETO(X, Y) addPoint(a, QPoint(pt.x() + (X), pt.y() + (Y)))
 #define LIGHT
 #define DARK
 
     QPolygon a;
     switch (segmentNo) {
-    case 0 :
-        ppt = pt;
-        LIGHT;
-        LINETO(segLen - 1,0);
-        DARK;
-        LINETO(segLen - width - 1,width);
-        LINETO(width,width);
-        LINETO(0,0);
-        break;
-    case 1 :
-        pt += QPoint(0 , 1);
-        ppt = pt;
-        LIGHT;
-        LINETO(width,width);
-        DARK;
-        LINETO(width,segLen - width/2 - 2);
-        LINETO(0,segLen - 2);
-        LIGHT;
-        LINETO(0,0);
-        break;
-    case 2 :
-        pt += QPoint(segLen - 1 , 1);
-        ppt = pt;
-        DARK;
-        LINETO(0,segLen - 2);
-        LINETO(-width,segLen - width/2 - 2);
-        LIGHT;
-        LINETO(-width,width);
-        LINETO(0,0);
-        break;
-    case 3 :
-        pt += QPoint(0 , segLen);
-        ppt = pt;
-        LIGHT;
-        LINETO(width,-width/2);
-        LINETO(segLen - width - 1,-width/2);
-        LINETO(segLen - 1,0);
-        DARK;
-        if (width & 1) {            // adjust for integer division error
-            LINETO(segLen - width - 3,width/2 + 1);
-            LINETO(width + 2,width/2 + 1);
-        } else {
-            LINETO(segLen - width - 1,width/2);
-            LINETO(width,width/2);
-        }
-        LINETO(0,0);
-        break;
-    case 4 :
-        pt += QPoint(0 , segLen + 1);
-        ppt = pt;
-        LIGHT;
-        LINETO(width,width/2);
-        DARK;
-        LINETO(width,segLen - width - 2);
-        LINETO(0,segLen - 2);
-        LIGHT;
-        LINETO(0,0);
-        break;
-    case 5 :
-        pt += QPoint(segLen - 1 , segLen + 1);
-        ppt = pt;
-        DARK;
-        LINETO(0,segLen - 2);
-        LINETO(-width,segLen - width - 2);
-        LIGHT;
-        LINETO(-width,width/2);
-        LINETO(0,0);
-        break;
-    case 6 :
-        pt += QPoint(0 , segLen*2);
-        ppt = pt;
-        LIGHT;
-        LINETO(width,-width);
-        LINETO(segLen - width - 1,-width);
-        LINETO(segLen - 1,0);
-        DARK;
-        LINETO(0,0);
-        break;
-    case 7 :
-        pt += QPoint(segLen/2 , segLen*2);
-        ppt = pt;
-        DARK;
-        LINETO(width,0);
-        LINETO(width,-width);
-        LIGHT;
-        LINETO(0,-width);
-        LINETO(0,0);
-        break;
-    case 8 :
-        pt += QPoint(segLen/2 - width/2 + 1 , segLen/2 + width);
-        ppt = pt;
-        DARK;
-        LINETO(width,0);
-        LINETO(width,-width);
-        LIGHT;
-        LINETO(0,-width);
-        LINETO(0,0);
-        break;
-    case 9 :
-        pt += QPoint(segLen/2 - width/2 + 1 , 3*segLen/2 + width);
-        ppt = pt;
-        DARK;
-        LINETO(width,0);
-        LINETO(width,-width);
-        LIGHT;
-        LINETO(0,-width);
-        LINETO(0,0);
-        break;
-    default :
-        break;
+        case 0:
+            ppt = pt;
+            LIGHT;
+            LINETO(segLen - 1, 0);
+            DARK;
+            LINETO(segLen - width - 1, width);
+            LINETO(width, width);
+            LINETO(0, 0);
+            break;
+        case 1:
+            pt += QPoint(0, 1);
+            ppt = pt;
+            LIGHT;
+            LINETO(width, width);
+            DARK;
+            LINETO(width, segLen - width / 2 - 2);
+            LINETO(0, segLen - 2);
+            LIGHT;
+            LINETO(0, 0);
+            break;
+        case 2:
+            pt += QPoint(segLen - 1, 1);
+            ppt = pt;
+            DARK;
+            LINETO(0, segLen - 2);
+            LINETO(-width, segLen - width / 2 - 2);
+            LIGHT;
+            LINETO(-width, width);
+            LINETO(0, 0);
+            break;
+        case 3:
+            pt += QPoint(0, segLen);
+            ppt = pt;
+            LIGHT;
+            LINETO(width, -width / 2);
+            LINETO(segLen - width - 1, -width / 2);
+            LINETO(segLen - 1, 0);
+            DARK;
+            if (width & 1) { // adjust for integer division error
+                LINETO(segLen - width - 3, width / 2 + 1);
+                LINETO(width + 2, width / 2 + 1);
+            } else {
+                LINETO(segLen - width - 1, width / 2);
+                LINETO(width, width / 2);
+            }
+            LINETO(0, 0);
+            break;
+        case 4:
+            pt += QPoint(0, segLen + 1);
+            ppt = pt;
+            LIGHT;
+            LINETO(width, width / 2);
+            DARK;
+            LINETO(width, segLen - width - 2);
+            LINETO(0, segLen - 2);
+            LIGHT;
+            LINETO(0, 0);
+            break;
+        case 5:
+            pt += QPoint(segLen - 1, segLen + 1);
+            ppt = pt;
+            DARK;
+            LINETO(0, segLen - 2);
+            LINETO(-width, segLen - width - 2);
+            LIGHT;
+            LINETO(-width, width / 2);
+            LINETO(0, 0);
+            break;
+        case 6:
+            pt += QPoint(0, segLen * 2);
+            ppt = pt;
+            LIGHT;
+            LINETO(width, -width);
+            LINETO(segLen - width - 1, -width);
+            LINETO(segLen - 1, 0);
+            DARK;
+            LINETO(0, 0);
+            break;
+        case 7:
+            pt += QPoint(segLen / 2, segLen * 2);
+            ppt = pt;
+            DARK;
+            LINETO(width, 0);
+            LINETO(width, -width);
+            LIGHT;
+            LINETO(0, -width);
+            LINETO(0, 0);
+            break;
+        case 8:
+            pt += QPoint(segLen / 2 - width / 2 + 1, segLen / 2 + width);
+            ppt = pt;
+            DARK;
+            LINETO(width, 0);
+            LINETO(width, -width);
+            LIGHT;
+            LINETO(0, -width);
+            LINETO(0, 0);
+            break;
+        case 9:
+            pt += QPoint(segLen / 2 - width / 2 + 1, 3 * segLen / 2 + width);
+            ppt = pt;
+            DARK;
+            LINETO(width, 0);
+            LINETO(width, -width);
+            LIGHT;
+            LINETO(0, -width);
+            LINETO(0, 0);
+            break;
+        default:
+            break;
     }
     // End exact copy
     p.setPen(Qt::white);
@@ -1172,15 +1081,13 @@ void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
 #undef DARK
 }
 
-void MediaTimer::addPoint(QPolygon &a, const QPoint &p)
-{
+void MediaTimer::addPoint(QPolygon &a, const QPoint &p) {
     uint n = a.size();
     a.resize(n + 1);
     a.setPoint(n, p);
 }
 
-void MediaTimer::paint(QPainter *p, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void MediaTimer::paint(QPainter *p, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
@@ -1190,8 +1097,7 @@ void MediaTimer::paint(QPainter *p, const QStyleOptionGraphicsItem *option, QWid
         drawString(digitStr, *p, 0, false);
 }
 
-void MediaTimer::internalSetString(const QString& s)
-{
+void MediaTimer::internalSetString(const QString &s) {
     QString buffer;
     int i;
     int len = s.length();
@@ -1203,35 +1109,34 @@ void MediaTimer::internalSetString(const QString& s)
         else
             buffer = s.right(ndigits).rightJustified(ndigits, QLatin1Char(' '));
     } else {
-        int  index = -1;
+        int index = -1;
         bool lastWasPoint = true;
         newPoints.clearBit(0);
-        for (i=0; i<len; i++) {
+        for (i = 0; i < len; i++) {
             if (s[i] == QLatin1Char('.')) {
                 if (lastWasPoint) {           // point already set for digit?
                     if (index == ndigits - 1) // no more digits
                         break;
                     index++;
-                    buffer[index] = QLatin1Char(' ');        // 2 points in a row, add space
+                    buffer[index] = QLatin1Char(' '); // 2 points in a row, add space
                 }
-                newPoints.setBit(index);        // set decimal point
+                newPoints.setBit(index); // set decimal point
                 lastWasPoint = true;
             } else {
                 if (index == ndigits - 1)
                     break;
                 index++;
                 buffer[index] = s[i];
-                newPoints.clearBit(index);      // decimal point default off
+                newPoints.clearBit(index); // decimal point default off
                 lastWasPoint = false;
             }
         }
-        if (index < ((int) ndigits) - 1) {
-            for(i=index; i>=0; i--) {
+        if (index < ((int)ndigits) - 1) {
+            for (i = index; i >= 0; i--) {
                 buffer[ndigits - 1 - index + i] = buffer[i];
-                newPoints.setBit(ndigits - 1 - index + i,
-                                   newPoints.testBit(i));
+                newPoints.setBit(ndigits - 1 - index + i, newPoints.testBit(i));
             }
-            for(i=0; i<ndigits-index-1; i++) {
+            for (i = 0; i < ndigits - index - 1; i++) {
                 buffer[i] = QLatin1Char(' ');
                 newPoints.clearBit(i);
             }
@@ -1247,8 +1152,7 @@ void MediaTimer::internalSetString(const QString& s)
     update();
 }
 
-void MediaTimer::display(const QString &s)
-{
+void MediaTimer::display(const QString &s) {
     val = 0;
     bool ok = false;
     double v = s.toDouble(&ok);
@@ -1257,8 +1161,7 @@ void MediaTimer::display(const QString &s)
     internalSetString(s);
 }
 
-void MediaTimer::setNumDigits(int numDigits)
-{
+void MediaTimer::setNumDigits(int numDigits) {
     if (numDigits > 99) {
         qWarning("QLCDNumber::setNumDigits: Max 99 digits allowed");
         numDigits = 99;
@@ -1267,33 +1170,33 @@ void MediaTimer::setNumDigits(int numDigits)
         qWarning("QLCDNumber::setNumDigits: Min 0 digits allowed");
         numDigits = 0;
     }
-    if (digitStr.isNull()) {                  // from constructor
-        ndigits = numDigits + numDigits/2 - 1;
+    if (digitStr.isNull()) { // from constructor
+        ndigits = numDigits + numDigits / 2 - 1;
         digitStr.fill(QLatin1Char(' '), ndigits);
         points.fill(0, ndigits);
-        digitStr[ndigits - 1] = QLatin1Char('0');            // "0" is the default number
+        digitStr[ndigits - 1] = QLatin1Char('0'); // "0" is the default number
     } else {
-        if (numDigits == ndigits)             // no change
+        if (numDigits == ndigits) // no change
             return;
         int i;
         int dif;
-        if (numDigits > ndigits) {            // expand
+        if (numDigits > ndigits) { // expand
             dif = numDigits - ndigits;
             QString buf;
             buf.fill(QLatin1Char(' '), dif);
             digitStr.insert(0, buf);
             points.resize(numDigits);
-            for (i=numDigits-1; i>=dif; i--)
-                points.setBit(i, points.testBit(i-dif));
-            for (i=0; i<dif; i++)
+            for (i = numDigits - 1; i >= dif; i--)
+                points.setBit(i, points.testBit(i - dif));
+            for (i = 0; i < dif; i++)
                 points.clearBit(i);
-        } else {                                        // shrink
+        } else { // shrink
             dif = ndigits - numDigits;
             digitStr = digitStr.right(numDigits);
             QBitArray tmpPoints = points;
             points.resize(numDigits);
-            for (i=0; i<(int)numDigits; i++)
-                points.setBit(i, tmpPoints.testBit(i+dif));
+            for (i = 0; i < (int)numDigits; i++)
+                points.setBit(i, tmpPoints.testBit(i + dif));
         }
         ndigits = numDigits;
         update();
@@ -1301,15 +1204,14 @@ void MediaTimer::setNumDigits(int numDigits)
     positionHandles();
 }
 
-DelegateMediaControl::DelegateMediaControl(GraphicsMediaItem* pDelegated, QGraphicsItem * parent)
-    : QGraphicsRectItem(parent)
-    , mDelegate(pDelegated)
-    , mDisplayCurrentTime(false)
-    , mCurrentTimeInMs(0)
-    , mTotalTimeInMs(0)
-    , mStartWidth(200)
-    , mSeecAreaBorderHeight(0)
-{
+DelegateMediaControl::DelegateMediaControl(GraphicsMediaItem *pDelegated, QGraphicsItem *parent)
+    : QGraphicsRectItem(parent),
+      mDelegate(pDelegated),
+      mDisplayCurrentTime(false),
+      mCurrentTimeInMs(0),
+      mTotalTimeInMs(0),
+      mStartWidth(200),
+      mSeecAreaBorderHeight(0) {
     setAcceptedMouseButtons(Qt::LeftButton);
     setBrush(QBrush(Qt::white));
     setPen(Qt::NoPen);
@@ -1321,28 +1223,25 @@ DelegateMediaControl::DelegateMediaControl(GraphicsMediaItem* pDelegated, QGraph
 }
 
 
-void DelegateMediaControl::paint(QPainter *painter,
-        const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void DelegateMediaControl::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
     QPainterPath path;
 
-    path.addRoundedRect(mSeecArea, mSeecArea.height()/2, mSeecArea.height()/2);
+    path.addRoundedRect(mSeecArea, mSeecArea.height() / 2, mSeecArea.height() / 2);
     painter->fillPath(path, brush());
 
     qreal frameWidth = mSeecArea.height() / 2;
     int position = frameWidth;
 
-    if (mTotalTimeInMs > 0)
-    {
+    if (mTotalTimeInMs > 0) {
         position = frameWidth + ((mSeecArea.width() - (2 * frameWidth)) / mTotalTimeInMs) * mCurrentTimeInMs;
     }
 
     int clearance = 2;
-    int radius = frameWidth-clearance;
-    QRectF r(position - radius, clearance+mSeecAreaBorderHeight, radius * 2, radius * 2);
+    int radius = frameWidth - clearance;
+    QRectF r(position - radius, clearance + mSeecAreaBorderHeight, radius * 2, radius * 2);
 
     painter->setBrush(Settings::documentViewLightColor);
     painter->setPen(Qt::black);
@@ -1350,15 +1249,13 @@ void DelegateMediaControl::paint(QPainter *painter,
 }
 
 
-QPainterPath DelegateMediaControl::shape() const
-{
+QPainterPath DelegateMediaControl::shape() const {
     QPainterPath path;
-    path.addRoundedRect(mSeecArea, mSeecArea.height()/2, mSeecArea.height()/2);
+    path.addRoundedRect(mSeecArea, mSeecArea.height() / 2, mSeecArea.height() / 2);
     return path;
 }
 
-void DelegateMediaControl::positionHandles()
-{
+void DelegateMediaControl::positionHandles() {
     QTime tTotal;
     tTotal = tTotal.addMSecs(mTotalTimeInMs);
     mLCDTimerArea.setHeight(parentItem()->boundingRect().height());
@@ -1373,8 +1270,7 @@ void DelegateMediaControl::positionHandles()
     digitsCount += 3;
     timerWidth += mLCDTimerArea.height();
 
-    if (tTotal.hour() > 0)
-    {
+    if (tTotal.hour() > 0) {
         mDisplayFormat = "hh:" + mDisplayFormat;
         digitsCount += 3;
         timerWidth += mLCDTimerArea.height();
@@ -1387,14 +1283,13 @@ void DelegateMediaControl::positionHandles()
 
     lcdTimer->setPos(rect().width() - mLCDTimerArea.width(), 0);
 
-    mSeecAreaBorderHeight = rect().height()/20;
-    mSeecArea.setWidth(rect().width()-mLCDTimerArea.width()-2);
-    mSeecArea.setHeight(rect().height()-2*mSeecAreaBorderHeight);
+    mSeecAreaBorderHeight = rect().height() / 20;
+    mSeecArea.setWidth(rect().width() - mLCDTimerArea.width() - 2);
+    mSeecArea.setHeight(rect().height() - 2 * mSeecAreaBorderHeight);
     mSeecArea.setY(mSeecAreaBorderHeight);
 }
 
-void DelegateMediaControl::update()
-{
+void DelegateMediaControl::update() {
     QTime tCurrent;
     tCurrent = tCurrent.addMSecs(mCurrentTimeInMs < 0 ? 0 : mCurrentTimeInMs);
 
@@ -1404,17 +1299,14 @@ void DelegateMediaControl::update()
     QGraphicsRectItem::update();
 }
 
-void DelegateMediaControl::updateTicker(qint64 time )
-{
+void DelegateMediaControl::updateTicker(qint64 time) {
     mCurrentTimeInMs = time;
     update();
 }
 
 
-void DelegateMediaControl::totalTimeChanged(qint64 newTotalTime)
-{
-    if (mTotalTimeInMs != newTotalTime)
-    {
+void DelegateMediaControl::totalTimeChanged(qint64 newTotalTime) {
+    if (mTotalTimeInMs != newTotalTime) {
         mTotalTimeInMs = newTotalTime;
         positionHandles();
         update();
@@ -1422,12 +1314,10 @@ void DelegateMediaControl::totalTimeChanged(qint64 newTotalTime)
 }
 
 
-void DelegateMediaControl::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-   qreal frameWidth =  mSeecArea.height()/2;
-    if (boundingRect().contains(event->pos() - QPointF(frameWidth,0))
-        && boundingRect().contains(event->pos() + QPointF(frameWidth,0)))
-    {
+void DelegateMediaControl::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    qreal frameWidth = mSeecArea.height() / 2;
+    if (boundingRect().contains(event->pos() - QPointF(frameWidth, 0)) &&
+        boundingRect().contains(event->pos() + QPointF(frameWidth, 0))) {
         mDisplayCurrentTime = true;
         seekToMousePos(event->pos());
         this->update();
@@ -1436,12 +1326,10 @@ void DelegateMediaControl::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void DelegateMediaControl::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
+void DelegateMediaControl::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     qreal frameWidth = mSeecArea.height() / 2;
-    if (boundingRect().contains(event->pos() - QPointF(frameWidth,0))
-        && boundingRect().contains(event->pos() + QPointF(frameWidth,0)))
-    {
+    if (boundingRect().contains(event->pos() - QPointF(frameWidth, 0)) &&
+        boundingRect().contains(event->pos() + QPointF(frameWidth, 0))) {
         seekToMousePos(event->pos());
         this->update();
         event->accept();
@@ -1449,8 +1337,7 @@ void DelegateMediaControl::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void DelegateMediaControl::seekToMousePos(QPointF mousePos)
-{
+void DelegateMediaControl::seekToMousePos(QPointF mousePos) {
     qreal minX, length;
     qreal frameWidth = rect().height() / 2;
 
@@ -1458,13 +1345,11 @@ void DelegateMediaControl::seekToMousePos(QPointF mousePos)
     length = mSeecArea.width() - mSeecArea.height();
 
     qreal mouseX = mousePos.x();
-    if (mouseX >= (mSeecArea.width() - mSeecArea.height()/2))
-        mouseX = mSeecArea.width() - mSeecArea.height()/2;
+    if (mouseX >= (mSeecArea.width() - mSeecArea.height() / 2))
+        mouseX = mSeecArea.width() - mSeecArea.height() / 2;
 
-    if (mTotalTimeInMs > 0 && length > 0 && mDelegate
-        && mDelegate->isMediaSeekable())
-    {
-        qint64 tickPos = (mTotalTimeInMs/length)* (mouseX - minX);
+    if (mTotalTimeInMs > 0 && length > 0 && mDelegate && mDelegate->isMediaSeekable()) {
+        qint64 tickPos = (mTotalTimeInMs / length) * (mouseX - minX);
         mDelegate->setMediaPos(tickPos);
 
         //OSX is a bit lazy
@@ -1473,8 +1358,7 @@ void DelegateMediaControl::seekToMousePos(QPointF mousePos)
     emit used();
 }
 
-void DelegateMediaControl::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void DelegateMediaControl::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     mDisplayCurrentTime = false;
     this->update();
     event->accept();

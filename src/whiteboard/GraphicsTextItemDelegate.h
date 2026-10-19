@@ -10,53 +10,47 @@
 
 class GraphicsTextItem;
 
-class AlignTextButton : public DelegateButton
-{
+class AlignTextButton : public DelegateButton {
     Q_OBJECT
 
 public:
     static const int MAX_KIND = 3;
-    enum kind_t{
-        k_left = 0
-        , k_center
-        , k_right
-        , k_mixed
-    };
+    enum kind_t { k_left = 0, k_center, k_right, k_mixed };
 
-    AlignTextButton(const QString & fileName, QGraphicsItem* pDelegated, QGraphicsItem * parent = 0, Qt::WindowFrameSection section = Qt::TopLeftSection);
+    AlignTextButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent = 0,
+                    Qt::WindowFrameSection section = Qt::TopLeftSection);
     virtual ~AlignTextButton();
 
     void setKind(int pKind);
-    int kind() {return mKind;}
+    int kind() { return mKind; }
 
     void setNextKind();
     int nextKind() const;
 
-    void setMixedButtonVisible(bool v = true) {mHideMixed = !v;}
-    bool isMixedButtonVisible() {return !mHideMixed;}
+    void setMixedButtonVisible(bool v = true) { mHideMixed = !v; }
+    bool isMixedButtonVisible() { return !mHideMixed; }
 
 private:
-    QSvgRenderer *rndFromKind(int pknd)
-    {
+    QSvgRenderer *rndFromKind(int pknd) {
         switch (pknd) {
-        case k_left:
-            return lft;
-            break;
-        case k_center:
-            return cntr;
-            break;
-        case k_right:
-            return rght;
-            break;
-        case k_mixed:
-            return mxd;
-            break;
+            case k_left:
+                return lft;
+                break;
+            case k_center:
+                return cntr;
+                break;
+            case k_right:
+                return rght;
+                break;
+            case k_mixed:
+                return mxd;
+                break;
         }
 
         return 0;
     }
 
-    QSvgRenderer *curRnd() {return rndFromKind(mKind);}
+    QSvgRenderer *curRnd() { return rndFromKind(mKind); }
 
     QPointer<QSvgRenderer> lft;
     QPointer<QSvgRenderer> cntr;
@@ -67,94 +61,86 @@ private:
     bool mHideMixed;
 };
 
-class GraphicsTextItemDelegate : public GraphicsItemDelegate
-{
+class GraphicsTextItemDelegate : public GraphicsItemDelegate {
     Q_OBJECT
 
-    enum textChangeMode
-    {
-        changeSize = 0,
-        scaleSize
-    };
+    enum textChangeMode { changeSize = 0, scaleSize };
 
-    public:
-        GraphicsTextItemDelegate(GraphicsTextItem* pDelegated, QObject * parent = 0);
-        virtual ~GraphicsTextItemDelegate();
-        bool isEditable();
-        void scaleTextSize(qreal multiplyer);
-        void recolor();
-        virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
-        virtual void createControls();
-        qreal titleBarWidth();
+public:
+    GraphicsTextItemDelegate(GraphicsTextItem *pDelegated, QObject *parent = 0);
+    virtual ~GraphicsTextItemDelegate();
+    bool isEditable();
+    void scaleTextSize(qreal multiplyer);
+    void recolor();
+    virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
+    virtual void createControls();
+    qreal titleBarWidth();
 
-    public slots:
-        void contentsChanged();
-        virtual void setEditable(bool);
-        virtual void remove(bool canUndo);
+public slots:
+    void contentsChanged();
+    virtual void setEditable(bool);
+    virtual void remove(bool canUndo);
 
-    protected:
-        virtual void decorateMenu(QMenu *menu);
-        virtual void updateMenuActionState();
+protected:
+    virtual void decorateMenu(QMenu *menu);
+    virtual void updateMenuActionState();
 
-        virtual void freeButtons();
+    virtual void freeButtons();
 
-        virtual bool mousePressEvent(QGraphicsSceneMouseEvent *event);
-        virtual bool mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-        virtual bool mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual bool mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual bool mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual bool mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-        virtual bool keyPressEvent(QKeyEvent *event);
-        virtual bool keyReleaseEvent(QKeyEvent *event);
+    virtual bool keyPressEvent(QKeyEvent *event);
+    virtual bool keyReleaseEvent(QKeyEvent *event);
 
-    private:
-        GraphicsTextItem* delegated();
+private:
+    GraphicsTextItem *delegated();
 
-        DelegateButton* mFontButton;
-        DelegateButton* mColorButton;
-        DelegateButton* mDecreaseSizeButton;
-        DelegateButton* mIncreaseSizeButton;
-        DelegateButton* mAlignButton;
+    DelegateButton *mFontButton;
+    DelegateButton *mColorButton;
+    DelegateButton *mDecreaseSizeButton;
+    DelegateButton *mIncreaseSizeButton;
+    DelegateButton *mAlignButton;
 
-        int mLastFontPixelSize;
+    int mLastFontPixelSize;
 
-        static const int sMinPixelSize;
-        static const int sMinPointSize;
+    static const int sMinPixelSize;
+    static const int sMinPointSize;
 
-    private:
-        void customize(QFontDialog &fontDialog);
-        void ChangeTextSize(qreal factor, textChangeMode changeMode);
-        void updateAlighButtonState();
-        bool oneBlockSelection();
-        void saveTextCursorFormats();
-        void restoreTextCursorFormats();
+private:
+    void customize(QFontDialog &fontDialog);
+    void ChangeTextSize(qreal factor, textChangeMode changeMode);
+    void updateAlighButtonState();
+    bool oneBlockSelection();
+    void saveTextCursorFormats();
+    void restoreTextCursorFormats();
 
-        QFont createDefaultFont();
-        QAction *mEditableAction;
-        struct selectionData_t {
-            selectionData_t()
-                : mButtonIsPressed(false)
-            {}
-            bool mButtonIsPressed;
-            int position;
-            int anchor;
-            QString html;
-            QTextDocumentFragment selection;
-            QList<QTextBlockFormat> fmts;
+    QFont createDefaultFont();
+    QAction *mEditableAction;
+    struct selectionData_t {
+        selectionData_t() : mButtonIsPressed(false) {}
+        bool mButtonIsPressed;
+        int position;
+        int anchor;
+        QString html;
+        QTextDocumentFragment selection;
+        QList<QTextBlockFormat> fmts;
 
-        } mSelectionData;
+    } mSelectionData;
 
-    private slots:
-        void pickFont();
-        void pickColor();
+private slots:
+    void pickFont();
+    void pickColor();
 
-        void decreaseSize();
-        void increaseSize();
+    void decreaseSize();
+    void increaseSize();
 
-        void alignButtonProcess();
-        void onCursorPositionChanged(const QTextCursor& cursor);
-        void onModificationChanged(bool ch);
-        void onContentChanged();
+    void alignButtonProcess();
+    void onCursorPositionChanged(const QTextCursor &cursor);
+    void onModificationChanged(bool ch);
+    void onContentChanged();
 
-	private:
-      const int delta;
+private:
+    const int delta;
 };
-

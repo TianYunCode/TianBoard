@@ -67,61 +67,48 @@ const QString tStrokeGroup = "strokeGroup";
 const QString tGroups = "groups";
 const QString aId = "id";
 
-QString SvgSubsetAdaptor::toSvgTransform(const QTransform& matrix)
-{
+QString SvgSubsetAdaptor::toSvgTransform(const QTransform &matrix) {
     return QString("matrix(%1, %2, %3, %4, %5, %6)")
-            .arg(matrix.m11(), 0 , 'g')
-            .arg(matrix.m12(), 0 , 'g')
-            .arg(matrix.m21(), 0 , 'g')
-            .arg(matrix.m22(), 0 , 'g')
-            .arg(matrix.dx(), 0 , 'g')
-            .arg(matrix.dy(), 0 , 'g');
+        .arg(matrix.m11(), 0, 'g')
+        .arg(matrix.m12(), 0, 'g')
+        .arg(matrix.m21(), 0, 'g')
+        .arg(matrix.m22(), 0, 'g')
+        .arg(matrix.dx(), 0, 'g')
+        .arg(matrix.dy(), 0, 'g');
 }
 
 
-QTransform SvgSubsetAdaptor::fromSvgTransform(const QString& transform)
-{
+QTransform SvgSubsetAdaptor::fromSvgTransform(const QString &transform) {
     QTransform matrix;
     QString ts = transform;
     ts.replace("matrix(", "");
     ts.replace(")", "");
     QStringList sl = ts.split(",");
 
-    if (sl.size() >= 6)
-    {
-        matrix.setMatrix(
-                    sl.at(0).toFloat(),
-                    sl.at(1).toFloat(),
-                    0,
-                    sl.at(2).toFloat(),
-                    sl.at(3).toFloat(),
-                    0,
-                    sl.at(4).toFloat(),
-                    sl.at(5).toFloat(),
-                    1);
+    if (sl.size() >= 6) {
+        matrix.setMatrix(sl.at(0).toFloat(), sl.at(1).toFloat(), 0, sl.at(2).toFloat(), sl.at(3).toFloat(), 0,
+                         sl.at(4).toFloat(), sl.at(5).toFloat(), 1);
     }
 
     return matrix;
 }
 
 
-
-static bool itemZIndexComp(const QGraphicsItem* item1,
-                           const QGraphicsItem* item2)
-{
-    return item1->data(GraphicsItemData::ItemOwnZValue).toReal() < item2->data(GraphicsItemData::ItemOwnZValue).toReal();
+static bool itemZIndexComp(const QGraphicsItem *item1, const QGraphicsItem *item2) {
+    return item1->data(GraphicsItemData::ItemOwnZValue).toReal() <
+           item2->data(GraphicsItemData::ItemOwnZValue).toReal();
 }
 
 
-void SvgSubsetAdaptor::upgradeScene(DocumentProxy* proxy, const int pageIndex)
-{
+void SvgSubsetAdaptor::upgradeScene(DocumentProxy *proxy, const int pageIndex) {
     //4.2
     QDomDocument doc = loadSceneDocument(proxy, pageIndex);
     QDomElement elSvg = doc.documentElement(); // SVG tag
-    QString formatVersion = elSvg.attributeNS(Settings::documentNamespaceUri, "version", "4.1"); // default to 4.1
+    QString formatVersion =
+        elSvg.attributeNS(Settings::documentNamespaceUri, "version", "4.1"); // default to 4.1
 
-    if (formatVersion.startsWith("4.1") || formatVersion.startsWith("4.2") || formatVersion.startsWith("4.3"))
-    {
+    if (formatVersion.startsWith("4.1") || formatVersion.startsWith("4.2") ||
+        formatVersion.startsWith("4.3")) {
         // migrate to 4.2.1 (or latter)
         GraphicsScene *scene = loadScene(proxy, pageIndex);
         scene->setModified(true);
@@ -130,17 +117,14 @@ void SvgSubsetAdaptor::upgradeScene(DocumentProxy* proxy, const int pageIndex)
 }
 
 
-QDomDocument SvgSubsetAdaptor::loadSceneDocument(DocumentProxy* proxy, const int pPageIndex)
-{
-    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg",pPageIndex);
+QDomDocument SvgSubsetAdaptor::loadSceneDocument(DocumentProxy *proxy, const int pPageIndex) {
+    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", pPageIndex);
 
     QFile file(fileName);
     QDomDocument doc("page");
 
-    if (file.exists())
-    {
-        if (!file.open(QIODevice::ReadOnly))
-        {
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly)) {
             qWarning() << "Cannot open file " << fileName << " for reading ...";
             return doc;
         }
@@ -153,9 +137,8 @@ QDomDocument SvgSubsetAdaptor::loadSceneDocument(DocumentProxy* proxy, const int
 }
 
 
-void SvgSubsetAdaptor::setSceneUuid(DocumentProxy* proxy, const int pageIndex, QUuid pUuid)
-{
-    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg",pageIndex);
+void SvgSubsetAdaptor::setSceneUuid(DocumentProxy *proxy, const int pageIndex, QUuid pUuid) {
+    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", pageIndex);
 
     QFile file(fileName);
 
@@ -165,22 +148,19 @@ void SvgSubsetAdaptor::setSceneUuid(DocumentProxy* proxy, const int pageIndex, Q
     QTextStream textReadStream(&file);
     QString xmlContent = textReadStream.readAll();
     int uuidIndex = xmlContent.indexOf("uuid");
-    if (-1 == uuidIndex)
-    {
+    if (-1 == uuidIndex) {
         qWarning() << "Cannot read UUID from file" << fileName << "to set new UUID";
         file.close();
         return;
     }
     int quoteStartIndex = xmlContent.indexOf('"', uuidIndex);
-    if (-1 == quoteStartIndex)
-    {
+    if (-1 == quoteStartIndex) {
         qWarning() << "Cannot read UUID from file" << fileName << "to set new UUID";
         file.close();
         return;
     }
     int quoteEndIndex = xmlContent.indexOf('"', quoteStartIndex + 1);
-    if (-1 == quoteEndIndex)
-    {
+    if (-1 == quoteEndIndex) {
         qWarning() << "Cannot read UUID from file" << fileName << "to set new UUID";
         file.close();
         return;
@@ -192,33 +172,27 @@ void SvgSubsetAdaptor::setSceneUuid(DocumentProxy* proxy, const int pageIndex, Q
     newXmlContent.append(StringUtils::toCanonicalUuid(pUuid));
     newXmlContent.append(xmlContent.right(xmlContent.length() - quoteEndIndex));
 
-    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-    {
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QTextStream textWriteStream(&file);
         textWriteStream << newXmlContent;
         file.close();
-    }
-    else
-    {
-        qWarning() << "Cannot open file" << fileName  << "to write UUID";
+    } else {
+        qWarning() << "Cannot open file" << fileName << "to write UUID";
     }
 }
 
-GraphicsScene* SvgSubsetAdaptor::loadScene(DocumentProxy* proxy, const int pageIndex)
-{
+GraphicsScene *SvgSubsetAdaptor::loadScene(DocumentProxy *proxy, const int pageIndex) {
     QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", pageIndex);
     qDebug() << fileName;
     QFile file(fileName);
 
-    if (file.exists())
-    {
-        if (!file.open(QIODevice::ReadOnly))
-        {
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly)) {
             qWarning() << "Cannot open file " << fileName << " for reading ...";
             return 0;
         }
 
-        GraphicsScene* scene = loadScene(proxy, file.readAll());
+        GraphicsScene *scene = loadScene(proxy, file.readAll());
 
         file.close();
 
@@ -229,16 +203,13 @@ GraphicsScene* SvgSubsetAdaptor::loadScene(DocumentProxy* proxy, const int pageI
 }
 
 
-QByteArray SvgSubsetAdaptor::loadSceneAsText(DocumentProxy* proxy, const int pageIndex)
-{
+QByteArray SvgSubsetAdaptor::loadSceneAsText(DocumentProxy *proxy, const int pageIndex) {
     QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", pageIndex);
     qDebug() << fileName;
     QFile file(fileName);
 
-    if (file.exists())
-    {
-        if (!file.open(QIODevice::ReadOnly))
-        {
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly)) {
             qWarning() << "Cannot open file " << fileName << " for reading ...";
             return "";
         }
@@ -246,24 +217,20 @@ QByteArray SvgSubsetAdaptor::loadSceneAsText(DocumentProxy* proxy, const int pag
         return file.readAll();
 
         file.close();
-
     }
     return "";
 }
 
 
-QUuid SvgSubsetAdaptor::sceneUuid(DocumentProxy* proxy, const int pageIndex)
-{
+QUuid SvgSubsetAdaptor::sceneUuid(DocumentProxy *proxy, const int pageIndex) {
     QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", pageIndex);
 
     QFile file(fileName);
 
     QUuid uuid;
 
-    if (file.exists())
-    {
-        if (!file.open(QIODevice::ReadOnly))
-        {
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly)) {
             qWarning() << "Cannot open file " << fileName << " for reading ...";
             return QUuid();
         }
@@ -272,14 +239,11 @@ QUuid SvgSubsetAdaptor::sceneUuid(DocumentProxy* proxy, const int pageIndex)
 
         bool foundSvg = false;
 
-        while (!xml.atEnd() && !foundSvg)
-        {
+        while (!xml.atEnd() && !foundSvg) {
             xml.readNext();
 
-            if (xml.isStartElement())
-            {
-                if (xml.name() == "svg")
-                {
+            if (xml.isStartElement()) {
+                if (xml.name() == "svg") {
                     QStringView svgSceneUuid = xml.attributes().value(Settings::documentNamespaceUri, "uuid");
 
                     if (!svgSceneUuid.isNull())
@@ -297,24 +261,18 @@ QUuid SvgSubsetAdaptor::sceneUuid(DocumentProxy* proxy, const int pageIndex)
 }
 
 
-GraphicsScene* SvgSubsetAdaptor::loadScene(DocumentProxy* proxy, const QByteArray& pArray)
-{
+GraphicsScene *SvgSubsetAdaptor::loadScene(DocumentProxy *proxy, const QByteArray &pArray) {
     SvgSubsetReader reader(proxy, TextTools::cleanHtmlCData(QString(pArray)).toUtf8());
     return reader.loadScene(proxy);
 }
 
-SvgSubsetAdaptor::SvgSubsetReader::SvgSubsetReader(DocumentProxy* pProxy, const QByteArray& pXmlData)
-    : mXmlReader(pXmlData)
-    , mProxy(pProxy)
-    , mDocumentPath(pProxy->persistencePath())
-    , mGroupHasInfo(false)
-{
+SvgSubsetAdaptor::SvgSubsetReader::SvgSubsetReader(DocumentProxy *pProxy, const QByteArray &pXmlData)
+    : mXmlReader(pXmlData), mProxy(pProxy), mDocumentPath(pProxy->persistencePath()), mGroupHasInfo(false) {
     // NOOP
 }
 
 
-GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy)
-{
+GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy) {
     qDebug() << "loadScene() : starting reading...";
     QElapsedTimer time;
     time.start();
@@ -325,44 +283,37 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
     mFileVersion = 40100; // default to 4.1.0
 
-    GraphicsStrokesGroup* strokesGroup = 0;
-    GraphicsStroke* currentStroke = 0;
+    GraphicsStrokesGroup *strokesGroup = 0;
+    GraphicsStroke *currentStroke = 0;
 
-    while (!mXmlReader.atEnd())
-    {
+    while (!mXmlReader.atEnd()) {
         mXmlReader.readNext();
-        if (mXmlReader.isStartElement())
-        {
-            if (mXmlReader.name() == "svg")
-            {
-                if (!mScene)
-                {
+        if (mXmlReader.isStartElement()) {
+            if (mXmlReader.name() == "svg") {
+                if (!mScene) {
                     mScene = new GraphicsScene(mProxy, false);
                     mScene->setModified(false);
                 }
 
-                QStringView svgUbVersion = mXmlReader.attributes().value(Settings::documentNamespaceUri, "version");
+                QStringView svgUbVersion =
+                    mXmlReader.attributes().value(Settings::documentNamespaceUri, "version");
 
-                if (!svgUbVersion.isNull())
-                {
+                if (!svgUbVersion.isNull()) {
                     QString formatVersion = svgUbVersion.toString();
 
                     //may look like : 4 or 4.1 or 4.2 or 4.2.1, etc
 
                     QStringList parts = formatVersion.split(".");
 
-                    if (parts.length() > 0)
-                    {
+                    if (parts.length() > 0) {
                         mFileVersion = parts.at(0).toInt() * 10000;
                     }
 
-                    if (parts.length() > 1)
-                    {
+                    if (parts.length() > 1) {
                         mFileVersion += parts.at(1).toInt() * 100;
                     }
 
-                    if (parts.length() > 2)
-                    {
+                    if (parts.length() > 2) {
                         mFileVersion += parts.at(2).toInt();
                     }
                 }
@@ -377,22 +328,18 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 QStringView svgViewBox = mXmlReader.attributes().value("viewBox");
 
 
-                if (!svgViewBox.isNull())
-                {
+                if (!svgViewBox.isNull()) {
                     QStringList ts = svgViewBox.toString().split(QLatin1Char(' '), Qt::SkipEmptyParts);
 
                     QRectF sceneRect;
-                    if (ts.size() >= 4)
-                    {
+                    if (ts.size() >= 4) {
                         sceneRect.setX(ts.at(0).toFloat());
                         sceneRect.setY(ts.at(1).toFloat());
                         sceneRect.setWidth(ts.at(2).toFloat());
                         sceneRect.setHeight(ts.at(3).toFloat());
 
                         mScene->setSceneRect(sceneRect);
-                    }
-                    else
-                    {
+                    } else {
                         qWarning() << "cannot make sense of 'viewBox' value " << svgViewBox.toString();
                     }
                 }
@@ -411,12 +358,14 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 bool crossedBackground = false;
                 bool ruledBackground = false;
 
-                QStringView darkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "dark-background");
+                QStringView darkBackgroundValue =
+                    mXmlReader.attributes().value(mNamespaceUri, "dark-background");
 
                 if (!darkBackgroundValue.isNull())
                     darkBackground = (darkBackgroundValue.toString() == xmlTrue);
 
-                QStringView crossedBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "crossed-background");
+                QStringView crossedBackgroundValue =
+                    mXmlReader.attributes().value(mNamespaceUri, "crossed-background");
 
                 if (!crossedBackgroundValue.isNull())
                     crossedBackground = (crossedBackgroundValue.toString() == xmlTrue);
@@ -432,12 +381,14 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     }
                 }
 
-                QStringView ruledBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "ruled-background");
+                QStringView ruledBackgroundValue =
+                    mXmlReader.attributes().value(mNamespaceUri, "ruled-background");
 
                 if (!ruledBackgroundValue.isNull())
                     ruledBackground = (ruledBackgroundValue.toString() == xmlTrue);
 
-                if (ruledBackground && !crossedBackground) { // if for some reason both are true, the background will be a grid
+                if (ruledBackground &&
+                    !crossedBackground) { // if for some reason both are true, the background will be a grid
                     QStringView gridSizeValue = mXmlReader.attributes().value(mNamespaceUri, "grid-size");
 
                     if (!gridSizeValue.isNull()) {
@@ -458,49 +409,42 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 mScene->setBackground(darkBackground, bg);
 
                 QStringView pageNominalSize = mXmlReader.attributes().value(mNamespaceUri, "nominal-size");
-                if (!pageNominalSize.isNull())
-                {
+                if (!pageNominalSize.isNull()) {
                     QStringList ts = pageNominalSize.toString().split(QLatin1Char('x'), Qt::SkipEmptyParts);
 
                     QSize sceneSize;
-                    if (ts.size() >= 2)
-                    {
+                    if (ts.size() >= 2) {
                         sceneSize.setWidth(ts.at(0).toInt());
                         sceneSize.setHeight(ts.at(1).toInt());
 
                         mScene->setNominalSize(sceneSize);
+                    } else {
+                        qWarning() << "cannot make sense of 'nominal-size' value "
+                                   << pageNominalSize.toString();
                     }
-                    else
-                    {
-                        qWarning() << "cannot make sense of 'nominal-size' value " << pageNominalSize.toString();
-                    }
-
                 }
-            }
-            else if (mXmlReader.name() == "g")
-            {
+            } else if (mXmlReader.name() == "g") {
                 strokesGroup = new GraphicsStrokesGroup();
                 graphicsItemFromSvg(strokesGroup);
 
                 QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
-                if (!zValueAttr.isNull())
-                {
+                if (!zValueAttr.isNull()) {
                     mGroupZIndex = zValueAttr.toString().toFloat();
                     mGroupHasInfo = true;
                 }
 
-                QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+                QStringView fillOnDarkBackgroundValue =
+                    mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
 
-                if (!fillOnDarkBackgroundValue.isNull())
-                {
+                if (!fillOnDarkBackgroundValue.isNull()) {
                     mGroupDarkBackgroundColor.setNamedColor(fillOnDarkBackgroundValue.toString());
                 }
 
-                QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+                QStringView fillOnLightBackgroundValue =
+                    mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-                if (!fillOnLightBackgroundValue.isNull())
-                {
+                if (!fillOnLightBackgroundValue.isNull()) {
                     mGroupLightBackgroundColor.setNamedColor(fillOnLightBackgroundValue.toString());
                 }
 
@@ -511,46 +455,43 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 else
                     strokesGroup->setUuid(QUuid::createUuid());
 
-                QString uuid_stripped = strokesGroup->uuid().toString().replace("}","").replace("{","");
+                QString uuid_stripped = strokesGroup->uuid().toString().replace("}", "").replace("{", "");
 
                 if (!mStrokesList.contains(uuid_stripped))
                     mStrokesList.insert(uuid_stripped, strokesGroup);
-            }
-            else if (mXmlReader.name() == "polygon" || mXmlReader.name() == "line")
-            {
-                GraphicsPolygonItem* polygonItem = 0;
+            } else if (mXmlReader.name() == "polygon" || mXmlReader.name() == "line") {
+                GraphicsPolygonItem *polygonItem = 0;
 
                 QString parentId = mXmlReader.attributes().value(mNamespaceUri, "parent").toString();
 
                 if (mXmlReader.name() == "polygon")
-                    polygonItem = polygonItemFromPolygonSvg(mScene->isDarkBackground() ? Qt::white : Qt::black);
+                    polygonItem =
+                        polygonItemFromPolygonSvg(mScene->isDarkBackground() ? Qt::white : Qt::black);
                 else if (mXmlReader.name() == "line")
                     polygonItem = polygonItemFromLineSvg(mScene->isDarkBackground() ? Qt::white : Qt::black);
 
-                if(parentId.isEmpty() && strokesGroup)
+                if (parentId.isEmpty() && strokesGroup)
                     parentId = strokesGroup->uuid().toString();
 
-                if(parentId.isEmpty())
+                if (parentId.isEmpty())
                     parentId = QUuid::createUuid().toString();
 
-                if (polygonItem)
-                {
+                if (polygonItem) {
                     polygonItem->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Graphic));
 
-                    GraphicsStrokesGroup* group;
-                    if(!mStrokesList.contains(parentId)){
+                    GraphicsStrokesGroup *group;
+                    if (!mStrokesList.contains(parentId)) {
                         group = new GraphicsStrokesGroup();
-                        mStrokesList.insert(parentId,group);
+                        mStrokesList.insert(parentId, group);
                         group->setTransform(polygonItem->transform());
                         GraphicsItem::assignZValue(group, polygonItem->zValue());
-                    }
-                    else
+                    } else
                         group = mStrokesList.value(parentId);
 
                     if (!currentStroke)
                         currentStroke = new GraphicsStroke();
 
-                    if(polygonItem->transform().isIdentity())
+                    if (polygonItem->transform().isIdentity())
                         polygonItem->setTransform(group->transform());
 
                     group->addToGroup(polygonItem);
@@ -560,38 +501,35 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     polygonItem->show();
                     group->addToGroup(polygonItem);
                 }
-            }
-            else if (mXmlReader.name() == "polyline")
-            {
-                QList<GraphicsPolygonItem*> polygonItems = polygonItemsFromPolylineSvg(mScene->isDarkBackground() ? Qt::white : Qt::black);
+            } else if (mXmlReader.name() == "polyline") {
+                QList<GraphicsPolygonItem *> polygonItems =
+                    polygonItemsFromPolylineSvg(mScene->isDarkBackground() ? Qt::white : Qt::black);
 
                 QString parentId = mXmlReader.attributes().value(mNamespaceUri, "parent").toString();
 
-                if(parentId.isEmpty() && strokesGroup)
+                if (parentId.isEmpty() && strokesGroup)
                     parentId = strokesGroup->uuid().toString();
 
-                if(parentId.isEmpty())
+                if (parentId.isEmpty())
                     parentId = QUuid::createUuid().toString();
 
-                foreach(GraphicsPolygonItem* polygonItem, polygonItems)
-                {
+                foreach (GraphicsPolygonItem *polygonItem, polygonItems) {
                     polygonItem->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Graphic));
 
-                    GraphicsStrokesGroup* group;
+                    GraphicsStrokesGroup *group;
 
-                    if(!mStrokesList.contains(parentId)){
+                    if (!mStrokesList.contains(parentId)) {
                         group = new GraphicsStrokesGroup();
-                        mStrokesList.insert(parentId,group);
+                        mStrokesList.insert(parentId, group);
                         group->setTransform(polygonItem->transform());
                         GraphicsItem::assignZValue(group, polygonItem->zValue());
-                    }
-                    else
+                    } else
                         group = mStrokesList.value(parentId);
 
                     if (!currentStroke)
                         currentStroke = new GraphicsStroke();
 
-                    if(polygonItem->transform().isIdentity())
+                    if (polygonItem->transform().isIdentity())
                         polygonItem->setTransform(group->transform());
 
                     group->addToGroup(polygonItem);
@@ -602,25 +540,19 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     group->addToGroup(polygonItem);
                 }
 
-            }
-            else if (mXmlReader.name() == "image")
-            {
+            } else if (mXmlReader.name() == "image") {
                 QStringView imageHref = mXmlReader.attributes().value(nsXLink, "href");
 
-                if (!imageHref.isNull())
-                {
+                if (!imageHref.isNull()) {
                     QString href = imageHref.toString();
 
                     QStringView backgroundValue = mXmlReader.attributes().value(mNamespaceUri, "background");
 
                     bool isBackground = (!backgroundValue.isNull() && backgroundValue.toString() == xmlTrue);
 
-                    if (href.contains("png"))
-                    {
-
-                        GraphicsPixmapItem* pixmapItem = pixmapItemFromSvg();
-                        if (pixmapItem)
-                        {
+                    if (href.contains("png")) {
+                        GraphicsPixmapItem *pixmapItem = pixmapItemFromSvg();
+                        if (pixmapItem) {
                             pixmapItem->setFlag(QGraphicsItem::ItemIsMovable, true);
                             pixmapItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -631,12 +563,9 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                             pixmapItem->show();
                         }
-                    }
-                    else if (href.contains("svg"))
-                    {
-                        GraphicsSvgItem* svgItem = svgItemFromSvg();
-                        if (svgItem)
-                        {
+                    } else if (href.contains("svg")) {
+                        GraphicsSvgItem *svgItem = svgItemFromSvg();
+                        if (svgItem) {
                             svgItem->setFlag(QGraphicsItem::ItemIsMovable, true);
                             svgItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -647,18 +576,13 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                             svgItem->show();
                         }
-                    }
-                    else
-                    {
+                    } else {
                         qWarning() << "don't know what to do with href value " << href;
                     }
                 }
-            }
-            else if (mXmlReader.name() == "audio")
-            {
-                GraphicsMediaItem* audioItem = audioItemFromSvg();
-                if (audioItem)
-                {
+            } else if (mXmlReader.name() == "audio") {
+                GraphicsMediaItem *audioItem = audioItemFromSvg();
+                if (audioItem) {
                     audioItem->setFlag(QGraphicsItem::ItemIsMovable, true);
                     audioItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -669,13 +593,9 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     audioItem->play();
                     audioItem->pause();
                 }
-            }
-            else if (mXmlReader.name() == "video")
-            {
-                GraphicsMediaItem* videoItem = videoItemFromSvg();
-                if (videoItem)
-                {
-
+            } else if (mXmlReader.name() == "video") {
+                GraphicsMediaItem *videoItem = videoItemFromSvg();
+                if (videoItem) {
                     videoItem->setFlag(QGraphicsItem::ItemIsMovable, true);
                     videoItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -683,12 +603,11 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                     videoItem->show();
                 }
-            }
-            else if (mXmlReader.name() == "text")//This is for backward compatibility with proto text field prior to version 4.3
+            } else if (mXmlReader.name() ==
+                       "text") //This is for backward compatibility with proto text field prior to version 4.3
             {
-                GraphicsTextItem* textItem = textItemFromSvg();
-                if (textItem)
-                {
+                GraphicsTextItem *textItem = textItemFromSvg();
+                if (textItem) {
                     textItem->setFlag(QGraphicsItem::ItemIsMovable, true);
                     textItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -696,82 +615,60 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                     textItem->show();
                 }
-            }
-            else if (mXmlReader.name() == "curtain")
-            {
-                GraphicsCurtainItem* mask = curtainItemFromSvg();
-                if (mask)
-                {
+            } else if (mXmlReader.name() == "curtain") {
+                GraphicsCurtainItem *mask = curtainItemFromSvg();
+                if (mask) {
                     mScene->addItem(mask);
                     mScene->registerTool(mask);
                 }
-            }
-            else if (mXmlReader.name() == "ruler")
-            {
-
+            } else if (mXmlReader.name() == "ruler") {
                 GraphicsRuler *ruler = rulerFromSvg();
-                if (ruler)
-                {
+                if (ruler) {
                     mScene->addItem(ruler);
                     mScene->registerTool(ruler);
                 }
 
-            }
-            else if (mXmlReader.name() == "compass")
-            {
+            } else if (mXmlReader.name() == "compass") {
                 GraphicsCompass *compass = compassFromSvg();
-                if (compass)
-                {
+                if (compass) {
                     mScene->addItem(compass);
                     mScene->registerTool(compass);
                 }
-            }
-            else if (mXmlReader.name() == "protractor")
-            {
+            } else if (mXmlReader.name() == "protractor") {
                 GraphicsProtractor *protractor = protractorFromSvg();
-                if (protractor)
-                {
+                if (protractor) {
                     mScene->addItem(protractor);
                     mScene->registerTool(protractor);
                 }
-            }
-            else if (mXmlReader.name() == "triangle")
-            {
+            } else if (mXmlReader.name() == "triangle") {
                 GraphicsTriangle *triangle = triangleFromSvg();
-                if (triangle)
-                {
+                if (triangle) {
                     mScene->addItem(triangle);
                     mScene->registerTool(triangle);
                 }
-            }
-            else if (mXmlReader.name() == "cache")
-            {
-                GraphicsCache* cache = cacheFromSvg();
-                if(cache)
-                {
+            } else if (mXmlReader.name() == "cache") {
+                GraphicsCache *cache = cacheFromSvg();
+                if (cache) {
                     mScene->addItem(cache);
                     mScene->registerTool(cache);
                     Application::boardController->notifyCache(true);
                 }
-            }
-            else if (mXmlReader.name() == "foreignObject")
-            {
+            } else if (mXmlReader.name() == "foreignObject") {
                 QString href = mXmlReader.attributes().value(nsXLink, "href").toString();
                 QString src = mXmlReader.attributes().value(mNamespaceUri, "src").toString();
                 QString type = mXmlReader.attributes().value(mNamespaceUri, "type").toString();
-                bool isBackground = mXmlReader.attributes().value(mNamespaceUri, "background").toString() == xmlTrue;
+                bool isBackground =
+                    mXmlReader.attributes().value(mNamespaceUri, "background").toString() == xmlTrue;
 
                 qreal foreignObjectWidth = mXmlReader.attributes().value("width").toString().toFloat();
                 qreal foreignObjectHeight = mXmlReader.attributes().value("height").toString().toFloat();
 
-                if (href.contains(".pdf"))
-                {
-                    GraphicsPDFItem* pdfItem = pdfItemFromPDF();
-                    if (pdfItem)
-                    {
-                        VirtualDesktop* desktop = VirtualDesktop::instance();
+                if (href.contains(".pdf")) {
+                    GraphicsPDFItem *pdfItem = pdfItemFromPDF();
+                    if (pdfItem) {
+                        VirtualDesktop *desktop = VirtualDesktop::instance();
                         qreal currentDpi = desktop->physicalDpi();
-                        qreal pdfScale = qreal(proxy->pageDpi())/currentDpi;
+                        qreal pdfScale = qreal(proxy->pageDpi()) / currentDpi;
                         // qDebug() << "pdfScale " << pdfScale;
 
                         // If the PDF is in the background, it occupies the whole page; so we can simply
@@ -783,7 +680,7 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                             qreal scaleX = pageWidth / pdfItem->sceneBoundingRect().width();
                             qreal scaleY = pageHeight / pdfItem->sceneBoundingRect().height();
 
-                            pdfScale = (scaleX+scaleY)/2.;
+                            pdfScale = (scaleX + scaleY) / 2.;
                         }
 
                         pdfItem->setScale(pdfScale);
@@ -799,12 +696,9 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                         currentWidget = 0;
                     }
-                }
-                else if (src.contains(".wdgt"))
-                {
-                    GraphicsAppleWidgetItem* appleWidgetItem = graphicsAppleWidgetFromSvg();
-                    if (appleWidgetItem)
-                    {
+                } else if (src.contains(".wdgt")) {
+                    GraphicsAppleWidgetItem *appleWidgetItem = graphicsAppleWidgetFromSvg();
+                    if (appleWidgetItem) {
                         appleWidgetItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
                         appleWidgetItem->resize(foreignObjectWidth, foreignObjectHeight);
@@ -815,12 +709,9 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                         currentWidget = appleWidgetItem;
                     }
-                }
-                else if (src.contains(".wgt"))
-                {
-                    GraphicsWebWidgetItem* webWidgetItem = graphicsWebWidgetFromSvg();
-                    if (webWidgetItem)
-                    {
+                } else if (src.contains(".wgt")) {
+                    GraphicsWebWidgetItem *webWidgetItem = graphicsWebWidgetFromSvg();
+                    if (webWidgetItem) {
                         webWidgetItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
                         webWidgetItem->resize(foreignObjectWidth, foreignObjectHeight);
@@ -831,25 +722,21 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                         currentWidget = webWidgetItem;
                     }
-                }
-                else if (type == "text")
-                {
-                    GraphicsTextItem* textItem = textItemFromSvg();
+                } else if (type == "text") {
+                    GraphicsTextItem *textItem = textItemFromSvg();
                     GraphicsTextItemDelegate *textDelegate = 0;
 
                     if (textItem)
-                        textDelegate = dynamic_cast<GraphicsTextItemDelegate*>(textItem->Delegate());
+                        textDelegate = dynamic_cast<GraphicsTextItemDelegate *>(textItem->Delegate());
 
-                    if (textDelegate)
-                    {
-                        VirtualDesktop* desktop = VirtualDesktop::instance();
+                    if (textDelegate) {
+                        VirtualDesktop *desktop = VirtualDesktop::instance();
                         qreal currentDpi = desktop->physicalDpi();
-                        qreal textSizeMultiplier = qreal(proxy->pageDpi())/currentDpi;
+                        qreal textSizeMultiplier = qreal(proxy->pageDpi()) / currentDpi;
                         //textDelegate->scaleTextSize(textSizeMultiplier);
                     }
 
-                    if (textItem)
-                    {
+                    if (textItem) {
                         textItem->setFlag(QGraphicsItem::ItemIsMovable, true);
                         textItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
                         textItem->activateTextEditor(false);
@@ -858,21 +745,15 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                         textItem->show();
                     }
-                }
-                else
-                {
+                } else {
                     qWarning() << "Ignoring unknown foreignObject:" << href;
                 }
-            }
-            else if (currentWidget && (mXmlReader.name() == "preference"))
-            {
+            } else if (currentWidget && (mXmlReader.name() == "preference")) {
                 QString key = mXmlReader.attributes().value("key").toString();
                 QString value = mXmlReader.attributes().value("value").toString();
 
                 currentWidget->setPreference(key, value);
-            }
-            else if (currentWidget && (mXmlReader.name() == "datastoreEntry"))
-            {
+            } else if (currentWidget && (mXmlReader.name() == "datastoreEntry")) {
                 QString key = mXmlReader.attributes().value("key").toString();
                 QString value = mXmlReader.attributes().value("value").toString();
 
@@ -880,16 +761,11 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
             } else if (mXmlReader.name() == tGroups) {
                 //considering groups section at the end of the document
                 readGroupRoot();
-            }
-            else
-            {
+            } else {
                 // NOOP
             }
-        }
-        else if (mXmlReader.isEndElement())
-        {
-            if (mXmlReader.name() == "g")
-            {
+        } else if (mXmlReader.isEndElement()) {
+            if (mXmlReader.name() == "g") {
                 mGroupHasInfo = false;
                 mGroupDarkBackgroundColor = QColor();
                 mGroupLightBackgroundColor = QColor();
@@ -900,13 +776,12 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
     }
 
 
-    if (mXmlReader.hasError())
-    {
+    if (mXmlReader.hasError()) {
         qWarning() << "error parsing file " << mXmlReader.errorString();
     }
 
     qDebug() << "Number of detected strokes: " << mStrokesList.count();
-    QHashIterator<QString, GraphicsStrokesGroup*> iterator(mStrokesList);
+    QHashIterator<QString, GraphicsStrokesGroup *> iterator(mStrokesList);
     while (iterator.hasNext()) {
         iterator.next();
         mScene->addItem(iterator.value());
@@ -923,27 +798,24 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 }
 
 
-GraphicsGroupContainerItem* SvgSubsetAdaptor::SvgSubsetReader::readGroup()
-{
+GraphicsGroupContainerItem *SvgSubsetAdaptor::SvgSubsetReader::readGroup() {
     GraphicsGroupContainerItem *group = new GraphicsGroupContainerItem();
     QList<QGraphicsItem *> groupContainer;
 
     QString id = mXmlReader.attributes().value(aId).toString();
-    id = id.mid(1,id.length()-2);
+    id = id.mid(1, id.length() - 2);
     bool shouldSkipSubElements = false;
-    if(mStrokesList.contains(id))
+    if (mStrokesList.contains(id))
         shouldSkipSubElements = true;
 
     QString lockedValue = mXmlReader.attributes().value(mNamespaceUri, "locked").toString();
-    if (!lockedValue.isEmpty())
-    {
+    if (!lockedValue.isEmpty()) {
         bool isLocked = lockedValue.contains(xmlTrue);
         group->setData(GraphicsItemData::ItemLocked, QVariant(isLocked));
     }
 
     QStringView layerValue = mXmlReader.attributes().value(mNamespaceUri, "layer");
-    if (!layerValue.isNull())
-    {
+    if (!layerValue.isNull()) {
         bool ok;
         int layerAsInt = layerValue.toString().toInt(&ok);
 
@@ -953,87 +825,74 @@ GraphicsGroupContainerItem* SvgSubsetAdaptor::SvgSubsetReader::readGroup()
 
 
     mXmlReader.readNext();
-    while (!mXmlReader.atEnd())
-    {
+    while (!mXmlReader.atEnd()) {
         if (mXmlReader.isEndElement()) {
             mXmlReader.readNext();
             break;
-        }
-        else if (mXmlReader.isStartElement()) {
+        } else if (mXmlReader.isStartElement()) {
             if (mXmlReader.name() == tGroup) {
                 GraphicsGroupContainerItem *curGroup = readGroup();
                 if (curGroup)
                     groupContainer.append(curGroup);
-            }
-            else if (mXmlReader.name() == tElement && !shouldSkipSubElements) {
+            } else if (mXmlReader.name() == tElement && !shouldSkipSubElements) {
                 QString id = mXmlReader.attributes().value(aId).toString();
                 QGraphicsItem *curItem = readElementFromGroup();
 
                 // Explanation: the second condition discriminate the old storage version that should
                 // not be interpreted anymore
-                if(curItem && id.count("{") < 2)
+                if (curItem && id.count("{") < 2)
                     groupContainer.append(curItem);
-            }
-            else {
+            } else {
                 mXmlReader.skipCurrentElement();
             }
-        }
-        else {
+        } else {
             mXmlReader.readNext();
         }
     }
 
-    foreach(QGraphicsItem* item, groupContainer)
+    foreach (QGraphicsItem *item, groupContainer)
         group->addToGroup(item);
 
-    if (group->childItems().count())
-    {
-//        mScene->addItem(group);
+    if (group->childItems().count()) {
+        //        mScene->addItem(group);
 
-        if (1 == group->childItems().count())
-        {
+        if (1 == group->childItems().count()) {
             group->destroy(false);
         }
     }
     return group;
 }
 
-void SvgSubsetAdaptor::SvgSubsetReader::readGroupRoot()
-{
+void SvgSubsetAdaptor::SvgSubsetReader::readGroupRoot() {
     mXmlReader.readNext();
     while (!mXmlReader.atEnd()) {
         if (mXmlReader.isEndElement()) {
             mXmlReader.readNext();
             break;
-        }
-        else if (mXmlReader.isStartElement()) {
+        } else if (mXmlReader.isStartElement()) {
             if (mXmlReader.name() == tGroup) {
-
                 GraphicsGroupContainerItem *curGroup = readGroup();
 
                 if (curGroup) {
                     mScene->addGroup(curGroup);
                 }
-            }
-            else {
+            } else {
                 mXmlReader.skipCurrentElement();
             }
-        }
-        else {
+        } else {
             mXmlReader.readNext();
         }
     }
 }
 
-QGraphicsItem *SvgSubsetAdaptor::SvgSubsetReader::readElementFromGroup()
-{
+QGraphicsItem *SvgSubsetAdaptor::SvgSubsetReader::readElementFromGroup() {
     QGraphicsItem *result = 0;
     QString id = mXmlReader.attributes().value(aId).toString();
     QString uuid = id.right(QUuid().toString().size());
     result = mScene->itemForUuid(QUuid(uuid));
 
-    if(!result)
-        result = mStrokesList.take(uuid.replace("}","").replace("{",""));
+    if (!result)
+        result = mStrokesList.take(uuid.replace("}", "").replace("{", ""));
 
     mXmlReader.skipCurrentElement();
     mXmlReader.readNext();
@@ -1041,51 +900,59 @@ QGraphicsItem *SvgSubsetAdaptor::SvgSubsetReader::readElementFromGroup()
     return result;
 }
 
-void SvgSubsetAdaptor::persistScene(DocumentProxy* proxy, GraphicsScene* pScene, const int pageIndex)
-{
+void SvgSubsetAdaptor::persistScene(DocumentProxy *proxy, GraphicsScene *pScene, const int pageIndex) {
     SvgSubsetWriter writer(proxy, pScene, pageIndex);
     writer.persistScene(proxy, pageIndex);
 }
 
 
-SvgSubsetAdaptor::SvgSubsetWriter::SvgSubsetWriter(DocumentProxy* proxy, GraphicsScene* pScene, const int pageIndex)
-    : mScene(pScene)
-    , mDocumentPath(proxy->persistencePath())
-    , mPageIndex(pageIndex)
+SvgSubsetAdaptor::SvgSubsetWriter::SvgSubsetWriter(DocumentProxy *proxy, GraphicsScene *pScene,
+                                                   const int pageIndex)
+    : mScene(pScene),
+      mDocumentPath(proxy->persistencePath()),
+      mPageIndex(pageIndex)
 
 {
     // NOOP
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::writeSvgElement(DocumentProxy* proxy)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::writeSvgElement(DocumentProxy *proxy) {
     mXmlWriter.writeStartElement("svg");
 
     mXmlWriter.writeAttribute("version", "1.1");
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "version", Settings::currentFileVersion);
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(mScene->uuid()));
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                              StringUtils::toCanonicalUuid(mScene->uuid()));
 
     int margin = Settings::settings()->svgViewBoxMargin->get().toInt();
     QRect normalized = mScene->normalizedSceneRect().toRect();
     normalized.translate(margin * -1, margin * -1);
     normalized.setWidth(normalized.width() + (margin * 2));
     normalized.setHeight(normalized.height() + (margin * 2));
-    mXmlWriter.writeAttribute("viewBox", QString("%1 %2 %3 %4").arg(normalized.x()).arg(normalized.y()).arg(normalized.width()).arg(normalized.height()));
+    mXmlWriter.writeAttribute("viewBox", QString("%1 %2 %3 %4")
+                                             .arg(normalized.x())
+                                             .arg(normalized.y())
+                                             .arg(normalized.width())
+                                             .arg(normalized.height()));
 
     QSize pageNominalSize = mScene->nominalSize();
-    if (pageNominalSize.isValid())
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "nominal-size", QString("%1x%2").arg(pageNominalSize.width()).arg(pageNominalSize.height()));
+    if (pageNominalSize.isValid()) {
+        mXmlWriter.writeAttribute(
+            Settings::documentNamespaceUri, "nominal-size",
+            QString("%1x%2").arg(pageNominalSize.width()).arg(pageNominalSize.height()));
     }
 
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "dark-background", mScene->isDarkBackground() ? xmlTrue : xmlFalse);
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "dark-background",
+                              mScene->isDarkBackground() ? xmlTrue : xmlFalse);
 
     bool crossedBackground = mScene->pageBackground() == PageBackground::crossed;
     bool ruledBackground = mScene->pageBackground() == PageBackground::ruled;
 
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "crossed-background", crossedBackground ? xmlTrue : xmlFalse);
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "ruled-background", ruledBackground ? xmlTrue : xmlFalse);
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "crossed-background",
+                              crossedBackground ? xmlTrue : xmlFalse);
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "ruled-background",
+                              ruledBackground ? xmlTrue : xmlFalse);
 
     if (crossedBackground || ruledBackground) {
         int gridSize = mScene->backgroundGridSize();
@@ -1093,7 +960,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::writeSvgElement(DocumentProxy* proxy)
         mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "grid-size", QString::number(gridSize));
     }
 
-    VirtualDesktop* desktop = VirtualDesktop::instance();
+    VirtualDesktop *desktop = VirtualDesktop::instance();
 
     if (proxy->pageDpi() == 0)
         proxy->setPageDpi(desktop->physicalDpi());
@@ -1111,8 +978,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::writeSvgElement(DocumentProxy* proxy)
     mXmlWriter.writeEndElement();
 }
 
-bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int pageIndex)
-{
+bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int pageIndex) {
     Q_UNUSED(pageIndex);
 
     //Creating dom structure to store information
@@ -1135,7 +1001,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
     writeSvgElement(proxy);
 
     // Get the items from the scene
-    QList<QGraphicsItem*> items = mScene->items();
+    QList<QGraphicsItem *> items = mScene->items();
 
     std::sort(items.begin(), items.end(), itemZIndexComp);
 
@@ -1143,55 +1009,51 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
 
     bool groupHoldsInfo = false;
 
-    while (!items.empty())
-    {
+    while (!items.empty()) {
         QGraphicsItem *item = items.takeFirst();
 
         // Is the item a polygon?
-        GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem*> (item);
-        if (polygonItem && polygonItem->isVisible())
-        {
-            GraphicsStroke* currentStroke = polygonItem->stroke();
-            if (openStroke && (currentStroke != openStroke))
-            {
+        GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
+        if (polygonItem && polygonItem->isVisible()) {
+            GraphicsStroke *currentStroke = polygonItem->stroke();
+            if (openStroke && (currentStroke != openStroke)) {
                 mXmlWriter.writeEndElement(); //g
                 openStroke = 0;
                 groupHoldsInfo = false;
             }
 
-            bool firstPolygonInStroke = currentStroke  && !openStroke;
+            bool firstPolygonInStroke = currentStroke && !openStroke;
 
-            if (firstPolygonInStroke)
-            {
+            if (firstPolygonInStroke) {
                 mXmlWriter.writeStartElement("g");
                 openStroke = currentStroke;
 
-                GraphicsStroke* stroke = dynamic_cast<GraphicsStroke* >(currentStroke);
+                GraphicsStroke *stroke = dynamic_cast<GraphicsStroke *>(currentStroke);
 
-                if (stroke)
-                {
+                if (stroke) {
                     QColor colorOnDarkBackground = polygonItem->colorOnDarkBackground();
                     QColor colorOnLightBackground = polygonItem->colorOnLightBackground();
-                    GraphicsStrokesGroup * sg = polygonItem->strokesGroup();
+                    GraphicsStrokesGroup *sg = polygonItem->strokesGroup();
 
-                    if (colorOnDarkBackground.isValid() && colorOnLightBackground.isValid() && sg)
-                    {
-                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value"
-                                                  , QString("%1").arg(polygonItem->strokesGroup()->zValue()));
+                    if (colorOnDarkBackground.isValid() && colorOnLightBackground.isValid() && sg) {
+                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value",
+                                                  QString("%1").arg(polygonItem->strokesGroup()->zValue()));
 
-                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                                                  , "fill-on-dark-background", colorOnDarkBackground.name());
-                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                                                  , "fill-on-light-background", colorOnLightBackground.name());
+                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-dark-background",
+                                                  colorOnDarkBackground.name());
+                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background",
+                                                  colorOnLightBackground.name());
 
-                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(sg->uuid()));
+                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                                  StringUtils::toCanonicalUuid(sg->uuid()));
 
                         QVariant locked = sg->data(GraphicsItemData::ItemLocked);
                         if (!locked.isNull() && locked.toBool())
                             mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "locked", xmlTrue);
 
                         QVariant layer = sg->data(GraphicsItemData::ItemLayerType);
-                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "layer", QString("%1").arg(layer.toInt()));
+                        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "layer",
+                                                  QString("%1").arg(layer.toInt()));
 
                         QTransform matrix = sg->sceneTransform();
                         if (!matrix.isIdentity())
@@ -1203,21 +1065,18 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
                     }
                 }
 
-                if (stroke && !stroke->hasPressure())
-                {
-
+                if (stroke && !stroke->hasPressure()) {
                     strokeToSvgPolyline(stroke, groupHoldsInfo);
 
                     //we can dequeue all polygons belonging to that stroke
-                    foreach(GraphicsPolygonItem* gi, stroke->polygons())
-                    {
+                    foreach (GraphicsPolygonItem *gi, stroke->polygons()) {
                         items.removeOne(gi);
                     }
                     continue;
                 }
             }
 
-            GraphicsStroke* stroke = dynamic_cast<GraphicsStroke* >(currentStroke);
+            GraphicsStroke *stroke = dynamic_cast<GraphicsStroke *>(currentStroke);
 
             if (stroke && stroke->hasPressure())
                 polygonItemToSvgPolygon(polygonItem, groupHoldsInfo);
@@ -1229,37 +1088,34 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
             continue;
         }
 
-        if (openStroke)
-        {
+        if (openStroke) {
             mXmlWriter.writeEndElement(); //g
             groupHoldsInfo = false;
             openStroke = 0;
         }
 
         // Is the item a picture?
-        GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem*> (item);
-        if (pixmapItem && pixmapItem->isVisible())
-        {
+        GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
+        if (pixmapItem && pixmapItem->isVisible()) {
             pixmapItemToLinkedImage(pixmapItem);
             continue;
         }
 
         // Is the item a shape?
-        GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem*> (item);
-        if (svgItem && svgItem->isVisible())
-        {
+        GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
+        if (svgItem && svgItem->isVisible()) {
             svgItemToLinkedSvg(svgItem);
             continue;
         }
 
-        GraphicsVideoItem * videoItem = qgraphicsitem_cast<GraphicsVideoItem*> (item);
+        GraphicsVideoItem *videoItem = qgraphicsitem_cast<GraphicsVideoItem *>(item);
 
         if (videoItem && videoItem->isVisible()) {
             videoItemToLinkedVideo(videoItem);
             continue;
         }
 
-        GraphicsAudioItem * audioItem = qgraphicsitem_cast<GraphicsAudioItem*> (item);
+        GraphicsAudioItem *audioItem = qgraphicsitem_cast<GraphicsAudioItem *>(item);
 
         if (audioItem && audioItem->isVisible()) {
             audioItemToLinkedAudio(audioItem);
@@ -1267,96 +1123,84 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
         }
 
         // Is the item an app?
-        GraphicsAppleWidgetItem *appleWidgetItem = qgraphicsitem_cast<GraphicsAppleWidgetItem*> (item);
-        if (appleWidgetItem && appleWidgetItem->isVisible())
-        {
+        GraphicsAppleWidgetItem *appleWidgetItem = qgraphicsitem_cast<GraphicsAppleWidgetItem *>(item);
+        if (appleWidgetItem && appleWidgetItem->isVisible()) {
             graphicsAppleWidgetToSvg(appleWidgetItem);
             continue;
         }
 
         // Is the item a web widget (W3C Widgets format)?
-        GraphicsWebWidgetItem *webWidgetItem = qgraphicsitem_cast<GraphicsWebWidgetItem*> (item);
-        if (webWidgetItem && webWidgetItem->isVisible())
-        {
+        GraphicsWebWidgetItem *webWidgetItem = qgraphicsitem_cast<GraphicsWebWidgetItem *>(item);
+        if (webWidgetItem && webWidgetItem->isVisible()) {
             graphicsWebWidgetToSvg(webWidgetItem);
             continue;
         }
 
         // Is the item a PDF?
-        GraphicsPDFItem *pdfItem = qgraphicsitem_cast<GraphicsPDFItem*> (item);
-        if (pdfItem && pdfItem->isVisible())
-        {
+        GraphicsPDFItem *pdfItem = qgraphicsitem_cast<GraphicsPDFItem *>(item);
+        if (pdfItem && pdfItem->isVisible()) {
             pdfItemToLinkedPDF(pdfItem);
             continue;
         }
 
         // Is the item a text?
-        GraphicsTextItem *textItem = qgraphicsitem_cast<GraphicsTextItem*> (item);
-        if (textItem && textItem->isVisible())
-        {
+        GraphicsTextItem *textItem = qgraphicsitem_cast<GraphicsTextItem *>(item);
+        if (textItem && textItem->isVisible()) {
             textItemToSvg(textItem);
             continue;
         }
 
         // Is the item a curtain?
-        GraphicsCurtainItem *curtainItem = qgraphicsitem_cast<GraphicsCurtainItem*> (item);
-        if (curtainItem && curtainItem->isVisible())
-        {
+        GraphicsCurtainItem *curtainItem = qgraphicsitem_cast<GraphicsCurtainItem *>(item);
+        if (curtainItem && curtainItem->isVisible()) {
             curtainItemToSvg(curtainItem);
             continue;
         }
 
         // Is the item a ruler?
-        GraphicsRuler *ruler = qgraphicsitem_cast<GraphicsRuler*> (item);
-        if (ruler && ruler->isVisible())
-        {
+        GraphicsRuler *ruler = qgraphicsitem_cast<GraphicsRuler *>(item);
+        if (ruler && ruler->isVisible()) {
             rulerToSvg(ruler);
             continue;
         }
 
         // Is the item a cache?
-        GraphicsCache* cache = qgraphicsitem_cast<GraphicsCache*>(item);
-        if(cache && cache->isVisible())
-        {
+        GraphicsCache *cache = qgraphicsitem_cast<GraphicsCache *>(item);
+        if (cache && cache->isVisible()) {
             cacheToSvg(cache);
             continue;
         }
 
         // Is the item a compass
-        GraphicsCompass *compass = qgraphicsitem_cast<GraphicsCompass*> (item);
-        if (compass && compass->isVisible())
-        {
+        GraphicsCompass *compass = qgraphicsitem_cast<GraphicsCompass *>(item);
+        if (compass && compass->isVisible()) {
             compassToSvg(compass);
             continue;
         }
 
         // Is the item a protractor?
-        GraphicsProtractor *protractor = qgraphicsitem_cast<GraphicsProtractor*> (item);
-        if (protractor && protractor->isVisible())
-        {
+        GraphicsProtractor *protractor = qgraphicsitem_cast<GraphicsProtractor *>(item);
+        if (protractor && protractor->isVisible()) {
             protractorToSvg(protractor);
             continue;
         }
 
         // Is the item a triangle?
-        GraphicsTriangle *triangle = qgraphicsitem_cast<GraphicsTriangle*> (item);
-        if (triangle && triangle->isVisible())
-        {
+        GraphicsTriangle *triangle = qgraphicsitem_cast<GraphicsTriangle *>(item);
+        if (triangle && triangle->isVisible()) {
             triangleToSvg(triangle);
             continue;
         }
 
         // Is the item a group?
-        GraphicsGroupContainerItem *groupItem = qgraphicsitem_cast<GraphicsGroupContainerItem*>(item);
-        if (groupItem && groupItem->isVisible())
-        {
+        GraphicsGroupContainerItem *groupItem = qgraphicsitem_cast<GraphicsGroupContainerItem *>(item);
+        if (groupItem && groupItem->isVisible()) {
             persistGroupToDom(groupItem, &groupRoot, &groupDomDocument);
             continue;
         }
     }
 
-    if (openStroke)
-    {
+    if (openStroke) {
         mXmlWriter.writeEndElement();
         groupHoldsInfo = false;
         openStroke = 0;
@@ -1370,11 +1214,13 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
             if (curElement.hasAttribute(aId)) {
                 mXmlWriter.writeStartElement(curElement.tagName());
                 mXmlWriter.writeAttribute(aId, curElement.attribute(aId));
-                if(curElement.hasAttribute("locked")){
-                    mXmlWriter.writeAttribute(Settings::documentNamespaceUri,"locked",curElement.attribute("locked"));
+                if (curElement.hasAttribute("locked")) {
+                    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "locked",
+                                              curElement.attribute("locked"));
                 }
-                if(curElement.hasAttribute("layer")){
-                    mXmlWriter.writeAttribute(Settings::documentNamespaceUri,"layer",curElement.attribute("layer"));
+                if (curElement.hasAttribute("layer")) {
+                    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "layer",
+                                              curElement.attribute("layer"));
                 }
 
                 QDomElement curSubElement = curElement.firstChildElement();
@@ -1397,8 +1243,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
     QString fileName = mDocumentPath + FileSystemUtils::digitFileFormat("/page%1.svg", mPageIndex);
     QFile file(fileName);
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-    {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qCritical() << "cannot open " << fileName << " for writing ...";
         return false;
     }
@@ -1409,15 +1254,15 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy* proxy, int p
     return true;
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::persistGroupToDom(QGraphicsItem *groupItem, QDomElement *curParent, QDomDocument *groupDomDocument)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::persistGroupToDom(QGraphicsItem *groupItem, QDomElement *curParent,
+                                                          QDomDocument *groupDomDocument) {
     QUuid uuid = GraphicsScene::getPersonalUuid(groupItem);
     if (!uuid.isNull()) {
         QDomElement curGroupElement = groupDomDocument->createElement(tGroup);
         curGroupElement.setAttribute(aId, uuid.toString());
-        GraphicsGroupContainerItem* group = dynamic_cast<GraphicsGroupContainerItem*>(groupItem);
-        if(group && group->Delegate()){
-            if(group->Delegate()->isLocked())
+        GraphicsGroupContainerItem *group = dynamic_cast<GraphicsGroupContainerItem *>(groupItem);
+        if (group && group->Delegate()) {
+            if (group->Delegate()->isLocked())
                 curGroupElement.setAttribute("locked", xmlTrue);
             else
                 curGroupElement.setAttribute("locked", xmlFalse);
@@ -1440,8 +1285,8 @@ void SvgSubsetAdaptor::SvgSubsetWriter::persistGroupToDom(QGraphicsItem *groupIt
     }
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgLine(GraphicsPolygonItem* polygonItem, bool groupHoldsInfo)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgLine(GraphicsPolygonItem *polygonItem,
+                                                             bool groupHoldsInfo) {
     mXmlWriter.writeStartElement("line");
 
     QLineF line = polygonItem->originalLine();
@@ -1465,65 +1310,65 @@ void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgLine(GraphicsPolygonItem
         mXmlWriter.writeAttribute("stroke-opacity", QString::number(alpha, 'f', 2));
     mXmlWriter.writeAttribute("stroke-linecap", "round");
 
-    if (!groupHoldsInfo)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", QString("%1").arg(polygonItem->zValue()));
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-dark-background", polygonItem->colorOnDarkBackground().name());
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background", polygonItem->colorOnLightBackground().name());
+    if (!groupHoldsInfo) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value",
+                                  QString("%1").arg(polygonItem->zValue()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-dark-background",
+                                  polygonItem->colorOnDarkBackground().name());
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background",
+                                  polygonItem->colorOnLightBackground().name());
     }
 
     mXmlWriter.writeEndElement();
-
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::strokeToSvgPolyline(GraphicsStroke* stroke, bool groupHoldsInfo)
-{
-    QList<GraphicsPolygonItem*> pols = stroke->polygons();
+void SvgSubsetAdaptor::SvgSubsetWriter::strokeToSvgPolyline(GraphicsStroke *stroke, bool groupHoldsInfo) {
+    QList<GraphicsPolygonItem *> pols = stroke->polygons();
 
-    if (pols.length() > 0)
-    {
+    if (pols.length() > 0) {
         mXmlWriter.writeStartElement("polyline");
         QVector<QPointF> points;
 
-        foreach(GraphicsPolygonItem* polygon, pols)
-        {
+        foreach (GraphicsPolygonItem *polygon, pols) {
             points << polygon->originalLine().p1();
         }
 
         points << pols.last()->originalLine().p2();
 
         // SVG renderers (Chrome) do not like line withe where x1/y1 == x2/y2
-        if (points.size() == 2 && (points.at(0) == points.at(1)))
-        {
+        if (points.size() == 2 && (points.at(0) == points.at(1))) {
             points[1] = QPointF(points[1].x() + 0.01, points[1].y());
         }
 
         QString svgPoints = pointsToSvgPointsAttribute(points);
         mXmlWriter.writeAttribute("points", svgPoints);
 
-        GraphicsPolygonItem* firstPolygonItem = pols.at(0);
+        GraphicsPolygonItem *firstPolygonItem = pols.at(0);
 
         mXmlWriter.writeAttribute("fill", "none");
         mXmlWriter.writeAttribute("stroke-width", QString::number(firstPolygonItem->originalWidth(), 'f', 2));
         mXmlWriter.writeAttribute("stroke", firstPolygonItem->brush().color().name());
-        mXmlWriter.writeAttribute("stroke-opacity", QString("%1").arg(firstPolygonItem->brush().color().alphaF()));
+        mXmlWriter.writeAttribute("stroke-opacity",
+                                  QString("%1").arg(firstPolygonItem->brush().color().alphaF()));
         mXmlWriter.writeAttribute("stroke-linecap", "round");
 
-        if (!groupHoldsInfo)
-        {
+        if (!groupHoldsInfo) {
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value",
+                                      QString("%1").arg(firstPolygonItem->zValue()));
 
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", QString("%1").arg(firstPolygonItem->zValue()));
-
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                                      , "fill-on-dark-background", firstPolygonItem->colorOnDarkBackground().name());
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                                      , "fill-on-light-background", firstPolygonItem->colorOnLightBackground().name());
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-dark-background",
+                                      firstPolygonItem->colorOnDarkBackground().name());
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background",
+                                      firstPolygonItem->colorOnLightBackground().name());
         }
 
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(firstPolygonItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(firstPolygonItem->uuid()));
         if (firstPolygonItem->parentItem()) {
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "parent", StringUtils::toCanonicalUuid(GraphicsItem::getOwnUuid(firstPolygonItem->strokesGroup())));
+            mXmlWriter.writeAttribute(
+                Settings::documentNamespaceUri, "parent",
+                StringUtils::toCanonicalUuid(GraphicsItem::getOwnUuid(firstPolygonItem->strokesGroup())));
         }
 
         mXmlWriter.writeEndElement();
@@ -1531,48 +1376,42 @@ void SvgSubsetAdaptor::SvgSubsetWriter::strokeToSvgPolyline(GraphicsStroke* stro
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::strokeToSvgPolygon(GraphicsStroke* stroke, bool groupHoldsInfo)
-{
-    QList<GraphicsPolygonItem*> pis = stroke->polygons();
+void SvgSubsetAdaptor::SvgSubsetWriter::strokeToSvgPolygon(GraphicsStroke *stroke, bool groupHoldsInfo) {
+    QList<GraphicsPolygonItem *> pis = stroke->polygons();
 
-    if (pis.length() > 0)
-    {
+    if (pis.length() > 0) {
         QPolygonF united;
 
-        foreach(GraphicsPolygonItem* pi, pis)
-        {
+        foreach (GraphicsPolygonItem *pi, pis) {
             united = united.united(pi->polygon());
         }
 
 
-        GraphicsPolygonItem *clone = static_cast<GraphicsPolygonItem*>(pis.at(0)->deepCopy());
+        GraphicsPolygonItem *clone = static_cast<GraphicsPolygonItem *>(pis.at(0)->deepCopy());
         clone->setPolygon(united);
 
         polygonItemToSvgPolygon(clone, groupHoldsInfo);
     }
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgPolygon(GraphicsPolygonItem* polygonItem, bool groupHoldsInfo)
-{
-
+void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgPolygon(GraphicsPolygonItem *polygonItem,
+                                                                bool groupHoldsInfo) {
     QPolygonF polygon = polygonItem->polygon();
     int pointsCount = polygon.size();
 
-    if (pointsCount > 0)
-    {
+    if (pointsCount > 0) {
         mXmlWriter.writeStartElement("polygon");
 
         QString points = pointsToSvgPointsAttribute(polygon);
         mXmlWriter.writeAttribute("points", points);
-        mXmlWriter.writeAttribute("transform",toSvgTransform(polygonItem->transform()));
+        mXmlWriter.writeAttribute("transform", toSvgTransform(polygonItem->transform()));
         mXmlWriter.writeAttribute("fill", polygonItem->brush().color().name());
 
         qreal alpha = polygonItem->brush().color().alphaF();
         mXmlWriter.writeAttribute("fill-opacity", QString::number(alpha, 'f', 2));
 
         // we trick SVG antialiasing, to avoid seeing light gaps between polygons
-        if (alpha < 1.0)
-        {
+        if (alpha < 1.0) {
             qreal trickedAlpha = trickAlpha(alpha);
             mXmlWriter.writeAttribute("stroke", polygonItem->brush().color().name());
             mXmlWriter.writeAttribute("stroke-width", "1");
@@ -1590,28 +1429,30 @@ void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgPolygon(GraphicsPolygonI
         else
             mXmlWriter.writeAttribute("fill-rule", "winding");
 
-        if (!groupHoldsInfo)
-        {
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", QString("%1").arg(polygonItem->zValue()));
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                                      , "fill-on-dark-background", polygonItem->colorOnDarkBackground().name());
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                                      , "fill-on-light-background", polygonItem->colorOnLightBackground().name());
+        if (!groupHoldsInfo) {
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value",
+                                      QString("%1").arg(polygonItem->zValue()));
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-dark-background",
+                                      polygonItem->colorOnDarkBackground().name());
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background",
+                                      polygonItem->colorOnLightBackground().name());
         }
 
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(polygonItem->uuid()));
-        GraphicsStrokesGroup* sg = polygonItem->strokesGroup();
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(polygonItem->uuid()));
+        GraphicsStrokesGroup *sg = polygonItem->strokesGroup();
         if (sg)
-            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "parent", StringUtils::toCanonicalUuid(sg->uuid()));
+            mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "parent",
+                                      StringUtils::toCanonicalUuid(sg->uuid()));
 
         mXmlWriter.writeEndElement();
     }
 }
 
 
-GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSvg(const QColor& pDefaultColor)
-{
-    GraphicsPolygonItem* polygonItem = new GraphicsPolygonItem();
+GraphicsPolygonItem *
+SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSvg(const QColor &pDefaultColor) {
+    GraphicsPolygonItem *polygonItem = new GraphicsPolygonItem();
 
     graphicsItemFromSvg(polygonItem);
 
@@ -1619,22 +1460,18 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
 
     QPolygonF polygon;
 
-    if (!svgPoints.isNull())
-    {
+    if (!svgPoints.isNull()) {
         QStringList ts = svgPoints.toString().split(QLatin1Char(' '), Qt::SkipEmptyParts);
 
-        foreach(const QString sPoint, ts)
-        {
+        foreach (const QString sPoint, ts) {
             QStringList sCoord = sPoint.split(QLatin1Char(','), Qt::SkipEmptyParts);
 
-            if (sCoord.size() == 2)
-            {
+            if (sCoord.size() == 2) {
                 QPointF point;
                 point.setX(sCoord.at(0).toFloat());
                 point.setY(sCoord.at(1).toFloat());
                 polygon << point;
-            }
-            else if (sCoord.size() == 4){
+            } else if (sCoord.size() == 4) {
                 //This is the case on system were the "," is used to seperate decimal
                 QPointF point;
                 QString x = sCoord.at(0) + "." + sCoord.at(1);
@@ -1642,15 +1479,11 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
                 point.setX(x.toFloat());
                 point.setY(y.toFloat());
                 polygon << point;
-            }
-            else
-            {
+            } else {
                 qWarning() << "cannot make sense of a 'point' value" << sCoord;
             }
         }
-    }
-    else
-    {
+    } else {
         qWarning() << "cannot make sense of 'points' value " << svgPoints.toString();
     }
 
@@ -1666,18 +1499,17 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
     QStringView svgFillOpacity = mXmlReader.attributes().value("fill-opacity");
     qreal opacity = 1.0;
 
-    if (!svgFillOpacity.isNull())
-    {
+    if (!svgFillOpacity.isNull()) {
         opacity = svgFillOpacity.toString().toFloat();
         brushColor.setAlphaF(opacity);
     }
 
     polygonItem->setColor(brushColor);
 
-    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    QStringView fillOnDarkBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
 
-    if (!fillOnDarkBackgroundValue.isNull())
-    {
+    if (!fillOnDarkBackgroundValue.isNull()) {
         QColor color;
         color.setNamedColor(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
@@ -1685,27 +1517,23 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
 
         color.setAlphaF(opacity);
         polygonItem->setColorOnDarkBackground(color);
-    }
-    else
-    {
+    } else {
         QColor color = mGroupDarkBackgroundColor;
         color.setAlphaF(opacity);
         polygonItem->setColorOnDarkBackground(color);
     }
 
-    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    QStringView fillOnLightBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-    if (!fillOnLightBackgroundValue.isNull())
-    {
+    if (!fillOnLightBackgroundValue.isNull()) {
         QColor color;
         color.setNamedColor(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::black;
         color.setAlphaF(opacity);
         polygonItem->setColorOnLightBackground(color);
-    }
-    else
-    {
+    } else {
         QColor color = mGroupLightBackgroundColor;
         color.setAlphaF(opacity);
         polygonItem->setColorOnLightBackground(color);
@@ -1722,11 +1550,9 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
         polygonItem->setFillRule(Qt::WindingFill);
 
     return polygonItem;
-
 }
 
-GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(const QColor& pDefaultColor)
-{
+GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(const QColor &pDefaultColor) {
     QStringView svgX1 = mXmlReader.attributes().value("x1");
     QStringView svgY1 = mXmlReader.attributes().value("y1");
     QStringView svgX2 = mXmlReader.attributes().value("x2");
@@ -1734,17 +1560,14 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
 
     QLineF line;
 
-    if (!svgX1.isNull() && !svgY1.isNull() && !svgX2.isNull() && !svgY2.isNull())
-    {
+    if (!svgX1.isNull() && !svgY1.isNull() && !svgX2.isNull() && !svgY2.isNull()) {
         qreal x1 = svgX1.toString().toFloat();
         qreal y1 = svgY1.toString().toFloat();
         qreal x2 = svgX2.toString().toFloat();
         qreal y2 = svgY2.toString().toFloat();
 
         line.setLine(x1, y1, x2, y2);
-    }
-    else
-    {
+    } else {
         qWarning() << "cannot make sense of 'line' value";
         return 0;
     }
@@ -1753,39 +1576,35 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
 
     qreal lineWidth = 1.;
 
-    if (!strokeWidth.isNull())
-    {
+    if (!strokeWidth.isNull()) {
         lineWidth = strokeWidth.toString().toFloat();
     }
 
-    GraphicsPolygonItem* polygonItem = new GraphicsPolygonItem(line, lineWidth);
+    GraphicsPolygonItem *polygonItem = new GraphicsPolygonItem(line, lineWidth);
     graphicsItemFromSvg(polygonItem);
 
     QStringView svgStroke = mXmlReader.attributes().value("stroke");
 
     QColor brushColor = pDefaultColor;
 
-    if (!svgStroke.isNull())
-    {
+    if (!svgStroke.isNull()) {
         brushColor.setNamedColor(svgStroke.toString());
-
     }
 
     QStringView svgStrokeOpacity = mXmlReader.attributes().value("stroke-opacity");
     qreal opacity = 1.0;
 
-    if (!svgStrokeOpacity.isNull())
-    {
+    if (!svgStrokeOpacity.isNull()) {
         opacity = svgStrokeOpacity.toString().toFloat();
         brushColor.setAlphaF(opacity);
     }
 
     polygonItem->setColor(brushColor);
 
-    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    QStringView fillOnDarkBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
 
-    if (!fillOnDarkBackgroundValue.isNull())
-    {
+    if (!fillOnDarkBackgroundValue.isNull()) {
         QColor color;
         color.setNamedColor(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
@@ -1793,27 +1612,23 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
 
         color.setAlphaF(opacity);
         polygonItem->setColorOnDarkBackground(color);
-    }
-    else
-    {
+    } else {
         QColor color = mGroupDarkBackgroundColor;
         color.setAlphaF(opacity);
         polygonItem->setColorOnDarkBackground(color);
     }
 
-    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    QStringView fillOnLightBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-    if (!fillOnLightBackgroundValue.isNull())
-    {
+    if (!fillOnLightBackgroundValue.isNull()) {
         QColor color;
         color.setNamedColor(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::black;
         color.setAlphaF(opacity);
         polygonItem->setColorOnLightBackground(color);
-    }
-    else
-    {
+    } else {
         QColor color = mGroupLightBackgroundColor;
         color.setAlphaF(opacity);
         polygonItem->setColorOnLightBackground(color);
@@ -1822,30 +1637,27 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
     return polygonItem;
 }
 
-QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromPolylineSvg(const QColor& pDefaultColor)
-{
+QList<GraphicsPolygonItem *>
+SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromPolylineSvg(const QColor &pDefaultColor) {
     QStringView strokeWidth = mXmlReader.attributes().value("stroke-width");
 
     qreal lineWidth = 1.;
 
-    if (!strokeWidth.isNull())
-    {
+    if (!strokeWidth.isNull()) {
         lineWidth = strokeWidth.toString().toFloat();
     }
 
     QColor brushColor = pDefaultColor;
 
     QStringView svgStroke = mXmlReader.attributes().value("stroke");
-    if (!svgStroke.isNull())
-    {
+    if (!svgStroke.isNull()) {
         brushColor.setNamedColor(svgStroke.toString());
     }
 
     qreal opacity = 1.0;
 
     QStringView svgStrokeOpacity = mXmlReader.attributes().value("stroke-opacity");
-    if (!svgStrokeOpacity.isNull())
-    {
+    if (!svgStrokeOpacity.isNull()) {
         opacity = svgStrokeOpacity.toString().toFloat();
         brushColor.setAlphaF(opacity);
     }
@@ -1853,16 +1665,15 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
     QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
     qreal zValue = mGroupZIndex;
-    if (!zValueAttr.isNull())
-    {
+    if (!zValueAttr.isNull()) {
         zValue = zValueAttr.toString().toFloat();
     }
 
     QColor colorOnDarkBackground = mGroupDarkBackgroundColor;
 
-    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
-    if (!fillOnDarkBackgroundValue.isNull())
-    {
+    QStringView fillOnDarkBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    if (!fillOnDarkBackgroundValue.isNull()) {
         colorOnDarkBackground.setNamedColor(fillOnDarkBackgroundValue.toString());
     }
 
@@ -1873,9 +1684,9 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
 
     QColor colorOnLightBackground = mGroupLightBackgroundColor;
 
-    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
-    if (!fillOnLightBackgroundValue.isNull())
-    {
+    QStringView fillOnLightBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    if (!fillOnLightBackgroundValue.isNull()) {
         QColor colorOnLightBackground;
         colorOnLightBackground.setNamedColor(fillOnLightBackgroundValue.toString());
     }
@@ -1887,27 +1698,22 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
 
     QStringView svgPoints = mXmlReader.attributes().value("points");
 
-    QList<GraphicsPolygonItem*> polygonItems;
+    QList<GraphicsPolygonItem *> polygonItems;
 
-    if (!svgPoints.isNull())
-    {
-        QStringList ts = svgPoints.toString().split(QLatin1Char(' '),
-                                                    Qt::SkipEmptyParts);
+    if (!svgPoints.isNull()) {
+        QStringList ts = svgPoints.toString().split(QLatin1Char(' '), Qt::SkipEmptyParts);
 
         QList<QPointF> points;
 
-        foreach(const QString sPoint, ts)
-        {
+        foreach (const QString sPoint, ts) {
             QStringList sCoord = sPoint.split(QLatin1Char(','), Qt::SkipEmptyParts);
 
-            if (sCoord.size() == 2)
-            {
+            if (sCoord.size() == 2) {
                 QPointF point;
                 point.setX(sCoord.at(0).toFloat());
                 point.setY(sCoord.at(1).toFloat());
                 points << point;
-            }
-            else if (sCoord.size() == 4){
+            } else if (sCoord.size() == 4) {
                 //This is the case on system were the "," is used to seperate decimal
                 QPointF point;
                 QString x = sCoord.at(0) + "." + sCoord.at(1);
@@ -1915,26 +1721,22 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
                 point.setX(x.toFloat());
                 point.setY(y.toFloat());
                 points << point;
-            }
-            else
-            {
+            } else {
                 qWarning() << "cannot make sense of a 'point' value" << sCoord;
             }
         }
 
-        for (int i = 0; i < points.size() - 1; i++)
-        {
-            GraphicsPolygonItem* polygonItem = new GraphicsPolygonItem(QLineF(points.at(i), points.at(i + 1)), lineWidth);
+        for (int i = 0; i < points.size() - 1; i++) {
+            GraphicsPolygonItem *polygonItem =
+                new GraphicsPolygonItem(QLineF(points.at(i), points.at(i + 1)), lineWidth);
             polygonItem->setColor(brushColor);
             GraphicsItem::assignZValue(polygonItem, zValue);
             polygonItem->setColorOnDarkBackground(colorOnDarkBackground);
             polygonItem->setColorOnLightBackground(colorOnLightBackground);
 
-            polygonItems <<polygonItem;
+            polygonItems << polygonItem;
         }
-    }
-    else
-    {
+    } else {
         qWarning() << "cannot make sense of 'points' value " << svgPoints.toString();
     }
 
@@ -1942,10 +1744,7 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
 }
 
 
-
-
-void SvgSubsetAdaptor::SvgSubsetWriter::pixmapItemToLinkedImage(GraphicsPixmapItem* pixmapItem)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::pixmapItemToLinkedImage(GraphicsPixmapItem *pixmapItem) {
     mXmlWriter.writeStartElement("image");
 
     QString fileName = PersistenceManager::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
@@ -1960,21 +1759,16 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pixmapItemToLinkedImage(GraphicsPixmapIt
 }
 
 
-GraphicsPixmapItem* SvgSubsetAdaptor::SvgSubsetReader::pixmapItemFromSvg()
-{
-
-    GraphicsPixmapItem* pixmapItem = new GraphicsPixmapItem();
+GraphicsPixmapItem *SvgSubsetAdaptor::SvgSubsetReader::pixmapItemFromSvg() {
+    GraphicsPixmapItem *pixmapItem = new GraphicsPixmapItem();
 
     QStringView imageHref = mXmlReader.attributes().value(nsXLink, "href");
 
-    if (!imageHref.isNull())
-    {
+    if (!imageHref.isNull()) {
         QString href = imageHref.toString();
         QPixmap pix(mDocumentPath + "/" + FileSystemUtils::normalizeFilePath(href));
         pixmapItem->setPixmap(pix);
-    }
-    else
-    {
+    } else {
         qWarning() << "cannot make sens of image href value";
         return 0;
     }
@@ -1982,13 +1776,10 @@ GraphicsPixmapItem* SvgSubsetAdaptor::SvgSubsetReader::pixmapItemFromSvg()
     graphicsItemFromSvg(pixmapItem);
 
     return pixmapItem;
-
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::svgItemToLinkedSvg(GraphicsSvgItem* svgItem)
-{
-
+void SvgSubsetAdaptor::SvgSubsetWriter::svgItemToLinkedSvg(GraphicsSvgItem *svgItem) {
     mXmlWriter.writeStartElement("image");
 
     QString fileName = PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
@@ -2002,20 +1793,16 @@ void SvgSubsetAdaptor::SvgSubsetWriter::svgItemToLinkedSvg(GraphicsSvgItem* svgI
 }
 
 
-GraphicsSvgItem* SvgSubsetAdaptor::SvgSubsetReader::svgItemFromSvg()
-{
-    GraphicsSvgItem* svgItem = 0;
+GraphicsSvgItem *SvgSubsetAdaptor::SvgSubsetReader::svgItemFromSvg() {
+    GraphicsSvgItem *svgItem = 0;
 
     QStringView imageHref = mXmlReader.attributes().value(nsXLink, "href");
 
-    if (!imageHref.isNull())
-    {
+    if (!imageHref.isNull()) {
         QString href = imageHref.toString();
 
         svgItem = new GraphicsSvgItem(mDocumentPath + "/" + FileSystemUtils::normalizeFilePath(href));
-    }
-    else
-    {
+    } else {
         qWarning() << "cannot make sens of image href value";
         return 0;
     }
@@ -2023,12 +1810,10 @@ GraphicsSvgItem* SvgSubsetAdaptor::SvgSubsetReader::svgItemFromSvg()
     graphicsItemFromSvg(svgItem);
 
     return svgItem;
-
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::pdfItemToLinkedPDF(GraphicsPDFItem* pdfItem)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::pdfItemToLinkedPDF(GraphicsPDFItem *pdfItem) {
     mXmlWriter.writeStartElement("foreignObject");
     mXmlWriter.writeAttribute("requiredExtensions", "http://ns.adobe.com/pdf/1.3/");
 
@@ -2036,14 +1821,12 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pdfItemToLinkedPDF(GraphicsPDFItem* pdfI
 
     QString path = mDocumentPath + "/" + fileName;
 
-    if (!QFile::exists(path))
-    {
+    if (!QFile::exists(path)) {
         QDir dir;
         dir.mkdir(mDocumentPath + "/" + PersistenceManager::objectDirectory);
 
         QFile file(path);
-        if (!file.open(QIODevice::WriteOnly))
-        {
+        if (!file.open(QIODevice::WriteOnly)) {
             qWarning() << "cannot open file for writing embeded pdf content " << path;
             return;
         }
@@ -2060,14 +1843,12 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pdfItemToLinkedPDF(GraphicsPDFItem* pdfI
 }
 
 
-GraphicsPDFItem* SvgSubsetAdaptor::SvgSubsetReader::pdfItemFromPDF()
-{
-    GraphicsPDFItem* pdfItem = 0;
+GraphicsPDFItem *SvgSubsetAdaptor::SvgSubsetReader::pdfItemFromPDF() {
+    GraphicsPDFItem *pdfItem = 0;
 
     QString href = mXmlReader.attributes().value(nsXLink, "href").toString();
     QStringList parts = href.split("#page=");
-    if (parts.count() != 2)
-    {
+    if (parts.count() != 2) {
         qWarning() << "invalid pdf href value" << href;
         return 0;
     }
@@ -2076,22 +1857,22 @@ GraphicsPDFItem* SvgSubsetAdaptor::SvgSubsetReader::pdfItemFromPDF()
     QUuid uuid(QFileInfo(pdfPath).baseName());
     int pageNumber = parts[1].toInt();
 
-    pdfItem = new GraphicsPDFItem(PDFRenderer::rendererForUuid(uuid, mDocumentPath + "/" + FileSystemUtils::normalizeFilePath(pdfPath)), pageNumber);
+    pdfItem = new GraphicsPDFItem(
+        PDFRenderer::rendererForUuid(uuid, mDocumentPath + "/" + FileSystemUtils::normalizeFilePath(pdfPath)),
+        pageNumber);
 
     graphicsItemFromSvg(pdfItem);
 
     return pdfItem;
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::audioItemToLinkedAudio(GraphicsAudioItem *audioItem)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::audioItemToLinkedAudio(GraphicsAudioItem *audioItem) {
     mXmlWriter.writeStartElement("audio");
 
     graphicsItemToSvg(audioItem);
 
     if (audioItem->playerState() == QMediaPlayer::PausedState &&
-       (audioItem->mediaDuration() - audioItem->mediaPosition()) > 0)
-    {
+        (audioItem->mediaDuration() - audioItem->mediaPosition()) > 0) {
         qint64 pos = audioItem->mediaPosition();
         mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "position", QString("%1").arg(pos));
     }
@@ -2103,8 +1884,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::audioItemToLinkedAudio(GraphicsAudioItem
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::videoItemToLinkedVideo(GraphicsVideoItem* videoItem)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::videoItemToLinkedVideo(GraphicsVideoItem *videoItem) {
     /* w3c sample
      *
      *  <video xlink:href="noonoo.avi" volume=".8" type="video/x-msvideo"
@@ -2117,8 +1897,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::videoItemToLinkedVideo(GraphicsVideoItem
     graphicsItemToSvg(videoItem);
 
     if (videoItem->playerState() == QMediaPlayer::PausedState &&
-       (videoItem->mediaDuration() - videoItem->mediaPosition()) > 0)
-    {
+        (videoItem->mediaDuration() - videoItem->mediaPosition()) > 0) {
         qint64 pos = videoItem->mediaPosition();
         mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "position", QString("%1").arg(pos));
     }
@@ -2129,29 +1908,27 @@ void SvgSubsetAdaptor::SvgSubsetWriter::videoItemToLinkedVideo(GraphicsVideoItem
     mXmlWriter.writeEndElement();
 }
 
-GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
-{
-
+GraphicsMediaItem *SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg() {
     QStringView audioHref = mXmlReader.attributes().value(nsXLink, "href");
 
-    if (audioHref.isNull())
-    {
+    if (audioHref.isNull()) {
         qWarning() << "cannot make sens of video href value";
         return 0;
     }
 
     QString href = mDocumentPath + "/" + audioHref.toString();
 
-// 页面里记的是绝对路径，换机器或共享文档后必然失效，
-// 所以导入时折算成相对文档根目录的路径。
-    if(!audioHref.toString().startsWith("audios/")){
+    // 页面里记的是绝对路径，换机器或共享文档后必然失效，
+    // 所以导入时折算成相对文档根目录的路径。
+    if (!audioHref.toString().startsWith("audios/")) {
         int indexOfAudioDirectory = href.lastIndexOf("audios");
         href = mDocumentPath + "/" + href.right(href.length() - indexOfAudioDirectory);
     }
 
-    GraphicsMediaItem* audioItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
-    if(audioItem)
-        audioItem->connect(Application::boardController, &BoardController::activeSceneChanged, audioItem, &GraphicsMediaItem::activeSceneChanged);
+    GraphicsMediaItem *audioItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
+    if (audioItem)
+        audioItem->connect(Application::boardController, &BoardController::activeSceneChanged, audioItem,
+                           &GraphicsMediaItem::activeSceneChanged);
 
     graphicsItemFromSvg(audioItem);
     QStringView posValue = mXmlReader.attributes().value(mNamespaceUri, "position");
@@ -2164,37 +1941,34 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
     return audioItem;
 }
 
-GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
-{
-
+GraphicsMediaItem *SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg() {
     QStringView videoHref = mXmlReader.attributes().value(nsXLink, "href");
 
-    if (videoHref.isNull())
-    {
+    if (videoHref.isNull()) {
         qWarning() << "cannot make sens of video href value";
         return 0;
     }
 
     QString href = mDocumentPath + "/" + videoHref.toString();
 
-// 页面里记的是绝对路径，换机器或共享文档后必然失效，
-// 所以导入时折算成相对文档根目录的路径。
-    if(!videoHref.toString().startsWith("videos/")){
+    // 页面里记的是绝对路径，换机器或共享文档后必然失效，
+    // 所以导入时折算成相对文档根目录的路径。
+    if (!videoHref.toString().startsWith("videos/")) {
         int indexOfAudioDirectory = href.lastIndexOf("videos");
         href = mDocumentPath + "/" + href.right(href.length() - indexOfAudioDirectory);
     }
 
-    GraphicsMediaItem* videoItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
-    if(videoItem){
-        QObject::connect(Application::boardController, &BoardController::activeSceneChanged, videoItem, &GraphicsMediaItem::activeSceneChanged);
+    GraphicsMediaItem *videoItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
+    if (videoItem) {
+        QObject::connect(Application::boardController, &BoardController::activeSceneChanged, videoItem,
+                         &GraphicsMediaItem::activeSceneChanged);
     }
 
     graphicsItemFromSvg(videoItem);
     QStringView posValue = mXmlReader.attributes().value(mNamespaceUri, "position");
 
     qint64 p = 0;
-    if (!posValue.isNull())
-    {
+    if (!posValue.isNull()) {
         p = posValue.toString().toLongLong();
     }
 
@@ -2202,15 +1976,12 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
     return videoItem;
 }
 
-void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem* gItem)
-{
-
+void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem *gItem) {
     QStringView svgTransform = mXmlReader.attributes().value("transform");
 
     QTransform itemMatrix;
 
-    if (!svgTransform.isNull())
-    {
+    if (!svgTransform.isNull()) {
         itemMatrix = fromSvgTransform(svgTransform.toString());
         gItem->setTransform(itemMatrix);
     }
@@ -2218,55 +1989,47 @@ void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem* gItem
     QStringView svgX = mXmlReader.attributes().value("x");
     QStringView svgY = mXmlReader.attributes().value("y");
 
-    if (mFileVersion >= 40202)
-    {
-        gItem->setPos(0,0);
-    }
-    else if (mFileVersion >= 40201)
-    {
-        if (!svgX.isNull() && !svgY.isNull())
-        {
-            gItem->setPos(svgX.toString().toFloat() * itemMatrix.m11(), svgY.toString().toFloat() * itemMatrix.m22());
+    if (mFileVersion >= 40202) {
+        gItem->setPos(0, 0);
+    } else if (mFileVersion >= 40201) {
+        if (!svgX.isNull() && !svgY.isNull()) {
+            gItem->setPos(svgX.toString().toFloat() * itemMatrix.m11(),
+                          svgY.toString().toFloat() * itemMatrix.m22());
         }
-    }
-    else
-    {
-        if (!svgX.isNull() && !svgY.isNull())
-        {
+    } else {
+        if (!svgX.isNull() && !svgY.isNull()) {
 #ifdef Q_OS_WIN
             gItem->setPos(svgX.toString().toFloat(), svgY.toString().toFloat());
 #endif
         }
     }
 
-    ResizableGraphicsItem *rgi = dynamic_cast<ResizableGraphicsItem*>(gItem);
+    ResizableGraphicsItem *rgi = dynamic_cast<ResizableGraphicsItem *>(gItem);
 
-    if (rgi)
-    {
+    if (rgi) {
         QStringView svgWidth = mXmlReader.attributes().value("width");
         QStringView svgHeight = mXmlReader.attributes().value("height");
 
-        if (!svgWidth.isNull() && !svgHeight.isNull())
-        {
+        if (!svgWidth.isNull() && !svgHeight.isNull()) {
             rgi->resize(svgWidth.toString().toFloat(), svgHeight.toString().toFloat());
         }
     }
 
     QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
-    if (!zValueAttr.isNull()){
+    if (!zValueAttr.isNull()) {
         // FIX
         // In the firsts zvalue implemenations values outside the boudaries have been used.
         // No boundaries specified on documentation but to small values are not correctly handled.
         qreal zValue = zValueAttr.toString().toFloat();
-        while(zValue < -999999) zValue /= 10.;
+        while (zValue < -999999)
+            zValue /= 10.;
         GraphicsItem::assignZValue(gItem, zValue);
     }
 
-    Item* boardItem = dynamic_cast<Item*>(gItem);
+    Item *boardItem = dynamic_cast<Item *>(gItem);
 
-    if (boardItem)
-    {
+    if (boardItem) {
         QStringView uuidValue = mXmlReader.attributes().value(mNamespaceUri, "uuid");
 
         if (!uuidValue.isNull())
@@ -2282,24 +2045,21 @@ void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem* gItem
 
     QStringView lockedValue = mXmlReader.attributes().value(mNamespaceUri, "locked");
 
-    if (!lockedValue.isNull())
-    {
+    if (!lockedValue.isNull()) {
         bool isLocked = (lockedValue.toString() == xmlTrue || lockedValue.toString() == "1");
         gItem->setData(GraphicsItemData::ItemLocked, QVariant(isLocked));
     }
 
     QStringView editableValue = mXmlReader.attributes().value(mNamespaceUri, "editable");
 
-    if (!editableValue.isNull())
-    {
+    if (!editableValue.isNull()) {
         bool isEditable = (editableValue.toString() == xmlTrue || editableValue.toString() == "1");
         gItem->setData(GraphicsItemData::ItemEditable, QVariant(isEditable));
     }
 
     //deprecated as of 4.4.a.12
     QStringView layerValue = mXmlReader.attributes().value(mNamespaceUri, "layer");
-    if (!layerValue.isNull())
-    {
+    if (!layerValue.isNull()) {
         bool ok;
         int layerAsInt = layerValue.toString().toInt(&ok);
 
@@ -2308,8 +2068,7 @@ void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem* gItem
     }
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::graphicsItemToSvg(QGraphicsItem* item)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::graphicsItemToSvg(QGraphicsItem *item) {
     mXmlWriter.writeAttribute("x", "0");
     mXmlWriter.writeAttribute("y", "0");
 
@@ -2324,19 +2083,19 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsItemToSvg(QGraphicsItem* item)
 
     bool isBackground = mScene->isBackgroundObject(item);
 
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "background", isBackground ? xmlTrue : xmlFalse);
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "background",
+                              isBackground ? xmlTrue : xmlFalse);
 
-    Item* boardItem = dynamic_cast<Item*>(item);
+    Item *boardItem = dynamic_cast<Item *>(item);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
 
         QUrl sourceUrl = boardItem->sourceUrl();
 
         if (!sourceUrl.isEmpty())
             mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "source", sourceUrl.path());
-
     }
 
     QVariant layer = item->data(GraphicsItemData::ItemLayerType);
@@ -2357,25 +2116,19 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsItemToSvg(QGraphicsItem* item)
 }
 
 
-
-
-void SvgSubsetAdaptor::SvgSubsetWriter::graphicsAppleWidgetToSvg(GraphicsAppleWidgetItem* item)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::graphicsAppleWidgetToSvg(GraphicsAppleWidgetItem *item) {
     graphicsWidgetToSvg(item);
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWebWidgetToSvg(GraphicsWebWidgetItem* item)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWebWidgetToSvg(GraphicsWebWidgetItem *item) {
     graphicsWidgetToSvg(item);
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem* item)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem *item) {
     QUrl widgetRootUrl = item->widgetUrl();
     QString uuid = StringUtils::toCanonicalUuid(item->uuid());
     QString widgetDirectoryPath = PersistenceManager::widgetDirectory;
-    if (widgetRootUrl.toString().startsWith("file://"))
-    {
+    if (widgetRootUrl.toString().startsWith("file://")) {
         QString widgetRootDir = widgetRootUrl.toLocalFile();
         QFileInfo fi(widgetRootDir);
         QString extension = fi.suffix();
@@ -2385,8 +2138,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem* 
         QString path = mDocumentPath + "/" + widgetTargetDir;
         QDir dir(path);
 
-        if (!dir.exists(path))
-        {
+        if (!dir.exists(path)) {
             QDir dir;
             dir.mkpath(path);
             FileSystemUtils::copyDir(widgetRootDir, path);
@@ -2402,8 +2154,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem* 
 
     graphicsItemToSvg(item);
 
-    if (item->isFrozen())
-    {
+    if (item->isFrozen()) {
         mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "frozen", xmlTrue);
     }
 
@@ -2427,8 +2178,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem* 
     //persists widget state
     QMap<QString, QString> preferences = item->preferences();
 
-    foreach(QString key, preferences.keys())
-    {
+    foreach (QString key, preferences.keys()) {
         QString value = preferences.value(key);
 
         mXmlWriter.writeStartElement(Settings::documentNamespaceUri, "preference");
@@ -2442,8 +2192,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem* 
     //persists datasore state
     QMap<QString, QString> datastore = item->datastoreEntries();
 
-    foreach(QString key, datastore.keys())
-    {
+    foreach (QString key, datastore.keys()) {
         QString value = datastore.value(key);
 
         mXmlWriter.writeStartElement(Settings::documentNamespaceUri, "datastoreEntry");
@@ -2458,13 +2207,10 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem* 
 }
 
 
-GraphicsAppleWidgetItem* SvgSubsetAdaptor::SvgSubsetReader::graphicsAppleWidgetFromSvg()
-{
-
+GraphicsAppleWidgetItem *SvgSubsetAdaptor::SvgSubsetReader::graphicsAppleWidgetFromSvg() {
     QStringView widgetUrl = mXmlReader.attributes().value(mNamespaceUri, "src");
 
-    if (widgetUrl.isNull())
-    {
+    if (widgetUrl.isNull()) {
         qWarning() << "cannot make sens of widget src value";
         return 0;
     }
@@ -2473,24 +2219,21 @@ GraphicsAppleWidgetItem* SvgSubsetAdaptor::SvgSubsetReader::graphicsAppleWidgetF
 
     QUrl url(href);
 
-    if (url.isRelative())
-    {
+    if (url.isRelative()) {
         href = mDocumentPath + "/" + FileSystemUtils::normalizeFilePath(widgetUrl.toString());
     }
 
-    GraphicsAppleWidgetItem* widgetItem = new GraphicsAppleWidgetItem(QUrl::fromLocalFile(href));
+    GraphicsAppleWidgetItem *widgetItem = new GraphicsAppleWidgetItem(QUrl::fromLocalFile(href));
 
     graphicsItemFromSvg(widgetItem);
 
     return widgetItem;
 }
 
-GraphicsWebWidgetItem* SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromSvg()
-{
+GraphicsWebWidgetItem *SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromSvg() {
     QStringView widgetUrl = mXmlReader.attributes().value(mNamespaceUri, "src");
 
-    if (widgetUrl.isNull())
-    {
+    if (widgetUrl.isNull()) {
         qWarning() << "cannot make sens of widget src value";
         return 0;
     }
@@ -2498,15 +2241,15 @@ GraphicsWebWidgetItem* SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromS
     QString href = widgetUrl.toString();
     QUrl url(href);
 
-    if (url.isRelative())
-    {
+    if (url.isRelative()) {
         href = mDocumentPath + "/" + FileSystemUtils::normalizeFilePath(widgetUrl.toString());
     }
 
-    GraphicsWebWidgetItem* widgetItem = new GraphicsWebWidgetItem(QUrl::fromLocalFile(href));
+    GraphicsWebWidgetItem *widgetItem = new GraphicsWebWidgetItem(QUrl::fromLocalFile(href));
 
     QStringView uuid = mXmlReader.attributes().value(mNamespaceUri, "uuid");
-    QString pixPath = mDocumentPath + "/" + PersistenceManager::widgetDirectory + "/" + uuid.toString() + ".png";
+    QString pixPath =
+        mDocumentPath + "/" + PersistenceManager::widgetDirectory + "/" + uuid.toString() + ".png";
 
     QPixmap snapshot(pixPath);
     if (!snapshot.isNull())
@@ -2514,8 +2257,7 @@ GraphicsWebWidgetItem* SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromS
 
     QStringView frozen = mXmlReader.attributes().value(mNamespaceUri, "frozen");
 
-    if (!frozen.isNull() && frozen.toString() == xmlTrue && !snapshot.isNull())
-    {
+    if (!frozen.isNull() && frozen.toString() == xmlTrue && !snapshot.isNull()) {
         widgetItem->freeze();
     }
 
@@ -2524,8 +2266,7 @@ GraphicsWebWidgetItem* SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromS
     return widgetItem;
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::textItemToSvg(GraphicsTextItem* item)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::textItemToSvg(GraphicsTextItem *item) {
     /**
      * sample
      *
@@ -2544,16 +2285,17 @@ void SvgSubsetAdaptor::SvgSubsetWriter::textItemToSvg(GraphicsTextItem* item)
     graphicsItemToSvg(item);
 
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "width", QString("%1").arg(item->textWidth()));
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "height", QString("%1").arg(item->textHeight()));
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "pixels-per-point", QString("%1").arg(item->pixelsPerPoint()));
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "height",
+                              QString("%1").arg(item->textHeight()));
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "pixels-per-point",
+                              QString("%1").arg(item->pixelsPerPoint()));
 
     QColor colorDarkBg = item->colorOnDarkBackground();
     QColor colorLightBg = item->colorOnLightBackground();
 
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                              , "fill-on-dark-background", colorDarkBg.name());
-    mXmlWriter.writeAttribute(Settings::documentNamespaceUri
-                              , "fill-on-light-background", colorLightBg.name());
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-dark-background", colorDarkBg.name());
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background",
+                              colorLightBg.name());
 
     //for new documents from version 4.5.0
     mXmlWriter.writeStartElement("itemTextContent");
@@ -2567,19 +2309,21 @@ void SvgSubsetAdaptor::SvgSubsetWriter::textItemToSvg(GraphicsTextItem* item)
     mXmlWriter.writeEndElement(); //foreignObject
 }
 
-GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
-{
+GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg() {
     qreal width = mXmlReader.attributes().value("width").toString().toFloat();
     qreal height = mXmlReader.attributes().value("height").toString().toFloat();
 
-    qreal originalPixelsPerPoint = mXmlReader.attributes().value(mNamespaceUri, "pixels-per-point").toString().toDouble();
+    qreal originalPixelsPerPoint =
+        mXmlReader.attributes().value(mNamespaceUri, "pixels-per-point").toString().toDouble();
 
-    GraphicsTextItem* textItem = new GraphicsTextItem();
+    GraphicsTextItem *textItem = new GraphicsTextItem();
 
     graphicsItemFromSvg(textItem);
 
-    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
-    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    QStringView fillOnDarkBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    QStringView fillOnLightBackgroundValue =
+        mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
     if (!fillOnDarkBackgroundValue.isNull()) {
         QColor color;
@@ -2599,18 +2343,16 @@ GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
 
     QString text;
 
-    while (!(mXmlReader.isEndElement() && (mXmlReader.name() == "font" || mXmlReader.name() == "foreignObject")))
-    {
-        if (mXmlReader.hasError())
-        {
+    while (!(mXmlReader.isEndElement() &&
+             (mXmlReader.name() == "font" || mXmlReader.name() == "foreignObject"))) {
+        if (mXmlReader.hasError()) {
             delete textItem;
             textItem = 0;
             return 0;
         }
 
         mXmlReader.readNext();
-        if (mXmlReader.isStartElement())
-        {
+        if (mXmlReader.isStartElement()) {
             //for new documents from version 4.5.0
             if (mFileVersion >= 40500) {
                 if (mXmlReader.name() == "itemTextContent") {
@@ -2625,18 +2367,18 @@ GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                     if (originalPixelsPerPoint != 0) {
                         qreal pixelsPerPoint = textItem->pixelsPerPoint();
 
-                        qDebug() << "Pixels per point: original/current" << originalPixelsPerPoint
-                                 << "/" << pixelsPerPoint;
-                        qreal ratio = originalPixelsPerPoint/pixelsPerPoint;
+                        qDebug() << "Pixels per point: original/current" << originalPixelsPerPoint << "/"
+                                 << pixelsPerPoint;
+                        qreal ratio = originalPixelsPerPoint / pixelsPerPoint;
 
                         if (ratio != 1) {
                             qDebug() << "Scaling text by " << ratio;
-                            GraphicsTextItemDelegate* textDelegate = dynamic_cast<GraphicsTextItemDelegate*>(textItem->Delegate());
+                            GraphicsTextItemDelegate *textDelegate =
+                                dynamic_cast<GraphicsTextItemDelegate *>(textItem->Delegate());
                             if (textDelegate)
                                 textDelegate->scaleTextSize(ratio);
                         }
-                    }
-                    else
+                    } else
                         // mark scene as modified so the text item will be saved with a pixelsPerPoint value
                         saveSceneAfterLoading = true;
 
@@ -2650,7 +2392,7 @@ GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                 }
 
                 //tracking for backward capability with older versions
-            } else if (mXmlReader.name() == "font")  {
+            } else if (mXmlReader.name() == "font") {
                 QFont font = textItem->font();
 
                 QStringView fontFamily = mXmlReader.attributes().value("face");
@@ -2663,19 +2405,19 @@ GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                     foreach (QString styleToken, fontStyle.toString().split(";")) {
                         styleToken = styleToken.trimmed();
                         if (styleToken.startsWith(sFontSizePrefix) && styleToken.endsWith(sPixelUnit)) {
-                            int fontSize = styleToken.mid(
-                                        sFontSizePrefix.length(),
-                                        styleToken.length() - sFontSizePrefix.length() - sPixelUnit.length()).toInt();
+                            int fontSize =
+                                styleToken
+                                    .mid(sFontSizePrefix.length(),
+                                         styleToken.length() - sFontSizePrefix.length() - sPixelUnit.length())
+                                    .toInt();
                             font.setPixelSize(fontSize);
                         } else if (styleToken.startsWith(sFontWeightPrefix)) {
                             QString fontWeight = styleToken.mid(
-                                        sFontWeightPrefix.length(),
-                                        styleToken.length() - sFontWeightPrefix.length());
+                                sFontWeightPrefix.length(), styleToken.length() - sFontWeightPrefix.length());
                             font.setBold(fontWeight.contains("bold"));
                         } else if (styleToken.startsWith(sFontStylePrefix)) {
                             QString fontStyle = styleToken.mid(
-                                        sFontStylePrefix.length(),
-                                        styleToken.length() - sFontStylePrefix.length());
+                                sFontStylePrefix.length(), styleToken.length() - sFontStylePrefix.length());
                             font.setItalic(fontStyle.contains("italic"));
                         }
                     }
@@ -2727,10 +2469,7 @@ GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
 }
 
 
-
-
-void SvgSubsetAdaptor::SvgSubsetWriter::curtainItemToSvg(GraphicsCurtainItem* curtainItem)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::curtainItemToSvg(GraphicsCurtainItem *curtainItem) {
     /**
      *
      * sample
@@ -2751,20 +2490,19 @@ void SvgSubsetAdaptor::SvgSubsetWriter::curtainItemToSvg(GraphicsCurtainItem* cu
     zs.setNum(curtainItem->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* boardItem = dynamic_cast<Item*>(curtainItem);
+    Item *boardItem = dynamic_cast<Item *>(curtainItem);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
 }
 
 
-GraphicsCurtainItem* SvgSubsetAdaptor::SvgSubsetReader::curtainItemFromSvg()
-{
-    GraphicsCurtainItem* curtainItem = new GraphicsCurtainItem();
+GraphicsCurtainItem *SvgSubsetAdaptor::SvgSubsetReader::curtainItemFromSvg() {
+    GraphicsCurtainItem *curtainItem = new GraphicsCurtainItem();
 
     graphicsItemFromSvg(curtainItem);
 
@@ -2775,8 +2513,8 @@ GraphicsCurtainItem* SvgSubsetAdaptor::SvgSubsetReader::curtainItemFromSvg()
 
 
     QRect rect;
-    rect.setX(svgX.toString().toFloat()-svgWidth.toString().toFloat()/2);
-    rect.setY(svgY.toString().toFloat()-svgHeight.toString().toFloat()/2);
+    rect.setX(svgX.toString().toFloat() - svgWidth.toString().toFloat() / 2);
+    rect.setY(svgY.toString().toFloat() - svgHeight.toString().toFloat() / 2);
     rect.setWidth(svgWidth.toString().toFloat());
     rect.setHeight(svgHeight.toString().toFloat());
 
@@ -2788,9 +2526,7 @@ GraphicsCurtainItem* SvgSubsetAdaptor::SvgSubsetReader::curtainItemFromSvg()
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::rulerToSvg(GraphicsRuler* item)
-{
-
+void SvgSubsetAdaptor::SvgSubsetWriter::rulerToSvg(GraphicsRuler *item) {
     /**
      *
      * sample
@@ -2810,20 +2546,19 @@ void SvgSubsetAdaptor::SvgSubsetWriter::rulerToSvg(GraphicsRuler* item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* boardItem = dynamic_cast<Item*>(item);
+    Item *boardItem = dynamic_cast<Item *>(item);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
 }
 
 
-GraphicsRuler* SvgSubsetAdaptor::SvgSubsetReader::rulerFromSvg()
-{
-    GraphicsRuler* ruler = new GraphicsRuler();
+GraphicsRuler *SvgSubsetAdaptor::SvgSubsetReader::rulerFromSvg() {
+    GraphicsRuler *ruler = new GraphicsRuler();
 
     graphicsItemFromSvg(ruler);
 
@@ -2834,9 +2569,9 @@ GraphicsRuler* SvgSubsetAdaptor::SvgSubsetReader::rulerFromSvg()
     QStringView svgX = mXmlReader.attributes().value("x");
     QStringView svgY = mXmlReader.attributes().value("y");
 
-    if (!svgWidth.isNull() && !svgHeight.isNull() && !svgX.isNull() && !svgY.isNull())
-    {
-        ruler->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(),  svgWidth.toString().toFloat(), svgHeight.toString().toFloat());
+    if (!svgWidth.isNull() && !svgHeight.isNull() && !svgX.isNull() && !svgY.isNull()) {
+        ruler->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(), svgWidth.toString().toFloat(),
+                       svgHeight.toString().toFloat());
     }
 
     ruler->setVisible(true);
@@ -2845,9 +2580,7 @@ GraphicsRuler* SvgSubsetAdaptor::SvgSubsetReader::rulerFromSvg()
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::compassToSvg(GraphicsCompass* item)
-{
-
+void SvgSubsetAdaptor::SvgSubsetWriter::compassToSvg(GraphicsCompass *item) {
     /**
      *
      * sample
@@ -2867,20 +2600,19 @@ void SvgSubsetAdaptor::SvgSubsetWriter::compassToSvg(GraphicsCompass* item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* boardItem = dynamic_cast<Item*>(item);
+    Item *boardItem = dynamic_cast<Item *>(item);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
 }
 
 
-GraphicsCompass* SvgSubsetAdaptor::SvgSubsetReader::compassFromSvg()
-{
-    GraphicsCompass* compass = new GraphicsCompass();
+GraphicsCompass *SvgSubsetAdaptor::SvgSubsetReader::compassFromSvg() {
+    GraphicsCompass *compass = new GraphicsCompass();
 
     graphicsItemFromSvg(compass);
 
@@ -2891,10 +2623,9 @@ GraphicsCompass* SvgSubsetAdaptor::SvgSubsetReader::compassFromSvg()
     QStringView svgWidth = mXmlReader.attributes().value("width");
     QStringView svgHeight = mXmlReader.attributes().value("height");
 
-    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull())
-    {
-        compass->setRect(svgX.toString().toFloat(), svgY.toString().toFloat()
-                         , svgWidth.toString().toFloat(), svgHeight.toString().toFloat());
+    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull()) {
+        compass->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(), svgWidth.toString().toFloat(),
+                         svgHeight.toString().toFloat());
     }
 
     compass->setVisible(true);
@@ -2903,9 +2634,7 @@ GraphicsCompass* SvgSubsetAdaptor::SvgSubsetReader::compassFromSvg()
 }
 
 
-void SvgSubsetAdaptor::SvgSubsetWriter::protractorToSvg(GraphicsProtractor* item)
-{
-
+void SvgSubsetAdaptor::SvgSubsetWriter::protractorToSvg(GraphicsProtractor *item) {
     /**
      *
      * sample
@@ -2932,34 +2661,31 @@ void SvgSubsetAdaptor::SvgSubsetWriter::protractorToSvg(GraphicsProtractor* item
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* boardItem = dynamic_cast<Item*>(item);
+    Item *boardItem = dynamic_cast<Item *>(item);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
 }
 
 
-GraphicsProtractor* SvgSubsetAdaptor::SvgSubsetReader::protractorFromSvg()
-{
-    GraphicsProtractor* protractor = new GraphicsProtractor();
+GraphicsProtractor *SvgSubsetAdaptor::SvgSubsetReader::protractorFromSvg() {
+    GraphicsProtractor *protractor = new GraphicsProtractor();
 
     protractor->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
 
     graphicsItemFromSvg(protractor);
 
     QStringView angle = mXmlReader.attributes().value(mNamespaceUri, "angle");
-    if (!angle.isNull())
-    {
+    if (!angle.isNull()) {
         protractor->setAngle(angle.toString().toFloat());
     }
 
     QStringView markerAngle = mXmlReader.attributes().value(mNamespaceUri, "marker-angle");
-    if (!markerAngle.isNull())
-    {
+    if (!markerAngle.isNull()) {
         protractor->setMarkerAngle(markerAngle.toString().toFloat());
     }
 
@@ -2968,10 +2694,9 @@ GraphicsProtractor* SvgSubsetAdaptor::SvgSubsetReader::protractorFromSvg()
     QStringView svgWidth = mXmlReader.attributes().value("width");
     QStringView svgHeight = mXmlReader.attributes().value("height");
 
-    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull())
-    {
-        protractor->setRect(svgX.toString().toFloat(), svgY.toString().toFloat()
-                            , svgWidth.toString().toFloat(), svgHeight.toString().toFloat());
+    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull()) {
+        protractor->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(),
+                            svgWidth.toString().toFloat(), svgHeight.toString().toFloat());
     }
 
     protractor->setVisible(true);
@@ -2979,9 +2704,7 @@ GraphicsProtractor* SvgSubsetAdaptor::SvgSubsetReader::protractorFromSvg()
     return protractor;
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::triangleToSvg(GraphicsTriangle *item)
-{
-
+void SvgSubsetAdaptor::SvgSubsetWriter::triangleToSvg(GraphicsTriangle *item) {
     /**
      *
      * sample
@@ -3002,19 +2725,18 @@ void SvgSubsetAdaptor::SvgSubsetWriter::triangleToSvg(GraphicsTriangle *item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* boardItem = dynamic_cast<Item*>(item);
+    Item *boardItem = dynamic_cast<Item *>(item);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
 }
 
-GraphicsTriangle* SvgSubsetAdaptor::SvgSubsetReader::triangleFromSvg()
-{
-    GraphicsTriangle* triangle = new GraphicsTriangle();
+GraphicsTriangle *SvgSubsetAdaptor::SvgSubsetReader::triangleFromSvg() {
+    GraphicsTriangle *triangle = new GraphicsTriangle();
 
     triangle->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
 
@@ -3029,18 +2751,17 @@ GraphicsTriangle* SvgSubsetAdaptor::SvgSubsetReader::triangleFromSvg()
     GraphicsTriangle::Orientation orientation = GraphicsTriangle::orientationFromStr(orientationStringRef);
     triangle->setOrientation(orientation);
 
-    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull())
-    {
-        triangle->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(), svgWidth.toString().toFloat(), svgHeight.toString().toFloat(), orientation);
+    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull()) {
+        triangle->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(), svgWidth.toString().toFloat(),
+                          svgHeight.toString().toFloat(), orientation);
     }
 
     triangle->setVisible(true);
     return triangle;
 }
 
-GraphicsCache* SvgSubsetAdaptor::SvgSubsetReader::cacheFromSvg()
-{
-    GraphicsCache* pCache = GraphicsCache::instance(mScene);
+GraphicsCache *SvgSubsetAdaptor::SvgSubsetReader::cacheFromSvg() {
+    GraphicsCache *pCache = GraphicsCache::instance(mScene);
     pCache->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
 
     graphicsItemFromSvg(pCache);
@@ -3052,7 +2773,8 @@ GraphicsCache* SvgSubsetAdaptor::SvgSubsetReader::cacheFromSvg()
     QStringView shape = mXmlReader.attributes().value("shape");
     QStringView shapeSize = mXmlReader.attributes().value("shapeSize");
 
-    QColor color(colorR.toString().toInt(), colorG.toString().toInt(), colorB.toString().toInt(), colorA.toString().toInt());
+    QColor color(colorR.toString().toInt(), colorG.toString().toInt(), colorB.toString().toInt(),
+                 colorA.toString().toInt());
 
     pCache->setMaskColor(color);
     pCache->setShapeWidth(shapeSize.toString().toInt());
@@ -3063,8 +2785,7 @@ GraphicsCache* SvgSubsetAdaptor::SvgSubsetReader::cacheFromSvg()
     return pCache;
 }
 
-void SvgSubsetAdaptor::SvgSubsetWriter::cacheToSvg(GraphicsCache* item)
-{
+void SvgSubsetAdaptor::SvgSubsetWriter::cacheToSvg(GraphicsCache *item) {
     mXmlWriter.writeStartElement(Settings::documentNamespaceUri, "cache");
 
     mXmlWriter.writeAttribute("x", QString("%1").arg(item->rect().x()));
@@ -3082,78 +2803,64 @@ void SvgSubsetAdaptor::SvgSubsetWriter::cacheToSvg(GraphicsCache* item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* boardItem = dynamic_cast<Item*>(item);
+    Item *boardItem = dynamic_cast<Item *>(item);
 
-    if (boardItem)
-    {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    if (boardItem) {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid",
+                                  StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
 }
 
-void SvgSubsetAdaptor::convertPDFObjectsToImages(DocumentProxy* proxy)
-{
-    for (int i = 0; i < proxy->pageCount(); i++)
-    {
-        GraphicsScene* scene = loadScene(proxy, i);
+void SvgSubsetAdaptor::convertPDFObjectsToImages(DocumentProxy *proxy) {
+    for (int i = 0; i < proxy->pageCount(); i++) {
+        GraphicsScene *scene = loadScene(proxy, i);
 
-        if (scene)
-        {
+        if (scene) {
             bool foundPDFItem = false;
 
-            foreach(QGraphicsItem* item, scene->items())
-            {
-                GraphicsPDFItem *pdfItem = dynamic_cast<GraphicsPDFItem*>(item);
+            foreach (QGraphicsItem *item, scene->items()) {
+                GraphicsPDFItem *pdfItem = dynamic_cast<GraphicsPDFItem *>(item);
 
-                if (pdfItem)
-                {
+                if (pdfItem) {
                     foundPDFItem = true;
-                    GraphicsPixmapItem* pixmapItem = pdfItem->toPixmapItem();
+                    GraphicsPixmapItem *pixmapItem = pdfItem->toPixmapItem();
 
                     scene->removeItem(pdfItem);
                     scene->addItem(pixmapItem);
-
                 }
             }
 
-            if (foundPDFItem)
-            {
+            if (foundPDFItem) {
                 scene->setModified(true);
                 persistScene(proxy, scene, i);
             }
         }
-
     }
 }
 
 
-void SvgSubsetAdaptor::convertSvgImagesToImages(DocumentProxy* proxy)
-{
-    for (int i = 0; i < proxy->pageCount(); i++)
-    {
-        GraphicsScene* scene = loadScene(proxy, i);
+void SvgSubsetAdaptor::convertSvgImagesToImages(DocumentProxy *proxy) {
+    for (int i = 0; i < proxy->pageCount(); i++) {
+        GraphicsScene *scene = loadScene(proxy, i);
 
-        if (scene)
-        {
+        if (scene) {
             bool foundSvgItem = false;
 
-            foreach(QGraphicsItem* item, scene->items())
-            {
-                GraphicsSvgItem *svgItem = dynamic_cast<GraphicsSvgItem*>(item);
+            foreach (QGraphicsItem *item, scene->items()) {
+                GraphicsSvgItem *svgItem = dynamic_cast<GraphicsSvgItem *>(item);
 
-                if (svgItem)
-                {
+                if (svgItem) {
                     foundSvgItem = true;
-                    GraphicsPixmapItem* pixmapItem = svgItem->toPixmapItem();
+                    GraphicsPixmapItem *pixmapItem = svgItem->toPixmapItem();
 
                     scene->removeItem(svgItem);
                     scene->addItem(pixmapItem);
                 }
             }
 
-            if (foundSvgItem)
-            {
+            if (foundSvgItem) {
                 scene->setModified(true);
                 persistScene(proxy, scene, i);
             }

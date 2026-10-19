@@ -1,45 +1,36 @@
 #include "ui/CircleFrame.h"
 
-struct CircleFrame::Private
-{
+struct CircleFrame::Private {
     qreal currentPenWidth{0};
     qreal maxPenWidth{0};
 };
 
-CircleFrame::CircleFrame(QWidget* parent)
-    : QFrame(parent), d(new Private)
-{
+CircleFrame::CircleFrame(QWidget *parent) : QFrame(parent), d(new Private) {
     // NOOP
 }
 
-CircleFrame::~CircleFrame()
-{
+CircleFrame::~CircleFrame() {
     // NOOP
 }
 
-qreal CircleFrame::currentPenWidth() const
-{
+qreal CircleFrame::currentPenWidth() const {
     return d->currentPenWidth;
 }
 
-void CircleFrame::setCurrentPenWidth(qreal width)
-{
+void CircleFrame::setCurrentPenWidth(qreal width) {
     d->currentPenWidth = width;
 }
 
-qreal CircleFrame::maxPenWidth() const
-{
+qreal CircleFrame::maxPenWidth() const {
     return d->maxPenWidth;
 }
 
-void CircleFrame::setMaxPenWidth(qreal width)
-{
+void CircleFrame::setMaxPenWidth(qreal width) {
     d->maxPenWidth = width;
 }
 
 
-void CircleFrame::paintEvent(QPaintEvent * event)
-{
+void CircleFrame::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
 
     QPainter painter(this);

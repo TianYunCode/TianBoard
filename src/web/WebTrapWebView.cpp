@@ -11,8 +11,7 @@
 #include "whiteboard/BoardController.h"
 
 
-struct WebTrapWebView::Private
-{
+struct WebTrapWebView::Private {
     QRect mDomElementRect;
     QRect mWebViewElementRect;
     QString mElementQuery;
@@ -20,40 +19,33 @@ struct WebTrapWebView::Private
 
     bool mIsTrapping{false};
 
-    QWidget* mTrapingWidget{nullptr};
+    QWidget *mTrapingWidget{nullptr};
 };
 
-struct WebTrapMouseEventMask::Private
-{
-    WebTrapWebView* mTrappedWebView{nullptr};
+struct WebTrapMouseEventMask::Private {
+    WebTrapWebView *mTrappedWebView{nullptr};
 };
 
-WebTrapWebView::WebTrapWebView(QWidget* parent)
-    : QWebEngineView(parent)
-    , d(new Private)
-{
+WebTrapWebView::WebTrapWebView(QWidget *parent) : QWebEngineView(parent), d(new Private) {
     connect(this, &QWebEngineView::loadFinished, this, &WebTrapWebView::viewLoadFinished);
 }
 
 
-WebTrapWebView::~WebTrapWebView()
-{
+WebTrapWebView::~WebTrapWebView() {
     delete d->mTrapingWidget;
 }
 
-bool WebTrapWebView::isTrapping()
-{
+bool WebTrapWebView::isTrapping() {
     return d->mIsTrapping;
 }
 
 
-void WebTrapWebView::setIsTrapping(bool pIsTrapping)
-{
+void WebTrapWebView::setIsTrapping(bool pIsTrapping) {
     d->mIsTrapping = pIsTrapping;
 
     d->mDomElementRect = QRect();
     d->mCurrentContentType = Unknown;
-/*
+    /*
 #if defined(Q_OS_WIN)
 
     if(mIsTrapping)
@@ -83,164 +75,148 @@ void WebTrapWebView::setIsTrapping(bool pIsTrapping)
     update();
 }
 
-void WebTrapWebView::hideEvent ( QHideEvent * event )
-{
+void WebTrapWebView::hideEvent(QHideEvent *event) {
     setIsTrapping(false);
     QWebEngineView::hideEvent(event);
 }
 
 
-void WebTrapWebView::highliteElementAtPos ( const QPoint& pos)
-{
+void WebTrapWebView::highliteElementAtPos(const QPoint &pos) {
     d->mCurrentContentType = Unknown;
 
-    if(page() && page()->webChannel())
-    {
+    if (page() && page()->webChannel()) {
         //QWebHitTestResult htr = page()->currentFrame()->hitTestContent (pos);
         //QRect pageHtr = htr.boundingRect().translated(htr.frame()->pos());
 
         //QRect updateRect = mWebViewElementRect.united(pageHtr);
         //updateRect = updateRect.adjusted(-8, -8, 8, 8);
 
-    //    mDomElementRect = htr.boundingRect();
+        //    mDomElementRect = htr.boundingRect();
 
-    //    if (!htr.pixmap().isNull())
-    //    {
-    //        mCurrentContentType = Image;
-    //        qDebug() << "found pixmap at " << htr.boundingRect();
-    //    }
-    //    else
-    //    {
-    //        QWebElement element = htr.element();
-    //        QString tagName = element.tagName().toLower();
+        //    if (!htr.pixmap().isNull())
+        //    {
+        //        mCurrentContentType = Image;
+        //        qDebug() << "found pixmap at " << htr.boundingRect();
+        //    }
+        //    else
+        //    {
+        //        QWebElement element = htr.element();
+        //        QString tagName = element.tagName().toLower();
 
-    //        if (tagName == "object"
-    //            || tagName == "embed")
-    //        {
-    //            mCurrentContentType = ObjectOrEmbed;
-    //        }
-    //        else if ((tagName == "input") || (tagName == "textarea"))
-    //        {
-    //            QString ec = potentialEmbedCodeAtPos(pos);
+        //        if (tagName == "object"
+        //            || tagName == "embed")
+        //        {
+        //            mCurrentContentType = ObjectOrEmbed;
+        //        }
+        //        else if ((tagName == "input") || (tagName == "textarea"))
+        //        {
+        //            QString ec = potentialEmbedCodeAtPos(pos);
 
-    //            if (ec.length() > 0)
-    //            {
-    //                qDebug() << "found input data \n\n" << ec;
-    //                mCurrentContentType = Input;
-    //            }
-    //        }
-    //        else
-    //        {
-    //            QString tagName = htr.element().tagName();
-    //            QString id =  htr.element().attribute("id", "");
-    //            QWebElement el = htr.element();
+        //            if (ec.length() > 0)
+        //            {
+        //                qDebug() << "found input data \n\n" << ec;
+        //                mCurrentContentType = Input;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            QString tagName = htr.element().tagName();
+        //            QString id =  htr.element().attribute("id", "");
+        //            QWebElement el = htr.element();
 
-    //            QString idSelector = tagName + "#" + id;
-    //            bool idSuccess = (el == el.document().findFirst(idSelector));
+        //            QString idSelector = tagName + "#" + id;
+        //            bool idSuccess = (el == el.document().findFirst(idSelector));
 
-    //            if (idSuccess)
-    //            {
-    //                mElementQuery = idSelector;
-    //                mCurrentContentType = ElementByQuery;
-    //            }
-    //            else
-    //            {
-    //                //bool isValid = true;
+        //            if (idSuccess)
+        //            {
+        //                mElementQuery = idSelector;
+        //                mCurrentContentType = ElementByQuery;
+        //            }
+        //            else
+        //            {
+        //                //bool isValid = true;
 
-    //                QWebElement elParent = el.parent();
-    //                QWebElement currentEl = el;
-    //                QString path = tagName;
-    //                QStringList pathElements;
+        //                QWebElement elParent = el.parent();
+        //                QWebElement currentEl = el;
+        //                QString path = tagName;
+        //                QStringList pathElements;
 
-    //                do
-    //                {
-    //                    QWebElement someSibling = elParent.firstChild();
+        //                do
+        //                {
+        //                    QWebElement someSibling = elParent.firstChild();
 
-    //                    int index = 0;
-    //                    bool foundIndex = false;
+        //                    int index = 0;
+        //                    bool foundIndex = false;
 
-    //                    do
-    //                    {
-    //                        if (someSibling.tagName() == currentEl.tagName())
-    //                        {
-    //                            if (someSibling == currentEl)
-    //                            {
-    //                                foundIndex = true;
-    //                            }
-    //                            else
-    //                                index++;
-    //                        }
+        //                    do
+        //                    {
+        //                        if (someSibling.tagName() == currentEl.tagName())
+        //                        {
+        //                            if (someSibling == currentEl)
+        //                            {
+        //                                foundIndex = true;
+        //                            }
+        //                            else
+        //                                index++;
+        //                        }
 
-    //                        someSibling = someSibling.nextSibling();
-    //                    }
-    //                    while(!someSibling.isNull() && !foundIndex);
+        //                        someSibling = someSibling.nextSibling();
+        //                    }
+        //                    while(!someSibling.isNull() && !foundIndex);
 
-    //                    QString part;
+        //                    QString part;
 
-    //                    if (index > 0)
-    //                        part = QString("%1:nth-child(%2)").arg(currentEl.tagName()).arg(index);
-    //                    else
-    //                        part = currentEl.tagName();
+        //                    if (index > 0)
+        //                        part = QString("%1:nth-child(%2)").arg(currentEl.tagName()).arg(index);
+        //                    else
+        //                        part = currentEl.tagName();
 
-    //                    pathElements.insert(0, part);
+        //                    pathElements.insert(0, part);
 
-    //                    currentEl = elParent;
-    //                    elParent = elParent.parent();
+        //                    currentEl = elParent;
+        //                    elParent = elParent.parent();
 
-    //                } while(!elParent.isNull());
+        //                } while(!elParent.isNull());
 
-    //                //QString idSelector = tagName + "#" + id;
-    //                QString treeSelector =  pathElements.join(" > ");
+        //                //QString idSelector = tagName + "#" + id;
+        //                QString treeSelector =  pathElements.join(" > ");
 
-    //                mElementQuery = treeSelector;
-    //                mCurrentContentType = ElementByQuery;
+        //                mElementQuery = treeSelector;
+        //                mCurrentContentType = ElementByQuery;
 
-    //                //bool treeSuccess = (el == el.document().findFirst(treeSelector));
+        //                //bool treeSuccess = (el == el.document().findFirst(treeSelector));
 
-    //                //qDebug() << "----------------------------";
-    //                //qDebug() << idSuccess << idSelector;
-    //                //qDebug() << treeSuccess << treeSelector;
-    //            }
-    //        }
-    //    }
+        //                //qDebug() << "----------------------------";
+        //                //qDebug() << idSuccess << idSelector;
+        //                //qDebug() << treeSuccess << treeSelector;
+        //            }
+        //        }
+        //    }
 
-    //    update(updateRect);
+        //    update(updateRect);
     }
 }
 
 
-QString WebTrapWebView::potentialEmbedCodeAtPos(const QPoint& pos)
-{
-
-    QString scr = QString("document.elementFromPoint(%1, %2).tagName")
-        .arg(pos.x())
-        .arg(pos.y());
+QString WebTrapWebView::potentialEmbedCodeAtPos(const QPoint &pos) {
+    QString scr = QString("document.elementFromPoint(%1, %2).tagName").arg(pos.x()).arg(pos.y());
 
     //QVariant tagNameVar = page()->runJavaScript(scr);
-	QString tagName = "";// tagNameVar.toString().toLower();
+    QString tagName = ""; // tagNameVar.toString().toLower();
 
-    if ((tagName == "input") || (tagName == "textarea"))
-    {
+    if ((tagName == "input") || (tagName == "textarea")) {
         QString valueScript;
 
-        if (tagName == "input")
-        {
-            valueScript = QString("document.elementFromPoint(%1, %2).value")
-                .arg(pos.x())
-                .arg(pos.y());
-        }
-        else if (tagName == "textarea")
-        {
-            valueScript = QString("document.elementFromPoint(%1, %2).innerHTML")
-                .arg(pos.x())
-                .arg(pos.y());
+        if (tagName == "input") {
+            valueScript = QString("document.elementFromPoint(%1, %2).value").arg(pos.x()).arg(pos.y());
+        } else if (tagName == "textarea") {
+            valueScript = QString("document.elementFromPoint(%1, %2).innerHTML").arg(pos.x()).arg(pos.y());
         }
 
         //QVariant valueVar = page()->runJavaScript(valueScript);
-        QString value = "";//valueVar.toString();
+        QString value = ""; //valueVar.toString();
 
-        if (value.length() > 0 && value.contains("width") && value.contains("height"))
-        {
+        if (value.length() > 0 && value.contains("width") && value.contains("height")) {
             return value;
         }
     }
@@ -249,8 +225,7 @@ QString WebTrapWebView::potentialEmbedCodeAtPos(const QPoint& pos)
 }
 
 
-void WebTrapWebView::trapElementAtPos(const QPoint& pos)
-{
+void WebTrapWebView::trapElementAtPos(const QPoint &pos) {
     /*QWebHitTestResult htr = page()->currentFrame()->hitTestContent(pos);
 
     if (!htr.pixmap().isNull())
@@ -306,50 +281,38 @@ void WebTrapWebView::trapElementAtPos(const QPoint& pos)
 }
 
 
-void WebTrapWebView::mouseMoveEvent ( QMouseEvent * event )
-{
-    if (d->mIsTrapping)
-    {
+void WebTrapWebView::mouseMoveEvent(QMouseEvent *event) {
+    if (d->mIsTrapping) {
         highliteElementAtPos(event->pos());
-    }
-    else
-    {
+    } else {
         QWebEngineView::mouseMoveEvent(event);
     }
 }
 
-void WebTrapWebView::mousePressEvent(QMouseEvent* event)
-{
-    if (d->mIsTrapping)
-    {
+void WebTrapWebView::mousePressEvent(QMouseEvent *event) {
+    if (d->mIsTrapping) {
         // NOOP - avoid event routing to web kit (accept is not enough)
-    }
-    else
-    {
+    } else {
         //QWebEngineView::mousePressEvent(event);
     }
 }
 
 
-void WebTrapWebView::mouseReleaseEvent ( QMouseEvent * event )
-{
+void WebTrapWebView::mouseReleaseEvent(QMouseEvent *event) {
     //bool eventConsumed = false;
 
     //qDebug() << "mouse release" << event->pos();
 
-    if (d->mIsTrapping)
-    {
+    if (d->mIsTrapping) {
         trapElementAtPos(event->pos());
-    }
-    else
-    {
+    } else {
         QWebEngineView::mouseReleaseEvent(event);
     }
 
     //if (!eventConsumed)
 
 
-        /*
+    /*
         QString script;
         script += QString("var element = document.elementFromPoint(%1, %2);").arg(event->pos().x()).arg(event->pos().y());
 
@@ -392,17 +355,15 @@ void WebTrapWebView::mouseReleaseEvent ( QMouseEvent * event )
 
     //if (result.isValid())
     //{
-        //emit trapped(url(), result.toString());
+    //emit trapped(url(), result.toString());
     //}
 }
 
 
-void WebTrapWebView::paintEvent ( QPaintEvent * event )
-{
+void WebTrapWebView::paintEvent(QPaintEvent *event) {
     QWebEngineView::paintEvent(event);
 
-    if (d->mIsTrapping && d->mDomElementRect.isValid() && page())
-    {
+    if (d->mIsTrapping && d->mDomElementRect.isValid() && page()) {
         QPainter p(this);
 
         QPen pen;
@@ -420,7 +381,7 @@ void WebTrapWebView::paintEvent ( QPaintEvent * event )
         pen.setWidth(8);
         p.setPen(pen);
 
-		QPoint scrollPosition;//= page()->currentFrame()->scrollPosition();
+        QPoint scrollPosition; //= page()->currentFrame()->scrollPosition();
         QRect webViewPosition = d->mDomElementRect;
         webViewPosition.translate(-scrollPosition);
 
@@ -432,71 +393,51 @@ void WebTrapWebView::paintEvent ( QPaintEvent * event )
         //p.setPen(pen);
         //p.drawText(mDomElementRect.adjusted(8, 8, -8, -8), mElementID);
     }
-
 }
 
 
-void WebTrapWebView::viewLoadFinished ( bool ok )
-{
+void WebTrapWebView::viewLoadFinished(bool ok) {
     Q_UNUSED(ok);
-
 }
 
 
-
-WebTrapMouseEventMask::WebTrapMouseEventMask(WebTrapWebView* pWebView)
-    : d(new Private)
-{
+WebTrapMouseEventMask::WebTrapMouseEventMask(WebTrapWebView *pWebView) : d(new Private) {
     d->mTrappedWebView = pWebView;
     setMouseTracking(true);
 }
 
-WebTrapMouseEventMask::~WebTrapMouseEventMask()
-{
+WebTrapMouseEventMask::~WebTrapMouseEventMask() {
     // NOOP
 }
 
-void WebTrapMouseEventMask::mousePressEvent(QMouseEvent* event)
-{
-    if (d->mTrappedWebView && d->mTrappedWebView->isTrapping())
-    {
+void WebTrapMouseEventMask::mousePressEvent(QMouseEvent *event) {
+    if (d->mTrappedWebView && d->mTrappedWebView->isTrapping()) {
         // NOOP
-    }
-    else
-    {
+    } else {
         QWidget::mousePressEvent(event);
     }
 }
 
 
-void WebTrapMouseEventMask::mouseMoveEvent ( QMouseEvent * event )
-{
-    if (d->mTrappedWebView && d->mTrappedWebView->isTrapping())
-    {
+void WebTrapMouseEventMask::mouseMoveEvent(QMouseEvent *event) {
+    if (d->mTrappedWebView && d->mTrappedWebView->isTrapping()) {
         d->mTrappedWebView->highliteElementAtPos(event->pos());
-    }
-    else
-    {
+    } else {
         QWidget::mouseMoveEvent(event);
     }
 }
 
 
-void WebTrapMouseEventMask::mouseReleaseEvent ( QMouseEvent * event )
-{
-    if (d->mTrappedWebView && d->mTrappedWebView->isTrapping())
-    {
+void WebTrapMouseEventMask::mouseReleaseEvent(QMouseEvent *event) {
+    if (d->mTrappedWebView && d->mTrappedWebView->isTrapping()) {
         d->mTrappedWebView->trapElementAtPos(event->pos());
-    }
-    else
-    {
+    } else {
         QWidget::mouseReleaseEvent(event);
     }
 }
 
 
-void WebTrapMouseEventMask::paintEvent(QPaintEvent *)
-{
+void WebTrapMouseEventMask::paintEvent(QPaintEvent *) {
     QPainter painter(this);
     //painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
@@ -504,4 +445,3 @@ void WebTrapMouseEventMask::paintEvent(QPaintEvent *)
 
     painter.drawRect(0, 0, width(), height());
 }
-

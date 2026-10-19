@@ -7,409 +7,407 @@
 #include "utils/Enums.h"
 #include "settings/Setting.h"
 
-class Settings : public QObject
-{
+class Settings : public QObject {
     Q_OBJECT
 
-    public:
-        static Settings* settings();
-        static void destroy();
-
-    private:
-        Settings(QObject *parent = 0);
-        virtual ~Settings();
-
-    public:
-        QStringList* supportedKeyboardSizes;
-        void InitKeyboardPaletteKeyBtnSizes();
-        void ValidateKeyboardPaletteKeyBtnSize();
-        void closing();
-        void save();
-
-        int penWidthIndex();
-
-        qreal currentPenWidth();
-
-        int penColorIndex();
-        QColor currentPenColor();
-        QColor penColor(bool onDarkBackground);
-        QList<QColor> penColors(bool onDarkBackground);
-
-        // Marker related
-        int markerWidthIndex();
-        qreal currentMarkerWidth();
-        int markerColorIndex();
-        QColor currentMarkerColor();
-        QColor markerColor(bool onDarkBackground);
-        QList<QColor> markerColors(bool onDarkBackground);
-
-        // Eraser related
-        int eraserWidthIndex();
-        qreal eraserFineWidth();
-        qreal eraserMediumWidth();
-        qreal eraserStrongWidth();
-        qreal currentEraserWidth();
-
-        // Background related
-        bool isDarkBackground();
-        PageBackground pageBackground();
-        void setDarkBackground(bool isDarkBackground);
-        void setPageBackground(PageBackground background);
-
-        // Stylus palette related
-        bool isStylusPaletteVisible();
-
-        // Text related
-        QString fontFamily();
-        void setFontFamily(const QString &family);
-        int fontPixelSize();
-        void setFontPixelSize(int pixelSize);
-        int fontPointSize();
-        void setFontPointSize(int pointSize);
-        bool isBoldFont();
-        void setBoldFont(bool bold);
-        bool isItalicFont();
-        void setItalicFont(bool italic);
-
-        void setPassword(const QString& id, const QString& password);
-        QString password(const QString& id);
-        void removePassword(const QString& id);
-
-        QString proxyUsername();
-        void setProxyUsername(const QString& username);
-        QString proxyPassword();
-        void setProxyPassword(const QString& password);
-
-
-        int libraryIconSize();
-        void setLibraryIconsize(const int& size);
-
-        void init();
-
-        // 路径设置里的 {UserLoginName} 靠这个展开。登录名只有操作系统知道，
-        // 但由装配层（core/Application）在启动时推进来——设置层不该反过来认识
-        // platform，否则每个读设置的模块都被迫为拿一个开关拖进整棵平台依赖。
-        static void setUserLoginName(const QString &loginName);
-        static QString userLoginName();
-
-        //user directories
-        static QString userDataDirectory();
-        static QString userDocumentDirectory();
-        static QString userFavoriteListFilePath();
-        static QString userTrashDirPath();
-        static QString userImageDirectory();
-        static QString userVideoDirectory();
-        static QString userAudioDirectory();
-        static QString userSearchDirectory();
-        static QString userAnimationDirectory();
-        static QString userInteractiveDirectory();
-        static QString userInteractiveFavoritesDirectory();
-        static QString userRecordingDirectory();
-
-        QString userGipLibraryDirectory();
-
-        //application directory
-        QString applicationShapeLibraryDirectory();
-        QString applicationImageLibraryDirectory();
-        QString applicationInteractivesDirectory();
-        QString applicationCustomizationDirectory();
-        QString applicationCustomFontDirectory();
-        QString applicationAudiosLibraryDirectory();
-        QString applicationVideosLibraryDirectory();
-        QString applicationAnimationsLibraryDirectory();
-        QString applicationStartupHintsDirectory();
+public:
+    static Settings *settings();
+    static void destroy();
+
+private:
+    Settings(QObject *parent = 0);
+    virtual ~Settings();
+
+public:
+    QStringList *supportedKeyboardSizes;
+    void InitKeyboardPaletteKeyBtnSizes();
+    void ValidateKeyboardPaletteKeyBtnSize();
+    void closing();
+    void save();
+
+    int penWidthIndex();
+
+    qreal currentPenWidth();
+
+    int penColorIndex();
+    QColor currentPenColor();
+    QColor penColor(bool onDarkBackground);
+    QList<QColor> penColors(bool onDarkBackground);
+
+    // Marker related
+    int markerWidthIndex();
+    qreal currentMarkerWidth();
+    int markerColorIndex();
+    QColor currentMarkerColor();
+    QColor markerColor(bool onDarkBackground);
+    QList<QColor> markerColors(bool onDarkBackground);
+
+    // Eraser related
+    int eraserWidthIndex();
+    qreal eraserFineWidth();
+    qreal eraserMediumWidth();
+    qreal eraserStrongWidth();
+    qreal currentEraserWidth();
+
+    // Background related
+    bool isDarkBackground();
+    PageBackground pageBackground();
+    void setDarkBackground(bool isDarkBackground);
+    void setPageBackground(PageBackground background);
+
+    // Stylus palette related
+    bool isStylusPaletteVisible();
+
+    // Text related
+    QString fontFamily();
+    void setFontFamily(const QString &family);
+    int fontPixelSize();
+    void setFontPixelSize(int pixelSize);
+    int fontPointSize();
+    void setFontPointSize(int pointSize);
+    bool isBoldFont();
+    void setBoldFont(bool bold);
+    bool isItalicFont();
+    void setItalicFont(bool italic);
+
+    void setPassword(const QString &id, const QString &password);
+    QString password(const QString &id);
+    void removePassword(const QString &id);
+
+    QString proxyUsername();
+    void setProxyUsername(const QString &username);
+    QString proxyPassword();
+    void setProxyPassword(const QString &password);
+
+
+    int libraryIconSize();
+    void setLibraryIconsize(const int &size);
+
+    void init();
+
+    // 路径设置里的 {UserLoginName} 靠这个展开。登录名只有操作系统知道，
+    // 但由装配层（core/Application）在启动时推进来——设置层不该反过来认识
+    // platform，否则每个读设置的模块都被迫为拿一个开关拖进整棵平台依赖。
+    static void setUserLoginName(const QString &loginName);
+    static QString userLoginName();
+
+    //user directories
+    static QString userDataDirectory();
+    static QString userDocumentDirectory();
+    static QString userFavoriteListFilePath();
+    static QString userTrashDirPath();
+    static QString userImageDirectory();
+    static QString userVideoDirectory();
+    static QString userAudioDirectory();
+    static QString userSearchDirectory();
+    static QString userAnimationDirectory();
+    static QString userInteractiveDirectory();
+    static QString userInteractiveFavoritesDirectory();
+    static QString userRecordingDirectory();
+
+    QString userGipLibraryDirectory();
+
+    //application directory
+    QString applicationShapeLibraryDirectory();
+    QString applicationImageLibraryDirectory();
+    QString applicationInteractivesDirectory();
+    QString applicationCustomizationDirectory();
+    QString applicationCustomFontDirectory();
+    QString applicationAudiosLibraryDirectory();
+    QString applicationVideosLibraryDirectory();
+    QString applicationAnimationsLibraryDirectory();
+    QString applicationStartupHintsDirectory();
 
-        QNetworkProxy* httpProxy();
+    QNetworkProxy *httpProxy();
 
-        static int pointerDiameter;
-        static int boardMargin;
+    static int pointerDiameter;
+    static int boardMargin;
 
-        static QColor paletteColor;
-        static QColor opaquePaletteColor;
+    static QColor paletteColor;
+    static QColor opaquePaletteColor;
 
-        static QColor documentViewLightColor;
+    static QColor documentViewLightColor;
 
-        static QBrush eraserBrushDarkBackground;
-        static QBrush eraserBrushLightBackground;
+    static QBrush eraserBrushDarkBackground;
+    static QBrush eraserBrushLightBackground;
 
-        static QPen eraserPenDarkBackground;
-        static QPen eraserPenLightBackground;
+    static QPen eraserPenDarkBackground;
+    static QPen eraserPenLightBackground;
 
-        static QColor markerCircleBrushColorDarkBackground;
-        static QColor markerCircleBrushColorLightBackground;
+    static QColor markerCircleBrushColorDarkBackground;
+    static QColor markerCircleBrushColorLightBackground;
 
-        static QColor markerCirclePenColorDarkBackground;
-        static QColor markerCirclePenColorLightBackground;
+    static QColor markerCirclePenColorDarkBackground;
+    static QColor markerCirclePenColorLightBackground;
 
-        static QColor penCircleBrushColorDarkBackground;
-        static QColor penCircleBrushColorLightBackground;
+    static QColor penCircleBrushColorDarkBackground;
+    static QColor penCircleBrushColorLightBackground;
 
-        static QColor penCirclePenColorDarkBackground;
-        static QColor penCirclePenColorLightBackground;
+    static QColor penCirclePenColorDarkBackground;
+    static QColor penCirclePenColorLightBackground;
 
-        static QColor documentSizeMarkColorDarkBackground;
-        static QColor documentSizeMarkColorLightBackground;
+    static QColor documentSizeMarkColorDarkBackground;
+    static QColor documentSizeMarkColorLightBackground;
 
-        // Background grid
-        static int crossSize;
-        static int defaultCrossSize;
-        static int minCrossSize;
-        static int maxCrossSize;
+    // Background grid
+    static int crossSize;
+    static int defaultCrossSize;
+    static int minCrossSize;
+    static int maxCrossSize;
 
-        static int colorPaletteSize;
-        static int objectFrameWidth;
+    static int colorPaletteSize;
+    static int objectFrameWidth;
 
-        static QString documentGroupName;
-        static QString documentName;
-        static QString documentSize;
-        static QString documentIdentifer;
-        static QString documentVersion;
-        static QString documentUpdatedAt;
-        static QString documentPageCount;
+    static QString documentGroupName;
+    static QString documentName;
+    static QString documentSize;
+    static QString documentIdentifer;
+    static QString documentVersion;
+    static QString documentUpdatedAt;
+    static QString documentPageCount;
 
-        static QString documentDate;
+    static QString documentDate;
 
-        static QString trashedDocumentGroupNamePrefix;
+    static QString trashedDocumentGroupNamePrefix;
 
-        static QString currentFileVersion;
+    static QString currentFileVersion;
 
-        static QString documentNamespaceUri;
-        static QString applicationNamespaceUri;
+    static QString documentNamespaceUri;
+    static QString applicationNamespaceUri;
 
-        static QString undoCommandTransactionName;
+    static QString undoCommandTransactionName;
 
-        static const int maxThumbnailWidth;
-        static const int defaultThumbnailWidth;
-        static const int defaultSortKind;
-        static const int defaultSortOrder;
-        static const int defaultSplitterLeftSize;
-        static const int defaultSplitterRightSize;
-        static const int defaultLibraryIconSize;
+    static const int maxThumbnailWidth;
+    static const int defaultThumbnailWidth;
+    static const int defaultSortKind;
+    static const int defaultSortOrder;
+    static const int defaultSplitterLeftSize;
+    static const int defaultSplitterRightSize;
+    static const int defaultLibraryIconSize;
 
-        static const int defaultImageWidth;
-        static const int defaultShapeWidth;
-        static const int defaultWidgetIconWidth;
-        static const int defaultVideoWidth;
-        static const int defaultGipWidth;
-        static const int defaultSoundWidth;
+    static const int defaultImageWidth;
+    static const int defaultShapeWidth;
+    static const int defaultWidgetIconWidth;
+    static const int defaultVideoWidth;
+    static const int defaultGipWidth;
+    static const int defaultSoundWidth;
 
-        static const int thumbnailSpacing;
-        static const int longClickInterval;
+    static const int thumbnailSpacing;
+    static const int longClickInterval;
 
-        static const qreal minScreenRatio;
+    static const qreal minScreenRatio;
 
-        static QStringList bitmapFileExtensions;
-        static QStringList vectoFileExtensions;
-        static QStringList imageFileExtensions;
-        static QStringList widgetFileExtensions;
-        static QStringList interactiveContentFileExtensions;
+    static QStringList bitmapFileExtensions;
+    static QStringList vectoFileExtensions;
+    static QStringList imageFileExtensions;
+    static QStringList widgetFileExtensions;
+    static QStringList interactiveContentFileExtensions;
 
-        static QColor treeViewBackgroundColor;
+    static QColor treeViewBackgroundColor;
 
-        static int objectInControlViewMargin;
+    static int objectInControlViewMargin;
 
-        static QString appPingMessage;
+    static QString appPingMessage;
 
-        Setting* productWebUrl;
+    Setting *productWebUrl;
 
-        QString softwareHomeUrl;
+    QString softwareHomeUrl;
 
-        Setting* appToolBarPositionedAtTop;
-        Setting* appToolBarDisplayText;
-                    Setting* appHideSwapDisplayScreens;
-        Setting* appToolBarOrientationVertical;
-        Setting* appPreferredLanguage;
+    Setting *appToolBarPositionedAtTop;
+    Setting *appToolBarDisplayText;
+    Setting *appHideSwapDisplayScreens;
+    Setting *appToolBarOrientationVertical;
+    Setting *appPreferredLanguage;
 
-    
-        Setting* appLastSessionDocumentUUID;
-        Setting* appLastSessionPageIndex;
 
-        Setting* appUseMultiscreen;
+    Setting *appLastSessionDocumentUUID;
+    Setting *appLastSessionPageIndex;
 
-        Setting* appStartupHintsEnabled;
+    Setting *appUseMultiscreen;
 
-        Setting* boardPenFineWidth;
-        Setting* boardPenMediumWidth;
-        Setting* boardPenStrongWidth;
+    Setting *appStartupHintsEnabled;
 
-        Setting* boardMarkerFineWidth;
-        Setting* boardMarkerMediumWidth;
-        Setting* boardMarkerStrongWidth;
+    Setting *boardPenFineWidth;
+    Setting *boardPenMediumWidth;
+    Setting *boardPenStrongWidth;
 
-        Setting* boardPenPressureSensitive;
-        Setting* boardMarkerPressureSensitive;
+    Setting *boardMarkerFineWidth;
+    Setting *boardMarkerMediumWidth;
+    Setting *boardMarkerStrongWidth;
 
-        Setting* boardUseHighResTabletEvent;
+    Setting *boardPenPressureSensitive;
+    Setting *boardMarkerPressureSensitive;
 
-        Setting* boardInterpolatePenStrokes;
-        Setting* boardSimplifyPenStrokes;
-        Setting* boardSimplifyPenStrokesThresholdAngle;
-        Setting* boardSimplifyPenStrokesThresholdWidthDifference;
-        Setting* boardInterpolateMarkerStrokes;
-        Setting* boardSimplifyMarkerStrokes;
+    Setting *boardUseHighResTabletEvent;
 
-        Setting* boardKeyboardPaletteKeyBtnSize;
+    Setting *boardInterpolatePenStrokes;
+    Setting *boardSimplifyPenStrokes;
+    Setting *boardSimplifyPenStrokesThresholdAngle;
+    Setting *boardSimplifyPenStrokesThresholdWidthDifference;
+    Setting *boardInterpolateMarkerStrokes;
+    Setting *boardSimplifyMarkerStrokes;
 
-        Setting* appStartMode;
+    Setting *boardKeyboardPaletteKeyBtnSize;
 
-        Setting* featureSliderPosition;
+    Setting *appStartMode;
 
-        Setting* boardCrossColorDarkBackground;
-        Setting* boardCrossColorLightBackground;
+    Setting *featureSliderPosition;
 
-        ColorListSetting* boardGridLightBackgroundColors;
-        ColorListSetting* boardGridDarkBackgroundColors;
+    Setting *boardCrossColorDarkBackground;
+    Setting *boardCrossColorLightBackground;
 
-        ColorListSetting* boardPenLightBackgroundColors;
-        ColorListSetting* boardPenLightBackgroundSelectedColors;
+    ColorListSetting *boardGridLightBackgroundColors;
+    ColorListSetting *boardGridDarkBackgroundColors;
 
-        ColorListSetting* boardPenDarkBackgroundColors;
-        ColorListSetting* boardPenDarkBackgroundSelectedColors;
+    ColorListSetting *boardPenLightBackgroundColors;
+    ColorListSetting *boardPenLightBackgroundSelectedColors;
 
-        Setting* boardMarkerAlpha;
+    ColorListSetting *boardPenDarkBackgroundColors;
+    ColorListSetting *boardPenDarkBackgroundSelectedColors;
 
-        ColorListSetting* boardMarkerLightBackgroundColors;
-        ColorListSetting* boardMarkerLightBackgroundSelectedColors;
+    Setting *boardMarkerAlpha;
 
-        ColorListSetting* boardMarkerDarkBackgroundColors;
-        ColorListSetting* boardMarkerDarkBackgroundSelectedColors;
+    ColorListSetting *boardMarkerLightBackgroundColors;
+    ColorListSetting *boardMarkerLightBackgroundSelectedColors;
 
-        Setting* showEraserPreviewCircle;
-        Setting* showMarkerPreviewCircle;
-        Setting* showPenPreviewCircle;
-        Setting* penPreviewFromSize;
+    ColorListSetting *boardMarkerDarkBackgroundColors;
+    ColorListSetting *boardMarkerDarkBackgroundSelectedColors;
 
-        Setting* webUseExternalBrowser;
-        Setting* webShowPageImmediatelyOnMirroredScreen;
+    Setting *showEraserPreviewCircle;
+    Setting *showMarkerPreviewCircle;
+    Setting *showPenPreviewCircle;
+    Setting *penPreviewFromSize;
 
-        Setting* webHomePage;
+    Setting *webUseExternalBrowser;
+    Setting *webShowPageImmediatelyOnMirroredScreen;
 
-        Setting* pageCacheSize;
+    Setting *webHomePage;
 
-        Setting* boardZoomFactor;
+    Setting *pageCacheSize;
 
-        Setting* mirroringRefreshRateInFps;
+    Setting *boardZoomFactor;
 
-        Setting* lastImportFilePath;
-        Setting* lastImportFolderPath;
+    Setting *mirroringRefreshRateInFps;
 
-        Setting* lastExportFilePath;
-        Setting* lastExportDirPath;
+    Setting *lastImportFilePath;
+    Setting *lastImportFolderPath;
 
-        Setting* lastImportToLibraryPath;
+    Setting *lastExportFilePath;
+    Setting *lastExportDirPath;
 
-        Setting* lastPicturePath;
-        Setting* lastWidgetPath;
-        Setting* lastVideoPath;
+    Setting *lastImportToLibraryPath;
 
-        Setting* appOnlineUserName;
+    Setting *lastPicturePath;
+    Setting *lastWidgetPath;
+    Setting *lastVideoPath;
 
-        Setting* boardShowToolsPalette;
+    Setting *appOnlineUserName;
 
-        QMap<DocumentSizeRatio::Enum, QSize> documentSizes;
+    Setting *boardShowToolsPalette;
 
-        Setting* svgViewBoxMargin;
-        Setting* pdfMargin;
-        Setting* pdfPageFormat;
-        Setting* pdfResolution;
+    QMap<DocumentSizeRatio::Enum, QSize> documentSizes;
 
-        Setting* recordingFramesPerSecond;
-        Setting* recordingVideoSize;
-        Setting* recordingWindowsMediaBitsPerSecond;
-        Setting* recordingAudioRecordingDevice;
-        Setting* recordingQuickTimeQuality;
+    Setting *svgViewBoxMargin;
+    Setting *pdfMargin;
+    Setting *pdfPageFormat;
+    Setting *pdfResolution;
 
-        Setting* favoritesNativeToolUris;
+    Setting *recordingFramesPerSecond;
+    Setting *recordingVideoSize;
+    Setting *recordingWindowsMediaBitsPerSecond;
+    Setting *recordingAudioRecordingDevice;
+    Setting *recordingQuickTimeQuality;
 
-        Setting* documentThumbnailWidth;
-        Setting* documentSortKind;
-        Setting* documentSortOrder;
-        Setting* documentSplitterLeftSize;
-        Setting* documentSplitterRightSize;
-        Setting* imageThumbnailWidth;
-        Setting* videoThumbnailWidth;
-        Setting* shapeThumbnailWidth;
-        Setting* gipThumbnailWidth;
-        Setting* soundThumbnailWidth;
+    Setting *favoritesNativeToolUris;
 
-        Setting* libraryShowDetailsForLocalItems;
+    Setting *documentThumbnailWidth;
+    Setting *documentSortKind;
+    Setting *documentSortOrder;
+    Setting *documentSplitterLeftSize;
+    Setting *documentSplitterRightSize;
+    Setting *imageThumbnailWidth;
+    Setting *videoThumbnailWidth;
+    Setting *shapeThumbnailWidth;
+    Setting *gipThumbnailWidth;
+    Setting *soundThumbnailWidth;
 
-        Setting* rightLibPaletteBoardModeWidth;
-        Setting* rightLibPaletteBoardModeIsCollapsed;
-        Setting* rightLibPaletteDesktopModeWidth;
-        Setting* rightLibPaletteDesktopModeIsCollapsed;
-        Setting* leftLibPaletteBoardModeWidth;
-        Setting* leftLibPaletteBoardModeIsCollapsed;
-        Setting* leftLibPaletteDesktopModeWidth;
-        Setting* leftLibPaletteDesktopModeIsCollapsed;
+    Setting *libraryShowDetailsForLocalItems;
 
+    Setting *rightLibPaletteBoardModeWidth;
+    Setting *rightLibPaletteBoardModeIsCollapsed;
+    Setting *rightLibPaletteDesktopModeWidth;
+    Setting *rightLibPaletteDesktopModeIsCollapsed;
+    Setting *leftLibPaletteBoardModeWidth;
+    Setting *leftLibPaletteBoardModeIsCollapsed;
+    Setting *leftLibPaletteDesktopModeWidth;
+    Setting *leftLibPaletteDesktopModeIsCollapsed;
 
-        Setting* pageSize;
 
-        Setting* KeyboardLocale;
-        Setting* swapControlAndDisplayScreens;
+    Setting *pageSize;
 
-        Setting* angleTolerance;
-        Setting* historyLimit;
+    Setting *KeyboardLocale;
+    Setting *swapControlAndDisplayScreens;
 
-        Setting* libIconSize;
+    Setting *angleTolerance;
+    Setting *historyLimit;
 
-        Setting* useSystemOnScreenKeyboard;
+    Setting *libIconSize;
 
-        Setting* showDateColumnOnAlphabeticalSort;
+    Setting *useSystemOnScreenKeyboard;
 
-        Setting* emptyTrashForOlderDocuments;
-        Setting* emptyTrashDaysValue;
+    Setting *showDateColumnOnAlphabeticalSort;
 
-        Setting* magnifierDrawingMode;
-        Setting* autoSaveInterval;
+    Setting *emptyTrashForOlderDocuments;
+    Setting *emptyTrashDaysValue;
 
-    public slots:
-        void setPenWidthIndex(int index);
-        void setPenColorIndex(int index);
+    Setting *magnifierDrawingMode;
+    Setting *autoSaveInterval;
 
-        void setMarkerWidthIndex(int index);
-        void setMarkerColorIndex(int index);
+public slots:
+    void setPenWidthIndex(int index);
+    void setPenColorIndex(int index);
 
-        void setEraserWidthIndex(int index);
-        void setEraserFineWidth(qreal width);
-        void setEraserMediumWidth(qreal width);
-        void setEraserStrongWidth(qreal width);
+    void setMarkerWidthIndex(int index);
+    void setMarkerColorIndex(int index);
 
-         void setStylusPaletteVisible(bool visible);
+    void setEraserWidthIndex(int index);
+    void setEraserFineWidth(qreal width);
+    void setEraserMediumWidth(qreal width);
+    void setEraserStrongWidth(qreal width);
 
-        void setPenPressureSensitive(bool sensitive);
-        void setPenPreviewCircle(bool sensitive);
-        void setPenPreviewFromSize(int size);
-        void setMarkerPressureSensitive(bool sensitive);
+    void setStylusPaletteVisible(bool visible);
 
-        QVariant value ( const QString & key, const QVariant & defaultValue = QVariant() );
-        void setValue (const QString & key,const QVariant & value);
+    void setPenPressureSensitive(bool sensitive);
+    void setPenPreviewCircle(bool sensitive);
+    void setPenPreviewFromSize(int size);
+    void setMarkerPressureSensitive(bool sensitive);
 
-        void colorChanged() { emit colorContextChanged(); }
+    QVariant value(const QString &key, const QVariant &defaultValue = QVariant());
+    void setValue(const QString &key, const QVariant &value);
 
-    signals:
-        void colorContextChanged();
+    void colorChanged() { emit colorContextChanged(); }
 
-    private:
-        QSettings* mAppSettings;
-        QSettings* mUserSettings;
+signals:
+    void colorContextChanged();
 
-        QHash<QString, QVariant> mSettingsQueue;
+private:
+    QSettings *mAppSettings;
+    QSettings *mUserSettings;
 
-        static const int sDefaultFontPixelSize;
-        static const char *sDefaultFontFamily;
+    QHash<QString, QVariant> mSettingsQueue;
 
-        static QSettings* getAppSettings();
+    static const int sDefaultFontPixelSize;
+    static const char *sDefaultFontFamily;
 
-        static QPointer<QSettings> sAppSettings;
-        static QPointer<Settings> sSingleton;
+    static QSettings *getAppSettings();
 
-        static bool checkDirectory(QString& dirPath);
-        static QString replaceWildcard(QString& path);
+    static QPointer<QSettings> sAppSettings;
+    static QPointer<Settings> sSingleton;
+    static QString sUserLoginName;
 
-        void removeSetting(const QString& setting);
-        void checkNewSettings();
+    static bool checkDirectory(QString &dirPath);
+    static QString replaceWildcard(QString &path);
 
+    void removeSetting(const QString &setting);
+    void checkNewSettings();
 };
-

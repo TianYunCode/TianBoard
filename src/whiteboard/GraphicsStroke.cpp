@@ -10,40 +10,34 @@
 
 typedef QPair<QPointF, qreal> strokePoint;
 
-GraphicsStroke::GraphicsStroke(GraphicsScene *scene)
-    :mScene(scene)
-{
-    mAntiScaleRatio = 1./(Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+GraphicsStroke::GraphicsStroke(GraphicsScene *scene) : mScene(scene) {
+    mAntiScaleRatio = 1. / (Application::boardController->systemScaleFactor() *
+                            Application::boardController->currentZoom());
 }
 
-GraphicsStroke::~GraphicsStroke()
-{
-    foreach(GraphicsPolygonItem* poly, mPolygons)
+GraphicsStroke::~GraphicsStroke() {
+    foreach (GraphicsPolygonItem *poly, mPolygons)
         poly->setStroke(NULL);
 
     mPolygons.clear();
 }
 
-void GraphicsStroke::addPolygon(GraphicsPolygonItem* pol)
-{
+void GraphicsStroke::addPolygon(GraphicsPolygonItem *pol) {
     remove(pol);
     mPolygons << pol;
 }
 
-void GraphicsStroke::remove(GraphicsPolygonItem* polygonItem)
-{
+void GraphicsStroke::remove(GraphicsPolygonItem *polygonItem) {
     int n = mPolygons.indexOf(polygonItem);
-    if (n>=0)
+    if (n >= 0)
         mPolygons.removeAt(n);
 }
 
-QList<GraphicsPolygonItem*> GraphicsStroke::polygons() const
-{
+QList<GraphicsPolygonItem *> GraphicsStroke::polygons() const {
     return mPolygons;
 }
 
-QList<QPair<QPointF, qreal> > GraphicsStroke::addPoint(const QPointF& point, qreal width, bool interpolate)
-{
+QList<QPair<QPointF, qreal>> GraphicsStroke::addPoint(const QPointF &point, qreal width, bool interpolate) {
     strokePoint newPoint(point, width);
 
     int n = mReceivedPoints.size();
@@ -70,7 +64,7 @@ QList<QPair<QPointF, qreal> > GraphicsStroke::addPoint(const QPointF& point, qre
         if (n == 1) {
             QPointF lastPoint = mReceivedPoints[0].first;
             qreal lastWidth = mReceivedPoints[0].second;
-            strokePoint p(((lastPoint+point)/2.0), (lastWidth+width)/2.0);
+            strokePoint p(((lastPoint + point) / 2.0), (lastWidth + width) / 2.0);
             mReceivedPoints << newPoint;
             mDrawnPoints << p;
 
@@ -81,8 +75,8 @@ QList<QPair<QPointF, qreal> > GraphicsStroke::addPoint(const QPointF& point, qre
         QPointF p1 = mReceivedPoints[mReceivedPoints.size() - 1].first;
         QPointF p2 = point;
 
-        QPointF startPoint = (p1+p0)/2.0;
-        QPointF endPoint = (p2+p1)/2.0;
+        QPointF startPoint = (p1 + p0) / 2.0;
+        QPointF endPoint = (p2 + p1) / 2.0;
 
         QList<QPointF> calculated = GeometryUtils::quadraticBezier(startPoint, p1, endPoint, 10);
         QList<strokePoint> newPoints;
@@ -90,7 +84,7 @@ QList<QPair<QPointF, qreal> > GraphicsStroke::addPoint(const QPointF& point, qre
         qreal startWidth = mDrawnPoints.last().second;
 
         for (int i(0); i < calculated.size(); ++i) {
-            qreal w = startWidth + (qreal(i)/qreal(calculated.size()-1)) * (width - startWidth);
+            qreal w = startWidth + (qreal(i) / qreal(calculated.size() - 1)) * (width - startWidth);
             newPoints << strokePoint(calculated[i], w);
         }
 
@@ -98,7 +92,7 @@ QList<QPair<QPointF, qreal> > GraphicsStroke::addPoint(const QPointF& point, qre
         if (newPoints.first().first == mDrawnPoints.last().first)
             mDrawnPoints.removeLast();
 
-        foreach(strokePoint p, newPoints)
+        foreach (strokePoint p, newPoints)
             mDrawnPoints << p;
 
         mReceivedPoints << strokePoint(point, width);
@@ -108,46 +102,36 @@ QList<QPair<QPointF, qreal> > GraphicsStroke::addPoint(const QPointF& point, qre
     return QList<strokePoint>();
 }
 
-bool GraphicsStroke::hasPressure()
-{
-    if (mPolygons.count() > 2)
-    {
+bool GraphicsStroke::hasPressure() {
+    if (mPolygons.count() > 2) {
         qreal nominalWidth = mPolygons.at(0)->originalWidth();
 
-        foreach(GraphicsPolygonItem* pol, mPolygons)
-        {
+        foreach (GraphicsPolygonItem *pol, mPolygons) {
             if (!pol->isNominalLine() || pol->originalWidth() != nominalWidth)
                 return true;
         }
         return false;
-    }
-    else
+    } else
         return true;
 }
 
 
-GraphicsStroke* GraphicsStroke::deepCopy()
-{
-    GraphicsStroke* clone = new GraphicsStroke();
+GraphicsStroke *GraphicsStroke::deepCopy() {
+    GraphicsStroke *clone = new GraphicsStroke();
 
     return clone;
 }
 
-bool GraphicsStroke::hasAlpha() const
-{
-    if (mPolygons.length() > 0 && mPolygons.at(0)->color().alphaF() != 1.0)
-    {
+bool GraphicsStroke::hasAlpha() const {
+    if (mPolygons.length() > 0 && mPolygons.at(0)->color().alphaF() != 1.0) {
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
 
-void GraphicsStroke::clear()
-{
-    if(!mPolygons.empty()){
+void GraphicsStroke::clear() {
+    if (!mPolygons.empty()) {
         mPolygons.clear();
     }
 }
@@ -156,15 +140,14 @@ void GraphicsStroke::clear()
  * @brief Return a simplified version of the stroke, with less points and polygons.
  *
  */
-GraphicsStroke* GraphicsStroke::simplify()
-{
+GraphicsStroke *GraphicsStroke::simplify() {
     if (mDrawnPoints.size() < 3)
         return NULL;
 
-    GraphicsStroke* newStroke = new GraphicsStroke();
+    GraphicsStroke *newStroke = new GraphicsStroke();
     newStroke->mDrawnPoints = QList<strokePoint>(mDrawnPoints);
 
-    QList<strokePoint>& points = newStroke->mDrawnPoints;
+    QList<strokePoint> &points = newStroke->mDrawnPoints;
     //qDebug() << "Simplifying. Before: " << points.size() << " points and " << polygons().size() << " polygons";
 
     /* Basic simplifying algorithm: consider A, B and C the current point and the two following ones.
@@ -185,18 +168,19 @@ GraphicsStroke* GraphicsStroke::simplify()
     qreal thresholdAngle = Settings::settings()->boardSimplifyPenStrokesThresholdAngle->get().toReal();
 
     // Relative difference in thickness between two consecutive points (A and B) below which they are considered equal
-    qreal thresholdWidthDifference = Settings::settings()->boardSimplifyPenStrokesThresholdWidthDifference->get().toReal();
+    qreal thresholdWidthDifference =
+        Settings::settings()->boardSimplifyPenStrokesThresholdWidthDifference->get().toReal();
 
     QList<strokePoint>::iterator it = points.begin();
     QList<QList<strokePoint>::iterator> toDelete;
 
-    while (it+2 != points.end()) {
+    while (it + 2 != points.end()) {
         // it, b_it and (b_it+1) correspond to A, B and C respectively
-        QList<strokePoint>::iterator b_it(it+1);
+        QList<strokePoint>::iterator b_it(it + 1);
 
-        while (b_it+1 != points.end()) {
-            qreal angle = qFabs(180-(GeometryUtils::angle(it->first, b_it->first, (b_it+1)->first)));
-            qreal widthRatio = qMax(it->second, b_it->second)/qMin(it->second, b_it->second);
+        while (b_it + 1 != points.end()) {
+            qreal angle = qFabs(180 - (GeometryUtils::angle(it->first, b_it->first, (b_it + 1)->first)));
+            qreal widthRatio = qMax(it->second, b_it->second) / qMin(it->second, b_it->second);
 
             if (angle < thresholdAngle && widthRatio < thresholdWidthDifference)
                 b_it = points.erase(b_it);
@@ -204,7 +188,7 @@ GraphicsStroke* GraphicsStroke::simplify()
                 break;
         }
 
-        if (b_it+1 == points.end())
+        if (b_it + 1 == points.end())
             break;
         else
             it = b_it;
@@ -213,7 +197,7 @@ GraphicsStroke* GraphicsStroke::simplify()
     // Next, we iterate over the new points to build the polygons that make up the stroke.
     // A new polygon is created every time drawCurve is true.
 
-    QList<GraphicsPolygonItem*> newPolygons;
+    QList<GraphicsPolygonItem *> newPolygons;
     QList<strokePoint> newStrokePoints;
     int i(0);
 
@@ -229,7 +213,8 @@ GraphicsStroke* GraphicsStroke::simplify()
         //    in the stroke
 
         if (newStrokePoints.size() > 1 && i < points.size() - 1) {
-            qreal angle = qFabs(GeometryUtils::angle(points[i-1].first, points[i].first, points[i+1].first));
+            qreal angle =
+                qFabs(GeometryUtils::angle(points[i - 1].first, points[i].first, points[i + 1].first));
             if (angle < 150) // arbitrary threshold, change if necessary
                 drawCurve = true;
         }
@@ -238,12 +223,13 @@ GraphicsStroke* GraphicsStroke::simplify()
             drawCurve = true;
 
         if (drawCurve) {
-            GraphicsPolygonItem* poly = mScene->polygonToPolygonItem(GeometryUtils::curveToPolygon(newStrokePoints, true, true));
+            GraphicsPolygonItem *poly =
+                mScene->polygonToPolygonItem(GeometryUtils::curveToPolygon(newStrokePoints, true, true));
             //poly->setColor(QColor(rand()%256, rand()%256, rand()%256, poly->brush().color().alpha())); // useful for debugging
 
             // Subtract overlapping polygons if the stroke is translucent
             if (!poly->brush().isOpaque()) {
-                foreach(GraphicsPolygonItem* prev, newPolygons)
+                foreach (GraphicsPolygonItem *prev, newPolygons)
                     poly->subtract(prev);
             }
 
@@ -256,10 +242,11 @@ GraphicsStroke* GraphicsStroke::simplify()
     }
 
     if (newStrokePoints.size() > 0) {
-        GraphicsPolygonItem* poly = mScene->polygonToPolygonItem(GeometryUtils::curveToPolygon(newStrokePoints, true, true));
+        GraphicsPolygonItem *poly =
+            mScene->polygonToPolygonItem(GeometryUtils::curveToPolygon(newStrokePoints, true, true));
 
         if (!poly->brush().isOpaque()) {
-            foreach(GraphicsPolygonItem* prev, newPolygons)
+            foreach (GraphicsPolygonItem *prev, newPolygons)
                 poly->subtract(prev);
         }
 
@@ -267,9 +254,9 @@ GraphicsStroke* GraphicsStroke::simplify()
     }
 
 
-    newStroke->mPolygons = QList<GraphicsPolygonItem*>(newPolygons);
+    newStroke->mPolygons = QList<GraphicsPolygonItem *>(newPolygons);
 
-    foreach(GraphicsPolygonItem* poly, newStroke->mPolygons) {
+    foreach (GraphicsPolygonItem *poly, newStroke->mPolygons) {
         poly->setFillRule(Qt::WindingFill);
         poly->setStroke(newStroke);
     }

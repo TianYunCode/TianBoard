@@ -18,7 +18,7 @@ public:
     ~IwbDocumentAdaptor();
 
     bool convertPageToIwb(const QString &from, const QString &to);
-    bool deleteDir(const QString& pDirPath) const;
+    bool deleteDir(const QString &pDirPath) const;
     QList<QString> getConversionMessages();
 
 private:
@@ -37,18 +37,18 @@ private:
 
 private:
     class ToIwbConverter {
-       static const int DEFAULT_LAYER = -100000;
+        static const int DEFAULT_LAYER = -100000;
 
     public:
         ToIwbConverter(const QString &source, const QString &destination);
         ~ToIwbConverter();
         bool isValid() const;
-        QString lastErrStr() const {return errorStr;}
+        QString lastErrStr() const { return errorStr; }
         bool parse();
-        QList<QString> getMessages() {return mExportErrorList;}
+        QList<QString> getMessages() { return mExportErrorList; }
 
     private:
-        void addLastExportError(QString error) {mExportErrorList.append(error);}
+        void addLastExportError(QString error) { mExportErrorList.append(error); }
 
         void fillNamespaces();
 
@@ -63,7 +63,8 @@ private:
 
         bool createBackground(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
         QString createBackgroundImage(const QDomElement &element, QSize size);
-        bool createPngFromSvg(QString &svgPath, QString &dstPath,  QTransform transformation, QSize size = QSize());
+        bool createPngFromSvg(QString &svgPath, QString &dstPath, QTransform transformation,
+                              QSize size = QSize());
 
         bool parseSVGGGroup(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
         bool parsePageImage(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
@@ -74,8 +75,9 @@ private:
 
         bool parsePagePolygon(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
         bool parsePagePolyline(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parsePageLine(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);       
-        void addSVGElementToResultModel(const QDomElement &element, QMultiMap<int, QDomElement> &dstList, int layer = DEFAULT_LAYER);
+        bool parsePageLine(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        void addSVGElementToResultModel(const QDomElement &element, QMultiMap<int, QDomElement> &dstList,
+                                        int layer = DEFAULT_LAYER);
         void addIWBElementToResultModel(const QDomElement &element);
 
         qreal getAngleFromTransform(const QTransform &tr);
@@ -94,7 +96,8 @@ private:
         bool itIsIWBAttribute(const QString &attribute) const;
         bool isPageAttributeToConvert(const QString &attribute) const;
 
-        bool ibwAddLine(int x1, int y1, int x2, int y2, QString color=QString(), int width=1, bool isBackground=false);
+        bool ibwAddLine(int x1, int y1, int x2, int y2, QString color = QString(), int width = 1,
+                        bool isBackground = false);
 
         QTransform transformOfPageElement(const QDomElement &pageElement);
         void setGeometryFromPageElement(const QDomElement &pageElement, QDomElement &iwbElement);
@@ -104,8 +107,11 @@ private:
         QString packageAttrNameToIwbAttrName(QString iwbAttrName);
         QString packageAttrValueToIwbAttrName(QString iwbAttrValue);
 
-        bool setIwbAttribute(const QString &attributeName, const QString &attributeValue, const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement);
-        bool copyPageCommonAttributes(const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement);
+        bool setIwbAttribute(const QString &attributeName, const QString &attributeValue,
+                             const QDomElement &pageElement, QDomElement &iwbElement,
+                             QDomElement &svgElement);
+        bool copyPageCommonAttributes(const QDomElement &pageElement, QDomElement &iwbElement,
+                                      QDomElement &svgElement);
         void setViewBox(QRect viewbox);
 
         QDomNode findTextNode(const QDomNode &node);
@@ -116,7 +122,7 @@ private:
         inline QRect getViewboxRect(const QString &element) const;
         inline QString rectToIWBAttr(const QRect &rect) const;
         inline QString digitFileFormat(int num) const;
-        inline bool strToBool(const QString &in) const {return in == "true";}
+        inline bool strToBool(const QString &in) const { return in == "true"; }
         QString contentIWBFileName() const;
 
     private:
@@ -134,7 +140,6 @@ private:
         mutable QString errorStr;
 
     public:
-        operator bool() const {return isValid();}
+        operator bool() const { return isValid(); }
     };
 };
-

@@ -18,28 +18,23 @@
 
 
 WebPage::WebPage(QObject *parent)
-    : QWebEnginePage(parent)
-    , mKeyboardModifiers(Qt::NoModifier)
-    , mPressedButtons(Qt::NoButton)
-    , mOpenInNewTab(false)
-{
+    : QWebEnginePage(parent),
+      mKeyboardModifiers(Qt::NoModifier),
+      mPressedButtons(Qt::NoButton),
+      mOpenInNewTab(false) {
     //setNetworkAccessManager(NetworkAccessManager::defaultAccessManager());
 }
 
 void WebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level,
-                                          const QString &message, int lineNumber,
-                                          const QString &sourceID)
-{
+                                       const QString &message, int lineNumber, const QString &sourceID) {
     Q_UNUSED(level);
     qDebug("JavaScript> %s (%s:%d)", qPrintable(message), qPrintable(sourceID), lineNumber);
 }
 
-BrowserWindow *WebPage::mainWindow()
-{
+BrowserWindow *WebPage::mainWindow() {
     QObject *w = this->parent();
-    while (w)
-    {
-        if (BrowserWindow *mw = qobject_cast<BrowserWindow*>(w))
+    while (w) {
+        if (BrowserWindow *mw = qobject_cast<BrowserWindow *>(w))
             return mw;
 
         w = w->parent();
@@ -48,21 +43,17 @@ BrowserWindow *WebPage::mainWindow()
     return 0;
 }
 
-bool WebPage::acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame)
-{
+bool WebPage::acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) {
     Q_UNUSED(isMainFrame);
 
     // Qt6 没有 QWebPage::unsupportedContent，mailto 只能在这里拦下来交给系统邮件程序。
-    if (url.scheme().compare("mailto", Qt::CaseInsensitive) == 0)
-    {
+    if (url.scheme().compare("mailto", Qt::CaseInsensitive) == 0) {
         QDesktopServices::openUrl(url);
         return false;
     }
 
-    if (type == QWebEnginePage::NavigationTypeLinkClicked
-        && (mKeyboardModifiers & Qt::ControlModifier
-            || mPressedButtons == Qt::MiddleButton))
-    {
+    if (type == QWebEnginePage::NavigationTypeLinkClicked &&
+        (mKeyboardModifiers & Qt::ControlModifier || mPressedButtons == Qt::MiddleButton)) {
         WebView *webView;
 
         bool selectNewTab = (mKeyboardModifiers & Qt::ShiftModifier);
@@ -75,52 +66,39 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, NavigationType type, bool
         return false;
     }
 
-	return true;
+    return true;
 }
 
 
-QWebEnginePage *WebPage::createWindow(QWebEnginePage::WebWindowType type)
-{
+QWebEnginePage *WebPage::createWindow(QWebEnginePage::WebWindowType type) {
     Q_UNUSED(type);
 
     return mainWindow()->tabWidget()->newTab()->page();
 }
 
 
-
-WebView::WebView(QWidget* parent)
-    : WebTrapWebView(parent)
-    , mProgress(0)
-    , mPage(new WebPage(this))
-{
-
+WebView::WebView(QWidget *parent) : WebTrapWebView(parent), mProgress(0), mPage(new WebPage(this)) {
     setPage(mPage);
 
-	//QWebEngineView::setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    //QWebEngineView::setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
-    connect(this, &QWebEngineView::loadProgress,
-            this, &WebView::setProgress);
+    connect(this, &QWebEngineView::loadProgress, this, &WebView::setProgress);
 
-    connect(this, &QWebEngineView::loadFinished,
-            this, &WebView::loadFinished);
+    connect(this, &QWebEngineView::loadFinished, this, &WebView::loadFinished);
 
-    connect(this, &QWebEngineView::loadStarted,
-            this, &WebView::loadStarted);
+    connect(this, &QWebEngineView::loadStarted, this, &WebView::loadStarted);
 
     // 所有标签共用默认 profile，所以必须按 page 过滤，否则一次下载会触发每个标签页。
-    if (QWebEngineProfile *prof = page()->profile())
-    {
-        connect(prof, &QWebEngineProfile::downloadRequested,
-                this, [this](QWebEngineDownloadRequest *item) {
-                    if (item && item->page() == mPage)
-                        downloadRequested(item);
-                });
+    if (QWebEngineProfile *prof = page()->profile()) {
+        connect(prof, &QWebEngineProfile::downloadRequested, this, [this](QWebEngineDownloadRequest *item) {
+            if (item && item->page() == mPage)
+                downloadRequested(item);
+        });
     }
 }
 
 
-void WebView::contextMenuEvent(QContextMenuEvent *event)
-{
+void WebView::contextMenuEvent(QContextMenuEvent *event) {
     //QWebHitTestResult r = page()->mainFrame()->hitTestContent(event->pos());
 
     //if (!r.linkUrl().isEmpty())
@@ -142,10 +120,8 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 }
 
 
-void WebView::wheelEvent(QWheelEvent *event)
-{
-    if (QApplication::keyboardModifiers() & Qt::ControlModifier)
-    {
+void WebView::wheelEvent(QWheelEvent *event) {
+    if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
         int numDegrees = event->angleDelta().y() / 8;
         int numSteps = numDegrees / 15;
         //setTextSizeMultiplier(textSizeMultiplier() + numSteps * 0.1);
@@ -156,33 +132,27 @@ void WebView::wheelEvent(QWheelEvent *event)
 }
 
 
-void WebView::openLinkInNewTab()
-{
+void WebView::openLinkInNewTab() {
     mPage->mOpenInNewTab = true;
     pageAction(QWebEnginePage::OpenLinkInNewWindow)->trigger();
 }
 
 
-void WebView::setProgress(int progress)
-{
+void WebView::setProgress(int progress) {
     //qDebug() << "loading progress" << progress << "% in" << mLoadStartTime.elapsed() << "ms";
 
     mProgress = progress;
 }
 
 
-void WebView::loadStarted()
-{
+void WebView::loadStarted() {
     mLoadStartTime.start();
 }
 
 
-void WebView::loadFinished(bool ok)
-{
-    if (100 != mProgress)
-    {
-        qWarning() << "Received finished signal while progress is still:" << progress()
-                   << "Url:" << url();
+void WebView::loadFinished(bool ok) {
+    if (100 != mProgress) {
+        qWarning() << "Received finished signal while progress is still:" << progress() << "Url:" << url();
     }
 
     QString error;
@@ -196,8 +166,7 @@ void WebView::loadFinished(bool ok)
 }
 
 
-void WebView::load(const QUrl &url)
-{
+void WebView::load(const QUrl &url) {
     qDebug() << "loading " << url.toString();
 
     mInitialUrl = url;
@@ -206,65 +175,56 @@ void WebView::load(const QUrl &url)
 }
 
 
-
-QUrl WebView::url() const
-{
+QUrl WebView::url() const {
     QUrl url;
-    try{
+    try {
         url = QWebEngineView::url();
-    } catch(...)
-    {}
+    } catch (...) {}
 
     if (!url.isEmpty())
-       return url;
+        return url;
 
     return mInitialUrl;
 }
 
-void WebView::mousePressEvent(QMouseEvent *event)
-{
+void WebView::mousePressEvent(QMouseEvent *event) {
     mPage->mPressedButtons = event->buttons();
     mPage->mKeyboardModifiers = event->modifiers();
 
     WebTrapWebView::mousePressEvent(event);
 }
 
-void WebView::mouseReleaseEvent(QMouseEvent *event)
-{
+void WebView::mouseReleaseEvent(QMouseEvent *event) {
     WebTrapWebView::mouseReleaseEvent(event);
 
-    if (!event->isAccepted() && (mPage->mPressedButtons & Qt::MiddleButton))
-    {
+    if (!event->isAccepted() && (mPage->mPressedButtons & Qt::MiddleButton)) {
         QUrl url(QApplication::clipboard()->text(QClipboard::Selection));
-        if (!url.isEmpty() && url.isValid() && !url.scheme().isEmpty())
-        {
+        if (!url.isEmpty() && url.isValid() && !url.scheme().isEmpty()) {
             setUrl(url);
         }
     }
 }
 
 
-
-void WebView::downloadRequested(QWebEngineDownloadRequest *item)
-{
+void WebView::downloadRequested(QWebEngineDownloadRequest *item) {
     if (!item)
         return;
 
     // Qt5 时代点击 PDF 走 unsupportedContent，在那里问“下载还是并入当前文档”；
     // Qt6 没有那个回调，PDF 统一变成下载请求，所以这个选择必须在入口补回来，
     // 否则教师只能把 PDF 存到磁盘，再手动导入。
-    if (item->mimeType().compare(QLatin1String("application/pdf"), Qt::CaseInsensitive) == 0)
-    {
+    if (item->mimeType().compare(QLatin1String("application/pdf"), Qt::CaseInsensitive) == 0) {
         QMessageBox messageBox(this);
-        messageBox.setText(tr("Download PDF Document: would you prefer to download the PDF file or add it to the current TianBoard document?"));
+        messageBox.setText(tr("Download PDF Document: would you prefer to download the PDF file or add it to "
+                              "the current TianBoard document?"));
 
         messageBox.addButton(tr("Download"), QMessageBox::AcceptRole);
-        QAbstractButton *addButton = messageBox.addButton(tr("Add to Current Document"), QMessageBox::AcceptRole);
+        QAbstractButton *addButton =
+            messageBox.addButton(tr("Add to Current Document"), QMessageBox::AcceptRole);
 
         messageBox.exec();
 
-        if (messageBox.clickedButton() == addButton)
-        {
+        if (messageBox.clickedButton() == addButton) {
             Application::applicationController->showBoard();
             Application::boardController->downloadURL(item->url());
             item->cancel();
@@ -277,4 +237,3 @@ void WebView::downloadRequested(QWebEngineDownloadRequest *item)
     BrowserWindow::downloadManager()->download(QNetworkRequest(item->url()));
     item->cancel();
 }
-

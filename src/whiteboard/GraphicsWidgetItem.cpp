@@ -11,7 +11,7 @@
 #include "api/WebWidgetBoardAPI.h"
 #include "api/WebWidgetAPI.h"
 
- #include "whiteboard/BoardController.h"
+#include "whiteboard/BoardController.h"
 
 #include "core/ApplicationController.h"
 #include "core/Application.h"
@@ -28,24 +28,25 @@ bool GraphicsWidgetItem::sInlineJavaScriptLoaded = false;
 QStringList GraphicsWidgetItem::sInlineJavaScripts;
 
 GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
-    : QGraphicsWidget(parent)
-    , mInitialLoadDone(false)
-    , mIsFreezable(true)
-    , mIsResizable(false)
-    , mLoadIsErronous(false)
-    , mCanBeContent(0)
-    , mCanBeTool(0)
-    , mWidgetUrl(pWidgetUrl)
-    , mIsFrozen(false)
-    , mIsTakingSnapshot(false)
-    , mShouldMoveWidget(false)
-    , mBoardAPI(0)
-{
-    setData(GraphicsItemData::ItemLayerType, QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
-	//QWebEngineView
-	//QGraphicsWidget::setGraphicsEffect
- //   QGraphicsView::setPage(new WebPage(this));
-	//QGraphicsWidget::setAttribute(QWebEngineSettings::JavaEnabled, true); 
+    : QGraphicsWidget(parent),
+      mInitialLoadDone(false),
+      mIsFreezable(true),
+      mIsResizable(false),
+      mLoadIsErronous(false),
+      mCanBeContent(0),
+      mCanBeTool(0),
+      mWidgetUrl(pWidgetUrl),
+      mIsFrozen(false),
+      mIsTakingSnapshot(false),
+      mShouldMoveWidget(false),
+      mBoardAPI(0) {
+    setData(
+        GraphicsItemData::ItemLayerType,
+        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+                                              //QWebEngineView
+                                              //QGraphicsWidget::setGraphicsEffect
+                                              //   QGraphicsView::setPage(new WebPage(this));
+    //QGraphicsWidget::setAttribute(QWebEngineSettings::JavaEnabled, true);
     //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
     //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::LocalStorageDatabaseEnabled, true);
     //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::OfflineWebApplicationCacheEnabled, true);
@@ -76,20 +77,20 @@ GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *pa
 }
 
 
-GraphicsWidgetItem::~GraphicsWidgetItem()
-{
+GraphicsWidgetItem::~GraphicsWidgetItem() {
     /* NOOP */
 }
 
-void GraphicsWidgetItem::initialize()
-{
+void GraphicsWidgetItem::initialize() {
     setMinimumSize(nominalSize());
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem)); // Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(itemLayerType::ObjectItem)); // Necessary to set if we want z value to be assigned correctly
 
     if (Delegate() && Delegate()->frame() && resizable())
         Delegate()->frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
 
-   /* QPalette palette = page()->palette();
+    /* QPalette palette = page()->palette();
     palette.setBrush(QPalette::Base, QBrush(Qt::transparent));
     page()->setPalette(palette);
     page()->setLinkDelegationPolicy(QWebEnginePage::DelegateAllLinks);*/
@@ -102,80 +103,70 @@ void GraphicsWidgetItem::initialize()
     //connect(page(), SIGNAL(linkClicked(const QUrl&)), this, SLOT(onLinkClicked(const QUrl&)));
 }
 
-void GraphicsWidgetItem::onLinkClicked(const QUrl& url)
-{
+void GraphicsWidgetItem::onLinkClicked(const QUrl &url) {
     //load(url);
 }
 
-void GraphicsWidgetItem::initialLayoutCompleted()
-{
+void GraphicsWidgetItem::initialLayoutCompleted() {
     mInitialLoadDone = true;
 }
 
-QUrl GraphicsWidgetItem::mainHtml()
-{
+QUrl GraphicsWidgetItem::mainHtml() {
     return mMainHtmlUrl;
 }
 
-void GraphicsWidgetItem::loadMainHtml()
-{
+void GraphicsWidgetItem::loadMainHtml() {
     mInitialLoadDone = false;
     //load(mMainHtmlUrl);
 }
 
-QUrl GraphicsWidgetItem::widgetUrl()
-{
+QUrl GraphicsWidgetItem::widgetUrl() {
     return mWidgetUrl;
 }
 
-QString GraphicsWidgetItem::mainHtmlFileName()
-{
+QString GraphicsWidgetItem::mainHtmlFileName() {
     return mMainHtmlFileName;
 }
 
-bool GraphicsWidgetItem::canBeContent()
-{
-    // if we under MAC OS
-    #if defined(Q_OS_MAC)
-        return mCanBeContent & GraphicsWidgetItem::type_MAC;
-    #endif
+bool GraphicsWidgetItem::canBeContent() {
+// if we under MAC OS
+#if defined(Q_OS_MAC)
+    return mCanBeContent & GraphicsWidgetItem::type_MAC;
+#endif
+
+// if we under UNIX OS
+#if defined(Q_OS_UNIX)
+    return mCanBeContent & GraphicsWidgetItem::type_UNIX;
+#endif
+
+// if we under WINDOWS OS
+#if defined(Q_OS_WIN)
+    return mCanBeContent & GraphicsWidgetItem::type_WIN;
+#endif
+}
+
+bool GraphicsWidgetItem::canBeTool() {
+// if we under MAC OS
+#if defined(Q_OS_MAC)
+    return mCanBeTool & GraphicsWidgetItem::type_MAC;
+#endif
 
     // if we under UNIX OS
-    #if defined(Q_OS_UNIX)
-        return mCanBeContent & GraphicsWidgetItem::type_UNIX;
-    #endif
+#if defined(Q_OS_UNIX)
+    return mCanBeTool & GraphicsWidgetItem::type_UNIX;
+#endif
 
     // if we under WINDOWS OS
-    #if defined(Q_OS_WIN)
-        return mCanBeContent & GraphicsWidgetItem::type_WIN;
-    #endif
+#if defined(Q_OS_WIN)
+    return mCanBeTool & GraphicsWidgetItem::type_WIN;
+#endif
 }
 
-bool GraphicsWidgetItem::canBeTool()
-{
-    // if we under MAC OS
-    #if defined(Q_OS_MAC)
-        return mCanBeTool & GraphicsWidgetItem::type_MAC;
-    #endif
-
-        // if we under UNIX OS
-    #if defined(Q_OS_UNIX)
-        return mCanBeTool & GraphicsWidgetItem::type_UNIX;
-    #endif
-
-        // if we under WINDOWS OS
-    #if defined(Q_OS_WIN)
-        return mCanBeTool & GraphicsWidgetItem::type_WIN;
-    #endif
-}
-
-QString GraphicsWidgetItem::preference(const QString& key) const
-{
+QString GraphicsWidgetItem::preference(const QString &key) const {
     return mPreferences.value(key);
 }
 
-void GraphicsWidgetItem::setPreference(const QString& key, QString value)
-{
+void GraphicsWidgetItem::setPreference(const QString &key, QString value) {
     if (key == "" || (mPreferences.contains(key) && mPreferences.value(key) == value))
         return;
 
@@ -184,33 +175,28 @@ void GraphicsWidgetItem::setPreference(const QString& key, QString value)
         scene()->setModified(true);
 }
 
-QMap<QString, QString> GraphicsWidgetItem::preferences() const
-{
+QMap<QString, QString> GraphicsWidgetItem::preferences() const {
     return mPreferences;
 }
 
 
-void GraphicsWidgetItem::removePreference(const QString& key)
-{
+void GraphicsWidgetItem::removePreference(const QString &key) {
     mPreferences.remove(key);
 }
 
 
-void GraphicsWidgetItem::removeAllPreferences()
-{
+void GraphicsWidgetItem::removeAllPreferences() {
     mPreferences.clear();
 }
 
-QString GraphicsWidgetItem::datastoreEntry(const QString& key) const
-{
+QString GraphicsWidgetItem::datastoreEntry(const QString &key) const {
     if (mDatastore.contains(key))
         return mDatastore.value(key);
     else
         return QString();
 }
 
-void GraphicsWidgetItem::setDatastoreEntry(const QString& key, QString value)
-{
+void GraphicsWidgetItem::setDatastoreEntry(const QString &key, QString value) {
     if (key == "" || (mDatastore.contains(key) && mDatastore.value(key) == value))
         return;
 
@@ -219,31 +205,26 @@ void GraphicsWidgetItem::setDatastoreEntry(const QString& key, QString value)
         scene()->setModified(true);
 }
 
-QMap<QString, QString> GraphicsWidgetItem::datastoreEntries() const
-{
+QMap<QString, QString> GraphicsWidgetItem::datastoreEntries() const {
     return mDatastore;
 }
 
 
-void GraphicsWidgetItem::removeDatastoreEntry(const QString& key)
-{
+void GraphicsWidgetItem::removeDatastoreEntry(const QString &key) {
     mDatastore.remove(key);
 }
 
 
-void GraphicsWidgetItem::removeAllDatastoreEntries()
-{
+void GraphicsWidgetItem::removeAllDatastoreEntries() {
     mDatastore.clear();
 }
 
-void GraphicsWidgetItem::removeScript()
-{
+void GraphicsWidgetItem::removeScript() {
     //if (page() && page()->mainFrame())
     //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onremove) { widget.onremove();}");
 }
 
-void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event)
-{
+void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event) {
     // mBoardAPI 原本只在 javaScriptWindowObjectCleared() 里建，而 Qt6 的
     // QWebEnginePage 没有那个信号去触发它 —— 拖放落到小部件上就是一次空指针。
     // 父对象给场景，随场景一起回收。
@@ -253,70 +234,59 @@ void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event)
     mBoardAPI->ProcessDropEvent(event);
 }
 
-QUrl GraphicsWidgetItem::getOwnFolder() const
-{
+QUrl GraphicsWidgetItem::getOwnFolder() const {
     return ownFolder;
 }
 
-void GraphicsWidgetItem::setOwnFolder(const QUrl &newFolder)
-{
+void GraphicsWidgetItem::setOwnFolder(const QUrl &newFolder) {
     ownFolder = newFolder;
 }
 
-void GraphicsWidgetItem::setSnapshotPath(const QUrl &newFilePath)
-{
+void GraphicsWidgetItem::setSnapshotPath(const QUrl &newFilePath) {
     SnapshotFile = newFilePath;
 }
 
-QUrl GraphicsWidgetItem::getSnapshotPath()
-{
+QUrl GraphicsWidgetItem::getSnapshotPath() {
     return SnapshotFile;
 }
 
-void GraphicsWidgetItem::clearSource()
-{
+void GraphicsWidgetItem::clearSource() {
     FileSystemUtils::deleteDir(getOwnFolder().toLocalFile());
     FileSystemUtils::deleteFile(getSnapshotPath().toLocalFile());
 }
 
-void GraphicsWidgetItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsWidgetItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    setData(GraphicsItemData::ItemUuid,
+            QVariant(
+                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
-QSize GraphicsWidgetItem::nominalSize() const
-{
+QSize GraphicsWidgetItem::nominalSize() const {
     return mNominalSize;
 }
 
-bool GraphicsWidgetItem::hasLoadedSuccessfully() const
-{
+bool GraphicsWidgetItem::hasLoadedSuccessfully() const {
     return (mInitialLoadDone && !mLoadIsErronous);
 }
 
-bool GraphicsWidgetItem::freezable()
-{
+bool GraphicsWidgetItem::freezable() {
     return mIsFreezable;
 }
 
-bool GraphicsWidgetItem::resizable()
-{
+bool GraphicsWidgetItem::resizable() {
     return mIsResizable;
 }
 
-bool GraphicsWidgetItem::isFrozen()
-{
+bool GraphicsWidgetItem::isFrozen() {
     return mIsFrozen;
 }
 
-QPixmap GraphicsWidgetItem::snapshot()
-{
+QPixmap GraphicsWidgetItem::snapshot() {
     return mSnapshot;
 }
 
-QPixmap GraphicsWidgetItem::takeSnapshot()
-{
+QPixmap GraphicsWidgetItem::takeSnapshot() {
     mIsTakingSnapshot = true;
 
     QPixmap pixmap(size().toSize());
@@ -333,18 +303,15 @@ QPixmap GraphicsWidgetItem::takeSnapshot()
     return pixmap;
 }
 
-void GraphicsWidgetItem::setSnapshot(const QPixmap& pix)
-{
+void GraphicsWidgetItem::setSnapshot(const QPixmap &pix) {
     mSnapshot = pix;
 }
 
-GraphicsScene* GraphicsWidgetItem::scene()
-{
-    return qobject_cast<GraphicsScene*>(QGraphicsItem::scene());
+GraphicsScene *GraphicsWidgetItem::scene() {
+    return qobject_cast<GraphicsScene *>(QGraphicsItem::scene());
 }
 
-int GraphicsWidgetItem::widgetType(const QUrl& pUrl)
-{
+int GraphicsWidgetItem::widgetType(const QUrl &pUrl) {
     QString mime = FileSystemUtils::mimeTypeFromFileName(pUrl.toString());
 
     if (mime == "application/vnd.apple-widget")
@@ -355,8 +322,7 @@ int GraphicsWidgetItem::widgetType(const QUrl& pUrl)
         return WidgetType::Other;
 }
 
-QString GraphicsWidgetItem::widgetName(const QUrl& widgetPath)
-{
+QString GraphicsWidgetItem::widgetName(const QUrl &widgetPath) {
     QString name;
     QString version;
     QFile widgetConfigFile(widgetPath.toLocalFile() + "/config.xml");
@@ -373,15 +339,14 @@ QString GraphicsWidgetItem::widgetName(const QUrl& widgetPath)
             version = root.attribute("version", "");
         }
         widgetConfigFile.close();
-    }
-    else if (appleConfigFile.exists() && appleConfigFile.open(QFile::ReadOnly)) {
+    } else if (appleConfigFile.exists() && appleConfigFile.open(QFile::ReadOnly)) {
         QDomDocument doc;
         doc.setContent(appleConfigFile.readAll());
         QDomElement root = doc.firstChildElement("plist");
         if (!root.isNull()) {
             QDomElement dictElement = root.firstChildElement("dict");
             if (!dictElement.isNull()) {
-                QDomNodeList childNodes  = dictElement.childNodes();
+                QDomNodeList childNodes = dictElement.childNodes();
 
                 /* looking for something like
                  * ..
@@ -390,19 +355,18 @@ QString GraphicsWidgetItem::widgetName(const QUrl& widgetPath)
                  * ..
                  */
 
-                for(int i = 0; i < childNodes.count() - 1; i++) {
+                for (int i = 0; i < childNodes.count() - 1; i++) {
                     if (childNodes.at(i).isElement()) {
                         QDomElement elKey = childNodes.at(i).toElement();
                         if (elKey.text() == "CFBundleDisplayName") {
                             if (childNodes.at(i + 1).isElement()) {
-                               QDomElement elValue = childNodes.at(i + 1).toElement();
-                               name = elValue.text();
+                                QDomElement elValue = childNodes.at(i + 1).toElement();
+                                name = elValue.text();
                             }
-                        }
-                        else if (elKey.text() == "CFBundleShortVersionString") {
+                        } else if (elKey.text() == "CFBundleShortVersionString") {
                             if (childNodes.at(i + 1).isElement()) {
-                               QDomElement elValue = childNodes.at(i + 1).toElement();
-                               version = elValue.text();
+                                QDomElement elValue = childNodes.at(i + 1).toElement();
+                                version = elValue.text();
                             }
                         }
                     }
@@ -423,41 +387,36 @@ QString GraphicsWidgetItem::widgetName(const QUrl& widgetPath)
     return result;
 }
 
-QString GraphicsWidgetItem::iconFilePath(const QUrl& pUrl)
-{
+QString GraphicsWidgetItem::iconFilePath(const QUrl &pUrl) {
     QStringList files;
 
-    files << "icon.svg";  /* W3C widget default 1 */
-    files << "icon.ico";  /* W3C widget default 2 */
-    files << "icon.png";  /* W3C widget default 3 */
-    files << "icon.gif";  /* W3C widget default 4 */
-    files << "Icon.png";  /* Apple widget default */
+    files << "icon.svg"; /* W3C widget default 1 */
+    files << "icon.ico"; /* W3C widget default 2 */
+    files << "icon.png"; /* W3C widget default 3 */
+    files << "icon.gif"; /* W3C widget default 4 */
+    files << "Icon.png"; /* Apple widget default */
 
     QString file = FileSystemUtils::getFirstExistingFileFromList(pUrl.toLocalFile(), files);
     /* default */
-    if (file.length() == 0)
-    {
+    if (file.length() == 0) {
         file = QString(":/images/defaultWidgetIcon.png");
     }
     return file;
 }
 
-void GraphicsWidgetItem::freeze()
-{
+void GraphicsWidgetItem::freeze() {
     QPixmap pix = takeSnapshot();
     mIsFrozen = true;
     setSnapshot(pix);
 }
 
-void GraphicsWidgetItem::unFreeze()
-{
+void GraphicsWidgetItem::unFreeze() {
     mIsFrozen = false;
 }
 
-bool GraphicsWidgetItem::event(QEvent *event)
-{
+bool GraphicsWidgetItem::event(QEvent *event) {
     if (mShouldMoveWidget && event->type() == QEvent::MouseMove) {
-        QMouseEvent *mouseMoveEvent = static_cast<QMouseEvent*>(event);
+        QMouseEvent *mouseMoveEvent = static_cast<QMouseEvent *>(event);
         if (mouseMoveEvent->buttons() & Qt::LeftButton) {
             QPointF scenePos = mapToScene(mouseMoveEvent->pos());
             QPointF newPos = pos() + scenePos - mLastMousePos;
@@ -466,21 +425,18 @@ bool GraphicsWidgetItem::event(QEvent *event)
             event->accept();
             return true;
         }
-    }
-    else if (event->type() == QEvent::ShortcutOverride)
+    } else if (event->type() == QEvent::ShortcutOverride)
         event->accept();
 
-	return true;//QGraphicsWebView::event(event);
+    return true; //QGraphicsWebView::event(event);
 }
 
-void GraphicsWidgetItem::dropEvent(QGraphicsSceneDragDropEvent *event)
-{
+void GraphicsWidgetItem::dropEvent(QGraphicsSceneDragDropEvent *event) {
     processDropEvent(event);
     //QGraphicsWebView::dropEvent(event);
 }
 
-void GraphicsWidgetItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsWidgetItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (!Delegate()->mousePressEvent(event))
         setSelected(true); /* forcing selection */
 
@@ -494,39 +450,33 @@ void GraphicsWidgetItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     event->accept();
 }
 
-void GraphicsWidgetItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsWidgetItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     mShouldMoveWidget = false;
 
     Delegate()->mouseReleaseEvent(event);
-	QGraphicsWidget::mouseReleaseEvent(event);
+    QGraphicsWidget::mouseReleaseEvent(event);
 }
 
-void GraphicsWidgetItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
+void GraphicsWidgetItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     sendJSEnterEvent();
     Delegate()->hoverEnterEvent(event);
 }
-void GraphicsWidgetItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
+void GraphicsWidgetItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     sendJSLeaveEvent();
     Delegate()->hoverLeaveEvent(event);
 }
 
-void GraphicsWidgetItem::sendJSEnterEvent()
-{
+void GraphicsWidgetItem::sendJSEnterEvent() {
     //if (page() && page()->mainFrame())
     //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onenter) { widget.onenter();}");
 }
 
-void GraphicsWidgetItem::sendJSLeaveEvent()
-{
+void GraphicsWidgetItem::sendJSLeaveEvent() {
     //if (page() && page()->mainFrame())
     //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onleave) { widget.onleave();}");
 }
 
-void GraphicsWidgetItem::injectInlineJavaScript()
-{
+void GraphicsWidgetItem::injectInlineJavaScript() {
     if (!sInlineJavaScriptLoaded) {
         sInlineJavaScripts = Application::applicationController->widgetInlineJavaScripts();
         sInlineJavaScriptLoaded = true;
@@ -536,8 +486,7 @@ void GraphicsWidgetItem::injectInlineJavaScript()
     //    page()->mainFrame()->evaluateJavaScript(script);
 }
 
-void GraphicsWidgetItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     //QGraphicsView::paint(painter, option, widget);
 
 
@@ -565,21 +514,18 @@ void GraphicsWidgetItem::paint( QPainter *painter, const QStyleOptionGraphicsIte
     Delegate()->postpaint(painter, option, widget);
 }
 
-void GraphicsWidgetItem::geometryChangeRequested(const QRect& geom)
-{
+void GraphicsWidgetItem::geometryChangeRequested(const QRect &geom) {
     resize(geom.width(), geom.height());
 }
 
-void GraphicsWidgetItem::javaScriptWindowObjectCleared()
-{
+void GraphicsWidgetItem::javaScriptWindowObjectCleared() {
     injectInlineJavaScript();
 
-    if(!mBoardAPI)
+    if (!mBoardAPI)
         mBoardAPI = new WebWidgetBoardAPI(scene(), this);
 }
 
-void GraphicsWidgetItem::mainFrameLoadFinished (bool ok)
-{
+void GraphicsWidgetItem::mainFrameLoadFinished(bool ok) {
     mLoadIsErronous = !ok;
     //update(boundingRect());
 
@@ -587,10 +533,8 @@ void GraphicsWidgetItem::mainFrameLoadFinished (bool ok)
         takeSnapshot();
 }
 
-void GraphicsWidgetItem::wheelEvent(QGraphicsSceneWheelEvent *event)
-{
-    if (Delegate()->wheelEvent(event))
-    {
+void GraphicsWidgetItem::wheelEvent(QGraphicsSceneWheelEvent *event) {
+    if (Delegate()->wheelEvent(event)) {
         //QGraphicsView::wheelEvent(event);
         event->accept();
     }
@@ -610,35 +554,30 @@ void GraphicsWidgetItem::wheelEvent(QGraphicsSceneWheelEvent *event)
 //    return QGraphicsView::itemChange(change, newValue);
 //}
 
-void GraphicsWidgetItem::resize(qreal w, qreal h)
-{
+void GraphicsWidgetItem::resize(qreal w, qreal h) {
     GraphicsWidgetItem::resize(QSizeF(w, h));
 }
 
 
-void GraphicsWidgetItem::resize(const QSizeF & pSize)
-{
+void GraphicsWidgetItem::resize(const QSizeF &pSize) {
     if (pSize != size()) {
-		//QGraphicsWidget::setMaximumSize(pSize.width(), pSize.height());
-		//QGraphicsWidget::resize(pSize.width(), pSize.height());
-  //      if (Delegate())
-  //          Delegate()->positionHandles();
-  //      if (scene())
-  //          scene()->setModified(true);
+        //QGraphicsWidget::setMaximumSize(pSize.width(), pSize.height());
+        //QGraphicsWidget::resize(pSize.width(), pSize.height());
+        //      if (Delegate())
+        //          Delegate()->positionHandles();
+        //      if (scene())
+        //          scene()->setModified(true);
     }
 }
 
-QSizeF GraphicsWidgetItem::size() const
-{
-	QSizeF sz;
-	return sz;//QGraphicsWidget::size();
+QSizeF GraphicsWidgetItem::size() const {
+    QSizeF sz;
+    return sz; //QGraphicsWidget::size();
 }
 
 
-
-GraphicsAppleWidgetItem::GraphicsAppleWidgetItem(const QUrl& pWidgetUrl, QGraphicsItem *parent)
-    : GraphicsWidgetItem(pWidgetUrl, parent)
-{
+GraphicsAppleWidgetItem::GraphicsAppleWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
+    : GraphicsWidgetItem(pWidgetUrl, parent) {
     QString path = pWidgetUrl.toLocalFile();
 
     if (!path.endsWith(".wdgt") && !path.endsWith(".wdgt/")) {
@@ -675,65 +614,52 @@ GraphicsAppleWidgetItem::GraphicsAppleWidgetItem(const QUrl& pWidgetUrl, QGraphi
 }
 
 
-GraphicsAppleWidgetItem::~GraphicsAppleWidgetItem()
-{
+GraphicsAppleWidgetItem::~GraphicsAppleWidgetItem() {
     /* NOOP */
 }
 
-void GraphicsAppleWidgetItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsAppleWidgetItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     //setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
-Item* GraphicsAppleWidgetItem::deepCopy() const
-{
-	GraphicsAppleWidgetItem *appleWidget = new GraphicsAppleWidgetItem(QUrl(), parentItem());
+Item *GraphicsAppleWidgetItem::deepCopy() const {
+    GraphicsAppleWidgetItem *appleWidget = new GraphicsAppleWidgetItem(QUrl(), parentItem());
 
     copyItemParameters(appleWidget);
 
     return appleWidget;
-
 }
 
-void GraphicsAppleWidgetItem::copyItemParameters(Item *copy) const
-{
-    GraphicsAppleWidgetItem *cp = dynamic_cast<GraphicsAppleWidgetItem*>(copy);
-    if (cp)
-    {
-        foreach(QString key, mPreferences.keys())
-        {
+void GraphicsAppleWidgetItem::copyItemParameters(Item *copy) const {
+    GraphicsAppleWidgetItem *cp = dynamic_cast<GraphicsAppleWidgetItem *>(copy);
+    if (cp) {
+        foreach (QString key, mPreferences.keys()) {
             cp->setPreference(key, mPreferences.value(key));
         }
 
-        foreach(QString key, mDatastore.keys())
-        {
+        foreach (QString key, mDatastore.keys()) {
             cp->setDatastoreEntry(key, mDatastore.value(key));
         }
 
         cp->setSourceUrl(this->sourceUrl());
         //cp->setZValue(this->zValue());
     }
-
 }
 
 
-QRectF GraphicsAppleWidgetItem::boundingRect() const
-{
-	qreal penWidth = 1;
-	return QRectF(0 - penWidth / 2, 0 - penWidth / 2, 20 + penWidth, 20 + penWidth);
+QRectF GraphicsAppleWidgetItem::boundingRect() const {
+    qreal penWidth = 1;
+    return QRectF(0 - penWidth / 2, 0 - penWidth / 2, 20 + penWidth, 20 + penWidth);
 }
-
 
 
 bool GraphicsWebWidgetItem::sTemplateLoaded = false;
 QString GraphicsWebWidgetItem::sNPAPIWrappperConfigTemplate;
 QMap<QString, QString> GraphicsWebWidgetItem::sNPAPIWrapperTemplates;
 
-GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl& pWidgetUrl, QGraphicsItem *parent)
-    : GraphicsWidgetItem(pWidgetUrl, parent)
-    , mWebWidgetAPI(0)
-{
+GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
+    : GraphicsWidgetItem(pWidgetUrl, parent), mWebWidgetAPI(0) {
     QString path = pWidgetUrl.toLocalFile();
     QDir potentialDir(path);
 
@@ -765,7 +691,7 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl& pWidgetUrl, QGraphicsIt
         mMetadatas.id = widgetElement.attribute("id", "");
 
         if (mMetadatas.id.length() == 0)
-             mMetadatas.id = widgetElement.attribute("identifier", "");
+            mMetadatas.id = widgetElement.attribute("identifier", "");
 
         mMetadatas.version = widgetElement.attribute("version", "");
 
@@ -855,7 +781,7 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl& pWidgetUrl, QGraphicsIt
     /* is it a valid local file ? */
     QFile f(mMainHtmlUrl.toLocalFile());
 
-    if(!f.exists())
+    if (!f.exists())
         mMainHtmlUrl = QUrl(mMainHtmlFileName);
 
     //connect(page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
@@ -871,52 +797,47 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl& pWidgetUrl, QGraphicsIt
     setOwnFolder(pWidgetUrl);
 }
 
-GraphicsWebWidgetItem::~GraphicsWebWidgetItem()
-{
+GraphicsWebWidgetItem::~GraphicsWebWidgetItem() {
     /* NOOP */
 }
 
-void GraphicsWebWidgetItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsWebWidgetItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     //setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
-Item* GraphicsWebWidgetItem::deepCopy() const
-{
-	GraphicsWebWidgetItem *copy = new GraphicsWebWidgetItem(mWidgetUrl, parentItem());
+Item *GraphicsWebWidgetItem::deepCopy() const {
+    GraphicsWebWidgetItem *copy = new GraphicsWebWidgetItem(mWidgetUrl, parentItem());
     copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
     copyItemParameters(copy);
 
     return copy;
 }
 
-QMap<QString, GraphicsWebWidgetItem::PreferenceValue> GraphicsWebWidgetItem::preferences()
-{
+QMap<QString, GraphicsWebWidgetItem::PreferenceValue> GraphicsWebWidgetItem::preferences() {
     return mPreferences;
 }
 
-GraphicsWebWidgetItem::Metadata GraphicsWebWidgetItem::metadatas() const
-{
+GraphicsWebWidgetItem::Metadata GraphicsWebWidgetItem::metadatas() const {
     return mMetadatas;
 }
 
-QRectF GraphicsWebWidgetItem::boundingRect() const
-{
-	qreal penWidth = 1;
-	return QRectF(0 - penWidth / 2, 0 - penWidth / 2, 200 + penWidth, 200 + penWidth);
+QRectF GraphicsWebWidgetItem::boundingRect() const {
+    qreal penWidth = 1;
+    return QRectF(0 - penWidth / 2, 0 - penWidth / 2, 200 + penWidth, 200 + penWidth);
 }
 
-QString GraphicsWebWidgetItem::createNPAPIWrapper(const QString& url, const QString& pMimeType, const QSize& sizeHint, const QString& pName)
-{
+QString GraphicsWebWidgetItem::createNPAPIWrapper(const QString &url, const QString &pMimeType,
+                                                  const QSize &sizeHint, const QString &pName) {
     const QString userWidgetPath = Settings::settings()->userInteractiveDirectory() + "/" + tr("Web");
     QDir userWidgetDir(userWidgetPath);
 
     return createNPAPIWrapperInDir(url, userWidgetDir, pMimeType, sizeHint, pName);
 }
 
-QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(const QString& pUrl, const QDir& pDir, const QString& pMimeType, const QSize& sizeHint, const QString& pName)
-{
+QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(const QString &pUrl, const QDir &pDir,
+                                                       const QString &pMimeType, const QSize &sizeHint,
+                                                       const QString &pName) {
     QString url = pUrl;
     url = FileSystemUtils::removeLocalFilePrefix(url);
     QString name = pName;
@@ -943,15 +864,14 @@ QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(const QString& pUrl, cons
 
     if (htmlTemplate.length() > 0) {
         htmlTemplate = htmlTemplate.replace(QString("{in.url}"), url)
-            .replace(QString("{in.width}"), QString("%1").arg(sizeHint.width()))
-            .replace(QString("{in.height}"), QString("%1").arg(sizeHint.height()));
+                           .replace(QString("{in.width}"), QString("%1").arg(sizeHint.width()))
+                           .replace(QString("{in.height}"), QString("%1").arg(sizeHint.height()));
 
-        QString configTemplate = sNPAPIWrappperConfigTemplate
-            .replace(QString("{in.id}"), url)
-            .replace(QString("{in.width}"), QString("%1").arg(sizeHint.width()))
-            .replace(QString("{in.height}"), QString("%1").arg(sizeHint.height()))
-            .replace(QString("{in.name}"), name)
-            .replace(QString("{in.startFile}"), QString("index.htm"));
+        QString configTemplate = sNPAPIWrappperConfigTemplate.replace(QString("{in.id}"), url)
+                                     .replace(QString("{in.width}"), QString("%1").arg(sizeHint.width()))
+                                     .replace(QString("{in.height}"), QString("%1").arg(sizeHint.height()))
+                                     .replace(QString("{in.name}"), name)
+                                     .replace(QString("{in.startFile}"), QString("index.htm"));
 
         QString dirPath = pDir.path();
         if (!pDir.exists())
@@ -999,13 +919,12 @@ QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(const QString& pUrl, cons
         indexFile.close();
 
         return widgetLibraryPath;
-    }
-    else
+    } else
         return QString();
 }
 
-QString GraphicsWebWidgetItem::createHtmlWrapperInDir(const QString& html, const QDir& pDir, const QSize& sizeHint, const QString& pName)
-{
+QString GraphicsWebWidgetItem::createHtmlWrapperInDir(const QString &html, const QDir &pDir,
+                                                      const QSize &sizeHint, const QString &pName) {
     QString widgetPath = pDir.path() + "/" + pName + ".wgt";
     widgetPath = FileSystemUtils::nextAvailableFileName(widgetPath);
     QDir widgetDir(widgetPath);
@@ -1055,7 +974,9 @@ QString GraphicsWebWidgetItem::createHtmlWrapperInDir(const QString& html, const
     QTextStream outStartFile(&widgetHtmlFile);
     outStartFile.setEncoding(QStringConverter::Utf8);
 
-    outStartFile << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" << Qt::endl;
+    outStartFile
+        << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">"
+        << Qt::endl;
     outStartFile << "<html>" << Qt::endl;
     outStartFile << "<head>" << Qt::endl;
     outStartFile << "    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" << Qt::endl;
@@ -1070,8 +991,7 @@ QString GraphicsWebWidgetItem::createHtmlWrapperInDir(const QString& html, const
     return widgetPath;
 }
 
-QString GraphicsWebWidgetItem::freezedWidgetPage()
-{
+QString GraphicsWebWidgetItem::freezedWidgetPage() {
     static QString defaultcontent;
 
     if (defaultcontent.isNull()) {
@@ -1080,8 +1000,7 @@ QString GraphicsWebWidgetItem::freezedWidgetPage()
         if (!wrapperFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug() << "can't open wrapper file " + freezedWidgetDefaultContentFilePath;
             defaultcontent = "";
-        }
-        else {
+        } else {
             QByteArray arr = wrapperFile.readAll();
             if (!arr.isEmpty())
                 defaultcontent = QString(arr);
@@ -1095,31 +1014,26 @@ QString GraphicsWebWidgetItem::freezedWidgetPage()
     return defaultcontent;
 }
 
-QString GraphicsWebWidgetItem::freezedWidgetFilePath()
-{
+QString GraphicsWebWidgetItem::freezedWidgetFilePath() {
     return FileSystemUtils::applicationResourcesDirectory() + "/etc/" + "freezedWidgetWrapper.html";
 }
 
-bool GraphicsWebWidgetItem::hasNPAPIWrapper(const QString& pMimeType)
-{
+bool GraphicsWebWidgetItem::hasNPAPIWrapper(const QString &pMimeType) {
     loadNPAPIWrappersTemplates();
 
     return sNPAPIWrapperTemplates.contains(pMimeType);
 }
 
-void GraphicsWebWidgetItem::javaScriptWindowObjectCleared()
-{
+void GraphicsWebWidgetItem::javaScriptWindowObjectCleared() {
     GraphicsWidgetItem::javaScriptWindowObjectCleared();
 
-    if(!mWebWidgetAPI)
+    if (!mWebWidgetAPI)
         mWebWidgetAPI = new WebWidgetAPI(this);
 
     //page()->mainFrame()->addToJavaScriptWindowObject("widget", mWebWidgetAPI);
-
 }
 
-void GraphicsWebWidgetItem::loadNPAPIWrappersTemplates()
-{
+void GraphicsWebWidgetItem::loadNPAPIWrappersTemplates() {
     if (!sTemplateLoaded) {
         sNPAPIWrapperTemplates.clear();
 
@@ -1127,16 +1041,16 @@ void GraphicsWebWidgetItem::loadNPAPIWrappersTemplates()
 
         QDir etcDir(etcPath);
 
-        foreach(QString fileName, etcDir.entryList()) {
-            if (fileName.startsWith("npapi-wrapper") && (fileName.endsWith(".htm") || fileName.endsWith(".html"))) {
-
+        foreach (QString fileName, etcDir.entryList()) {
+            if (fileName.startsWith("npapi-wrapper") &&
+                (fileName.endsWith(".htm") || fileName.endsWith(".html"))) {
                 QString htmlContent = FileSystemUtils::readTextFile(etcPath + fileName);
 
                 if (htmlContent.length() > 0) {
                     QStringList tokens = fileName.split(".");
 
                     if (tokens.length() >= 4) {
-                        QString mime = tokens.at(tokens.length() - 4 );
+                        QString mime = tokens.at(tokens.length() - 4);
                         mime += "/" + tokens.at(tokens.length() - 3);
 
                         QString fileExtension = tokens.at(tokens.length() - 2);
@@ -1152,8 +1066,8 @@ void GraphicsWebWidgetItem::loadNPAPIWrappersTemplates()
     }
 }
 
-QString GraphicsWebWidgetItem::textForSubElementByLocale(QDomElement rootElement, QString subTagName, QLocale locale)
-{
+QString GraphicsWebWidgetItem::textForSubElementByLocale(QDomElement rootElement, QString subTagName,
+                                                         QLocale locale) {
     QDomNodeList subList = rootElement.elementsByTagName(subTagName);
 
     QString lang = locale.name();
@@ -1162,14 +1076,14 @@ QString GraphicsWebWidgetItem::textForSubElementByLocale(QDomElement rootElement
         lang[2] = QLatin1Char('-');
 
     if (subList.count() > 1) {
-        for(int i = 0; i < subList.count(); i++) {
+        for (int i = 0; i < subList.count(); i++) {
             QDomNode node = subList.at(i);
             QDomElement element = node.toElement();
 
             QString configLang = element.attribute("xml:lang", "");
 
-            if(lang == configLang || (configLang.length() == 2 && configLang == lang.left(2)))
-                 return element.text();
+            if (lang == configLang || (configLang.length() == 2 && configLang == lang.left(2)))
+                return element.text();
         }
     }
 
@@ -1181,11 +1095,9 @@ QString GraphicsWebWidgetItem::textForSubElementByLocale(QDomElement rootElement
     return QString();
 }
 
-void GraphicsWebWidgetItem::copyItemParameters(Item *copy) const
-{
-    GraphicsWebWidgetItem *cp = dynamic_cast<GraphicsWebWidgetItem*>(copy);
-    if (cp)
-    {
+void GraphicsWebWidgetItem::copyItemParameters(Item *copy) const {
+    GraphicsWebWidgetItem *cp = dynamic_cast<GraphicsWebWidgetItem *>(copy);
+    if (cp) {
         /*cp->setPos(this->pos());
         cp->setTransform(this->transform());
         cp->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -1196,17 +1108,14 @@ void GraphicsWebWidgetItem::copyItemParameters(Item *copy) const
 
         cp->resize(this->size());
 
-        foreach(QString key, this->GraphicsWidgetItem::preferences().keys())
-        {
+        foreach (QString key, this->GraphicsWidgetItem::preferences().keys()) {
             cp->setPreference(key, GraphicsWidgetItem::preferences().value(key));
         }
 
-        foreach(QString key, mDatastore.keys())
-        {
+        foreach (QString key, mDatastore.keys()) {
             cp->setDatastoreEntry(key, mDatastore.value(key));
         }
 
         //cp->setZValue(this->zValue());
     }
 }
-

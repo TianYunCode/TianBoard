@@ -15,37 +15,24 @@
 
 class FeaturesMimeData;
 
-typedef enum
-{
-    eButtonSet_Default,
-    eButtonSet_Properties,
-    eButtonSet_Favorite
-} eButtonSet;
+typedef enum { eButtonSet_Default, eButtonSet_Properties, eButtonSet_Favorite } eButtonSet;
 
-class ActionButton : public QToolButton
-{
+class ActionButton : public QToolButton {
 public:
-    ActionButton(QWidget* parent=0, QAction* action=0, const char* name="ActionButton");
+    ActionButton(QWidget *parent = 0, QAction *action = 0, const char *name = "ActionButton");
     ~ActionButton();
 };
 
-enum FeaturesActionBarState
-{
-    IN_ROOT,
-    IN_FOLDER,
-    IN_PROPERTIES,
-    IN_FAVORITE,
-    IN_TRASH
-};
+enum FeaturesActionBarState { IN_ROOT, IN_FOLDER, IN_PROPERTIES, IN_FAVORITE, IN_TRASH };
 
-class FeaturesActionBar : public QWidget
-{
+class FeaturesActionBar : public QWidget {
     Q_OBJECT
 public:
-    FeaturesActionBar(FeaturesController *controller, QWidget* parent=0, const char* name="FeaturesActionBar");
+    FeaturesActionBar(FeaturesController *controller, QWidget *parent = 0,
+                      const char *name = "FeaturesActionBar");
     ~FeaturesActionBar();
-    
-    void setCurrentState( FeaturesActionBarState state );
+
+    void setCurrentState(FeaturesActionBarState state);
     void cleanText();
 
 signals:
@@ -73,8 +60,8 @@ public slots:
     void unlockIt();
 
 protected:
-    void dragEnterEvent( QDragEnterEvent *event );
-    void dropEvent( QDropEvent *event );
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
 private:
     void setButtons();
@@ -82,4 +69,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

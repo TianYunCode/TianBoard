@@ -44,29 +44,27 @@
 
 QPointer<QUndoStack> Application::undoStack;
 
-ApplicationController* Application::applicationController = 0;
-BoardController* Application::boardController = 0;
-WebController* Application::webController = 0;
-DocumentController* Application::documentController = 0;
+ApplicationController *Application::applicationController = 0;
+BoardController *Application::boardController = 0;
+WebController *Application::webController = 0;
+DocumentController *Application::documentController = 0;
 
-MainWindow* Application::mainWindow = 0;
+MainWindow *Application::mainWindow = 0;
 
 const QString Application::mimeTypeBoardDocument = QString("application/vnd.tianboard-document");
 const QString Application::mimeTypeBoardPage = QString("application/vnd.tianboard-page");
-const QString Application::mimeTypeBoardPageItem =  QString("application/vnd.tianboard-page-item");
+const QString Application::mimeTypeBoardPageItem = QString("application/vnd.tianboard-page-item");
 const QString Application::mimeTypeBoardPageThumbnail = QString("application/vnd.tianboard-thumbnail");
 
 #if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
 bool bIsMinimized = false;
 #endif
 
-QObject* Application::staticMemoryCleaner = 0;
+QObject *Application::staticMemoryCleaner = 0;
 
 
-Application::Application(const QString &id, int &argc, char **argv) : QtSingleApplication(id, argc, argv)
-  , mPreferencesController(NULL)
-{
-
+Application::Application(const QString &id, int &argc, char **argv)
+    : QtSingleApplication(id, argc, argv), mPreferencesController(NULL) {
     staticMemoryCleaner = new QObject(0); // deleted in Application destructor
 
     setOrganizationName("TianBoard");
@@ -80,11 +78,8 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     QStringList args = arguments();
 
-    mIsVerbose = args.contains("-v")
-        || args.contains("-verbose")
-        || args.contains("verbose")
-        || args.contains("-log")
-        || args.contains("log");
+    mIsVerbose = args.contains("-v") || args.contains("-verbose") || args.contains("verbose") ||
+                 args.contains("-log") || args.contains("log");
 
 
     setupTranslators(args);
@@ -98,8 +93,10 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     Settings *settings = Settings::settings();
 
-    connect(settings->appToolBarPositionedAtTop, &Setting::changed, this, &Application::toolBarPositionChanged);
-    connect(settings->appToolBarDisplayText, &Setting::changed, this, &Application::toolBarDisplayTextChanged);
+    connect(settings->appToolBarPositionedAtTop, &Setting::changed, this,
+            &Application::toolBarPositionChanged);
+    connect(settings->appToolBarDisplayText, &Setting::changed, this,
+            &Application::toolBarDisplayTextChanged);
     updateProtoActionsState();
 
 #ifndef Q_OS_OSX
@@ -108,19 +105,18 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     setStyle("fusion");
 
-	QString css = FileSystemUtils::readTextFile(FileSystemUtils::applicationResourcesDirectory() + "/etc/"+ qApp->applicationName()+".css");
+    QString css = FileSystemUtils::readTextFile(FileSystemUtils::applicationResourcesDirectory() + "/etc/" +
+                                                qApp->applicationName() + ".css");
     if (css.length() > 0)
         setStyleSheet(css);
 
     QApplication::setStartDragDistance(8); // default is 4, and is a bit small for tablets
 
     installEventFilter(this);
-
 }
 
 
-Application::~Application()
-{
+Application::~Application() {
     PlatformUtils::destroy();
 
     FileSystemUtils::deleteAllTempDirCreatedDuringSession();
@@ -144,9 +140,8 @@ Application::~Application()
     staticMemoryCleaner = 0;
 }
 
-void Application::setupTranslators(const QStringList &args)
-{
-    LanguageManager* languages = LanguageManager::instance();
+void Application::setupTranslators(const QStringList &args) {
+    LanguageManager *languages = LanguageManager::instance();
 
     QString requested;
 
@@ -167,8 +162,7 @@ void Application::setupTranslators(const QStringList &args)
     qDebug() << "Running application in:" << languages->currentLanguage();
 }
 
-int Application::exec(const QString& pFileToImport)
-{
+int Application::exec(const QString &pFileToImport) {
     QPixmapCache::setCacheLimit(1024 * 100);
 
     QString webDbPath = Settings::userDataDirectory() + "/web-databases";
@@ -176,8 +170,8 @@ int Application::exec(const QString& pFileToImport)
     if (!webDbDir.exists(webDbPath))
         webDbDir.mkpath(webDbPath);
 
-	//QWebEngineSettings::setIconDatabasePath(webDbPath);
- //   QWebEngineSettings::setOfflineStoragePath (webDbPath);
+    //QWebEngineSettings::setIconDatabasePath(webDbPath);
+    //   QWebEngineSettings::setOfflineStoragePath (webDbPath);
 
     QWebEngineSettings *gs = QWebEngineProfile::defaultProfile()->settings();
     gs->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
@@ -189,7 +183,7 @@ int Application::exec(const QString& pFileToImport)
     gs->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
 
 
-    mainWindow = new MainWindow(0, Qt::FramelessWindowHint); 
+    mainWindow = new MainWindow(0, Qt::FramelessWindowHint);
     mainWindow->setAttribute(Qt::WA_NativeWindow, true);
 
     mainWindow->ui().actionCopy->setShortcuts(QKeySequence::Copy);
@@ -214,46 +208,53 @@ int Application::exec(const QString& pFileToImport)
 
     DrawingController::drawingController()->setStylusTool((int)StylusTool::Pen);
 
-    applicationController = new ApplicationController(boardController->controlView(),
-                                                        boardController->displayView(),
-                                                        mainWindow,
-                                                        staticMemoryCleaner,
-                                                        boardController->paletteManager()->rightPalette());
+    applicationController =
+        new ApplicationController(boardController->controlView(), boardController->displayView(), mainWindow,
+                                  staticMemoryCleaner, boardController->paletteManager()->rightPalette());
 
 
-    connect(applicationController, &ApplicationController::mainModeChanged,
-            boardController->paletteManager(), &BoardPaletteManager::slot_changeMainMode);
+    connect(applicationController, &ApplicationController::mainModeChanged, boardController->paletteManager(),
+            &BoardPaletteManager::slot_changeMainMode);
 
-    connect(applicationController, &ApplicationController::desktopMode,
-            boardController->paletteManager(), &BoardPaletteManager::slot_changeDesktopMode);
+    connect(applicationController, &ApplicationController::desktopMode, boardController->paletteManager(),
+            &BoardPaletteManager::slot_changeDesktopMode);
 
-    connect(applicationController, &ApplicationController::mainModeChanged
-          , boardController,       &BoardController::appMainModeChanged);
+    connect(applicationController, &ApplicationController::mainModeChanged, boardController,
+            &BoardController::appMainModeChanged);
 
-    connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController, &ApplicationController::showDesktop);
+    connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController,
+            &ApplicationController::showDesktop);
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, this, &Application::stopScript);
 #if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
     connect(mainWindow->ui().actionHideApplication, &QAction::triggered, this, &Application::showMinimized);
 #else
-    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow, &MainWindow::showMinimized);
+    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow,
+            &MainWindow::showMinimized);
 #endif
 
     mPreferencesController = new PreferencesController(mainWindow);
 
-    connect(mainWindow->ui().actionPreferences, &QAction::triggered, mPreferencesController, &PreferencesController::show);
+    connect(mainWindow->ui().actionPreferences, &QAction::triggered, mPreferencesController,
+            &PreferencesController::show);
 
 
     toolBarPositionChanged(Settings::settings()->appToolBarPositionedAtTop->get());
 
     bool bUseMultiScreen = Settings::settings()->appUseMultiscreen->get().toBool();
     mainWindow->ui().actionMultiScreen->setChecked(bUseMultiScreen);
-    connect(mainWindow->ui().actionMultiScreen, &QAction::triggered, applicationController, &ApplicationController::useMultiScreen);
-    connect(mainWindow->ui().actionWidePageSize, &QAction::triggered, boardController, &BoardController::setWidePageSize);
-    connect(mainWindow->ui().actionRegularPageSize, &QAction::triggered, boardController, &BoardController::setRegularPageSize);
+    connect(mainWindow->ui().actionMultiScreen, &QAction::triggered, applicationController,
+            &ApplicationController::useMultiScreen);
+    connect(mainWindow->ui().actionWidePageSize, &QAction::triggered, boardController,
+            &BoardController::setWidePageSize);
+    connect(mainWindow->ui().actionRegularPageSize, &QAction::triggered, boardController,
+            &BoardController::setRegularPageSize);
 
-    connect(mainWindow->ui().actionCut, &QAction::triggered, applicationController, &ApplicationController::actionCut);
-    connect(mainWindow->ui().actionCopy, &QAction::triggered, applicationController, &ApplicationController::actionCopy);
-    connect(mainWindow->ui().actionPaste, &QAction::triggered, applicationController, &ApplicationController::actionPaste);
+    connect(mainWindow->ui().actionCut, &QAction::triggered, applicationController,
+            &ApplicationController::actionCut);
+    connect(mainWindow->ui().actionCopy, &QAction::triggered, applicationController,
+            &ApplicationController::actionCopy);
+    connect(mainWindow->ui().actionPaste, &QAction::triggered, applicationController,
+            &ApplicationController::actionPaste);
 
     applicationController->initScreenLayout(bUseMultiScreen);
     boardController->setupLayout();
@@ -266,22 +267,21 @@ int Application::exec(const QString& pFileToImport)
     else
         applicationController->showBoard();
 
-    emit DrawingController::drawingController()->colorPaletteChanged();
+    emit DrawingController::drawingController() -> colorPaletteChanged();
 
     onScreenCountChanged(1);
-    connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this, &Application::onScreenCountChanged);
+    connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this,
+            &Application::onScreenCountChanged);
     return QApplication::exec();
 }
 
-void Application::onScreenCountChanged(int newCount)
-{
+void Application::onScreenCountChanged(int newCount) {
     Q_UNUSED(newCount);
     DisplayManager displayManager;
     mainWindow->ui().actionMultiScreen->setEnabled(displayManager.numScreens() > 1);
 }
 
-void Application::showMinimized()
-{
+void Application::showMinimized() {
 #ifdef Q_OS_OSX
     mainWindow->hide();
     bIsMinimized = true;
@@ -289,44 +289,36 @@ void Application::showMinimized()
     mainWindow->showMinimized();
     bIsMinimized = true;
 #endif
-
 }
 
 
-void Application::startScript()
-{
+void Application::startScript() {
     this->boardController->freezeWebWidgets(false);
 }
 
-void Application::stopScript()
-{
+void Application::stopScript() {
     this->boardController->freezeWebWidgets(true);
 }
 
-void Application::showBoard()
-{
+void Application::showBoard() {
     applicationController->showBoard();
 }
 
-void Application::showInternet()
-{
+void Application::showInternet() {
     applicationController->showInternet();
     webController->showTabAtTop(true);
 }
 
-void Application::showDocument()
-{
+void Application::showDocument() {
     applicationController->showDocument();
 }
 
-int Application::toolBarHeight()
-{
+int Application::toolBarHeight() {
     return mainWindow->ui().boardToolBar->rect().height();
 }
 
 
-void Application::toolBarPositionChanged(QVariant topOrBottom)
-{
+void Application::toolBarPositionChanged(QVariant topOrBottom) {
     Qt::ToolBarArea area;
 
     if (topOrBottom.toBool())
@@ -339,32 +331,29 @@ void Application::toolBarPositionChanged(QVariant topOrBottom)
     mainWindow->addToolBar(area, mainWindow->ui().documentToolBar);
 
     webController->showTabAtTop(topOrBottom.toBool());
-
 }
 
 
-void Application::toolBarDisplayTextChanged(QVariant display)
-{
-    Qt::ToolButtonStyle toolButtonStyle = display.toBool() ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly;
+void Application::toolBarDisplayTextChanged(QVariant display) {
+    Qt::ToolButtonStyle toolButtonStyle =
+        display.toBool() ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly;
     mainWindow->ui().boardToolBar->setToolButtonStyle(toolButtonStyle);
     mainWindow->ui().webToolBar->setToolButtonStyle(toolButtonStyle);
     mainWindow->ui().documentToolBar->setToolButtonStyle(toolButtonStyle);
 }
 
 
-void Application::closeEvent(QCloseEvent *event)
-{
+void Application::closeEvent(QCloseEvent *event) {
     Q_UNUSED(event);
 
     closing();
 }
 
-void Application::closing()
-{
-    if (Settings::settings()->emptyTrashForOlderDocuments->get().toBool())
-    {
+void Application::closing() {
+    if (Settings::settings()->emptyTrashForOlderDocuments->get().toBool()) {
         DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-        documentController->deleteDocumentsInFolderOlderThan(docModel->trashIndex(), Settings::settings()->emptyTrashDaysValue->get().toInt());
+        documentController->deleteDocumentsInFolderOlderThan(
+            docModel->trashIndex(), Settings::settings()->emptyTrashDaysValue->get().toInt());
         if (docModel->hasChildren(docModel->trashIndex()))
             documentController->deleteEmptyFolders(docModel->trashIndex());
     }
@@ -380,43 +369,39 @@ void Application::closing()
 
     Settings::settings()->closing();
 
-    Settings::settings()->appToolBarPositionedAtTop->set(mainWindow->toolBarArea(mainWindow->ui().boardToolBar) == Qt::TopToolBarArea);
+    Settings::settings()->appToolBarPositionedAtTop->set(
+        mainWindow->toolBarArea(mainWindow->ui().boardToolBar) == Qt::TopToolBarArea);
 
     quit();
 }
 
 
-void Application::showMessage(const QString& message, bool showSpinningWheel)
-{
+void Application::showMessage(const QString &message, bool showSpinningWheel) {
     if (applicationController)
         applicationController->showMessage(message, showSpinningWheel);
 }
 
 
-void Application::setDisabled(bool disable)
-{
+void Application::setDisabled(bool disable) {
     boardController->setDisabled(disable);
 }
 
 
-void Application::decorateActionMenu(QAction* action)
-{
-    foreach(QWidget* menuWidget,  action->associatedWidgets())
-    {
-        QToolButton *tb = qobject_cast<QToolButton*>(menuWidget);
+void Application::decorateActionMenu(QAction *action) {
+    foreach (QWidget *menuWidget, action->associatedWidgets()) {
+        QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
 
-        if (tb && !tb->menu())
-        {
+        if (tb && !tb->menu()) {
             tb->setObjectName("buttonMenu");
             tb->setPopupMode(QToolButton::InstantPopup);
-            QMenu* menu = new QMenu(mainWindow);
+            QMenu *menu = new QMenu(mainWindow);
 
-            QActionGroup* pageSizeGroup = new QActionGroup(mainWindow);
+            QActionGroup *pageSizeGroup = new QActionGroup(mainWindow);
             pageSizeGroup->addAction(mainWindow->ui().actionWidePageSize);
             pageSizeGroup->addAction(mainWindow->ui().actionRegularPageSize);
             pageSizeGroup->addAction(mainWindow->ui().actionCustomPageSize);
 
-            QMenu* documentSizeMenu = menu->addMenu(QIcon(":/images/toolbar/pageSize.png"),tr("Page Size"));
+            QMenu *documentSizeMenu = menu->addMenu(QIcon(":/images/toolbar/pageSize.png"), tr("Page Size"));
             documentSizeMenu->addAction(mainWindow->ui().actionWidePageSize);
             documentSizeMenu->addAction(mainWindow->ui().actionRegularPageSize);
             documentSizeMenu->addAction(mainWindow->ui().actionCustomPageSize);
@@ -443,41 +428,34 @@ void Application::decorateActionMenu(QAction* action)
 }
 
 
-void Application::updateProtoActionsState()
-{
-    if (mainWindow)
-    {
+void Application::updateProtoActionsState() {
+    if (mainWindow) {
         mainWindow->ui().actionMultiScreen->setVisible(true);
     }
 
-    foreach(QMenu* protoMenu, mProtoMenus)
+    foreach (QMenu *protoMenu, mProtoMenus)
         protoMenu->setVisible(true);
-
 }
 
 
-void Application::insertSpaceToToolbarBeforeAction(QToolBar* toolbar, QAction* action, int width)
-{
-    QWidget* spacer = new QWidget();
+void Application::insertSpaceToToolbarBeforeAction(QToolBar *toolbar, QAction *action, int width) {
+    QWidget *spacer = new QWidget();
 
-    if (width >= 0){
+    if (width >= 0) {
         QHBoxLayout *layout = new QHBoxLayout();
         layout->addSpacing(width);
         spacer->setLayout(layout);
-    }
-    else
+    } else
         spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     toolbar->insertWidget(action, spacer);
 }
 
 
-bool Application::eventFilter(QObject *obj, QEvent *event)
-{
+bool Application::eventFilter(QObject *obj, QEvent *event) {
     bool result = QObject::eventFilter(obj, event);
 
-    if (event->type() == QEvent::FileOpen)
-    {
+    if (event->type() == QEvent::FileOpen) {
         QFileOpenEvent *fileToOpenEvent = static_cast<QFileOpenEvent *>(event);
 
         PlatformUtils::setFrontProcess();
@@ -485,15 +463,13 @@ bool Application::eventFilter(QObject *obj, QEvent *event)
         applicationController->importFile(fileToOpenEvent->file());
     }
 
-    if (event->type() == QEvent::TabletLeaveProximity)
-    {
+    if (event->type() == QEvent::TabletLeaveProximity) {
         if (boardController && boardController->controlView())
             boardController->controlView()->forcedTabletRelease();
     }
 
 
-    if (event->type() == QEvent::ApplicationActivate)
-    {
+    if (event->type() == QEvent::ApplicationActivate) {
         if (boardController && boardController->controlView())
             boardController->controlView()->setMultiselection(false);
 
@@ -515,12 +491,10 @@ bool Application::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-bool Application::handleOpenMessage(const QString& pMessage)
-{
+bool Application::handleOpenMessage(const QString &pMessage) {
     qDebug() << "received message" << pMessage;
 
-    if (pMessage == Settings::appPingMessage)
-    {
+    if (pMessage == Settings::appPingMessage) {
         qDebug() << "received ping";
         return true;
     }
@@ -532,12 +506,15 @@ bool Application::handleOpenMessage(const QString& pMessage)
     return true;
 }
 
-void Application::cleanup()
-{
-    if (applicationController) delete applicationController;
-    if (boardController) delete boardController;
-    if (webController) delete webController;
-    if (documentController) delete documentController;
+void Application::cleanup() {
+    if (applicationController)
+        delete applicationController;
+    if (boardController)
+        delete boardController;
+    if (webController)
+        delete webController;
+    if (documentController)
+        delete documentController;
 
     applicationController = NULL;
     boardController = NULL;
@@ -545,8 +522,7 @@ void Application::cleanup()
     documentController = NULL;
 }
 
-QString Application::urlFromHtml(QString html)
-{
+QString Application::urlFromHtml(QString html) {
     QString _html;
     QRegularExpression comments("<[ \r\n\t]*(--([^\\-]|[\r\n]|-[^\\-])*--[ \r\n\t]*)>");
     QString url;
@@ -559,33 +535,29 @@ QString Application::urlFromHtml(QString html)
 
     //  QUICKFIX: Here we have to check rootElem. Sometimes it can be a <meta> tag
     //  In such a case we will not be able to retrieve the src value
-    if(rootElem.tagName().toLower().contains("meta")){
+    if (rootElem.tagName().toLower().contains("meta")) {
         qDebug() << rootElem.firstChildElement().tagName();
         //  In that case we get the next element
         url = rootElem.firstChildElement().attribute("src");
-    }else{
+    } else {
         url = rootElem.attribute("src");
     }
 
     return url;
 }
 
-bool Application::isFromWeb(QString url)
-{
+bool Application::isFromWeb(QString url) {
     bool res = true;
 
-    if( url.startsWith("tianboardtool://") ||
-        url.startsWith("file://") ||
-        url.startsWith("/")){
+    if (url.startsWith("tianboardtool://") || url.startsWith("file://") || url.startsWith("/")) {
         res = false;
     }
 
     return res;
 }
 
-QScreen* Application::controlScreen()
-{
-    QList<QScreen*> screenList = screens();
+QScreen *Application::controlScreen() {
+    QList<QScreen *> screenList = screens();
     if (screenList.size() == 1)
         return screenList.first();
 
@@ -593,7 +565,6 @@ QScreen* Application::controlScreen()
 }
 
 
-int Application::controlScreenIndex()
-{
+int Application::controlScreenIndex() {
     return applicationController->displayManager()->controleScreenIndex();
 }

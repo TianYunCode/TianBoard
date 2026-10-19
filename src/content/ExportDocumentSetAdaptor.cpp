@@ -19,19 +19,13 @@ THIRD_PARTY_WARNINGS_DISABLE
 THIRD_PARTY_WARNINGS_ENABLE
 
 
-ExportDocumentSetAdaptor::ExportDocumentSetAdaptor(QObject *parent)
-    : ExportAdaptor(parent)
-{
+ExportDocumentSetAdaptor::ExportDocumentSetAdaptor(QObject *parent) : ExportAdaptor(parent) {}
 
-}
-
-ExportDocumentSetAdaptor::~ExportDocumentSetAdaptor()
-{
+ExportDocumentSetAdaptor::~ExportDocumentSetAdaptor() {
     // NOOP
 }
 
-void ExportDocumentSetAdaptor::persist(DocumentProxy* pDocumentProxy)
-{
+void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy) {
     QModelIndex treeViewParentIndex;
     PersistenceManager *persistenceManager = PersistenceManager::persistenceManager();
     DocumentTreeModel *treeModel = persistenceManager->mDocumentTreeStructureModel;
@@ -54,35 +48,33 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy* pDocumentProxy)
             return;
         }
 
-        DocumentTreeNode* node = treeModel->nodeFromIndex(treeViewParentIndex);
+        DocumentTreeNode *node = treeModel->nodeFromIndex(treeViewParentIndex);
         DocumentProxy proxy;
-        proxy.setMetaData(Settings::documentName,node->displayName());
+        proxy.setMetaData(Settings::documentName, node->displayName());
         filename = askForFileName(&proxy, tr("Export as TianBoard Document Set"));
     }
 
-    if (filename.length() > 0)
-    {
+    if (filename.length() > 0) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
         if (mIsVerbose)
             Application::showMessage(tr("Exporting document..."));
 
-         if (persistData(treeViewParentIndex, filename)) {
-             if (mIsVerbose) {
-                 Application::showMessage(tr("Export successful."));
-             }
-         } else {
-             if (mIsVerbose) {
-                 Application::showMessage(tr("Export failed."));
-             }
-         }
+        if (persistData(treeViewParentIndex, filename)) {
+            if (mIsVerbose) {
+                Application::showMessage(tr("Export successful."));
+            }
+        } else {
+            if (mIsVerbose) {
+                Application::showMessage(tr("Export failed."));
+            }
+        }
 
-         QApplication::restoreOverrideCursor();
+        QApplication::restoreOverrideCursor();
     }
 }
 
-bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QString filename)
-{
+bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QString filename) {
     PersistenceManager *persistenceManager = PersistenceManager::persistenceManager();
     DocumentTreeModel *treeModel = persistenceManager->mDocumentTreeStructureModel;
 
@@ -95,8 +87,7 @@ bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QStrin
     QuaZip zip(filename);
     zip.setFileNameCodec("UTF-8");
 
-    if(!zip.open(QuaZip::mdCreate))
-    {
+    if (!zip.open(QuaZip::mdCreate)) {
         qWarning("Export failed. Cause: zip.open(): %d", zip.getZipError());
         return false;
     }
@@ -111,18 +102,16 @@ bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QStrin
     return true;
 }
 
-QString ExportDocumentSetAdaptor::exportExtention()
-{
+QString ExportDocumentSetAdaptor::exportExtention() {
     return QString(".tbx");
 }
 
-QString ExportDocumentSetAdaptor::exportName()
-{
+QString ExportDocumentSetAdaptor::exportName() {
     return tr("Export to TianBoard Document Set Format");
 }
 
-bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, DocumentTreeModel *model, QuaZip &zip)
-{
+bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, DocumentTreeModel *model,
+                                                QuaZip &zip) {
     static int i = 0;
     i++;
 
@@ -133,20 +122,19 @@ bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, Docum
 
     DocumentProxy *pDocumentProxy = model->proxyForIndex(parentIndex);
     if (pDocumentProxy) {
-
-//        Q_ASSERT(QFileInfo(pDocumentProxy->persistencePath()).exists());
-//        ForeighnObjectsHandler cleaner;
-//        cleaner.cure(pDocumentProxy->persistencePath());
+        //        Q_ASSERT(QFileInfo(pDocumentProxy->persistencePath()).exists());
+        //        ForeighnObjectsHandler cleaner;
+        //        cleaner.cure(pDocumentProxy->persistencePath());
 
         QString documentPath(pDocumentProxy->persistencePath());
         //document.checkDocumentDirectory(documentPath);
 
         QDir documentDir = QDir(pDocumentProxy->persistencePath());
         QuaZipFile zipFile(&zip);
-        FileSystemUtils::compressDirInZip(documentDir, QFileInfo(documentPath).fileName() + "/", &zipFile, false);
+        FileSystemUtils::compressDirInZip(documentDir, QFileInfo(documentPath).fileName() + "/", &zipFile,
+                                          false);
 
-        if(zip.getZipError() != 0)
-        {
+        if (zip.getZipError() != 0) {
             qWarning("Export failed. Cause: zip.close(): %d", zip.getZipError());
         }
     }
@@ -161,13 +149,11 @@ bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, Docum
     return true;
 }
 
-bool ExportDocumentSetAdaptor::associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
-{
-    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel*>(selectedIndex.model());
+bool ExportDocumentSetAdaptor::associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel *>(selectedIndex.model());
     if (!selectedIndex.isValid() || docModel->isDocument(selectedIndex)) {
         return false;
     }
 
     return true;
 }
-

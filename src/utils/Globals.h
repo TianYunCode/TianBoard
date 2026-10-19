@@ -3,19 +3,21 @@
 #include <QString>
 #include <QFile>
 
-#define DELETEPTR(ptr) if(NULL != ptr){ \
-    delete ptr; \
-    ptr = NULL; \
+#define DELETEPTR(ptr) \
+    if (NULL != ptr) { \
+        delete ptr; \
+        ptr = NULL; \
     }
 
-#define SET_STYLE_SHEET() {\
-    setAttribute(Qt::WA_StyledBackground, true);\
-    QString style;\
-    QFile f(":/style.qss");\
-    if(f.exists() && f.open(QIODevice::ReadOnly))\
-            style = QString(f.readAll());\
-     setStyleSheet(style);\
-}
+#define SET_STYLE_SHEET() \
+    { \
+        setAttribute(Qt::WA_StyledBackground, true); \
+        QString style; \
+        QFile f(":/style.qss"); \
+        if (f.exists() && f.open(QIODevice::ReadOnly)) \
+            style = QString(f.readAll()); \
+        setStyleSheet(style); \
+    }
 
 #ifdef Q_OS_WIN
 
@@ -32,10 +34,11 @@
 
 #else //#ifdef Q_OS_WIN
 
-#define WARNINGS_DISABLE _Pragma("GCC diagnostic push"); \
-_Pragma("GCC diagnostic ignored \"-Wunused-parameter\""); \
-_Pragma("GCC diagnostic ignored \"-Wunused-variable\""); \
-_Pragma("GCC diagnostic ignored \"-Wsign-compare\"");
+#define WARNINGS_DISABLE \
+    _Pragma("GCC diagnostic push"); \
+    _Pragma("GCC diagnostic ignored \"-Wunused-parameter\""); \
+    _Pragma("GCC diagnostic ignored \"-Wunused-variable\""); \
+    _Pragma("GCC diagnostic ignored \"-Wsign-compare\"");
 
 #define WARNINGS_ENABLE _Pragma("GCC diagnostic pop");
 
@@ -52,5 +55,3 @@ _Pragma("GCC diagnostic ignored \"-Wsign-compare\"");
 
 // anyway on any OS
 #define THIRD_PARTY_WARNINGS_ENABLE WARNINGS_ENABLE
-
-

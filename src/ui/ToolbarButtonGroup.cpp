@@ -10,16 +10,11 @@
 #include "whiteboard/DrawingController.h"
 
 
-ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction*> &actions)
-    : QWidget(toolBar)
-    , mActions(actions)
-    , mCurrentIndex(-1)
-    , mDisplayLabel(true)
-    , mActionGroup(0)
-{
+ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction *> &actions)
+    : QWidget(toolBar), mActions(actions), mCurrentIndex(-1), mDisplayLabel(true), mActionGroup(0) {
     Q_ASSERT(actions.size() > 0);
 
-    mToolButton = qobject_cast<QToolButton*>(toolBar->layout()->itemAt(0)->widget());
+    mToolButton = qobject_cast<QToolButton *>(toolBar->layout()->itemAt(0)->widget());
     Q_ASSERT(mToolButton);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
@@ -36,8 +31,7 @@ ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction*> 
 
     int i = 0;
 
-    foreach(QAction *action, actions)
-    {
+    foreach (QAction *action, actions) {
         mActionGroup->addAction(action);
 
         QToolButton *button = new QToolButton(this);
@@ -45,16 +39,11 @@ ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction*> 
         button->setDefaultAction(action);
         button->setCheckable(true);
 
-        if(i == 0)
-        {
+        if (i == 0) {
             button->setObjectName("buttonGroupLeft");
-        }
-        else if (i == actions.size() - 1)
-        {
+        } else if (i == actions.size() - 1) {
             button->setObjectName("buttonGroupRight");
-        }
-        else
-        {
+        } else {
             button->setObjectName("buttonGroupCenter");
         }
 
@@ -67,45 +56,35 @@ ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction*> 
     }
 }
 
-ToolbarButtonGroup::~ToolbarButtonGroup()
-{
+ToolbarButtonGroup::~ToolbarButtonGroup() {
     // NOOP
 }
 
-void ToolbarButtonGroup::setIcon(const QIcon &icon, int index)
-{
+void ToolbarButtonGroup::setIcon(const QIcon &icon, int index) {
     Q_ASSERT(index < mActions.size());
 
-    foreach(QWidget *widget, mActions.at(index)->associatedWidgets())
-    {
-        QToolButton *button = qobject_cast<QToolButton*>(widget);
-        if (button)
-        {
+    foreach (QWidget *widget, mActions.at(index)->associatedWidgets()) {
+        QToolButton *button = qobject_cast<QToolButton *>(widget);
+        if (button) {
             button->setIcon(icon);
         }
     }
 }
 
-void ToolbarButtonGroup::setColor(const QColor &color, int index)
-{
+void ToolbarButtonGroup::setColor(const QColor &color, int index) {
     QPixmap pixmap(12, 12);
     pixmap.fill(color);
     QIcon icon(pixmap);
     setIcon(icon, index);
 }
 
-void ToolbarButtonGroup::selected(QAction *action)
-{
-    foreach(QWidget *widget, action->associatedWidgets())
-    {
-        QToolButton *button = qobject_cast<QToolButton*>(widget);
-        if (button)
-        {
+void ToolbarButtonGroup::selected(QAction *action) {
+    foreach (QWidget *widget, action->associatedWidgets()) {
+        QToolButton *button = qobject_cast<QToolButton *>(widget);
+        if (button) {
             int i = 0;
-            foreach(QAction *eachAction, mActions)
-            {
-                if (eachAction == action)
-                {
+            foreach (QAction *eachAction, mActions) {
+                if (eachAction == action) {
                     setCurrentIndex(i);
                     emit activated(i);
                     break;
@@ -116,19 +95,15 @@ void ToolbarButtonGroup::selected(QAction *action)
     }
 }
 
-int ToolbarButtonGroup::currentIndex() const
-{
+int ToolbarButtonGroup::currentIndex() const {
     return mCurrentIndex;
 }
 
-void ToolbarButtonGroup::setCurrentIndex(int index)
-{
+void ToolbarButtonGroup::setCurrentIndex(int index) {
     Q_ASSERT(index < mButtons.size());
 
-    if (index != mCurrentIndex)
-    {
-        for(int i = 0; i < mButtons.size(); i++)
-        {
+    if (index != mCurrentIndex) {
+        for (int i = 0; i < mButtons.size(); i++) {
             mButtons.at(i)->setChecked(i == index);
         }
         mCurrentIndex = index;
@@ -136,8 +111,7 @@ void ToolbarButtonGroup::setCurrentIndex(int index)
     }
 }
 
-void ToolbarButtonGroup::paintEvent(QPaintEvent *)
-{
+void ToolbarButtonGroup::paintEvent(QPaintEvent *) {
     QPainter painter(this);
     QStyleOptionToolButton option;
     QPixmap emptyPixmap(32, 32);
@@ -152,15 +126,15 @@ void ToolbarButtonGroup::paintEvent(QPaintEvent *)
     int pointSize = mToolButton->font().pointSize();
     if (pointSize > 0)
         option.font.setPointSize(pointSize);
-    else
-    {
+    else {
         int pixelSize = mToolButton->font().pixelSize();
         if (pixelSize > 0)
             option.font.setPixelSize(pixelSize);
     }
 
     option.rect = rect();
-    option.icon = emptyIcon; // non null icon is required for style()->drawControl(QStyle::CE_ToolButtonLabel, ...) to work correctly
+    option.icon =
+        emptyIcon; // non null icon is required for style()->drawControl(QStyle::CE_ToolButtonLabel, ...) to work correctly
     option.iconSize = emptyPixmap.size();
     option.toolButtonStyle = mDisplayLabel ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly;
 
@@ -168,32 +142,26 @@ void ToolbarButtonGroup::paintEvent(QPaintEvent *)
 }
 
 
-void ToolbarButtonGroup::colorPaletteChanged()
-{
+void ToolbarButtonGroup::colorPaletteChanged() {
     bool isDarkBackground = Settings::settings()->isDarkBackground();
 
     QList<QColor> colors;
 
-    if (DrawingController::drawingController()->stylusTool() == StylusTool::Pen 
-        || DrawingController::drawingController()->stylusTool() == StylusTool::Line)
-    {
+    if (DrawingController::drawingController()->stylusTool() == StylusTool::Pen ||
+        DrawingController::drawingController()->stylusTool() == StylusTool::Line) {
         colors = Settings::settings()->penColors(isDarkBackground);
-    }
-    else if (DrawingController::drawingController()->stylusTool() == StylusTool::Marker)
-    {
+    } else if (DrawingController::drawingController()->stylusTool() == StylusTool::Marker) {
         colors = Settings::settings()->markerColors(isDarkBackground);
     }
 
-    for (int i = 0; i < mButtons.size() && i < colors.size(); i++)
-    {
+    for (int i = 0; i < mButtons.size() && i < colors.size(); i++) {
         setColor(colors.at(i), i);
     }
 }
 
-void ToolbarButtonGroup::displayText(QVariant display)
-{
+void ToolbarButtonGroup::displayText(QVariant display) {
     mDisplayLabel = display.toBool();
-    QVBoxLayout* verticalLayout = (QVBoxLayout*)layout();
+    QVBoxLayout *verticalLayout = (QVBoxLayout *)layout();
     verticalLayout->setStretch(2, mDisplayLabel ? 1 : 0);
     update();
 }

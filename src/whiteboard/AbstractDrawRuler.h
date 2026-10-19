@@ -7,24 +7,23 @@
 class GraphicsScene;
 class QGraphicsSvgItem;
 
-class AbstractDrawRuler : public QObject
-{
+class AbstractDrawRuler : public QObject {
     Q_OBJECT
 
 public:
     AbstractDrawRuler();
     ~AbstractDrawRuler();
 
-    void create(QGraphicsItem& item);
+    void create(QGraphicsItem &item);
 
-    virtual void StartLine(const QPointF& position, qreal width);
-    virtual void DrawLine(const QPointF& position, qreal width);
+    virtual void StartLine(const QPointF &position, qreal width);
+    virtual void DrawLine(const QPointF &position, qreal width);
     virtual void EndLine();
 
 protected:
     void paint();
 
-    virtual GraphicsScene* scene() const = 0;
+    virtual GraphicsScene *scene() const = 0;
 
     virtual void rotateAroundCenter(qreal angle) = 0;
 
@@ -33,7 +32,7 @@ protected:
     virtual void paintGraduations(QPainter *painter) = 0;
 
     bool mShowButtons;
-    QGraphicsSvgItem* mCloseSvgItem;
+    QGraphicsSvgItem *mCloseSvgItem;
     qreal mAntiScaleRatio;
 
     QPointF startDrawPosition;
@@ -43,10 +42,10 @@ protected:
     QCursor closeCursor() const;
     QCursor drawRulerLineCursor() const;
 
-    QColor  drawColor() const;
-    QColor  middleFillColor() const;
-    QColor  edgeFillColor() const;
-    QFont   font() const;
+    QColor drawColor() const;
+    QColor middleFillColor() const;
+    QColor edgeFillColor() const;
+    QFont font() const;
 
     static const QColor sLightBackgroundEdgeFillColor;
     static const QColor sLightBackgroundMiddleFillColor;
@@ -63,4 +62,3 @@ protected:
     static const int sRoundingRadius;
     qreal sPixelsPerCentimeter;
 };
-

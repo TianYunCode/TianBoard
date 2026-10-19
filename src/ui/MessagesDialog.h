@@ -5,8 +5,7 @@
 
 #include <memory>
 
-class MessagesDialog : public QWidget
-{
+class MessagesDialog : public QWidget {
     Q_OBJECT
 
 public:
@@ -22,4 +21,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

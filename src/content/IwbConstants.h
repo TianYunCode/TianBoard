@@ -54,10 +54,10 @@ const QString tIWBTspan = "tspan";
 
 // Attributes names
 const QString aIWBVersion = "version";
-const QString aOwner  = "owner";
-const QString aDescription  = "description";
-const QString aCreator  = "creator";
-const QString aAbout  = "about";
+const QString aOwner = "owner";
+const QString aDescription = "description";
+const QString aCreator = "creator";
+const QString aAbout = "about";
 const QString aIWBViewBox = "viewbox";
 const QString aPageViewBox = "viewBox";
 const QString aDarkBackground = "dark-background";
@@ -66,7 +66,7 @@ const QString aCrossedBackground = "crossed-background";
 const QString aPageType = "type";
 const QString aPageUuid = "uuid";
 const QString aPageParent = "parent";
-const QString aFill = "fill"; 
+const QString aFill = "fill";
 
 const QString aID = "id";
 const QString aRef = "ref";
@@ -93,7 +93,7 @@ const QString aIWBContent = "content";
 
 
 // Attribute values
-const QString avIWBVersionNo = "1.0"; 
+const QString avIWBVersionNo = "1.0";
 const QString avPageText = "text";
 const QString avFalse = "false";
 const QString avTrue = "true";
@@ -317,8 +317,7 @@ xlink:href, \
 src, \
 transform, \
 uuid \
-"
-);
+");
 
 const QString svgElementAttributes(" \
 points, \
@@ -350,11 +349,6 @@ text-align \
 
 const QString iwbPackageContentFolders("audios,videos,images,widgets");
 
-struct ItemLayerType
-{
-    enum Enum
-    {
-        FixedBackground = -2000, Object = -1000, Graphic = 0, Tool = 1000, Control = 2000
-    };
+struct ItemLayerType {
+    enum Enum { FixedBackground = -2000, Object = -1000, Graphic = 0, Tool = 1000, Control = 2000 };
 };
-

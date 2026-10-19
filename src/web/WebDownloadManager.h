@@ -6,12 +6,12 @@
 
 #include <memory>
 
-class DownloadItem : public QWidget
-{
+class DownloadItem : public QWidget {
     Q_OBJECT
 
 public:
-    DownloadItem(QNetworkReply *reply = 0, bool requestFileName = false, QWidget *parent = 0, QString customDownloadPath = QString());
+    DownloadItem(QNetworkReply *reply = 0, bool requestFileName = false, QWidget *parent = 0,
+                 QString customDownloadPath = QString());
     ~DownloadItem() override;
     bool downloading() const;
     bool downloadedSuccessfully() const;
@@ -31,7 +31,7 @@ public:
     QFile m_output;
     QNetworkReply *m_reply;
 signals:
-void statusChanged();
+    void statusChanged();
 
 private slots:
     void stop();
@@ -59,24 +59,18 @@ private:
 
     struct Private;
     std::unique_ptr<Private> d;
-
 };
 
 class AutoSaver;
 class DownloadModel;
 
-class WebDownloadManager : public QDialog
-{
+class WebDownloadManager : public QDialog {
     Q_OBJECT
     Q_PROPERTY(RemovePolicy removePolicy READ removePolicy WRITE setRemovePolicy)
     Q_ENUMS(RemovePolicy)
 
 public:
-    enum RemovePolicy {
-        Never,
-        Exit,
-        SuccessFullDownload
-    };
+    enum RemovePolicy { Never, Exit, SuccessFullDownload };
 
     WebDownloadManager(QWidget *parent = 0);
     ~WebDownloadManager();
@@ -87,15 +81,18 @@ public:
 
 public slots:
     void download(const QNetworkRequest &request, bool requestFileName = false);
-    inline void download(const QUrl &url, bool requestFileName = false)
-        { download(QNetworkRequest(url), requestFileName); }
-    void handleUnsupportedContent(QNetworkReply *reply, bool requestFileName = false, QString customDownloadPath = QString());
+    inline void download(const QUrl &url, bool requestFileName = false) {
+        download(QNetworkRequest(url), requestFileName);
+    }
+    void handleUnsupportedContent(QNetworkReply *reply, bool requestFileName = false,
+                                  QString customDownloadPath = QString());
     void cleanup();
 
 private slots:
     void save() const;
     void updateRow();
-    void processDownloadedContent(QNetworkReply *reply, bool requestFileName, QString customDownloadPath = QString());
+    void processDownloadedContent(QNetworkReply *reply, bool requestFileName,
+                                  QString customDownloadPath = QString());
 
 private:
     void addItem(DownloadItem *item);
@@ -106,7 +103,7 @@ private:
     DownloadModel *mModel;
     QNetworkAccessManager *mManager;
     QFileIconProvider *mIconProvider;
-    QList<DownloadItem*> mDownloads;
+    QList<DownloadItem *> mDownloads;
     RemovePolicy m_RemovePolicy;
     friend class DownloadModel;
 
@@ -116,8 +113,7 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class DownloadModel : public QAbstractListModel
-{
+class DownloadModel : public QAbstractListModel {
     friend class WebDownloadManager;
     Q_OBJECT
 
@@ -129,7 +125,4 @@ public:
 
 private:
     WebDownloadManager *mDownloadManager;
-
 };
-
-

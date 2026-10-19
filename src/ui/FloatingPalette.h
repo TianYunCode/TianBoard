@@ -5,17 +5,15 @@
 
 #include <memory>
 
-typedef enum
-{
+typedef enum {
     eMinimizedLocation_None,
     eMinimizedLocation_Left,
     eMinimizedLocation_Top,
     eMinimizedLocation_Right,
     eMinimizedLocation_Bottom
-}eMinimizedLocation;
+} eMinimizedLocation;
 
-class FloatingPalette : public QWidget
-{
+class FloatingPalette : public QWidget {
     Q_OBJECT
 
 public:
@@ -26,8 +24,8 @@ public:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
-    void addAssociatedPalette(FloatingPalette* pOtherPalette);
-    void removeAssociatedPalette(FloatingPalette* pOtherPalette);
+    void addAssociatedPalette(FloatingPalette *pOtherPalette);
+    void removeAssociatedPalette(FloatingPalette *pOtherPalette);
 
     virtual void adjustSizeAndPosition(bool pUp = true);
 
@@ -35,7 +33,7 @@ public:
 
     QSize preferredSize();
 
-    void setBackgroundBrush(const QBrush& brush);
+    void setBackgroundBrush(const QBrush &brush);
     void setGrip(bool newGrip);
 
     void setMinimizePermission(bool permission);
@@ -64,7 +62,7 @@ protected:
 
 private:
     void removeAllAssociatedPalette();
-    void minimizePalette(const QPoint& pos);
+    void minimizePalette(const QPoint &pos);
 
     struct Private;
     std::unique_ptr<Private> d;
@@ -76,4 +74,3 @@ signals:
     void maximized();
     void moving();
 };
-

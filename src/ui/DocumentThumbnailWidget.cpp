@@ -9,22 +9,17 @@
 #include "model/DocumentController.h"
 
 
-
-struct DocumentThumbnailWidget::Private
-{
-    QGraphicsRectItem* mDropCaretRectItem{nullptr};
-    ThumbnailPixmap* mClosestDropItem{nullptr};
+struct DocumentThumbnailWidget::Private {
+    QGraphicsRectItem *mDropCaretRectItem{nullptr};
+    ThumbnailPixmap *mClosestDropItem{nullptr};
     bool mDropIsRight{false};
     bool mDragEnabled{false};
-    QTimer* mScrollTimer{nullptr};
+    QTimer *mScrollTimer{nullptr};
     int mScrollMagnitude{0};
 };
 
 
-DocumentThumbnailWidget::DocumentThumbnailWidget(QWidget* parent)
-    : ThumbnailWidget(parent)
-    , d(new Private)
-{
+DocumentThumbnailWidget::DocumentThumbnailWidget(QWidget *parent) : ThumbnailWidget(parent), d(new Private) {
     d->mDragEnabled = true;
 
     setCanDrag(false);
@@ -33,16 +28,13 @@ DocumentThumbnailWidget::DocumentThumbnailWidget(QWidget* parent)
 }
 
 
-DocumentThumbnailWidget::~DocumentThumbnailWidget()
-{
+DocumentThumbnailWidget::~DocumentThumbnailWidget() {
     // NOOP
 }
 
 
-void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if (!dragEnabled())
-    {
+void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event) {
+    if (!dragEnabled()) {
         event->ignore();
         return;
     }
@@ -53,15 +45,14 @@ void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
     if ((event->pos() - mousePressPos()).manhattanLength() < QApplication::startDragDistance())
         return;
 
-    QList<QGraphicsItem*> graphicsItems = items(mousePressPos());
+    QList<QGraphicsItem *> graphicsItems = items(mousePressPos());
 
-    SceneThumbnailPixmap* sceneItem = 0;
+    SceneThumbnailPixmap *sceneItem = 0;
 
     while (!graphicsItems.isEmpty() && !sceneItem)
-        sceneItem = dynamic_cast<SceneThumbnailPixmap*>(graphicsItems.takeFirst());
+        sceneItem = dynamic_cast<SceneThumbnailPixmap *>(graphicsItems.takeFirst());
 
-    if (sceneItem)
-    {
+    if (sceneItem) {
         QDrag *drag = new QDrag(this);
         QList<MimeDataItem> mimeDataItems;
         foreach (QGraphicsItem *item, selectedItems())
@@ -71,7 +62,7 @@ void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
         drag->setMimeData(mime);
 
         drag->setPixmap(sceneItem->pixmap().scaledToWidth(100));
-        drag->setHotSpot(QPoint(drag->pixmap().width()/2, drag->pixmap().height() / 2));
+        drag->setHotSpot(QPoint(drag->pixmap().width() / 2, drag->pixmap().height() / 2));
 
         drag->exec(Qt::MoveAction);
     }
@@ -79,10 +70,8 @@ void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
     ThumbnailWidget::mouseMoveEvent(event);
 }
 
-void DocumentThumbnailWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (!event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
-    {
+void DocumentThumbnailWidget::dragEnterEvent(QDragEnterEvent *event) {
+    if (!event->mimeData()->hasFormat(Application::mimeTypeBoardPage)) {
         event->setDropAction(Qt::IgnoreAction);
         event->ignore();
         return;
@@ -91,11 +80,9 @@ void DocumentThumbnailWidget::dragEnterEvent(QDragEnterEvent *event)
     ThumbnailWidget::dragEnterEvent(event);
 }
 
-void DocumentThumbnailWidget::dragLeaveEvent(QDragLeaveEvent *event)
-{
+void DocumentThumbnailWidget::dragLeaveEvent(QDragLeaveEvent *event) {
     Q_UNUSED(event);
-    if (d->mScrollTimer->isActive())
-    {
+    if (d->mScrollTimer->isActive()) {
         d->mScrollMagnitude = 0;
         d->mScrollTimer->stop();
     }
@@ -103,75 +90,64 @@ void DocumentThumbnailWidget::dragLeaveEvent(QDragLeaveEvent *event)
     ThumbnailWidget::dragLeaveEvent(event);
 }
 
-void DocumentThumbnailWidget::autoScroll()
-{
+void DocumentThumbnailWidget::autoScroll() {
     this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + d->mScrollMagnitude);
 }
 
-void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
-{
+void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event) {
     QRect boundingFrame = frameRect();
     //setting up automatic scrolling
     const int SCROLL_DISTANCE = 16;
-    int bottomDist = boundingFrame.bottom() - event->pos().y(), topDist = boundingFrame.top() - event->pos().y();
-    if(qAbs(bottomDist) <= SCROLL_DISTANCE)
-    {
-        d->mScrollMagnitude = (SCROLL_DISTANCE - bottomDist)*4;
-        if(verticalScrollBar()->isVisible() && !d->mScrollTimer->isActive()) d->mScrollTimer->start(100);
-    }
-    else if(qAbs(topDist) <= SCROLL_DISTANCE)
-    {
-        d->mScrollMagnitude = (- SCROLL_DISTANCE - topDist)*4;
-        if(verticalScrollBar()->isVisible() && !d->mScrollTimer->isActive()) d->mScrollTimer->start(100);
-    }
-    else
-    {
+    int bottomDist = boundingFrame.bottom() - event->pos().y(),
+        topDist = boundingFrame.top() - event->pos().y();
+    if (qAbs(bottomDist) <= SCROLL_DISTANCE) {
+        d->mScrollMagnitude = (SCROLL_DISTANCE - bottomDist) * 4;
+        if (verticalScrollBar()->isVisible() && !d->mScrollTimer->isActive())
+            d->mScrollTimer->start(100);
+    } else if (qAbs(topDist) <= SCROLL_DISTANCE) {
+        d->mScrollMagnitude = (-SCROLL_DISTANCE - topDist) * 4;
+        if (verticalScrollBar()->isVisible() && !d->mScrollTimer->isActive())
+            d->mScrollTimer->start(100);
+    } else {
         d->mScrollMagnitude = 0;
         d->mScrollTimer->stop();
     }
 
-    QList<ThumbnailPixmap*> pixmapItems;
-    foreach (QGraphicsItem *item, scene()->items(mapToScene(boundingFrame)))
-    {
-        ThumbnailPixmap* sceneItem = dynamic_cast<ThumbnailPixmap*>(item);
+    QList<ThumbnailPixmap *> pixmapItems;
+    foreach (QGraphicsItem *item, scene()->items(mapToScene(boundingFrame))) {
+        ThumbnailPixmap *sceneItem = dynamic_cast<ThumbnailPixmap *>(item);
         if (sceneItem)
             pixmapItems.append(sceneItem);
     }
 
     int minDistance = 0;
     QGraphicsItem *underlyingItem = itemAt(event->pos());
-    d->mClosestDropItem = dynamic_cast<ThumbnailPixmap*>(underlyingItem);
+    d->mClosestDropItem = dynamic_cast<ThumbnailPixmap *>(underlyingItem);
 
-    if (!d->mClosestDropItem)
-    {
-        foreach (ThumbnailPixmap *item, pixmapItems)
-        {
+    if (!d->mClosestDropItem) {
+        foreach (ThumbnailPixmap *item, pixmapItems) {
             qreal scale = item->transform().m11();
-            QPointF itemCenter(
-                        item->pos().x() + item->boundingRect().width() * scale / 2,
-                        item->pos().y() + item->boundingRect().height() * scale / 2);
+            QPointF itemCenter(item->pos().x() + item->boundingRect().width() * scale / 2,
+                               item->pos().y() + item->boundingRect().height() * scale / 2);
 
             int distance = (itemCenter.toPoint() - mapToScene(event->pos()).toPoint()).manhattanLength();
-            if (!d->mClosestDropItem || distance < minDistance)
-            {
+            if (!d->mClosestDropItem || distance < minDistance) {
                 d->mClosestDropItem = item;
                 minDistance = distance;
             }
         }
     }
 
-    if (d->mClosestDropItem)
-    {
+    if (d->mClosestDropItem) {
         qreal scale = d->mClosestDropItem->transform().m11();
 
         QPointF itemCenter(
-                    d->mClosestDropItem->pos().x() + d->mClosestDropItem->boundingRect().width() * scale / 2,
-                    d->mClosestDropItem->pos().y() + d->mClosestDropItem->boundingRect().height() * scale / 2);
+            d->mClosestDropItem->pos().x() + d->mClosestDropItem->boundingRect().width() * scale / 2,
+            d->mClosestDropItem->pos().y() + d->mClosestDropItem->boundingRect().height() * scale / 2);
 
         d->mDropIsRight = mapToScene(event->pos()).x() > itemCenter.x();
 
-        if (!d->mDropCaretRectItem && selectedItems().count() < graphicItems().count())
-        {
+        if (!d->mDropCaretRectItem && selectedItems().count() < graphicItems().count()) {
             d->mDropCaretRectItem = new QGraphicsRectItem(0);
             scene()->addItem(d->mDropCaretRectItem);
             d->mDropCaretRectItem->setPen(QPen(Qt::darkGray));
@@ -179,10 +155,10 @@ void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
         }
 
         QRectF dropCaretRect(
-                    d->mDropIsRight ? d->mClosestDropItem->pos().x() + d->mClosestDropItem->boundingRect().width() * scale + spacing() / 2 - 1 : d->mClosestDropItem->pos().x() - spacing() / 2 - 1,
-                    d->mClosestDropItem->pos().y(),
-                    3,
-                    d->mClosestDropItem->boundingRect().height() * scale);
+            d->mDropIsRight ? d->mClosestDropItem->pos().x() +
+                                  d->mClosestDropItem->boundingRect().width() * scale + spacing() / 2 - 1
+                            : d->mClosestDropItem->pos().x() - spacing() / 2 - 1,
+            d->mClosestDropItem->pos().y(), 3, d->mClosestDropItem->boundingRect().height() * scale);
 
         if (d->mDropCaretRectItem)
             d->mDropCaretRectItem->setRect(dropCaretRect);
@@ -192,53 +168,45 @@ void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
 }
 
 
-void DocumentThumbnailWidget::dropEvent(QDropEvent *event)
-{
-    if (d->mScrollTimer->isActive())
-    {
+void DocumentThumbnailWidget::dropEvent(QDropEvent *event) {
+    if (d->mScrollTimer->isActive()) {
         d->mScrollMagnitude = 0;
         d->mScrollTimer->stop();
     }
     deleteDropCaret();
 
-    if (d->mClosestDropItem)
-    {
-        int targetIndex = d->mDropIsRight ? graphicItems().indexOf(d->mClosestDropItem) + 1 : graphicItems().indexOf(d->mClosestDropItem);
+    if (d->mClosestDropItem) {
+        int targetIndex = d->mDropIsRight ? graphicItems().indexOf(d->mClosestDropItem) + 1
+                                          : graphicItems().indexOf(d->mClosestDropItem);
 
         QList<MimeDataItem> mimeDataItems;
-        if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
-        {
-            const MimeData* mimeData = qobject_cast<const MimeData*>(event->mimeData());
+        if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage)) {
+            const MimeData *mimeData = qobject_cast<const MimeData *>(event->mimeData());
             if (mimeData)
                 mimeDataItems = mimeData->items();
         }
 
         if (1 == mimeDataItems.count() &&
-                (mimeDataItems.at(0).sceneIndex() == graphicItems().indexOf(d->mClosestDropItem) ||
-                 targetIndex == mimeDataItems.at(0).sceneIndex() ||
-                 targetIndex == mimeDataItems.at(0).sceneIndex() + 1))
-        {
+            (mimeDataItems.at(0).sceneIndex() == graphicItems().indexOf(d->mClosestDropItem) ||
+             targetIndex == mimeDataItems.at(0).sceneIndex() ||
+             targetIndex == mimeDataItems.at(0).sceneIndex() + 1)) {
             return;
         }
 
         int sourceIndexOffset = 0;
         int actualTargetIndex = targetIndex;
-        for (int i = mimeDataItems.count() - 1; i >= 0; i--)
-        {
+        for (int i = mimeDataItems.count() - 1; i >= 0; i--) {
             MimeDataItem sourceItem = mimeDataItems.at(i);
             int actualSourceIndex = sourceItem.sceneIndex();
             if (sourceItem.sceneIndex() >= targetIndex)
                 actualSourceIndex += sourceIndexOffset;
 
             //event->acceptProposedAction();
-            if (sourceItem.sceneIndex() < targetIndex)
-            {
+            if (sourceItem.sceneIndex() < targetIndex) {
                 if (actualSourceIndex != actualTargetIndex - 1)
                     emit sceneDropped(sourceItem.documentProxy(), actualSourceIndex, actualTargetIndex - 1);
                 actualTargetIndex -= 1;
-            }
-            else
-            {
+            } else {
                 if (actualSourceIndex != actualTargetIndex)
                     emit sceneDropped(sourceItem.documentProxy(), actualSourceIndex, actualTargetIndex);
                 sourceIndexOffset += 1;
@@ -248,44 +216,36 @@ void DocumentThumbnailWidget::dropEvent(QDropEvent *event)
     ThumbnailWidget::dropEvent(event);
 }
 
-void DocumentThumbnailWidget::deleteDropCaret()
-{
-    if (d->mDropCaretRectItem && scene())
-    {
+void DocumentThumbnailWidget::deleteDropCaret() {
+    if (d->mDropCaretRectItem && scene()) {
         scene()->removeItem(d->mDropCaretRectItem);
         delete d->mDropCaretRectItem;
         d->mDropCaretRectItem = 0;
     }
 }
 
-void DocumentThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem*>& pGraphicsItems,
-                                                 const QList<QUrl>& pItemPaths, const QStringList pLabels,
-                                                 const QString& pMimeType)
-{
+void DocumentThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsItems,
+                                               const QList<QUrl> &pItemPaths, const QStringList pLabels,
+                                               const QString &pMimeType) {
     deleteDropCaret();
 
     ThumbnailWidget::setGraphicsItems(pGraphicsItems, pItemPaths, pLabels, pMimeType);
 }
 
-void DocumentThumbnailWidget::setDragEnabled(bool enabled)
-{
+void DocumentThumbnailWidget::setDragEnabled(bool enabled) {
     d->mDragEnabled = enabled;
 }
 
-bool DocumentThumbnailWidget::dragEnabled() const
-{
+bool DocumentThumbnailWidget::dragEnabled() const {
     return d->mDragEnabled;
 }
 
-void DocumentThumbnailWidget::hightlightItem(int index)
-{
-    if (0 <= index && index < labelsItems().length())
-    {
+void DocumentThumbnailWidget::hightlightItem(int index) {
+    if (0 <= index && index < labelsItems().length()) {
         labelsItems().at(index)->highlight();
     }
-    if (0 <= index && index < graphicItems().length())
-    {
-        SceneThumbnailPixmap *thumbnail = dynamic_cast<SceneThumbnailPixmap*>(graphicItems().at(index));
+    if (0 <= index && index < graphicItems().length()) {
+        SceneThumbnailPixmap *thumbnail = dynamic_cast<SceneThumbnailPixmap *>(graphicItems().at(index));
         if (thumbnail)
             thumbnail->highlight();
     }

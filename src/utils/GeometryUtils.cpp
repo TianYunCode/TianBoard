@@ -9,18 +9,15 @@ const int GeometryUtils::millimetersPerCentimeter = 10;
 const int GeometryUtils::millimetersPerHalfCentimeter = 5;
 const float GeometryUtils::inchSize = 25.4f;
 
-GeometryUtils::GeometryUtils()
-{
+GeometryUtils::GeometryUtils() {
     // NOOP
 }
 
-GeometryUtils::~GeometryUtils()
-{
+GeometryUtils::~GeometryUtils() {
     // NOOP
 }
 
-QPolygonF GeometryUtils::lineToPolygon(const QLineF& pLine, const qreal& pWidth)
-{
+QPolygonF GeometryUtils::lineToPolygon(const QLineF &pLine, const qreal &pWidth) {
     qreal x1 = pLine.x1();
     qreal y1 = pLine.y1();
 
@@ -49,7 +46,8 @@ QPolygonF GeometryUtils::lineToPolygon(const QLineF& pLine, const qreal& pWidth)
     //painterPath.lineTo(p2b);
     painterPath.lineTo(p1b);
 
-    painterPath.arcTo(x1 - hypothenuse, y1 - hypothenuse, pWidth, pWidth, -1 * (90.0 - pLine.angle()), -180.0);
+    painterPath.arcTo(x1 - hypothenuse, y1 - hypothenuse, pWidth, pWidth, -1 * (90.0 - pLine.angle()),
+                      -180.0);
 
     painterPath.closeSubpath();
 
@@ -57,9 +55,8 @@ QPolygonF GeometryUtils::lineToPolygon(const QLineF& pLine, const qreal& pWidth)
 }
 
 
-
-QPolygonF GeometryUtils::lineToPolygon(const QLineF& pLine, const qreal& pStartWidth, const qreal& pEndWidth)
-{
+QPolygonF GeometryUtils::lineToPolygon(const QLineF &pLine, const qreal &pStartWidth,
+                                       const qreal &pEndWidth) {
     qreal x1 = pLine.x1();
     qreal y1 = pLine.y1();
 
@@ -86,22 +83,22 @@ QPolygonF GeometryUtils::lineToPolygon(const QLineF& pLine, const qreal& pStartW
     painterPath.moveTo(p1a);
     painterPath.lineTo(p2a);
 
-    painterPath.arcTo(x2 - endHypothenuse, y2 - endHypothenuse, pEndWidth, pEndWidth, (90.0 + pLine.angle()), -180.0);
+    painterPath.arcTo(x2 - endHypothenuse, y2 - endHypothenuse, pEndWidth, pEndWidth, (90.0 + pLine.angle()),
+                      -180.0);
 
     //painterPath.lineTo(p2b);
     painterPath.lineTo(p1b);
 
-    painterPath.arcTo(x1 - startHypothenuse, y1 - startHypothenuse, pStartWidth, pStartWidth, -1 * (90.0 - pLine.angle()), -180.0);
+    painterPath.arcTo(x1 - startHypothenuse, y1 - startHypothenuse, pStartWidth, pStartWidth,
+                      -1 * (90.0 - pLine.angle()), -180.0);
 
     painterPath.closeSubpath();
 
     return painterPath.toFillPolygon();
 }
 
-QPolygonF GeometryUtils::lineToPolygon(const QPointF& pStart, const QPointF& pEnd,
-        const qreal& pStartWidth, const qreal& pEndWidth)
-{
-
+QPolygonF GeometryUtils::lineToPolygon(const QPointF &pStart, const QPointF &pEnd, const qreal &pStartWidth,
+                                       const qreal &pEndWidth) {
     qreal x1 = pStart.x();
     qreal y1 = pStart.y();
 
@@ -134,20 +131,21 @@ QPolygonF GeometryUtils::lineToPolygon(const QPointF& pStart, const QPointF& pEn
     painterPath.moveTo(p1a);
     painterPath.lineTo(p2a);
 
-    painterPath.arcTo(x2 - hypothenuseEnd, y2 - hypothenuseEnd, pEndWidth, pEndWidth, (90.0 + line.angle()), -180.0);
+    painterPath.arcTo(x2 - hypothenuseEnd, y2 - hypothenuseEnd, pEndWidth, pEndWidth, (90.0 + line.angle()),
+                      -180.0);
 
     painterPath.lineTo(p1b);
 
-    painterPath.arcTo(x1 - hypothenuseStart, y1 - hypothenuseStart, pStartWidth, pStartWidth, -1 * (90.0 - line.angle()), -180.0);
+    painterPath.arcTo(x1 - hypothenuseStart, y1 - hypothenuseStart, pStartWidth, pStartWidth,
+                      -1 * (90.0 - line.angle()), -180.0);
 
     painterPath.closeSubpath();
 
     return painterPath.toFillPolygon();
 }
 
-QPolygonF GeometryUtils::arcToPolygon(const QLineF& startRadius, qreal spanAngleInDegrees, qreal width)
-{
-    qreal startAngleInDegrees = - startRadius.angle();
+QPolygonF GeometryUtils::arcToPolygon(const QLineF &startRadius, qreal spanAngleInDegrees, qreal width) {
+    qreal startAngleInDegrees = -startRadius.angle();
     if (startAngleInDegrees > 180)
         startAngleInDegrees -= 360;
     else if (startAngleInDegrees < -180)
@@ -162,40 +160,27 @@ QPolygonF GeometryUtils::arcToPolygon(const QLineF& startRadius, qreal spanAngle
     qreal endAngleInDegrees = startAngleInDegrees + spanAngleInDegrees;
 
     qreal innerRadius = radiusLength - width / 2;
-    QRectF innerSquare(
-        startRadius.p1().x() - innerRadius,
-        startRadius.p1().y() - innerRadius,
-        2 * innerRadius,
-        2 * innerRadius);
+    QRectF innerSquare(startRadius.p1().x() - innerRadius, startRadius.p1().y() - innerRadius,
+                       2 * innerRadius, 2 * innerRadius);
     qreal outerRadius = radiusLength + width / 2;
-    QRectF outerSquare(
-        startRadius.p1().x() - outerRadius,
-        startRadius.p1().y() - outerRadius,
-        2 * outerRadius,
-        2 * outerRadius);
-    QRectF startSquare(
-        startRadius.p2().x() - width / 2,
-        startRadius.p2().y() - width / 2,
-        width,
-        width);
-    QRectF endSquare(
-        startRadius.p1().x() + radiusLength * cos(endAngleInDegrees * PI / 180.0) - width / 2,
-        startRadius.p1().y() + radiusLength * sin(endAngleInDegrees * PI / 180.0) - width / 2,
-        width,
-        width);
+    QRectF outerSquare(startRadius.p1().x() - outerRadius, startRadius.p1().y() - outerRadius,
+                       2 * outerRadius, 2 * outerRadius);
+    QRectF startSquare(startRadius.p2().x() - width / 2, startRadius.p2().y() - width / 2, width, width);
+    QRectF endSquare(startRadius.p1().x() + radiusLength * cos(endAngleInDegrees * PI / 180.0) - width / 2,
+                     startRadius.p1().y() + radiusLength * sin(endAngleInDegrees * PI / 180.0) - width / 2,
+                     width, width);
 
     QPainterPath painterPath(
-        QPointF(
-            startRadius.p1().x() + innerRadius * cos(startAngleInDegrees * PI / 180.0),
-            startRadius.p1().y() + innerRadius * sin(startAngleInDegrees * PI / 180.0)));
-    startAngleInDegrees = - startAngleInDegrees;
-    endAngleInDegrees = - endAngleInDegrees;
-    spanAngleInDegrees = - spanAngleInDegrees;
+        QPointF(startRadius.p1().x() + innerRadius * cos(startAngleInDegrees * PI / 180.0),
+                startRadius.p1().y() + innerRadius * sin(startAngleInDegrees * PI / 180.0)));
+    startAngleInDegrees = -startAngleInDegrees;
+    endAngleInDegrees = -endAngleInDegrees;
+    spanAngleInDegrees = -spanAngleInDegrees;
 
     painterPath.setFillRule(Qt::WindingFill);
     painterPath.arcTo(innerSquare, startAngleInDegrees, spanAngleInDegrees);
     painterPath.arcTo(endSquare, 180.0 + endAngleInDegrees, spanAngleInDegrees > 0 ? -180.0 : 180.0);
-    painterPath.arcTo(outerSquare, endAngleInDegrees, - spanAngleInDegrees);
+    painterPath.arcTo(outerSquare, endAngleInDegrees, -spanAngleInDegrees);
     painterPath.arcTo(startSquare, startAngleInDegrees, spanAngleInDegrees > 0 ? -180.0 : 180.0);
     painterPath.closeSubpath();
 
@@ -211,8 +196,7 @@ QPolygonF GeometryUtils::arcToPolygon(const QLineF& startRadius, qreal spanAngle
  *
  * Like with lineToPolygon, the ends are semi-circular.
  */
-QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF>& points, qreal startWidth, qreal endWidth)
-{
+QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF> &points, qreal startWidth, qreal endWidth) {
     int n_points = points.size();
 
     if (n_points < 2)
@@ -221,9 +205,9 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF>& points, qreal star
     if (n_points == 2)
         return lineToPolygon(points[0], points[1], startWidth, endWidth);
 
-    QList<QPair<QPointF, qreal> > pointsAndWidths;
+    QList<QPair<QPointF, qreal>> pointsAndWidths;
     for (int i(0); i < n_points; ++i) {
-        qreal width = startWidth + (qreal(i)/qreal(n_points-1)) * (endWidth - startWidth);
+        qreal width = startWidth + (qreal(i) / qreal(n_points - 1)) * (endWidth - startWidth);
 
         pointsAndWidths << QPair<QPointF, qreal>(points[i], width);
     }
@@ -239,14 +223,15 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF>& points, qreal star
  * `true` as the `roundStart` and/or `roundEnd` parameters.
  *
  */
-QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal> >& points, bool roundStart, bool roundEnd)
-{
+QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &points, bool roundStart,
+                                        bool roundEnd) {
     int n_points = points.size();
 
     if (n_points == 0)
         return QPolygonF();
     if (n_points == 1)
-        return lineToPolygon(points.first().first, points.first().first, points.first().second, points.first().second);
+        return lineToPolygon(points.first().first, points.first().first, points.first().second,
+                             points.first().second);
 
     qreal startWidth = points.first().second;
     qreal endWidth = points.last().second;
@@ -270,7 +255,7 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal> >& poi
 
     QLineF firstSegment = QLineF(points[0].first, points[1].first);
     QLineF normal = firstSegment.normalVector();
-    normal.setLength(startWidth/2.0);
+    normal.setLength(startWidth / 2.0);
     newPoints << pointPair(normal.p2(), points[0].first - QPointF(normal.dx(), normal.dy()));
 
     /*
@@ -292,11 +277,11 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal> >& poi
     of rounded-off joint (the distance between b and d1 is half the width of the stroke)
     */
 
-    for (int i(1); i < n_points-1; ++i) {
+    for (int i(1); i < n_points - 1; ++i) {
         //qreal width = startWidth + (qreal(i)/qreal(n_points-1)) * (endWidth - startWidth);
 
-        QLineF normal = (QLineF(points[i-1].first, points[i+1].first)).normalVector();
-        normal.setLength(points[i].second/2.0);
+        QLineF normal = (QLineF(points[i - 1].first, points[i + 1].first)).normalVector();
+        normal.setLength(points[i].second / 2.0);
         QPointF d1 = points[i].first + QPointF(normal.dx(), normal.dy());
         QPointF d2 = points[i].first - QPointF(normal.dx(), normal.dy());
 
@@ -304,9 +289,9 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal> >& poi
     }
 
     // The last point is similar to the first
-    QLineF lastSegment = QLineF(points[n_points-2].first, points[n_points-1].first);
+    QLineF lastSegment = QLineF(points[n_points - 2].first, points[n_points - 1].first);
     normal = lastSegment.normalVector();
-    normal.setLength(endWidth/2.0);
+    normal.setLength(endWidth / 2.0);
 
     QPointF d1 = points.last().first + QPointF(normal.dx(), normal.dy());
     QPointF d2 = points.last().first - QPointF(normal.dx(), normal.dy());
@@ -322,16 +307,18 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal> >& poi
     }
 
     if (roundEnd)
-        path.arcTo(points.last().first.x() - endWidth/2.0, points.last().first.y() - endWidth/2.0, endWidth, endWidth, (90.0 + lastSegment.angle()), -180.0);
+        path.arcTo(points.last().first.x() - endWidth / 2.0, points.last().first.y() - endWidth / 2.0,
+                   endWidth, endWidth, (90.0 + lastSegment.angle()), -180.0);
     else
         path.lineTo(newPoints.last().second);
 
-    for (int i(n_points-1); i >= 0; --i) {
+    for (int i(n_points - 1); i >= 0; --i) {
         path.lineTo(newPoints[i].second);
     }
 
     if (roundStart)
-        path.arcTo(points[0].first.x() - startWidth/2.0, points[0].first.y() - startWidth/2.0, startWidth, startWidth, (firstSegment.angle() - 90.0), -180.0);
+        path.arcTo(points[0].first.x() - startWidth / 2.0, points[0].first.y() - startWidth / 2.0, startWidth,
+                   startWidth, (firstSegment.angle() - 90.0), -180.0);
     else
         path.lineTo(newPoints[0].first);
 
@@ -341,20 +328,19 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal> >& poi
     return path.toFillPolygon();
 }
 
-QPointF GeometryUtils::pointConstrainedInRect(QPointF point, QRectF rect)
-{
-    return QPointF(qMax(rect.x(), qMin(rect.x() + rect.width(), point.x())), qMax(rect.y(), qMin(rect.y() + rect.height(), point.y())));
+QPointF GeometryUtils::pointConstrainedInRect(QPointF point, QRectF rect) {
+    return QPointF(qMax(rect.x(), qMin(rect.x() + rect.width(), point.x())),
+                   qMax(rect.y(), qMin(rect.y() + rect.height(), point.y())));
 }
 
 
-QPoint GeometryUtils::pointConstrainedInRect(QPoint point, QRect rect)
-{
-    return QPoint(qMax(rect.x(), qMin(rect.x() + rect.width(), point.x())), qMax(rect.y(), qMin(rect.y() + rect.height(), point.y())));
+QPoint GeometryUtils::pointConstrainedInRect(QPoint point, QRect rect) {
+    return QPoint(qMax(rect.x(), qMin(rect.x() + rect.width(), point.x())),
+                  qMax(rect.y(), qMin(rect.y() + rect.height(), point.y())));
 }
 
 
-QRectF GeometryUtils::lineToInnerRect(const QLineF& pLine, const qreal& pWidth)
-{
+QRectF GeometryUtils::lineToInnerRect(const QLineF &pLine, const qreal &pWidth) {
     qreal centerX = (pLine.x1() + pLine.x2()) / 2;
     qreal centerY = (pLine.y1() + pLine.y2()) / 2;
 
@@ -366,19 +352,14 @@ QRectF GeometryUtils::lineToInnerRect(const QLineF& pLine, const qreal& pWidth)
 }
 
 
-void GeometryUtils::crashPointList(QVector<QPointF> &points)
-{
-   // QVector<QPointF> result(points);
+void GeometryUtils::crashPointList(QVector<QPointF> &points) {
+    // QVector<QPointF> result(points);
     int position = 1;
 
-    while(position < points.size())
-    {
-        if (points.at(position) == points.at(position - 1))
-        {
+    while (position < points.size()) {
+        if (points.at(position) == points.at(position - 1)) {
             points.remove(position);
-        }
-        else
-        {
+        } else {
             ++position;
         }
     }
@@ -387,8 +368,7 @@ void GeometryUtils::crashPointList(QVector<QPointF> &points)
 /**
  * @brief Return the angle in degrees between three points
  */
-qreal GeometryUtils::angle(const QPointF& p1, const QPointF& p2, const QPointF& p3)
-{
+qreal GeometryUtils::angle(const QPointF &p1, const QPointF &p2, const QPointF &p3) {
     // Angle between three points, using the law of cosines:
     // The angle at B equals arccos((a^2-b^2+c^2)/(2*a*c)), where a, b and c are the sides of the triangle
     // opposite A, B and C, respectively
@@ -401,12 +381,11 @@ qreal GeometryUtils::angle(const QPointF& p1, const QPointF& p2, const QPointF& 
     if (a == 0 || c == 0)
         beta = M_PI;
     else
-        beta = qAcos(std::max(-1.0, std::min(1.0, (a*a - b*b + c*c)/(2*a*c))));
+        beta = qAcos(std::max(-1.0, std::min(1.0, (a * a - b * b + c * c) / (2 * a * c))));
 
 
     return qRadiansToDegrees(beta);
 }
-
 
 
 /**
@@ -417,8 +396,8 @@ qreal GeometryUtils::angle(const QPointF& p1, const QPointF& p2, const QPointF& 
  * @param nPoints The number of points by which to approximate the curve, i.e. the length of the returned list
  * @return A list of points that can be used to draw the curve.
  */
-QList<QPointF> GeometryUtils::quadraticBezier(const QPointF& p0, const QPointF& p1, const QPointF& p2, unsigned int nPoints)
-{
+QList<QPointF> GeometryUtils::quadraticBezier(const QPointF &p0, const QPointF &p1, const QPointF &p2,
+                                              unsigned int nPoints) {
     QPainterPath path(p0);
     path.quadTo(p1, p2);
 
@@ -428,7 +407,7 @@ QList<QPointF> GeometryUtils::quadraticBezier(const QPointF& p0, const QPointF& 
         return points;
 
     for (unsigned int i(0); i <= nPoints; ++i) {
-        qreal percent = qreal(i)/qreal(nPoints);
+        qreal percent = qreal(i) / qreal(nPoints);
         points << path.pointAtPercent(percent);
     }
 

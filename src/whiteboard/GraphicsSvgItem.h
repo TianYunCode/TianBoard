@@ -11,53 +11,45 @@
 class GraphicsItemDelegate;
 class GraphicsPixmapItem;
 
-class GraphicsSvgItem: public QGraphicsSvgItem, public Item, public GraphicsItem
-{
-    public:
-        GraphicsSvgItem(const QString& pFile, QGraphicsItem* parent = 0);
-        GraphicsSvgItem(const QByteArray& pFileData, QGraphicsItem* parent = 0);
+class GraphicsSvgItem : public QGraphicsSvgItem, public Item, public GraphicsItem {
+public:
+    GraphicsSvgItem(const QString &pFile, QGraphicsItem *parent = 0);
+    GraphicsSvgItem(const QByteArray &pFileData, QGraphicsItem *parent = 0);
 
-        void init();
+    void init();
 
-        virtual ~GraphicsSvgItem();
+    virtual ~GraphicsSvgItem();
 
-        QByteArray fileData() const;
+    QByteArray fileData() const;
 
-        void setFileData(const QByteArray& pFileData)
-        {
-            mFileData = pFileData;
-        }
+    void setFileData(const QByteArray &pFileData) { mFileData = pFileData; }
 
-        enum { Type = GraphicsItemType::SvgItemType };
+    enum { Type = GraphicsItemType::SvgItemType };
 
-        virtual int type() const
-        {
-            return Type;
-        }
+    virtual int type() const { return Type; }
 
-        virtual Item* deepCopy() const;
+    virtual Item *deepCopy() const;
 
-        virtual void copyItemParameters(Item *copy) const;
+    virtual void copyItemParameters(Item *copy) const;
 
-        virtual void setRenderingQuality(RenderingQuality pRenderingQuality);
+    virtual void setRenderingQuality(RenderingQuality pRenderingQuality);
 
-        virtual GraphicsScene* scene();
+    virtual GraphicsScene *scene();
 
-        virtual GraphicsPixmapItem* toPixmapItem() const;
+    virtual GraphicsPixmapItem *toPixmapItem() const;
 
-        virtual void setUuid(const QUuid &pUuid);
+    virtual void setUuid(const QUuid &pUuid);
 
-        virtual void clearSource();
+    virtual void clearSource();
 
-    protected:
-        virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-        virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-        virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-        virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-        virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
-        QByteArray mFileData;
+    QByteArray mFileData;
 };
-

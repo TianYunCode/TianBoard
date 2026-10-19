@@ -12,8 +12,7 @@
 #endif
 
 
-struct ScreenMirror::Private
-{
+struct ScreenMirror::Private {
     QPointer<QWidget> sourceWidget;
     QRect rect;
     QPixmap lastPixmap;
@@ -21,9 +20,7 @@ struct ScreenMirror::Private
 };
 
 
-ScreenMirror::ScreenMirror(QWidget* parent)
-    : QWidget(parent), d(new Private)
-{
+ScreenMirror::ScreenMirror(QWidget *parent) : QWidget(parent), d(new Private) {
     // NOOP
 }
 
@@ -31,16 +28,14 @@ ScreenMirror::ScreenMirror(QWidget* parent)
 ScreenMirror::~ScreenMirror() = default;
 
 
-void ScreenMirror::paintEvent(QPaintEvent *event)
-{
+void ScreenMirror::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
 
     QPainter painter(this);
 
     painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 
-    if (!d->lastPixmap.isNull())
-    {
+    if (!d->lastPixmap.isNull()) {
         int x = (width() - d->lastPixmap.width()) / 2;
         int y = (height() - d->lastPixmap.height()) / 2;
 
@@ -49,8 +44,7 @@ void ScreenMirror::paintEvent(QPaintEvent *event)
 }
 
 
-void ScreenMirror::timerEvent(QTimerEvent *event)
-{
+void ScreenMirror::timerEvent(QTimerEvent *event) {
     Q_UNUSED(event);
 
     grabPixmap();
@@ -58,10 +52,8 @@ void ScreenMirror::timerEvent(QTimerEvent *event)
     update();
 }
 
-void ScreenMirror::grabPixmap()
-{
-    if (d->sourceWidget)
-    {
+void ScreenMirror::grabPixmap() {
+    if (d->sourceWidget) {
         QWidget *sourceWidget = d->sourceWidget.data();
 
         QPoint topLeft = sourceWidget->mapToGlobal(sourceWidget->geometry().topLeft());
@@ -70,8 +62,7 @@ void ScreenMirror::grabPixmap()
         d->rect.setTopLeft(topLeft);
         d->rect.setBottomRight(bottomRight);
         d->lastPixmap = sourceWidget->grab();
-    }
-    else{
+    } else {
         // WHY HERE?
         // this is the case we are showing the desktop but the is no widget and we use the last widget rectagle to know
         // what we have to grab. Not very good way of doing
@@ -79,12 +70,12 @@ void ScreenMirror::grabPixmap()
     }
 
     if (!d->lastPixmap.isNull())
-        d->lastPixmap = d->lastPixmap.scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        d->lastPixmap =
+            d->lastPixmap.scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 }
 
 
-void ScreenMirror::setSourceWidget(QWidget *sourceWidget)
-{
+void ScreenMirror::setSourceWidget(QWidget *sourceWidget) {
     d->sourceWidget = sourceWidget;
 
     grabPixmap();
@@ -93,44 +84,36 @@ void ScreenMirror::setSourceWidget(QWidget *sourceWidget)
 }
 
 
-void ScreenMirror::setSourceRect(const QRect& pRect)
-{
+void ScreenMirror::setSourceRect(const QRect &pRect) {
     d->rect = pRect;
     d->sourceWidget = nullptr;
 }
 
 
-void ScreenMirror::start()
-{
+void ScreenMirror::start() {
     qDebug() << "mirroring START";
     Application::boardController->freezeWebWidgets(true);
-    if (d->timerID == 0)
-    {
+    if (d->timerID == 0) {
         int ms = 125;
 
         bool success;
         int fps = Settings::settings()->mirroringRefreshRateInFps->get().toInt(&success);
 
-        if (success && fps > 0)
-        {
+        if (success && fps > 0) {
             ms = 1000 / fps;
         }
 
         d->timerID = startTimer(ms);
-    }
-    else
-    {
+    } else {
         qDebug() << "ScreenMirror::start() : Timer already running ...";
     }
 }
 
 
-void ScreenMirror::stop()
-{
+void ScreenMirror::stop() {
     qDebug() << "mirroring STOP";
     Application::boardController->freezeWebWidgets(false);
-    if (d->timerID != 0)
-    {
+    if (d->timerID != 0) {
         killTimer(d->timerID);
         d->timerID = 0;
     }

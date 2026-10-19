@@ -4,45 +4,35 @@
 
 #include "core/Application.h"
 
-class ToolsManager : public QObject
-{
+class ToolsManager : public QObject {
     Q_OBJECT
 
 public:
-    class ToolDescriptor
-    {
-        public:
-            QString id;
-            QPixmap icon;
-            QString label;
-            QString version;
-
+    class ToolDescriptor {
+    public:
+        QString id;
+        QPixmap icon;
+        QString label;
+        QString version;
     };
 
-    static ToolsManager* manager();
+    static ToolsManager *manager();
     static void destroy();
 
-    QList<ToolDescriptor> allTools()
-    {
-            return mDescriptors;
-    }
+    QList<ToolDescriptor> allTools() { return mDescriptors; }
 
-    QStringList allToolIDs()
-    {
+    QStringList allToolIDs() {
         QStringList ids;
 
-        foreach(ToolDescriptor tool, allTools())
-        {
+        foreach (ToolDescriptor tool, allTools()) {
             ids << tool.id;
         }
 
         return ids;
     }
 
-    ToolDescriptor toolByID(const QString& id)
-    {
-        foreach(ToolDescriptor tool, allTools())
-        {
+    ToolDescriptor toolByID(const QString &id) {
+        foreach (ToolDescriptor tool, allTools()) {
             if (tool.id == id)
                 return tool;
         }
@@ -58,17 +48,15 @@ public:
     ToolDescriptor magnifier;
     ToolDescriptor cache;
 
-    QString iconFromToolId(QString id) { return mToolsIcon.value(id);}
+    QString iconFromToolId(QString id) { return mToolsIcon.value(id); }
 
 private:
     ToolsManager(QObject *parent = 0);
     virtual ~ToolsManager();
 
-    static ToolsManager* sManager;
+    static ToolsManager *sManager;
 
     QList<ToolDescriptor> mDescriptors;
 
-    QMap<QString ,QString> mToolsIcon;
-
+    QMap<QString, QString> mToolsIcon;
 };
-

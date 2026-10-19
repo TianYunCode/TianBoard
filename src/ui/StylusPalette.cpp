@@ -13,16 +13,13 @@
 #include "platform/PlatformUtils.h"
 
 
-struct StylusPalette::Private
-{
+struct StylusPalette::Private {
     int mLastSelectedId{-1};
 };
 
 StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
-    : ActionPalette(Qt::TopLeftCorner, parent, orient)
-    , d(new Private)
-{
-    QList<QAction*> actions;
+    : ActionPalette(Qt::TopLeftCorner, parent, orient), d(new Private) {
+    QList<QAction *> actions;
 
     actions << Application::mainWindow->ui().actionPen;
     actions << Application::mainWindow->ui().actionEraser;
@@ -39,23 +36,19 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
     actions << Application::mainWindow->ui().actionText;
     actions << Application::mainWindow->ui().actionCapture;
 
-    if(PlatformUtils::hasVirtualKeyboard())
+    if (PlatformUtils::hasVirtualKeyboard())
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
 
     setActions(actions);
     setButtonIconSize(QSize(42, 42));
 
-    if(!PlatformUtils::hasVirtualKeyboard())
-    {
+    if (!PlatformUtils::hasVirtualKeyboard()) {
         groupActions();
-    }
-    else
-    {
+    } else {
         // VirtualKeyboard action is not in group
         // So, groupping all buttons, except last
         setButtonGroup(new QButtonGroup(this));
-        for(int i=0; i < buttons().size()-1; i++)
-        {
+        for (int i = 0; i < buttons().size() - 1; i++) {
             buttonGroup()->addButton(buttons()[i], i);
         }
         connect(buttonGroup(), &QButtonGroup::idClicked, this, &ActionPalette::buttonGroupClicked);
@@ -65,19 +58,17 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
 
     initPosition();
 
-    foreach (ActionPaletteButton *button, buttons())
-    {
+    foreach (ActionPaletteButton *button, buttons()) {
         // 同名重载：这里要的是无参的那个槽
-        connect(button, &ActionPaletteButton::doubleClicked, this, qOverload<>(&StylusPalette::stylusToolDoubleClicked));
+        connect(button, &ActionPaletteButton::doubleClicked, this,
+                qOverload<>(&StylusPalette::stylusToolDoubleClicked));
     }
-
 }
 
-void StylusPalette::initPosition()
-{
-    QWidget* pParentW = parentWidget();
-    if(!pParentW) 
-		return ;
+void StylusPalette::initPosition() {
+    QWidget *pParentW = parentWidget();
+    if (!pParentW)
+        return;
 
     setCustomPositionFlag(true);
 
@@ -85,13 +76,12 @@ void StylusPalette::initPosition()
     int parentWidth = pParentW->width();
     int parentHeight = pParentW->height();
 
-    if(Settings::settings()->appToolBarOrientationVertical->get().toBool()){
+    if (Settings::settings()->appToolBarOrientationVertical->get().toBool()) {
         int posX = border();
         int posY = (parentHeight / 2) - (height() / 2);
         pos.setX(posX);
         pos.setY(posY);
-    }
-    else {
+    } else {
         int posX = (parentWidth / 2) - (width() / 2);
         int posY = parentHeight - border() - height();
         pos.setX(posX);
@@ -100,13 +90,8 @@ void StylusPalette::initPosition()
     moveInsideParent(pos);
 }
 
-StylusPalette::~StylusPalette()
-{
+StylusPalette::~StylusPalette() {}
 
-}
-
-void StylusPalette::stylusToolDoubleClicked()
-{
+void StylusPalette::stylusToolDoubleClicked() {
     emit stylusToolDoubleClicked(buttonGroup()->checkedId());
 }
-

@@ -11,8 +11,7 @@ class QHBoxLayout;
 #include "ui/FloatingPalette.h"
 #include "api/WebWidgetBoardAPI.h"
 
-class StartupHintsPalette : public FloatingPalette
-{
+class StartupHintsPalette : public FloatingPalette {
     Q_OBJECT
 public:
     StartupHintsPalette(QWidget *parent = 0);
@@ -20,7 +19,7 @@ public:
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent * event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void showEvent(QShowEvent *event);
 
 private:
@@ -33,4 +32,3 @@ private:
 private slots:
     void javaScriptWindowObjectCleared();
 };
-

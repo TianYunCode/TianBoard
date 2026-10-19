@@ -6,8 +6,7 @@ class GraphicsWebWidgetItem;
 class WebWidgetPreferenceAPI;
 class WebWidget;
 
-class WebWidgetAPI : public QObject
-{
+class WebWidgetAPI : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(QString id READ id SCRIPTABLE true);
@@ -22,81 +21,76 @@ class WebWidgetAPI : public QObject
     Q_PROPERTY(int width READ width SCRIPTABLE true);
     Q_PROPERTY(int height READ height SCRIPTABLE true);
 
-    Q_PROPERTY(QObject* preferences READ preferences SCRIPTABLE true);
+    Q_PROPERTY(QObject *preferences READ preferences SCRIPTABLE true);
 
     // 供脚本桥按 uuid 定位控件的扩展属性    Q_PROPERTY(QString uuid READ uuid SCRIPTABLE true);
 
-    public:
-        WebWidgetAPI(GraphicsWebWidgetItem *graphicsWidget, QObject *parent = 0);
+public:
+    WebWidgetAPI(GraphicsWebWidgetItem *graphicsWidget, QObject *parent = 0);
 
-        virtual ~WebWidgetAPI();
+    virtual ~WebWidgetAPI();
 
-        QString uuid();
+    QString uuid();
 
-        QString id();
-        QString name();
-        QString description();
-        QString author();
-        QString authorEmail();
-        QString authorHref();
-        QString version();
+    QString id();
+    QString name();
+    QString description();
+    QString author();
+    QString authorEmail();
+    QString authorHref();
+    QString version();
 
-        QObject* preferences();
+    QObject *preferences();
 
-        int width();
-        int height();
+    int width();
+    int height();
 
-        void openURL(const QString& url);
+    void openURL(const QString &url);
 
-    private:
-        GraphicsWebWidgetItem* mGraphicsWebWidget;
-        WebWidgetPreferenceAPI* mPreferencesAPI;
+private:
+    GraphicsWebWidgetItem *mGraphicsWebWidget;
+    WebWidgetPreferenceAPI *mPreferencesAPI;
 };
 
-class WebWidgetStorage : public QObject
-{
+class WebWidgetStorage : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(int length READ length SCRIPTABLE true);
 
-    public:
-        WebWidgetStorage(QObject *parent = 0)
-        : QObject(parent){/* NOOP */}
-        virtual ~WebWidgetStorage(){/* NOOP */}
+public:
+    WebWidgetStorage(QObject *parent = 0) : QObject(parent) { /* NOOP */ }
+    virtual ~WebWidgetStorage() { /* NOOP */ }
 
-    public slots:
+public slots:
 
-        virtual QString key(int index) = 0;
-        virtual QString getItem(const QString& key) = 0;
-        virtual void setItem(const QString& key, const QString& value) = 0;
-        virtual void removeItem(const QString& key) = 0;
-        virtual void clear() = 0;
+    virtual QString key(int index) = 0;
+    virtual QString getItem(const QString &key) = 0;
+    virtual void setItem(const QString &key, const QString &value) = 0;
+    virtual void removeItem(const QString &key) = 0;
+    virtual void clear() = 0;
 
-    protected:
-        virtual int length() = 0;
-
+protected:
+    virtual int length() = 0;
 };
 
-class WebWidgetPreferenceAPI : public WebWidgetStorage
-{
+class WebWidgetPreferenceAPI : public WebWidgetStorage {
     Q_OBJECT
 
-    public:
-        WebWidgetPreferenceAPI(GraphicsWebWidgetItem *graphicsWidget, QObject *parent = 0);
+public:
+    WebWidgetPreferenceAPI(GraphicsWebWidgetItem *graphicsWidget, QObject *parent = 0);
 
-        virtual ~WebWidgetPreferenceAPI();
+    virtual ~WebWidgetPreferenceAPI();
 
-    public slots:
-        virtual QString key(int index);
-        virtual QString getItem(const QString& key);
-        virtual void setItem(const QString& key, const QString& value);
-        virtual void removeItem(const QString& key);
-        virtual void clear();
+public slots:
+    virtual QString key(int index);
+    virtual QString getItem(const QString &key);
+    virtual void setItem(const QString &key, const QString &value);
+    virtual void removeItem(const QString &key);
+    virtual void clear();
 
-    protected:
-        virtual int length();
+protected:
+    virtual int length();
 
-    private:
-        GraphicsWebWidgetItem* mGraphicsWebWidget;
-
+private:
+    GraphicsWebWidgetItem *mGraphicsWebWidget;
 };

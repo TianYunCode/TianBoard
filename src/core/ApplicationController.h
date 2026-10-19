@@ -21,117 +21,99 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class RightPalette;
 
-class ApplicationController : public QObject
-{
+class ApplicationController : public QObject {
     Q_OBJECT
 
-    public:
-        ApplicationController(BoardView *pControlView, BoardView *pDisplayView, MainWindow *pMainWindow, QObject* parent, RightPalette* rightPalette);
-        virtual ~ApplicationController();
+public:
+    ApplicationController(BoardView *pControlView, BoardView *pDisplayView, MainWindow *pMainWindow,
+                          QObject *parent, RightPalette *rightPalette);
+    virtual ~ApplicationController();
 
-        int initialHScroll() { return mInitialHScroll; }
-        int initialVScroll() { return mInitialVScroll; }
+    int initialHScroll() { return mInitialHScroll; }
+    int initialVScroll() { return mInitialVScroll; }
 
-        void adaptToolBar();
-        void adjustDisplayView();
-        void adjustPreviousViews(int pActiveSceneIndex, DocumentProxy *pActiveDocument);
+    void adaptToolBar();
+    void adjustDisplayView();
+    void adjustPreviousViews(int pActiveSceneIndex, DocumentProxy *pActiveDocument);
 
-        void blackout();
+    void blackout();
 
-        void initScreenLayout(bool useMultiscreen);
+    void initScreenLayout(bool useMultiscreen);
 
-        void closing();
+    void closing();
 
-        void setMirrorSourceWidget(QWidget*);
+    void setMirrorSourceWidget(QWidget *);
 
-        void mirroringEnabled(bool);
+    void mirroringEnabled(bool);
 
-        void initViewState(int horizontalPosition, int verticalPosition);
+    void initViewState(int horizontalPosition, int verticalPosition);
 
-        void showBoard();
+    void showBoard();
 
-        void showInternet();
+    void showInternet();
 
-        void showDocument();
+    void showDocument();
 
-        void showMessage(const QString& message, bool showSpinningWheel);
+    void showMessage(const QString &message, bool showSpinningWheel);
 
-        void importFile(const QString& pFilePath);
+    void importFile(const QString &pFilePath);
 
-        DisplayManager* displayManager()
-        {
-            return mDisplayManager;
-        }
+    DisplayManager *displayManager() { return mDisplayManager; }
 
-        DesktopAnnotationController* uninotesController()
-        {
-            return mUninoteController;
-        }
+    DesktopAnnotationController *uninotesController() { return mUninoteController; }
 
-        enum MainMode
-        {
-            Board = 0, Internet, Document, WebDocument
-        };
+    enum MainMode { Board = 0, Internet, Document, WebDocument };
 
-        MainMode displayMode()
-        {
-            return mMainMode;
-        }
+    MainMode displayMode() { return mMainMode; }
 
 
-        bool isShowingDesktop()
-        {
-            return mIsShowingDesktop;
-        }
+    bool isShowingDesktop() { return mIsShowingDesktop; }
 
-        QStringList widgetInlineJavaScripts();
+    QStringList widgetInlineJavaScripts();
 
-    signals:
-        void mainModeChanged(ApplicationController::MainMode pMode);
-        void desktopMode(bool displayed);
+signals:
+    void mainModeChanged(ApplicationController::MainMode pMode);
+    void desktopMode(bool displayed);
 
-    public slots:
-        void addCapturedPixmap(const QPixmap &pPixmap, bool pageMode, const QUrl& sourceUrl = QUrl());
+public slots:
+    void addCapturedPixmap(const QPixmap &pPixmap, bool pageMode, const QUrl &sourceUrl = QUrl());
 
-        void addCapturedEmbedCode(const QString& embedCode);
+    void addCapturedEmbedCode(const QString &embedCode);
 
-        void screenLayoutChanged();
+    void screenLayoutChanged();
 
-        void showDesktop(bool dontSwitchFrontProcess = false);
+    void showDesktop(bool dontSwitchFrontProcess = false);
 
-        void hideDesktop();
+    void hideDesktop();
 
-        void useMultiScreen(bool use);
+    void useMultiScreen(bool use);
 
-        void actionCut();
-        void actionCopy();
-        void actionPaste();
+    void actionCut();
+    void actionCopy();
+    void actionPaste();
 
-    private slots:
+private slots:
 
-    protected:
-        DesktopAnnotationController *mUninoteController;
+protected:
+    DesktopAnnotationController *mUninoteController;
 
-        MainWindow *mMainWindow;
+    MainWindow *mMainWindow;
 
-        BoardView *mControlView;
-        BoardView *mDisplayView;
-        QList<BoardView*> mPreviousViews;
+    BoardView *mControlView;
+    BoardView *mDisplayView;
+    QList<BoardView *> mPreviousViews;
 
-        GraphicsScene *mBlackScene;
+    GraphicsScene *mBlackScene;
 
-        ScreenMirror* mMirror;
+    ScreenMirror *mMirror;
 
-        int mInitialHScroll, mInitialVScroll;
+    int mInitialHScroll, mInitialVScroll;
 
-    private:
-        MainMode mMainMode;
+private:
+    MainMode mMainMode;
 
-        DisplayManager *mDisplayManager;
+    DisplayManager *mDisplayManager;
 
 
-        bool mIsShowingDesktop;
-
-
+    bool mIsShowingDesktop;
 };
-

@@ -9,7 +9,6 @@
 #include "settings/Setting.h"
 
 
-
 QPointer<Settings> Settings::sSingleton = 0;
 
 int Settings::pointerDiameter = 40;
@@ -44,13 +43,11 @@ QString Settings::currentFileVersion = "4.8.0";
 
 QString Settings::sUserLoginName;
 
-void Settings::setUserLoginName(const QString &loginName)
-{
+void Settings::setUserLoginName(const QString &loginName) {
     sUserLoginName = loginName;
 }
 
-QString Settings::userLoginName()
-{
+QString Settings::userLoginName() {
     return sUserLoginName;
 }
 
@@ -115,32 +112,28 @@ int Settings::objectInControlViewMargin = 100;
 
 QString Settings::appPingMessage = "__tianboard_ping";
 
-Settings* Settings::settings()
-{
+Settings *Settings::settings() {
     if (!sSingleton) {
         sSingleton = new Settings(qApp);
     }
     return sSingleton;
 }
 
-void Settings::destroy()
-{
+void Settings::destroy() {
     if (sSingleton)
         delete sSingleton;
     sSingleton = NULL;
 }
 
 
-QSettings* Settings::getAppSettings()
-{
-    if (!Settings::sAppSettings)
-    {
+QSettings *Settings::getAppSettings() {
+    if (!Settings::sAppSettings) {
         QString tmpSettings = QDir::tempPath() + "/" + qApp->applicationName() + ".config";
-        QString appSettings = FileSystemUtils::applicationResourcesDirectory() + "/etc/" + qApp->applicationName() + ".config";
+        QString appSettings =
+            FileSystemUtils::applicationResourcesDirectory() + "/etc/" + qApp->applicationName() + ".config";
 
         // 旧版本升级遗留的临时配置还在时，先读它而不是读正式配置
-        if (QFile::exists(tmpSettings))
-        {
+        if (QFile::exists(tmpSettings)) {
             QFile::rename(tmpSettings, appSettings);
         }
 
@@ -153,14 +146,12 @@ QSettings* Settings::getAppSettings()
 }
 
 
-Settings::Settings(QObject *parent)
-    : QObject(parent)
-{
+Settings::Settings(QObject *parent) : QObject(parent) {
     InitKeyboardPaletteKeyBtnSizes();
 
     mAppSettings = Settings::getAppSettings();
 
-    QString userSettingsFile = Settings::userDataDirectory() + "/"+qApp->applicationName()+"User.config";
+    QString userSettingsFile = Settings::userDataDirectory() + "/" + qApp->applicationName() + "User.config";
 
     mUserSettings = new QSettings(userSettingsFile, QSettings::IniFormat, parent);
 
@@ -168,71 +159,70 @@ Settings::Settings(QObject *parent)
 }
 
 
-Settings::~Settings()
-{
+Settings::~Settings() {
     delete mAppSettings;
 
-    if(supportedKeyboardSizes)
+    if (supportedKeyboardSizes)
         delete supportedKeyboardSizes;
 }
 
-void Settings::InitKeyboardPaletteKeyBtnSizes()
-{
+void Settings::InitKeyboardPaletteKeyBtnSizes() {
     supportedKeyboardSizes = new QStringList();
     supportedKeyboardSizes->append("29x29");
     supportedKeyboardSizes->append("41x41");
 }
 
-void Settings::ValidateKeyboardPaletteKeyBtnSize()
-{
+void Settings::ValidateKeyboardPaletteKeyBtnSize() {
     // if boardKeyboardPaletteKeyBtnSize is not initialized, or supportedKeyboardSizes not initialized or empty
-    if( !boardKeyboardPaletteKeyBtnSize ||
-        !supportedKeyboardSizes ||
-        supportedKeyboardSizes->size() == 0 ) return;
+    if (!boardKeyboardPaletteKeyBtnSize || !supportedKeyboardSizes || supportedKeyboardSizes->size() == 0)
+        return;
 
     // get original size value
     QString origValue = boardKeyboardPaletteKeyBtnSize->get().toString();
 
     // parse available size values, for make sure original value is valid
-    for(int i = 0; i < supportedKeyboardSizes->size(); i++)
-    {
+    for (int i = 0; i < supportedKeyboardSizes->size(); i++) {
         int compareCode = QString::compare(origValue, supportedKeyboardSizes->at(i));
-        if(compareCode == 0) return;
+        if (compareCode == 0)
+            return;
     }
 
     // if original value is invalid, than set it value to first value from avaliable list
     boardKeyboardPaletteKeyBtnSize->set(supportedKeyboardSizes->at(0));
 }
 
-void Settings::init()
-{
-    productWebUrl =  new Setting(this, "App", "ProductWebAddress", "http://www.baidu.com");
+void Settings::init() {
+    productWebUrl = new Setting(this, "App", "ProductWebAddress", "http://www.baidu.com");
 
     softwareHomeUrl = productWebUrl->get().toString();
 
-    documentSizes.insert(DocumentSizeRatio::Ratio4_3, QSize(1280, 960)); // 1.33
+    documentSizes.insert(DocumentSizeRatio::Ratio4_3, QSize(1280, 960));            // 1.33
     documentSizes.insert(DocumentSizeRatio::Ratio16_9, QSize((960 / 9 * 16), 960)); // 1.77
 
     appToolBarPositionedAtTop = new Setting(this, "App", "ToolBarPositionedAtTop", true);
     appToolBarDisplayText = new Setting(this, "App", "ToolBarDisplayText", true);
     appHideSwapDisplayScreens = new Setting(this, "App", "HideSwapDisplayScreens", true);
     appToolBarOrientationVertical = new Setting(this, "App", "ToolBarOrientationVertical", false);
-    appPreferredLanguage = new Setting(this,"App","PreferredLanguage", "");
+    appPreferredLanguage = new Setting(this, "App", "PreferredLanguage", "");
 
     rightLibPaletteBoardModeWidth = new Setting(this, "Board", "RightLibPaletteBoardModeWidth", 270);
-    rightLibPaletteBoardModeIsCollapsed = new Setting(this,"Board", "RightLibPaletteBoardModeIsCollapsed",true);
+    rightLibPaletteBoardModeIsCollapsed =
+        new Setting(this, "Board", "RightLibPaletteBoardModeIsCollapsed", true);
     rightLibPaletteDesktopModeWidth = new Setting(this, "Board", "RightLibPaletteDesktopModeWidth", 270);
-    rightLibPaletteDesktopModeIsCollapsed = new Setting(this,"Board", "RightLibPaletteDesktopModeIsCollapsed",true);
-    leftLibPaletteBoardModeWidth = new Setting(this, "Board", "LeftLibPaletteBoardModeWidth",270);
-    leftLibPaletteBoardModeIsCollapsed = new Setting(this,"Board","LeftLibPaletteBoardModeIsCollapsed",true);
-    leftLibPaletteDesktopModeWidth = new Setting(this, "Board", "LeftLibPaletteDesktopModeWidth",270);
-    leftLibPaletteDesktopModeIsCollapsed = new Setting(this,"Board","LeftLibPaletteDesktopModeIsCollapsed",true);
+    rightLibPaletteDesktopModeIsCollapsed =
+        new Setting(this, "Board", "RightLibPaletteDesktopModeIsCollapsed", true);
+    leftLibPaletteBoardModeWidth = new Setting(this, "Board", "LeftLibPaletteBoardModeWidth", 270);
+    leftLibPaletteBoardModeIsCollapsed =
+        new Setting(this, "Board", "LeftLibPaletteBoardModeIsCollapsed", true);
+    leftLibPaletteDesktopModeWidth = new Setting(this, "Board", "LeftLibPaletteDesktopModeWidth", 270);
+    leftLibPaletteDesktopModeIsCollapsed =
+        new Setting(this, "Board", "LeftLibPaletteDesktopModeIsCollapsed", true);
 
     appLastSessionDocumentUUID = new Setting(this, "App", "LastSessionDocumentUUID", "");
     appLastSessionPageIndex = new Setting(this, "App", "LastSessionPageIndex", 0);
     appUseMultiscreen = new Setting(this, "App", "UseMultiscreenMode", true);
 
-    appStartupHintsEnabled = new Setting(this,"App","EnableStartupHints",true);
+    appStartupHintsEnabled = new Setting(this, "App", "EnableStartupHints", true);
 
     appStartMode = new Setting(this, "App", "StartMode", "");
 
@@ -254,7 +244,8 @@ void Settings::init()
     boardInterpolatePenStrokes = new Setting(this, "Board", "InterpolatePenStrokes", true);
     boardSimplifyPenStrokes = new Setting(this, "Board", "SimplifyPenStrokes", true);
     boardSimplifyPenStrokesThresholdAngle = new Setting(this, "Board", "SimplifyPenStrokesThresholdAngle", 2);
-    boardSimplifyPenStrokesThresholdWidthDifference = new Setting(this, "Board", "SimplifyPenStrokesThresholdWidthDifference", 2.0);
+    boardSimplifyPenStrokesThresholdWidthDifference =
+        new Setting(this, "Board", "SimplifyPenStrokesThresholdWidthDifference", 2.0);
 
     boardInterpolateMarkerStrokes = new Setting(this, "Board", "InterpolateMarkerStrokes", true);
     boardSimplifyMarkerStrokes = new Setting(this, "Board", "SimplifyMarkerStrokes", true);
@@ -262,36 +253,51 @@ void Settings::init()
     boardKeyboardPaletteKeyBtnSize = new Setting(this, "Board", "KeyboardPaletteKeyBtnSize", "16x16");
     ValidateKeyboardPaletteKeyBtnSize();
 
-    pageSize = new Setting(this, "Board", "DefaultPageSize", documentSizes.value(DocumentSizeRatio::Ratio4_3));
+    pageSize =
+        new Setting(this, "Board", "DefaultPageSize", documentSizes.value(DocumentSizeRatio::Ratio4_3));
 
     boardCrossColorDarkBackground = new Setting(this, "Board", "CrossColorDarkBackground", "#C8C0C0C0");
     boardCrossColorLightBackground = new Setting(this, "Board", "CrossColorLightBackground", "#A5E1FF");
 
     QStringList gridLightBackgroundColors;
-    gridLightBackgroundColors << "#000000" << "#FF0000" << "#004080" << "#008000" << "#FFDD00" << "#C87400" << "#800040" << "#008080" << "#A5E1FF";
-    boardGridLightBackgroundColors = new ColorListSetting(this, "Board", "GridLightBackgroundColors", gridLightBackgroundColors, -1.0);
+    gridLightBackgroundColors << "#000000" << "#FF0000" << "#004080" << "#008000" << "#FFDD00" << "#C87400"
+                              << "#800040" << "#008080" << "#A5E1FF";
+    boardGridLightBackgroundColors =
+        new ColorListSetting(this, "Board", "GridLightBackgroundColors", gridLightBackgroundColors, -1.0);
 
     QStringList gridDarkBackgroundColors;
-    gridDarkBackgroundColors << "#FFFFFF" << "#FF3400" << "#66C0FF" << "#81FF5C" << "#FFFF00" << "#B68360" << "#FF497E" << "#8D69FF" << "#C8C0C0C0";
-    boardGridDarkBackgroundColors = new ColorListSetting(this, "Board", "GridDarkBackgroundColors", gridDarkBackgroundColors, -1.0);
+    gridDarkBackgroundColors << "#FFFFFF" << "#FF3400" << "#66C0FF" << "#81FF5C" << "#FFFF00" << "#B68360"
+                             << "#FF497E" << "#8D69FF" << "#C8C0C0C0";
+    boardGridDarkBackgroundColors =
+        new ColorListSetting(this, "Board", "GridDarkBackgroundColors", gridDarkBackgroundColors, -1.0);
 
     QStringList penLightBackgroundColors;
-    penLightBackgroundColors << "#000000" << "#FF0000" <<"#004080" << "#008000" << "#FFDD00" << "#C87400" << "#800040" << "#008080"  << "#5F2D0A" << "#FFFFFF";
-    boardPenLightBackgroundColors = new ColorListSetting(this, "Board", "PenLightBackgroundColors", penLightBackgroundColors, 1.0);
+    penLightBackgroundColors << "#000000" << "#FF0000" << "#004080" << "#008000" << "#FFDD00" << "#C87400"
+                             << "#800040" << "#008080" << "#5F2D0A" << "#FFFFFF";
+    boardPenLightBackgroundColors =
+        new ColorListSetting(this, "Board", "PenLightBackgroundColors", penLightBackgroundColors, 1.0);
 
     QStringList penDarkBackgroundColors;
-    penDarkBackgroundColors << "#FFFFFF" << "#FF3400" <<"#66C0FF" << "#81FF5C" << "#FFFF00" << "#B68360" << "#FF497E" << "#8D69FF" << "#000000";
-    boardPenDarkBackgroundColors = new ColorListSetting(this, "Board", "PenDarkBackgroundColors", penDarkBackgroundColors, 1.0);
+    penDarkBackgroundColors << "#FFFFFF" << "#FF3400" << "#66C0FF" << "#81FF5C" << "#FFFF00" << "#B68360"
+                            << "#FF497E" << "#8D69FF" << "#000000";
+    boardPenDarkBackgroundColors =
+        new ColorListSetting(this, "Board", "PenDarkBackgroundColors", penDarkBackgroundColors, 1.0);
 
     boardMarkerAlpha = new Setting(this, "Board", "MarkerAlpha", 0.5);
 
     QStringList markerLightBackgroundColors;
-    markerLightBackgroundColors << "#E3FF00" << "#FF0000" <<"#004080" << "#008000" << "#C87400" << "#800040" << "#008080"  << "#000000";
-    boardMarkerLightBackgroundColors = new ColorListSetting(this, "Board", "MarkerLightBackgroundColors", markerLightBackgroundColors, boardMarkerAlpha->get().toDouble());
+    markerLightBackgroundColors << "#E3FF00" << "#FF0000" << "#004080" << "#008000" << "#C87400" << "#800040"
+                                << "#008080" << "#000000";
+    boardMarkerLightBackgroundColors =
+        new ColorListSetting(this, "Board", "MarkerLightBackgroundColors", markerLightBackgroundColors,
+                             boardMarkerAlpha->get().toDouble());
 
     QStringList markerDarkBackgroundColors;
-    markerDarkBackgroundColors << "#FFFF00" << "#FF4400" <<"#66C0FF" << "#81FF5C" << "#B68360" << "#FF497E" << "#8D69FF" << "#FFFFFF";
-    boardMarkerDarkBackgroundColors = new ColorListSetting(this, "Board", "MarkerDarkBackgroundColors", markerDarkBackgroundColors, boardMarkerAlpha->get().toDouble());
+    markerDarkBackgroundColors << "#FFFF00" << "#FF4400" << "#66C0FF" << "#81FF5C" << "#B68360" << "#FF497E"
+                               << "#8D69FF" << "#FFFFFF";
+    boardMarkerDarkBackgroundColors =
+        new ColorListSetting(this, "Board", "MarkerDarkBackgroundColors", markerDarkBackgroundColors,
+                             boardMarkerAlpha->get().toDouble());
 
     QStringList penLightBackgroundSelectedColors;
     QStringList penDarkBackgroundSelectedColors;
@@ -299,19 +305,24 @@ void Settings::init()
     QStringList markerLightBackgroundSelectedColors;
     QStringList markerDarkBackgroundSelectedColors;
 
-    for (int i = 0; i < colorPaletteSize; i++)
-    {
+    for (int i = 0; i < colorPaletteSize; i++) {
         penLightBackgroundSelectedColors << penLightBackgroundColors[i];
         penDarkBackgroundSelectedColors << penDarkBackgroundColors[i];
         markerLightBackgroundSelectedColors << markerLightBackgroundColors[i];
         markerDarkBackgroundSelectedColors << markerDarkBackgroundColors[i];
     }
 
-    boardPenLightBackgroundSelectedColors = new ColorListSetting(this, "Board", "PenLightBackgroundSelectedColors", penLightBackgroundSelectedColors);
-    boardPenDarkBackgroundSelectedColors = new ColorListSetting(this, "Board", "PenDarkBackgroundSelectedColors", penDarkBackgroundSelectedColors);
+    boardPenLightBackgroundSelectedColors = new ColorListSetting(
+        this, "Board", "PenLightBackgroundSelectedColors", penLightBackgroundSelectedColors);
+    boardPenDarkBackgroundSelectedColors = new ColorListSetting(
+        this, "Board", "PenDarkBackgroundSelectedColors", penDarkBackgroundSelectedColors);
 
-    boardMarkerLightBackgroundSelectedColors = new ColorListSetting(this, "Board", "MarkerLightBackgroundSelectedColors", markerLightBackgroundSelectedColors, boardMarkerAlpha->get().toDouble());
-    boardMarkerDarkBackgroundSelectedColors = new ColorListSetting(this, "Board", "MarkerDarkBackgroundSelectedColors", markerDarkBackgroundSelectedColors, boardMarkerAlpha->get().toDouble());
+    boardMarkerLightBackgroundSelectedColors =
+        new ColorListSetting(this, "Board", "MarkerLightBackgroundSelectedColors",
+                             markerLightBackgroundSelectedColors, boardMarkerAlpha->get().toDouble());
+    boardMarkerDarkBackgroundSelectedColors =
+        new ColorListSetting(this, "Board", "MarkerDarkBackgroundSelectedColors",
+                             markerDarkBackgroundSelectedColors, boardMarkerAlpha->get().toDouble());
 
     showEraserPreviewCircle = new Setting(this, "Board", "ShowEraserPreviewCircle", true);
     showMarkerPreviewCircle = new Setting(this, "Board", "ShowMarkerPreviewCircle", true);
@@ -327,14 +338,15 @@ void Settings::init()
     defaultShowPageImmediatelyOnMirroredScreen = false;
 #endif
 
-    webShowPageImmediatelyOnMirroredScreen = new Setting(this, "Web", "ShowPageImediatelyOnMirroredScreen", defaultShowPageImmediatelyOnMirroredScreen);
+    webShowPageImmediatelyOnMirroredScreen = new Setting(this, "Web", "ShowPageImediatelyOnMirroredScreen",
+                                                         defaultShowPageImmediatelyOnMirroredScreen);
 
     webHomePage = new Setting(this, "Web", "Homepage", softwareHomeUrl);
 
     pageCacheSize = new Setting(this, "App", "PageCacheSize", 20);
 
-    bitmapFileExtensions << "jpg" << "jpeg" <<  "png" <<  "tiff" << "tif" << "bmp" << "gif";
-    vectoFileExtensions << "svg" <<  "svgz";
+    bitmapFileExtensions << "jpg" << "jpeg" << "png" << "tiff" << "tif" << "bmp" << "gif";
+    vectoFileExtensions << "svg" << "svgz";
     imageFileExtensions << bitmapFileExtensions << vectoFileExtensions;
 
     widgetFileExtensions << "wdgt" << "wgt" << "pwgt";
@@ -352,17 +364,33 @@ void Settings::init()
     defaultRefreshRateInFramePerSecond = 2;
 #endif
 
-    mirroringRefreshRateInFps = new Setting(this, "Mirroring", "RefreshRateInFramePerSecond", QVariant(defaultRefreshRateInFramePerSecond));
+    mirroringRefreshRateInFps = new Setting(this, "Mirroring", "RefreshRateInFramePerSecond",
+                                            QVariant(defaultRefreshRateInFramePerSecond));
 
-    lastImportFilePath = new Setting(this, "Import", "LastImportFilePath", QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
-    lastImportFolderPath = new Setting(this, "Import", "LastImportFolderPath", QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
-    lastExportFilePath = new Setting(this, "Export", "LastExportFilePath", QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
-    lastExportDirPath = new Setting(this, "Export", "LastExportDirPath", QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
-    lastImportToLibraryPath = new Setting(this, "Library", "LastImportToLibraryPath", QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
+    lastImportFilePath =
+        new Setting(this, "Import", "LastImportFilePath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
+    lastImportFolderPath =
+        new Setting(this, "Import", "LastImportFolderPath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
+    lastExportFilePath =
+        new Setting(this, "Export", "LastExportFilePath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
+    lastExportDirPath =
+        new Setting(this, "Export", "LastExportDirPath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
+    lastImportToLibraryPath =
+        new Setting(this, "Library", "LastImportToLibraryPath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
 
-    lastPicturePath = new Setting(this, "Library", "LastPicturePath", QVariant(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)));
-    lastWidgetPath = new Setting(this, "Library", "LastWidgetPath", QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
-    lastVideoPath = new Setting(this, "Library", "LastVideoPath", QVariant(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation)));
+    lastPicturePath =
+        new Setting(this, "Library", "LastPicturePath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)));
+    lastWidgetPath =
+        new Setting(this, "Library", "LastWidgetPath",
+                    QVariant(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
+    lastVideoPath = new Setting(this, "Library", "LastVideoPath",
+                                QVariant(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation)));
 
     appOnlineUserName = new Setting(this, "App", "OnlineUserName", "");
 
@@ -391,11 +419,13 @@ void Settings::init()
     // removed in version 4.4.b.2
     mUserSettings->remove("Recording/RecordMicrophone");
 
-    documentThumbnailWidth      = new Setting(this, "Document", "ThumbnailWidth", Settings::defaultThumbnailWidth);
-    documentSortKind            = new Setting(this, "Document", "SortKind", Settings::defaultSortKind);
-    documentSortOrder           = new Setting(this, "Document", "SortOrder", Settings::defaultSortOrder);
-    documentSplitterLeftSize    = new Setting(this, "Document", "SplitterLeftSize", Settings::defaultSplitterLeftSize);
-    documentSplitterRightSize   = new Setting(this, "Document", "SplitterRightSize", Settings::defaultSplitterRightSize);
+    documentThumbnailWidth = new Setting(this, "Document", "ThumbnailWidth", Settings::defaultThumbnailWidth);
+    documentSortKind = new Setting(this, "Document", "SortKind", Settings::defaultSortKind);
+    documentSortOrder = new Setting(this, "Document", "SortOrder", Settings::defaultSortOrder);
+    documentSplitterLeftSize =
+        new Setting(this, "Document", "SplitterLeftSize", Settings::defaultSplitterLeftSize);
+    documentSplitterRightSize =
+        new Setting(this, "Document", "SplitterRightSize", Settings::defaultSplitterRightSize);
 
     libraryShowDetailsForLocalItems = new Setting(this, "Library", "ShowDetailsForLocalItems", false);
 
@@ -403,7 +433,8 @@ void Settings::init()
     videoThumbnailWidth = new Setting(this, "Library", "VideoThumbnailWidth", Settings::defaultVideoWidth);
     shapeThumbnailWidth = new Setting(this, "Library", "ShapeThumbnailWidth", Settings::defaultShapeWidth);
     gipThumbnailWidth = new Setting(this, "Library", "ImageThumbnailWidth", Settings::defaultGipWidth);
-    soundThumbnailWidth = new Setting(this, "Library", "SoundThumbnailWidth", Settings::defaultSoundWidth);;
+    soundThumbnailWidth = new Setting(this, "Library", "SoundThumbnailWidth", Settings::defaultSoundWidth);
+    ;
 
     KeyboardLocale = new Setting(this, "Board", "StartupKeyboardLocale", 0);
     swapControlAndDisplayScreens = new Setting(this, "App", "SwapControlAndDisplayScreens", false);
@@ -415,10 +446,10 @@ void Settings::init()
 
     useSystemOnScreenKeyboard = new Setting(this, "App", "UseSystemOnScreenKeyboard", true);
 
-    showDateColumnOnAlphabeticalSort = new Setting(this, "Document", "ShowDateColumnOnAlphabeticalSort", false);
+    showDateColumnOnAlphabeticalSort =
+        new Setting(this, "Document", "ShowDateColumnOnAlphabeticalSort", false);
     emptyTrashForOlderDocuments = new Setting(this, "Document", "emptyTrashForOlderDocuments", false);
     emptyTrashDaysValue = new Setting(this, "Document", "emptyTrashDaysValue", 30);
-
 }
 
 
@@ -431,8 +462,7 @@ void Settings::init()
  * If the value doesn't exist in the application settings (i.e it was not present in the config file),
  * it is also added there.
  */
-QVariant Settings::value ( const QString & key, const QVariant & defaultValue)
-{
+QVariant Settings::value(const QString &key, const QVariant &defaultValue) {
     // Check first the settings queue, then the app settings, then the user settings.
     // If the key exists in neither of these, then defaultValue is returned.
 
@@ -453,8 +483,7 @@ QVariant Settings::value ( const QString & key, const QVariant & defaultValue)
 }
 
 
-void Settings::setValue (const QString & key, const QVariant & value)
-{
+void Settings::setValue(const QString &key, const QVariant &value) {
     // Save the setting to the queue only; a call to save() is necessary to persist the settings
     mSettingsQueue[key] = value;
 }
@@ -462,8 +491,7 @@ void Settings::setValue (const QString & key, const QVariant & value)
 /**
  * @brief Save all the queued settings to disk
  */
-void Settings::save()
-{
+void Settings::save() {
     QHash<QString, QVariant>::const_iterator it = mSettingsQueue.constBegin();
 
     while (it != mSettingsQueue.constEnd()) {
@@ -472,15 +500,11 @@ void Settings::save()
          * a) it is different from the (non-null) value stored in the user settings, or
          * b) it doesn't currently exist in the user settings AND has changed from the app settings
         */
-        if (mUserSettings->contains(it.key())
-                && it.value() != mUserSettings->value(it.key()))
-        {
+        if (mUserSettings->contains(it.key()) && it.value() != mUserSettings->value(it.key())) {
             mUserSettings->setValue(it.key(), it.value());
         }
 
-        else if (!mUserSettings->contains(it.key())
-                 && it.value() != mAppSettings->value(it.key()))
-        {
+        else if (!mUserSettings->contains(it.key()) && it.value() != mAppSettings->value(it.key())) {
             mUserSettings->setValue(it.key(), it.value());
         }
 
@@ -493,27 +517,22 @@ void Settings::save()
     qDebug() << "User settings saved";
 }
 
-int Settings::penWidthIndex()
-{
+int Settings::penWidthIndex() {
     return value("Board/PenLineWidthIndex", 0).toInt();
 }
 
 
-void Settings::setPenWidthIndex(int index)
-{
-    if (index != penWidthIndex())
-    {
+void Settings::setPenWidthIndex(int index) {
+    if (index != penWidthIndex()) {
         setValue("Board/PenLineWidthIndex", index);
     }
 }
 
 
-qreal Settings::currentPenWidth()
-{
+qreal Settings::currentPenWidth() {
     qreal width = 0;
 
-    switch (penWidthIndex())
-    {
+    switch (penWidthIndex()) {
         case Width::Fine:
             width = boardPenFineWidth->get().toDouble();
             break;
@@ -534,68 +553,54 @@ qreal Settings::currentPenWidth()
 }
 
 
-int Settings::penColorIndex()
-{
+int Settings::penColorIndex() {
     return value("Board/PenColorIndex", 0).toInt();
 }
 
 
-void Settings::setPenColorIndex(int index)
-{
-    if (index != penColorIndex())
-    {
+void Settings::setPenColorIndex(int index) {
+    if (index != penColorIndex()) {
         setValue("Board/PenColorIndex", index);
     }
 }
 
 
-QColor Settings::currentPenColor()
-{
+QColor Settings::currentPenColor() {
     return penColor(isDarkBackground());
 }
 
 
-QColor Settings::penColor(bool onDarkBackground)
-{
+QColor Settings::penColor(bool onDarkBackground) {
     QList<QColor> colors = penColors(onDarkBackground);
     return colors.at(penColorIndex());
 }
 
 
-QList<QColor> Settings::penColors(bool onDarkBackground)
-{
-    if (onDarkBackground)
-    {
+QList<QColor> Settings::penColors(bool onDarkBackground) {
+    if (onDarkBackground) {
         return boardPenDarkBackgroundSelectedColors->colors();
-    }
-    else
-    {
+    } else {
         return boardPenLightBackgroundSelectedColors->colors();
     }
 }
 
 
-int Settings::markerWidthIndex()
-{
+int Settings::markerWidthIndex() {
     return value("Board/MarkerLineWidthIndex", 0).toInt();
 }
 
 
-void Settings::setMarkerWidthIndex(int index)
-{
-    if (index != markerWidthIndex())
-    {
+void Settings::setMarkerWidthIndex(int index) {
+    if (index != markerWidthIndex()) {
         setValue("Board/MarkerLineWidthIndex", index);
     }
 }
 
 
-qreal Settings::currentMarkerWidth()
-{
+qreal Settings::currentMarkerWidth() {
     qreal width = 0;
 
-    switch (markerWidthIndex())
-    {
+    switch (markerWidthIndex()) {
         case Width::Fine:
             width = boardMarkerFineWidth->get().toDouble();
             break;
@@ -616,42 +621,33 @@ qreal Settings::currentMarkerWidth()
 }
 
 
-int Settings::markerColorIndex()
-{
+int Settings::markerColorIndex() {
     return value("Board/MarkerColorIndex", 0).toInt();
 }
 
 
-void Settings::setMarkerColorIndex(int index)
-{
-    if (index != markerColorIndex())
-    {
+void Settings::setMarkerColorIndex(int index) {
+    if (index != markerColorIndex()) {
         setValue("Board/MarkerColorIndex", index);
     }
 }
 
 
-QColor Settings::currentMarkerColor()
-{
+QColor Settings::currentMarkerColor() {
     return markerColor(isDarkBackground());
 }
 
 
-QColor Settings::markerColor(bool onDarkBackground)
-{
+QColor Settings::markerColor(bool onDarkBackground) {
     QList<QColor> colors = markerColors(onDarkBackground);
     return colors.at(markerColorIndex());
 }
 
 
-QList<QColor> Settings::markerColors(bool onDarkBackground)
-{
-    if (onDarkBackground)
-    {
+QList<QColor> Settings::markerColors(bool onDarkBackground) {
+    if (onDarkBackground) {
         return boardMarkerDarkBackgroundSelectedColors->colors();
-    }
-    else
-    {
+    } else {
         return boardMarkerLightBackgroundSelectedColors->colors();
     }
 }
@@ -659,52 +655,42 @@ QList<QColor> Settings::markerColors(bool onDarkBackground)
 //----------------------------------------//
 // eraser
 
-int Settings::eraserWidthIndex()
-{
+int Settings::eraserWidthIndex() {
     return value("Board/EraserCircleWidthIndex", 1).toInt();
 }
 
-void Settings::setEraserWidthIndex(int index)
-{
+void Settings::setEraserWidthIndex(int index) {
     setValue("Board/EraserCircleWidthIndex", index);
 }
 
-qreal Settings::eraserFineWidth()
-{
+qreal Settings::eraserFineWidth() {
     return value("Board/EraserFineWidth", 16).toDouble();
 }
 
-void Settings::setEraserFineWidth(qreal width)
-{
+void Settings::setEraserFineWidth(qreal width) {
     setValue("Board/EraserFineWidth", width);
 }
 
-qreal Settings::eraserMediumWidth()
-{
+qreal Settings::eraserMediumWidth() {
     return value("Board/EraserMediumWidth", 64).toDouble();
 }
 
-void Settings::setEraserMediumWidth(qreal width)
-{
+void Settings::setEraserMediumWidth(qreal width) {
     setValue("Board/EraserMediumWidth", width);
 }
 
-qreal Settings::eraserStrongWidth()
-{
+qreal Settings::eraserStrongWidth() {
     return value("Board/EraserStrongWidth", 128).toDouble();
 }
 
-void Settings::setEraserStrongWidth(qreal width)
-{
+void Settings::setEraserStrongWidth(qreal width) {
     setValue("Board/EraserStrongWidth", width);
 }
 
-qreal Settings::currentEraserWidth()
-{
+qreal Settings::currentEraserWidth() {
     qreal width = 0;
 
-    switch (eraserWidthIndex())
-    {
+    switch (eraserWidthIndex()) {
         case Width::Fine:
             width = eraserFineWidth();
             break;
@@ -724,14 +710,12 @@ qreal Settings::currentEraserWidth()
     return width;
 }
 
-bool Settings::isDarkBackground()
-{
+bool Settings::isDarkBackground() {
     return value("Board/DarkBackground", 0).toBool();
 }
 
 
-PageBackground Settings::pageBackground()
-{
+PageBackground Settings::pageBackground() {
     QString val = value("Board/PageBackground", 0).toString();
 
     if (val == "crossed")
@@ -743,15 +727,13 @@ PageBackground Settings::pageBackground()
 }
 
 
-void Settings::setDarkBackground(bool isDarkBackground)
-{
+void Settings::setDarkBackground(bool isDarkBackground) {
     setValue("Board/DarkBackground", isDarkBackground);
     emit colorContextChanged();
 }
 
 
-void Settings::setPageBackground(PageBackground background)
-{
+void Settings::setPageBackground(PageBackground background) {
     QString val;
 
     if (background == PageBackground::crossed)
@@ -765,112 +747,96 @@ void Settings::setPageBackground(PageBackground background)
 }
 
 
-void Settings::setPenPressureSensitive(bool sensitive)
-{
+void Settings::setPenPressureSensitive(bool sensitive) {
     boardPenPressureSensitive->set(sensitive);
 }
 
-void Settings::setPenPreviewCircle(bool circle)
-{
+void Settings::setPenPreviewCircle(bool circle) {
     showPenPreviewCircle->set(circle);
 }
 
-void Settings::setPenPreviewFromSize(int size)
-{
+void Settings::setPenPreviewFromSize(int size) {
     penPreviewFromSize->set(size);
 }
 
-void Settings::setMarkerPressureSensitive(bool sensitive)
-{
+void Settings::setMarkerPressureSensitive(bool sensitive) {
     boardMarkerPressureSensitive->set(sensitive);
 }
 
 
-bool Settings::isStylusPaletteVisible()
-{
+bool Settings::isStylusPaletteVisible() {
     return value("Board/StylusPaletteIsVisible", true).toBool();
 }
 
 
-void Settings::setStylusPaletteVisible(bool visible)
-{
+void Settings::setStylusPaletteVisible(bool visible) {
     setValue("Board/StylusPaletteIsVisible", visible);
 }
 
 
-QString Settings::fontFamily()
-{
+QString Settings::fontFamily() {
     return value("Board/FontFamily", sDefaultFontFamily).toString();
 }
 
 
-void Settings::setFontFamily(const QString &family)
-{
+void Settings::setFontFamily(const QString &family) {
     setValue("Board/FontFamily", family);
 }
 
 
-int Settings::fontPixelSize()
-{
+int Settings::fontPixelSize() {
     return value("Board/FontPixelSize", sDefaultFontPixelSize).toInt();
 }
 
 
-void Settings::setFontPixelSize(int pixelSize)
-{
+void Settings::setFontPixelSize(int pixelSize) {
     setValue("Board/FontPixelSize", pixelSize);
 }
 
-int Settings::fontPointSize()
-{
+int Settings::fontPointSize() {
     return value("Board/FontPointSize", 12).toInt();
 }
 
-void Settings::setFontPointSize(int pointSize)
-{
+void Settings::setFontPointSize(int pointSize) {
     setValue("Board/FontPointSize", pointSize);
 }
 
-bool Settings::isBoldFont()
-{
+bool Settings::isBoldFont() {
     return value("Board/FontIsBold", false).toBool();
 }
 
 
-void Settings::setBoldFont(bool bold)
-{
+void Settings::setBoldFont(bool bold) {
     setValue("Board/FontIsBold", bold);
 }
 
 
-bool Settings::isItalicFont()
-{
+bool Settings::isItalicFont() {
     return value("Board/FontIsItalic", false).toBool();
 }
 
 
-void Settings::setItalicFont(bool italic)
-{
+void Settings::setItalicFont(bool italic) {
     setValue("Board/FontIsItalic", italic);
 }
 
 
-QString Settings::userDataDirectory()
-{
+QString Settings::userDataDirectory() {
     static QString dataDirPath = "";
-    if(dataDirPath.isEmpty()){
+    if (dataDirPath.isEmpty()) {
         if (getAppSettings() && getAppSettings()->contains("App/DataDirectory")) {
-            qDebug() << "getAppSettings()->contains(App/DataDirectory):" << getAppSettings()->contains("App/DataDirectory");
+            qDebug() << "getAppSettings()->contains(App/DataDirectory):"
+                     << getAppSettings()->contains("App/DataDirectory");
             dataDirPath = getAppSettings()->value("App/DataDirectory").toString();
             dataDirPath = replaceWildcard(dataDirPath);
 
-            if(checkDirectory(dataDirPath))
+            if (checkDirectory(dataDirPath))
                 return dataDirPath;
             else
                 qCritical() << "Impossible to create datadirpath " << dataDirPath;
-
         }
-        dataDirPath = FileSystemUtils::normalizeFilePath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+        dataDirPath = FileSystemUtils::normalizeFilePath(
+            QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
         if (qApp->organizationName().size() > 0)
             dataDirPath.replace(qApp->organizationName() + "/", "");
     }
@@ -878,35 +844,34 @@ QString Settings::userDataDirectory()
 }
 
 
-QString Settings::userImageDirectory()
-{
+QString Settings::userImageDirectory() {
     static QString imageDirectory = "";
-    if(imageDirectory.isEmpty()){
+    if (imageDirectory.isEmpty()) {
         if (sAppSettings && getAppSettings()->contains("App/UserImageDirectory")) {
             imageDirectory = getAppSettings()->value("App/UserImageDirectory").toString();
 
             imageDirectory = replaceWildcard(imageDirectory);
-            if(checkDirectory(imageDirectory))
+            if (checkDirectory(imageDirectory))
                 return imageDirectory;
             else
                 qCritical() << "failed to create image directory " << imageDirectory;
         }
 
-        imageDirectory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/" + qApp->applicationName();
+        imageDirectory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/" +
+                         qApp->applicationName();
         checkDirectory(imageDirectory);
     }
     return imageDirectory;
 }
 
 
-QString Settings::userVideoDirectory()
-{
+QString Settings::userVideoDirectory() {
     static QString videoDirectory = "";
-    if(videoDirectory.isEmpty()){
+    if (videoDirectory.isEmpty()) {
         if (sAppSettings && getAppSettings()->contains("App/UserVideoDirectory")) {
             videoDirectory = getAppSettings()->value("App/UserVideoDirectory").toString();
             videoDirectory = replaceWildcard(videoDirectory);
-            if(checkDirectory(videoDirectory))
+            if (checkDirectory(videoDirectory))
                 return videoDirectory;
             else
                 qCritical() << "failed to create video directory " << videoDirectory;
@@ -915,8 +880,9 @@ QString Settings::userVideoDirectory()
 
         videoDirectory = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
 
-        if(videoDirectory.isEmpty())
-            videoDirectory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/" + tr("My Movies");
+        if (videoDirectory.isEmpty())
+            videoDirectory =
+                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/" + tr("My Movies");
         else
             videoDirectory = videoDirectory + "/" + qApp->applicationName();
 
@@ -925,40 +891,37 @@ QString Settings::userVideoDirectory()
     return videoDirectory;
 }
 
-QString Settings::userAudioDirectory()
-{
+QString Settings::userAudioDirectory() {
     static QString audioDirectory = "";
-    if(audioDirectory.isEmpty()){
+    if (audioDirectory.isEmpty()) {
         if (sAppSettings && getAppSettings()->contains("App/UserAudioDirectory")) {
             audioDirectory = getAppSettings()->value("App/UserAudioDirectory").toString();
 
             audioDirectory = replaceWildcard(audioDirectory);
-            if(checkDirectory(audioDirectory))
+            if (checkDirectory(audioDirectory))
                 return audioDirectory;
             else
                 qCritical() << "failed to create image directory " << audioDirectory;
         }
 
-        audioDirectory = QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/" + qApp->applicationName();
+        audioDirectory =
+            QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/" + qApp->applicationName();
         checkDirectory(audioDirectory);
     }
     return audioDirectory;
 }
 
 
-QString Settings::userRecordingDirectory()
-{
+QString Settings::userRecordingDirectory() {
     static QString dirPath = "";
-    if(dirPath.isEmpty()){
-        if (sAppSettings && getAppSettings()->contains("Recording/RecordingDirectory"))
-        {
+    if (dirPath.isEmpty()) {
+        if (sAppSettings && getAppSettings()->contains("Recording/RecordingDirectory")) {
             dirPath = getAppSettings()->value("Recording/RecordingDirectory").toString();
             dirPath = replaceWildcard(dirPath);
-            if(checkDirectory(dirPath))
+            if (checkDirectory(dirPath))
                 return dirPath;
             else
                 qCritical() << "failed to create dir " << dirPath;
-
         }
         dirPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
         checkDirectory(dirPath);
@@ -966,10 +929,9 @@ QString Settings::userRecordingDirectory()
     return dirPath;
 }
 
-QString Settings::userDocumentDirectory()
-{
+QString Settings::userDocumentDirectory() {
     static QString documentDirectory = "";
-    if(documentDirectory.isEmpty()){
+    if (documentDirectory.isEmpty()) {
         documentDirectory = userDataDirectory() + "/document";
         checkDirectory(documentDirectory);
     }
@@ -977,10 +939,9 @@ QString Settings::userDocumentDirectory()
     return documentDirectory;
 }
 
-QString Settings::userFavoriteListFilePath()
-{
+QString Settings::userFavoriteListFilePath() {
     static QString filePath = "";
-    if(filePath.isEmpty()){
+    if (filePath.isEmpty()) {
         QString dirPath = userDataDirectory() + "/libraryPalette";
         checkDirectory(dirPath);
         filePath = dirPath + "/favorite.dat";
@@ -988,10 +949,9 @@ QString Settings::userFavoriteListFilePath()
     return filePath;
 }
 
-QString Settings::userTrashDirPath()
-{
+QString Settings::userTrashDirPath() {
     static QString trashPath = "";
-    if(trashPath.isEmpty()){
+    if (trashPath.isEmpty()) {
         trashPath = userDataDirectory() + "/libraryPalette/trash";
         checkDirectory(trashPath);
     }
@@ -999,10 +959,9 @@ QString Settings::userTrashDirPath()
 }
 
 
-QString Settings::userGipLibraryDirectory()
-{
+QString Settings::userGipLibraryDirectory() {
     static QString dirPath = "";
-    if(dirPath.isEmpty()){
+    if (dirPath.isEmpty()) {
         dirPath = userDataDirectory() + "/library/gips";
         checkDirectory(dirPath);
     }
@@ -1010,75 +969,65 @@ QString Settings::userGipLibraryDirectory()
 }
 
 
-QString Settings::applicationShapeLibraryDirectory()
-{
+QString Settings::applicationShapeLibraryDirectory() {
     QString defaultRelativePath = QString("./library/shape");
 
     QString configPath = value("Library/ShapeDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
+    } else {
         return configPath;
     }
 }
 
-QString Settings::applicationCustomizationDirectory()
-{
+QString Settings::applicationCustomizationDirectory() {
     QString defaultRelativePath = QString("/customizations");
     return FileSystemUtils::applicationResourcesDirectory() + defaultRelativePath;
-
 }
 
-QString Settings::applicationCustomFontDirectory()
-{
+QString Settings::applicationCustomFontDirectory() {
     QString defaultFontDirectory = "/fonts";
     return applicationCustomizationDirectory() + defaultFontDirectory;
 }
 
-QString Settings::userSearchDirectory()
-{
+QString Settings::userSearchDirectory() {
     static QString dirPath = "";
-    if(dirPath.isEmpty()){
+    if (dirPath.isEmpty()) {
         dirPath = FileSystemUtils::applicationResourcesDirectory() + "/library/search";
         checkDirectory(dirPath);
     }
     return dirPath;
 }
 
-QString Settings::applicationImageLibraryDirectory()
-{
+QString Settings::applicationImageLibraryDirectory() {
     QString defaultRelativePath = QString("./library/pictures");
 
     QString configPath = value("Library/ImageDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
+    } else {
         return configPath;
     }
 }
 
-QString Settings::userAnimationDirectory()
-{
+QString Settings::userAnimationDirectory() {
     static QString animationDirectory = "";
-    if(animationDirectory.isEmpty()){
+    if (animationDirectory.isEmpty()) {
         animationDirectory = userDataDirectory() + "/animationUserDirectory";
         checkDirectory(animationDirectory);
     }
     return animationDirectory;
 }
 
-QString Settings::userInteractiveDirectory()
-{
+QString Settings::userInteractiveDirectory() {
     static QString interactiveDirectory = "";
-    if(interactiveDirectory.isEmpty()){
+    if (interactiveDirectory.isEmpty()) {
         if (sAppSettings && getAppSettings()->contains("App/UserInteractiveContentDirectory")) {
             interactiveDirectory = getAppSettings()->value("App/UserInteractiveContentDirectory").toString();
             interactiveDirectory = replaceWildcard(interactiveDirectory);
-            if(checkDirectory(interactiveDirectory))
+            if (checkDirectory(interactiveDirectory))
                 return interactiveDirectory;
             else
                 qCritical() << "failed to create directory " << interactiveDirectory;
@@ -1090,84 +1039,73 @@ QString Settings::userInteractiveDirectory()
 }
 
 
-QString Settings::applicationInteractivesDirectory()
-{
+QString Settings::applicationInteractivesDirectory() {
     QString defaultRelativePath = QString("./library/interactivities");
 
     QString configPath = value("Library/InteractivitiesDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
+    } else {
         return configPath;
     }
 }
 
 
-QString Settings::applicationAudiosLibraryDirectory()
-{
+QString Settings::applicationAudiosLibraryDirectory() {
     QString defaultRelativePath = QString("./library/audios");
 
     QString configPath = value("Library/AudiosDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
+    } else {
         return configPath;
     }
 }
 
-QString Settings::applicationVideosLibraryDirectory()
-{
+QString Settings::applicationVideosLibraryDirectory() {
     QString defaultRelativePath = QString("./library/videos");
 
     QString configPath = value("Library/VideosDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
+    } else {
         return configPath;
     }
 }
 
-QString Settings::applicationAnimationsLibraryDirectory()
-{
+QString Settings::applicationAnimationsLibraryDirectory() {
     QString defaultRelativePath = QString("./library/animations");
 
     QString configPath = value("Library/AnimationsDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
+    } else {
         return configPath;
     }
 }
 
-QString Settings::applicationStartupHintsDirectory()
-{
+QString Settings::applicationStartupHintsDirectory() {
     QString defaultRelativePath = QString("./startupHints");
 
     QString configPath = value("StartupHintsDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else
+    } else
         return configPath;
 }
 
-QString Settings::userInteractiveFavoritesDirectory()
-{
+QString Settings::userInteractiveFavoritesDirectory() {
     static QString dirPath = "";
-    if(dirPath.isEmpty()){
+    if (dirPath.isEmpty()) {
         if (sAppSettings && getAppSettings()->contains("App/UserInteractiveFavoritesDirectory")) {
             dirPath = getAppSettings()->value("App/UserInteractiveFavoritesDirectory").toString();
             dirPath = replaceWildcard(dirPath);
-            if(checkDirectory(dirPath))
+            if (checkDirectory(dirPath))
                 return dirPath;
             else
                 qCritical() << "failed to create directory " << dirPath;
@@ -1180,12 +1118,10 @@ QString Settings::userInteractiveFavoritesDirectory()
 }
 
 
-QNetworkProxy* Settings::httpProxy()
-{
-    QNetworkProxy* proxy = 0;
+QNetworkProxy *Settings::httpProxy() {
+    QNetworkProxy *proxy = 0;
 
     if (mAppSettings->value("Proxy/Enabled", false).toBool()) {
-
         proxy = new QNetworkProxy();
 
         if (mAppSettings->value("Proxy/Type", "HTTP").toString() == "Socks5")
@@ -1203,42 +1139,37 @@ QNetworkProxy* Settings::httpProxy()
 }
 
 
-void Settings::setPassword(const QString& id, const QString& password)
-{
+void Settings::setPassword(const QString &id, const QString &password) {
     QString encrypted = CryptoUtils::instance()->symetricEncrypt(password);
 
     mUserSettings->setValue(QString("Vault/") + id, encrypted);
 }
 
 
-void Settings::removePassword(const QString& id)
-{
+void Settings::removePassword(const QString &id) {
     mUserSettings->remove(QString("Vault/") + id);
 }
 
 
-QString Settings::password(const QString& id)
-{
+QString Settings::password(const QString &id) {
     QString encrypted = mUserSettings->value(QString("Vault/") + id).toString();
 
     QString result = "";
 
     if (encrypted.length() > 0)
-        result =  CryptoUtils::instance()->symetricDecrypt(encrypted);
+        result = CryptoUtils::instance()->symetricDecrypt(encrypted);
 
     return result;
 }
 
 
-QString Settings::proxyUsername()
-{
+QString Settings::proxyUsername() {
     QString idUsername = "http.proxy.user";
     return password(idUsername);
 }
 
 
-void Settings::setProxyUsername(const QString& username)
-{
+void Settings::setProxyUsername(const QString &username) {
     QString idUsername = "http.proxy.user";
 
     if (username.length() > 0)
@@ -1248,74 +1179,66 @@ void Settings::setProxyUsername(const QString& username)
 }
 
 
-QString Settings::proxyPassword()
-{
+QString Settings::proxyPassword() {
     QString idPassword = "http.proxy.pass";
     return password(idPassword);
 }
 
 
-void Settings::setProxyPassword(const QString& password)
-{
+void Settings::setProxyPassword(const QString &password) {
     QString idPassword = "http.proxy.pass";
 
     if (password.length() > 0)
-       setPassword(idPassword, password);
+        setPassword(idPassword, password);
     else
         removePassword(idPassword);
-
 }
 
-int Settings::libraryIconSize(){
+int Settings::libraryIconSize() {
     return libIconSize->get().toInt();
 }
 
-void Settings::setLibraryIconsize(const int& size){
+void Settings::setLibraryIconsize(const int &size) {
     libIconSize->set(QVariant(size));
 }
 
-bool Settings::checkDirectory(QString& dirPath)
-{
+bool Settings::checkDirectory(QString &dirPath) {
     bool result = true;
     QDir dir(dirPath);
-    if(!dir.exists())
+    if (!dir.exists())
         result = dir.mkpath(dirPath);
     return result;
 }
 
-QString Settings::replaceWildcard(QString& path)
-{
+QString Settings::replaceWildcard(QString &path) {
     QString result(path);
 
     if (result.startsWith("{Documents}")) {
-        result = result.replace("{Documents}", QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-    }
-    else if(result.startsWith("{Home}")) {
+        result = result.replace("{Documents}",
+                                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+    } else if (result.startsWith("{Home}")) {
         result = result.replace("{Home}", QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-    }
-    else if(result.startsWith("{Desktop}")) {
-        result = result.replace("{Desktop}", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    } else if (result.startsWith("{Desktop}")) {
+        result =
+            result.replace("{Desktop}", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     }
 
-    if(result.contains("{UserLoginName}") && userLoginName().length() > 0) {
+    if (result.contains("{UserLoginName}") && userLoginName().length() > 0) {
         result = result.replace("{UserLoginName}", userLoginName());
     }
 
     return result;
 }
 
-void Settings::closing()
-{
+void Settings::closing() {
     save();
-
 }
 
 /**
  * @brief Permanently remove a setting, from local memory and config files
  * @param setting The setting to remove
  */
-void Settings::removeSetting(const QString &setting)
-{
+void Settings::removeSetting(const QString &setting) {
     if (sAppSettings->contains(setting))
         sAppSettings->remove(setting);
 
@@ -1326,8 +1249,7 @@ void Settings::removeSetting(const QString &setting)
         mSettingsQueue.remove(setting);
 }
 
-void Settings::checkNewSettings()
-{
+void Settings::checkNewSettings() {
     /*
      * Some settings were modified in new versions and TianBoard can crash
      * if an old settings file is used. This function checks these settings and
@@ -1339,13 +1261,11 @@ void Settings::checkNewSettings()
     // 调色板从 4 色扩到 5 色之后写的老配置只有 4 个选中项，读回来会让画笔取到越界的
     // 下标直接崩；与其做增量迁移，不如整组颜色重置成 init() 里的默认值。
 
-    QList<ColorListSetting*> colorSettings;
-    colorSettings << boardPenDarkBackgroundSelectedColors
-                  << boardPenLightBackgroundSelectedColors
-                  << boardMarkerDarkBackgroundSelectedColors
-                  << boardMarkerLightBackgroundSelectedColors;
+    QList<ColorListSetting *> colorSettings;
+    colorSettings << boardPenDarkBackgroundSelectedColors << boardPenLightBackgroundSelectedColors
+                  << boardMarkerDarkBackgroundSelectedColors << boardMarkerLightBackgroundSelectedColors;
 
-    foreach (ColorListSetting* setting, colorSettings) {
+    foreach (ColorListSetting *setting, colorSettings) {
         if (setting->colors().size() < 5)
             setting->reset();
     }
@@ -1359,12 +1279,10 @@ void Settings::checkNewSettings()
     // can't be trusted to delete or modify their own config file when upgrading, so they might
     // wonder why they don't have the new colors in their app.
 
-    colorSettings << boardPenDarkBackgroundColors
-                  << boardPenLightBackgroundColors
-                  << boardMarkerDarkBackgroundColors
-                  << boardMarkerLightBackgroundColors;
+    colorSettings << boardPenDarkBackgroundColors << boardPenLightBackgroundColors
+                  << boardMarkerDarkBackgroundColors << boardMarkerLightBackgroundColors;
 
-    foreach (ColorListSetting* setting, colorSettings) {
+    foreach (ColorListSetting *setting, colorSettings) {
         QStringList defaultColors = qvariant_cast<QStringList>(setting->defaultValue());
         QStringList currentColors(qvariant_cast<QStringList>(setting->get())); // copy
 
@@ -1383,5 +1301,4 @@ void Settings::checkNewSettings()
 
     // CrossedBackground changed in 1.4 (no longer a bool but an enum; can be crossed or ruled)
     removeSetting("Board/CrossedBackground");
-
 }

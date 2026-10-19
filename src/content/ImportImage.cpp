@@ -13,46 +13,39 @@
 #include "content/PDFRenderer.h"
 
 
-ImportImage::ImportImage(QObject *parent)
-    : PageBasedImportAdaptor(parent)
-{
+ImportImage::ImportImage(QObject *parent) : PageBasedImportAdaptor(parent) {
     // NOOP
 }
 
 
-ImportImage::~ImportImage()
-{
+ImportImage::~ImportImage() {
     // NOOP
 }
 
 
-QStringList ImportImage::supportedExtentions()
-{
+QStringList ImportImage::supportedExtentions() {
     QStringList formats;
 
-    for ( int i = 0; i < QImageReader::supportedImageFormats().count(); ++i )
-    {
-            formats << QString(QImageReader::supportedImageFormats().at(i)).toLower();
+    for (int i = 0; i < QImageReader::supportedImageFormats().count(); ++i) {
+        formats << QString(QImageReader::supportedImageFormats().at(i)).toLower();
     }
 
     return formats;
 }
 
 
-QString ImportImage::importFileFilter()
-{
+QString ImportImage::importFileFilter() {
     QString filter = tr("Image Format (");
     QStringList formats = supportedExtentions();
     bool isFirst = true;
 
-    foreach(QString format, formats)
-    {
-            if(isFirst)
-                    isFirst = false;
-            else
-                    filter.append(" ");
+    foreach (QString format, formats) {
+        if (isFirst)
+            isFirst = false;
+        else
+            filter.append(" ");
 
-        filter.append("*."+format);
+        filter.append("*." + format);
     }
 
     filter.append(")");
@@ -60,35 +53,33 @@ QString ImportImage::importFileFilter()
     return filter;
 }
 
-QList<GraphicsItem*> ImportImage::import(const QUuid& uuid, const QString& filePath)
-{
+QList<GraphicsItem *> ImportImage::import(const QUuid &uuid, const QString &filePath) {
     Q_UNUSED(uuid);
-    QList<GraphicsItem*> result;
+    QList<GraphicsItem *> result;
 
     QPixmap pix(filePath);
     if (pix.isNull())
         return result;
 
-    GraphicsPixmapItem* pixmapItem = new GraphicsPixmapItem();
+    GraphicsPixmapItem *pixmapItem = new GraphicsPixmapItem();
     pixmapItem->setPixmap(pix);
     result << pixmapItem;
 
     return result;
 }
 
-void ImportImage::placeImportedItemToScene(GraphicsScene* scene, GraphicsItem* item)
-{
-    GraphicsPixmapItem* pixmapItem = (GraphicsPixmapItem*)item;
+void ImportImage::placeImportedItemToScene(GraphicsScene *scene, GraphicsItem *item) {
+    GraphicsPixmapItem *pixmapItem = (GraphicsPixmapItem *)item;
 
-     GraphicsPixmapItem* sceneItem = scene->addPixmap(pixmapItem->pixmap(), NULL, QPointF(0, 0),1.0,false,true);
-     scene->setAsBackgroundObject(sceneItem, true);
+    GraphicsPixmapItem *sceneItem =
+        scene->addPixmap(pixmapItem->pixmap(), NULL, QPointF(0, 0), 1.0, false, true);
+    scene->setAsBackgroundObject(sceneItem, true);
 
-     // Only stored pixmap, should be deleted now
-     delete pixmapItem;
+    // Only stored pixmap, should be deleted now
+    delete pixmapItem;
 }
 
-const QString& ImportImage::folderToCopy()
-{
+const QString &ImportImage::folderToCopy() {
     static QString f("");
     return f;
 }

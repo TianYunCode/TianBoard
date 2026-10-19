@@ -22,25 +22,20 @@
 #include "content/PdfPageItem.h"
 
 
-ExportPDF::ExportPDF(QObject *parent)
-    : ExportAdaptor(parent)
-{
+ExportPDF::ExportPDF(QObject *parent) : ExportAdaptor(parent) {
     // NOOP
 }
 
-ExportPDF::~ExportPDF()
-{
+ExportPDF::~ExportPDF() {
     // NOOP
 }
 
-void ExportPDF::persist(DocumentProxy* pDocumentProxy)
-{
+void ExportPDF::persist(DocumentProxy *pDocumentProxy) {
     persistLocally(pDocumentProxy, tr("Export as PDF File"));
 }
 
-bool ExportPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
-{
-    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel*>(selectedIndex.model());
+bool ExportPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel *>(selectedIndex.model());
     if (!selectedIndex.isValid() || docModel->isCatalog(selectedIndex)) {
         return false;
     }
@@ -49,8 +44,7 @@ bool ExportPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIn
 }
 
 
-bool ExportPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& filename)
-{
+bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &filename) {
     QPdfWriter pdfWriter(filename);
 
     qDebug() << "exporting document to PDF" << filename;
@@ -61,7 +55,7 @@ bool ExportPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& f
     pdfWriter.setCreator("TianBoard PDF export");
 
     //need to calculate screen resolution
-    VirtualDesktop* desktop = VirtualDesktop::instance();
+    VirtualDesktop *desktop = VirtualDesktop::instance();
     int dpiCommon = desktop->physicalDpi();
     float scaleFactor = 72.0f / dpiCommon;
 
@@ -70,9 +64,9 @@ bool ExportPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& f
 
     int existingPageCount = pDocumentProxy->pageCount();
 
-    for(int pageIndex = 0 ; pageIndex < existingPageCount; pageIndex++) {
-
-        GraphicsScene* scene = PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, pageIndex);
+    for (int pageIndex = 0; pageIndex < existingPageCount; pageIndex++) {
+        GraphicsScene *scene =
+            PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, pageIndex);
         Application::showMessage(tr("Exporting page %1 of %2").arg(pageIndex + 1).arg(existingPageCount));
 
         // set background to white, no crossing for PDF output
@@ -89,11 +83,12 @@ bool ExportPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& f
         scene->setRenderingContext(GraphicsScene::NonScreen);
 
         // Setting output page size
-        QPageSize outputPageSize = QPageSize(QSizeF(pageSize.width()*scaleFactor, pageSize.height()*scaleFactor), QPageSize::Point);
+        QPageSize outputPageSize = QPageSize(
+            QSizeF(pageSize.width() * scaleFactor, pageSize.height() * scaleFactor), QPageSize::Point);
         pdfWriter.setPageSize(outputPageSize);
 
         // Call begin only once
-        if(painterNeedsBegin)
+        if (painterNeedsBegin)
             painterNeedsBegin = !pdfPainter.begin(&pdfWriter);
 
         else if (pageIndex < existingPageCount)
@@ -110,18 +105,16 @@ bool ExportPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& f
         scene->setBackground(isDark, pageBackground);
     }
 
-    if(!painterNeedsBegin)
+    if (!painterNeedsBegin)
         pdfPainter.end();
 
     return true;
 }
 
-QString ExportPDF::exportExtention()
-{
+QString ExportPDF::exportExtention() {
     return QString(".pdf");
 }
 
-QString ExportPDF::exportName()
-{
+QString ExportPDF::exportName() {
     return tr("Export to PDF");
 }

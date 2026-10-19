@@ -10,141 +10,135 @@ class GraphicsScene;
 class WebView;
 class RecordingPalette;
 
-class RecordingController : public QObject
-{
+class RecordingController : public QObject {
     Q_OBJECT;
 
-    private:
-        RecordingController(QObject* pParent = 0);
-        virtual ~RecordingController();
+private:
+    RecordingController(QObject *pParent = 0);
+    virtual ~RecordingController();
 
-    public:
-        static RecordingController* instance();
+public:
+    static RecordingController *instance();
 
-        virtual bool eventFilter(QObject *obj, QEvent *event);
+    virtual bool eventFilter(QObject *obj, QEvent *event);
 
-        virtual QStringList audioRecordingDevices();
+    virtual QStringList audioRecordingDevices();
 
-        QList<QAction*> audioRecordingDevicesActions();
-        QList<QAction*> videoSizeActions();
+    QList<QAction *> audioRecordingDevicesActions();
+    QList<QAction *> videoSizeActions();
 
-        QList<QAction*> publicationActions();
+    QList<QAction *> publicationActions();
 
-        enum RecordingState
-        {
-            Stopped = 0, Recording, Paused, Stopping
-        };
+    enum RecordingState { Stopped = 0, Recording, Paused, Stopping };
 
-    signals:
-        void recordingStateChanged(RecordingController::RecordingState);
-        void recordingProgressChanged(qint64 ms);
+signals:
+    void recordingStateChanged(RecordingController::RecordingState);
+    void recordingProgressChanged(qint64 ms);
 
-    public slots:
-        void start();
-        void stop();
+public slots:
+    void start();
+    void stop();
 
-        void pause();
-        void unpause();
+    void pause();
+    void unpause();
 
-        void toggleRecordingPalette(bool visible);
+    void toggleRecordingPalette(bool visible);
 
-        void recordToggled(bool record);
-        void pauseToggled(bool pause);
+    void recordToggled(bool record);
+    void pauseToggled(bool pause);
 
-    protected:
-        virtual void setSourceWidget(QWidget* pWidget);
-        virtual void timerEvent(QTimerEvent *event);
+protected:
+    virtual void setSourceWidget(QWidget *pWidget);
+    virtual void timerEvent(QTimerEvent *event);
 
-    private slots:
-        void processWidgetPaintEvent();
+private slots:
+    void processWidgetPaintEvent();
 
-        void processScenePaintEvent();
+    void processScenePaintEvent();
 
-        void sceneChanged(const QList<QRectF> & region);
-        void sceneBackgroundChanged();
+    void sceneChanged(const QList<QRectF> &region);
+    void sceneBackgroundChanged();
 
-        void activeSceneChanged();
+    void activeSceneChanged();
 
-        void applicationMainModeChanged(ApplicationController::MainMode pMode);
+    void applicationMainModeChanged(ApplicationController::MainMode pMode);
 
-        void applicationDesktopMode(bool displayed);
+    void applicationDesktopMode(bool displayed);
 
-        void webActiveWebPageChanged(WebView* pWebView);
+    void webActiveWebPageChanged(WebView *pWebView);
 
-        void encodingStatus(const QString& pStatus);
+    void encodingStatus(const QString &pStatus);
 
-        void encodingFinished(bool ok);
+    void encodingFinished(bool ok);
 
-        void applicationAboutToQuit();
+    void applicationAboutToQuit();
 
-        void groupActionTriggered(QAction*);
-        void actionToggled(bool);
+    void groupActionTriggered(QAction *);
+    void actionToggled(bool);
 
-        void updateActionState();
+    void updateActionState();
 
-    private:
-        void setRecordingState(RecordingState pRecordingState);
+private:
+    void setRecordingState(RecordingState pRecordingState);
 
-        void sendLatestPixmapToEncoder();
+    void sendLatestPixmapToEncoder();
 
-        long elapsedRecordingMs();
+    long elapsedRecordingMs();
 
-        static RecordingController* sInstance;
+    static RecordingController *sInstance;
 
-        QPointer<AbstractVideoEncoder> mVideoEncoder;
+    QPointer<AbstractVideoEncoder> mVideoEncoder;
 
-        QTime mRecordStartTime;
+    QTime mRecordStartTime;
 
-        bool mIsGrabbing;
+    bool mIsGrabbing;
 
-        QQueue<QRect> mWidgetRepaintRectQueue;
-        QQueue<QRectF> mSceneRepaintRectQueue;
+    QQueue<QRect> mWidgetRepaintRectQueue;
+    QQueue<QRectF> mSceneRepaintRectQueue;
 
-        bool mInitialized;
+    bool mInitialized;
 
-        QImage mLatestCapture;
+    QImage mLatestCapture;
 
-        int mVideoFramesPerSecondAtStart;
-        QSize mVideoFrameSizeAtStart;
-        long mVideoBitsPerSecondAtStart;
+    int mVideoFramesPerSecondAtStart;
+    QSize mVideoFrameSizeAtStart;
+    long mVideoBitsPerSecondAtStart;
 
-        static unsigned int sBackgroundColor;
+    static unsigned int sBackgroundColor;
 
-        QWidget* mSourceWidget;
+    QWidget *mSourceWidget;
 
-        GraphicsScene* mSourceScene;
+    GraphicsScene *mSourceScene;
 
-        QTransform mViewToVideoTransform;
+    QTransform mViewToVideoTransform;
 
-        int mScreenGrabingTimerEventID;
-        int mRecordingProgressTimerEventID;
+    int mScreenGrabingTimerEventID;
+    int mRecordingProgressTimerEventID;
 
-        int mPartNumber;
+    int mPartNumber;
 
-        void startNextChapter();
+    void startNextChapter();
 
-        RecordingPalette *mRecordingPalette;
+    RecordingPalette *mRecordingPalette;
 
-        RecordingState mRecordingState;
+    RecordingState mRecordingState;
 
-        bool mApplicationIsClosing;
+    bool mApplicationIsClosing;
 
-        QTime mTimeAtPaused;
-        long mRecordingTimestampOffset;
+    QTime mTimeAtPaused;
+    long mRecordingTimestampOffset;
 
-        QAction *mDefaultAudioInputDeviceAction;
-        QAction *mNoAudioInputDeviceAction;
+    QAction *mDefaultAudioInputDeviceAction;
+    QAction *mNoAudioInputDeviceAction;
 
-        QList<QAction*> mAudioInputDevicesActions;
-        QList<QAction*> mVideoSizesActions;
+    QList<QAction *> mAudioInputDevicesActions;
+    QList<QAction *> mVideoSizesActions;
 
-        QAction* mSmallVideoSizeAction;
-        QAction* mMediumVideoSizeAction;
-        QAction* mFullVideoSizeAction;
+    QAction *mSmallVideoSizeAction;
+    QAction *mMediumVideoSizeAction;
+    QAction *mFullVideoSizeAction;
 
-        QList<QAction*> mPublicationActions;
+    QList<QAction *> mPublicationActions;
 
-        QString mRecordingPath;
-
+    QString mRecordingPath;
 };
-

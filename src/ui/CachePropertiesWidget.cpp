@@ -12,27 +12,27 @@
 #include "whiteboard/GraphicsScene.h"
 
 
-static QVector<GraphicsCache*> mCaches;
+static QVector<GraphicsCache *> mCaches;
 
-CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name):DockPaletteWidget(parent)
-  , mpLayout(NULL)
-  , mpCachePropertiesLabel(NULL)
-  , mpColorLabel(NULL)
-  , mpShapeLabel(NULL)
-  , mpSizeLabel(NULL)
-  , mpColor(NULL)
-  , mpSquareButton(NULL)
-  , mpCircleButton(NULL)
-  , mpCloseButton(NULL)
-  , mpSizeSlider(NULL)
-  , mpColorLayout(NULL)
-  , mpShapeLayout(NULL)
-  , mpSizeLayout(NULL)
-  , mpCloseLayout(NULL)
-  , mpProperties(NULL)
-  , mpPropertiesLayout(NULL)
-  , mpCurrentCache(NULL)
-{
+CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
+    : DockPaletteWidget(parent),
+      mpLayout(NULL),
+      mpCachePropertiesLabel(NULL),
+      mpColorLabel(NULL),
+      mpShapeLabel(NULL),
+      mpSizeLabel(NULL),
+      mpColor(NULL),
+      mpSquareButton(NULL),
+      mpCircleButton(NULL),
+      mpCloseButton(NULL),
+      mpSizeSlider(NULL),
+      mpColorLayout(NULL),
+      mpShapeLayout(NULL),
+      mpSizeLayout(NULL),
+      mpCloseLayout(NULL),
+      mpProperties(NULL),
+      mpPropertiesLayout(NULL),
+      mpCurrentCache(NULL) {
     setObjectName(name);
 
     SET_STYLE_SHEET();
@@ -102,7 +102,7 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name):
     mpPropertiesLayout->addLayout(mpSizeLayout, 0);
 
     // Close
-    mpCloseLayout =  new QHBoxLayout();
+    mpCloseLayout = new QHBoxLayout();
     mpCloseButton = new QPushButton(tr("Close"), mpProperties);
     mpCloseButton->setObjectName("DockPaletteWidgetButton");
     mpCloseLayout->addWidget(mpCloseButton, 0);
@@ -118,98 +118,81 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name):
     connect(mpCircleButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
     connect(mpSquareButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
     connect(mpSizeSlider, &QSlider::valueChanged, this, &CachePropertiesWidget::onSizeChanged);
-    connect(Application::boardController, &BoardController::activeSceneChanged, this, &CachePropertiesWidget::updateCurrentCache);
-    connect(Application::boardController, &BoardController::cacheEnabled, this, &CachePropertiesWidget::onCacheEnabled);
+    connect(Application::boardController, &BoardController::activeSceneChanged, this,
+            &CachePropertiesWidget::updateCurrentCache);
+    connect(Application::boardController, &BoardController::cacheEnabled, this,
+            &CachePropertiesWidget::onCacheEnabled);
 }
 
-CachePropertiesWidget::~CachePropertiesWidget()
-{
-    if(NULL != mpCachePropertiesLabel)
-    {
+CachePropertiesWidget::~CachePropertiesWidget() {
+    if (NULL != mpCachePropertiesLabel) {
         delete mpCachePropertiesLabel;
         mpCachePropertiesLabel = NULL;
     }
-    if(NULL != mpColorLabel)
-    {
+    if (NULL != mpColorLabel) {
         delete mpColorLabel;
         mpColorLabel = NULL;
     }
-    if(NULL != mpShapeLabel)
-    {
+    if (NULL != mpShapeLabel) {
         delete mpShapeLabel;
         mpShapeLabel = NULL;
     }
-    if(NULL != mpSizeLabel)
-    {
+    if (NULL != mpSizeLabel) {
         delete mpSizeLabel;
         mpSizeLabel = NULL;
     }
-    if(NULL != mpColor)
-    {
+    if (NULL != mpColor) {
         delete mpColor;
         mpColor = NULL;
     }
-    if(NULL != mpSquareButton)
-    {
+    if (NULL != mpSquareButton) {
         delete mpSquareButton;
         mpSquareButton = NULL;
     }
-    if(NULL != mpCircleButton)
-    {
+    if (NULL != mpCircleButton) {
         delete mpCircleButton;
         mpCircleButton = NULL;
     }
-    if(NULL != mpCloseButton)
-    {
+    if (NULL != mpCloseButton) {
         delete mpCloseButton;
         mpCloseButton = NULL;
     }
-    if(NULL != mpSizeSlider)
-    {
+    if (NULL != mpSizeSlider) {
         delete mpSizeSlider;
         mpSizeSlider = NULL;
     }
-    if(NULL != mpColorLayout)
-    {
+    if (NULL != mpColorLayout) {
         delete mpColorLayout;
         mpColorLayout = NULL;
     }
-    if(NULL != mpShapeLayout)
-    {
+    if (NULL != mpShapeLayout) {
         delete mpShapeLayout;
         mpShapeLayout = NULL;
     }
-    if(NULL != mpSizeLayout)
-    {
+    if (NULL != mpSizeLayout) {
         delete mpSizeLayout;
         mpSizeLayout = NULL;
     }
-    if(NULL != mpCloseLayout)
-    {
+    if (NULL != mpCloseLayout) {
         delete mpCloseLayout;
         mpCloseLayout = NULL;
     }
-    if(NULL != mpPropertiesLayout)
-    {
+    if (NULL != mpPropertiesLayout) {
         delete mpPropertiesLayout;
         mpPropertiesLayout = NULL;
     }
-    if(NULL != mpProperties)
-    {
+    if (NULL != mpProperties) {
         delete mpProperties;
         mpProperties = NULL;
     }
-    if(NULL != mpLayout)
-    {
+    if (NULL != mpLayout) {
         delete mpLayout;
         mpLayout = NULL;
     }
 }
 
-void CachePropertiesWidget::onCloseClicked()
-{
-    if(!mCaches.empty())
-    {
+void CachePropertiesWidget::onCloseClicked() {
+    if (!mCaches.empty()) {
         // Remove the current cache from the list
         mCaches.remove(mCaches.indexOf(mpCurrentCache));
 
@@ -221,8 +204,7 @@ void CachePropertiesWidget::onCloseClicked()
     }
 }
 
-void CachePropertiesWidget::updateCacheColor(QColor color)
-{
+void CachePropertiesWidget::updateCacheColor(QColor color) {
     mActualColor = color;
 
     //  Update the color on the color button
@@ -232,53 +214,44 @@ void CachePropertiesWidget::updateCacheColor(QColor color)
     p.begin(&pix);
 
     p.setBackground(Qt::transparent);
-    p.setBrush(color);      // The current color
+    p.setBrush(color); // The current color
     p.drawRect(0, 0, 32, 32);
 
     p.end();
 
     mpColor->setIcon(QIcon(pix));
 
-    if(NULL != mpCurrentCache)
-    {
+    if (NULL != mpCurrentCache) {
         mpCurrentCache->setMaskColor(mActualColor);
     }
 }
 
-void CachePropertiesWidget::onColorClicked()
-{
+void CachePropertiesWidget::onColorClicked() {
     // Show the color picker
-    QColor newColor = QColorDialog::getColor(mActualColor,this);
+    QColor newColor = QColorDialog::getColor(mActualColor, this);
     updateCacheColor(newColor);
 }
 
-void CachePropertiesWidget::updateShapeButtons()
-{
-    if(mpCircleButton->hasFocus())
-    {
+void CachePropertiesWidget::updateShapeButtons() {
+    if (mpCircleButton->hasFocus()) {
         mActualShape = eMaskShape_Circle;
         mpSquareButton->setChecked(false);
-    }
-    else if(mpSquareButton->hasFocus())
-    {
+    } else if (mpSquareButton->hasFocus()) {
         mActualShape = eMaskShap_Rectangle;
         mpCircleButton->setChecked(false);
     }
 
-    if(NULL != mpCurrentCache)
-    {
+    if (NULL != mpCurrentCache) {
         mpCurrentCache->setMaskShape(mActualShape);
     }
 }
 
-void CachePropertiesWidget::updateCurrentCache()
-{
+void CachePropertiesWidget::updateCurrentCache() {
     bool isBoardMode = false;
     // this widget can work only on Board mode
-    if( Application::applicationController != NULL )
-    {
+    if (Application::applicationController != NULL) {
         // if app controller is available, and current mode is Board, and no show desktop, than all ok, just process
-        if( Application::applicationController->displayMode() == ApplicationController::Board &&
+        if (Application::applicationController->displayMode() == ApplicationController::Board &&
             !Application::applicationController->isShowingDesktop())
             isBoardMode = true;
     }
@@ -286,27 +259,22 @@ void CachePropertiesWidget::updateCurrentCache()
     else
         isBoardMode = true;
 
-    if(isBoardMode)
-    {
+    if (isBoardMode) {
         // Get the current page cache
-        QList<QGraphicsItem*> items = Application::boardController->activeScene()->items();
-        foreach(QGraphicsItem* it, items)
-        {
-            if("Cache" == it->data(Qt::UserRole).toString())
-            {
+        QList<QGraphicsItem *> items = Application::boardController->activeScene()->items();
+        foreach (QGraphicsItem *it, items) {
+            if ("Cache" == it->data(Qt::UserRole).toString()) {
                 setEnabled(true);
                 emit showTab(this);
-                mpCurrentCache = dynamic_cast<GraphicsCache*>(it);
-                if((NULL != mpCurrentCache) && (!mCaches.contains(mpCurrentCache)))
-                {
+                mpCurrentCache = dynamic_cast<GraphicsCache *>(it);
+                if ((NULL != mpCurrentCache) && (!mCaches.contains(mpCurrentCache))) {
                     mCaches.append(mpCurrentCache);
                 }
 
                 // Update the values of the cache properties
                 mpSizeSlider->setValue(mpCurrentCache->shapeWidth());
                 updateCacheColor(mpCurrentCache->maskColor());
-                switch(mpCurrentCache->maskshape())
-                {
+                switch (mpCurrentCache->maskshape()) {
                     case eMaskShape_Circle:
                         mpCircleButton->setChecked(true);
                         mpSquareButton->setChecked(false);
@@ -331,15 +299,12 @@ void CachePropertiesWidget::updateCurrentCache()
     setDisabled(true);
 }
 
-void CachePropertiesWidget::onSizeChanged(int newSize)
-{
-    if(NULL != mpCurrentCache)
-    {
+void CachePropertiesWidget::onSizeChanged(int newSize) {
+    if (NULL != mpCurrentCache) {
         mpCurrentCache->setShapeWidth(newSize);
     }
 }
 
-void CachePropertiesWidget::onCacheEnabled()
-{
+void CachePropertiesWidget::onCacheEnabled() {
     emit showTab(this);
 }

@@ -8,18 +8,16 @@ class QTranslator;
 
 // 运行时语言切换：装卸 QTranslator、持久化选择、并通知界面重新取词。
 // 源文本是英文，所以 "en" 不依赖任何 .qm —— 选中它等价于把翻译器摘掉。
-class LanguageManager : public QObject
-{
+class LanguageManager : public QObject {
     Q_OBJECT
 
 public:
-    struct Language
-    {
+    struct Language {
         QString code;
         QString name;
     };
 
-    static LanguageManager* instance();
+    static LanguageManager *instance();
 
     QList<Language> languages() const;
     QStringList availableCodes() const;
@@ -39,16 +37,15 @@ signals:
 
 private:
     explicit LanguageManager(QObject *parent = nullptr);
-    LanguageManager(const LanguageManager&) = delete;
-    LanguageManager& operator=(const LanguageManager&) = delete;
+    LanguageManager(const LanguageManager &) = delete;
+    LanguageManager &operator=(const LanguageManager &) = delete;
 
     bool loadCatalogue(QTranslator *translator, const QString &prefix, const QString &code) const;
 
-    static LanguageManager* sInstance;
+    static LanguageManager *sInstance;
 
-    QTranslator* mApplicationTranslator;
-    QTranslator* mQtTranslator;
+    QTranslator *mApplicationTranslator;
+    QTranslator *mQtTranslator;
     QString mCurrentLanguage;
     bool mInstalled;
 };
-

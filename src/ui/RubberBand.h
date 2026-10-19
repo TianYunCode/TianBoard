@@ -2,27 +2,15 @@
 
 #include <QRubberBand>
 
-class RubberBand : public QRubberBand
-{
+class RubberBand : public QRubberBand {
     Q_OBJECT
 
 public:
-    RubberBand(Shape s, QWidget * p = 0);
+    RubberBand(Shape s, QWidget *p = 0);
     virtual ~RubberBand();
 
 private:
-    enum enm_resizingMode
-    {
-        None,
-        Top,
-        TopLeft,
-        TopRight,
-        Bottom,
-        BottomLeft,
-        BottomRight,
-        Left,
-        Right
-    };
+    enum enm_resizingMode { None, Top, TopLeft, TopRight, Bottom, BottomLeft, BottomRight, Left, Right };
 
     enm_resizingMode determineResizingMode(QPoint pos);
     virtual void mousePressEvent(QMouseEvent *event);
@@ -30,11 +18,10 @@ private:
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    QStyle* customStyle;
+    QStyle *customStyle;
     enm_resizingMode mResizingMode;
     int mResizingBorderHeight;
     bool mMouseIsPressed;
     QPoint mLastPressedPoint;
     QPoint mLastMousePos;
 };
-

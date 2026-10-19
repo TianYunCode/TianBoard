@@ -10,14 +10,10 @@
 #include "ui/MainWindow.h"
 
 
-struct FavoriteToolPalette::Private
-{
-};
+struct FavoriteToolPalette::Private {};
 
-FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
-    : ActionPalette(Qt::Horizontal, parent)
-    , d(new Private)
-{
+FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
+    : ActionPalette(Qt::Horizontal, parent), d(new Private) {
     QWidget *container = new QWidget(this);
     container->setStyleSheet("QWidget {background-color: transparent}");
 
@@ -25,7 +21,7 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
     container->setLayout(gridLayout);
     layout()->addWidget(container);
 
-    QList<QAction*> toolsActions;
+    QList<QAction *> toolsActions;
 
     // 内置工具的全集以前是这条设置的默认值；Settings 不再认识 ToolsManager，
     // 没设置过就按“全部内置工具”兜底（这条设置从来没有写方，行为不变）。
@@ -33,12 +29,10 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
     if (favoritesToolUris.isEmpty())
         favoritesToolUris = ToolsManager::manager()->allToolIDs();
 
-    foreach(QString uri, favoritesToolUris)
-    {
+    foreach (QString uri, favoritesToolUris) {
         ToolsManager::ToolDescriptor desc = ToolsManager::manager()->toolByID(uri);
 
-        if (desc.label.length() > 0 && !desc.icon.isNull())
-        {
+        if (desc.label.length() > 0 && !desc.icon.isNull()) {
             QAction *action = new QAction(desc.label + " " + desc.version, this);
             action->setData(QUrl(desc.id));
             action->setIcon(desc.icon);
@@ -49,16 +43,15 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
     }
 
     QDir favoritesDir(Settings::settings()->userInteractiveFavoritesDirectory());
-    QStringList favoritesSubDirs =  favoritesDir.entryList(QStringList(), QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Name);
+    QStringList favoritesSubDirs = favoritesDir.entryList(
+        QStringList(), QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Name);
     QStringList appPathes;
 
-    foreach(QString subDirName, favoritesSubDirs)
-    {
+    foreach (QString subDirName, favoritesSubDirs) {
         appPathes << favoritesDir.path() + "/" + subDirName;
     }
 
-    foreach(QString widgetPath, appPathes)
-    {
+    foreach (QString widgetPath, appPathes) {
         QAction *action = new QAction(GraphicsWidgetItem::widgetName(QUrl::fromLocalFile(widgetPath)), this);
         action->setData(QUrl::fromLocalFile(widgetPath));
         action->setIcon(QIcon(GraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(widgetPath))));
@@ -68,19 +61,16 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
     }
 
 
-    if (toolsActions.size() < 4)
-    {
+    if (toolsActions.size() < 4) {
         QStringList toolsIDs = ToolsManager::manager()->allToolIDs();
 
-        foreach(QString id, favoritesToolUris)
+        foreach (QString id, favoritesToolUris)
             toolsIDs.removeAll(id);
 
-        while(toolsIDs.size() > 0 && toolsActions.size() < 4)
-        {
+        while (toolsIDs.size() > 0 && toolsActions.size() < 4) {
             ToolsManager::ToolDescriptor desc = ToolsManager::manager()->toolByID(toolsIDs.takeFirst());
 
-            if (desc.label.length() > 0)
-            {
+            if (desc.label.length() > 0) {
                 QAction *action = new QAction(desc.label + " " + desc.version, this);
                 action->setData(QUrl(desc.id));
                 action->setIcon(desc.icon);
@@ -93,9 +83,8 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
 
     int i = 0;
 
-    foreach(QAction* action, toolsActions)
-    {
-        ActionPaletteButton* button = createPaletteButton(action, container);
+    foreach (QAction *action, toolsActions) {
+        ActionPaletteButton *button = createPaletteButton(action, container);
         gridLayout->addWidget(button, i / 4, i % 4);
         appendAction(action);
         i++;
@@ -109,22 +98,18 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
 }
 
 
-void FavoriteToolPalette::addFavorite()
-{
+void FavoriteToolPalette::addFavorite() {
     // we need the sender :-( hugly ...
-    QAction* action = qobject_cast<QAction*>(sender());
+    QAction *action = qobject_cast<QAction *>(sender());
 
-    if(action)
-    {
+    if (action) {
         QVariant widgetPathVar = action->data();
-        if (!widgetPathVar.isNull())
-        {
+        if (!widgetPathVar.isNull()) {
             Application::boardController->downloadURL(widgetPathVar.toUrl());
         }
     }
 }
 
-FavoriteToolPalette::~FavoriteToolPalette()
-{
+FavoriteToolPalette::~FavoriteToolPalette() {
     // NOOP
 }

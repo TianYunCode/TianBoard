@@ -10,17 +10,16 @@
 class QGraphicsSceneMouseEvent;
 class QGraphicsItem;
 
-class GraphicsMediaItemDelegate :  public GraphicsItemDelegate
-{
+class GraphicsMediaItemDelegate : public GraphicsItemDelegate {
     Q_OBJECT
 
 public:
-    GraphicsMediaItemDelegate(GraphicsMediaItem* pDelegated, QObject * parent = 0);
+    GraphicsMediaItemDelegate(GraphicsMediaItem *pDelegated, QObject *parent = 0);
     virtual ~GraphicsMediaItemDelegate();
 
     virtual void positionHandles();
 
-    bool mousePressEvent(QGraphicsSceneMouseEvent* event);
+    bool mousePressEvent(QGraphicsSceneMouseEvent *event);
 
     void showToolBar(bool autohide = true);
 
@@ -48,14 +47,13 @@ protected slots:
 protected:
     virtual void buildButtons();
 
-    GraphicsMediaItem* delegated();
+    GraphicsMediaItem *delegated();
 
-    DelegateButton* mPlayPauseButton;
-    DelegateButton* mStopButton;
-    DelegateButton* mMuteButton;
-    DelegateMediaControl* mMediaControl;
+    DelegateButton *mPlayPauseButton;
+    DelegateButton *mStopButton;
+    DelegateButton *mMuteButton;
+    DelegateMediaControl *mMediaControl;
 
-    QTimer* mToolBarShowTimer;
+    QTimer *mToolBarShowTimer;
     int m_iToolBarShowingInterval;
 };
-

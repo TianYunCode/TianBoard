@@ -8,16 +8,11 @@
 #include "ui/MainWindow.h"
 
 
-
-struct DocumentToolsPalette::Private
-{
-};
+struct DocumentToolsPalette::Private {};
 
 DocumentToolsPalette::DocumentToolsPalette(QWidget *parent)
-    : ActionPalette(Qt::TopRightCorner, parent)
-    , d(new Private)
-{
-    QList<QAction*> actions;
+    : ActionPalette(Qt::TopRightCorner, parent), d(new Private) {
+    QList<QAction *> actions;
 
     if (PlatformUtils::hasVirtualKeyboard())
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
@@ -29,8 +24,6 @@ DocumentToolsPalette::DocumentToolsPalette(QWidget *parent)
 }
 
 
-DocumentToolsPalette::~DocumentToolsPalette()
-{
+DocumentToolsPalette::~DocumentToolsPalette() {
     // NOOP
 }
-

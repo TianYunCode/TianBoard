@@ -7,28 +7,22 @@
 #include "whiteboard/BoardView.h"
 
 
-WindowCapture::WindowCapture(DesktopAnnotationController *parent)
-        : QObject(parent)
-        , mParent(parent)
-{
+WindowCapture::WindowCapture(DesktopAnnotationController *parent) : QObject(parent), mParent(parent) {
     // NOOP
 }
 
 
-WindowCapture::~WindowCapture()
-{
+WindowCapture::~WindowCapture() {
     // NOOP
 }
 
 
-const QPixmap WindowCapture::getCapturedWindow()
-{
+const QPixmap WindowCapture::getCapturedWindow() {
     return mWindowPixmap;
 }
 
 
-int WindowCapture::execute()
-{
+int WindowCapture::execute() {
     mParent->desktopPalette()->grabMouse();
     mParent->desktopPalette()->grabKeyboard();
 

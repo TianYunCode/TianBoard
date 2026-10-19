@@ -13,14 +13,13 @@
 
 QColor GraphicsTextItem::lastUsedTextColor = QColor(Qt::black);
 
-GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
-    : QGraphicsTextItem(parent)
-    , GraphicsItem()
-    , mTypeTextHereLabel(tr("<Type Text Here>"))
-    , mMultiClickState(0)
-    , mLastMousePressTime(QTime::currentTime())
-    , isActivatedTextEditor(true)
-{
+GraphicsTextItem::GraphicsTextItem(QGraphicsItem *parent)
+    : QGraphicsTextItem(parent),
+      GraphicsItem(),
+      mTypeTextHereLabel(tr("<Type Text Here>")),
+      mMultiClickState(0),
+      mLastMousePressTime(QTime::currentTime()),
+      isActivatedTextEditor(true) {
     auto *textDelegate = new GraphicsTextItemDelegate(this, 0);
     setDelegate(textDelegate);
 
@@ -31,7 +30,9 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
     Delegate()->setFrameFlag(GF_REVOLVABLE, true);
 
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
@@ -40,76 +41,63 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
 
     setUuid(QUuid::createUuid());
 
-    connect(document(), &QTextDocument::contentsChanged,
-            textDelegate, &GraphicsTextItemDelegate::contentsChanged);
+    connect(document(), &QTextDocument::contentsChanged, textDelegate,
+            &GraphicsTextItemDelegate::contentsChanged);
     connect(document(), &QTextDocument::undoCommandAdded, this, &GraphicsTextItem::undoCommandAdded);
 
-    connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
-            this, &GraphicsTextItem::documentSizeChanged);
-
+    connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged, this,
+            &GraphicsTextItem::documentSizeChanged);
 }
 
-GraphicsTextItem::~GraphicsTextItem()
-{
-}
+GraphicsTextItem::~GraphicsTextItem() {}
 
-void GraphicsTextItem::recolor()
-{
-    GraphicsTextItemDelegate * del = dynamic_cast<GraphicsTextItemDelegate*>(Delegate());
+void GraphicsTextItem::recolor() {
+    GraphicsTextItemDelegate *del = dynamic_cast<GraphicsTextItemDelegate *>(Delegate());
     if (del)
         del->recolor();
 }
 
-void GraphicsTextItem::setSelected(bool selected)
-{
-    if(selected){
+void GraphicsTextItem::setSelected(bool selected) {
+    if (selected) {
         Delegate()->createControls();
         Delegate()->frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
     }
     QGraphicsTextItem::setSelected(selected);
 }
 
-QVariant GraphicsTextItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
+QVariant GraphicsTextItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     QVariant newValue = value;
 
-    if(Delegate())
+    if (Delegate())
         newValue = Delegate()->itemChange(change, value);
 
     return QGraphicsTextItem::itemChange(change, newValue);
 }
 
-void GraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-
+void GraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     // scene()->itemAt(pos) returns 0 if pos is not over text, but over text item, but mouse press comes.
     // It is a cludge...
-    if (StylusTool::Play == DrawingController::drawingController()->stylusTool())
-    {
+    if (StylusTool::Play == DrawingController::drawingController()->stylusTool()) {
         QGraphicsTextItem::mousePressEvent(event);
         event->accept();
         clearFocus();
         return;
     }
 
-    if (Delegate())
-    {
+    if (Delegate()) {
         Delegate()->mousePressEvent(event);
-        if (Delegate() && parentItem() && GraphicsGroupContainerItem::Type == parentItem()->type())
-        {
-            GraphicsGroupContainerItem *group = qgraphicsitem_cast<GraphicsGroupContainerItem*>(parentItem());
-            if (group)
-            {
+        if (Delegate() && parentItem() && GraphicsGroupContainerItem::Type == parentItem()->type()) {
+            GraphicsGroupContainerItem *group =
+                qgraphicsitem_cast<GraphicsGroupContainerItem *>(parentItem());
+            if (group) {
                 QGraphicsItem *curItem = group->getCurrentItem();
-                if (curItem && this != curItem)
-                {
+                if (curItem && this != curItem) {
                     group->deselectCurrentItem();
                 }
                 group->setCurrentItem(this);
                 this->setSelected(true);
                 Delegate()->positionHandles();
             }
-
         }
     }
 
@@ -122,102 +110,81 @@ void GraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     int elapsed = mLastMousePressTime.msecsTo(QTime::currentTime());
 
-    if (elapsed < Application::app()->doubleClickInterval())
-    {
+    if (elapsed < Application::app()->doubleClickInterval()) {
         mMultiClickState++;
         if (mMultiClickState > 3)
             mMultiClickState = 1;
-    }
-    else
-    {
+    } else {
         mMultiClickState = 1;
     }
 
     mLastMousePressTime = QTime::currentTime();
 
-    if (mMultiClickState == 1)
-    {
+    if (mMultiClickState == 1) {
         activateTextEditor(true);
         QGraphicsTextItem::mousePressEvent(event);
         setFocus();
-    }
-    else if (mMultiClickState == 2)
-    {
-        QTextCursor tc= textCursor();
+    } else if (mMultiClickState == 2) {
+        QTextCursor tc = textCursor();
         tc.select(QTextCursor::WordUnderCursor);
         setTextCursor(tc);
-    }
-    else if (mMultiClickState == 3)
-    {
-        QTextCursor tc= textCursor();
+    } else if (mMultiClickState == 3) {
+        QTextCursor tc = textCursor();
         tc.select(QTextCursor::Document);
         setTextCursor(tc);
-    }
-    else
-    {
+    } else {
         mMultiClickState = 0;
     }
 }
 
-void GraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (!Delegate() || !Delegate()->mouseMoveEvent(event))
-    {
+void GraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (!Delegate() || !Delegate()->mouseMoveEvent(event)) {
         QGraphicsTextItem::mouseMoveEvent(event);
     }
 }
 
-void GraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-{
+void GraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event) {}
 
-}
-
-void GraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     // scene()->itemAt(pos) returns 0 if pos is not over text, but over text item, but mouse press comes.
     // It is a cludge...
-    if (StylusTool::Play == DrawingController::drawingController()->stylusTool())
-    {
+    if (StylusTool::Play == DrawingController::drawingController()->stylusTool()) {
         event->accept();
         clearFocus();
         return;
     }
 
-    if (mMultiClickState == 1)
-    {
+    if (mMultiClickState == 1) {
         QGraphicsTextItem::mouseReleaseEvent(event);
 
         if (Delegate())
             Delegate()->mouseReleaseEvent(event);
-    }
-    else
-    {
+    } else {
         event->accept();
     }
 }
 
-void GraphicsTextItem::keyPressEvent(QKeyEvent *event)
-{
+void GraphicsTextItem::keyPressEvent(QKeyEvent *event) {
     if (Delegate() && !Delegate()->keyPressEvent(event)) {
-        qDebug() << "GraphicsTextItem::keyPressEvent(QKeyEvent *event) has been rejected by delegate. Don't call base class method";
+        qDebug() << "GraphicsTextItem::keyPressEvent(QKeyEvent *event) has been rejected by delegate. Don't "
+                    "call base class method";
         return;
     }
 
     QGraphicsTextItem::keyPressEvent(event);
 }
 
-void GraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
-{
+void GraphicsTextItem::keyReleaseEvent(QKeyEvent *event) {
     if (Delegate() && !Delegate()->keyReleaseEvent(event)) {
-        qDebug() << "GraphicsTextItem::keyPressEvent(QKeyEvent *event) has been rejected by delegate. Don't call base class method";
+        qDebug() << "GraphicsTextItem::keyPressEvent(QKeyEvent *event) has been rejected by delegate. Don't "
+                    "call base class method";
         return;
     }
 
     QGraphicsTextItem::keyReleaseEvent(event);
 }
 
-void GraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     // Never draw the rubber band, we draw our custom selection with the DelegateFrame
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
     styleOption.state &= ~QStyle::State_Selected;
@@ -225,11 +192,9 @@ void GraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     QGraphicsTextItem::paint(painter, &styleOption, widget);
 
-    if (widget == Application::boardController->controlView()->viewport() && !isSelected())
-    {
+    if (widget == Application::boardController->controlView()->viewport() && !isSelected()) {
         setTextInteractionFlags(Qt::NoTextInteraction);
-        if (toPlainText().isEmpty())
-        {
+        if (toPlainText().isEmpty()) {
             painter->setFont(font());
             painter->setPen(Settings::paletteColor);
             painter->drawText(boundingRect(), Qt::AlignCenter, mTypeTextHereLabel);
@@ -240,20 +205,17 @@ void GraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 }
 
 
-Item* GraphicsTextItem::deepCopy() const
-{
-    GraphicsTextItem* copy = new GraphicsTextItem();
+Item *GraphicsTextItem::deepCopy() const {
+    GraphicsTextItem *copy = new GraphicsTextItem();
 
     copyItemParameters(copy);
 
-   return copy;
+    return copy;
 }
 
-void GraphicsTextItem::copyItemParameters(Item *copy) const
-{
-    GraphicsTextItem *cp = dynamic_cast<GraphicsTextItem*>(copy);
-    if (cp)
-    {
+void GraphicsTextItem::copyItemParameters(Item *copy) const {
+    GraphicsTextItem *cp = dynamic_cast<GraphicsTextItem *>(copy);
+    if (cp) {
         cp->setHtml(toHtml());
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
@@ -270,25 +232,22 @@ void GraphicsTextItem::copyItemParameters(Item *copy) const
     }
 }
 
-QRectF GraphicsTextItem::boundingRect() const
-{
+QRectF GraphicsTextItem::boundingRect() const {
     qreal width = textWidth();
     qreal height = textHeight();
     return QRectF(QPointF(), QSizeF(width, height));
 }
 
 
-QPainterPath GraphicsTextItem::shape() const
-{
+QPainterPath GraphicsTextItem::shape() const {
     QPainterPath path;
     path.addRect(boundingRect());
     return path;
 }
 
-void GraphicsTextItem::setTextWidth(qreal width)
-{
+void GraphicsTextItem::setTextWidth(qreal width) {
     qreal titleBarWidth = 0;
-    GraphicsTextItemDelegate * del = dynamic_cast<GraphicsTextItemDelegate*>(Delegate());
+    GraphicsTextItemDelegate *del = dynamic_cast<GraphicsTextItemDelegate *>(Delegate());
     if (del)
         titleBarWidth = del->titleBarWidth();
 
@@ -298,8 +257,7 @@ void GraphicsTextItem::setTextWidth(qreal width)
 }
 
 
-void GraphicsTextItem::setTextHeight(qreal height)
-{
+void GraphicsTextItem::setTextHeight(qreal height) {
     QFontMetrics fm(font());
     qreal minHeight = fm.height() + document()->documentMargin() * 2;
     mTextHeight = qMax(minHeight, height);
@@ -308,8 +266,7 @@ void GraphicsTextItem::setTextHeight(qreal height)
 }
 
 
-qreal GraphicsTextItem::textHeight() const
-{
+qreal GraphicsTextItem::textHeight() const {
     return mTextHeight;
 }
 
@@ -321,8 +278,7 @@ qreal GraphicsTextItem::textHeight() const
  * the same point size may be displayed at different pixel sizes. This function returns the
  * ratio of pixel size to point size, based on the first character in the text item.
  */
-qreal GraphicsTextItem::pixelsPerPoint() const
-{
+qreal GraphicsTextItem::pixelsPerPoint() const {
     QTextCursor cursor = textCursor();
     if (cursor.isNull())
         return 0;
@@ -343,32 +299,27 @@ qreal GraphicsTextItem::pixelsPerPoint() const
     if (pointSize == 0)
         return 0;
 
-    return pixelSize/pointSize;
+    return pixelSize / pointSize;
 }
 
 
-void GraphicsTextItem::contentsChanged()
-{
-    if (scene())
-    {
+void GraphicsTextItem::contentsChanged() {
+    if (scene()) {
         scene()->setModified(true);
     }
 
-    if (toPlainText().isEmpty())
-    {
-        resize(QFontMetrics(font()).horizontalAdvance(mTypeTextHereLabel),QFontMetrics(font()).height());
+    if (toPlainText().isEmpty()) {
+        resize(QFontMetrics(font()).horizontalAdvance(mTypeTextHereLabel), QFontMetrics(font()).height());
     }
 }
 
 
-GraphicsScene* GraphicsTextItem::scene()
-{
-    return static_cast<GraphicsScene*>(QGraphicsItem::scene());
+GraphicsScene *GraphicsTextItem::scene() {
+    return static_cast<GraphicsScene *>(QGraphicsItem::scene());
 }
 
 
-void GraphicsTextItem::resize(qreal w, qreal h)
-{
+void GraphicsTextItem::resize(qreal w, qreal h) {
     setTextWidth(w);
     setTextHeight(h);
     if (Delegate())
@@ -376,40 +327,37 @@ void GraphicsTextItem::resize(qreal w, qreal h)
 }
 
 
-QSizeF GraphicsTextItem::size() const
-{
+QSizeF GraphicsTextItem::size() const {
     return QSizeF(textWidth(), textHeight());
 }
 
-void GraphicsTextItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsTextItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    setData(GraphicsItemData::ItemUuid,
+            QVariant(
+                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
 
-void GraphicsTextItem::undoCommandAdded()
-{
+void GraphicsTextItem::undoCommandAdded() {
     emit textUndoCommandAdded(this);
 }
 
 
-void GraphicsTextItem::documentSizeChanged(const QSizeF & newSize)
-{
+void GraphicsTextItem::documentSizeChanged(const QSizeF &newSize) {
     resize(newSize.width(), newSize.height());
 }
 
-void GraphicsTextItem::activateTextEditor(bool activate)
-{
+void GraphicsTextItem::activateTextEditor(bool activate) {
     qDebug() << textInteractionFlags();
 
     this->isActivatedTextEditor = activate;
 
-    if(!activate){
+    if (!activate) {
         setTextInteractionFlags(Qt::TextSelectableByMouse);
-    }else{
+    } else {
         setTextInteractionFlags(Qt::TextEditorInteraction);
     }
 
-    qDebug() <<  textInteractionFlags();
+    qDebug() << textInteractionFlags();
 }

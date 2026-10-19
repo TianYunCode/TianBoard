@@ -25,126 +25,125 @@ class MainWindow;
 class ApplicationController;
 class StartupHintsPalette;
 
-class BoardPaletteManager : public QObject
-{
+class BoardPaletteManager : public QObject {
     Q_OBJECT
 
-    public:
-        BoardPaletteManager(QWidget* container, BoardController* controller);
-        virtual ~BoardPaletteManager();
+public:
+    BoardPaletteManager(QWidget *container, BoardController *controller);
+    virtual ~BoardPaletteManager();
 
-        void setupLayout();
-        LeftPalette* leftPalette(){return mLeftPalette;}
-        RightPalette* rightPalette(){return mRightPalette;}
-        StylusPalette* stylusPalette(){return mStylusPalette;}
-        ActionPalette *addItemPalette() {return mAddItemPalette;}
-        void showVirtualKeyboard(bool show = true);
-        void initPalettesPosAtStartup();
-        void refreshPalettes();
+    void setupLayout();
+    LeftPalette *leftPalette() { return mLeftPalette; }
+    RightPalette *rightPalette() { return mRightPalette; }
+    StylusPalette *stylusPalette() { return mStylusPalette; }
+    ActionPalette *addItemPalette() { return mAddItemPalette; }
+    void showVirtualKeyboard(bool show = true);
+    void initPalettesPosAtStartup();
+    void refreshPalettes();
 
-        KeyboardPalette *mKeyboardPalette;
+    KeyboardPalette *mKeyboardPalette;
 
-        void setCurrentWebToolsPalette(WebToolsPalette *palette) {mWebToolsCurrentPalette = palette;}
-        WebToolsPalette* mWebToolsCurrentPalette;
+    void setCurrentWebToolsPalette(WebToolsPalette *palette) { mWebToolsCurrentPalette = palette; }
+    WebToolsPalette *mWebToolsCurrentPalette;
 
-        void processPalettersWidget(DockPalette *paletter, DockWidgetMode mode);
-        void changeMode(DockWidgetMode newMode, bool isInit = false);
-        void startDownloads();
-        void stopDownloads();
+    void processPalettersWidget(DockPalette *paletter, DockWidgetMode mode);
+    void changeMode(DockWidgetMode newMode, bool isInit = false);
+    void startDownloads();
+    void stopDownloads();
 
-    public slots:
-        void activeSceneChanged();
-        void containerResized();
-        void addItem(const QUrl& pUrl);
-        void addItem(const QPixmap& pPixmap, const QPointF& p = QPointF(0.0, 0.0), qreal scale = 1.0, const QUrl& sourceUrl = QUrl());
+public slots:
+    void activeSceneChanged();
+    void containerResized();
+    void addItem(const QUrl &pUrl);
+    void addItem(const QPixmap &pPixmap, const QPointF &p = QPointF(0.0, 0.0), qreal scale = 1.0,
+                 const QUrl &sourceUrl = QUrl());
 
-        void slot_changeMainMode(ApplicationController::MainMode);
-        void slot_changeDesktopMode(bool);
+    void slot_changeMainMode(ApplicationController::MainMode);
+    void slot_changeDesktopMode(bool);
 
-        void toggleErasePalette(bool ckecked);
-		
-	private:
-        void setupPalettes();
-        void connectPalettes();
-        void positionFreeDisplayPalette();
-        void setupDockPaletteWidgets();
+    void toggleErasePalette(bool ckecked);
 
-        QWidget* mContainer;
-        BoardController *mBoardControler;
+private:
+    void setupPalettes();
+    void connectPalettes();
+    void positionFreeDisplayPalette();
+    void setupDockPaletteWidgets();
 
-        StylusPalette *mStylusPalette;
+    QWidget *mContainer;
+    BoardController *mBoardControler;
 
-        ZoomPalette *mZoomPalette;
-	    StartupHintsPalette* mTipPalette;
-        LeftPalette* mLeftPalette;
-        RightPalette* mRightPalette;
+    StylusPalette *mStylusPalette;
 
-        BackgroundPalette *mBackgroundsPalette;
-        ActionPalette *mToolsPalette;
-        ActionPalette* mAddItemPalette;
-        ActionPalette* mErasePalette;
-        ActionPalette* mPagePalette;
+    ZoomPalette *mZoomPalette;
+    StartupHintsPalette *mTipPalette;
+    LeftPalette *mLeftPalette;
+    RightPalette *mRightPalette;
 
-        QUrl mItemUrl;
-        QPixmap mPixmap;
-        QPointF mPos;
-        qreal mScaleFactor;
+    BackgroundPalette *mBackgroundsPalette;
+    ActionPalette *mToolsPalette;
+    ActionPalette *mAddItemPalette;
+    ActionPalette *mErasePalette;
+    ActionPalette *mPagePalette;
 
-        QTime mPageButtonPressedTime;
-        bool mPendingPageButtonPressed;
+    QUrl mItemUrl;
+    QPixmap mPixmap;
+    QPointF mPos;
+    qreal mScaleFactor;
 
-        QTime mZoomButtonPressedTime;
-        bool mPendingZoomButtonPressed;
+    QTime mPageButtonPressedTime;
+    bool mPendingPageButtonPressed;
 
-        QTime mPanButtonPressedTime;
-        bool mPendingPanButtonPressed;
+    QTime mZoomButtonPressedTime;
+    bool mPendingZoomButtonPressed;
 
-        QTime mEraseButtonPressedTime;
-        bool mPendingEraseButtonPressed;
+    QTime mPanButtonPressedTime;
+    bool mPendingPanButtonPressed;
 
-        PageNavigationWidget* mpPageNavigWidget;
+    QTime mEraseButtonPressedTime;
+    bool mPendingEraseButtonPressed;
 
-        CachePropertiesWidget* mpCachePropWidget;
+    PageNavigationWidget *mpPageNavigWidget;
 
-        FeaturesWidget *mpFeaturesWidget;
+    CachePropertiesWidget *mpCachePropWidget;
 
-        DockDownloadWidget* mpDownloadWidget;
+    FeaturesWidget *mpFeaturesWidget;
 
-        bool mDownloadInProgress;
+    DockDownloadWidget *mpDownloadWidget;
 
-    private slots:
-        void changeBackground();
+    bool mDownloadInProgress;
 
-        void toggleBackgroundPalette(bool checked);
-        void backgroundPaletteClosed();
+private slots:
+    void changeBackground();
 
-        void toggleStylusPalette(bool checked);
-        void toggleRecordingPalette(bool checked);
+    void toggleBackgroundPalette(bool checked);
+    void backgroundPaletteClosed();
 
-        void erasePaletteButtonPressed();
-        void erasePaletteButtonReleased();
+    void toggleStylusPalette(bool checked);
+    void toggleRecordingPalette(bool checked);
 
-        void erasePaletteClosed();
+    void erasePaletteButtonPressed();
+    void erasePaletteButtonReleased();
 
-        void togglePagePalette(bool ckecked);
-        void pagePaletteClosed();
+    void erasePaletteClosed();
 
-        void pagePaletteButtonPressed();
-        void pagePaletteButtonReleased();
+    void togglePagePalette(bool ckecked);
+    void pagePaletteClosed();
 
-        void addItemToCurrentPage();
-        void addItemToNewPage();
-        void addItemToLibrary();
+    void pagePaletteButtonPressed();
+    void pagePaletteButtonReleased();
 
-        void purchaseLinkActivated(const QString&);
+    void addItemToCurrentPage();
+    void addItemToNewPage();
+    void addItemToLibrary();
 
-        void linkClicked(const QUrl& url);
+    void purchaseLinkActivated(const QString &);
 
-        void zoomButtonPressed();
-        void zoomButtonReleased();
-        void panButtonPressed();
-        void panButtonReleased();
+    void linkClicked(const QUrl &url);
 
-        void changeStylusPaletteOrientation(QVariant var);
+    void zoomButtonPressed();
+    void zoomButtonReleased();
+    void panButtonPressed();
+    void panButtonReleased();
+
+    void changeStylusPaletteOrientation(QVariant var);
 };
-

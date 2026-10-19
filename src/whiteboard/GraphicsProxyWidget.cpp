@@ -15,9 +15,8 @@
 #include "utils/FileSystemUtils.h"
 
 
-GraphicsProxyWidget::GraphicsProxyWidget(QGraphicsItem* parent)
-    : QGraphicsProxyWidget(parent, Qt::FramelessWindowHint)
-{
+GraphicsProxyWidget::GraphicsProxyWidget(QGraphicsItem *parent)
+    : QGraphicsProxyWidget(parent, Qt::FramelessWindowHint) {
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
 
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
@@ -26,36 +25,25 @@ GraphicsProxyWidget::GraphicsProxyWidget(QGraphicsItem* parent)
 }
 
 
-GraphicsProxyWidget::~GraphicsProxyWidget()
-{
-}
+GraphicsProxyWidget::~GraphicsProxyWidget() {}
 
-void GraphicsProxyWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsProxyWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     painter->save();
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-    QGraphicsProxyWidget::paint(painter,option,widget);
+    QGraphicsProxyWidget::paint(painter, option, widget);
     Delegate()->postpaint(painter, option, widget);
     painter->restore();
 }
 
-QVariant GraphicsProxyWidget::itemChange(GraphicsItemChange change, const QVariant &value)
-{
-    if (change == QGraphicsItem::ItemCursorHasChanged &&  scene())
-    {
+QVariant GraphicsProxyWidget::itemChange(GraphicsItemChange change, const QVariant &value) {
+    if (change == QGraphicsItem::ItemCursorHasChanged && scene()) {
         unsetCursor();
     }
-    if ((change == QGraphicsItem::ItemSelectedHasChanged)
-              &&  scene())
-    {
-        if (isSelected())
-        {
+    if ((change == QGraphicsItem::ItemSelectedHasChanged) && scene()) {
+        if (isSelected()) {
             scene()->setActiveWindow(this);
-        }
-        else
-        {
-            if(scene()->activeWindow() == this)
-            {
+        } else {
+            if (scene()->activeWindow() == this) {
                 scene()->setActiveWindow(0);
             }
         }
@@ -64,25 +52,21 @@ QVariant GraphicsProxyWidget::itemChange(GraphicsItemChange change, const QVaria
     if (Delegate()) {
         QVariant newValue = Delegate()->itemChange(change, value);
         return QGraphicsProxyWidget::itemChange(change, newValue);
-    }
-    else
+    } else
         return QGraphicsProxyWidget::itemChange(change, value);
 }
 
-void GraphicsProxyWidget::setUuid(const QUuid &pUuid)
-{
+void GraphicsProxyWidget::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    setData(GraphicsItemData::ItemUuid,
+            QVariant(
+                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
-void GraphicsProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (Delegate()->mousePressEvent(event))
-    {
+void GraphicsProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mousePressEvent(event)) {
         //NOOP
-    }
-    else
-    {
+    } else {
         // QT Proxy Widget is a bit lazy, we force the selection ...
 
         setSelected(true);
@@ -91,64 +75,48 @@ void GraphicsProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
 }
 
 
-void GraphicsProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (Delegate()->mouseMoveEvent(event))
-    {
+void GraphicsProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mouseMoveEvent(event)) {
         // NOOP;
-    }
-    else
-    {
+    } else {
         QGraphicsProxyWidget::mouseMoveEvent(event);
     }
 }
 
 
-void GraphicsProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    if(Delegate()->mouseReleaseEvent(event)){
-
-    }
-    else
+void GraphicsProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mouseReleaseEvent(event)) {
+    } else
         QGraphicsProxyWidget::mouseReleaseEvent(event);
 }
 
-void GraphicsProxyWidget::wheelEvent(QGraphicsSceneWheelEvent *event)
-{
-    if( Delegate()->wheelEvent(event) )
-    {
+void GraphicsProxyWidget::wheelEvent(QGraphicsSceneWheelEvent *event) {
+    if (Delegate()->wheelEvent(event)) {
         QGraphicsProxyWidget::wheelEvent(event);
         event->accept();
     }
 }
 
-void GraphicsProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
+void GraphicsProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     Q_UNUSED(event)
-//    NOOP
+    //    NOOP
 }
-void GraphicsProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
+void GraphicsProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     Q_UNUSED(event)
-//    NOOP
+    //    NOOP
 }
 
-void GraphicsProxyWidget::resize(qreal w, qreal h)
-{
+void GraphicsProxyWidget::resize(qreal w, qreal h) {
     GraphicsProxyWidget::resize(QSizeF(w, h));
 }
 
 
-void GraphicsProxyWidget::resize(const QSizeF & pSize)
-{
-    if (pSize != size())
-    {
+void GraphicsProxyWidget::resize(const QSizeF &pSize) {
+    if (pSize != size()) {
         qreal sizeX = 0;
         qreal sizeY = 0;
 
-        if (widget())
-        {
-
+        if (widget()) {
             QSizeF minimumItemSize(widget()->minimumSize());
             if (minimumItemSize.width() > pSize.width())
                 sizeX = minimumItemSize.width();
@@ -175,13 +143,11 @@ void GraphicsProxyWidget::resize(const QSizeF & pSize)
 }
 
 
-QSizeF GraphicsProxyWidget::size() const
-{
+QSizeF GraphicsProxyWidget::size() const {
     return QGraphicsProxyWidget::size();
 }
 
 
-GraphicsScene* GraphicsProxyWidget::scene()
-{
-    return static_cast<GraphicsScene*>(QGraphicsItem::scene());
+GraphicsScene *GraphicsProxyWidget::scene() {
+    return static_cast<GraphicsScene *>(QGraphicsItem::scene());
 }

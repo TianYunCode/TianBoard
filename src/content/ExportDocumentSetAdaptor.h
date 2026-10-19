@@ -13,21 +13,19 @@ THIRD_PARTY_WARNINGS_ENABLE
 class DocumentProxy;
 class DocumentTreeModel;
 
-class ExportDocumentSetAdaptor : public ExportAdaptor
-{
+class ExportDocumentSetAdaptor : public ExportAdaptor {
     Q_OBJECT
 
-    public:
-        ExportDocumentSetAdaptor(QObject *parent = 0);
-        virtual ~ExportDocumentSetAdaptor();
+public:
+    ExportDocumentSetAdaptor(QObject *parent = 0);
+    virtual ~ExportDocumentSetAdaptor();
 
-        virtual QString exportName();
-        virtual QString exportExtention();
+    virtual QString exportName();
+    virtual QString exportExtention();
 
-        virtual void persist(DocumentProxy* pDocument);
-        bool persistData(const QModelIndex &pRootIndex, QString filename);
-        bool addDocumentToZip(const QModelIndex &pIndex, DocumentTreeModel *model, QuaZip &zip);
+    virtual void persist(DocumentProxy *pDocument);
+    bool persistData(const QModelIndex &pRootIndex, QString filename);
+    bool addDocumentToZip(const QModelIndex &pIndex, DocumentTreeModel *model, QuaZip &zip);
 
-        virtual bool associatedActionactionAvailableFor(const QModelIndex &selectedIndex);
+    virtual bool associatedActionactionAvailableFor(const QModelIndex &selectedIndex);
 };
-

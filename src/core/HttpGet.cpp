@@ -6,30 +6,23 @@
 #include "core/DownloadManager.h"
 
 
-HttpGet::HttpGet(QObject* parent)
-    : QObject(parent)
-    , mReply(0)
-    , mIsBackground(false)
-    , mRedirectionCount(0)
-    , mIsSelfAborting(false)
-{
+HttpGet::HttpGet(QObject *parent)
+    : QObject(parent), mReply(0), mIsBackground(false), mRedirectionCount(0), mIsSelfAborting(false) {
     // NOOP
 }
 
 
-HttpGet::~HttpGet()
-{
+HttpGet::~HttpGet() {
     cancelRequest();
 }
 
-void HttpGet::cancelRequest()
-{
+void HttpGet::cancelRequest() {
     if (!mReply)
         return;
 
     mIsSelfAborting = true;
 
-    QNetworkReply* reply = mReply;
+    QNetworkReply *reply = mReply;
     mReply = 0;
     disconnect(reply, nullptr, this, nullptr);
 
@@ -37,8 +30,7 @@ void HttpGet::cancelRequest()
     reply->deleteLater();
 }
 
-QNetworkReply* HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackground)
-{
+QNetworkReply *HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackground) {
     mPos = pPos;
     mSize = pSize;
     mIsBackground = isBackground;
@@ -46,7 +38,7 @@ QNetworkReply* HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackgro
 
     cancelRequest();
 
-    NetworkAccessManager * nam = NetworkAccessManager::defaultAccessManager();
+    NetworkAccessManager *nam = NetworkAccessManager::defaultAccessManager();
     mReply = nam->get(QNetworkRequest(pUrl));
 
     mDownloadedBytes.clear();
@@ -58,37 +50,30 @@ QNetworkReply* HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackgro
     return mReply;
 }
 
-void HttpGet::readyRead()
-{
-        if (mReply)
-                mDownloadedBytes += mReply->readAll();
+void HttpGet::readyRead() {
+    if (mReply)
+        mDownloadedBytes += mReply->readAll();
 }
 
 
-void HttpGet::requestFinished()
-{
-    if (!mReply || mIsSelfAborting)
-    {
+void HttpGet::requestFinished() {
+    if (!mReply || mIsSelfAborting) {
         return;
     }
 
-    if (mReply->error() != QNetworkReply::NoError)
-    {
+    if (mReply->error() != QNetworkReply::NoError) {
         qWarning() << mReply->url().toString() << "get finished with error : " << mReply->error();
 
         mDownloadedBytes.clear();
 
         mRedirectionCount = 0;
 
-        emit downloadFinished(false, mReply->url(), mReply->errorString(), mDownloadedBytes, mPos, mSize, mIsBackground);
-    }
-    else
-    {
-
+        emit downloadFinished(false, mReply->url(), mReply->errorString(), mDownloadedBytes, mPos, mSize,
+                              mIsBackground);
+    } else {
         qDebug() << mReply->url().toString() << "http get finished ...";
 
-        if (mReply->header(QNetworkRequest::LocationHeader).isValid() && mRedirectionCount < 10)
-        {
+        if (mReply->header(QNetworkRequest::LocationHeader).isValid() && mRedirectionCount < 10) {
             mRedirectionCount++;
             get(mReply->header(QNetworkRequest::LocationHeader).toUrl(), mPos, mSize, mIsBackground);
 
@@ -97,18 +82,15 @@ void HttpGet::requestFinished()
 
         mRedirectionCount = 0;
 
-        emit downloadFinished(true, mReply->url(), mReply->header(QNetworkRequest::ContentTypeHeader).toString(),
-                        mDownloadedBytes, mPos, mSize, mIsBackground);
+        emit downloadFinished(true, mReply->url(),
+                              mReply->header(QNetworkRequest::ContentTypeHeader).toString(), mDownloadedBytes,
+                              mPos, mSize, mIsBackground);
     }
-
 }
 
-void HttpGet::downloadProgressed(qint64 bytesReceived, qint64 bytesTotal)
-{
-//    qDebug() << "received: " << bytesReceived << ", / " << bytesTotal << " bytes";
-    if (-1 != bytesTotal)
-    {
+void HttpGet::downloadProgressed(qint64 bytesReceived, qint64 bytesTotal) {
+    //    qDebug() << "received: " << bytesReceived << ", / " << bytesTotal << " bytes";
+    if (-1 != bytesTotal) {
         emit downloadProgress(bytesReceived, bytesTotal);
     }
 }
-

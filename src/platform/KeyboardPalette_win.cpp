@@ -6,8 +6,7 @@
 #include "ui/MainWindow.h"
 
 
-void KeyboardButton::sendUnicodeSymbol(KEYCODE keycode)
-{
+void KeyboardButton::sendUnicodeSymbol(KEYCODE keycode) {
     INPUT input[2];
     input[0].type = INPUT_KEYBOARD;
     input[0].ki.wVk = 0;
@@ -26,8 +25,7 @@ void KeyboardButton::sendUnicodeSymbol(KEYCODE keycode)
     ::SendInput(2, input, sizeof(input[0]));
 }
 
-void KeyboardButton::sendControlSymbol(int nSymbol)
-{
+void KeyboardButton::sendControlSymbol(int nSymbol) {
     INPUT input[2];
     input[0].type = INPUT_KEYBOARD;
     input[0].ki.wVk = nSymbol;
@@ -46,28 +44,23 @@ void KeyboardButton::sendControlSymbol(int nSymbol)
     ::SendInput(2, input, sizeof(input[0]));
 }
 
-void KeyboardPalette::createCtrlButtons()
-{
+void KeyboardPalette::createCtrlButtons() {
     int ctrlID = 0;
-    KeyboardButton** ctrlButtons = createCtrlButtonArray(9);
+    KeyboardButton **ctrlButtons = createCtrlButtonArray(9);
 
-    ctrlButtons[ctrlID++] = new CntrlButton(this, 0x08, "backspace");// Backspace
-    ctrlButtons[ctrlID++] = new CntrlButton(this, 0x09, "tab");      // Tab
-    ctrlButtons[ctrlID++] = new CapsLockButton(this, "capslock");    // Shift
-    ctrlButtons[ctrlID++] = new CntrlButton(this, tr("Enter"), 0x0d);    // Enter
-    ctrlButtons[ctrlID++] = new ShiftButton(this, "shift");    // Shift
-    ctrlButtons[ctrlID++] = new ShiftButton(this, "shift");    // Shift
-    ctrlButtons[ctrlID++] = new LocaleButton(this);                  // Language Switch 
-    ctrlButtons[ctrlID++] = new CntrlButton(this, "", 0x20);         // Space
-    ctrlButtons[ctrlID++] = new LocaleButton(this);                  // Language Switch 
+    ctrlButtons[ctrlID++] = new CntrlButton(this, 0x08, "backspace"); // Backspace
+    ctrlButtons[ctrlID++] = new CntrlButton(this, 0x09, "tab");       // Tab
+    ctrlButtons[ctrlID++] = new CapsLockButton(this, "capslock");     // Shift
+    ctrlButtons[ctrlID++] = new CntrlButton(this, tr("Enter"), 0x0d); // Enter
+    ctrlButtons[ctrlID++] = new ShiftButton(this, "shift");           // Shift
+    ctrlButtons[ctrlID++] = new ShiftButton(this, "shift");           // Shift
+    ctrlButtons[ctrlID++] = new LocaleButton(this);                   // Language Switch
+    ctrlButtons[ctrlID++] = new CntrlButton(this, "", 0x20);          // Space
+    ctrlButtons[ctrlID++] = new LocaleButton(this);                   // Language Switch
 }
 
-void KeyboardPalette::checkLayout()
-{}
+void KeyboardPalette::checkLayout() {}
 
-void KeyboardPalette::onActivated(bool)
-{}
+void KeyboardPalette::onActivated(bool) {}
 
-void KeyboardPalette::onLocaleChanged(KeyboardLocale* )
-{}
-
+void KeyboardPalette::onLocaleChanged(KeyboardLocale *) {}

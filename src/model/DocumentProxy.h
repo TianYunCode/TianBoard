@@ -8,78 +8,73 @@
 
 class GraphicsScene;
 
-class DocumentProxy : public QObject
-{
+class DocumentProxy : public QObject {
     Q_OBJECT
 
-	friend class PersistenceManager;
+    friend class PersistenceManager;
 
-	public:
-		DocumentProxy();
-		DocumentProxy(const DocumentProxy &rValue);
-		DocumentProxy(const QString& pPersistencePath);
-		DocumentProxy(const QString& pPersistencePath, QMap<QString, QVariant> metadatas);
+public:
+    DocumentProxy();
+    DocumentProxy(const DocumentProxy &rValue);
+    DocumentProxy(const QString &pPersistencePath);
+    DocumentProxy(const QString &pPersistencePath, QMap<QString, QVariant> metadatas);
 
-		virtual ~DocumentProxy();
+    virtual ~DocumentProxy();
 
-		DocumentProxy * deepCopy() const;
-		bool theSameDocument(DocumentProxy *proxy);
+    DocumentProxy *deepCopy() const;
+    bool theSameDocument(DocumentProxy *proxy);
 
-		QString persistencePath() const;
+    QString persistencePath() const;
 
-		void setPersistencePath(const QString& pPersistencePath);
+    void setPersistencePath(const QString &pPersistencePath);
 
-		void setMetaData(const QString& pKey , const QVariant& pValue);
-		QVariant metaData(const QString& pKey) const;
-		QMap<QString, QVariant> metaDatas() const;
+    void setMetaData(const QString &pKey, const QVariant &pValue);
+    QVariant metaData(const QString &pKey) const;
+    QMap<QString, QVariant> metaDatas() const;
 
-		QString name() const;
-		QString groupName() const;
-		QDateTime documentDate();
+    QString name() const;
+    QString groupName() const;
+    QDateTime documentDate();
 
-		QDateTime lastUpdate();
+    QDateTime lastUpdate();
 
-		QSize defaultDocumentSize() const;
-		void setDefaultDocumentSize(QSize pSize);
-		void setDefaultDocumentSize(int pWidth, int pHeight);
+    QSize defaultDocumentSize() const;
+    void setDefaultDocumentSize(QSize pSize);
+    void setDefaultDocumentSize(int pWidth, int pHeight);
 
-		QUuid uuid() const;
-		void setUuid(const QUuid& uuid);
+    QUuid uuid() const;
+    void setUuid(const QUuid &uuid);
 
-		bool isModified() const;
+    bool isModified() const;
 
-		int pageCount();
+    int pageCount();
 
-		int pageDpi();
-		void setPageDpi(int dpi);
+    int pageDpi();
+    void setPageDpi(int dpi);
 
-	protected:
-		void setPageCount(int pPageCount);
-		int incPageCount();
-		int decPageCount();
+protected:
+    void setPageCount(int pPageCount);
+    int incPageCount();
+    int decPageCount();
 
-	private:
-		void init();
+private:
+    void init();
 
-		QString mPersistencePath;
+    QString mPersistencePath;
 
-		QMap<QString, QVariant> mMetaDatas;
+    QMap<QString, QVariant> mMetaDatas;
 
-		bool mIsModified;
+    bool mIsModified;
 
-		int mPageCount;
+    int mPageCount;
 
-		int mPageDpi;
-
+    int mPageDpi;
 };
 
-inline bool operator==(const DocumentProxy &proxy1, const DocumentProxy &proxy2)
-{
+inline bool operator==(const DocumentProxy &proxy1, const DocumentProxy &proxy2) {
     return proxy1.persistencePath() == proxy2.persistencePath();
 }
 
-inline size_t qHash(const DocumentProxy &key, size_t seed = 0)
-{
+inline size_t qHash(const DocumentProxy &key, size_t seed = 0) {
     return qHash(key.persistencePath(), seed);
 }
-

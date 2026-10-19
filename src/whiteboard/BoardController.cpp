@@ -62,28 +62,27 @@
 #include "settings/Settings.h"
 
 
-BoardController::BoardController(MainWindow* mainWindow)
-    : DocumentContainer(mainWindow->centralWidget())
-    , mMainWindow(mainWindow)
-    , mActiveScene(0)
-    , mActiveSceneIndex(-1)
-    , mPaletteManager(0)
-    , mMessageWindow(0)
-    , mControlView(0)
-    , mDisplayView(0)
-    , mControlContainer(0)
-    , mControlLayout(0)
-    , mZoomFactor(1.0)
-    , mIsClosing(false)
-    , mSystemScaleFactor(1.0)
-    , mCleanupDone(false)
-    , mCacheWidgetIsEnabled(false)
-    , mDeletingSceneIndex(-1)
-    , mMovingSceneIndex(-1)
-    , mActionGroupText(tr("Group"))
-    , mActionUngroupText(tr("Ungroup"))
-    , mAutosaveTimer(0)
-{
+BoardController::BoardController(MainWindow *mainWindow)
+    : DocumentContainer(mainWindow->centralWidget()),
+      mMainWindow(mainWindow),
+      mActiveScene(0),
+      mActiveSceneIndex(-1),
+      mPaletteManager(0),
+      mMessageWindow(0),
+      mControlView(0),
+      mDisplayView(0),
+      mControlContainer(0),
+      mControlLayout(0),
+      mZoomFactor(1.0),
+      mIsClosing(false),
+      mSystemScaleFactor(1.0),
+      mCleanupDone(false),
+      mCacheWidgetIsEnabled(false),
+      mDeletingSceneIndex(-1),
+      mMovingSceneIndex(-1),
+      mActionGroupText(tr("Group")),
+      mActionUngroupText(tr("Ungroup")),
+      mAutosaveTimer(0) {
     mZoomFactor = Settings::settings()->boardZoomFactor->get().toDouble();
 
     int penColorIndex = Settings::settings()->penColorIndex();
@@ -93,62 +92,57 @@ BoardController::BoardController(MainWindow* mainWindow)
     mPenColorOnLightBackground = Settings::settings()->penColors(false).at(penColorIndex);
     mMarkerColorOnDarkBackground = Settings::settings()->markerColors(true).at(markerColorIndex);
     mMarkerColorOnLightBackground = Settings::settings()->markerColors(false).at(markerColorIndex);
-
 }
 
 
-void BoardController::init()
-{
+void BoardController::init() {
     setupViews();
     setupToolbar();
 
-    connect(Application::undoStack, &QUndoStack::canUndoChanged
-            , this, &BoardController::undoRedoStateChange);
+    connect(Application::undoStack, &QUndoStack::canUndoChanged, this, &BoardController::undoRedoStateChange);
 
-    connect(Application::undoStack, &QUndoStack::canRedoChanged
-            , this, &BoardController::undoRedoStateChange);
+    connect(Application::undoStack, &QUndoStack::canRedoChanged, this, &BoardController::undoRedoStateChange);
 
-    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged
-            , this, &BoardController::setToolCursor);
+    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged, this,
+            &BoardController::setToolCursor);
 
-    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged
-            , this, &BoardController::stylusToolChanged);
+    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged, this,
+            &BoardController::stylusToolChanged);
 
     connect(Application::app(), &QApplication::lastWindowClosed, this, &BoardController::lastWindowClosed);
 
-    connect(DownloadManager::downloadManager(), &DownloadManager::downloadModalFinished, this, &BoardController::onDownloadModalFinished);
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadModalFinished, this,
+            &BoardController::onDownloadModalFinished);
     connect(DownloadManager::downloadManager(), &DownloadManager::addDownloadedFileToBoard, this,
-            [this](bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground) {
+            [this](bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pHeader, QByteArray pData,
+                   QPointF pPos, QSize pSize, bool isBackground) {
                 downloadFinished(pSuccess, sourceUrl, contentUrl, pHeader, pData, pPos, pSize, isBackground);
             });
 
-    DocumentProxy* doc = PersistenceManager::persistenceManager()->createNewDocument();
+    DocumentProxy *doc = PersistenceManager::persistenceManager()->createNewDocument();
 
     setActiveDocumentScene(doc);
 
     initBackgroundGridSize();
 
     undoRedoStateChange(true);
-
 }
 
 
-BoardController::~BoardController()
-{
+BoardController::~BoardController() {
     delete mDisplayView;
 }
 
 /**
  * @brief Set the default background grid size to appear as roughly 1cm on screen
  */
-void BoardController::initBackgroundGridSize()
-{
+void BoardController::initBackgroundGridSize() {
     // Besides adjusting for DPI, we also need to scale the grid size by the ratio of the control view size
     // to document size. However the control view isn't available as soon as the boardController is created,
     // so we approximate this ratio as (document resolution) / (screen resolution).
     // Later on, this is calculated by `updateSystemScaleFactor` and stored in `mSystemScaleFactor`.
 
-    VirtualDesktop* desktop = VirtualDesktop::instance();
+    VirtualDesktop *desktop = VirtualDesktop::instance();
     qreal dpi = desktop->physicalDpi();
 
     // The display manager isn't initialized yet so we have to just assume the control view is on the main display
@@ -167,13 +161,11 @@ void BoardController::initBackgroundGridSize()
     //qDebug() << "grid size: " << gridSize;
 }
 
-int BoardController::currentPage()
-{
+int BoardController::currentPage() {
     return mActiveSceneIndex + 1;
 }
 
-void BoardController::setupViews()
-{
+void BoardController::setupViews() {
     mControlContainer = new QWidget(mMainWindow->centralWidget());
 
     mControlLayout = new QHBoxLayout(mControlContainer);
@@ -203,21 +195,19 @@ void BoardController::setupViews()
     mMessageWindow = new MessageWindow(mControlContainer);
     mMessageWindow->hide();
 
-    connect(this, &BoardController::activeSceneChanged, mPaletteManager, &BoardPaletteManager::activeSceneChanged);
+    connect(this, &BoardController::activeSceneChanged, mPaletteManager,
+            &BoardPaletteManager::activeSceneChanged);
 }
 
 
-void BoardController::setupLayout()
-{
-    if(mPaletteManager)
+void BoardController::setupLayout() {
+    if (mPaletteManager)
         mPaletteManager->setupLayout();
 }
 
 
-void BoardController::setBoxing(QRect displayRect)
-{
-    if (displayRect.isNull())
-    {
+void BoardController::setBoxing(QRect displayRect) {
+    if (displayRect.isNull()) {
         mControlLayout->setContentsMargins(0, 0, 0, 0);
         return;
     }
@@ -230,39 +220,30 @@ void BoardController::setBoxing(QRect displayRect)
     qreal displayRatio = displayWidth / displayHeight;
     qreal controlRatio = controlWidth / controlHeight;
 
-    if (displayRatio < controlRatio)
-    {
+    if (displayRatio < controlRatio) {
         int boxWidth = (controlWidth - (displayWidth * (controlHeight / displayHeight))) / 2;
         mControlLayout->setContentsMargins(boxWidth, 0, boxWidth, 0);
-    }
-    else if (displayRatio > controlRatio)
-    {
+    } else if (displayRatio > controlRatio) {
         int boxHeight = (controlHeight - (displayHeight * (controlWidth / displayWidth))) / 2;
         mControlLayout->setContentsMargins(0, boxHeight, 0, boxHeight);
-    }
-    else
-    {
+    } else {
         mControlLayout->setContentsMargins(0, 0, 0, 0);
     }
 }
 
-QSize BoardController::displayViewport()
-{
+QSize BoardController::displayViewport() {
     return mDisplayView->geometry().size();
 }
 
-QSize BoardController::controlViewport()
-{
+QSize BoardController::controlViewport() {
     return mControlView->geometry().size();
 }
 
-QRectF BoardController::controlGeometry()
-{
+QRectF BoardController::controlGeometry() {
     return mControlView->geometry();
 }
 
-void BoardController::setupToolbar()
-{
+void BoardController::setupToolbar() {
     Settings *settings = Settings::settings();
     //// Setup color choice widget
     //QList<QAction *> colorActions;
@@ -328,7 +309,8 @@ void BoardController::setupToolbar()
     //mMainWindow->ui().boardToolBar->insertSeparator(mMainWindow->ui().actionBackgrounds);
 
 
-    Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().boardToolBar, mMainWindow->ui().actionBoard);
+    Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().boardToolBar,
+                                                         mMainWindow->ui().actionBoard);
 
     Application::app()->decorateActionMenu(mMainWindow->ui().actionMenu);
 
@@ -344,8 +326,7 @@ void BoardController::setupToolbar()
 }
 
 
-void BoardController::setToolCursor(int tool)
-{
+void BoardController::setToolCursor(int tool) {
     if (mActiveScene)
         mActiveScene->setToolCursor(tool);
 
@@ -353,16 +334,19 @@ void BoardController::setToolCursor(int tool)
 }
 
 
-void BoardController::connectToolbar()
-{
+void BoardController::connectToolbar() {
     connect(mMainWindow->ui().actionAdd, &QAction::triggered, this, &BoardController::addItem);
-    connect(mMainWindow->ui().actionNewPage, &QAction::triggered, this, qOverload<>(&BoardController::addScene));
-    connect(mMainWindow->ui().actionDuplicatePage, &QAction::triggered, this, qOverload<>(&BoardController::duplicateScene));
+    connect(mMainWindow->ui().actionNewPage, &QAction::triggered, this,
+            qOverload<>(&BoardController::addScene));
+    connect(mMainWindow->ui().actionDuplicatePage, &QAction::triggered, this,
+            qOverload<>(&BoardController::duplicateScene));
 
     connect(mMainWindow->ui().actionClearPage, &QAction::triggered, this, &BoardController::clearScene);
     connect(mMainWindow->ui().actionEraseItems, &QAction::triggered, this, &BoardController::clearSceneItems);
-    connect(mMainWindow->ui().actionEraseAnnotations, &QAction::triggered, this, &BoardController::clearSceneAnnotation);
-    connect(mMainWindow->ui().actionEraseBackground,&QAction::triggered,this,&BoardController::clearSceneBackground);
+    connect(mMainWindow->ui().actionEraseAnnotations, &QAction::triggered, this,
+            &BoardController::clearSceneAnnotation);
+    connect(mMainWindow->ui().actionEraseBackground, &QAction::triggered, this,
+            &BoardController::clearSceneBackground);
 
     connect(mMainWindow->ui().actionUndo, &QAction::triggered, Application::undoStack, &QUndoStack::undo);
     connect(mMainWindow->ui().actionRedo, &QAction::triggered, Application::undoStack, &QUndoStack::redo);
@@ -371,22 +355,20 @@ void BoardController::connectToolbar()
     connect(mMainWindow->ui().actionForward, &QAction::triggered, this, &BoardController::nextScene);
     connect(mMainWindow->ui().actionSleep, &QAction::triggered, this, &BoardController::stopScript);
     connect(mMainWindow->ui().actionSleep, &QAction::triggered, this, &BoardController::blackout);
-    connect(mMainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this, &BoardController::showKeyboard);
+    connect(mMainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this,
+            &BoardController::showKeyboard);
     connect(mMainWindow->ui().actionImportPage, &QAction::triggered, this, &BoardController::importPage);
 }
 
-void BoardController::startScript()
-{
+void BoardController::startScript() {
     freezeWebWidgets(false);
 }
 
-void BoardController::stopScript()
-{
+void BoardController::stopScript() {
     freezeWebWidgets(true);
 }
 
-void BoardController::saveData(SaveFlags fls)
-{
+void BoardController::saveData(SaveFlags fls) {
     bool verbose = fls | sf_showProgress;
     if (verbose) {
         Application::showMessage(tr("Saving document..."));
@@ -399,16 +381,14 @@ void BoardController::saveData(SaveFlags fls)
     }
 }
 
-void BoardController::initToolbarTexts()
-{
-    QList<QAction*> allToolbarActions;
+void BoardController::initToolbarTexts() {
+    QList<QAction *> allToolbarActions;
 
     allToolbarActions << mMainWindow->ui().boardToolBar->actions();
     allToolbarActions << mMainWindow->ui().webToolBar->actions();
     allToolbarActions << mMainWindow->ui().documentToolBar->actions();
 
-    foreach(QAction* action, allToolbarActions)
-    {
+    foreach (QAction *action, allToolbarActions) {
         QString nominalText = action->text();
         QString shortText = truncate(nominalText, 48);
         QPair<QString, QString> texts(nominalText, shortText);
@@ -418,8 +398,7 @@ void BoardController::initToolbarTexts()
 }
 
 
-void BoardController::setToolbarTexts()
-{
+void BoardController::setToolbarTexts() {
     bool highResolution = mMainWindow->width() > 1024;
     QSize iconSize;
 
@@ -432,14 +411,12 @@ void BoardController::setToolbarTexts()
     mMainWindow->ui().webToolBar->setIconSize(iconSize);
     mMainWindow->ui().documentToolBar->setIconSize(iconSize);
 
-    foreach(QAction* action, mActionTexts.keys())
-    {
+    foreach (QAction *action, mActionTexts.keys()) {
         QPair<QString, QString> texts = mActionTexts.value(action);
 
         if (highResolution)
             action->setText(texts.first);
-        else
-        {
+        else {
             action->setText(texts.second);
         }
 
@@ -448,52 +425,42 @@ void BoardController::setToolbarTexts()
 }
 
 
-QString BoardController::truncate(QString text, int maxWidth)
-{
+QString BoardController::truncate(QString text, int maxWidth) {
     QFontMetricsF fontMetrics(mMainWindow->font());
     return fontMetrics.elidedText(text, Qt::ElideRight, maxWidth);
 }
 
 
-void BoardController::stylusToolDoubleClicked(int tool)
-{
-    if (tool == StylusTool::ZoomIn || tool == StylusTool::ZoomOut)
-    {
+void BoardController::stylusToolDoubleClicked(int tool) {
+    if (tool == StylusTool::ZoomIn || tool == StylusTool::ZoomOut) {
         zoomRestore();
-    }
-    else if (tool == StylusTool::Hand)
-    {
+    } else if (tool == StylusTool::Hand) {
         centerRestore();
-        mActiveScene->setLastCenter(QPointF(0,0));
+        mActiveScene->setLastCenter(QPointF(0, 0));
     }
 }
 
 
-
-void BoardController::addScene()
-{
+void BoardController::addScene() {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     persistViewPositionOnCurrentScene();
-    persistCurrentScene(false,true);
+    persistCurrentScene(false, true);
 
     DocumentContainer::addPage(mActiveSceneIndex + 1);
 
-    selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+    selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                    StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
     setActiveDocumentScene(mActiveSceneIndex + 1);
     QApplication::restoreOverrideCursor();
 }
 
-void BoardController::addScene(GraphicsScene* scene, bool replaceActiveIfEmpty)
-{
-    if (scene)
-    {
-        GraphicsScene* clone = scene->sceneDeepCopy();
+void BoardController::addScene(GraphicsScene *scene, bool replaceActiveIfEmpty) {
+    if (scene) {
+        GraphicsScene *clone = scene->sceneDeepCopy();
 
-        if (scene->document() && (scene->document() != selectedDocument()))
-        {
-            foreach(QUrl relativeFile, scene->relativeDependencies())
-            {
+        if (scene->document() && (scene->document() != selectedDocument())) {
+            foreach (QUrl relativeFile, scene->relativeDependencies()) {
                 QString source = scene->document()->persistencePath() + "/" + relativeFile.path();
                 QString destination = selectedDocument()->persistencePath() + "/" + relativeFile.path();
 
@@ -501,40 +468,37 @@ void BoardController::addScene(GraphicsScene* scene, bool replaceActiveIfEmpty)
             }
         }
 
-        if (replaceActiveIfEmpty && mActiveScene->isEmpty())
-        {
-            PersistenceManager::persistenceManager()->insertDocumentSceneAt(selectedDocument(), clone, mActiveSceneIndex);
+        if (replaceActiveIfEmpty && mActiveScene->isEmpty()) {
+            PersistenceManager::persistenceManager()->insertDocumentSceneAt(selectedDocument(), clone,
+                                                                            mActiveSceneIndex);
             emit addThumbnailRequired(this, mActiveSceneIndex);
             setActiveDocumentScene(mActiveSceneIndex);
             deleteScene(mActiveSceneIndex + 1);
-        }
-        else
-        {
-            persistCurrentScene(false,true);
-            PersistenceManager::persistenceManager()->insertDocumentSceneAt(selectedDocument(), clone, mActiveSceneIndex + 1);
+        } else {
+            persistCurrentScene(false, true);
+            PersistenceManager::persistenceManager()->insertDocumentSceneAt(selectedDocument(), clone,
+                                                                            mActiveSceneIndex + 1);
             emit addThumbnailRequired(this, mActiveSceneIndex + 1);
             setActiveDocumentScene(mActiveSceneIndex + 1);
         }
 
-        selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                        StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
     }
 }
 
 
-void BoardController::addScene(DocumentProxy* proxy, int sceneIndex, bool replaceActiveIfEmpty)
-{
-    GraphicsScene* scene = PersistenceManager::persistenceManager()->loadDocumentScene(proxy, sceneIndex);
+void BoardController::addScene(DocumentProxy *proxy, int sceneIndex, bool replaceActiveIfEmpty) {
+    GraphicsScene *scene = PersistenceManager::persistenceManager()->loadDocumentScene(proxy, sceneIndex);
 
-    if (scene)
-    {
+    if (scene) {
         addScene(scene, replaceActiveIfEmpty);
     }
 }
 
-void BoardController::duplicateScene(int nIndex)
-{
+void BoardController::duplicateScene(int nIndex) {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    persistCurrentScene(false,true);
+    persistCurrentScene(false, true);
 
     QList<int> scIndexes;
     scIndexes << nIndex;
@@ -542,21 +506,20 @@ void BoardController::duplicateScene(int nIndex)
     insertThumbPage(nIndex);
     emit documentThumbnailsUpdated(this);
     emit addThumbnailRequired(this, nIndex + 1);
-    selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+    selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                    StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
     setActiveDocumentScene(nIndex + 1);
     QApplication::restoreOverrideCursor();
 }
 
-void BoardController::duplicateScene()
-{
+void BoardController::duplicateScene() {
     if (Application::applicationController->displayMode() != ApplicationController::Board)
         return;
     duplicateScene(mActiveSceneIndex);
 }
 
-GraphicsItem *BoardController::duplicateItem(Item *item)
-{
+GraphicsItem *BoardController::duplicateItem(Item *item) {
     if (!item)
         return NULL;
 
@@ -571,14 +534,12 @@ GraphicsItem *BoardController::duplicateItem(Item *item)
     QPointF itemPos;
     QSizeF itemSize;
 
-    QGraphicsItem *commonItem = dynamic_cast<QGraphicsItem*>(item);
-    if (commonItem)
-    {
+    QGraphicsItem *commonItem = dynamic_cast<QGraphicsItem *>(item);
+    if (commonItem) {
         qreal shifting = Settings::settings()->objectFrameWidth;
-        itemPos = commonItem->pos() + QPointF(shifting,shifting);
+        itemPos = commonItem->pos() + QPointF(shifting, shifting);
         itemSize = commonItem->boundingRect().size();
         commonItem->setSelected(false);
-
     }
 
     MimeType::Enum itemMimeType;
@@ -591,99 +552,86 @@ GraphicsItem *BoardController::duplicateItem(Item *item)
     if (!srcFile.isEmpty())
         contentTypeHeader = FileSystemUtils::mimeTypeFromFileName(srcFile);
 
-    if(NULL != qgraphicsitem_cast<GraphicsGroupContainerItem*>(commonItem))
+    if (NULL != qgraphicsitem_cast<GraphicsGroupContainerItem *>(commonItem))
         itemMimeType = MimeType::Group;
     else
         itemMimeType = FileSystemUtils::mimeTypeFromString(contentTypeHeader);
 
-    switch(static_cast<int>(itemMimeType))
-    {
-    case MimeType::AppleWidget:
-    case MimeType::WebWidget:
-        {
-            GraphicsWidgetItem *witem = dynamic_cast<GraphicsWidgetItem*>(item);
-            if (witem)
-            {
+    switch (static_cast<int>(itemMimeType)) {
+        case MimeType::AppleWidget:
+        case MimeType::WebWidget: {
+            GraphicsWidgetItem *witem = dynamic_cast<GraphicsWidgetItem *>(item);
+            if (witem) {
                 sourceUrl = witem->getOwnFolder();
             }
-        }break;
+        } break;
 
-    case MimeType::Video:
-    case MimeType::Audio:
-        {
-            GraphicsMediaItem *mitem = dynamic_cast<GraphicsMediaItem*>(item);
-            if (mitem)
-            {
+        case MimeType::Video:
+        case MimeType::Audio: {
+            GraphicsMediaItem *mitem = dynamic_cast<GraphicsMediaItem *>(item);
+            if (mitem) {
                 sourceUrl = mitem->mediaFileUrl();
-                downloadURL(sourceUrl, srcFile, itemPos, QSize(itemSize.width(), itemSize.height()), false, false);
+                downloadURL(sourceUrl, srcFile, itemPos, QSize(itemSize.width(), itemSize.height()), false,
+                            false);
                 return NULL; // async operation
             }
-        }break;
+        } break;
 
-    case MimeType::VectorImage:
-        {
-            GraphicsSvgItem *viitem = dynamic_cast<GraphicsSvgItem*>(item);
-            if (viitem)
-            {
+        case MimeType::VectorImage: {
+            GraphicsSvgItem *viitem = dynamic_cast<GraphicsSvgItem *>(item);
+            if (viitem) {
                 pData = viitem->fileData();
                 sourceUrl = item->sourceUrl();
             }
-        }break;
+        } break;
 
-    case MimeType::RasterImage:
-        {
-            GraphicsPixmapItem *pixitem = dynamic_cast<GraphicsPixmapItem*>(item);
-            if (pixitem)
-            {
-                 QBuffer buffer(&pData);
-                 buffer.open(QIODevice::WriteOnly);
-                 QString format = FileSystemUtils::extension(item->sourceUrl().toString(QUrl::DecodeReserved));
-                 pixitem->pixmap().save(&buffer, format.toLatin1());
+        case MimeType::RasterImage: {
+            GraphicsPixmapItem *pixitem = dynamic_cast<GraphicsPixmapItem *>(item);
+            if (pixitem) {
+                QBuffer buffer(&pData);
+                buffer.open(QIODevice::WriteOnly);
+                QString format = FileSystemUtils::extension(item->sourceUrl().toString(QUrl::DecodeReserved));
+                pixitem->pixmap().save(&buffer, format.toLatin1());
             }
-        }break;
+        } break;
 
-    case MimeType::Group:
-    {
-        GraphicsGroupContainerItem* groupItem = dynamic_cast<GraphicsGroupContainerItem*>(item);
-        GraphicsGroupContainerItem* duplicatedGroup = NULL;
+        case MimeType::Group: {
+            GraphicsGroupContainerItem *groupItem = dynamic_cast<GraphicsGroupContainerItem *>(item);
+            GraphicsGroupContainerItem *duplicatedGroup = NULL;
 
-        QList<QGraphicsItem*> duplicatedItems;
-        QList<QGraphicsItem*> children = groupItem->childItems();
+            QList<QGraphicsItem *> duplicatedItems;
+            QList<QGraphicsItem *> children = groupItem->childItems();
 
-        mActiveScene->setURStackEnable(false);
-        foreach(QGraphicsItem* pIt, children){
-            Item* pItem = dynamic_cast<Item*>(pIt);
-            if(pItem)
-            {
-                QGraphicsItem * itemToGroup = dynamic_cast<QGraphicsItem *>(duplicateItem(pItem));
-                if (itemToGroup)
-                {
-                    itemToGroup->setZValue(pIt->zValue());
-                    itemToGroup->setData(GraphicsItemData::ItemOwnZValue, pIt->data(GraphicsItemData::ItemOwnZValue).toReal());
-                    duplicatedItems.append(itemToGroup);
+            mActiveScene->setURStackEnable(false);
+            foreach (QGraphicsItem *pIt, children) {
+                Item *pItem = dynamic_cast<Item *>(pIt);
+                if (pItem) {
+                    QGraphicsItem *itemToGroup = dynamic_cast<QGraphicsItem *>(duplicateItem(pItem));
+                    if (itemToGroup) {
+                        itemToGroup->setZValue(pIt->zValue());
+                        itemToGroup->setData(GraphicsItemData::ItemOwnZValue,
+                                             pIt->data(GraphicsItemData::ItemOwnZValue).toReal());
+                        duplicatedItems.append(itemToGroup);
+                    }
                 }
             }
-        }
-        duplicatedGroup = mActiveScene->createGroup(duplicatedItems);
-        duplicatedGroup->setTransform(groupItem->transform());
-        groupItem->setSelected(false);
+            duplicatedGroup = mActiveScene->createGroup(duplicatedItems);
+            duplicatedGroup->setTransform(groupItem->transform());
+            groupItem->setSelected(false);
 
-        retItem = dynamic_cast<GraphicsItem *>(duplicatedGroup);
+            retItem = dynamic_cast<GraphicsItem *>(duplicatedGroup);
 
-        QGraphicsItem * itemToAdd = dynamic_cast<QGraphicsItem *>(retItem);
-        if (itemToAdd)
-        {
-            mActiveScene->addItem(itemToAdd);
-            itemToAdd->setSelected(true);
-        }
-        mActiveScene->setURStackEnable(true);
-    }break;
+            QGraphicsItem *itemToAdd = dynamic_cast<QGraphicsItem *>(retItem);
+            if (itemToAdd) {
+                mActiveScene->addItem(itemToAdd);
+                itemToAdd->setSelected(true);
+            }
+            mActiveScene->setURStackEnable(true);
+        } break;
 
-    case MimeType::UNKNOWN:
-        {
-            QGraphicsItem *gitem = dynamic_cast<QGraphicsItem*>(item->deepCopy());
-            if (gitem)
-            {
+        case MimeType::UNKNOWN: {
+            QGraphicsItem *gitem = dynamic_cast<QGraphicsItem *>(item->deepCopy());
+            if (gitem) {
                 mActiveScene->addItem(gitem);
 
                 gitem->setPos(itemPos);
@@ -692,29 +640,28 @@ GraphicsItem *BoardController::duplicateItem(Item *item)
                 gitem->setSelected(true);
             }
             retItem = dynamic_cast<GraphicsItem *>(gitem);
-        }break;
+        } break;
     }
 
-    if (retItem)
-    {
+    if (retItem) {
         QGraphicsItem *graphicsRetItem = dynamic_cast<QGraphicsItem *>(retItem);
         if (mActiveScene->isURStackIsEnabled()) { //should be deleted after scene own undo stack implemented
-             GraphicsItemUndoCommand* uc = new GraphicsItemUndoCommand(mActiveScene, 0, graphicsRetItem);
-             Application::undoStack->push(uc);
+            GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(mActiveScene, 0, graphicsRetItem);
+            Application::undoStack->push(uc);
         }
         return retItem;
     }
 
-    Item *createdItem = downloadFinished(true, sourceUrl, QUrl::fromLocalFile(srcFile), contentTypeHeader, pData, itemPos, QSize(itemSize.width(), itemSize.height()), false);
-    if (createdItem)
-    {
+    Item *createdItem = downloadFinished(true, sourceUrl, QUrl::fromLocalFile(srcFile), contentTypeHeader,
+                                         pData, itemPos, QSize(itemSize.width(), itemSize.height()), false);
+    if (createdItem) {
         createdItem->setSourceUrl(item->sourceUrl());
         item->copyItemParameters(createdItem);
 
-        QGraphicsItem *createdGitem = dynamic_cast<QGraphicsItem*>(createdItem);
+        QGraphicsItem *createdGitem = dynamic_cast<QGraphicsItem *>(createdItem);
         if (createdGitem)
             createdGitem->setPos(itemPos);
-        mLastCreatedItem = dynamic_cast<QGraphicsItem*>(createdItem);
+        mLastCreatedItem = dynamic_cast<QGraphicsItem *>(createdItem);
         mLastCreatedItem->setSelected(true);
 
         retItem = dynamic_cast<GraphicsItem *>(createdItem);
@@ -723,47 +670,42 @@ GraphicsItem *BoardController::duplicateItem(Item *item)
     return retItem;
 }
 
-void BoardController::deleteScene(int nIndex)
-{
-    if (selectedDocument()->pageCount()>=2)
-    {
+void BoardController::deleteScene(int nIndex) {
+    if (selectedDocument()->pageCount() >= 2) {
         mDeletingSceneIndex = nIndex;
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         persistCurrentScene();
-        showMessage(tr("Deleting page %1").arg(nIndex+1), true);
+        showMessage(tr("Deleting page %1").arg(nIndex + 1), true);
 
         QList<int> scIndexes;
         scIndexes << nIndex;
         deletePages(scIndexes);
-        selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                        StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
         if (nIndex >= pageCount())
-            nIndex = pageCount()-1;
+            nIndex = pageCount() - 1;
         setActiveDocumentScene(nIndex);
-        showMessage(tr("Page %1 deleted").arg(nIndex+1));
+        showMessage(tr("Page %1 deleted").arg(nIndex + 1));
         QApplication::restoreOverrideCursor();
         mDeletingSceneIndex = -1;
     }
 }
 
 
-void BoardController::clearScene()
-{
-    if (mActiveScene)
-    {
+void BoardController::clearScene() {
+    if (mActiveScene) {
         freezeWebWidgets(true);
         mActiveScene->clearContent(GraphicsScene::clearItemsAndAnnotations);
-        mActiveScene->setLastCenter(QPointF(0,0));
+        mActiveScene->setLastCenter(QPointF(0, 0));
         mControlView->centerOn(mActiveScene->lastCenter());
         updateActionStates();
     }
 }
 
 
-void BoardController::clearSceneItems()
-{
-    if (mActiveScene)
-    {
+void BoardController::clearSceneItems() {
+    if (mActiveScene) {
         freezeWebWidgets(true);
         mActiveScene->clearContent(GraphicsScene::clearItems);
         updateActionStates();
@@ -771,61 +713,47 @@ void BoardController::clearSceneItems()
 }
 
 
-void BoardController::clearSceneAnnotation()
-{
-    if (mActiveScene)
-    {
+void BoardController::clearSceneAnnotation() {
+    if (mActiveScene) {
         mActiveScene->clearContent(GraphicsScene::clearAnnotations);
         updateActionStates();
     }
 }
 
-void BoardController::clearSceneBackground()
-{
-    if (mActiveScene)
-    {
+void BoardController::clearSceneBackground() {
+    if (mActiveScene) {
         mActiveScene->clearContent(GraphicsScene::clearBackground);
         updateActionStates();
     }
 }
 
-void BoardController::showDocumentsDialog()
-{
+void BoardController::showDocumentsDialog() {
     if (selectedDocument())
         persistCurrentScene();
-
-
 }
 
-void BoardController::libraryDialogClosed(int ret)
-{
+void BoardController::libraryDialogClosed(int ret) {
     Q_UNUSED(ret);
-
 }
 
 
-void BoardController::blackout()
-{
+void BoardController::blackout() {
     Application::applicationController->blackout();
 }
 
-void BoardController::showKeyboard(bool show)
-{
-    if(show)
+void BoardController::showKeyboard(bool show) {
+    if (show)
         DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
 
-    if(Settings::settings()->useSystemOnScreenKeyboard->get().toBool())
+    if (Settings::settings()->useSystemOnScreenKeyboard->get().toBool())
         PlatformUtils::showOSK(show);
     else
         mPaletteManager->showVirtualKeyboard(show);
-
 }
 
 
-void BoardController::zoomIn(QPointF scenePoint)
-{
-    if (mControlView->transform().m11() > MAX_ZOOM_LEVEL)
-    {
+void BoardController::zoomIn(QPointF scenePoint) {
+    if (mControlView->transform().m11() > MAX_ZOOM_LEVEL) {
         qApp->beep();
         return;
     }
@@ -833,10 +761,9 @@ void BoardController::zoomIn(QPointF scenePoint)
 }
 
 
-void BoardController::zoomOut(QPointF scenePoint)
-{
-    if ((mControlView->horizontalScrollBar()->maximum() == 0) && (mControlView->verticalScrollBar()->maximum() == 0))
-    {
+void BoardController::zoomOut(QPointF scenePoint) {
+    if ((mControlView->horizontalScrollBar()->maximum() == 0) &&
+        (mControlView->verticalScrollBar()->maximum() == 0)) {
         // Do not zoom out if we reached the maximum
         qApp->beep();
         return;
@@ -848,8 +775,7 @@ void BoardController::zoomOut(QPointF scenePoint)
 }
 
 
-void BoardController::zoomRestore()
-{
+void BoardController::zoomRestore() {
     QTransform tr;
 
     tr.scale(mSystemScaleFactor, mSystemScaleFactor);
@@ -857,8 +783,7 @@ void BoardController::zoomRestore()
 
     centerRestore();
 
-    foreach(QGraphicsItem *gi, mActiveScene->selectedItems ())
-    {
+    foreach (QGraphicsItem *gi, mActiveScene->selectedItems()) {
         //force item to redraw the frame (for the anti scale calculation)
         gi->setSelected(false);
         gi->setSelected(true);
@@ -868,30 +793,27 @@ void BoardController::zoomRestore()
 }
 
 
-void BoardController::centerRestore()
-{
-    centerOn(QPointF(0,0));
+void BoardController::centerRestore() {
+    centerOn(QPointF(0, 0));
 }
 
 
-void BoardController::centerOn(QPointF scenePoint)
-{
+void BoardController::centerOn(QPointF scenePoint) {
     mControlView->centerOn(scenePoint);
     Application::applicationController->adjustDisplayView();
 }
 
 
-void BoardController::zoom(const qreal ratio, QPointF scenePoint)
-{
-    QPointF viewCenter = mControlView->mapToScene(QRect(0, 0, mControlView->width(), mControlView->height()).center());
+void BoardController::zoom(const qreal ratio, QPointF scenePoint) {
+    QPointF viewCenter =
+        mControlView->mapToScene(QRect(0, 0, mControlView->width(), mControlView->height()).center());
     QPointF offset = scenePoint - viewCenter;
     QPointF scalledOffset = offset / ratio;
 
     qreal currentZoom = ratio * mControlView->viewportTransform().m11() / mSystemScaleFactor;
 
     qreal usedRatio = ratio;
-    if (currentZoom > MAX_ZOOM_LEVEL)
-    {
+    if (currentZoom > MAX_ZOOM_LEVEL) {
         currentZoom = MAX_ZOOM_LEVEL;
         usedRatio = currentZoom * mSystemScaleFactor / mControlView->viewportTransform().m11();
     }
@@ -910,28 +832,24 @@ void BoardController::zoom(const qreal ratio, QPointF scenePoint)
 }
 
 
-void BoardController::handScroll(qreal dx, qreal dy)
-{
-    qreal antiScaleRatio = 1/(mSystemScaleFactor * currentZoom());
-    mControlView->translate(dx*antiScaleRatio, dy*antiScaleRatio);
+void BoardController::handScroll(qreal dx, qreal dy) {
+    qreal antiScaleRatio = 1 / (mSystemScaleFactor * currentZoom());
+    mControlView->translate(dx * antiScaleRatio, dy * antiScaleRatio);
 
     Application::applicationController->adjustDisplayView();
 
     emit controlViewportChanged();
 }
 
-void BoardController::persistViewPositionOnCurrentScene()
-{
+void BoardController::persistViewPositionOnCurrentScene() {
     QRect rect = mControlView->rect();
     QPoint center(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2);
     QPointF viewRelativeCenter = mControlView->mapToScene(center);
     mActiveScene->setLastCenter(viewRelativeCenter);
 }
 
-void BoardController::previousScene()
-{
-    if (mActiveSceneIndex > 0)
-    {
+void BoardController::previousScene() {
+    if (mActiveSceneIndex > 0) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         persistViewPositionOnCurrentScene();
         persistCurrentScene();
@@ -944,10 +862,8 @@ void BoardController::previousScene()
 }
 
 
-void BoardController::nextScene()
-{
-    if (mActiveSceneIndex < selectedDocument()->pageCount() - 1)
-    {
+void BoardController::nextScene() {
+    if (mActiveSceneIndex < selectedDocument()->pageCount() - 1) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         persistViewPositionOnCurrentScene();
         persistCurrentScene();
@@ -960,10 +876,8 @@ void BoardController::nextScene()
 }
 
 
-void BoardController::firstScene()
-{
-    if (mActiveSceneIndex > 0)
-    {
+void BoardController::firstScene() {
+    if (mActiveSceneIndex > 0) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         persistViewPositionOnCurrentScene();
         persistCurrentScene();
@@ -976,10 +890,8 @@ void BoardController::firstScene()
 }
 
 
-void BoardController::lastScene()
-{
-    if (mActiveSceneIndex < selectedDocument()->pageCount() - 1)
-    {
+void BoardController::lastScene() {
+    if (mActiveSceneIndex < selectedDocument()->pageCount() - 1) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         persistViewPositionOnCurrentScene();
         persistCurrentScene();
@@ -991,8 +903,8 @@ void BoardController::lastScene()
     updateActionStates();
 }
 
-void BoardController::downloadURL(const QUrl& url, QString contentSourceUrl, const QPointF& pPos, const QSize& pSize, bool isBackground, bool internalData)
-{
+void BoardController::downloadURL(const QUrl &url, QString contentSourceUrl, const QPointF &pPos,
+                                  const QSize &pSize, bool isBackground, bool internalData) {
     qDebug() << "something has been dropped on the board! Url is: " << url.toString();
     QString sUrl = url.toString();
 
@@ -1000,51 +912,44 @@ void BoardController::downloadURL(const QUrl& url, QString contentSourceUrl, con
     if (isBackground)
         oldBackgroundObject = mActiveScene->backgroundObject();
 
-    if(sUrl.startsWith("tianboardtool://"))
-    {
-        downloadFinished(true, url, QUrl(), "application/tianboard-tool", QByteArray(), pPos, pSize, isBackground);
-    }
-    else if (sUrl.startsWith("file://") || sUrl.startsWith("/"))
-    {
+    if (sUrl.startsWith("tianboardtool://")) {
+        downloadFinished(true, url, QUrl(), "application/tianboard-tool", QByteArray(), pPos, pSize,
+                         isBackground);
+    } else if (sUrl.startsWith("file://") || sUrl.startsWith("/")) {
         QUrl formedUrl = sUrl.startsWith("file://") ? url : QUrl::fromLocalFile(sUrl);
         QString fileName = formedUrl.toLocalFile();
         QString contentType = FileSystemUtils::mimeTypeFromFileName(fileName);
 
-        bool shouldLoadFileData =
-                contentType.startsWith("image")
-                || contentType.startsWith("application/widget")
-                || contentType.startsWith("application/vnd.apple-widget");
+        bool shouldLoadFileData = contentType.startsWith("image") ||
+                                  contentType.startsWith("application/widget") ||
+                                  contentType.startsWith("application/vnd.apple-widget");
 
-       if (shouldLoadFileData)
-       {
+        if (shouldLoadFileData) {
             QFile file(fileName);
             file.open(QIODevice::ReadOnly);
-            downloadFinished(true, formedUrl, QUrl(), contentType, file.readAll(), pPos, pSize, isBackground, internalData);
+            downloadFinished(true, formedUrl, QUrl(), contentType, file.readAll(), pPos, pSize, isBackground,
+                             internalData);
             file.close();
-       }
-       else
-       {
-           // media items should be copyed in separate thread
+        } else {
+            // media items should be copyed in separate thread
 
-           sDownloadFileDesc desc;
-           desc.modal = false;
-           desc.srcUrl = sUrl;
-           desc.originalSrcUrl = contentSourceUrl;
-           desc.currentSize = 0;
-           desc.name = QFileInfo(url.toString()).fileName();
-           desc.totalSize = 0; // The total size will be retrieved during the download
-           desc.pos = pPos;
-           desc.size = pSize;
-           desc.isBackground = isBackground;
+            sDownloadFileDesc desc;
+            desc.modal = false;
+            desc.srcUrl = sUrl;
+            desc.originalSrcUrl = contentSourceUrl;
+            desc.currentSize = 0;
+            desc.name = QFileInfo(url.toString()).fileName();
+            desc.totalSize = 0; // The total size will be retrieved during the download
+            desc.pos = pPos;
+            desc.size = pSize;
+            desc.isBackground = isBackground;
 
-           DownloadManager::downloadManager()->addFileToDownload(desc);
-       }
-    }
-    else
-    {
+            DownloadManager::downloadManager()->addFileToDownload(desc);
+        }
+    } else {
         QString urlString = url.toString();
         int parametersStringPosition = urlString.indexOf("?");
-        if(parametersStringPosition != -1)
+        if (parametersStringPosition != -1)
             urlString = urlString.left(parametersStringPosition);
 
         // When we fall there, it means that we are dropping something from the web to the board
@@ -1061,37 +966,33 @@ void BoardController::downloadURL(const QUrl& url, QString contentSourceUrl, con
         DownloadManager::downloadManager()->addFileToDownload(desc);
     }
 
-    if (isBackground && oldBackgroundObject != mActiveScene->backgroundObject())
-    {
+    if (isBackground && oldBackgroundObject != mActiveScene->backgroundObject()) {
         if (mActiveScene->isURStackIsEnabled()) { //should be deleted after scene own undo stack implemented
-            GraphicsItemUndoCommand* uc = new GraphicsItemUndoCommand(mActiveScene, oldBackgroundObject, mActiveScene->backgroundObject());
+            GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(mActiveScene, oldBackgroundObject,
+                                                                      mActiveScene->backgroundObject());
             Application::undoStack->push(uc);
         }
     }
-
-
 }
 
 
-Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader,
-                                            QByteArray pData, QPointF pPos, QSize pSize,
-                                            bool isBackground, bool internalData)
-{
+Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl contentUrl,
+                                        QString pContentTypeHeader, QByteArray pData, QPointF pPos,
+                                        QSize pSize, bool isBackground, bool internalData) {
     QString mimeType = pContentTypeHeader;
 
     // In some cases "image/jpeg;charset=" is retourned by the drag-n-drop. That is
     // why we will check if an ; exists and take the first part (the standard allows this kind of mimetype)
-    if(mimeType.isEmpty())
-      mimeType = FileSystemUtils::mimeTypeFromFileName(sourceUrl.toString());
+    if (mimeType.isEmpty())
+        mimeType = FileSystemUtils::mimeTypeFromFileName(sourceUrl.toString());
 
-    int position=mimeType.indexOf(";");
-    if(position != -1)
-        mimeType=mimeType.left(position);
+    int position = mimeType.indexOf(";");
+    if (position != -1)
+        mimeType = mimeType.left(position);
 
     MimeType::Enum itemMimeType = FileSystemUtils::mimeTypeFromString(mimeType);
 
-    if (!pSuccess)
-    {
+    if (!pSuccess) {
         showMessage(tr("Downloading content %1 failed").arg(sourceUrl.toString()));
         return NULL;
     }
@@ -1102,122 +1003,93 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     if (!sourceUrl.toString().startsWith("file://") && !sourceUrl.toString().startsWith("tianboardtool://"))
         showMessage(tr("Download finished"));
 
-    if (MimeType::RasterImage == itemMimeType)
-    {
-
+    if (MimeType::RasterImage == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "as raster image";
 
 
         QPixmap pix;
-        if(pData.length() == 0){
+        if (pData.length() == 0) {
             pix.load(sourceUrl.toLocalFile());
-        }
-        else{
+        } else {
             QImage img;
             img.loadFromData(pData);
             pix = QPixmap::fromImage(img);
         }
 
-        GraphicsPixmapItem* pixItem = mActiveScene->addPixmap(pix, NULL, pPos, 1.);
+        GraphicsPixmapItem *pixItem = mActiveScene->addPixmap(pix, NULL, pPos, 1.);
         pixItem->setSourceUrl(sourceUrl);
 
-        if (isBackground)
-        {
+        if (isBackground) {
             mActiveScene->setAsBackgroundObject(pixItem, true);
-        }
-        else
-        {
+        } else {
             mActiveScene->scaleToFitDocumentSize(pixItem, true, Settings::objectInControlViewMargin);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
         }
 
         return pixItem;
-    }
-    else if (MimeType::VectorImage == itemMimeType)
-    {
+    } else if (MimeType::VectorImage == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "as vecto image";
 
-        GraphicsSvgItem* svgItem = mActiveScene->addSvg(sourceUrl, pPos, pData);
+        GraphicsSvgItem *svgItem = mActiveScene->addSvg(sourceUrl, pPos, pData);
         svgItem->setSourceUrl(sourceUrl);
 
-        if (isBackground)
-        {
+        if (isBackground) {
             mActiveScene->setAsBackgroundObject(svgItem);
-        }
-        else
-        {
+        } else {
             mActiveScene->scaleToFitDocumentSize(svgItem, true, Settings::objectInControlViewMargin);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
         }
 
         return svgItem;
-    }
-    else if (MimeType::AppleWidget == itemMimeType) //mime type invented by us :-(
+    } else if (MimeType::AppleWidget == itemMimeType) //mime type invented by us :-(
     {
         qDebug() << "accepting mime type" << mimeType << "as Apple widget";
 
         QUrl widgetUrl = sourceUrl;
 
-        if (pData.length() > 0)
-        {
+        if (pData.length() > 0) {
             widgetUrl = expandWidgetToTempDir(pData, "wdgt");
         }
 
-        GraphicsWidgetItem* appleWidgetItem = mActiveScene->addAppleWidget(widgetUrl, pPos);
+        GraphicsWidgetItem *appleWidgetItem = mActiveScene->addAppleWidget(widgetUrl, pPos);
 
         appleWidgetItem->setSourceUrl(sourceUrl);
 
-        if (isBackground)
-        {
+        if (isBackground) {
             mActiveScene->setAsBackgroundObject(appleWidgetItem);
-        }
-        else
-        {
+        } else {
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
         }
 
         return appleWidgetItem;
-    }
-    else if (MimeType::WebWidget == itemMimeType)
-    {
+    } else if (MimeType::WebWidget == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "as W3C widget";
         QUrl widgetUrl = sourceUrl;
 
-        if (pData.length() > 0)
-        {
+        if (pData.length() > 0) {
             widgetUrl = expandWidgetToTempDir(pData);
         }
 
         GraphicsWidgetItem *webWidgetItem = addWebWidget(widgetUrl, pPos);
 
-        if (isBackground)
-        {
+        if (isBackground) {
             mActiveScene->setAsBackgroundObject(webWidgetItem);
-        }
-        else
-        {
+        } else {
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
         }
 
         return webWidgetItem;
-    }
-    else if (MimeType::Video == itemMimeType)
-    {
+    } else if (MimeType::Video == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "as video";
 
         GraphicsMediaItem *mediaVideoItem = 0;
         QUuid uuid = QUuid::createUuid();
-        if (pData.length() > 0)
-        {
+        if (pData.length() > 0) {
             QString destFile;
-            bool b = PersistenceManager::persistenceManager()->addFileToDocument(selectedDocument(),
-                sourceUrl.toString(),
-                PersistenceManager::videoDirectory,
-                uuid,
-                destFile,
+            bool b = PersistenceManager::persistenceManager()->addFileToDocument(
+                selectedDocument(), sourceUrl.toString(), PersistenceManager::videoDirectory, uuid, destFile,
                 &pData);
-            if (!b)
-            {
+            if (!b) {
                 showMessage(tr("Add file operation failed: file copying error"));
                 return NULL;
             }
@@ -1225,44 +1097,36 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
             QUrl url = QUrl::fromLocalFile(destFile);
 
             mediaVideoItem = mActiveScene->addMedia(url, false, pPos);
-        }
-        else
-        {
+        } else {
             qDebug() << sourceUrl.toString();
             mediaVideoItem = addVideo(sourceUrl, false, pPos, true);
         }
 
-        if(mediaVideoItem){
+        if (mediaVideoItem) {
             if (contentUrl.isEmpty())
                 mediaVideoItem->setSourceUrl(sourceUrl);
             else
                 mediaVideoItem->setSourceUrl(contentUrl);
             mediaVideoItem->setUuid(uuid);
-            connect(this, &BoardController::activeSceneChanged, mediaVideoItem, &GraphicsMediaItem::activeSceneChanged);
+            connect(this, &BoardController::activeSceneChanged, mediaVideoItem,
+                    &GraphicsMediaItem::activeSceneChanged);
         }
 
         DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
 
         return mediaVideoItem;
-    }
-    else if (MimeType::Audio == itemMimeType)
-    {
+    } else if (MimeType::Audio == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "as audio";
 
         GraphicsMediaItem *audioMediaItem = 0;
 
         QUuid uuid = QUuid::createUuid();
-        if (pData.length() > 0)
-        {
+        if (pData.length() > 0) {
             QString destFile;
-            bool b = PersistenceManager::persistenceManager()->addFileToDocument(selectedDocument(),
-                sourceUrl.toString(),
-                PersistenceManager::audioDirectory,
-                uuid,
-                destFile,
+            bool b = PersistenceManager::persistenceManager()->addFileToDocument(
+                selectedDocument(), sourceUrl.toString(), PersistenceManager::audioDirectory, uuid, destFile,
                 &pData);
-            if (!b)
-            {
+            if (!b) {
                 showMessage(tr("Add file operation failed: file copying error"));
                 return NULL;
             }
@@ -1270,83 +1134,67 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
             QUrl url = QUrl::fromLocalFile(destFile);
 
             audioMediaItem = mActiveScene->addMedia(url, false, pPos);
-        }
-        else
-        {
+        } else {
             audioMediaItem = addAudio(sourceUrl, false, pPos, true);
         }
 
-        if(audioMediaItem){
+        if (audioMediaItem) {
             if (contentUrl.isEmpty())
                 audioMediaItem->setSourceUrl(sourceUrl);
             else
                 audioMediaItem->setSourceUrl(contentUrl);
             audioMediaItem->setUuid(uuid);
-            connect(this, &BoardController::activeSceneChanged, audioMediaItem, &GraphicsMediaItem::activeSceneChanged);
+            connect(this, &BoardController::activeSceneChanged, audioMediaItem,
+                    &GraphicsMediaItem::activeSceneChanged);
         }
 
         DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
 
         return audioMediaItem;
-    }	  
-    else if (MimeType::PDF == itemMimeType)
-    {
+    } else if (MimeType::PDF == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "as PDF";
         qDebug() << "pdf data length: " << pData.size();
         qDebug() << "sourceurl : " + sourceUrl.toString();
         int result = 0;
-        if(!sourceUrl.isEmpty()){
+        if (!sourceUrl.isEmpty()) {
             QStringList fileNames;
             fileNames << sourceUrl.toLocalFile();
             result = DocumentManager::documentManager()->addFilesToDocument(selectedDocument(), fileNames);
-        }
-        else if(pData.size()){
+        } else if (pData.size()) {
             QTemporaryFile pdfFile("XXXXXX.pdf");
-            if (pdfFile.open())
-            {
+            if (pdfFile.open()) {
                 pdfFile.write(pData);
                 QStringList fileNames;
                 fileNames << pdfFile.fileName();
-                result = DocumentManager::documentManager()->addFilesToDocument(selectedDocument(), fileNames);
+                result =
+                    DocumentManager::documentManager()->addFilesToDocument(selectedDocument(), fileNames);
                 pdfFile.close();
             }
         }
 
-        if (result){
-            selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        if (result) {
+            selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                            StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         }
-    }
-    else if (MimeType::NativeTool == itemMimeType)
-    {
+    } else if (MimeType::NativeTool == itemMimeType) {
         qDebug() << "accepting mime type" << mimeType << "TianBoard Tool";
 
-        if (sourceUrl.toString() == ToolsManager::manager()->compass.id)
-        {
+        if (sourceUrl.toString() == ToolsManager::manager()->compass.id) {
             mActiveScene->addCompass(pPos);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else if (sourceUrl.toString() == ToolsManager::manager()->ruler.id)
-        {
+        } else if (sourceUrl.toString() == ToolsManager::manager()->ruler.id) {
             mActiveScene->addRuler(pPos);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else if (sourceUrl.toString() == ToolsManager::manager()->protractor.id)
-        {
+        } else if (sourceUrl.toString() == ToolsManager::manager()->protractor.id) {
             mActiveScene->addProtractor(pPos);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else if (sourceUrl.toString() == ToolsManager::manager()->triangle.id)
-        {
+        } else if (sourceUrl.toString() == ToolsManager::manager()->triangle.id) {
             mActiveScene->addTriangle(pPos);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else if (sourceUrl.toString() == ToolsManager::manager()->cache.id)
-        {
+        } else if (sourceUrl.toString() == ToolsManager::manager()->cache.id) {
             mActiveScene->addCache();
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else if (sourceUrl.toString() == ToolsManager::manager()->magnifier.id)
-        {
+        } else if (sourceUrl.toString() == ToolsManager::manager()->magnifier.id) {
             MagnifierParams params;
             params.x = controlContainer()->geometry().width() / 2;
             params.y = controlContainer()->geometry().height() / 2;
@@ -1354,24 +1202,17 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
             params.sizePercentFromScene = 20;
             mActiveScene->addMagnifier(params);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else if (sourceUrl.toString() == ToolsManager::manager()->mask.id)
-        {
+        } else if (sourceUrl.toString() == ToolsManager::manager()->mask.id) {
             mActiveScene->addMask(pPos);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-        }
-        else
-        {
+        } else {
             showMessage(tr("Unknown tool type %1").arg(sourceUrl.toString()));
         }
-    }
-    else if (sourceUrl.toString().contains("edumedia-sciences.com"))
-    {
+    } else if (sourceUrl.toString().contains("edumedia-sciences.com")) {
         qDebug() << "accepting url " << sourceUrl.toString() << "as eduMedia content";
 
         QTemporaryFile eduMediaZipFile("XXXXXX.edumedia");
-        if (eduMediaZipFile.open())
-        {
+        if (eduMediaZipFile.open()) {
             eduMediaZipFile.write(pData);
             eduMediaZipFile.close();
 
@@ -1381,14 +1222,11 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
 
             QDir appDir(tempDir);
 
-            foreach(QString subDirName, appDir.entryList(QDir::AllDirs))
-            {
+            foreach (QString subDirName, appDir.entryList(QDir::AllDirs)) {
                 QDir subDir(tempDir + "/" + subDirName + "/contents");
 
-                foreach(QString fileName, subDir.entryList(QDir::Files))
-                {
-                    if (fileName.toLower().endsWith(".swf"))
-                    {
+                foreach (QString fileName, subDir.entryList(QDir::Files)) {
+                    if (fileName.toLower().endsWith(".swf")) {
                         QString swfFile = tempDir + "/" + subDirName + "/contents/" + fileName;
 
                         QSize size;
@@ -1398,11 +1236,12 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
                         else
                             size = mActiveScene->nominalSize() * .8;
 
-                        QString widgetUrl = GraphicsWebWidgetItem::createNPAPIWrapper(swfFile, "application/x-shockwave-flash", size);
+                        QString widgetUrl = GraphicsWebWidgetItem::createNPAPIWrapper(
+                            swfFile, "application/x-shockwave-flash", size);
 
-                        if (widgetUrl.length() > 0)
-                        {
-                            GraphicsWidgetItem *widgetItem = mActiveScene->addWebWidget(QUrl::fromLocalFile(widgetUrl), pPos);
+                        if (widgetUrl.length() > 0) {
+                            GraphicsWidgetItem *widgetItem =
+                                mActiveScene->addWebWidget(QUrl::fromLocalFile(widgetUrl), pPos);
 
                             widgetItem->setSourceUrl(sourceUrl);
 
@@ -1414,23 +1253,20 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         showMessage(tr("Unknown content type %1").arg(pContentTypeHeader));
-        qWarning() << "ignoring mime type" << pContentTypeHeader ;
+        qWarning() << "ignoring mime type" << pContentTypeHeader;
     }
 
     return NULL;
 }
 
-void BoardController::setActiveDocumentScene(int pSceneIndex)
-{
+void BoardController::setActiveDocumentScene(int pSceneIndex) {
     setActiveDocumentScene(selectedDocument(), pSceneIndex);
 }
 
-void BoardController::setActiveDocumentScene(DocumentProxy* pDocumentProxy, const int pSceneIndex, bool forceReload, bool onImport)
-{
+void BoardController::setActiveDocumentScene(DocumentProxy *pDocumentProxy, const int pSceneIndex,
+                                             bool forceReload, bool onImport) {
     saveViewState();
 
     bool documentChange = selectedDocument() != pDocumentProxy;
@@ -1440,19 +1276,17 @@ void BoardController::setActiveDocumentScene(DocumentProxy* pDocumentProxy, cons
     if (index >= sceneCount && sceneCount > 0)
         index = sceneCount - 1;
 
-    GraphicsScene* targetScene = PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, index);
+    GraphicsScene *targetScene =
+        PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, index);
 
     bool sceneChange = targetScene != mActiveScene;
 
-    if (targetScene)
-    {
-        if (mActiveScene && !onImport)
-        {
+    if (targetScene) {
+        if (mActiveScene && !onImport) {
             persistCurrentScene();
             freezeWebWidgets(true);
             ClearUndoStack();
-        }else
-        {
+        } else {
             Application::undoStack->clear();
         }
 
@@ -1464,7 +1298,8 @@ void BoardController::setActiveDocumentScene(DocumentProxy* pDocumentProxy, cons
         updateSystemScaleFactor();
 
         mControlView->setScene(mActiveScene);
-        disconnect(mControlView, &BoardView::mouseReleased, mActiveScene, &GraphicsScene::updateSelectionFrame);
+        disconnect(mControlView, &BoardView::mouseReleased, mActiveScene,
+                   &GraphicsScene::updateSelectionFrame);
         connect(mControlView, &BoardView::mouseReleased, mActiveScene, &GraphicsScene::updateSelectionFrame);
 
         mDisplayView->setScene(mActiveScene);
@@ -1484,27 +1319,24 @@ void BoardController::setActiveDocumentScene(DocumentProxy* pDocumentProxy, cons
 
     updateBackgroundActionsState(mActiveScene->isDarkBackground(), mActiveScene->pageBackground());
 
-    if(documentChange)
-    {
+    if (documentChange) {
         GraphicsTextItem::lastUsedTextColor = QColor(Qt::black);
     }
 
-    if (sceneChange)
-    {
+    if (sceneChange) {
         emit activeSceneChanged();
     }
 }
 
 
-void BoardController::moveSceneToIndex(int source, int target)
-{
-    if (selectedDocument())
-    {
-        persistCurrentScene(false,true);
+void BoardController::moveSceneToIndex(int source, int target) {
+    if (selectedDocument()) {
+        persistCurrentScene(false, true);
 
         DocumentContainer::movePageToIndex(source, target);
 
-        selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                        StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         PersistenceManager::persistenceManager()->persistDocumentMetadata(selectedDocument());
         mMovingSceneIndex = source;
         mActiveSceneIndex = target;
@@ -1516,8 +1348,7 @@ void BoardController::moveSceneToIndex(int source, int target)
     }
 }
 
-void BoardController::findUniquesItems(const QUndoCommand *parent, QSet<QGraphicsItem*> &itms)
-{
+void BoardController::findUniquesItems(const QUndoCommand *parent, QSet<QGraphicsItem *> &itms) {
     if (parent->childCount()) {
         for (int i = 0; i < parent->childCount(); i++) {
             findUniquesItems(parent->child(i), itms);
@@ -1529,34 +1360,33 @@ void BoardController::findUniquesItems(const QUndoCommand *parent, QSet<QGraphic
         return;
     }
 
-    const UndoCommand *undoCmd = static_cast<const UndoCommand*>(parent);
-    if(undoCmd->getType() != UndoType::undotype_GRAPHICITEM)
+    const UndoCommand *undoCmd = static_cast<const UndoCommand *>(parent);
+    if (undoCmd->getType() != UndoType::undotype_GRAPHICITEM)
         return;
 
-    const GraphicsItemUndoCommand *cmd = dynamic_cast<const GraphicsItemUndoCommand*>(parent);
+    const GraphicsItemUndoCommand *cmd = dynamic_cast<const GraphicsItemUndoCommand *>(parent);
 
     // go through all added and removed objects, for create list of unique objects
     // grouped items will be deleted by groups, so we don't need do delete that items.
-    QSetIterator<QGraphicsItem*> itAdded(cmd->GetAddedList());
-    while (itAdded.hasNext())
-    {
-        QGraphicsItem* item = itAdded.next();
-        if( !itms.contains(item) && !(item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type()))
+    QSetIterator<QGraphicsItem *> itAdded(cmd->GetAddedList());
+    while (itAdded.hasNext()) {
+        QGraphicsItem *item = itAdded.next();
+        if (!itms.contains(item) &&
+            !(item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type()))
             itms.insert(item);
     }
 
-    QSetIterator<QGraphicsItem*> itRemoved(cmd->GetRemovedList());
-    while (itRemoved.hasNext())
-    {
-        QGraphicsItem* item = itRemoved.next();
-        if( !itms.contains(item) && !(item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type()))
+    QSetIterator<QGraphicsItem *> itRemoved(cmd->GetRemovedList());
+    while (itRemoved.hasNext()) {
+        QGraphicsItem *item = itRemoved.next();
+        if (!itms.contains(item) &&
+            !(item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type()))
             itms.insert(item);
     }
 }
 
-void BoardController::ClearUndoStack()
-{
-    QSet<QGraphicsItem*> uniqueItems;
+void BoardController::ClearUndoStack() {
+    QSet<QGraphicsItem *> uniqueItems;
     // go through all stack command
     for (int i = 0; i < Application::undoStack->count(); i++) {
         findUniquesItems(Application::undoStack->command(i), uniqueItems);
@@ -1566,14 +1396,14 @@ void BoardController::ClearUndoStack()
     // (using source URL of graphics items as a surrogate for equality testing)
     // This ensures that we can cut and paste a media item, widget, etc. from one page to the next.
     QClipboard *clipboard = QApplication::clipboard();
-    const QMimeData* data = clipboard->mimeData();
+    const QMimeData *data = clipboard->mimeData();
     QList<QUrl> sourceURLs;
 
     if (data && data->hasFormat(Application::mimeTypeBoardPageItem)) {
-        const MimeDataGraphicsItem* mimeDataGI = qobject_cast <const MimeDataGraphicsItem*>(data);
+        const MimeDataGraphicsItem *mimeDataGI = qobject_cast<const MimeDataGraphicsItem *>(data);
 
         if (mimeDataGI) {
-            foreach (Item* sourceItem, mimeDataGI->items()) {
+            foreach (Item *sourceItem, mimeDataGI->items()) {
                 sourceURLs << sourceItem->sourceUrl();
             }
         }
@@ -1581,23 +1411,21 @@ void BoardController::ClearUndoStack()
 
     // go through all unique items, and check, if they are on scene, or not.
     // if not on scene, than item can be deleted
-    QSetIterator<QGraphicsItem*> itUniq(uniqueItems);
-    while (itUniq.hasNext())
-    {
-        QGraphicsItem* item = itUniq.next();
+    QSetIterator<QGraphicsItem *> itUniq(uniqueItems);
+    while (itUniq.hasNext()) {
+        QGraphicsItem *item = itUniq.next();
         GraphicsScene *scene = NULL;
         if (item->scene()) {
-            scene = dynamic_cast<GraphicsScene*>(item->scene());
+            scene = dynamic_cast<GraphicsScene *>(item->scene());
         }
 
         bool inClipboard = false;
-        Item* ubi = dynamic_cast<Item*>(item);
+        Item *ubi = dynamic_cast<Item *>(item);
         if (ubi && sourceURLs.contains(ubi->sourceUrl()))
             inClipboard = true;
 
-        if(!scene && !inClipboard)
-        {
-            if (!mActiveScene->deleteItem(item)){
+        if (!scene && !inClipboard) {
+            if (!mActiveScene->deleteItem(item)) {
                 delete item;
                 item = 0;
             }
@@ -1608,31 +1436,26 @@ void BoardController::ClearUndoStack()
     Application::undoStack->clear();
 }
 
-void BoardController::adjustDisplayViews()
-{
-    if (Application::applicationController)
-    {
+void BoardController::adjustDisplayViews() {
+    if (Application::applicationController) {
         Application::applicationController->adjustDisplayView();
         Application::applicationController->adjustPreviousViews(mActiveSceneIndex, selectedDocument());
     }
 }
 
 
-int BoardController::autosaveTimeoutFromSettings()
-{
+int BoardController::autosaveTimeoutFromSettings() {
     int value = Settings::settings()->autoSaveInterval->get().toInt();
     int minute = 60 * 1000;
 
     return value * minute;
 }
 
-void BoardController::changeBackground(bool isDark, PageBackground pageBackground)
-{
+void BoardController::changeBackground(bool isDark, PageBackground pageBackground) {
     bool currentIsDark = mActiveScene->isDarkBackground();
     PageBackground currentBackgroundType = mActiveScene->pageBackground();
 
-    if ((isDark != currentIsDark) || (currentBackgroundType != pageBackground))
-    {
+    if ((isDark != currentIsDark) || (currentBackgroundType != pageBackground)) {
         Settings::settings()->setDarkBackground(isDark);
         Settings::settings()->setPageBackground(pageBackground);
 
@@ -1642,8 +1465,7 @@ void BoardController::changeBackground(bool isDark, PageBackground pageBackgroun
     }
 }
 
-void BoardController::boardViewResized(QResizeEvent* event)
-{
+void BoardController::boardViewResized(QResizeEvent *event) {
     Q_UNUSED(event);
 
     int innerMargin = Settings::boardMargin;
@@ -1652,65 +1474,56 @@ void BoardController::boardViewResized(QResizeEvent* event)
     mMessageWindow->move(innerMargin, innerMargin + userHeight - mMessageWindow->height());
     mMessageWindow->adjustSizeAndPosition();
 
-    Application::applicationController->initViewState(
-                mControlView->horizontalScrollBar()->value(),
-                mControlView->verticalScrollBar()->value());
+    Application::applicationController->initViewState(mControlView->horizontalScrollBar()->value(),
+                                                      mControlView->verticalScrollBar()->value());
 
     updateSystemScaleFactor();
 
-    mControlView->centerOn(0,0);
+    mControlView->centerOn(0, 0);
 
     if (mDisplayView) {
         Application::applicationController->adjustDisplayView();
-        mDisplayView->centerOn(0,0);
+        mDisplayView->centerOn(0, 0);
     }
 
     mPaletteManager->containerResized();
 
     Application::boardController->controlView()->scene()->moveMagnifier();
-
 }
 
 
-void BoardController::documentWillBeDeleted(DocumentProxy* pProxy)
-{
-    if (selectedDocument() == pProxy)
-    {
+void BoardController::documentWillBeDeleted(DocumentProxy *pProxy) {
+    if (selectedDocument() == pProxy) {
         if (!mIsClosing)
             setActiveDocumentScene(PersistenceManager::persistenceManager()->createDocument());
     }
 }
 
 
-void BoardController::showMessage(const QString& message, bool showSpinningWheel)
-{
+void BoardController::showMessage(const QString &message, bool showSpinningWheel) {
     mMessageWindow->showMessage(message, showSpinningWheel);
 }
 
 
-void BoardController::hideMessage()
-{
+void BoardController::hideMessage() {
     mMessageWindow->hideMessage();
 }
 
 
-void BoardController::setDisabled(bool disable)
-{
+void BoardController::setDisabled(bool disable) {
     mMainWindow->ui().boardToolBar->setDisabled(disable);
     mControlView->setDisabled(disable);
 }
 
 
-void BoardController::selectionChanged()
-{
+void BoardController::selectionChanged() {
     updateActionStates();
     emit pageSelectionChanged(activeSceneIndex());
     emit updateThumbnailsRequired();
 }
 
 
-void BoardController::undoRedoStateChange(bool canUndo)
-{
+void BoardController::undoRedoStateChange(bool canUndo) {
     Q_UNUSED(canUndo);
 
     mMainWindow->ui().actionUndo->setEnabled(Application::undoStack->canUndo());
@@ -1720,43 +1533,37 @@ void BoardController::undoRedoStateChange(bool canUndo)
 }
 
 
-void BoardController::updateActionStates()
-{
+void BoardController::updateActionStates() {
     mMainWindow->ui().actionBack->setEnabled(selectedDocument() && (mActiveSceneIndex > 0));
-    mMainWindow->ui().actionForward->setEnabled(selectedDocument() && (mActiveSceneIndex < selectedDocument()->pageCount() - 1));
+    mMainWindow->ui().actionForward->setEnabled(selectedDocument() &&
+                                                (mActiveSceneIndex < selectedDocument()->pageCount() - 1));
     mMainWindow->ui().actionErase->setEnabled(mActiveScene && !mActiveScene->isEmpty());
 }
 
 
-GraphicsScene* BoardController::activeScene() const
-{
+GraphicsScene *BoardController::activeScene() const {
     return mActiveScene;
 }
 
 
-int BoardController::activeSceneIndex() const
-{
+int BoardController::activeSceneIndex() const {
     return mActiveSceneIndex;
 }
 
-void BoardController::setActiveSceneIndex(int i)
-{
+void BoardController::setActiveSceneIndex(int i) {
     mActiveSceneIndex = i;
 }
 
-void BoardController::documentSceneChanged(DocumentProxy* pDocumentProxy, int pIndex)
-{
+void BoardController::documentSceneChanged(DocumentProxy *pDocumentProxy, int pIndex) {
     Q_UNUSED(pIndex);
 
-    if(selectedDocument() == pDocumentProxy)
-    {
+    if (selectedDocument() == pDocumentProxy) {
         setActiveDocumentScene(mActiveSceneIndex);
         updatePage(pIndex);
     }
 }
 
-void BoardController::autosaveTimeout()
-{
+void BoardController::autosaveTimeout() {
     if (Application::applicationController->displayMode() != ApplicationController::Board) {
         //perform autosave only in board mode
         return;
@@ -1766,8 +1573,7 @@ void BoardController::autosaveTimeout()
     Settings::settings()->save();
 }
 
-void BoardController::appMainModeChanged(ApplicationController::MainMode md)
-{
+void BoardController::appMainModeChanged(ApplicationController::MainMode md) {
     int autoSaveInterval = autosaveTimeoutFromSettings();
     if (!autoSaveInterval) {
         return;
@@ -1785,24 +1591,18 @@ void BoardController::appMainModeChanged(ApplicationController::MainMode md)
     }
 }
 
-void BoardController::closing()
-{
+void BoardController::closing() {
     mIsClosing = true;
     lastWindowClosed();
     ClearUndoStack();
     showKeyboard(false);
 }
 
-void BoardController::lastWindowClosed()
-{
-    if (!mCleanupDone)
-    {
-        if (selectedDocument()->pageCount() == 1 && (!mActiveScene || mActiveScene->isEmpty()))
-        {
+void BoardController::lastWindowClosed() {
+    if (!mCleanupDone) {
+        if (selectedDocument()->pageCount() == 1 && (!mActiveScene || mActiveScene->isEmpty())) {
             PersistenceManager::persistenceManager()->deleteDocument(selectedDocument());
-        }
-        else
-        {
+        } else {
             persistCurrentScene();
         }
 
@@ -1813,48 +1613,39 @@ void BoardController::lastWindowClosed()
 }
 
 
-
-void BoardController::setColorIndex(int pColorIndex)
-{
+void BoardController::setColorIndex(int pColorIndex) {
     DrawingController::drawingController()->setColorIndex(pColorIndex);
 
     if (DrawingController::drawingController()->stylusTool() != StylusTool::Marker &&
-            DrawingController::drawingController()->stylusTool() != StylusTool::Line &&
-            DrawingController::drawingController()->stylusTool() != StylusTool::Text &&
-            DrawingController::drawingController()->stylusTool() != StylusTool::Selector)
-    {
+        DrawingController::drawingController()->stylusTool() != StylusTool::Line &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Text &&
+        DrawingController::drawingController()->stylusTool() != StylusTool::Selector) {
         DrawingController::drawingController()->setStylusTool(StylusTool::Pen);
     }
 
     if (DrawingController::drawingController()->stylusTool() == StylusTool::Pen ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Line ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Text ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Selector)
-    {
+        DrawingController::drawingController()->stylusTool() == StylusTool::Line ||
+        DrawingController::drawingController()->stylusTool() == StylusTool::Text ||
+        DrawingController::drawingController()->stylusTool() == StylusTool::Selector) {
         mPenColorOnDarkBackground = Settings::settings()->penColors(true).at(pColorIndex);
         mPenColorOnLightBackground = Settings::settings()->penColors(false).at(pColorIndex);
 
-        if (DrawingController::drawingController()->stylusTool() == StylusTool::Selector)
-        {
+        if (DrawingController::drawingController()->stylusTool() == StylusTool::Selector) {
             // If we are in mode board, then do that
-            if(Application::applicationController->displayMode() == ApplicationController::Board)
-            {
+            if (Application::applicationController->displayMode() == ApplicationController::Board) {
                 DrawingController::drawingController()->setStylusTool(StylusTool::Pen);
                 mMainWindow->ui().actionPen->setChecked(true);
             }
         }
 
         emit penColorChanged();
-    }
-    else if (DrawingController::drawingController()->stylusTool() == StylusTool::Marker)
-    {
+    } else if (DrawingController::drawingController()->stylusTool() == StylusTool::Marker) {
         mMarkerColorOnDarkBackground = Settings::settings()->markerColors(true).at(pColorIndex);
         mMarkerColorOnLightBackground = Settings::settings()->markerColors(false).at(pColorIndex);
     }
 }
 
-void BoardController::colorPaletteChanged()
-{
+void BoardController::colorPaletteChanged() {
     mPenColorOnDarkBackground = Settings::settings()->penColor(true);
     mPenColorOnLightBackground = Settings::settings()->penColor(false);
     mMarkerColorOnDarkBackground = Settings::settings()->markerColor(true);
@@ -1862,51 +1653,41 @@ void BoardController::colorPaletteChanged()
 }
 
 
-qreal BoardController::currentZoom()
-{
+qreal BoardController::currentZoom() {
     if (mControlView)
         return mControlView->viewportTransform().m11() / mSystemScaleFactor;
     else
         return 1.0;
 }
 
-void BoardController::removeTool(ToolWidget* toolWidget)
-{
+void BoardController::removeTool(ToolWidget *toolWidget) {
     toolWidget->hide();
 
     delete toolWidget;
 }
 
-void BoardController::hide()
-{
-}
+void BoardController::hide() {}
 
-void BoardController::show()
-{
-}
+void BoardController::show() {}
 
-void BoardController::persistCurrentScene(bool isAnAutomaticBackup, bool forceImmediateSave)
-{
-    if(PersistenceManager::persistenceManager()
-            && selectedDocument() && mActiveScene && mActiveSceneIndex != mDeletingSceneIndex
-            && (mActiveSceneIndex >= 0) && mActiveSceneIndex != mMovingSceneIndex
-            && (mActiveScene->isModified()))
-    {
-        PersistenceManager::persistenceManager()->persistDocumentScene(selectedDocument(), mActiveScene, mActiveSceneIndex);
+void BoardController::persistCurrentScene(bool isAnAutomaticBackup, bool forceImmediateSave) {
+    if (PersistenceManager::persistenceManager() && selectedDocument() && mActiveScene &&
+        mActiveSceneIndex != mDeletingSceneIndex && (mActiveSceneIndex >= 0) &&
+        mActiveSceneIndex != mMovingSceneIndex && (mActiveScene->isModified())) {
+        PersistenceManager::persistenceManager()->persistDocumentScene(selectedDocument(), mActiveScene,
+                                                                       mActiveSceneIndex);
         updatePage(mActiveSceneIndex);
     }
 }
 
-void BoardController::updateSystemScaleFactor()
-{
+void BoardController::updateSystemScaleFactor() {
     qreal newScaleFactor = 1.0;
 
-    if (mActiveScene)
-    {
+    if (mActiveScene) {
         QSize pageNominalSize = mActiveScene->nominalSize();
         //we're going to keep scale factor untouched if the size is custom
         QMap<DocumentSizeRatio::Enum, QSize> sizesMap = Settings::settings()->documentSizes;
-      //  if(pageNominalSize == sizesMap.value(DocumentSizeRatio::Ratio16_9) || pageNominalSize == sizesMap.value(DocumentSizeRatio::Ratio4_3))
+        //  if(pageNominalSize == sizesMap.value(DocumentSizeRatio::Ratio16_9) || pageNominalSize == sizesMap.value(DocumentSizeRatio::Ratio4_3))
         {
             QSize controlSize = controlViewport();
 
@@ -1930,17 +1711,16 @@ void BoardController::updateSystemScaleFactor()
     mControlView->setTransform(scalingTransform);
     mControlView->horizontalScrollBar()->setValue(viewState.horizontalPosition);
     mControlView->verticalScrollBar()->setValue(viewState.verticalPostition);
-    mActiveScene->setBackgroundZoomFactor(mControlView->transform().m11());}
+    mActiveScene->setBackgroundZoomFactor(mControlView->transform().m11());
+}
 
 
-void BoardController::setWidePageSize(bool checked)
-{
+void BoardController::setWidePageSize(bool checked) {
     Q_UNUSED(checked);
     QSize newSize = Settings::settings()->documentSizes.value(DocumentSizeRatio::Ratio16_9);
 
-    if (mActiveScene->nominalSize() != newSize)
-    {
-        PageSizeUndoCommand* uc = new PageSizeUndoCommand(mActiveScene, mActiveScene->nominalSize(), newSize);
+    if (mActiveScene->nominalSize() != newSize) {
+        PageSizeUndoCommand *uc = new PageSizeUndoCommand(mActiveScene, mActiveScene->nominalSize(), newSize);
         Application::undoStack->push(uc);
 
         setPageSize(newSize);
@@ -1948,14 +1728,12 @@ void BoardController::setWidePageSize(bool checked)
 }
 
 
-void BoardController::setRegularPageSize(bool checked)
-{
+void BoardController::setRegularPageSize(bool checked) {
     Q_UNUSED(checked);
     QSize newSize = Settings::settings()->documentSizes.value(DocumentSizeRatio::Ratio4_3);
 
-    if (mActiveScene->nominalSize() != newSize)
-    {
-        PageSizeUndoCommand* uc = new PageSizeUndoCommand(mActiveScene, mActiveScene->nominalSize(), newSize);
+    if (mActiveScene->nominalSize() != newSize) {
+        PageSizeUndoCommand *uc = new PageSizeUndoCommand(mActiveScene, mActiveScene->nominalSize(), newSize);
         Application::undoStack->push(uc);
 
         setPageSize(newSize);
@@ -1963,10 +1741,8 @@ void BoardController::setRegularPageSize(bool checked)
 }
 
 
-void BoardController::setPageSize(QSize newSize)
-{
-    if (mActiveScene->nominalSize() != newSize)
-    {
+void BoardController::setPageSize(QSize newSize) {
+    if (mActiveScene->nominalSize() != newSize) {
         mActiveScene->setNominalSize(newSize);
 
         saveViewState();
@@ -1974,78 +1750,64 @@ void BoardController::setPageSize(QSize newSize)
         updateSystemScaleFactor();
         updatePageSizeState();
         adjustDisplayViews();
-        selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                        StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
         Settings::settings()->pageSize->set(newSize);
     }
 }
 
-void BoardController::notifyCache(bool visible)
-{
-    if(visible)
+void BoardController::notifyCache(bool visible) {
+    if (visible)
         emit cacheEnabled();
 
     mCacheWidgetIsEnabled = visible;
 }
 
-void BoardController::updatePageSizeState()
-{
-    if (mActiveScene->nominalSize() == Settings::settings()->documentSizes.value(DocumentSizeRatio::Ratio16_9))
-    {
+void BoardController::updatePageSizeState() {
+    if (mActiveScene->nominalSize() ==
+        Settings::settings()->documentSizes.value(DocumentSizeRatio::Ratio16_9)) {
         mMainWindow->ui().actionWidePageSize->setChecked(true);
-    }
-    else if(mActiveScene->nominalSize() == Settings::settings()->documentSizes.value(DocumentSizeRatio::Ratio4_3))
-    {
+    } else if (mActiveScene->nominalSize() ==
+               Settings::settings()->documentSizes.value(DocumentSizeRatio::Ratio4_3)) {
         mMainWindow->ui().actionRegularPageSize->setChecked(true);
-    }
-    else
-    {
+    } else {
         mMainWindow->ui().actionCustomPageSize->setChecked(true);
     }
 }
 
 
-void BoardController::saveViewState()
-{
-    if (mActiveScene)
-    {
-        mActiveScene->setViewState(GraphicsScene::SceneViewState(currentZoom(),
-                                                                   mControlView->horizontalScrollBar()->value(),
-                                                                   mControlView->verticalScrollBar()->value(),
-                                                                   mActiveScene->lastCenter()));
+void BoardController::saveViewState() {
+    if (mActiveScene) {
+        mActiveScene->setViewState(GraphicsScene::SceneViewState(
+            currentZoom(), mControlView->horizontalScrollBar()->value(),
+            mControlView->verticalScrollBar()->value(), mActiveScene->lastCenter()));
     }
 }
 
-void BoardController::stylusToolChanged(int tool)
-{
-    if (PlatformUtils::hasVirtualKeyboard() && mPaletteManager->mKeyboardPalette)
-    {
+void BoardController::stylusToolChanged(int tool) {
+    if (PlatformUtils::hasVirtualKeyboard() && mPaletteManager->mKeyboardPalette) {
         StylusTool::Enum eTool = (StylusTool::Enum)tool;
-        if(eTool != StylusTool::Selector && eTool != StylusTool::Text)
-        {
-            if(mPaletteManager->mKeyboardPalette->keyboardVisible())
+        if (eTool != StylusTool::Selector && eTool != StylusTool::Text) {
+            if (mPaletteManager->mKeyboardPalette->keyboardVisible())
                 Application::mainWindow->ui().actionVirtualKeyboard->activate(QAction::Trigger);
         }
     }
-
 }
 
 
-QUrl BoardController::expandWidgetToTempDir(const QByteArray& pZipedData, const QString& ext)
-{
+QUrl BoardController::expandWidgetToTempDir(const QByteArray &pZipedData, const QString &ext) {
     QUrl widgetUrl;
     QTemporaryFile tmp;
 
-    if (tmp.open())
-    {
+    if (tmp.open()) {
         tmp.write(pZipedData);
         tmp.flush();
         tmp.close();
 
         QString tmpDir = FileSystemUtils::createTempDir() + "." + ext;
 
-        if (FileSystemUtils::expandZipToDir(tmp, tmpDir))
-        {
+        if (FileSystemUtils::expandZipToDir(tmp, tmpDir)) {
             widgetUrl = QUrl::fromLocalFile(tmpDir);
         }
     }
@@ -2054,10 +1816,8 @@ QUrl BoardController::expandWidgetToTempDir(const QByteArray& pZipedData, const 
 }
 
 
-void BoardController::grabScene(const QRectF& pSceneRect)
-{
-    if (mActiveScene)
-    {
+void BoardController::grabScene(const QRectF &pSceneRect) {
+    if (mActiveScene) {
         QImage image(pSceneRect.width(), pSceneRect.height(), QImage::Format_ARGB32);
         image.fill(Qt::transparent);
 
@@ -2072,40 +1832,37 @@ void BoardController::grabScene(const QRectF& pSceneRect)
         mActiveScene->render(&painter, targetRect, pSceneRect);
 
         mActiveScene->setRenderingContext(GraphicsScene::Screen);
-//        mActiveScene->setRenderingQuality(Item::RenderingQualityNormal);
+        //        mActiveScene->setRenderingQuality(Item::RenderingQualityNormal);
         mActiveScene->setRenderingQuality(Item::RenderingQualityHigh);
 
 
         mPaletteManager->addItem(QPixmap::fromImage(image));
-        selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                        StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
     }
 }
 
-GraphicsMediaItem* BoardController::addVideo(const QUrl& pSourceUrl, bool startPlay, const QPointF& pos, bool bUseSource)
-{
+GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startPlay, const QPointF &pos,
+                                             bool bUseSource) {
     QUuid uuid = QUuid::createUuid();
     QUrl concreteUrl = pSourceUrl;
 
     // media file is not in document folder yet
-    if (!bUseSource)
-    {
+    if (!bUseSource) {
         QString destFile;
-        bool b = PersistenceManager::persistenceManager()->addFileToDocument(selectedDocument(),
-                    pSourceUrl.toLocalFile(),
-                    PersistenceManager::videoDirectory,
-                    uuid,
-                    destFile);
-        if (!b)
-        {
+        bool b = PersistenceManager::persistenceManager()->addFileToDocument(
+            selectedDocument(), pSourceUrl.toLocalFile(), PersistenceManager::videoDirectory, uuid, destFile);
+        if (!b) {
             showMessage(tr("Add file operation failed: file copying error"));
             return NULL;
         }
         concreteUrl = QUrl::fromLocalFile(destFile);
-    }// else we just use source Url.
+    } // else we just use source Url.
 
 
-    GraphicsMediaItem* vi = mActiveScene->addMedia(concreteUrl, startPlay, pos);
-    selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+    GraphicsMediaItem *vi = mActiveScene->addMedia(concreteUrl, startPlay, pos);
+    selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                    StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
     if (vi) {
         vi->setUuid(uuid);
@@ -2113,51 +1870,45 @@ GraphicsMediaItem* BoardController::addVideo(const QUrl& pSourceUrl, bool startP
     }
 
     return vi;
-
 }
 
-GraphicsMediaItem* BoardController::addAudio(const QUrl& pSourceUrl, bool startPlay, const QPointF& pos, bool bUseSource)
-{
+GraphicsMediaItem *BoardController::addAudio(const QUrl &pSourceUrl, bool startPlay, const QPointF &pos,
+                                             bool bUseSource) {
     QUuid uuid = QUuid::createUuid();
     QUrl concreteUrl = pSourceUrl;
 
     // media file is not in document folder yet
-    if (!bUseSource)
-    {
+    if (!bUseSource) {
         QString destFile;
-        bool b = PersistenceManager::persistenceManager()->addFileToDocument(selectedDocument(),
-            pSourceUrl.toLocalFile(),
-            PersistenceManager::audioDirectory,
-            uuid,
-            destFile);
-        if (!b)
-        {
+        bool b = PersistenceManager::persistenceManager()->addFileToDocument(
+            selectedDocument(), pSourceUrl.toLocalFile(), PersistenceManager::audioDirectory, uuid, destFile);
+        if (!b) {
             showMessage(tr("Add file operation failed: file copying error"));
             return NULL;
         }
         concreteUrl = QUrl::fromLocalFile(destFile);
-    }// else we just use source Url.
+    } // else we just use source Url.
 
-    GraphicsMediaItem* ai = mActiveScene->addMedia(concreteUrl, startPlay, pos);
-    selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+    GraphicsMediaItem *ai = mActiveScene->addMedia(concreteUrl, startPlay, pos);
+    selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                    StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
-    if (ai){
+    if (ai) {
         ai->setUuid(uuid);
         ai->setSourceUrl(pSourceUrl);
     }
 
     return ai;
-
 }
 
-GraphicsWidgetItem *BoardController::addWebWidget(const QUrl &pUrl, const QPointF &pos)
-{
-    GraphicsWidgetItem* webWidgetItem = 0;
+GraphicsWidgetItem *BoardController::addWebWidget(const QUrl &pUrl, const QPointF &pos) {
+    GraphicsWidgetItem *webWidgetItem = 0;
 
     QUuid uuid = QUuid::createUuid();
 
     QString destPath;
-    if (!PersistenceManager::persistenceManager()->addGraphicsWidgetToDocument(selectedDocument(), pUrl.toLocalFile(), uuid, destPath))
+    if (!PersistenceManager::persistenceManager()->addGraphicsWidgetToDocument(
+            selectedDocument(), pUrl.toLocalFile(), uuid, destPath))
         return NULL;
     QUrl newUrl = QUrl::fromLocalFile(destPath);
 
@@ -2169,37 +1920,34 @@ GraphicsWidgetItem *BoardController::addWebWidget(const QUrl &pUrl, const QPoint
         webWidgetItem->setSourceUrl(pUrl);
 
         QString struuid = StringUtils::toCanonicalUuid(uuid);
-        QString snapshotPath = selectedDocument()->persistencePath() +  "/" + PersistenceManager::widgetDirectory + "/" + struuid + ".png";
+        QString snapshotPath = selectedDocument()->persistencePath() + "/" +
+                               PersistenceManager::widgetDirectory + "/" + struuid + ".png";
         webWidgetItem->setSnapshotPath(QUrl::fromLocalFile(snapshotPath));
-        GraphicsWidgetItem *tmpItem = dynamic_cast<GraphicsWidgetItem*>(webWidgetItem);
+        GraphicsWidgetItem *tmpItem = dynamic_cast<GraphicsWidgetItem *>(webWidgetItem);
         if (tmpItem && tmpItem->scene())
-           tmpItem->takeSnapshot().save(snapshotPath, "PNG");
-
+            tmpItem->takeSnapshot().save(snapshotPath, "PNG");
     }
 
     return webWidgetItem;
 }
 
-void BoardController::cut()
-{
+void BoardController::cut() {
     //---------------------------------------------------------//
 
-    QList<QGraphicsItem*> selectedItems;
-    foreach(QGraphicsItem* gi, mActiveScene->selectedItems())
+    QList<QGraphicsItem *> selectedItems;
+    foreach (QGraphicsItem *gi, mActiveScene->selectedItems())
         selectedItems << gi;
 
     //---------------------------------------------------------//
 
-    QList<Item*> selected;
-    foreach(QGraphicsItem* gi, selectedItems)
-    {
+    QList<Item *> selected;
+    foreach (QGraphicsItem *gi, selectedItems) {
         gi->setSelected(false);
 
-        Item* boardItem = dynamic_cast<Item*>(gi);
-        GraphicsItem *giAsItem =  dynamic_cast<GraphicsItem*>(gi);
+        Item *boardItem = dynamic_cast<Item *>(gi);
+        GraphicsItem *giAsItem = dynamic_cast<GraphicsItem *>(gi);
 
-        if (boardItem && giAsItem && !mActiveScene->tools().contains(gi))
-        {
+        if (boardItem && giAsItem && !mActiveScene->tools().contains(gi)) {
             selected << boardItem->deepCopy();
             giAsItem->remove();
         }
@@ -2207,74 +1955,66 @@ void BoardController::cut()
 
     //---------------------------------------------------------//
 
-    if (selected.size() > 0)
-    {
+    if (selected.size() > 0) {
         QClipboard *clipboard = QApplication::clipboard();
 
-        MimeDataGraphicsItem*  mimeGi = new MimeDataGraphicsItem(selected);
+        MimeDataGraphicsItem *mimeGi = new MimeDataGraphicsItem(selected);
 
         mimeGi->setData(Application::mimeTypeBoardPageItem, QByteArray());
         clipboard->setMimeData(mimeGi);
 
-        selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                        StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
     }
 
     //---------------------------------------------------------//
 }
 
 
-void BoardController::copy()
-{
-    QList<Item*> selected;
+void BoardController::copy() {
+    QList<Item *> selected;
 
-    foreach(QGraphicsItem* gi, mActiveScene->selectedItems())
-    {
-        Item* boardItem = dynamic_cast<Item*>(gi);
+    foreach (QGraphicsItem *gi, mActiveScene->selectedItems()) {
+        Item *boardItem = dynamic_cast<Item *>(gi);
 
         if (boardItem && !mActiveScene->tools().contains(gi))
             selected << boardItem;
     }
 
-    if (selected.size() > 0)
-    {
+    if (selected.size() > 0) {
         QClipboard *clipboard = QApplication::clipboard();
 
-        MimeDataGraphicsItem*  mimeGi = new MimeDataGraphicsItem(selected);
+        MimeDataGraphicsItem *mimeGi = new MimeDataGraphicsItem(selected);
 
         mimeGi->setData(Application::mimeTypeBoardPageItem, QByteArray());
         clipboard->setMimeData(mimeGi);
-
     }
 }
 
 
-void BoardController::paste()
-{
+void BoardController::paste() {
     QClipboard *clipboard = QApplication::clipboard();
     qreal xPosition = QRandomGenerator::global()->generateDouble() * 400;
     qreal yPosition = QRandomGenerator::global()->generateDouble() * 200;
-    QPointF pos(xPosition -200 , yPosition - 100);
+    QPointF pos(xPosition - 200, yPosition - 100);
     processMimeData(clipboard->mimeData(), pos);
 
-    selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+    selectedDocument()->setMetaData(Settings::documentUpdatedAt,
+                                    StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 }
 
 
-bool zLevelLessThan( Item* s1, Item* s2)
-{
-    qreal s1Zvalue = dynamic_cast<QGraphicsItem*>(s1)->data(GraphicsItemData::ItemOwnZValue).toReal();
-    qreal s2Zvalue = dynamic_cast<QGraphicsItem*>(s2)->data(GraphicsItemData::ItemOwnZValue).toReal();
+bool zLevelLessThan(Item *s1, Item *s2) {
+    qreal s1Zvalue = dynamic_cast<QGraphicsItem *>(s1)->data(GraphicsItemData::ItemOwnZValue).toReal();
+    qreal s2Zvalue = dynamic_cast<QGraphicsItem *>(s2)->data(GraphicsItemData::ItemOwnZValue).toReal();
     return s1Zvalue < s2Zvalue;
 }
 
-void BoardController::processMimeData(const QMimeData* pMimeData, const QPointF& pPos)
-{
-    if (pMimeData->hasFormat(Application::mimeTypeBoardPage))
-    {
-        const MimeData* mimeData = qobject_cast <const MimeData*>(pMimeData);
+void BoardController::processMimeData(const QMimeData *pMimeData, const QPointF &pPos) {
+    if (pMimeData->hasFormat(Application::mimeTypeBoardPage)) {
+        const MimeData *mimeData = qobject_cast<const MimeData *>(pMimeData);
 
-        if (mimeData)
-        {
+        if (mimeData) {
             int previousActiveSceneIndex = activeSceneIndex();
             int previousPageCount = selectedDocument()->pageCount();
 
@@ -2290,18 +2030,15 @@ void BoardController::processMimeData(const QMimeData* pMimeData, const QPointF&
         }
     }
 
-    if (pMimeData->hasFormat(Application::mimeTypeBoardPageItem))
-    {
-        const MimeDataGraphicsItem* mimeData = qobject_cast <const MimeDataGraphicsItem*>(pMimeData);
+    if (pMimeData->hasFormat(Application::mimeTypeBoardPageItem)) {
+        const MimeDataGraphicsItem *mimeData = qobject_cast<const MimeDataGraphicsItem *>(pMimeData);
 
-        if (mimeData)
-        {
-            QList<Item*> items = mimeData->items();
-            std::stable_sort(items.begin(),items.end(),zLevelLessThan);
-            foreach(Item* item, items)
-            {
-                QGraphicsItem* pItem = dynamic_cast<QGraphicsItem*>(item);
-                if(NULL != pItem){
+        if (mimeData) {
+            QList<Item *> items = mimeData->items();
+            std::stable_sort(items.begin(), items.end(), zLevelLessThan);
+            foreach (Item *item, items) {
+                QGraphicsItem *pItem = dynamic_cast<QGraphicsItem *>(item);
+                if (NULL != pItem) {
                     duplicateItem(item);
                 }
             }
@@ -2310,98 +2047,90 @@ void BoardController::processMimeData(const QMimeData* pMimeData, const QPointF&
         }
     }
 
-    if(pMimeData->hasHtml())
-    {
+    if (pMimeData->hasHtml()) {
         QString qsHtml = pMimeData->html();
         QString url = Application::urlFromHtml(qsHtml);
 
-        if("" != url)
-        {
+        if ("" != url) {
             downloadURL(url, QString(), pPos);
             return;
         }
     }
 
-    if (pMimeData->hasUrls())
-    {
+    if (pMimeData->hasUrls()) {
         QList<QUrl> urls = pMimeData->urls();
 
         int index = 0;
 
-        const FeaturesMimeData *internalMimeData = qobject_cast<const FeaturesMimeData*>(pMimeData);
+        const FeaturesMimeData *internalMimeData = qobject_cast<const FeaturesMimeData *>(pMimeData);
         bool internalData = false;
         if (internalMimeData) {
             internalData = true;
         }
 
-        foreach(const QUrl url, urls){
+        foreach (const QUrl url, urls) {
             QPointF pos(pPos + QPointF(index * 15, index * 15));
 
-            downloadURL(url, QString(), pos, QSize(), false,  internalData);
+            downloadURL(url, QString(), pos, QSize(), false, internalData);
             index++;
         }
 
         return;
     }
 
-    if (pMimeData->hasImage())
-    {
-        QImage img = qvariant_cast<QImage> (pMimeData->imageData());
+    if (pMimeData->hasImage()) {
+        QImage img = qvariant_cast<QImage>(pMimeData->imageData());
         QPixmap pix = QPixmap::fromImage(img);
 
         // validate that the image is really an image, webkit does not fill properly the image mime data
-        if (pix.width() != 0 && pix.height() != 0)
-        {
+        if (pix.width() != 0 && pix.height() != 0) {
             mActiveScene->addPixmap(pix, NULL, pPos, 1.);
             return;
         }
     }
 
-    if (pMimeData->hasText())
-    {
-        if("" != pMimeData->text()){
+    if (pMimeData->hasText()) {
+        if ("" != pMimeData->text()) {
             // Sometimes, it is possible to have an URL as text. we check here if it is the case
             QString qsTmp = pMimeData->text().remove(QRegularExpression("[\\0]"));
-            if(qsTmp.startsWith("http"))
+            if (qsTmp.startsWith("http"))
                 downloadURL(QUrl(qsTmp), QString(), pPos);
-            else{
-                if(mActiveScene->selectedItems().count() && mActiveScene->selectedItems().at(0)->type() == GraphicsItemType::TextItemType)
-                    dynamic_cast<GraphicsTextItem*>(mActiveScene->selectedItems().at(0))->setHtml(pMimeData->text());
+            else {
+                if (mActiveScene->selectedItems().count() &&
+                    mActiveScene->selectedItems().at(0)->type() == GraphicsItemType::TextItemType)
+                    dynamic_cast<GraphicsTextItem *>(mActiveScene->selectedItems().at(0))
+                        ->setHtml(pMimeData->text());
                 else
                     mActiveScene->addTextHtml("", pPos)->setHtml(pMimeData->text());
             }
-        }
-        else{
+        } else {
 #ifdef Q_OS_OSX
-                //  With Safari, in 95% of the drops, the mime datas are hidden in Apple Web Archive pasteboard type.
-                //  This is due to the way Safari is working so we have to dig into the pasteboard in order to retrieve
-                //  the data.
-                QString qsUrl = PlatformUtils::urlFromClipboard();
-                if("" != qsUrl){
-                    // We finally got the url of the dropped ressource! Let's import it!
-                    downloadURL(qsUrl, qsUrl, pPos);
-                    return;
-                }
+            //  With Safari, in 95% of the drops, the mime datas are hidden in Apple Web Archive pasteboard type.
+            //  This is due to the way Safari is working so we have to dig into the pasteboard in order to retrieve
+            //  the data.
+            QString qsUrl = PlatformUtils::urlFromClipboard();
+            if ("" != qsUrl) {
+                // We finally got the url of the dropped ressource! Let's import it!
+                downloadURL(qsUrl, qsUrl, pPos);
+                return;
+            }
 #endif
         }
     }
 }
 
 
-void BoardController::toggleRecording(bool checked)
-{
+void BoardController::toggleRecording(bool checked) {
     if (RecordingController::instance())
         RecordingController::instance()->toggleRecordingPalette(checked);
 }
 
-void BoardController::moveGraphicsWidgetToControlView(GraphicsWidgetItem* graphicsWidget)
-{
+void BoardController::moveGraphicsWidgetToControlView(GraphicsWidgetItem *graphicsWidget) {
     mActiveScene->setURStackEnable(false);
     GraphicsItem *toolWidget = duplicateItem(dynamic_cast<Item *>(graphicsWidget));
     GraphicsWidgetItem *copyedGraphicsWidget = NULL;
 
-    if (toolWidget)
-    {
+    if (toolWidget) {
         if (GraphicsWidgetItem::Type == toolWidget->type())
             copyedGraphicsWidget = static_cast<GraphicsWidgetItem *>(toolWidget);
 
@@ -2419,13 +2148,13 @@ void BoardController::moveGraphicsWidgetToControlView(GraphicsWidgetItem* graphi
 }
 
 
-void BoardController::moveToolWidgetToScene(ToolWidget* toolWidget)
-{
+void BoardController::moveToolWidgetToScene(ToolWidget *toolWidget) {
     GraphicsWidgetItem *widgetToScene = toolWidget->toolWidget();
 
     widgetToScene->resetTransform();
 
-    QPoint mainWindowCenter = toolWidget->mapTo(mMainWindow, QPoint(toolWidget->width(), toolWidget->height()) / 2);
+    QPoint mainWindowCenter =
+        toolWidget->mapTo(mMainWindow, QPoint(toolWidget->width(), toolWidget->height()) / 2);
     QPoint controlViewCenter = mControlView->mapFrom(mMainWindow, mainWindowCenter);
     QPointF scenePos = mControlView->mapToScene(controlViewCenter);
 
@@ -2435,104 +2164,87 @@ void BoardController::moveToolWidgetToScene(ToolWidget* toolWidget)
 }
 
 
-void BoardController::updateBackgroundActionsState(bool isDark, PageBackground pageBackground)
-{
+void BoardController::updateBackgroundActionsState(bool isDark, PageBackground pageBackground) {
     switch (pageBackground) {
-
         case PageBackground::crossed:
             if (isDark)
                 mMainWindow->ui().actionCrossedDarkBackground->setChecked(true);
             else
                 mMainWindow->ui().actionCrossedLightBackground->setChecked(true);
-        break;
+            break;
 
-        case PageBackground::ruled :
+        case PageBackground::ruled:
             if (isDark)
                 mMainWindow->ui().actionRuledDarkBackground->setChecked(true);
             else
                 mMainWindow->ui().actionRuledLightBackground->setChecked(true);
-        break;
+            break;
 
         default:
             if (isDark)
                 mMainWindow->ui().actionPlainDarkBackground->setChecked(true);
             else
                 mMainWindow->ui().actionPlainLightBackground->setChecked(true);
-        break;
+            break;
     }
 }
 
 
-void BoardController::addItem()
-{
+void BoardController::addItem() {
     QString defaultPath = Settings::settings()->lastImportToLibraryPath->get().toString();
 
     QString extensions;
-    foreach(QString ext, Settings::imageFileExtensions)
-    {
+    foreach (QString ext, Settings::imageFileExtensions) {
         extensions += " *.";
         extensions += ext;
     }
 
-    QString filename = QFileDialog::getOpenFileName(mControlContainer, tr("Add Item"),
-                                                    defaultPath,
-                                                    tr("All Supported (%1)").arg(extensions), NULL, QFileDialog::DontUseNativeDialog);
+    QString filename = QFileDialog::getOpenFileName(mControlContainer, tr("Add Item"), defaultPath,
+                                                    tr("All Supported (%1)").arg(extensions), NULL,
+                                                    QFileDialog::DontUseNativeDialog);
 
-    if (filename.length() > 0)
-    {
+    if (filename.length() > 0) {
         mPaletteManager->addItem(QUrl::fromLocalFile(filename));
         QFileInfo source(filename);
         Settings::settings()->lastImportToLibraryPath->set(QVariant(source.absolutePath()));
     }
 }
 
-void BoardController::importPage()
-{
+void BoardController::importPage() {
     int pageCount = selectedDocument()->pageCount();
-    if (Application::documentController->addFileToDocument(selectedDocument()))
-    {
+    if (Application::documentController->addFileToDocument(selectedDocument())) {
         setActiveDocumentScene(selectedDocument(), pageCount, true);
     }
 }
 
-void BoardController::notifyPageChanged()
-{
+void BoardController::notifyPageChanged() {
     emit activeSceneChanged();
 }
 
-void BoardController::onDownloadModalFinished()
-{
+void BoardController::onDownloadModalFinished() {}
 
-}
-
-void BoardController::displayMetaData(QMap<QString, QString> metadatas)
-{
+void BoardController::displayMetaData(QMap<QString, QString> metadatas) {
     emit displayMetadata(metadatas);
 }
 
-void BoardController::freezeWebWidgets(bool freeze)
-{
-    if (mActiveSceneIndex >= 0)
-    {
+void BoardController::freezeWebWidgets(bool freeze) {
+    if (mActiveSceneIndex >= 0) {
         QList<QGraphicsItem *> list = Application::boardController->activeScene()->getFastAccessItems();
-        foreach(QGraphicsItem *item, list)
-        {
+        foreach (QGraphicsItem *item, list) {
             freezeWebWidget(item, freeze);
         }
     }
 }
 
-void BoardController::freezeWebWidget(QGraphicsItem *item, bool freeze)
-{
-    if(item->type() == GraphicsWebWidgetItem::Type)
-    {
-        GraphicsWebWidgetItem* item_casted = dynamic_cast<GraphicsWebWidgetItem*>(item);
+void BoardController::freezeWebWidget(QGraphicsItem *item, bool freeze) {
+    if (item->type() == GraphicsWebWidgetItem::Type) {
+        GraphicsWebWidgetItem *item_casted = dynamic_cast<GraphicsWebWidgetItem *>(item);
         if (0 == item_casted)
             return;
 
         //if (freeze) {
         //    item_casted->load(QUrl(GraphicsWebWidgetItem::freezedWidgetFilePath()));
         //} else
-            item_casted->loadMainHtml();
+        item_casted->loadMainHtml();
     }
 }

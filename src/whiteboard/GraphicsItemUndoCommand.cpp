@@ -11,76 +11,67 @@
 #include "whiteboard/GraphicsGroupContainerItem.h"
 #include "whiteboard/GraphicsPolygonItem.h"
 
-GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene* pScene, const QSet<QGraphicsItem*>& pRemovedItems, const QSet<QGraphicsItem*>& pAddedItems, const GroupDataTable &groupsMap): UndoCommand()
-    , mScene(pScene)
-    , mRemovedItems(pRemovedItems - pAddedItems)
-    , mAddedItems(pAddedItems - pRemovedItems)
-    , mExcludedFromGroup(groupsMap)
-{
+GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene *pScene,
+                                                 const QSet<QGraphicsItem *> &pRemovedItems,
+                                                 const QSet<QGraphicsItem *> &pAddedItems,
+                                                 const GroupDataTable &groupsMap)
+    : UndoCommand(),
+      mScene(pScene),
+      mRemovedItems(pRemovedItems - pAddedItems),
+      mAddedItems(pAddedItems - pRemovedItems),
+      mExcludedFromGroup(groupsMap) {
     mFirstRedo = true;
 
-    QSetIterator<QGraphicsItem*> itAdded(mAddedItems);
-    while (itAdded.hasNext())
-    {
+    QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
+    while (itAdded.hasNext()) {
         Application::boardController->freezeWebWidget(itAdded.next(), true);
     }
 
-    QSetIterator<QGraphicsItem*> itRemoved(mRemovedItems);
-    while (itRemoved.hasNext())
-    {
+    QSetIterator<QGraphicsItem *> itRemoved(mRemovedItems);
+    while (itRemoved.hasNext()) {
         Application::boardController->freezeWebWidget(itRemoved.next(), false);
     }
 }
 
-GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene* pScene, QGraphicsItem* pRemovedItem, QGraphicsItem* pAddedItem) : UndoCommand()
-    , mScene(pScene)
-{
-
-    if (pRemovedItem)
-    {
+GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene *pScene, QGraphicsItem *pRemovedItem,
+                                                 QGraphicsItem *pAddedItem)
+    : UndoCommand(), mScene(pScene) {
+    if (pRemovedItem) {
         mRemovedItems.insert(pRemovedItem);
     }
 
-    if (pAddedItem)
-    {
+    if (pAddedItem) {
         mAddedItems.insert(pAddedItem);
     }
 
     mFirstRedo = true;
-
 }
 
-GraphicsItemUndoCommand::~GraphicsItemUndoCommand()
-{
-   //NOOP
+GraphicsItemUndoCommand::~GraphicsItemUndoCommand() {
+    //NOOP
 }
 
-void GraphicsItemUndoCommand::undo()
-{
-    if (!mScene){
+void GraphicsItemUndoCommand::undo() {
+    if (!mScene) {
         return;
     }
 
-    QSetIterator<QGraphicsItem*> itAdded(mAddedItems);
-    while (itAdded.hasNext())
-    {
-        QGraphicsItem* item = itAdded.next();
+    QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
+    while (itAdded.hasNext()) {
+        QGraphicsItem *item = itAdded.next();
 
         Application::boardController->freezeWebWidget(item, true);
         item->setSelected(false);
 
         QTransform t;
         bool bApplyTransform = false;
-        GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem*>(item);
-        if (polygonItem){
-            if (polygonItem->strokesGroup()
-                    && polygonItem->strokesGroup()->parentItem()
-                    && GraphicsGroupContainerItem::Type == polygonItem->strokesGroup()->parentItem()->type())
-            {
+        GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
+        if (polygonItem) {
+            if (polygonItem->strokesGroup() && polygonItem->strokesGroup()->parentItem() &&
+                GraphicsGroupContainerItem::Type == polygonItem->strokesGroup()->parentItem()->type()) {
                 bApplyTransform = true;
                 t = polygonItem->sceneTransform();
-            }
-            else if (polygonItem->strokesGroup())
+            } else if (polygonItem->strokesGroup())
                 polygonItem->resetTransform();
 
             polygonItem->strokesGroup()->removeFromGroup(polygonItem);
@@ -89,25 +80,20 @@ void GraphicsItemUndoCommand::undo()
 
         if (bApplyTransform)
             polygonItem->setTransform(t);
-
     }
 
-    QSetIterator<QGraphicsItem*> itRemoved(mRemovedItems);
-    while (itRemoved.hasNext())
-    {
-        QGraphicsItem* item = itRemoved.next();
-        if (item)
-        {
+    QSetIterator<QGraphicsItem *> itRemoved(mRemovedItems);
+    while (itRemoved.hasNext()) {
+        QGraphicsItem *item = itRemoved.next();
+        if (item) {
             if (ItemLayerType::FixedBackground == item->data(GraphicsItemData::ItemLayerType))
                 mScene->setAsBackgroundObject(item);
             else
                 mScene->addItem(item);
 
-            if (GraphicsPolygonItem::Type == item->type())
-            {
-                GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem*>(item);
-                if (polygonItem)
-                {
+            if (GraphicsPolygonItem::Type == item->type()) {
+                GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
+                if (polygonItem) {
                     mScene->removeItem(polygonItem);
                     mScene->removeItemFromDeletion(polygonItem);
                     polygonItem->strokesGroup()->addToGroup(polygonItem);
@@ -118,7 +104,7 @@ void GraphicsItemUndoCommand::undo()
         }
     }
 
-    QMultiMapIterator<GraphicsGroupContainerItem*, QUuid> curMapElement(mExcludedFromGroup);
+    QMultiMapIterator<GraphicsGroupContainerItem *, QUuid> curMapElement(mExcludedFromGroup);
     GraphicsGroupContainerItem *nextGroup = NULL;
     GraphicsGroupContainerItem *previousGroupItem = NULL;
     bool groupChanged = false;
@@ -132,7 +118,7 @@ void GraphicsItemUndoCommand::undo()
             GraphicsGroupContainerItem *groupCandidate = curMapElement.key();
             if (groupCandidate) {
                 nextGroup = groupCandidate;
-                if(!mScene->items().contains(nextGroup)) {
+                if (!mScene->items().contains(nextGroup)) {
                     mScene->addItem(nextGroup);
                 }
                 nextGroup->setVisible(true);
@@ -151,20 +137,17 @@ void GraphicsItemUndoCommand::undo()
     // force refresh, QT is a bit lazy and take a lot of time (nb item ^2 ?) to trigger repaint
     mScene->update(mScene->sceneRect());
     mScene->updateSelectionFrame();
-
 }
 
-void GraphicsItemUndoCommand::redo()
-{
+void GraphicsItemUndoCommand::redo() {
     // the Undo framework calls a redo while appending the undo command.
     // as we have already plotted the elements, we do not want to do it twice
-    if (!mFirstRedo)
-    {
-        if (!mScene){
+    if (!mFirstRedo) {
+        if (!mScene) {
             return;
         }
 
-        QMultiMapIterator<GraphicsGroupContainerItem*, QUuid> curMapElement(mExcludedFromGroup);
+        QMultiMapIterator<GraphicsGroupContainerItem *, QUuid> curMapElement(mExcludedFromGroup);
         GraphicsGroupContainerItem *nextGroup = NULL;
         GraphicsGroupContainerItem *previousGroupItem = NULL;
         bool groupChanged = false;
@@ -193,25 +176,21 @@ void GraphicsItemUndoCommand::redo()
             GraphicsItem::Delegate(nextGroup)->update();
         }
 
-        QSetIterator<QGraphicsItem*> itRemoved(mRemovedItems);
-        while (itRemoved.hasNext())
-        {
-            QGraphicsItem* item = itRemoved.next();
+        QSetIterator<QGraphicsItem *> itRemoved(mRemovedItems);
+        while (itRemoved.hasNext()) {
+            QGraphicsItem *item = itRemoved.next();
             item->setSelected(false);
 
             QTransform t;
             bool bApplyTransform = false;
-            GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem*>(item);
+            GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
 
-            if (polygonItem){
-                if(polygonItem->strokesGroup()
-                        && polygonItem->strokesGroup()->parentItem()
-                        && GraphicsGroupContainerItem::Type == polygonItem->strokesGroup()->parentItem()->type())
-                {
+            if (polygonItem) {
+                if (polygonItem->strokesGroup() && polygonItem->strokesGroup()->parentItem() &&
+                    GraphicsGroupContainerItem::Type == polygonItem->strokesGroup()->parentItem()->type()) {
                     bApplyTransform = true;
                     t = polygonItem->sceneTransform();
-                }
-                else if (polygonItem->strokesGroup())
+                } else if (polygonItem->strokesGroup())
                     polygonItem->resetTransform();
 
                 polygonItem->strokesGroup()->removeFromGroup(polygonItem);
@@ -224,12 +203,10 @@ void GraphicsItemUndoCommand::redo()
             Application::boardController->freezeWebWidget(item, true);
         }
 
-        QSetIterator<QGraphicsItem*> itAdded(mAddedItems);
-        while (itAdded.hasNext())
-        {
-            QGraphicsItem* item = itAdded.next();
-            if (item)
-            {
+        QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
+        while (itAdded.hasNext()) {
+            QGraphicsItem *item = itAdded.next();
+            if (item) {
                 Application::boardController->freezeWebWidget(item, false);
 
                 if (ItemLayerType::FixedBackground == item->data(GraphicsItemData::ItemLayerType))
@@ -237,9 +214,8 @@ void GraphicsItemUndoCommand::redo()
                 else
                     mScene->addItem(item);
 
-                GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem*>(item);
-                if (polygonItem)
-                {
+                GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
+                if (polygonItem) {
                     mScene->removeItem(polygonItem);
                     mScene->removeItemFromDeletion(polygonItem);
                     polygonItem->strokesGroup()->addToGroup(polygonItem);
@@ -249,9 +225,7 @@ void GraphicsItemUndoCommand::redo()
 
         // force refresh, QT is a bit lazy and take a lot of time (nb item ^2) to trigger repaint
         mScene->update(mScene->sceneRect());
-    }
-    else
-    {
+    } else {
         mFirstRedo = false;
     }
 }

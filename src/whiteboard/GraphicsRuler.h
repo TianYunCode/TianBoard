@@ -10,8 +10,7 @@
 
 class GraphicsScene;
 
-class GraphicsRuler : public AbstractDrawRuler, public QGraphicsRectItem, public Item
-{
+class GraphicsRuler : public AbstractDrawRuler, public QGraphicsRectItem, public Item {
     Q_OBJECT
 
 public:
@@ -20,20 +19,16 @@ public:
 
     enum { Type = GraphicsItemType::RulerItemType };
 
-    virtual int type() const
-    {
-        return Type;
-    }
+    virtual int type() const { return Type; }
 
-    virtual Item* deepCopy() const;
+    virtual Item *deepCopy() const;
     virtual void copyItemParameters(Item *copy) const;
 
-    virtual void StartLine(const QPointF& position, qreal width);
-    virtual void DrawLine(const QPointF& position, qreal width);
+    virtual void StartLine(const QPointF &position, qreal width);
+    virtual void DrawLine(const QPointF &position, qreal width);
     virtual void EndLine();
 
 protected:
-
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *styleOption, QWidget *widget);
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -54,17 +49,17 @@ private:
     void paintRotationCenter(QPainter *painter);
     virtual void rotateAroundCenter(qreal angle);
 
-    QGraphicsSvgItem* mRotateSvgItem;
-    QGraphicsSvgItem* mResizeSvgItem;
+    QGraphicsSvgItem *mRotateSvgItem;
+    QGraphicsSvgItem *mResizeSvgItem;
 
     void updateResizeCursor();
-    QCursor resizeCursor() const{return mResizeCursor;}
+    QCursor resizeCursor() const { return mResizeCursor; }
 
     virtual QPointF rotationCenter() const;
     virtual QRectF resizeButtonRect() const;
     virtual QRectF closeButtonRect() const;
     virtual QRectF rotateButtonRect() const;
-    virtual GraphicsScene* scene() const;
+    virtual GraphicsScene *scene() const;
 
     QCursor mResizeCursor;
 
@@ -78,4 +73,3 @@ private:
 
     qreal mStrokeWidth;
 };
-

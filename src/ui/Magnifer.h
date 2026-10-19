@@ -5,26 +5,19 @@
 
 #include <memory>
 
-class MagnifierParams
-{
-public :
+class MagnifierParams {
+public:
     int x;
     int y;
     qreal zoom;
     qreal sizePercentFromScene;
 };
 
-class Magnifier : public QWidget
-{
+class Magnifier : public QWidget {
     Q_OBJECT
-    
+
 public:
-    enum DrawingMode
-    {
-        circular = 0,
-        rectangular,
-        modesCount
-    };
+    enum DrawingMode { circular = 0, rectangular, modesCount };
 
 public:
     Magnifier(QWidget *parent = 0, bool isInteractive = false);
@@ -50,7 +43,7 @@ signals:
     void magnifierZoomOut_Signal();
     void magnifierResized_Signal(qreal newPercentSize);
     void magnifierDrawingModeChange_Signal(int mode);
-    
+
 public slots:
     void slot_refresh();
 
@@ -60,12 +53,11 @@ private:
 protected:
     void paintEvent(QPaintEvent *);
 
-    virtual void mousePressEvent ( QMouseEvent * event );
-    virtual void mouseMoveEvent ( QMouseEvent * event );
-    virtual void mouseReleaseEvent ( QMouseEvent * event );
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

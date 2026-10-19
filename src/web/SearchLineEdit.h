@@ -7,20 +7,18 @@
 
 class SearchButton;
 
-class ClearButton : public QAbstractButton
-{
+class ClearButton : public QAbstractButton {
     Q_OBJECT;
 
-    public:
-        ClearButton(QWidget *parent = 0);
-        void paintEvent(QPaintEvent *event);
+public:
+    ClearButton(QWidget *parent = 0);
+    void paintEvent(QPaintEvent *event);
 
-    public slots:
-        void textChanged(const QString &text);
+public slots:
+    void textChanged(const QString &text);
 };
 
-class SearchLineEdit : public ExLineEdit
-{
+class SearchLineEdit : public ExLineEdit {
     Q_OBJECT;
     Q_PROPERTY(QString inactiveText READ inactiveText WRITE setInactiveText)
 
@@ -39,7 +37,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
 signals:
-	void textChanged(const QString &text);
+    void textChanged(const QString &text);
 
 private:
     void updateGeometries();
@@ -47,5 +45,3 @@ private:
     SearchButton *mSearchButton;
     QString mInactiveText;
 };
-
-

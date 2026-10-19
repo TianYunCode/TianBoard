@@ -7,37 +7,30 @@
 
 #include "utils/FileSystemUtils.h"
 
-void PlatformUtils::init()
-{
+void PlatformUtils::init() {
     initializeKeyboardLayouts();
 }
 
 
-void PlatformUtils::hideFile(const QString &filePath)
-{
+void PlatformUtils::hideFile(const QString &filePath) {
     Q_UNUSED(filePath);
-
 }
 
-void PlatformUtils::fadeDisplayOut()
-{
+void PlatformUtils::fadeDisplayOut() {
     // NOOP
 }
 
-void PlatformUtils::fadeDisplayIn()
-{
+void PlatformUtils::fadeDisplayIn() {
     // NOOP
 }
 
-QStringList PlatformUtils::availableTranslations()
-{
-    QString translationsPath = applicationResourcesDirectory() + "/" + "Language" + "/";
+QStringList PlatformUtils::availableTranslations() {
+    QString translationsPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/";
     QStringList translationsList = FileSystemUtils::allFiles(translationsPath);
 
     QStringList languages;
 
-    foreach (const QString &translationFile, translationsList)
-    {
+    foreach (const QString &translationFile, translationsList) {
         QFileInfo fileInfo(translationFile);
 
         if (fileInfo.suffix().compare("qm", Qt::CaseInsensitive) != 0)
@@ -52,52 +45,46 @@ QStringList PlatformUtils::availableTranslations()
     return languages;
 }
 
-QString PlatformUtils::translationPath(QString pFilePrefix,QString pLanguage)
-{
-    QString qmPath = applicationResourcesDirectory() + "/" + "Language" + "/" + pFilePrefix + pLanguage + ".qm";
+QString PlatformUtils::translationPath(QString pFilePrefix, QString pLanguage) {
+    QString qmPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/" + pFilePrefix +
+                     pLanguage + ".qm";
     return qmPath;
 }
 
-QString PlatformUtils::systemLanguage()
-{
+QString PlatformUtils::systemLanguage() {
     return QLocale::system().name();
 }
 
-void PlatformUtils::bringPreviousProcessToFront()
-{
+void PlatformUtils::bringPreviousProcessToFront() {
     // Mac only
 }
 
 
-QString PlatformUtils::osUserLoginName()
-{
+QString PlatformUtils::osUserLoginName() {
     WCHAR winUserName[256 + 1];
     DWORD winUserNameSize = sizeof(winUserName);
-    GetUserName( winUserName, &winUserNameSize );
+    GetUserName(winUserName, &winUserNameSize);
     QString userName = QString::fromWCharArray(winUserName, winUserNameSize - 1);
 
     return userName;
 }
 
 
-QString PlatformUtils::computerName()
-{
+QString PlatformUtils::computerName() {
     WCHAR winComputerName[256 + 1];
     DWORD winComputerNameSize = sizeof(winComputerName);
-    GetComputerName(winComputerName, &winComputerNameSize );
+    GetComputerName(winComputerName, &winComputerNameSize);
     QString computerName = QString::fromWCharArray(winComputerName, winComputerNameSize - 1);
 
     return computerName;
 }
 
 
-void PlatformUtils::setDesktopMode(bool desktop)
-{
+void PlatformUtils::setDesktopMode(bool desktop) {
     Q_UNUSED(desktop);
 }
 
-void PlatformUtils::setWindowNonActivableFlag(QWidget* widget, bool nonAcivable)
-{/*
+void PlatformUtils::setWindowNonActivableFlag(QWidget *widget, bool nonAcivable) { /*
     long exStyle = (nonAcivable) ? GetWindowLong(widget->winId(), GWL_EXSTYLE) | WS_EX_NOACTIVATE
         : GetWindowLong(widget->winId(), GWL_EXSTYLE) & ~WS_EX_NOACTIVATE;
 
@@ -161,44 +148,39 @@ KEYBT ENGLISH_LOCALE[] = {
     /* / ? */ KEYBTDECL(0x2f, 0x5f, false)};
 
 
-void PlatformUtils::initializeKeyboardLayouts()
-{
+void PlatformUtils::initializeKeyboardLayouts() {
     nKeyboardLayouts = 1;
-    keyboardLayouts = new KeyboardLocale*[nKeyboardLayouts];
-    keyboardLayouts[0] = new KeyboardLocale(tr("English"), "en", "", new QIcon(":/images/flags/en.png"), ENGLISH_LOCALE);
+    keyboardLayouts = new KeyboardLocale *[nKeyboardLayouts];
+    keyboardLayouts[0] =
+        new KeyboardLocale(tr("English"), "en", "", new QIcon(":/images/flags/en.png"), ENGLISH_LOCALE);
 }
 
-void PlatformUtils::destroyKeyboardLayouts()
-{
-    for(int i=0; i<nKeyboardLayouts; i++)
+void PlatformUtils::destroyKeyboardLayouts() {
+    for (int i = 0; i < nKeyboardLayouts; i++)
         delete keyboardLayouts[i];
-    delete [] keyboardLayouts;
+    delete[] keyboardLayouts;
     keyboardLayouts = NULL;
 }
 
-QString PlatformUtils::urlFromClipboard()
-{
+QString PlatformUtils::urlFromClipboard() {
     QString qsRet;
     //  Not implemented yet
     return qsRet;
 }
 
-void PlatformUtils::setFrontProcess()
-{
+void PlatformUtils::setFrontProcess() {
     // not used in Windows
 }
 
 
-void PlatformUtils::showFullScreen(QWidget *pWidget)
-{
+void PlatformUtils::showFullScreen(QWidget *pWidget) {
     pWidget->showFullScreen();
 }
 
-void PlatformUtils::showOSK(bool show)
-{
+void PlatformUtils::showOSK(bool show) {
     if (show) {
         QString windir = qgetenv("WINDIR");
-        QString osk_path = windir+"\\System32\\osk.exe";
+        QString osk_path = windir + "\\System32\\osk.exe";
 
         QProcess oskProcess;
         // We have to pass by explorer.exe because osk.exe can only be launched

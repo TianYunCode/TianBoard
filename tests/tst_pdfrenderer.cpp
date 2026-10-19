@@ -10,8 +10,7 @@
 
 #include "content/QPdfRenderer.h"
 
-class TestPdfRenderer : public QObject
-{
+class TestPdfRenderer : public QObject {
     Q_OBJECT
 
 private slots:
@@ -29,8 +28,7 @@ private:
     QString mPdfPath;
 };
 
-void TestPdfRenderer::initTestCase()
-{
+void TestPdfRenderer::initTestCase() {
     QVERIFY(mDir.isValid());
     mPdfPath = mDir.filePath(QStringLiteral("fixture.pdf"));
 
@@ -46,26 +44,24 @@ void TestPdfRenderer::initTestCase()
         painter.setPen(Qt::black);
         painter.setFont(QFont(QStringLiteral("Arial"), 40));
 
-        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()),
-                         Qt::AlignCenter, QStringLiteral("PAGE ONE"));
+        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()), Qt::AlignCenter,
+                         QStringLiteral("PAGE ONE"));
 
         writer.newPage();
 
-        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()),
-                         Qt::AlignCenter, QStringLiteral("PAGE TWO"));
+        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()), Qt::AlignCenter,
+                         QStringLiteral("PAGE TWO"));
     }
 }
 
-void TestPdfRenderer::reportsValidityAndPageCount()
-{
+void TestPdfRenderer::reportsValidityAndPageCount() {
     QPdfRenderer renderer(mPdfPath);
     QVERIFY2(renderer.isValid(), qPrintable(mPdfPath));
     QCOMPARE(renderer.pageCount(), 2);
     QVERIFY(renderer.title().contains(QStringLiteral("TianBoard")));
 }
 
-void TestPdfRenderer::outOfRangePagesAreEmpty()
-{
+void TestPdfRenderer::outOfRangePagesAreEmpty() {
     QPdfRenderer renderer(mPdfPath);
     QVERIFY(renderer.isValid());
 
@@ -75,8 +71,7 @@ void TestPdfRenderer::outOfRangePagesAreEmpty()
     QVERIFY(renderer.pageSizeF(renderer.pageCount() + 1).isEmpty());
 }
 
-void TestPdfRenderer::pageSizeScalesPointsToPixels()
-{
+void TestPdfRenderer::pageSizeScalesPointsToPixels() {
     QPdfRenderer renderer(mPdfPath);
     renderer.setDPI(96);
 
@@ -90,8 +85,7 @@ void TestPdfRenderer::pageSizeScalesPointsToPixels()
     QCOMPARE(renderer.pageSizeF(2).width(), size.width() * 2);
 }
 
-void TestPdfRenderer::rendersTheWholePage()
-{
+void TestPdfRenderer::rendersTheWholePage() {
     QPdfRenderer renderer(mPdfPath);
     renderer.setDPI(96);
 
@@ -115,8 +109,7 @@ void TestPdfRenderer::rendersTheWholePage()
     QVERIFY(painted);
 }
 
-void TestPdfRenderer::rendersOnlyTheRequestedBounds()
-{
+void TestPdfRenderer::rendersOnlyTheRequestedBounds() {
     QPdfRenderer renderer(mPdfPath);
     renderer.setDPI(96);
 
@@ -140,8 +133,7 @@ void TestPdfRenderer::rendersOnlyTheRequestedBounds()
     QVERIFY(upperStillWhite);
 }
 
-void TestPdfRenderer::damagedFileIsNotValid()
-{
+void TestPdfRenderer::damagedFileIsNotValid() {
     const QString broken = mDir.filePath(QStringLiteral("broken.pdf"));
     {
         QFile file(broken);

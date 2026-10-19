@@ -11,116 +11,96 @@ class Item;
 class GraphicsScene;
 class GraphicsStroke;
 
-class GraphicsPolygonItem : public QGraphicsPolygonItem, public Item
-{
-    public:
-        GraphicsPolygonItem(QGraphicsItem * parent = 0 );
-        GraphicsPolygonItem(const QLineF& line, qreal pWidth);
-        GraphicsPolygonItem(const QLineF& pLine, qreal pStartWidth, qreal pEndWidth);
-        GraphicsPolygonItem(const QPolygonF & polygon, QGraphicsItem * parent = 0);
+class GraphicsPolygonItem : public QGraphicsPolygonItem, public Item {
+public:
+    GraphicsPolygonItem(QGraphicsItem *parent = 0);
+    GraphicsPolygonItem(const QLineF &line, qreal pWidth);
+    GraphicsPolygonItem(const QLineF &pLine, qreal pStartWidth, qreal pEndWidth);
+    GraphicsPolygonItem(const QPolygonF &polygon, QGraphicsItem *parent = 0);
 
-        ~GraphicsPolygonItem();
+    ~GraphicsPolygonItem();
 
-        void initialize();
+    void initialize();
 
-        void setUuid(const QUuid &pUuid);
+    void setUuid(const QUuid &pUuid);
 
-        void setStrokesGroup(GraphicsStrokesGroup* group);
-        GraphicsStrokesGroup* strokesGroup() const{return mpGroup;}
-        void setColor(const QColor& color);
+    void setStrokesGroup(GraphicsStrokesGroup *group);
+    GraphicsStrokesGroup *strokesGroup() const { return mpGroup; }
+    void setColor(const QColor &color);
 
-        QColor color() const;
+    QColor color() const;
 
-        virtual GraphicsScene* scene();
+    virtual GraphicsScene *scene();
 
-        inline void subtract(GraphicsPolygonItem *pi)
-        {
-            if (boundingRect().intersects(pi->boundingRect()))
-            {
-                QPolygonF subtractedPolygon = polygon().subtracted(pi->polygon());
-
-                if (polygon() != subtractedPolygon)
-                {
-                    mIsNominalLine = false;
-                    QGraphicsPolygonItem::setPolygon(subtractedPolygon);
-                }
-            }
-        }
-
-        inline void subtractIntersecting(GraphicsPolygonItem *pi)
-        {
+    inline void subtract(GraphicsPolygonItem *pi) {
+        if (boundingRect().intersects(pi->boundingRect())) {
             QPolygonF subtractedPolygon = polygon().subtracted(pi->polygon());
 
-            if (polygon() != subtractedPolygon)
-            {
+            if (polygon() != subtractedPolygon) {
                 mIsNominalLine = false;
                 QGraphicsPolygonItem::setPolygon(subtractedPolygon);
             }
         }
+    }
 
-        enum { Type = GraphicsItemType::PolygonItemType };
+    inline void subtractIntersecting(GraphicsPolygonItem *pi) {
+        QPolygonF subtractedPolygon = polygon().subtracted(pi->polygon());
 
-        virtual int type() const
-        {
-            return Type;
-        }
-
-        void setPolygon(const QPolygonF pPolygon)
-        {
+        if (polygon() != subtractedPolygon) {
             mIsNominalLine = false;
-            QGraphicsPolygonItem::setPolygon(pPolygon);
+            QGraphicsPolygonItem::setPolygon(subtractedPolygon);
         }
+    }
 
-        virtual Item* deepCopy() const;
+    enum { Type = GraphicsItemType::PolygonItemType };
 
-        virtual void copyItemParameters(Item *copy) const;
+    virtual int type() const { return Type; }
 
-        QLineF originalLine() { return mOriginalLine;}
-        qreal originalWidth() { return mOriginalWidth;}
-        bool isNominalLine() {return mIsNominalLine;}
+    void setPolygon(const QPolygonF pPolygon) {
+        mIsNominalLine = false;
+        QGraphicsPolygonItem::setPolygon(pPolygon);
+    }
 
-        void setNominalLine(bool isNominalLine) { mIsNominalLine = isNominalLine; }
+    virtual Item *deepCopy() const;
 
-        QColor colorOnDarkBackground() const
-        {
-            return mColorOnDarkBackground;
-        }
+    virtual void copyItemParameters(Item *copy) const;
 
-        void setColorOnDarkBackground(QColor pColorOnDarkBackground)
-        {
-            mColorOnDarkBackground = pColorOnDarkBackground;
-        }
+    QLineF originalLine() { return mOriginalLine; }
+    qreal originalWidth() { return mOriginalWidth; }
+    bool isNominalLine() { return mIsNominalLine; }
 
-        QColor colorOnLightBackground() const
-        {
-            return mColorOnLightBackground;
-        }
+    void setNominalLine(bool isNominalLine) { mIsNominalLine = isNominalLine; }
 
-        void setColorOnLightBackground(QColor pColorOnLightBackground)
-        {
-            mColorOnLightBackground = pColorOnLightBackground;
-        }
+    QColor colorOnDarkBackground() const { return mColorOnDarkBackground; }
 
-        void setStroke(GraphicsStroke* stroke);
-        GraphicsStroke* stroke() const;
+    void setColorOnDarkBackground(QColor pColorOnDarkBackground) {
+        mColorOnDarkBackground = pColorOnDarkBackground;
+    }
 
-    protected:
-        void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+    QColor colorOnLightBackground() const { return mColorOnLightBackground; }
 
-    private:
-        void clearStroke();
+    void setColorOnLightBackground(QColor pColorOnLightBackground) {
+        mColorOnLightBackground = pColorOnLightBackground;
+    }
 
-        bool mHasAlpha;
+    void setStroke(GraphicsStroke *stroke);
+    GraphicsStroke *stroke() const;
 
-        QLineF mOriginalLine;
-        qreal mOriginalWidth;
-        bool mIsNominalLine;
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-        QColor mColorOnDarkBackground;
-        QColor mColorOnLightBackground;
+private:
+    void clearStroke();
 
-        GraphicsStroke* mStroke;
-        GraphicsStrokesGroup* mpGroup;
+    bool mHasAlpha;
 
+    QLineF mOriginalLine;
+    qreal mOriginalWidth;
+    bool mIsNominalLine;
+
+    QColor mColorOnDarkBackground;
+    QColor mColorOnLightBackground;
+
+    GraphicsStroke *mStroke;
+    GraphicsStrokesGroup *mpGroup;
 };
-

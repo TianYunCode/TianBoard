@@ -19,57 +19,58 @@
 
 #include <memory>
 
-#define STARTDRAGTIME   1000000
-#define BUTTONSIZE      96
+#define STARTDRAGTIME 1000000
+#define BUTTONSIZE 96
 #define BUTTONSPACING 10
 
 class DocumentProxy;
 class ThumbnailTextItem;
 class Thumbnail;
 
-class ThumbnailWidget : public QGraphicsView
-{
+class ThumbnailWidget : public QGraphicsView {
     Q_OBJECT
 
 public:
-    ThumbnailWidget(QWidget* parent);
+    ThumbnailWidget(QWidget *parent);
     virtual ~ThumbnailWidget();
 
-    QList<QGraphicsItem*> selectedItems();
+    QList<QGraphicsItem *> selectedItems();
     void selectItemAt(int pIndex, bool extend = false);
     void unselectItemAt(int pIndex);
 
     qreal thumbnailWidth();
 
-    void setBackgroundBrush(const QBrush& brush);
+    void setBackgroundBrush(const QBrush &brush);
 
 public slots:
     void setThumbnailWidth(qreal pThumbnailWidth);
     void setSpacing(qreal pSpacing);
-    virtual void setGraphicsItems(const QList<QGraphicsItem*>& pGraphicsItems, const QList<QUrl>& pItemPaths, const QStringList pLabels = QStringList(), const QString& pMimeType = QString(""));
+    virtual void setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsItems, const QList<QUrl> &pItemPaths,
+                                  const QStringList pLabels = QStringList(),
+                                  const QString &pMimeType = QString(""));
     void refreshScene();
     void sceneSelectionChanged();
 
 signals:
     void resized();
     void selectionChanged();
-    void mouseDoubleClick(QGraphicsItem* item, int index);
-    void mouseClick(QGraphicsItem* item, int index);
+    void mouseDoubleClick(QGraphicsItem *item, int index);
+    void mouseClick(QGraphicsItem *item, int index);
 
 
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void resizeEvent(QResizeEvent * event);
-    void mouseDoubleClickEvent(QMouseEvent * event);
+    virtual void resizeEvent(QResizeEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
 
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void focusInEvent(QFocusEvent *event);
 
-    const QList<QGraphicsItem*>& graphicItems() const;
-    const QList<ThumbnailTextItem*>& labelsItems() const;
-    const QPoint& mousePressPos() const;
+    const QList<QGraphicsItem *> &graphicItems() const;
+    const QList<ThumbnailTextItem *> &labelsItems() const;
+    const QPoint &mousePressPos() const;
 
     qreal spacing();
     void setCanDrag(bool canDrag);
@@ -80,7 +81,7 @@ private:
     int rowCount() const;
     int columnCount() const;
 
-    static bool thumbnailLessThan(QGraphicsItem* item1, QGraphicsItem* item2);
+    static bool thumbnailLessThan(QGraphicsItem *item1, QGraphicsItem *item2);
 
     void deleteLasso();
 
@@ -88,22 +89,21 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class Thumbnail
-{
+class Thumbnail {
 public:
     Thumbnail();
 
     virtual ~Thumbnail();
 
-    QStyleOptionGraphicsItem muteStyleOption(const QStyleOptionGraphicsItem *option)
-    {
+    QStyleOptionGraphicsItem muteStyleOption(const QStyleOptionGraphicsItem *option) {
         QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
         styleOption.state &= ~QStyle::State_Selected;
 
         return styleOption;
     }
 
-    virtual void itemChange(QGraphicsItem *item, QGraphicsItem::GraphicsItemChange change, const QVariant &value);
+    virtual void itemChange(QGraphicsItem *item, QGraphicsItem::GraphicsItemChange change,
+                            const QVariant &value);
 
     int column();
     void setColumn(int column);
@@ -117,13 +117,12 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class ThumbnailTextItem : public QGraphicsTextItem
-{
+class ThumbnailTextItem : public QGraphicsTextItem {
     Q_OBJECT
 public:
     ThumbnailTextItem(int index);
 
-    ThumbnailTextItem(const QString& text);
+    ThumbnailTextItem(const QString &text);
 
     virtual ~ThumbnailTextItem();
 
@@ -142,51 +141,43 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class ThumbnailPixmap : public QGraphicsPixmapItem, public Thumbnail
-{
+class ThumbnailPixmap : public QGraphicsPixmapItem, public Thumbnail {
 public:
-    ThumbnailPixmap(const QPixmap& pix)
-        : QGraphicsPixmapItem(pix)
-    {
+    ThumbnailPixmap(const QPixmap &pix) : QGraphicsPixmapItem(pix) {
         setTransformationMode(Qt::SmoothTransformation);
         setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     }
 
-    virtual ~ThumbnailPixmap()
-    {
+    virtual ~ThumbnailPixmap() {
         // NOOP
     }
 
-    virtual QPainterPath shape () const
-    {
+    virtual QPainterPath shape() const {
         QPainterPath path;
         path.addRect(boundingRect());
         return path;
     }
 
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-    {
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
         QStyleOptionGraphicsItem styleOption = Thumbnail::muteStyleOption(option);
         QGraphicsPixmapItem::paint(painter, &styleOption, widget);
     }
 
-    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value)
-    {
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) {
         Thumbnail::itemChange(this, change, value);
         return QGraphicsPixmapItem::itemChange(change, value);
     }
 };
 
-class SceneThumbnailPixmap : public ThumbnailPixmap
-{
+class SceneThumbnailPixmap : public ThumbnailPixmap {
 public:
-    SceneThumbnailPixmap(const QPixmap& pix, DocumentProxy* proxy, int pSceneIndex);
+    SceneThumbnailPixmap(const QPixmap &pix, DocumentProxy *proxy, int pSceneIndex);
 
     virtual ~SceneThumbnailPixmap();
 
-    DocumentProxy* proxy();
+    DocumentProxy *proxy();
 
     int sceneIndex();
 
@@ -197,10 +188,9 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class SceneThumbnailNavigPixmap : public SceneThumbnailPixmap
-{
+class SceneThumbnailNavigPixmap : public SceneThumbnailPixmap {
 public:
-    SceneThumbnailNavigPixmap(const QPixmap& pix, DocumentProxy* proxy, int pSceneIndex);
+    SceneThumbnailNavigPixmap(const QPixmap &pix, DocumentProxy *proxy, int pSceneIndex);
     ~SceneThumbnailNavigPixmap();
 
     bool editable();
@@ -233,25 +223,23 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class ImgTextThumbnailElement
-{
+class ImgTextThumbnailElement {
 private:
-    SceneThumbnailNavigPixmap* thumbnail;
-    ThumbnailTextItem* caption;
+    SceneThumbnailNavigPixmap *thumbnail;
+    ThumbnailTextItem *caption;
     int border;
 
 public:
-    ImgTextThumbnailElement(SceneThumbnailNavigPixmap* thumb, ThumbnailTextItem* text): border(0)
-    {
+    ImgTextThumbnailElement(SceneThumbnailNavigPixmap *thumb, ThumbnailTextItem *text) : border(0) {
         this->thumbnail = thumb;
         this->caption = text;
     }
 
-    SceneThumbnailNavigPixmap* getThumbnail() const { return this->thumbnail; }
-    void setThumbnail(SceneThumbnailNavigPixmap* newGItem) { this->thumbnail = newGItem; }
+    SceneThumbnailNavigPixmap *getThumbnail() const { return this->thumbnail; }
+    void setThumbnail(SceneThumbnailNavigPixmap *newGItem) { this->thumbnail = newGItem; }
 
-    ThumbnailTextItem* getCaption() const { return this->caption; }
-    void setCaption(ThumbnailTextItem* newcaption) { this->caption = newcaption; }
+    ThumbnailTextItem *getCaption() const { return this->caption; }
+    void setCaption(ThumbnailTextItem *newcaption) { this->caption = newcaption; }
 
     void Place(int row, int col, qreal width, qreal height);
 
@@ -259,14 +247,13 @@ public:
     void setBorder(int newBorder) { this->border = newBorder; }
 };
 
-class ThumbnailProxyWidget : public QGraphicsProxyWidget
-{
+class ThumbnailProxyWidget : public QGraphicsProxyWidget {
 public:
-    ThumbnailProxyWidget(DocumentProxy* proxy, int index);
+    ThumbnailProxyWidget(DocumentProxy *proxy, int index);
 
     virtual ~ThumbnailProxyWidget();
 
-    DocumentProxy* documentProxy();
+    DocumentProxy *documentProxy();
 
     void setSceneIndex(int i);
 
@@ -277,11 +264,10 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class DraggableThumbnail : public ThumbnailProxyWidget
-{
+class DraggableThumbnail : public ThumbnailProxyWidget {
     Q_OBJECT
 public:
-    DraggableThumbnail(DocumentProxy* documentProxy, int index);
+    DraggableThumbnail(DocumentProxy *documentProxy, int index);
 
     ~DraggableThumbnail();
 
@@ -300,7 +286,7 @@ public:
     void setEditable(bool editable);
 
 
-    ThumbnailTextItem* pageNumber();
+    ThumbnailTextItem *pageNumber();
 
     void setPageNumber(int i);
 
@@ -323,15 +309,14 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class DraggableThumbnailPixmap : public DraggableThumbnail
-{
+class DraggableThumbnailPixmap : public DraggableThumbnail {
     Q_OBJECT
 public:
-    DraggableThumbnailPixmap(ThumbnailPixmap* thumbnailPixmap, DocumentProxy* documentProxy, int index);
+    DraggableThumbnailPixmap(ThumbnailPixmap *thumbnailPixmap, DocumentProxy *documentProxy, int index);
 
     ~DraggableThumbnailPixmap();
 
-    ThumbnailPixmap* thumbnailPixmap();
+    ThumbnailPixmap *thumbnailPixmap();
 
     void updatePos(qreal w, qreal h);
 
@@ -340,17 +325,16 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class DraggableThumbnailView : public DraggableThumbnail
-{
+class DraggableThumbnailView : public DraggableThumbnail {
     Q_OBJECT
 public:
-    DraggableThumbnailView(ThumbnailView* thumbnailView, DocumentProxy* documentProxy, int index);
+    DraggableThumbnailView(ThumbnailView *thumbnailView, DocumentProxy *documentProxy, int index);
 
     ~DraggableThumbnailView();
 
-    ThumbnailView* thumbnailView();
+    ThumbnailView *thumbnailView();
 
-    ThumbnailTextItem* pageNumber();
+    ThumbnailTextItem *pageNumber();
 
     void setPageNumber(int i);
 
@@ -359,36 +343,32 @@ private:
     std::unique_ptr<Private> d;
 };
 
-namespace ThumbnailUI
-{
-    const int ICONSIZE      = 96;
-    const int ICONSPACING   = 10;
+namespace ThumbnailUI {
+const int ICONSIZE = 96;
+const int ICONSPACING = 10;
 
-    class ThumbnailUIIcon : public QPixmap
-    {
-        public:
-            ThumbnailUIIcon(const QString& filename, int pos);
+class ThumbnailUIIcon : public QPixmap {
+public:
+    ThumbnailUIIcon(const QString &filename, int pos);
 
-            ~ThumbnailUIIcon();
+    ~ThumbnailUIIcon();
 
-            int pos() const;
+    int pos() const;
 
-            bool triggered(qreal x) const;
+    bool triggered(qreal x) const;
 
-        private:
-            struct Private;
-            std::unique_ptr<Private> d;
-    };
+private:
+    struct Private;
+    std::unique_ptr<Private> d;
+};
 
-    namespace _private
-    {
-        static QMap<QString, ThumbnailUIIcon*> catalog;
-        void initCatalog();
-    }
+namespace _private {
+static QMap<QString, ThumbnailUIIcon *> catalog;
+void initCatalog();
+} // namespace _private
 
-    ThumbnailUIIcon* addIcon(const QString& thumbnailIcon, int pos);
-    ThumbnailUIIcon* getIcon(const QString& thumbnailIcon);
-    void draw(QPainter* painter, const ThumbnailUIIcon& thumbnailIcon);
-    bool triggered(qreal y);
-}
-
+ThumbnailUIIcon *addIcon(const QString &thumbnailIcon, int pos);
+ThumbnailUIIcon *getIcon(const QString &thumbnailIcon);
+void draw(QPainter *painter, const ThumbnailUIIcon &thumbnailIcon);
+bool triggered(qreal y);
+} // namespace ThumbnailUI

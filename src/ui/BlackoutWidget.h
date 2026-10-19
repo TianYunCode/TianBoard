@@ -4,27 +4,25 @@
 
 #include <memory>
 
-class BlackoutWidget : public QWidget
-{
+class BlackoutWidget : public QWidget {
     Q_OBJECT
 
-    public:
-        BlackoutWidget(QWidget *parent = nullptr);
-        ~BlackoutWidget() override;
+public:
+    BlackoutWidget(QWidget *parent = nullptr);
+    ~BlackoutWidget() override;
 
-        void setReturnControlsVisible(bool visible);
+    void setReturnControlsVisible(bool visible);
 
-        void mousePressEvent(QMouseEvent *event) override;
-        void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
-    signals:
-        void activity();
+signals:
+    void activity();
 
-    public slots:
-        void doActivity();
+public slots:
+    void doActivity();
 
-    private:
-        struct Private;
-        std::unique_ptr<Private> d;
+private:
+    struct Private;
+    std::unique_ptr<Private> d;
 };
-

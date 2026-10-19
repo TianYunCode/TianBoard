@@ -4,8 +4,7 @@
 
 #include "ui/ActionPalette.h"
 
-class WebToolsPalette : public ActionPalette
-{
+class WebToolsPalette : public ActionPalette {
     Q_OBJECT
 
 public:
@@ -15,6 +14,4 @@ public:
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

@@ -34,8 +34,7 @@ qreal PreferencesController::sMaxPenWidth = 50.0;
 // translated source texts must stay exactly as uic produced them. The translation
 // context is kept as "brushProperties" because BrushPropertiesFrame is not a QObject,
 // so no tr() is available for it.
-struct BrushPropertiesFrame::Ui
-{
+struct BrushPropertiesFrame::Ui {
     QGridLayout *gridLayout;
     QFrame *pressureFrame;
     QHBoxLayout *horizontalLayout_4;
@@ -81,8 +80,7 @@ struct BrushPropertiesFrame::Ui
     QLabel *pxlabel;
     QSpacerItem *cspacerright;
 
-    void setupUi(QFrame *brushProperties)
-    {
+    void setupUi(QFrame *brushProperties) {
         if (brushProperties->objectName().isEmpty())
             brushProperties->setObjectName("brushProperties");
         brushProperties->resize(605, 808);
@@ -166,7 +164,8 @@ struct BrushPropertiesFrame::Ui
 
         lightBackgroundLayout->addWidget(lightBackgroundLabel);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         lightBackgroundLayout->addItem(horizontalSpacer);
 
@@ -181,7 +180,8 @@ struct BrushPropertiesFrame::Ui
 
         verticalLayout->addWidget(lightBackgroundFrame);
 
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_3 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         verticalLayout->addItem(horizontalSpacer_3);
 
@@ -196,7 +196,8 @@ struct BrushPropertiesFrame::Ui
 
         darkBackgroundLayout->addWidget(darkBackgroundLabel);
 
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_2 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         darkBackgroundLayout->addItem(horizontalSpacer_2);
 
@@ -355,28 +356,29 @@ struct BrushPropertiesFrame::Ui
         // not a QObject and declares no slot at all.
     } // setupUi
 
-    void retranslateUi(QFrame *brushProperties)
-    {
+    void retranslateUi(QFrame *brushProperties) {
         brushProperties->setWindowTitle(QString());
-        pressureSensitiveCheckBox->setText(QCoreApplication::translate("brushProperties", "Pen is Pressure Sensitive", nullptr));
+        pressureSensitiveCheckBox->setText(
+            QCoreApplication::translate("brushProperties", "Pen is Pressure Sensitive", nullptr));
         opacityLabel->setText(QCoreApplication::translate("brushProperties", "Opacity", nullptr));
-        lightBackgroundLabel->setText(QCoreApplication::translate("brushProperties", "On Light Background", nullptr));
-        darkBackgroundLabel->setText(QCoreApplication::translate("brushProperties", "On Dark Background", nullptr));
+        lightBackgroundLabel->setText(
+            QCoreApplication::translate("brushProperties", "On Light Background", nullptr));
+        darkBackgroundLabel->setText(
+            QCoreApplication::translate("brushProperties", "On Dark Background", nullptr));
         lineWidthGroupBox->setTitle(QCoreApplication::translate("brushProperties", "Line Width", nullptr));
         mediumLabel->setText(QCoreApplication::translate("brushProperties", "Medium", nullptr));
         strongLabel->setText(QCoreApplication::translate("brushProperties", "Strong", nullptr));
         fineLabel->setText(QCoreApplication::translate("brushProperties", "Fine", nullptr));
-        circleCheckBox->setText(QCoreApplication::translate("brushProperties", "Show preview circle from", nullptr));
+        circleCheckBox->setText(
+            QCoreApplication::translate("brushProperties", "Show preview circle from", nullptr));
         pxlabel->setText(QCoreApplication::translate("brushProperties", "px", nullptr));
     } // retranslateUi
-
 };
 
-struct BrushPropertiesFrame::Private
-{
+struct BrushPropertiesFrame::Private {
     Ui ui;
-    QList<ColorPicker*> lightBackgroundColorPickers;
-    QList<ColorPicker*> darkBackgroundColorPickers;
+    QList<ColorPicker *> lightBackgroundColorPickers;
+    QList<ColorPicker *> darkBackgroundColorPickers;
 };
 
 
@@ -384,8 +386,7 @@ struct BrushPropertiesFrame::Private
 // Every widget and layout created below is parented to the dialog, so Qt owns and
 // destroys them: this struct holds raw pointers only and never deletes anything.
 // Object names and translated source texts must stay exactly as uic produced them.
-struct PreferencesDialog::Ui
-{
+struct PreferencesDialog::Ui {
     QGridLayout *gridLayout;
     QFrame *frame;
     QHBoxLayout *horizontalLayout_2;
@@ -506,8 +507,7 @@ struct PreferencesDialog::Ui
     QVBoxLayout *verticalLayout_2;
     QTextBrowser *copyrightTextBrowser;
 
-    void setupUi(QWidget *preferencesDialog)
-    {
+    void setupUi(QWidget *preferencesDialog) {
         if (preferencesDialog->objectName().isEmpty())
             preferencesDialog->setObjectName("preferencesDialog");
         preferencesDialog->resize(825, 767);
@@ -557,11 +557,13 @@ struct PreferencesDialog::Ui
         multiDisplayGroupBox->setObjectName("multiDisplayGroupBox");
         gridLayout_2 = new QGridLayout(multiDisplayGroupBox);
         gridLayout_2->setObjectName("gridLayout_2");
-        mirroringRSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        mirroringRSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         gridLayout_2->addItem(mirroringRSpacer, 1, 3, 1, 1);
 
-        mirroringLSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        mirroringLSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_2->addItem(mirroringLSpacer, 1, 0, 1, 1);
 
@@ -596,7 +598,8 @@ struct PreferencesDialog::Ui
         modeGroupBox->setSizePolicy(sizePolicy);
         gridLayout_15 = new QGridLayout(modeGroupBox);
         gridLayout_15->setObjectName("gridLayout_15");
-        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_5 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_15->addItem(horizontalSpacer_5, 0, 0, 1, 1);
 
@@ -614,7 +617,8 @@ struct PreferencesDialog::Ui
 
         gridLayout_16->addWidget(startModeComboBox, 0, 1, 1, 1);
 
-        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_6 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         gridLayout_16->addItem(horizontalSpacer_6, 0, 2, 1, 1);
 
@@ -640,11 +644,13 @@ struct PreferencesDialog::Ui
         gridLayout_14 = new QGridLayout(stylusPaletteGroupBox);
         gridLayout_14->setObjectName("gridLayout_14");
         gridLayout_14->setContentsMargins(12, -1, -1, -1);
-        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_4 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_14->addItem(horizontalSpacer_4, 0, 0, 1, 1);
 
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_3 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_14->addItem(horizontalSpacer_3, 0, 2, 1, 1);
 
@@ -669,7 +675,8 @@ struct PreferencesDialog::Ui
 
         gridLayout_5->addWidget(verticalChoice, 1, 0, 1, 1);
 
-        verticalSpacer_5 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        verticalSpacer_5 =
+            new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_5->addItem(verticalSpacer_5, 2, 0, 1, 1);
 
@@ -705,18 +712,21 @@ struct PreferencesDialog::Ui
 
         gridLayout_13->addLayout(oskGridLayout, 0, 1, 1, 2);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        horizontalSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_13->addItem(horizontalSpacer, 0, 0, 1, 1);
 
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_2 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         gridLayout_13->addItem(horizontalSpacer_2, 0, 3, 1, 1);
 
 
         gridLayout_3->addWidget(keyboardGroupBox, 13, 0, 1, 1);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        verticalSpacer_3 =
+            new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_3->addItem(verticalSpacer_3, 7, 0, 1, 1);
 
@@ -745,11 +755,13 @@ struct PreferencesDialog::Ui
 
         gridLayout_9->addLayout(gridLayout_10, 0, 1, 1, 1);
 
-        toolbarLSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        toolbarLSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_9->addItem(toolbarLSpacer, 0, 0, 1, 1);
 
-        toolbarRSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        toolbarRSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         gridLayout_9->addItem(toolbarRSpacer, 0, 2, 1, 1);
 
@@ -761,11 +773,13 @@ struct PreferencesDialog::Ui
 
         gridLayout_3->addWidget(toolbarGroupBox, 8, 0, 1, 1);
 
-        verticalSpacer_7 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        verticalSpacer_7 =
+            new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_3->addItem(verticalSpacer_7, 17, 0, 1, 1);
 
-        keyboardSpacer = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        keyboardSpacer =
+            new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_3->addItem(keyboardSpacer, 9, 0, 1, 1);
 
@@ -809,11 +823,13 @@ struct PreferencesDialog::Ui
 
         gridLayout_19->addLayout(gridLayout_18, 0, 1, 1, 1);
 
-        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_9 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         gridLayout_19->addItem(horizontalSpacer_9, 0, 0, 2, 1);
 
-        horizontalSpacer_10 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_10 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         gridLayout_19->addItem(horizontalSpacer_10, 0, 2, 1, 1);
 
@@ -843,7 +859,8 @@ struct PreferencesDialog::Ui
 
         crossColorLightBackgroundLayout->addWidget(crossColorLightBackgroundLabel);
 
-        horizontalSpacer_7 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_7 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         crossColorLightBackgroundLayout->addItem(horizontalSpacer_7);
 
@@ -902,7 +919,8 @@ struct PreferencesDialog::Ui
 
         crossColorDarkBackgroundLayout->addWidget(crossColorDarkBackgroundLabel);
 
-        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        horizontalSpacer_8 =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         crossColorDarkBackgroundLayout->addItem(horizontalSpacer_8);
 
@@ -953,7 +971,8 @@ struct PreferencesDialog::Ui
 
         gridLayout_17->addWidget(gridFrame, 0, 0, 1, 1);
 
-        verticalSpacer_4 = new QSpacerItem(20, 342, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        verticalSpacer_4 =
+            new QSpacerItem(20, 342, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_17->addItem(verticalSpacer_4, 1, 0, 1, 1);
 
@@ -1055,14 +1074,16 @@ struct PreferencesDialog::Ui
 
         gridLayout_7->addLayout(gridLayout_12, 3, 1, 1, 1);
 
-        internetLSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+        internetLSpacer =
+            new QSpacerItem(40, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout_7->addItem(internetLSpacer, 0, 0, 1, 1);
 
 
         gridLayout_6->addWidget(internetGroupBox, 0, 0, 1, 1);
 
-        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        verticalSpacer_2 =
+            new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_6->addItem(verticalSpacer_2, 2, 0, 1, 1);
 
@@ -1099,21 +1120,25 @@ struct PreferencesDialog::Ui
         // controller declare no on_<object>_<signal>() slot.
     } // setupUi
 
-    void retranslateUi(QWidget *preferencesDialog)
-    {
+    void retranslateUi(QWidget *preferencesDialog) {
         preferencesDialog->setWindowTitle(PreferencesDialog::tr("Preferences", nullptr));
         defaultSettingsButton->setText(PreferencesDialog::tr("Default Settings", nullptr));
         closeButton->setText(PreferencesDialog::tr("Close", nullptr));
-        versionLabel->setText(PreferencesDialog::tr("version: %1", nullptr)
-                                  .arg(Application::applicationVersion()));
-        copyrightTextBrowser->setHtml(QStringLiteral("<h3>TianBoard %1</h3><p>%2</p>").arg(
-            Application::applicationVersion(),
-            PreferencesDialog::tr("TianBoard is copyright \302\251 %1. All rights reserved.", nullptr)
-                .arg(QDate::currentDate().year())));
+        versionLabel->setText(
+            PreferencesDialog::tr("version: %1", nullptr).arg(Application::applicationVersion()));
+        copyrightTextBrowser->setHtml(
+            QStringLiteral("<h3>TianBoard %1</h3><p>%2</p>")
+                .arg(
+                    Application::applicationVersion(),
+                    PreferencesDialog::tr("TianBoard is copyright \302\251 %1. All rights reserved.", nullptr)
+                        .arg(QDate::currentDate().year())));
         multiDisplayGroupBox->setTitle(PreferencesDialog::tr("Multi display", nullptr));
-        swapControlAndDisplayScreensCheckBox->setText(PreferencesDialog::tr("Swap control display and view display", nullptr));
-        displayBrowserPageCheckBox->setText(PreferencesDialog::tr("Show internal web page content on secondary screen or projector", nullptr));
-        swapDisplayScreensCheckBox->setText(PreferencesDialog::tr("Swap first and second view displays", nullptr));
+        swapControlAndDisplayScreensCheckBox->setText(
+            PreferencesDialog::tr("Swap control display and view display", nullptr));
+        displayBrowserPageCheckBox->setText(PreferencesDialog::tr(
+            "Show internal web page content on secondary screen or projector", nullptr));
+        swapDisplayScreensCheckBox->setText(
+            PreferencesDialog::tr("Swap first and second view displays", nullptr));
         modeGroupBox->setTitle(PreferencesDialog::tr("Mode", nullptr));
         modeLabel->setText(PreferencesDialog::tr("Mode to start in:", nullptr));
         startModeComboBox->setItemText(0, PreferencesDialog::tr("Board", nullptr));
@@ -1125,46 +1150,51 @@ struct PreferencesDialog::Ui
         horizontalChoice->setText(PreferencesDialog::tr("Horizontal", nullptr));
         verticalChoice->setText(PreferencesDialog::tr("Vertical", nullptr));
         keyboardGroupBox->setTitle(PreferencesDialog::tr("Virtual Keyboard", nullptr));
-        keyboardPaletteKeyButtonSize_Label->setText(PreferencesDialog::tr("Built-in virtual keyboard button size:", nullptr));
+        keyboardPaletteKeyButtonSize_Label->setText(
+            PreferencesDialog::tr("Built-in virtual keyboard button size:", nullptr));
         useSystemOSKCheckBox->setText(PreferencesDialog::tr("Use system keyboard (recommended)", nullptr));
         toolbarGroupBox->setTitle(PreferencesDialog::tr("Toolbar", nullptr));
-        toolbarAtTopRadioButton->setText(PreferencesDialog::tr("Positioned at the Top (recommended for tablets)", nullptr));
-        toolbarAtBottomRadioButton->setText(PreferencesDialog::tr("Positioned at the Bottom (recommended for white boards)", nullptr));
+        toolbarAtTopRadioButton->setText(
+            PreferencesDialog::tr("Positioned at the Top (recommended for tablets)", nullptr));
+        toolbarAtBottomRadioButton->setText(
+            PreferencesDialog::tr("Positioned at the Bottom (recommended for white boards)", nullptr));
         toolbarDisplayTextCheckBox->setText(PreferencesDialog::tr("Display Text Under Button", nullptr));
         documentsGroupBox->setTitle(PreferencesDialog::tr("Documents Mode", nullptr));
-        showDateColumnOnAlphabeticalSort->setText(PreferencesDialog::tr("Display date column on alphabetical sort", nullptr));
-        emptyTrashForOlderDocuments->setText(PreferencesDialog::tr("Empty trash for documents older than", nullptr));
+        showDateColumnOnAlphabeticalSort->setText(
+            PreferencesDialog::tr("Display date column on alphabetical sort", nullptr));
+        emptyTrashForOlderDocuments->setText(
+            PreferencesDialog::tr("Empty trash for documents older than", nullptr));
         emptyTrashDaysLabel->setText(PreferencesDialog::tr("days", nullptr));
-        mainTabWidget->setTabText(mainTabWidget->indexOf(displayTab), PreferencesDialog::tr("Display", nullptr));
+        mainTabWidget->setTabText(mainTabWidget->indexOf(displayTab),
+                                  PreferencesDialog::tr("Display", nullptr));
         crossColorLightBackgroundLabel->setText(PreferencesDialog::tr("On Light Background", nullptr));
         darkBackgroundOpacityLabel->setText(PreferencesDialog::tr("Opacity", nullptr));
         crossColorDarkBackgroundLabel->setText(PreferencesDialog::tr("On Dark Background", nullptr));
         lightBackgroundOpacityLabel->setText(PreferencesDialog::tr("Opacity", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(gridTab), PreferencesDialog::tr("Grid", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(penTab), PreferencesDialog::tr("Pen", nullptr));
-        mainTabWidget->setTabText(mainTabWidget->indexOf(markerTab), PreferencesDialog::tr("Marker", nullptr));
+        mainTabWidget->setTabText(mainTabWidget->indexOf(markerTab),
+                                  PreferencesDialog::tr("Marker", nullptr));
         internetGroupBox->setTitle(PreferencesDialog::tr("Internet", nullptr));
-        useExternalBrowserCheckBox->setText(PreferencesDialog::tr("Show Page with External Browser", nullptr));
+        useExternalBrowserCheckBox->setText(
+            PreferencesDialog::tr("Show Page with External Browser", nullptr));
         labelHomePage->setText(PreferencesDialog::tr("Home Page:", nullptr));
         label->setText(PreferencesDialog::tr("Proxy User:", nullptr));
         label_3->setText(PreferencesDialog::tr("Pass:", nullptr));
-        mainTabWidget->setTabText(mainTabWidget->indexOf(networkTab), PreferencesDialog::tr("Network", nullptr));
+        mainTabWidget->setTabText(mainTabWidget->indexOf(networkTab),
+                                  PreferencesDialog::tr("Network", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(aboutTab), PreferencesDialog::tr("About", nullptr));
     } // retranslateUi
-
 };
 
-struct PreferencesDialog::Private
-{
+struct PreferencesDialog::Private {
     std::unique_ptr<Ui> ui;
 };
 
 
-PreferencesDialog::PreferencesDialog(PreferencesController* prefController, QWidget* parent,Qt::WindowFlags f)
-    :QDialog(parent,f)
-    ,mPreferencesController(prefController)
-    ,d(new Private)
-{
+PreferencesDialog::PreferencesDialog(PreferencesController *prefController, QWidget *parent,
+                                     Qt::WindowFlags f)
+    : QDialog(parent, f), mPreferencesController(prefController), d(new Private) {
     d->ui = std::make_unique<Ui>();
     d->ui->setupUi(this);
 
@@ -1174,29 +1204,25 @@ PreferencesDialog::PreferencesDialog(PreferencesController* prefController, QWid
 
 PreferencesDialog::~PreferencesDialog() = default;
 
-PreferencesDialog::Ui& PreferencesDialog::ui()
-{
+PreferencesDialog::Ui &PreferencesDialog::ui() {
     return *d->ui;
 }
 
-void PreferencesDialog::closeEvent(QCloseEvent* e)
-{
+void PreferencesDialog::closeEvent(QCloseEvent *e) {
     e->accept();
 }
 
 
-
 PreferencesController::PreferencesController(QWidget *parent)
-    : QObject(parent)
-    , mPreferencesWindow(0)
-    , mPreferencesUI(0)
-    , mPenProperties(0)
-    , mMarkerProperties(0)
-    , mDarkBackgroundGridColorPicker(0)
-    , mLightBackgroundGridColorPicker(0)
-{
+    : QObject(parent),
+      mPreferencesWindow(0),
+      mPreferencesUI(0),
+      mPenProperties(0),
+      mMarkerProperties(0),
+      mDarkBackgroundGridColorPicker(0),
+      mLightBackgroundGridColorPicker(0) {
     mDesktop = VirtualDesktop::instance();
-    mPreferencesWindow = new PreferencesDialog(this,parent, Qt::Dialog);
+    mPreferencesWindow = new PreferencesDialog(this, parent, Qt::Dialog);
     // The dialog owns its form; this is a borrowed pointer, never deleted here.
     mPreferencesUI = &mPreferencesWindow->ui();
     adjustScreens(1);
@@ -1206,8 +1232,7 @@ PreferencesController::PreferencesController(QWidget *parent)
 }
 
 
-PreferencesController::~PreferencesController()
-{
+PreferencesController::~PreferencesController() {
     delete mPreferencesWindow;
 
     delete mPenProperties;
@@ -1215,72 +1240,86 @@ PreferencesController::~PreferencesController()
     delete mMarkerProperties;
 }
 
-void PreferencesController::adjustScreens(int screen)
-{
+void PreferencesController::adjustScreens(int screen) {
     Q_UNUSED(screen);
     DisplayManager displayManager;
     mPreferencesUI->multiDisplayGroupBox->setEnabled(displayManager.numScreens() > 1);
 }
 
-void PreferencesController::show()
-{
+void PreferencesController::show() {
     init();
 
     mPreferencesWindow->exec();
 }
 
-void PreferencesController::wire()
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::wire() {
+    Settings *settings = Settings::settings();
 
     // main tab
     mPreferencesUI->mainTabWidget->setCurrentWidget(mPreferencesUI->displayTab);
 
     connect(mPreferencesUI->closeButton, &QPushButton::released, this, &PreferencesController::close);
-    connect(mPreferencesUI->defaultSettingsButton, &QPushButton::released, this, &PreferencesController::defaultSettings);
+    connect(mPreferencesUI->defaultSettingsButton, &QPushButton::released, this,
+            &PreferencesController::defaultSettings);
 
 
     // OSK preferences
 
-    for(int i = 0; i < settings->supportedKeyboardSizes->size(); i++)
+    for (int i = 0; i < settings->supportedKeyboardSizes->size(); i++)
         mPreferencesUI->keyboardPaletteKeyButtonSize->addItem(settings->supportedKeyboardSizes->at(i));
 
 
-    connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, settings->useSystemOnScreenKeyboard, &Setting::setBool);
-    connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, this, &PreferencesController::systemOSKCheckBoxToggled);
+    connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, settings->useSystemOnScreenKeyboard,
+            &Setting::setBool);
+    connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, this,
+            &PreferencesController::systemOSKCheckBoxToggled);
 
     // Documents Mode preferences
-    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked, settings->showDateColumnOnAlphabeticalSort, &Setting::setBool);
-    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked, Application::documentController, &DocumentController::refreshDateColumns);
-    connect(mPreferencesUI->emptyTrashForOlderDocuments, &QCheckBox::clicked, settings->emptyTrashForOlderDocuments, &Setting::setBool);
-    connect(mPreferencesUI->emptyTrashDaysValue, &QSpinBox::valueChanged, settings->emptyTrashDaysValue, &Setting::setInt);
+    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked,
+            settings->showDateColumnOnAlphabeticalSort, &Setting::setBool);
+    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked,
+            Application::documentController, &DocumentController::refreshDateColumns);
+    connect(mPreferencesUI->emptyTrashForOlderDocuments, &QCheckBox::clicked,
+            settings->emptyTrashForOlderDocuments, &Setting::setBool);
+    connect(mPreferencesUI->emptyTrashDaysValue, &QSpinBox::valueChanged, settings->emptyTrashDaysValue,
+            &Setting::setInt);
 
 
-    connect(mPreferencesUI->keyboardPaletteKeyButtonSize, &QComboBox::currentTextChanged, settings->boardKeyboardPaletteKeyBtnSize, &Setting::setString);
-    connect(mPreferencesUI->startModeComboBox, &QComboBox::currentIndexChanged, settings->appStartMode, &Setting::setInt);
+    connect(mPreferencesUI->keyboardPaletteKeyButtonSize, &QComboBox::currentTextChanged,
+            settings->boardKeyboardPaletteKeyBtnSize, &Setting::setString);
+    connect(mPreferencesUI->startModeComboBox, &QComboBox::currentIndexChanged, settings->appStartMode,
+            &Setting::setInt);
 
     connect(mPreferencesUI->languageComboBox, qOverload<int>(&QComboBox::activated), this, [this](int index) {
-        LanguageManager::instance()->setLanguage(mPreferencesUI->languageComboBox->itemData(index).toString());
+        LanguageManager::instance()->setLanguage(
+            mPreferencesUI->languageComboBox->itemData(index).toString());
     });
 
-    connect(mPreferencesUI->useExternalBrowserCheckBox, &QCheckBox::clicked, settings->webUseExternalBrowser, &Setting::setBool);
-    connect(mPreferencesUI->displayBrowserPageCheckBox, &QCheckBox::clicked, settings->webShowPageImmediatelyOnMirroredScreen, &Setting::setBool);
-    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, &QCheckBox::clicked, settings->swapControlAndDisplayScreens, &Setting::setBool);
-    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, &QCheckBox::clicked, Application::applicationController->displayManager(), &DisplayManager::reinitScreens);
-    if (settings->appHideSwapDisplayScreens->get().toBool())
-    {
+    connect(mPreferencesUI->useExternalBrowserCheckBox, &QCheckBox::clicked, settings->webUseExternalBrowser,
+            &Setting::setBool);
+    connect(mPreferencesUI->displayBrowserPageCheckBox, &QCheckBox::clicked,
+            settings->webShowPageImmediatelyOnMirroredScreen, &Setting::setBool);
+    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, &QCheckBox::clicked,
+            settings->swapControlAndDisplayScreens, &Setting::setBool);
+    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, &QCheckBox::clicked,
+            Application::applicationController->displayManager(), &DisplayManager::reinitScreens);
+    if (settings->appHideSwapDisplayScreens->get().toBool()) {
         mPreferencesUI->swapDisplayScreensCheckBox->hide();
-    }
-    else
-    {
-        connect(mPreferencesUI->swapDisplayScreensCheckBox, &QCheckBox::clicked, Application::applicationController->displayManager(), &DisplayManager::swapDisplayScreens);
+    } else {
+        connect(mPreferencesUI->swapDisplayScreensCheckBox, &QCheckBox::clicked,
+                Application::applicationController->displayManager(), &DisplayManager::swapDisplayScreens);
     }
 
-    connect(mPreferencesUI->toolbarAtTopRadioButton, &QRadioButton::clicked, this, &PreferencesController::toolbarPositionChanged);
-    connect(mPreferencesUI->toolbarAtBottomRadioButton, &QRadioButton::clicked, this, &PreferencesController::toolbarPositionChanged);
-    connect(mPreferencesUI->horizontalChoice, &QRadioButton::clicked, this, &PreferencesController::toolbarOrientationHorizontal);
-    connect(mPreferencesUI->verticalChoice, &QRadioButton::clicked, this, &PreferencesController::toolbarOrientationVertical);
-    connect(mPreferencesUI->toolbarDisplayTextCheckBox, &QCheckBox::clicked, settings->appToolBarDisplayText, &Setting::setBool);
+    connect(mPreferencesUI->toolbarAtTopRadioButton, &QRadioButton::clicked, this,
+            &PreferencesController::toolbarPositionChanged);
+    connect(mPreferencesUI->toolbarAtBottomRadioButton, &QRadioButton::clicked, this,
+            &PreferencesController::toolbarPositionChanged);
+    connect(mPreferencesUI->horizontalChoice, &QRadioButton::clicked, this,
+            &PreferencesController::toolbarOrientationHorizontal);
+    connect(mPreferencesUI->verticalChoice, &QRadioButton::clicked, this,
+            &PreferencesController::toolbarOrientationVertical);
+    connect(mPreferencesUI->toolbarDisplayTextCheckBox, &QCheckBox::clicked, settings->appToolBarDisplayText,
+            &Setting::setBool);
 
     //grid tab
     //On light background
@@ -1310,11 +1349,15 @@ void PreferencesController::wire()
 
     mPreferencesUI->crossColorLightBackgroundLayout->addWidget(mLightBackgroundGridColorPicker);
     mLightBackgroundGridColorPicker->setColors(gridLightBackgroundColors);
-    mLightBackgroundGridColorPicker->setSelectedColorIndex(gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
-    mPreferencesUI->lightBackgroundOpacitySlider->setValue(selectedCrossColorLightBackground.alpha()*100 / 255);
+    mLightBackgroundGridColorPicker->setSelectedColorIndex(
+        gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
+    mPreferencesUI->lightBackgroundOpacitySlider->setValue(selectedCrossColorLightBackground.alpha() * 100 /
+                                                           255);
 
-    QObject::connect(mLightBackgroundGridColorPicker, &ColorPicker::colorSelected, this, &PreferencesController::setCrossColorOnLightBackground);
-    connect(mPreferencesUI->lightBackgroundOpacitySlider, &QSlider::valueChanged, this, &PreferencesController::lightBackgroundCrossOpacityValueChanged);
+    QObject::connect(mLightBackgroundGridColorPicker, &ColorPicker::colorSelected, this,
+                     &PreferencesController::setCrossColorOnLightBackground);
+    connect(mPreferencesUI->lightBackgroundOpacitySlider, &QSlider::valueChanged, this,
+            &PreferencesController::lightBackgroundCrossOpacityValueChanged);
 
     //On dark background
     QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
@@ -1328,59 +1371,77 @@ void PreferencesController::wire()
 
     mPreferencesUI->crossColorDarkBackgroundLayout->addWidget(mDarkBackgroundGridColorPicker);
     mDarkBackgroundGridColorPicker->setColors(gridDarkBackgroundColors);
-    mDarkBackgroundGridColorPicker->setSelectedColorIndex(gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
-    mPreferencesUI->darkBackgroundOpacitySlider->setValue(selectedCrossColorDarkBackground.alpha()*100 / 255);
+    mDarkBackgroundGridColorPicker->setSelectedColorIndex(
+        gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
+    mPreferencesUI->darkBackgroundOpacitySlider->setValue(selectedCrossColorDarkBackground.alpha() * 100 /
+                                                          255);
 
-    QObject::connect(mDarkBackgroundGridColorPicker, &ColorPicker::colorSelected, this, &PreferencesController::setCrossColorOnDarkBackground);
-    connect(mPreferencesUI->darkBackgroundOpacitySlider, &QSlider::valueChanged, this, &PreferencesController::darkBackgroundCrossOpacityValueChanged);
+    QObject::connect(mDarkBackgroundGridColorPicker, &ColorPicker::colorSelected, this,
+                     &PreferencesController::setCrossColorOnDarkBackground);
+    connect(mPreferencesUI->darkBackgroundOpacitySlider, &QSlider::valueChanged, this,
+            &PreferencesController::darkBackgroundCrossOpacityValueChanged);
 
     // pen
     QList<QColor> penLightBackgroundColors = settings->boardPenLightBackgroundColors->colors();
     QList<QColor> penDarkBackgroundColors = settings->boardPenDarkBackgroundColors->colors();
-    QList<QColor> penLightBackgroundSelectedColors = settings->boardPenLightBackgroundSelectedColors->colors();
+    QList<QColor> penLightBackgroundSelectedColors =
+        settings->boardPenLightBackgroundSelectedColors->colors();
     QList<QColor> penDarkBackgroundSelectedColors = settings->boardPenDarkBackgroundSelectedColors->colors();
 
-    mPenProperties = new BrushPropertiesFrame(mPreferencesUI->penFrame,
-                                                penLightBackgroundColors, penDarkBackgroundColors, penLightBackgroundSelectedColors,
-                                                penDarkBackgroundSelectedColors, this);
+    mPenProperties =
+        new BrushPropertiesFrame(mPreferencesUI->penFrame, penLightBackgroundColors, penDarkBackgroundColors,
+                                 penLightBackgroundSelectedColors, penDarkBackgroundSelectedColors, this);
 
     mPenProperties->ui().opacityFrame->hide();
 
-    connect(mPenProperties->ui().fineSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
-    connect(mPenProperties->ui().mediumSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
-    connect(mPenProperties->ui().strongSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
-    connect(mPenProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings, &Settings::setPenPressureSensitive);
-    connect(mPenProperties->ui().circleCheckBox, &QCheckBox::clicked, settings, &Settings::setPenPreviewCircle);
-    connect(mPenProperties->ui().circleSpinBox, &QSpinBox::valueChanged, this, &PreferencesController::penPreviewFromSizeChanged);
+    connect(mPenProperties->ui().fineSlider, &QSlider::valueChanged, this,
+            &PreferencesController::widthSliderChanged);
+    connect(mPenProperties->ui().mediumSlider, &QSlider::valueChanged, this,
+            &PreferencesController::widthSliderChanged);
+    connect(mPenProperties->ui().strongSlider, &QSlider::valueChanged, this,
+            &PreferencesController::widthSliderChanged);
+    connect(mPenProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings,
+            &Settings::setPenPressureSensitive);
+    connect(mPenProperties->ui().circleCheckBox, &QCheckBox::clicked, settings,
+            &Settings::setPenPreviewCircle);
+    connect(mPenProperties->ui().circleSpinBox, &QSpinBox::valueChanged, this,
+            &PreferencesController::penPreviewFromSizeChanged);
 
     // marker
     QList<QColor> markerLightBackgroundColors = settings->boardMarkerLightBackgroundColors->colors();
     QList<QColor> markerDarkBackgroundColors = settings->boardMarkerDarkBackgroundColors->colors();
-    QList<QColor> markerLightBackgroundSelectedColors = settings->boardMarkerLightBackgroundSelectedColors->colors();
-    QList<QColor> markerDarkBackgroundSelectedColors = settings->boardMarkerDarkBackgroundSelectedColors->colors();
+    QList<QColor> markerLightBackgroundSelectedColors =
+        settings->boardMarkerLightBackgroundSelectedColors->colors();
+    QList<QColor> markerDarkBackgroundSelectedColors =
+        settings->boardMarkerDarkBackgroundSelectedColors->colors();
 
-    mMarkerProperties = new BrushPropertiesFrame(mPreferencesUI->markerFrame, markerLightBackgroundColors,
-                                                   markerDarkBackgroundColors, markerLightBackgroundSelectedColors,
-                                                   markerDarkBackgroundSelectedColors, this);
+    mMarkerProperties = new BrushPropertiesFrame(
+        mPreferencesUI->markerFrame, markerLightBackgroundColors, markerDarkBackgroundColors,
+        markerLightBackgroundSelectedColors, markerDarkBackgroundSelectedColors, this);
 
     mMarkerProperties->ui().pressureSensitiveCheckBox->setText(tr("Marker is pressure sensitive"));
 
     mMarkerProperties->ui().circleFrame->hide();
 
-    connect(mMarkerProperties->ui().fineSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
-    connect(mMarkerProperties->ui().mediumSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
-    connect(mMarkerProperties->ui().strongSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
-    connect(mMarkerProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings, &Settings::setMarkerPressureSensitive);
-    connect(mMarkerProperties->ui().opacitySlider, &QSlider::valueChanged, this, &PreferencesController::opacitySliderChanged);
+    connect(mMarkerProperties->ui().fineSlider, &QSlider::valueChanged, this,
+            &PreferencesController::widthSliderChanged);
+    connect(mMarkerProperties->ui().mediumSlider, &QSlider::valueChanged, this,
+            &PreferencesController::widthSliderChanged);
+    connect(mMarkerProperties->ui().strongSlider, &QSlider::valueChanged, this,
+            &PreferencesController::widthSliderChanged);
+    connect(mMarkerProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings,
+            &Settings::setMarkerPressureSensitive);
+    connect(mMarkerProperties->ui().opacitySlider, &QSlider::valueChanged, this,
+            &PreferencesController::opacitySliderChanged);
 }
 
-void PreferencesController::init()
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::init() {
+    Settings *settings = Settings::settings();
 
     // display tab
-    for(int i=0; i<mPreferencesUI->keyboardPaletteKeyButtonSize->count(); i++)
-        if (mPreferencesUI->keyboardPaletteKeyButtonSize->itemText(i) == settings->boardKeyboardPaletteKeyBtnSize->get().toString()) {
+    for (int i = 0; i < mPreferencesUI->keyboardPaletteKeyButtonSize->count(); i++)
+        if (mPreferencesUI->keyboardPaletteKeyButtonSize->itemText(i) ==
+            settings->boardKeyboardPaletteKeyBtnSize->get().toString()) {
             mPreferencesUI->keyboardPaletteKeyButtonSize->setCurrentIndex(i);
             break;
         }
@@ -1388,8 +1449,10 @@ void PreferencesController::init()
     mPreferencesUI->useSystemOSKCheckBox->setChecked(settings->useSystemOnScreenKeyboard->get().toBool());
     this->systemOSKCheckBoxToggled(mPreferencesUI->useSystemOSKCheckBox->isChecked());
 
-    mPreferencesUI->showDateColumnOnAlphabeticalSort->setChecked(settings->showDateColumnOnAlphabeticalSort->get().toBool());
-    mPreferencesUI->emptyTrashForOlderDocuments->setChecked(settings->emptyTrashForOlderDocuments->get().toBool());
+    mPreferencesUI->showDateColumnOnAlphabeticalSort->setChecked(
+        settings->showDateColumnOnAlphabeticalSort->get().toBool());
+    mPreferencesUI->emptyTrashForOlderDocuments->setChecked(
+        settings->emptyTrashForOlderDocuments->get().toBool());
     mPreferencesUI->emptyTrashDaysValue->setValue(settings->emptyTrashDaysValue->get().toInt());
 
     mPreferencesUI->startModeComboBox->setCurrentIndex(settings->appStartMode->get().toInt());
@@ -1402,10 +1465,8 @@ void PreferencesController::init()
         languageBox->addItem(language.name, language.code);
 
     const QString currentLanguage = LanguageManager::instance()->currentLanguage();
-    for (int i = 0; i < languageBox->count(); i++)
-    {
-        if (languageBox->itemData(i).toString().compare(currentLanguage, Qt::CaseInsensitive) == 0)
-        {
+    for (int i = 0; i < languageBox->count(); i++) {
+        if (languageBox->itemData(i).toString().compare(currentLanguage, Qt::CaseInsensitive) == 0) {
             languageBox->setCurrentIndex(i);
             break;
         }
@@ -1413,39 +1474,47 @@ void PreferencesController::init()
     languageBox->blockSignals(false);
 
     mPreferencesUI->useExternalBrowserCheckBox->setChecked(settings->webUseExternalBrowser->get().toBool());
-    mPreferencesUI->displayBrowserPageCheckBox->setChecked(settings->webShowPageImmediatelyOnMirroredScreen->get().toBool());
-    mPreferencesUI->swapControlAndDisplayScreensCheckBox->setChecked(settings->swapControlAndDisplayScreens->get().toBool());
+    mPreferencesUI->displayBrowserPageCheckBox->setChecked(
+        settings->webShowPageImmediatelyOnMirroredScreen->get().toBool());
+    mPreferencesUI->swapControlAndDisplayScreensCheckBox->setChecked(
+        settings->swapControlAndDisplayScreens->get().toBool());
     mPreferencesUI->webHomePage->setText(settings->webHomePage->get().toString());
 
     mPreferencesUI->proxyUsername->setText(settings->proxyUsername());
     mPreferencesUI->proxyPassword->setText(settings->proxyPassword());
 
     mPreferencesUI->toolbarAtTopRadioButton->setChecked(settings->appToolBarPositionedAtTop->get().toBool());
-    mPreferencesUI->toolbarAtBottomRadioButton->setChecked(!settings->appToolBarPositionedAtTop->get().toBool());
+    mPreferencesUI->toolbarAtBottomRadioButton->setChecked(
+        !settings->appToolBarPositionedAtTop->get().toBool());
     mPreferencesUI->toolbarDisplayTextCheckBox->setChecked(settings->appToolBarDisplayText->get().toBool());
     mPreferencesUI->verticalChoice->setChecked(settings->appToolBarOrientationVertical->get().toBool());
     mPreferencesUI->horizontalChoice->setChecked(!settings->appToolBarOrientationVertical->get().toBool());
 
     // pen tab
     mPenProperties->ui().fineSlider->setValue(settings->boardPenFineWidth->get().toDouble() * sSliderRatio);
-    mPenProperties->ui().mediumSlider->setValue(settings->boardPenMediumWidth->get().toDouble() * sSliderRatio);
-    mPenProperties->ui().strongSlider->setValue(settings->boardPenStrongWidth->get().toDouble() * sSliderRatio);
-    mPenProperties->ui().pressureSensitiveCheckBox->setChecked(settings->boardPenPressureSensitive->get().toBool());
+    mPenProperties->ui().mediumSlider->setValue(settings->boardPenMediumWidth->get().toDouble() *
+                                                sSliderRatio);
+    mPenProperties->ui().strongSlider->setValue(settings->boardPenStrongWidth->get().toDouble() *
+                                                sSliderRatio);
+    mPenProperties->ui().pressureSensitiveCheckBox->setChecked(
+        settings->boardPenPressureSensitive->get().toBool());
     mPenProperties->ui().circleCheckBox->setChecked(settings->showPenPreviewCircle->get().toBool());
     mPenProperties->ui().circleSpinBox->setValue(settings->penPreviewFromSize->get().toInt());
 
     // marker tab
-    mMarkerProperties->ui().fineSlider->setValue(settings->boardMarkerFineWidth->get().toDouble() * sSliderRatio);
-    mMarkerProperties->ui().mediumSlider->setValue(settings->boardMarkerMediumWidth->get().toDouble() * sSliderRatio);
-    mMarkerProperties->ui().strongSlider->setValue(settings->boardMarkerStrongWidth->get().toDouble() * sSliderRatio);
-    mMarkerProperties->ui().pressureSensitiveCheckBox->setChecked(settings->boardMarkerPressureSensitive->get().toBool());
+    mMarkerProperties->ui().fineSlider->setValue(settings->boardMarkerFineWidth->get().toDouble() *
+                                                 sSliderRatio);
+    mMarkerProperties->ui().mediumSlider->setValue(settings->boardMarkerMediumWidth->get().toDouble() *
+                                                   sSliderRatio);
+    mMarkerProperties->ui().strongSlider->setValue(settings->boardMarkerStrongWidth->get().toDouble() *
+                                                   sSliderRatio);
+    mMarkerProperties->ui().pressureSensitiveCheckBox->setChecked(
+        settings->boardMarkerPressureSensitive->get().toBool());
 
     mMarkerProperties->ui().opacitySlider->setValue(settings->boardMarkerAlpha->get().toDouble() * 100);
-
 }
 
-void PreferencesController::close()
-{
+void PreferencesController::close() {
     //web
     QString homePage = mPreferencesUI->webHomePage->text();
 
@@ -1457,12 +1526,10 @@ void PreferencesController::close()
 }
 
 
-void PreferencesController::defaultSettings()
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::defaultSettings() {
+    Settings *settings = Settings::settings();
 
-    if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->displayTab)
-    {
+    if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->displayTab) {
         bool defaultValue = settings->appToolBarPositionedAtTop->reset().toBool();
         mPreferencesUI->toolbarAtTopRadioButton->setChecked(defaultValue);
         mPreferencesUI->toolbarAtBottomRadioButton->setChecked(!defaultValue);
@@ -1470,71 +1537,80 @@ void PreferencesController::defaultSettings()
         defaultValue = settings->appToolBarDisplayText->reset().toBool();
         mPreferencesUI->toolbarDisplayTextCheckBox->setChecked(defaultValue);
         mPreferencesUI->verticalChoice->setChecked(settings->appToolBarOrientationVertical->reset().toBool());
-        mPreferencesUI->horizontalChoice->setChecked(!settings->appToolBarOrientationVertical->reset().toBool());
+        mPreferencesUI->horizontalChoice->setChecked(
+            !settings->appToolBarOrientationVertical->reset().toBool());
         mPreferencesUI->startModeComboBox->setCurrentIndex(0);
 
-        mPreferencesUI->useSystemOSKCheckBox->setChecked(settings->useSystemOnScreenKeyboard->reset().toBool());
+        mPreferencesUI->useSystemOSKCheckBox->setChecked(
+            settings->useSystemOnScreenKeyboard->reset().toBool());
 
-        mPreferencesUI->showDateColumnOnAlphabeticalSort->setChecked(settings->showDateColumnOnAlphabeticalSort->reset().toBool());
+        mPreferencesUI->showDateColumnOnAlphabeticalSort->setChecked(
+            settings->showDateColumnOnAlphabeticalSort->reset().toBool());
         Application::documentController->refreshDateColumns();
 
-        mPreferencesUI->emptyTrashForOlderDocuments->setChecked(settings->emptyTrashForOlderDocuments->reset().toBool());
+        mPreferencesUI->emptyTrashForOlderDocuments->setChecked(
+            settings->emptyTrashForOlderDocuments->reset().toBool());
         mPreferencesUI->emptyTrashDaysValue->setValue(settings->emptyTrashDaysValue->reset().toInt());
 
-    }
-    else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->penTab)
-    {
-
-        mPenProperties->ui().fineSlider->setValue(settings->boardPenFineWidth->reset().toDouble() * sSliderRatio);
-        mPenProperties->ui().mediumSlider->setValue(settings->boardPenMediumWidth->reset().toDouble() * sSliderRatio);
-        mPenProperties->ui().strongSlider->setValue(settings->boardPenStrongWidth->reset().toDouble() * sSliderRatio);
-        mPenProperties->ui().pressureSensitiveCheckBox->setChecked(settings->boardPenPressureSensitive->reset().toBool());
+    } else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->penTab) {
+        mPenProperties->ui().fineSlider->setValue(settings->boardPenFineWidth->reset().toDouble() *
+                                                  sSliderRatio);
+        mPenProperties->ui().mediumSlider->setValue(settings->boardPenMediumWidth->reset().toDouble() *
+                                                    sSliderRatio);
+        mPenProperties->ui().strongSlider->setValue(settings->boardPenStrongWidth->reset().toDouble() *
+                                                    sSliderRatio);
+        mPenProperties->ui().pressureSensitiveCheckBox->setChecked(
+            settings->boardPenPressureSensitive->reset().toBool());
         mPenProperties->ui().circleCheckBox->setChecked(settings->showPenPreviewCircle->reset().toBool());
         mPenProperties->ui().circleSpinBox->setValue(settings->penPreviewFromSize->reset().toInt());
 
         settings->boardPenLightBackgroundSelectedColors->reset();
-        QList<QColor> lightBackgroundSelectedColors = settings->boardPenLightBackgroundSelectedColors->colors();
+        QList<QColor> lightBackgroundSelectedColors =
+            settings->boardPenLightBackgroundSelectedColors->colors();
 
         settings->boardPenDarkBackgroundSelectedColors->reset();
         QList<QColor> darkBackgroundSelectedColors = settings->boardPenDarkBackgroundSelectedColors->colors();
 
-        for (int i = 0 ; i < settings->colorPaletteSize ; i++)
-        {
-            mPenProperties->lightBackgroundColorPickers()[i]->setSelectedColorIndex(lightBackgroundSelectedColors.indexOf(settings->penColors(false).at(i)));
-            mPenProperties->darkBackgroundColorPickers()[i]->setSelectedColorIndex(darkBackgroundSelectedColors.indexOf(settings->penColors(true).at(i)));
+        for (int i = 0; i < settings->colorPaletteSize; i++) {
+            mPenProperties->lightBackgroundColorPickers()[i]->setSelectedColorIndex(
+                lightBackgroundSelectedColors.indexOf(settings->penColors(false).at(i)));
+            mPenProperties->darkBackgroundColorPickers()[i]->setSelectedColorIndex(
+                darkBackgroundSelectedColors.indexOf(settings->penColors(true).at(i)));
         }
-    }
-    else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->markerTab)
-    {
-        mMarkerProperties->ui().fineSlider->setValue(settings->boardMarkerFineWidth->reset().toDouble() * sSliderRatio);
-        mMarkerProperties->ui().mediumSlider->setValue(settings->boardMarkerMediumWidth->reset().toDouble() * sSliderRatio);
-        mMarkerProperties->ui().strongSlider->setValue(settings->boardMarkerStrongWidth->reset().toDouble() * sSliderRatio);
-        mMarkerProperties->ui().pressureSensitiveCheckBox->setChecked(settings->boardMarkerPressureSensitive->reset().toBool());
+    } else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->markerTab) {
+        mMarkerProperties->ui().fineSlider->setValue(settings->boardMarkerFineWidth->reset().toDouble() *
+                                                     sSliderRatio);
+        mMarkerProperties->ui().mediumSlider->setValue(settings->boardMarkerMediumWidth->reset().toDouble() *
+                                                       sSliderRatio);
+        mMarkerProperties->ui().strongSlider->setValue(settings->boardMarkerStrongWidth->reset().toDouble() *
+                                                       sSliderRatio);
+        mMarkerProperties->ui().pressureSensitiveCheckBox->setChecked(
+            settings->boardMarkerPressureSensitive->reset().toBool());
 
         mMarkerProperties->ui().opacitySlider->setValue(settings->boardMarkerAlpha->reset().toDouble() * 100);
 
         settings->boardMarkerLightBackgroundSelectedColors->reset();
-        QList<QColor> lightBackgroundSelectedColors = settings->boardMarkerLightBackgroundSelectedColors->colors();
+        QList<QColor> lightBackgroundSelectedColors =
+            settings->boardMarkerLightBackgroundSelectedColors->colors();
 
         settings->boardMarkerDarkBackgroundSelectedColors->reset();
-        QList<QColor> darkBackgroundSelectedColors = settings->boardMarkerDarkBackgroundSelectedColors->colors();
+        QList<QColor> darkBackgroundSelectedColors =
+            settings->boardMarkerDarkBackgroundSelectedColors->colors();
 
-        for (int i = 0 ; i < settings->colorPaletteSize ; i++)
-        {
-            mMarkerProperties->lightBackgroundColorPickers()[i]->setSelectedColorIndex(lightBackgroundSelectedColors.indexOf(settings->markerColors(false).at(i)));
-            mMarkerProperties->darkBackgroundColorPickers()[i]->setSelectedColorIndex(darkBackgroundSelectedColors.indexOf(settings->markerColors(true).at(i)));
+        for (int i = 0; i < settings->colorPaletteSize; i++) {
+            mMarkerProperties->lightBackgroundColorPickers()[i]->setSelectedColorIndex(
+                lightBackgroundSelectedColors.indexOf(settings->markerColors(false).at(i)));
+            mMarkerProperties->darkBackgroundColorPickers()[i]->setSelectedColorIndex(
+                darkBackgroundSelectedColors.indexOf(settings->markerColors(true).at(i)));
         }
-    }
-    else if(mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->networkTab){
+    } else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->networkTab) {
         bool defaultValue = settings->webUseExternalBrowser->reset().toBool();
         mPreferencesUI->useExternalBrowserCheckBox->setChecked(defaultValue);
         defaultValue = settings->webShowPageImmediatelyOnMirroredScreen->reset().toBool();
         mPreferencesUI->displayBrowserPageCheckBox->setChecked(defaultValue);
 
         mPreferencesUI->webHomePage->setText(settings->webHomePage->reset().toString());
-    }
-    else if(mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->gridTab)
-    {
+    } else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->gridTab) {
         settings->boardCrossColorDarkBackground->reset();
         settings->boardGridDarkBackgroundColors->reset();
 
@@ -1542,8 +1618,9 @@ void PreferencesController::defaultSettings()
         QColor selectedCrossColorDarkBackground(settings->boardCrossColorDarkBackground->get().toString());
 
         mDarkBackgroundGridColorPicker->setColors(gridDarkBackgroundColors);
-        mDarkBackgroundGridColorPicker->setSelectedColorIndex(gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
-        int darkBackgroundOpacity = selectedCrossColorDarkBackground.alpha()*100 / 255;
+        mDarkBackgroundGridColorPicker->setSelectedColorIndex(
+            gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
+        int darkBackgroundOpacity = selectedCrossColorDarkBackground.alpha() * 100 / 255;
         mPreferencesUI->darkBackgroundOpacitySlider->setValue(darkBackgroundOpacity);
         darkBackgroundCrossOpacityValueChanged(darkBackgroundOpacity);
 
@@ -1554,17 +1631,16 @@ void PreferencesController::defaultSettings()
         QColor selectedCrossColorLightBackground(settings->boardCrossColorLightBackground->get().toString());
 
         mLightBackgroundGridColorPicker->setColors(gridLightBackgroundColors);
-        mLightBackgroundGridColorPicker->setSelectedColorIndex(gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
-        int lightBackgroundOpacity = selectedCrossColorLightBackground.alpha()*100 / 255;
+        mLightBackgroundGridColorPicker->setSelectedColorIndex(
+            gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
+        int lightBackgroundOpacity = selectedCrossColorLightBackground.alpha() * 100 / 255;
         mPreferencesUI->lightBackgroundOpacitySlider->setValue(lightBackgroundOpacity);
         lightBackgroundCrossOpacityValueChanged(lightBackgroundOpacity);
-
     }
 }
 
-void PreferencesController::darkBackgroundCrossOpacityValueChanged(int value)
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::darkBackgroundCrossOpacityValueChanged(int value) {
+    Settings *settings = Settings::settings();
     int opacity = value * 255 / 100;
 
     QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
@@ -1579,16 +1655,14 @@ void PreferencesController::darkBackgroundCrossOpacityValueChanged(int value)
 
     Settings::settings()->boardCrossColorDarkBackground->set(currentColor.name(QColor::HexArgb));
 
-    if (Application::boardController && Application::boardController->activeScene())
-    {
-        foreach(QGraphicsView* view, Application::boardController->activeScene()->views())
+    if (Application::boardController && Application::boardController->activeScene()) {
+        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
             view->resetCachedContent();
     }
 }
 
-void PreferencesController::lightBackgroundCrossOpacityValueChanged(int value)
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::lightBackgroundCrossOpacityValueChanged(int value) {
+    Settings *settings = Settings::settings();
     int opacity = value * 255 / 100;
 
     QList<QColor> gridLightBackgroundColors = settings->boardGridLightBackgroundColors->colors();
@@ -1603,64 +1677,47 @@ void PreferencesController::lightBackgroundCrossOpacityValueChanged(int value)
 
     Settings::settings()->boardCrossColorLightBackground->set(currentColor.name(QColor::HexArgb));
 
-    if (Application::boardController && Application::boardController->activeScene())
-    {
-        foreach(QGraphicsView* view, Application::boardController->activeScene()->views())
+    if (Application::boardController && Application::boardController->activeScene()) {
+        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
             view->resetCachedContent();
     }
 }
 
-void PreferencesController::penPreviewFromSizeChanged(int value)
-{
+void PreferencesController::penPreviewFromSizeChanged(int value) {
     Settings::settings()->setPenPreviewFromSize(value);
 }
 
-void PreferencesController::widthSliderChanged(int value)
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::widthSliderChanged(int value) {
+    Settings *settings = Settings::settings();
 
     qreal width = value / sSliderRatio;
 
     QObject *slider = sender();
-    CircleFrame* display = 0;
+    CircleFrame *display = 0;
 
-    if (slider == mPenProperties->ui().fineSlider)
-    {
+    if (slider == mPenProperties->ui().fineSlider) {
         settings->boardPenFineWidth->set(width);
         display = mPenProperties->ui().fineDisplayFrame;
-    }
-    else if (slider == mPenProperties->ui().mediumSlider)
-    {
+    } else if (slider == mPenProperties->ui().mediumSlider) {
         settings->boardPenMediumWidth->set(width);
         display = mPenProperties->ui().mediumDisplayFrame;
-    }
-    else if (slider == mPenProperties->ui().strongSlider)
-    {
+    } else if (slider == mPenProperties->ui().strongSlider) {
         settings->boardPenStrongWidth->set(width);
         display = mPenProperties->ui().strongDisplayFrame;
-    }
-    else if (slider == mMarkerProperties->ui().fineSlider)
-    {
+    } else if (slider == mMarkerProperties->ui().fineSlider) {
         settings->boardMarkerFineWidth->set(width);
         display = mMarkerProperties->ui().fineDisplayFrame;
-    }
-    else if (slider == mMarkerProperties->ui().mediumSlider)
-    {
+    } else if (slider == mMarkerProperties->ui().mediumSlider) {
         settings->boardMarkerMediumWidth->set(width);
         display = mMarkerProperties->ui().mediumDisplayFrame;
-    }
-    else if (slider == mMarkerProperties->ui().strongSlider)
-    {
+    } else if (slider == mMarkerProperties->ui().strongSlider) {
         settings->boardMarkerStrongWidth->set(width);
         display = mMarkerProperties->ui().strongDisplayFrame;
-    }
-    else
-    {
+    } else {
         qDebug() << "widthSliderChanged : unknown sender ... ignoring event";
     }
 
-    if (display)
-    {
+    if (display) {
         display->setCurrentPenWidth(width);
         display->setMaxPenWidth(sMaxPenWidth);
         display->repaint();
@@ -1668,116 +1725,100 @@ void PreferencesController::widthSliderChanged(int value)
 }
 
 
-void PreferencesController::opacitySliderChanged(int value)
-{
+void PreferencesController::opacitySliderChanged(int value) {
     qreal opacity = ((qreal)value) / 100;
 
     QObject *slider = sender();
 
-    if (slider == mMarkerProperties->ui().opacitySlider)
-    {
+    if (slider == mMarkerProperties->ui().opacitySlider) {
         DrawingController::drawingController()->setMarkerAlpha(opacity);
     }
 }
 
 
-void PreferencesController::colorSelected(const QColor& color)
-{
-    ColorPicker *colorPicker = qobject_cast<ColorPicker*>(sender());
+void PreferencesController::colorSelected(const QColor &color) {
+    ColorPicker *colorPicker = qobject_cast<ColorPicker *>(sender());
 
     int index = mPenProperties->lightBackgroundColorPickers().indexOf(colorPicker);
 
-    if (index >= 0)
-    {
+    if (index >= 0) {
         DrawingController::drawingController()->setPenColor(false, color, index);
         return;
     }
 
     index = mPenProperties->darkBackgroundColorPickers().indexOf(colorPicker);
 
-    if (index >= 0)
-    {
+    if (index >= 0) {
         DrawingController::drawingController()->setPenColor(true, color, index);
     }
 
     index = mMarkerProperties->lightBackgroundColorPickers().indexOf(colorPicker);
 
-    if (index >= 0)
-    {
+    if (index >= 0) {
         DrawingController::drawingController()->setMarkerColor(false, color, index);
     }
 
     index = mMarkerProperties->darkBackgroundColorPickers().indexOf(colorPicker);
 
-    if (index >= 0)
-    {
+    if (index >= 0) {
         DrawingController::drawingController()->setMarkerColor(true, color, index);
     }
-
 }
 
-void PreferencesController::setCrossColorOnDarkBackground(const QColor& color)
-{
+void PreferencesController::setCrossColorOnDarkBackground(const QColor &color) {
     Settings::settings()->boardCrossColorDarkBackground->set(color.name(QColor::HexArgb));
 
     mPreferencesUI->darkBackgroundOpacitySlider->setValue(color.alpha() * 100 / 255);
 
-    if (Application::boardController && Application::boardController->activeScene())
-    {
-        foreach(QGraphicsView* view, Application::boardController->activeScene()->views())
+    if (Application::boardController && Application::boardController->activeScene()) {
+        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
             view->resetCachedContent();
     }
 }
 
-void PreferencesController::setCrossColorOnLightBackground(const QColor& color)
-{
+void PreferencesController::setCrossColorOnLightBackground(const QColor &color) {
     Settings::settings()->boardCrossColorLightBackground->set(color.name(QColor::HexArgb));
 
     mPreferencesUI->lightBackgroundOpacitySlider->setValue(color.alpha() * 100 / 255);
 
-    if (Application::boardController && Application::boardController->activeScene())
-    {
-        foreach(QGraphicsView* view, Application::boardController->activeScene()->views())
+    if (Application::boardController && Application::boardController->activeScene()) {
+        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
             view->resetCachedContent();
     }
 }
 
-void PreferencesController::toolbarPositionChanged(bool checked)
-{
+void PreferencesController::toolbarPositionChanged(bool checked) {
     Q_UNUSED(checked);
 
-    Settings* settings = Settings::settings();
+    Settings *settings = Settings::settings();
 
     settings->appToolBarPositionedAtTop->set(mPreferencesUI->toolbarAtTopRadioButton->isChecked());
-
 }
 
-void PreferencesController::toolbarOrientationVertical(bool checked)
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::toolbarOrientationVertical(bool checked) {
+    Settings *settings = Settings::settings();
     settings->appToolBarOrientationVertical->set(checked);
 }
 
-void PreferencesController::toolbarOrientationHorizontal(bool checked)
-{
-    Settings* settings = Settings::settings();
+void PreferencesController::toolbarOrientationHorizontal(bool checked) {
+    Settings *settings = Settings::settings();
     settings->appToolBarOrientationVertical->set(!checked);
 }
 
-void PreferencesController::systemOSKCheckBoxToggled(bool checked)
-{
+void PreferencesController::systemOSKCheckBoxToggled(bool checked) {
     mPreferencesUI->keyboardPaletteKeyButtonSize->setVisible(!checked);
     mPreferencesUI->keyboardPaletteKeyButtonSize_Label->setVisible(!checked);
 }
 
-BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& lightBackgroundColors,
-                                               const QList<QColor>& darkBackgroundColors, const QList<QColor>& lightBackgroundSelectedColors,
-                                               const QList<QColor>& darkBackgroundSelectedColors, PreferencesController* controller)
-    : d(new Private)
-{
+BrushPropertiesFrame::BrushPropertiesFrame(QFrame *owner, const QList<QColor> &lightBackgroundColors,
+                                           const QList<QColor> &darkBackgroundColors,
+                                           const QList<QColor> &lightBackgroundSelectedColors,
+                                           const QList<QColor> &darkBackgroundSelectedColors,
+                                           PreferencesController *controller)
+    : d(new Private) {
     d->ui.setupUi(owner);
 
-    Ui& ui = d->ui;
+    Ui &ui = d->ui;
 
     QPalette lightBackgroundPalette = QApplication::palette();
     lightBackgroundPalette.setColor(QPalette::Window, Qt::white);
@@ -1801,8 +1842,7 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& l
     ui.lightBackgroundColorPicker0->setSelectedColorIndex(0);
     d->lightBackgroundColorPickers.append(ui.lightBackgroundColorPicker0);
 
-    for (int i = 1 ; i < Settings::settings()->colorPaletteSize ; i++)
-    {
+    for (int i = 1; i < Settings::settings()->colorPaletteSize; i++) {
         ColorPicker *picker = new ColorPicker(ui.lightBackgroundFrame);
         picker->setObjectName(QString::fromUtf8("penLightBackgroundColor") + QString::number(i));
         picker->setMinimumSize(QSize(32, 32));
@@ -1817,8 +1857,8 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& l
 
         d->lightBackgroundColorPickers.append(picker);
 
-        QObject::connect(picker, &ColorPicker::colorSelected, controller, &PreferencesController::colorSelected);
-
+        QObject::connect(picker, &ColorPicker::colorSelected, controller,
+                         &PreferencesController::colorSelected);
     }
 
     QList<QColor> firstDarkBackgroundColor;
@@ -1828,8 +1868,7 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& l
     ui.darkBackgroundColorPicker0->setSelectedColorIndex(0);
     d->darkBackgroundColorPickers.append(ui.darkBackgroundColorPicker0);
 
-    for (int i = 1 ; i < Settings::settings()->colorPaletteSize ; i++)
-    {
+    for (int i = 1; i < Settings::settings()->colorPaletteSize; i++) {
         ColorPicker *picker = new ColorPicker(ui.darkBackgroundFrame);
         picker->setObjectName(QString::fromUtf8("penDarkBackgroundColor") + QString::number(i));
         picker->setMinimumSize(QSize(32, 32));
@@ -1843,24 +1882,21 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& l
 
         d->darkBackgroundColorPickers.append(picker);
 
-        QObject::connect(picker, &ColorPicker::colorSelected, controller, &PreferencesController::colorSelected);
-
+        QObject::connect(picker, &ColorPicker::colorSelected, controller,
+                         &PreferencesController::colorSelected);
     }
 }
 
 BrushPropertiesFrame::~BrushPropertiesFrame() = default;
 
-BrushPropertiesFrame::Ui& BrushPropertiesFrame::ui()
-{
+BrushPropertiesFrame::Ui &BrushPropertiesFrame::ui() {
     return d->ui;
 }
 
-QList<ColorPicker*>& BrushPropertiesFrame::lightBackgroundColorPickers()
-{
+QList<ColorPicker *> &BrushPropertiesFrame::lightBackgroundColorPickers() {
     return d->lightBackgroundColorPickers;
 }
 
-QList<ColorPicker*>& BrushPropertiesFrame::darkBackgroundColorPickers()
-{
+QList<ColorPicker *> &BrushPropertiesFrame::darkBackgroundColorPickers() {
     return d->darkBackgroundColorPickers;
 }

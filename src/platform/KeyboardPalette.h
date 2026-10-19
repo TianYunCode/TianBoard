@@ -17,8 +17,7 @@ class KeyboardButton;
 class Application;
 class MainWindow;
 
-class BTNImages
-{
+class BTNImages {
 public:
     BTNImages(QString _strHeight, int _width, int _height);
 
@@ -40,11 +39,9 @@ private:
     QString m_strLeftActive;
     QString m_strCenterActive;
     QString m_strRightActive;
-
 };
 
-class ContentImage
-{
+class ContentImage {
 public:
     ContentImage(QString strHeight, int m_height, QString strContentPath);
 
@@ -57,35 +54,34 @@ private:
     QString m_strContent;
 };
 
-class KeyboardPalette : public ActionPalette
-{
+class KeyboardPalette : public ActionPalette {
     Q_OBJECT
 
-friend class KeyboardButton;
-friend class CapsLockButton;
-friend class ShiftButton;
-friend class LocaleButton;
-friend class KeyButton;
+    friend class KeyboardButton;
+    friend class CapsLockButton;
+    friend class ShiftButton;
+    friend class LocaleButton;
+    friend class KeyButton;
 
 public:
     KeyboardPalette(QWidget *parent);
     ~KeyboardPalette();
 
     bool isEnabled();
-    virtual QSize  sizeHint () const;
+    virtual QSize sizeHint() const;
     virtual void adjustSizeAndPosition(bool pUp = true);
     QString getKeyButtonSize() const;
-    void setKeyButtonSize(const QString& strSize);
+    void setKeyButtonSize(const QString &strSize);
 
     bool keyboardVisible() const;
 
 signals:
-    void moved(const QPoint&);
+    void moved(const QPoint &);
     void localeChanged(int);
     void keyboardActivated(bool);
 
 private slots:
-    void syncPosition(const QPoint & pos);
+    void syncPosition(const QPoint &pos);
     void syncLocale(int nLocale);
     void keyboardPaletteButtonSizeChanged(QVariant size);
     void onActivated(bool b);
@@ -97,16 +93,16 @@ public slots:
     void hideKeyboard();
 
 protected:
-    virtual void  enterEvent ( QEvent * event );
-    virtual void  leaveEvent ( QEvent * event );
-    virtual void  paintEvent(QPaintEvent *event);
-    virtual void  moveEvent ( QMoveEvent * event );
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void moveEvent(QMoveEvent *event);
 
     void sendKeyEvent(KEYCODE keyCode);
 
     void setLocale(int nLocale);
 
-    const QString* getLocaleName();
+    const QString *getLocaleName();
 
     void init();
 
@@ -117,41 +113,40 @@ private:
 
     // createCtrlButtons() 的平台实现（ui/KeyboardPalette_win.cpp）拿不到 Private 的定义，
     // 由它来分配并挂住 d->ctrlButtons。
-    KeyboardButton** createCtrlButtonArray(int count);
+    KeyboardButton **createCtrlButtonArray(int count);
 
-    void setInput(const KeyboardLocale* locale);
+    void setInput(const KeyboardLocale *locale);
 
     // Can be redefined under each platform
-    void onLocaleChanged(KeyboardLocale* locale);
+    void onLocaleChanged(KeyboardLocale *locale);
 
     struct Private;
     std::unique_ptr<Private> d;
 };
 
-class KeyboardButton : public QWidget
-{
+class KeyboardButton : public QWidget {
     Q_OBJECT
 
 public:
-    KeyboardButton(KeyboardPalette* parent, QString contentImagePath);
+    KeyboardButton(KeyboardPalette *parent, QString contentImagePath);
     ~KeyboardButton();
 
 protected:
     void paintEvent(QPaintEvent *event);
 
-    virtual void  enterEvent ( QEvent * event );
-    virtual void  leaveEvent ( QEvent * event );
-    virtual void  mousePressEvent ( QMouseEvent * event );
-    virtual void  mouseReleaseEvent ( QMouseEvent * event );
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
 
     virtual void onPress() = 0;
     virtual void onRelease() = 0;
-    virtual void paintContent(QPainter& painter) = 0;
+    virtual void paintContent(QPainter &painter) = 0;
 
     virtual bool isPressed();
 
-    KeyboardPalette* keyboardPalette();
-    ContentImage* contentImage() const;
+    KeyboardPalette *keyboardPalette();
+    ContentImage *contentImage() const;
 
     void sendUnicodeSymbol(KEYCODE keycode);
     void sendControlSymbol(int nSymbol);
@@ -161,19 +156,18 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class KeyButton : public KeyboardButton
-{
+class KeyButton : public KeyboardButton {
     Q_OBJECT
 
 public:
-    KeyButton(KeyboardPalette* parent);
+    KeyButton(KeyboardPalette *parent);
     ~KeyButton();
 
-    void setKeyBt(const KEYBT* keybt);
+    void setKeyBt(const KEYBT *keybt);
 
     virtual void onPress();
     virtual void onRelease();
-    virtual void paintContent(QPainter& painter);
+    virtual void paintContent(QPainter &painter);
 
 private:
     bool shifted();
@@ -182,70 +176,65 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class CntrlButton : public KeyboardButton
-{
+class CntrlButton : public KeyboardButton {
     Q_OBJECT
 
 public:
-    CntrlButton(KeyboardPalette* parent, int _code, const QString& _contentImagePath );
-    CntrlButton(KeyboardPalette* parent, const QString& _label, int _code );
+    CntrlButton(KeyboardPalette *parent, int _code, const QString &_contentImagePath);
+    CntrlButton(KeyboardPalette *parent, const QString &_label, int _code);
     ~CntrlButton();
 
     virtual void onPress();
     virtual void onRelease();
-    virtual void paintContent(QPainter& painter);
+    virtual void paintContent(QPainter &painter);
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
 
-class CapsLockButton : public KeyboardButton
-{
+class CapsLockButton : public KeyboardButton {
     Q_OBJECT
 
 public:
-    CapsLockButton(KeyboardPalette* parent, const QString _contentImagePath);
+    CapsLockButton(KeyboardPalette *parent, const QString _contentImagePath);
     ~CapsLockButton();
 
     virtual void onPress();
     virtual void onRelease();
-    virtual void paintContent(QPainter& painter);
+    virtual void paintContent(QPainter &painter);
 
 protected:
     virtual bool isPressed();
 };
 
-class ShiftButton : public KeyboardButton
-{
+class ShiftButton : public KeyboardButton {
     Q_OBJECT
 
 public:
-    ShiftButton(KeyboardPalette* parent, const QString _contentImagePath);
+    ShiftButton(KeyboardPalette *parent, const QString _contentImagePath);
     ~ShiftButton();
 
     virtual void onPress();
     virtual void onRelease();
-    virtual void paintContent(QPainter& painter);
+    virtual void paintContent(QPainter &painter);
 
 protected:
     virtual bool isPressed();
 };
 
-class LocaleButton : public KeyboardButton
-{
+class LocaleButton : public KeyboardButton {
     Q_OBJECT
 
 public:
-    LocaleButton(KeyboardPalette* parent);
+    LocaleButton(KeyboardPalette *parent);
     ~LocaleButton();
 
     virtual void onPress();
     virtual void onRelease();
-    virtual void paintContent(QPainter& painter);
+    virtual void paintContent(QPainter &painter);
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

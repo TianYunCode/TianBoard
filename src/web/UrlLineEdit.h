@@ -11,8 +11,7 @@
 
 class ClearButton;
 
-class ExLineEdit : public QWidget
-{
+class ExLineEdit : public QWidget {
     Q_OBJECT;
 
 public:
@@ -51,8 +50,7 @@ private:
 
 class WebView;
 
-class UrlLineEdit : public ExLineEdit
-{
+class UrlLineEdit : public ExLineEdit {
     Q_OBJECT;
 
 public:
@@ -61,7 +59,6 @@ public:
     void setWebView(WebView *webView);
 
 protected:
-
     void focusOutEvent(QFocusEvent *event);
 
 private slots:
@@ -71,5 +68,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-
-

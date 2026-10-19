@@ -4,8 +4,7 @@
 
 #include <memory>
 
-class ProxyDialog : public QDialog
-{
+class ProxyDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -24,4 +23,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

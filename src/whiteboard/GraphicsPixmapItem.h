@@ -8,25 +8,21 @@
 
 class GraphicsItemDelegate;
 
-class GraphicsPixmapItem : public QObject, public QGraphicsPixmapItem, public Item, public GraphicsItem
-{
+class GraphicsPixmapItem : public QObject, public QGraphicsPixmapItem, public Item, public GraphicsItem {
     Q_OBJECT
 
 public:
-    GraphicsPixmapItem(QGraphicsItem* parent = 0);
+    GraphicsPixmapItem(QGraphicsItem *parent = 0);
     virtual ~GraphicsPixmapItem();
 
     enum { Type = GraphicsItemType::PixmapItemType };
 
-    virtual int type() const
-    {
-        return Type;
-    }
-    virtual Item* deepCopy() const;
+    virtual int type() const { return Type; }
+    virtual Item *deepCopy() const;
 
     virtual void copyItemParameters(Item *copy) const;
 
-    virtual GraphicsScene* scene();
+    virtual GraphicsScene *scene();
 
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 
@@ -46,4 +42,3 @@ protected:
 
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 };
-

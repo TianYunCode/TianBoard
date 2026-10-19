@@ -8,15 +8,14 @@
 #include "settings/Settings.h"
 
 
-void messageOutputHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+void messageOutputHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     // We must temporarily remove the handler to avoid the infinite recursion of
     // messageOutputHandler -> qt_message_output -> messageOutputHandler -> qt_message_output ...
     QtMessageHandler previousHandler = qInstallMessageHandler(0);
 
 #if defined(QT_NO_DEBUG)
     // Suppress qDebug output in release builds
-    if (type != QtDebugMsg)
-    {
+    if (type != QtDebugMsg) {
         qt_message_output(type, context, msg);
     }
 
@@ -26,7 +25,7 @@ void messageOutputHandler(QtMsgType type, const QMessageLogContext& context, con
 #endif
 
     if (Application::app() && Application::app()->isVerbose()) {
-        QString logFileNamePath = Settings::userDataDirectory() + "/log/"+ qApp->applicationName() + ".log";
+        QString logFileNamePath = Settings::userDataDirectory() + "/log/" + qApp->applicationName() + ".log";
         QFile logFile(logFileNamePath);
 
         if (logFile.exists() && logFile.size() > 10000000)
@@ -34,8 +33,7 @@ void messageOutputHandler(QtMsgType type, const QMessageLogContext& context, con
 
         if (logFile.open(QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&logFile);
-            out << QDateTime::currentDateTime().toString(Qt::ISODate)
-                << "      " << msg << "\n";
+            out << QDateTime::currentDateTime().toString(Qt::ISODate) << "      " << msg << "\n";
             logFile.close();
         }
     }
@@ -43,12 +41,10 @@ void messageOutputHandler(QtMsgType type, const QMessageLogContext& context, con
     qInstallMessageHandler(previousHandler);
 }
 
-int main(int argc, char *argv[])
-{
-
+int main(int argc, char *argv[]) {
     // Uncomment next section to have memory leaks information
     // tracing in VC++ debug mode under Windows
-/*
+    /*
 #if defined(_MSC_VER) && defined(_DEBUG)
     _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif
@@ -99,5 +95,4 @@ int main(int argc, char *argv[])
 
 
     return result;
-
 }

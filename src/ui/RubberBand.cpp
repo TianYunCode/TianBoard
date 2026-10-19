@@ -9,13 +9,12 @@
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
 
-RubberBand::RubberBand(Shape s, QWidget * p)
-    : QRubberBand(s, p)
-    , mResizingMode(None)
-    , mResizingBorderHeight(20)
-    , mMouseIsPressed(false)
-    , mLastPressedPoint(QPoint())
-{
+RubberBand::RubberBand(Shape s, QWidget *p)
+    : QRubberBand(s, p),
+      mResizingMode(None),
+      mResizingBorderHeight(20),
+      mMouseIsPressed(false),
+      mLastPressedPoint(QPoint()) {
     customStyle = NULL;
 
 #ifdef Q_OS_WIN
@@ -33,112 +32,89 @@ RubberBand::RubberBand(Shape s, QWidget * p)
     setMouseTracking(true);
 }
 
-RubberBand::~RubberBand()
-{
+RubberBand::~RubberBand() {
     if (customStyle)
         delete customStyle;
 }
 
-RubberBand::enm_resizingMode RubberBand::determineResizingMode(QPoint pos)
-{
+RubberBand::enm_resizingMode RubberBand::determineResizingMode(QPoint pos) {
     if (mMouseIsPressed)
         return mResizingMode;
-    
-    QRect resizerTop(mResizingBorderHeight, 0, rect().width()-2*mResizingBorderHeight, mResizingBorderHeight);
-    QRect resizerBottom(mResizingBorderHeight, rect().height() - mResizingBorderHeight, rect().width()-2*mResizingBorderHeight, mResizingBorderHeight);
-    QRect resizerLeft(0, mResizingBorderHeight, mResizingBorderHeight, rect().height() - 2*mResizingBorderHeight);
-    QRect resizerRight(rect().width()-mResizingBorderHeight, mResizingBorderHeight, mResizingBorderHeight, rect().height() - 2*mResizingBorderHeight);
+
+    QRect resizerTop(mResizingBorderHeight, 0, rect().width() - 2 * mResizingBorderHeight,
+                     mResizingBorderHeight);
+    QRect resizerBottom(mResizingBorderHeight, rect().height() - mResizingBorderHeight,
+                        rect().width() - 2 * mResizingBorderHeight, mResizingBorderHeight);
+    QRect resizerLeft(0, mResizingBorderHeight, mResizingBorderHeight,
+                      rect().height() - 2 * mResizingBorderHeight);
+    QRect resizerRight(rect().width() - mResizingBorderHeight, mResizingBorderHeight, mResizingBorderHeight,
+                       rect().height() - 2 * mResizingBorderHeight);
 
     QRect resizerTopLeft(0, 0, mResizingBorderHeight, mResizingBorderHeight);
-    QRect resizerTopRight(rect().width()-mResizingBorderHeight, 0, mResizingBorderHeight, mResizingBorderHeight);
-    QRect resizerBottomLeft(0, rect().height() - mResizingBorderHeight, mResizingBorderHeight, mResizingBorderHeight);
-    QRect resizerBottomRight(rect().width()-mResizingBorderHeight, rect().height() - mResizingBorderHeight, mResizingBorderHeight, mResizingBorderHeight);
+    QRect resizerTopRight(rect().width() - mResizingBorderHeight, 0, mResizingBorderHeight,
+                          mResizingBorderHeight);
+    QRect resizerBottomLeft(0, rect().height() - mResizingBorderHeight, mResizingBorderHeight,
+                            mResizingBorderHeight);
+    QRect resizerBottomRight(rect().width() - mResizingBorderHeight, rect().height() - mResizingBorderHeight,
+                             mResizingBorderHeight, mResizingBorderHeight);
 
     enm_resizingMode resizingMode;
-    
+
     QTransform cursorTransrofm;
 
-    if (resizerTop.contains(pos))
-    {
+    if (resizerTop.contains(pos)) {
         resizingMode = Top;
         cursorTransrofm.rotate(90);
-    }
-    else
-    if (resizerBottom.contains(pos))
-    {
+    } else if (resizerBottom.contains(pos)) {
         resizingMode = Bottom;
         cursorTransrofm.rotate(90);
-    }
-    else
-    if (resizerLeft.contains(pos))
-    {
+    } else if (resizerLeft.contains(pos)) {
         resizingMode = Left;
-    }
-    else
-    if (resizerRight.contains(pos))
-    {
+    } else if (resizerRight.contains(pos)) {
         resizingMode = Right;
-    }
-    else
-    if (resizerTopLeft.contains(pos))
-    {
+    } else if (resizerTopLeft.contains(pos)) {
         resizingMode = TopLeft;
         cursorTransrofm.rotate(45);
-    }
-    else
-    if (resizerTopRight.contains(pos))
-    {
+    } else if (resizerTopRight.contains(pos)) {
         resizingMode = TopRight;
         cursorTransrofm.rotate(-45);
-    }
-    else
-    if (resizerBottomLeft.contains(pos))
-    {
+    } else if (resizerBottomLeft.contains(pos)) {
         resizingMode = BottomLeft;
         cursorTransrofm.rotate(-45);
-    }
-    else
-    if (resizerBottomRight.contains(pos))
-    {
+    } else if (resizerBottomRight.contains(pos)) {
         resizingMode = BottomRight;
         cursorTransrofm.rotate(45);
-    }
-    else
+    } else
         resizingMode = None;
-    
-    if (None != resizingMode)
-    {
+
+    if (None != resizingMode) {
         QPixmap pix(":/images/cursors/resize.png");
-        QCursor resizeCursor  = QCursor(pix.transformed(cursorTransrofm, Qt::SmoothTransformation), pix.width() / 2,  pix.height() / 2);
+        QCursor resizeCursor = QCursor(pix.transformed(cursorTransrofm, Qt::SmoothTransformation),
+                                       pix.width() / 2, pix.height() / 2);
         setCursor(resizeCursor);
-    }
-    else
+    } else
         unsetCursor();
 
     return resizingMode;
 }
 
-void RubberBand::mousePressEvent(QMouseEvent *event)
-{
+void RubberBand::mousePressEvent(QMouseEvent *event) {
     mResizingMode = determineResizingMode(event->pos());
     mMouseIsPressed = true;
 
     mLastPressedPoint = event->pos();
     mLastMousePos = event->pos();
 
-    if (None == mResizingMode)
-    {
+    if (None == mResizingMode) {
         Application::boardController->controlView()->rubberItems();
         setCursor(QCursor(Qt::SizeAllCursor));
     }
 }
 
-void RubberBand::mouseMoveEvent(QMouseEvent *event)
-{
+void RubberBand::mouseMoveEvent(QMouseEvent *event) {
     determineResizingMode(event->pos());
 
-    if (mMouseIsPressed)
-    {
+    if (mMouseIsPressed) {
         BoardView *view = Application::boardController->controlView();
         QRect currentGeometry = geometry();
 
@@ -152,66 +128,54 @@ void RubberBand::mouseMoveEvent(QMouseEvent *event)
 
         bool bGeometryChange = true;
 
-        switch(mResizingMode)
-        {
-        case None:
-            {
-                QPointF itemsMoveVector(view->mapToScene(pressPointGlobal) - view->mapToScene(prevPressPointGlobal));
+        switch (mResizingMode) {
+            case None: {
+                QPointF itemsMoveVector(view->mapToScene(pressPointGlobal) -
+                                        view->mapToScene(prevPressPointGlobal));
 
-                move(pos()+pressPointGlobal - prevPressPointGlobal);
+                move(pos() + pressPointGlobal - prevPressPointGlobal);
                 view->moveRubberedItems(itemsMoveVector);
 
                 bGeometryChange = false;
                 break;
             }
 
-        case Top:
-            {
-                currentGeometry.setY(currentGeometry.y()+topLeftResizeVector.y());
-            }break;
+            case Top: {
+                currentGeometry.setY(currentGeometry.y() + topLeftResizeVector.y());
+            } break;
 
-        case Bottom:
-            {
-                currentGeometry.setHeight(currentGeometry.height()+rightBottomResizeVector.y());
-            }break;
+            case Bottom: {
+                currentGeometry.setHeight(currentGeometry.height() + rightBottomResizeVector.y());
+            } break;
 
-        case Left:
-            {
-                currentGeometry.setX(currentGeometry.x()+topLeftResizeVector.x());
-            }break;
-        case Right:
-            {
-                currentGeometry.setWidth(currentGeometry.width()+rightBottomResizeVector.x());
-            }break;
+            case Left: {
+                currentGeometry.setX(currentGeometry.x() + topLeftResizeVector.x());
+            } break;
+            case Right: {
+                currentGeometry.setWidth(currentGeometry.width() + rightBottomResizeVector.x());
+            } break;
 
-        case TopLeft:
-            {
-                currentGeometry.setX(currentGeometry.x()+topLeftResizeVector.x());  
-                currentGeometry.setY(currentGeometry.y()+topLeftResizeVector.y());
-            }break;
+            case TopLeft: {
+                currentGeometry.setX(currentGeometry.x() + topLeftResizeVector.x());
+                currentGeometry.setY(currentGeometry.y() + topLeftResizeVector.y());
+            } break;
 
-        case TopRight:
-            {
-                currentGeometry.setY(currentGeometry.y()+topLeftResizeVector.y());  
-                currentGeometry.setWidth(currentGeometry.width()+rightBottomResizeVector.x());                
-            }
-            break;
+            case TopRight: {
+                currentGeometry.setY(currentGeometry.y() + topLeftResizeVector.y());
+                currentGeometry.setWidth(currentGeometry.width() + rightBottomResizeVector.x());
+            } break;
 
-        case BottomLeft:
-            {
-                currentGeometry.setX(currentGeometry.x()+topLeftResizeVector.x());
-                currentGeometry.setHeight(currentGeometry.height()+rightBottomResizeVector.y());  
-            }break;
+            case BottomLeft: {
+                currentGeometry.setX(currentGeometry.x() + topLeftResizeVector.x());
+                currentGeometry.setHeight(currentGeometry.height() + rightBottomResizeVector.y());
+            } break;
 
-        case BottomRight:
-            {
-                currentGeometry.setWidth(currentGeometry.width()+rightBottomResizeVector.x());
-                currentGeometry.setHeight(currentGeometry.height()+rightBottomResizeVector.y());        
-            }break;
-        
+            case BottomRight: {
+                currentGeometry.setWidth(currentGeometry.width() + rightBottomResizeVector.x());
+                currentGeometry.setHeight(currentGeometry.height() + rightBottomResizeVector.y());
+            } break;
         }
-        if(bGeometryChange)
-        {   
+        if (bGeometryChange) {
             setGeometry(currentGeometry);
         }
 
@@ -219,10 +183,9 @@ void RubberBand::mouseMoveEvent(QMouseEvent *event)
     }
 
     QRubberBand::mouseMoveEvent(event);
-} 
+}
 
-void RubberBand::mouseReleaseEvent(QMouseEvent *event)
-{
+void RubberBand::mouseReleaseEvent(QMouseEvent *event) {
     Q_UNUSED(event);
     mMouseIsPressed = false;
     unsetCursor();

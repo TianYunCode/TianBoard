@@ -11,40 +11,34 @@
 #include "content/PDFRenderer.h"
 
 
-ImportPDF::ImportPDF(QObject *parent)
-    : PageBasedImportAdaptor(parent)
-{
-    VirtualDesktop* desktop = VirtualDesktop::instance();
+ImportPDF::ImportPDF(QObject *parent) : PageBasedImportAdaptor(parent) {
+    VirtualDesktop *desktop = VirtualDesktop::instance();
     this->dpi = desktop->physicalDpi();
 }
 
 
-ImportPDF::~ImportPDF()
-{
+ImportPDF::~ImportPDF() {
     // NOOP
 }
 
 
-QStringList ImportPDF::supportedExtentions()
-{
+QStringList ImportPDF::supportedExtentions() {
     return QStringList("pdf");
 }
 
 
-QString ImportPDF::importFileFilter()
-{
+QString ImportPDF::importFileFilter() {
     return tr("Portable Document Format (*.pdf)");
 }
 
 
-QList<GraphicsItem*> ImportPDF::import(const QUuid& uuid, const QString& filePath)
-{
-    QList<GraphicsItem*> result;
+QList<GraphicsItem *> ImportPDF::import(const QUuid &uuid, const QString &filePath) {
+    QList<GraphicsItem *> result;
 
-    PDFRenderer *pdfRenderer = PDFRenderer::rendererForUuid(uuid, filePath, true); // renderer is automatically deleted when not used anymore
+    PDFRenderer *pdfRenderer = PDFRenderer::rendererForUuid(
+        uuid, filePath, true); // renderer is automatically deleted when not used anymore
 
-    if (!pdfRenderer->isValid())
-    {
+    if (!pdfRenderer->isValid()) {
         Application::showMessage(tr("PDF import failed."));
         return result;
     }
@@ -52,17 +46,15 @@ QList<GraphicsItem*> ImportPDF::import(const QUuid& uuid, const QString& filePat
 
     int pdfPageCount = pdfRenderer->pageCount();
 
-    for(int pdfPageNumber = 1; pdfPageNumber <= pdfPageCount; pdfPageNumber++)
-    {
+    for (int pdfPageNumber = 1; pdfPageNumber <= pdfPageCount; pdfPageNumber++) {
         Application::showMessage(tr("Importing page %1 of %2").arg(pdfPageNumber).arg(pdfPageCount), true);
         result << new GraphicsPDFItem(pdfRenderer, pdfPageNumber); // deleted by the scene
     }
     return result;
 }
 
-void ImportPDF::placeImportedItemToScene(GraphicsScene* scene, GraphicsItem* item)
-{
-    GraphicsPDFItem *pdfItem = (GraphicsPDFItem*)item;
+void ImportPDF::placeImportedItemToScene(GraphicsScene *scene, GraphicsItem *item) {
+    GraphicsPDFItem *pdfItem = (GraphicsPDFItem *)item;
 
     pdfItem->setPos(-pdfItem->boundingRect().width() / 2, -pdfItem->boundingRect().height() / 2);
 
@@ -71,7 +63,6 @@ void ImportPDF::placeImportedItemToScene(GraphicsScene* scene, GraphicsItem* ite
     scene->setNominalSize(pdfItem->boundingRect().width(), pdfItem->boundingRect().height());
 }
 
-const QString& ImportPDF::folderToCopy()
-{
+const QString &ImportPDF::folderToCopy() {
     return PersistenceManager::objectDirectory;
 }

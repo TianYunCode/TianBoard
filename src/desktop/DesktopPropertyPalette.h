@@ -7,44 +7,40 @@
 
 class RightPalette;
 
-class DesktopPropertyPalette : public PropertyPalette
-{
+class DesktopPropertyPalette : public PropertyPalette {
     Q_OBJECT
 
-    public:
-        DesktopPropertyPalette(QWidget *parent, RightPalette* _rightPalette);
-    private:
-        RightPalette* rightPalette;
-    protected:
-        virtual int getParentRightOffset();
+public:
+    DesktopPropertyPalette(QWidget *parent, RightPalette *_rightPalette);
+
+private:
+    RightPalette *rightPalette;
+
+protected:
+    virtual int getParentRightOffset();
 };
 
-class DesktopPenPalette : public DesktopPropertyPalette
-{
+class DesktopPenPalette : public DesktopPropertyPalette {
     Q_OBJECT
-    public:
-        DesktopPenPalette(QWidget *parent, RightPalette* rightPalette);
-        virtual ~DesktopPenPalette(){}
-    public slots:
-        void onParentMinimized();
-        void onParentMaximized();
+public:
+    DesktopPenPalette(QWidget *parent, RightPalette *rightPalette);
+    virtual ~DesktopPenPalette() {}
+public slots:
+    void onParentMinimized();
+    void onParentMaximized();
 
-    private slots:
-        void onButtonReleased();
-
+private slots:
+    void onButtonReleased();
 };
 
-class DesktopEraserPalette : public DesktopPropertyPalette
-{
-    public:
-        DesktopEraserPalette(QWidget *parent, RightPalette* rightPalette);
-        virtual ~DesktopEraserPalette(){}
+class DesktopEraserPalette : public DesktopPropertyPalette {
+public:
+    DesktopEraserPalette(QWidget *parent, RightPalette *rightPalette);
+    virtual ~DesktopEraserPalette() {}
 };
 
-class DesktopMarkerPalette : public DesktopPropertyPalette
-{
-    public:
-        DesktopMarkerPalette(QWidget *parent, RightPalette* rightPalette);
-        virtual ~DesktopMarkerPalette(){}
+class DesktopMarkerPalette : public DesktopPropertyPalette {
+public:
+    DesktopMarkerPalette(QWidget *parent, RightPalette *rightPalette);
+    virtual ~DesktopMarkerPalette() {}
 };
-

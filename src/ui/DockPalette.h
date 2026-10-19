@@ -22,25 +22,14 @@ class DocumentProxy;
 #include "ui/DockPaletteWidget.h"
 
 /** 停靠面板所在的一侧 */
-enum class DockOrientation
-{
-    Left,
-    Right,
-    Top,
-    Bottom
-};
+enum class DockOrientation { Left, Right, Top, Bottom };
 
 /** 标签朝向 */
-enum class DockTabOrientation
-{
-    Up,
-    Down
-};
+enum class DockTabOrientation { Up, Down };
 
 class DockPalette;
 
-class TabDockPalette : public QWidget
-{
+class TabDockPalette : public QWidget {
     Q_OBJECT
     friend class DockPalette;
 
@@ -60,20 +49,15 @@ private:
 };
 
 /** 左/右停靠面板 */
-enum class DockPaletteType
-{
-    Left,
-    Right
-};
+enum class DockPaletteType { Left, Right };
 
 
-class DockPalette : public QWidget
-{
+class DockPalette : public QWidget {
     Q_OBJECT
     friend class TabDockPalette;
 
 public:
-    DockPalette(DockPaletteType paletteType, QWidget* parent=0, const char* name="DockPalette");
+    DockPalette(DockPaletteType paletteType, QWidget *parent = 0, const char *name = "DockPalette");
     ~DockPalette();
 
     DockOrientation orientation();
@@ -89,17 +73,17 @@ public:
     virtual void enterEvent(QEvent *);
     virtual void leaveEvent(QEvent *);
 
-    void setBackgroundBrush(const QBrush& brush);
-    void registerWidget(DockPaletteWidget* widget);
+    void setBackgroundBrush(const QBrush &brush);
+    void registerWidget(DockPaletteWidget *widget);
 
-    void addTab(DockPaletteWidget* widget);
-    void removeTab(DockPaletteWidget* widget);
+    void addTab(DockPaletteWidget *widget);
+    void removeTab(DockPaletteWidget *widget);
 
     void connectSignals();
 
     bool switchMode(DockWidgetMode mode);
 
-    QVector<DockPaletteWidget*> GetWidgetsList();
+    QVector<DockPaletteWidget *> GetWidgetsList();
 
 public:
     bool isTabFlotable();
@@ -110,10 +94,10 @@ public:
     DockPaletteType paletteType();
 
 public slots:
-    void onShowTabWidget(DockPaletteWidget* widget);
-    void onHideTabWidget(DockPaletteWidget* widget);
+    void onShowTabWidget(DockPaletteWidget *widget);
+    void onHideTabWidget(DockPaletteWidget *widget);
     void onAllDownloadsFinished();
-    virtual void onDocumentSet(DocumentProxy* documentProxy);
+    virtual void onDocumentSet(DocumentProxy *documentProxy);
 
 signals:
     void mouseEntered();
@@ -140,7 +124,7 @@ protected:
 
 private slots:
     void onToolbarPosUpdated();
-    void onResizeRequest(QResizeEvent* event);
+    void onResizeRequest(QResizeEvent *event);
 
 private:
     void tabClicked(int tabIndex);
@@ -152,4 +136,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-

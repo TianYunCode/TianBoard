@@ -11,26 +11,19 @@
 #include "whiteboard/BoardView.h"
 
 
-IdleTimer::IdleTimer(QObject *parent)
-     : QObject(parent)
-     , mCursorIsHidden(false)
-{
+IdleTimer::IdleTimer(QObject *parent) : QObject(parent), mCursorIsHidden(false) {
     startTimer(100);
 }
 
-IdleTimer::~IdleTimer()
-{
+IdleTimer::~IdleTimer() {
     // NOOP
 }
 
-bool IdleTimer::eventFilter(QObject *obj, QEvent *event)
-{
+bool IdleTimer::eventFilter(QObject *obj, QEvent *event) {
     // if the event is an input event (mouse / tablet / keyboard)
-    if (dynamic_cast<QInputEvent*>(event))
-    {
+    if (dynamic_cast<QInputEvent *>(event)) {
         mLastInputEventTime = QDateTime::currentDateTime();
-        if (mCursorIsHidden)
-        {
+        if (mCursorIsHidden) {
             QApplication::restoreOverrideCursor();
             mCursorIsHidden = false;
         }
@@ -39,20 +32,15 @@ bool IdleTimer::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-void IdleTimer::timerEvent(QTimerEvent *event)
-{
+void IdleTimer::timerEvent(QTimerEvent *event) {
     Q_UNUSED(event);
 
-        bool hasWaitCuror = (Application::overrideCursor() &&
-                (Application::overrideCursor()->shape() == Qt::WaitCursor));
+    bool hasWaitCuror =
+        (Application::overrideCursor() && (Application::overrideCursor()->shape() == Qt::WaitCursor));
 
-    if (!mCursorIsHidden
-            && (mLastInputEventTime.secsTo(QDateTime::currentDateTime()) >= 2)
-                        && Application::boardController
-                        && Application::boardController->controlView()
-                        && Application::boardController->controlView()->hasFocus()
-                        && !hasWaitCuror)
-    {
+    if (!mCursorIsHidden && (mLastInputEventTime.secsTo(QDateTime::currentDateTime()) >= 2) &&
+        Application::boardController && Application::boardController->controlView() &&
+        Application::boardController->controlView()->hasFocus() && !hasWaitCuror) {
         QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
         mCursorIsHidden = true;
     }

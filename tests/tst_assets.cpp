@@ -13,19 +13,16 @@
 #include <QSvgRenderer>
 #include <QTextStream>
 
-namespace
-{
+namespace {
 QStringList gCapturedWarnings;
 
-void captureWarning(QtMsgType type, const QMessageLogContext &, const QString &msg)
-{
+void captureWarning(QtMsgType type, const QMessageLogContext &, const QString &msg) {
     if (type == QtWarningMsg)
         gCapturedWarnings << msg;
 }
-}
+} // namespace
 
-class TestAssets : public QObject
-{
+class TestAssets : public QObject {
     Q_OBJECT
 
 private slots:
@@ -42,13 +39,11 @@ private:
     static QImage renderSvg(const QString &relative, const QSize &size);
 };
 
-QString TestAssets::resPath(const QString &relative)
-{
+QString TestAssets::resPath(const QString &relative) {
     return QStringLiteral(TIANBOARD_RES_DIR) + QLatin1Char('/') + relative;
 }
 
-QStringList TestAssets::qrcFileEntries()
-{
+QStringList TestAssets::qrcFileEntries() {
     QFile qrc(resPath(QStringLiteral("TianBoard.qrc")));
     if (!qrc.open(QIODevice::ReadOnly | QIODevice::Text))
         return QStringList();
@@ -66,8 +61,7 @@ QStringList TestAssets::qrcFileEntries()
     return entries;
 }
 
-QImage TestAssets::renderSvg(const QString &relative, const QSize &size)
-{
+QImage TestAssets::renderSvg(const QString &relative, const QSize &size) {
     QSvgRenderer renderer(resPath(relative));
     if (!renderer.isValid())
         return QImage();
@@ -82,8 +76,7 @@ QImage TestAssets::renderSvg(const QString &relative, const QSize &size)
     return image;
 }
 
-void TestAssets::qrcEntriesExistOnDisk()
-{
+void TestAssets::qrcEntriesExistOnDisk() {
     const QStringList entries = qrcFileEntries();
     QVERIFY2(!entries.isEmpty(), "could not read res/TianBoard.qrc");
 
@@ -93,13 +86,12 @@ void TestAssets::qrcEntriesExistOnDisk()
             missing << entry;
     }
 
-    QVERIFY2(missing.isEmpty(),
-             qPrintable(QStringLiteral("qrc references %1 missing file(s): %2")
-                            .arg(missing.size()).arg(missing.join(QStringLiteral(", ")))));
+    QVERIFY2(missing.isEmpty(), qPrintable(QStringLiteral("qrc references %1 missing file(s): %2")
+                                               .arg(missing.size())
+                                               .arg(missing.join(QStringLiteral(", ")))));
 }
 
-void TestAssets::everyImageDecodes()
-{
+void TestAssets::everyImageDecodes() {
     QDir images(resPath(QStringLiteral("images")));
     QVERIFY(images.exists());
 
@@ -123,8 +115,7 @@ void TestAssets::everyImageDecodes()
              qPrintable(QStringLiteral("undecodable image(s): %1").arg(broken.join(QStringLiteral(", ")))));
 }
 
-void TestAssets::brandAssetsAreOwnAndRegistered()
-{
+void TestAssets::brandAssetsAreOwnAndRegistered() {
     QVERIFY(QFile::exists(resPath(QStringLiteral("images/TianBoardIcon.svg"))));
     QVERIFY(QFile::exists(resPath(QStringLiteral("images/TianBoardMark.svg"))));
     QVERIFY(!QFile::exists(resPath(QStringLiteral("images/TianBoard.png"))));
@@ -134,8 +125,7 @@ void TestAssets::brandAssetsAreOwnAndRegistered()
     QVERIFY(entries.contains(QStringLiteral("images/TianBoardMark.svg")));
 }
 
-void TestAssets::appIconRendersAsDesigned()
-{
+void TestAssets::appIconRendersAsDesigned() {
     const QImage icon = renderSvg(QStringLiteral("images/TianBoardIcon.svg"), QSize(512, 512));
     QVERIFY2(!icon.isNull(), "TianBoardIcon.svg did not render");
     QCOMPARE(icon.size(), QSize(512, 512));
@@ -146,7 +136,8 @@ void TestAssets::appIconRendersAsDesigned()
     // Inside the tile, away from the board and the strokes: the blue gradient.
     const QColor tile = icon.pixelColor(120, 400);
     QVERIFY2(tile.alpha() > 200, "the tile is not opaque where it should be solid");
-    QVERIFY2(tile.blue() > tile.red(), qPrintable(QStringLiteral("tile colour %1 is not blue-ish").arg(tile.name())));
+    QVERIFY2(tile.blue() > tile.red(),
+             qPrintable(QStringLiteral("tile colour %1 is not blue-ish").arg(tile.name())));
 
     // The horizontal arm of the T is white.
     const QColor stroke = icon.pixelColor(250, 189);
@@ -154,8 +145,7 @@ void TestAssets::appIconRendersAsDesigned()
              qPrintable(QStringLiteral("expected a white marker stroke, got %1").arg(stroke.name())));
 }
 
-void TestAssets::blackoutMarkIsWhiteOnTransparent()
-{
+void TestAssets::blackoutMarkIsWhiteOnTransparent() {
     const QImage mark = renderSvg(QStringLiteral("images/TianBoardMark.svg"), QSize(512, 512));
     QVERIFY2(!mark.isNull(), "TianBoardMark.svg did not render");
 
@@ -170,9 +160,8 @@ void TestAssets::blackoutMarkIsWhiteOnTransparent()
 // QtSvg 对单条 path 的坐标量有硬上限，超限只打印一句 “Invalid path data; path
 // truncated.” 然后画出一半的图形。世界地图以前就是这种情况，所以这里把随包发布的
 // 每个 SVG 都真渲染一遍：既不能报解析告警，也必须真的画出像素。
-void TestAssets::svgAssetsPaintWithoutTruncation()
-{
-    const QStringList roots = { resPath(QStringLiteral("library")), resPath(QStringLiteral("images")) };
+void TestAssets::svgAssetsPaintWithoutTruncation() {
+    const QStringList roots = {resPath(QStringLiteral("library")), resPath(QStringLiteral("images"))};
     QStringList problems;
     int checked = 0;
 
@@ -180,7 +169,7 @@ void TestAssets::svgAssetsPaintWithoutTruncation()
         QDir root(rootPath);
         QVERIFY2(root.exists(), qPrintable(QStringLiteral("missing asset root %1").arg(rootPath)));
 
-        QDirIterator it(root.path(), { QStringLiteral("*.svg") }, QDir::Files, QDirIterator::Subdirectories);
+        QDirIterator it(root.path(), {QStringLiteral("*.svg")}, QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             const QString file = it.next();
             ++checked;

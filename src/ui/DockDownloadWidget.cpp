@@ -4,10 +4,8 @@
 #include "utils/Globals.h"
 
 
-DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name):DockPaletteWidget(parent, name)
-  , mpLayout(NULL)
-  , mpDLWidget(NULL)
-{
+DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name)
+    : DockPaletteWidget(parent, name), mpLayout(NULL), mpDLWidget(NULL) {
     setName("DownloadWidget");
     setVisibleState(false);
 
@@ -23,15 +21,12 @@ DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name):DockPa
     mpLayout->addWidget(mpDLWidget);
 }
 
-DockDownloadWidget::~DockDownloadWidget()
-{
-    if(NULL != mpDLWidget)
-    {
+DockDownloadWidget::~DockDownloadWidget() {
+    if (NULL != mpDLWidget) {
         delete mpDLWidget;
         mpDLWidget = NULL;
     }
-    if(NULL != mpLayout)
-    {
+    if (NULL != mpLayout) {
         delete mpLayout;
         mpLayout = NULL;
     }

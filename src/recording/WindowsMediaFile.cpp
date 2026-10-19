@@ -5,32 +5,29 @@
 #include "core/Application.h"
 
 
-WindowsMediaFile::WindowsMediaFile(QObject * pParent)
-    : QObject(pParent)
-    , mWMhDC(0)
-    , mWMWriter(0)
-    , mPushSink(0)
-    , mVideoInputIndex(0)
-    , mWMProfile(0)
-    , mWMInputVideoProps(0)
-    , mWMInputAudioProps(0)
-    , mWMProfileManager(0)
-    , mFramesPerSecond(-1)
-{
+WindowsMediaFile::WindowsMediaFile(QObject *pParent)
+    : QObject(pParent),
+      mWMhDC(0),
+      mWMWriter(0),
+      mPushSink(0),
+      mVideoInputIndex(0),
+      mWMProfile(0),
+      mWMInputVideoProps(0),
+      mWMInputAudioProps(0),
+      mWMProfileManager(0),
+      mFramesPerSecond(-1) {
     // NOOP
 }
 
 
-bool WindowsMediaFile::init(const QString& videoFileName, const QString& profileData, int pFramesPerSecond
-                , int pixelWidth, int pixelHeight, int bitsPerPixel)
-{
+bool WindowsMediaFile::init(const QString &videoFileName, const QString &profileData, int pFramesPerSecond,
+                            int pixelWidth, int pixelHeight, int bitsPerPixel) {
     mFramesPerSecond = pFramesPerSecond;
     mVideoFileName = videoFileName;
 
     CoInitialize(0);
 
-    if (FAILED(WMCreateProfileManager(&mWMProfileManager)))
-    {
+    if (FAILED(WMCreateProfileManager(&mWMProfileManager))) {
         setLastErrorMessage("Unable to create a WMProfileManager");
         close();
         return false;
@@ -38,8 +35,7 @@ bool WindowsMediaFile::init(const QString& videoFileName, const QString& profile
 
     IWMProfileManager2 *wmProfileManager = 0;
 
-    if (FAILED(mWMProfileManager->QueryInterface(IID_IWMProfileManager2, (void**) &wmProfileManager)))
-    {
+    if (FAILED(mWMProfileManager->QueryInterface(IID_IWMProfileManager2, (void **)&wmProfileManager))) {
         setLastErrorMessage("Unable to query the WMProfileManager for interface WMProfileManager2");
         close();
         return false;
@@ -48,15 +44,13 @@ bool WindowsMediaFile::init(const QString& videoFileName, const QString& profile
     HRESULT hr = wmProfileManager->SetSystemProfileVersion(WMT_VER_9_0);
     wmProfileManager->Release();
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         setLastErrorMessage("Unable to set WMProfileManager SystemProfileVersion");
         close();
         return false;
     }
 
-    if (FAILED(mWMProfileManager->LoadProfileByData((LPCTSTR) profileData.utf16(), &mWMProfile)))
-    {
+    if (FAILED(mWMProfileManager->LoadProfileByData((LPCTSTR)profileData.utf16(), &mWMProfile))) {
         setLastErrorMessage("Unable to load WMProfileManager custom profile");
         close();
         return false;
@@ -64,22 +58,19 @@ bool WindowsMediaFile::init(const QString& videoFileName, const QString& profile
 
     DWORD streamCount = -1;
 
-    if (FAILED(mWMProfile->GetStreamCount(&streamCount)))
-    {
+    if (FAILED(mWMProfile->GetStreamCount(&streamCount))) {
         setLastErrorMessage("Unable to read mWMProfile stream count");
         close();
         return false;
     }
 
-    if (FAILED(WMCreateWriter(NULL, &mWMWriter)))
-    {
+    if (FAILED(WMCreateWriter(NULL, &mWMWriter))) {
         setLastErrorMessage("Unable to create WMMediaWriter Object");
         close();
         return false;
     }
 
-    if (FAILED(mWMWriter->SetProfile(mWMProfile)))
-    {
+    if (FAILED(mWMWriter->SetProfile(mWMProfile))) {
         setLastErrorMessage("Unable to set WMWriter system profile");
         close();
         return false;
@@ -87,19 +78,16 @@ bool WindowsMediaFile::init(const QString& videoFileName, const QString& profile
 
     DWORD mediaInputCount = 0;
 
-    if (FAILED(mWMWriter->GetInputCount(&mediaInputCount)))
-    {
+    if (FAILED(mWMWriter->GetInputCount(&mediaInputCount))) {
         setLastErrorMessage("Unable to get input count for profile");
         close();
         return false;
     }
 
-    for (DWORD i = 0; i < mediaInputCount; i++)
-    {
-        IWMInputMediaProps* wmInoutMediaProps = 0;
+    for (DWORD i = 0; i < mediaInputCount; i++) {
+        IWMInputMediaProps *wmInoutMediaProps = 0;
 
-        if (FAILED(mWMWriter->GetInputProps(i, &wmInoutMediaProps)))
-        {
+        if (FAILED(mWMWriter->GetInputProps(i, &wmInoutMediaProps))) {
             setLastErrorMessage("Unable to get WMWriter input properties");
             close();
             return false;
@@ -107,59 +95,48 @@ bool WindowsMediaFile::init(const QString& videoFileName, const QString& profile
 
         GUID guidInputType;
 
-        if (FAILED(wmInoutMediaProps->GetType(&guidInputType)))
-        {
+        if (FAILED(wmInoutMediaProps->GetType(&guidInputType))) {
             setLastErrorMessage("Unable to get WMWriter input property type");
             close();
             return false;
         }
 
-        if (guidInputType == WMMEDIATYPE_Video)
-        {
+        if (guidInputType == WMMEDIATYPE_Video) {
             mWMInputVideoProps = wmInoutMediaProps;
             mVideoInputIndex = i;
-        }
-        else if (guidInputType == WMMEDIATYPE_Audio)
-        {
+        } else if (guidInputType == WMMEDIATYPE_Audio) {
             mWMInputAudioProps = wmInoutMediaProps;
             mAudioInputIndex = i;
-        }
-        else
-        {
+        } else {
             wmInoutMediaProps->Release();
             wmInoutMediaProps = 0;
         }
     }
 
-    if (mWMInputVideoProps == 0)
-    {
+    if (mWMInputVideoProps == 0) {
         setLastErrorMessage("Profile does not accept video input");
         close();
         return false;
     }
 
-    if (mWMInputAudioProps == 0)
-    {
+    if (mWMInputAudioProps == 0) {
         setLastErrorMessage("Profile does not accept audio input");
         close();
         return false;
     }
 
-    if (FAILED(mWMWriter->SetOutputFilename((LPCTSTR) videoFileName.utf16())))
-    {
+    if (FAILED(mWMWriter->SetOutputFilename((LPCTSTR)videoFileName.utf16()))) {
         setLastErrorMessage("Unable to set the output filename");
         close();
         return false;
     }
 
-    if(!initVideoStream(pixelWidth, pixelHeight, bitsPerPixel))
-    {
+    if (!initVideoStream(pixelWidth, pixelHeight, bitsPerPixel)) {
         close();
         return false;
     }
 
-    if (FAILED(mWMWriter->BeginWriting()))
-    {
+    if (FAILED(mWMWriter->BeginWriting())) {
         setLastErrorMessage("Unable to initialize video frame writing");
         return false;
     }
@@ -168,37 +145,31 @@ bool WindowsMediaFile::init(const QString& videoFileName, const QString& profile
 }
 
 
-bool WindowsMediaFile::close()
-{
+bool WindowsMediaFile::close() {
     bool result = true;
 
-    if (mWMWriter)
-    {
-        if (FAILED(mWMWriter->EndWriting()))
-        {
+    if (mWMWriter) {
+        if (FAILED(mWMWriter->EndWriting())) {
             result = false;
         }
     }
 
-    if (mPushSink)
-    {
+    if (mPushSink) {
         mPushSink->Disconnect();
         mPushSink->EndSession();
         mPushSink->Release();
     }
 
-    if(mChapters.length() > 0)
-    {
+    if (mChapters.length() > 0) {
         IWMMetadataEditor *editor = 0;
-        IWMHeaderInfo     *headerInfo = 0;
+        IWMHeaderInfo *headerInfo = 0;
 
         WMCreateEditor(&editor);
-        editor->Open((LPCTSTR) mVideoFileName.utf16());
-        editor->QueryInterface(IID_IWMHeaderInfo, (void**)&headerInfo);
+        editor->Open((LPCTSTR)mVideoFileName.utf16());
+        editor->QueryInterface(IID_IWMHeaderInfo, (void **)&headerInfo);
 
-        foreach(MarkerInfo mi, mChapters)
-        {
-            headerInfo->AddMarker((LPWSTR)mi.label.utf16(),  msToSampleTime(mi.timestamp));
+        foreach (MarkerInfo mi, mChapters) {
+            headerInfo->AddMarker((LPWSTR)mi.label.utf16(), msToSampleTime(mi.timestamp));
         }
 
         editor->Flush();
@@ -215,61 +186,50 @@ bool WindowsMediaFile::close()
 }
 
 
-WindowsMediaFile::~WindowsMediaFile()
-{
+WindowsMediaFile::~WindowsMediaFile() {
     // NOOP
 }
 
 
-void WindowsMediaFile::releaseWMObjects()
-{
-
-    if (mWMInputVideoProps)
-    {
+void WindowsMediaFile::releaseWMObjects() {
+    if (mWMInputVideoProps) {
         mWMInputVideoProps->Release();
         mWMInputVideoProps = 0;
     }
 
-    if (mWMInputAudioProps)
-    {
+    if (mWMInputAudioProps) {
         mWMInputAudioProps->Release();
         mWMInputAudioProps = 0;
     }
 
-    if (mWMWriter)
-    {
+    if (mWMWriter) {
         mWMWriter->Release();
         mWMWriter = 0;
     }
 
-    if (mWMProfile)
-    {
+    if (mWMProfile) {
         mWMProfile->Release();
         mWMProfile = 0;
     }
 
-    if (mWMProfileManager)
-    {
+    if (mWMProfileManager) {
         mWMProfileManager->Release();
         mWMProfileManager = 0;
     }
 
-    if (mWMhDC)
-    {
+    if (mWMhDC) {
         DeleteDC(mWMhDC);
         mWMhDC = 0;
     }
 }
 
 
-bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nBitsPerPixel)
-{
+bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nBitsPerPixel) {
     BITMAPINFO bmpInfo;
 
     mWMhDC = CreateCompatibleDC(NULL);
 
-    if (mWMhDC == NULL)
-    {
+    if (mWMhDC == NULL) {
         setLastErrorMessage("Unable to create a device context");
         return false;
     }
@@ -301,26 +261,16 @@ bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nB
     WM_MEDIA_TYPE mt;
     mt.majortype = WMMEDIATYPE_Video;
 
-    if (bmpInfo.bmiHeader.biCompression == BI_RGB)
-    {
-        if (bmpInfo.bmiHeader.biBitCount == 32)
-        {
+    if (bmpInfo.bmiHeader.biCompression == BI_RGB) {
+        if (bmpInfo.bmiHeader.biBitCount == 32) {
             mt.subtype = WMMEDIASUBTYPE_RGB32;
-        }
-        else if (bmpInfo.bmiHeader.biBitCount == 24)
-        {
+        } else if (bmpInfo.bmiHeader.biBitCount == 24) {
             mt.subtype = WMMEDIASUBTYPE_RGB24;
-        }
-        else if (bmpInfo.bmiHeader.biBitCount == 16)
-        {
+        } else if (bmpInfo.bmiHeader.biBitCount == 16) {
             mt.subtype = WMMEDIASUBTYPE_RGB555;
-        }
-        else if (bmpInfo.bmiHeader.biBitCount == 8)
-        {
+        } else if (bmpInfo.bmiHeader.biBitCount == 8) {
             mt.subtype = WMMEDIASUBTYPE_RGB8;
-        }
-        else
-        {
+        } else {
             mt.subtype = GUID_NULL;
         }
     }
@@ -331,16 +281,14 @@ bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nB
     mt.formattype = WMFORMAT_VideoInfo;
     mt.pUnk = NULL;
     mt.cbFormat = sizeof(WMVIDEOINFOHEADER);
-    mt.pbFormat = (BYTE*) &videoInfo;
+    mt.pbFormat = (BYTE *)&videoInfo;
 
-    if (FAILED(mWMInputVideoProps->SetMediaType(&mt)))
-    {
+    if (FAILED(mWMInputVideoProps->SetMediaType(&mt))) {
         setLastErrorMessage("Unable to set the  video media type");
         return false;
     }
 
-    if (FAILED(mWMWriter->SetInputProps(mVideoInputIndex, mWMInputVideoProps)))
-    {
+    if (FAILED(mWMWriter->SetInputProps(mVideoInputIndex, mWMInputVideoProps))) {
         setLastErrorMessage("Unable to set the input properties for WMMediaWriter");
         return false;
     }
@@ -349,14 +297,12 @@ bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nB
 }
 
 
-bool WindowsMediaFile::appendVideoFrame(const QImage& pImage, long mstimestamp)
-{
+bool WindowsMediaFile::appendVideoFrame(const QImage &pImage, long mstimestamp) {
     Q_ASSERT(pImage.format() == QImage::Format_RGB32);
 
     INSSBuffer *sampleBuffer = 0;
 
-    if (FAILED(mWMWriter->AllocateSample(static_cast<quint32>(pImage.sizeInBytes()), &sampleBuffer)))
-    {
+    if (FAILED(mWMWriter->AllocateSample(static_cast<quint32>(pImage.sizeInBytes()), &sampleBuffer))) {
         setLastErrorMessage("Unable to allocate memory for new video frame");
         return false;
     }
@@ -364,22 +310,21 @@ bool WindowsMediaFile::appendVideoFrame(const QImage& pImage, long mstimestamp)
     BYTE *rawBuffer = 0;
     DWORD rawBufferLength = 0;
 
-    if (FAILED(sampleBuffer->GetBufferAndLength(&rawBuffer, &rawBufferLength)))
-    {
+    if (FAILED(sampleBuffer->GetBufferAndLength(&rawBuffer, &rawBufferLength))) {
         setLastErrorMessage("Unable to lock video frame buffer");
         sampleBuffer->Release();
         return false;
     }
 
-    const uchar * imageBuffer = pImage.bits();
-    memcpy((void*) rawBuffer, imageBuffer, static_cast<quint32>(pImage.sizeInBytes()));
+    const uchar *imageBuffer = pImage.bits();
+    memcpy((void *)rawBuffer, imageBuffer, static_cast<quint32>(pImage.sizeInBytes()));
 
-    HRESULT hrWriteSample = mWMWriter->WriteSample(mVideoInputIndex, msToSampleTime(mstimestamp), 0, sampleBuffer);
+    HRESULT hrWriteSample =
+        mWMWriter->WriteSample(mVideoInputIndex, msToSampleTime(mstimestamp), 0, sampleBuffer);
 
     sampleBuffer->Release();
 
-    if (FAILED(hrWriteSample))
-    {
+    if (FAILED(hrWriteSample)) {
         setLastErrorMessage("Unable to write video frame");
         return false;
     }
@@ -387,52 +332,46 @@ bool WindowsMediaFile::appendVideoFrame(const QImage& pImage, long mstimestamp)
     mLastErrorMessage = "";
 
     return true;
-
 }
 
 
-void WindowsMediaFile::appendAudioBuffer(WAVEHDR *buffer, long mstimestamp)
-{
+void WindowsMediaFile::appendAudioBuffer(WAVEHDR *buffer, long mstimestamp) {
     INSSBuffer *sampleBuffer = 0;
 
-    if (FAILED(mWMWriter->AllocateSample(buffer->dwBytesRecorded, &sampleBuffer)))
-    {
+    if (FAILED(mWMWriter->AllocateSample(buffer->dwBytesRecorded, &sampleBuffer))) {
         setLastErrorMessage("Unable to allocate memory for new audio frame");
-        return ;
+        return;
     }
 
     BYTE *rawBuffer = 0;
     DWORD rawBufferLength = 0;
 
-    if (FAILED(sampleBuffer->GetBufferAndLength(&rawBuffer, &rawBufferLength)))
-    {
+    if (FAILED(sampleBuffer->GetBufferAndLength(&rawBuffer, &rawBufferLength))) {
         setLastErrorMessage("Unable to lock audio frame buffer");
         sampleBuffer->Release();
         return;
     }
 
-    memcpy((void*) rawBuffer, buffer->lpData, rawBufferLength);
+    memcpy((void *)rawBuffer, buffer->lpData, rawBufferLength);
 
-    HRESULT hrWriteSample = mWMWriter->WriteSample(mAudioInputIndex, msToSampleTime(mstimestamp), 0, sampleBuffer);
+    HRESULT hrWriteSample =
+        mWMWriter->WriteSample(mAudioInputIndex, msToSampleTime(mstimestamp), 0, sampleBuffer);
 
     sampleBuffer->Release();
 
-    if (FAILED(hrWriteSample))
-    {
+    if (FAILED(hrWriteSample)) {
         setLastErrorMessage("Unable to write audio buffer");
         return;
     }
 
     mLastErrorMessage = "";
 
-    
-    return;
 
+    return;
 }
 
 
-void WindowsMediaFile::startNewChapter(const QString& pLabel, long timestamp)
-{
+void WindowsMediaFile::startNewChapter(const QString &pLabel, long timestamp) {
     MarkerInfo mi;
     mi.label = pLabel;
     mi.timestamp = timestamp;
@@ -441,10 +380,7 @@ void WindowsMediaFile::startNewChapter(const QString& pLabel, long timestamp)
 }
 
 
-void WindowsMediaFile::setLastErrorMessage(const QString& error)
-{
+void WindowsMediaFile::setLastErrorMessage(const QString &error) {
     mLastErrorMessage = error;
     qWarning() << error;
 }
-
-

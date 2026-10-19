@@ -14,39 +14,33 @@
 #include "utils/FileSystemUtils.h"
 
 
-GraphicsSvgItem::GraphicsSvgItem(const QString& pFilePath, QGraphicsItem* parent)
-    : QGraphicsSvgItem(pFilePath, parent)
-{
+GraphicsSvgItem::GraphicsSvgItem(const QString &pFilePath, QGraphicsItem *parent)
+    : QGraphicsSvgItem(pFilePath, parent) {
     init();
 
     QFile f(pFilePath);
 
-    if (f.open(QIODevice::ReadOnly))
-    {
+    if (f.open(QIODevice::ReadOnly)) {
         mFileData = f.readAll();
         f.close();
     }
 }
 
-GraphicsSvgItem::GraphicsSvgItem(const QByteArray& pFileData, QGraphicsItem* parent)
-    : QGraphicsSvgItem(parent)
-{
+GraphicsSvgItem::GraphicsSvgItem(const QByteArray &pFileData, QGraphicsItem *parent)
+    : QGraphicsSvgItem(parent) {
     init();
 
-    QSvgRenderer* renderer = new QSvgRenderer(pFileData, this);
+    QSvgRenderer *renderer = new QSvgRenderer(pFileData, this);
 
     setSharedRenderer(renderer);
     mFileData = pFileData;
 }
 
 
-void GraphicsSvgItem::init()
-{
+void GraphicsSvgItem::init() {
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
 
-    setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON
-                                           | GF_RESPECT_RATIO
-                                           | GF_REVOLVABLE));
+    setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON | GF_RESPECT_RATIO | GF_REVOLVABLE));
     GraphicsFlags dfl = Delegate()->frameFlags();
     Delegate()->setFrameFlags(dfl | GF_FLIPPABLE_ALL_AXIS | GF_REVOLVABLE);
 
@@ -55,34 +49,31 @@ void GraphicsSvgItem::init()
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setMaximumCacheSize(boundingRect().size().toSize() * MAX_ZOOM_LEVEL);
 
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
 
     setData(GraphicsItemData::ItemCanBeSetAsBackground, true);
 
     setUuid(QUuid::createUuid());
 }
 
-GraphicsSvgItem::~GraphicsSvgItem()
-{
-}
+GraphicsSvgItem::~GraphicsSvgItem() {}
 
 
-QByteArray GraphicsSvgItem::fileData() const
-{
+QByteArray GraphicsSvgItem::fileData() const {
     return mFileData;
 }
 
 
-QVariant GraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
+QVariant GraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     QVariant newValue = Delegate()->itemChange(change, value);
     return QGraphicsSvgItem::itemChange(change, newValue);
 }
 
 
-void GraphicsSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    QMimeData* pMime = new QMimeData();
+void GraphicsSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    QMimeData *pMime = new QMimeData();
     QPixmap pixmap = toPixmapItem()->pixmap();
     pMime->setImageData(pixmap.toImage());
     Delegate()->setMimeData(pMime);
@@ -96,28 +87,22 @@ void GraphicsSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 }
 
 
-void GraphicsSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (Delegate()->mouseMoveEvent(event))
-    {
+void GraphicsSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mouseMoveEvent(event)) {
         // NOOP;
-    }
-    else
-    {
+    } else {
         QGraphicsSvgItem::mouseMoveEvent(event);
     }
 }
 
 
-void GraphicsSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     Delegate()->mouseReleaseEvent(event);
     QGraphicsSvgItem::mouseReleaseEvent(event);
 }
 
 
-void GraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     // Never draw the rubber band, we draw our custom selection with the DelegateFrame
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
     styleOption.state &= ~QStyle::State_Selected;
@@ -127,23 +112,19 @@ void GraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 }
 
 
-Item* GraphicsSvgItem::deepCopy() const
-{
-    GraphicsSvgItem* copy = new GraphicsSvgItem(this->fileData());
+Item *GraphicsSvgItem::deepCopy() const {
+    GraphicsSvgItem *copy = new GraphicsSvgItem(this->fileData());
 
     copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
 
     copyItemParameters(copy);
 
     return copy;
-
 }
 
-void GraphicsSvgItem::copyItemParameters(Item *copy) const
-{
-    GraphicsSvgItem *cp = dynamic_cast<GraphicsSvgItem*>(copy);
-    if (cp)
-    {
+void GraphicsSvgItem::copyItemParameters(Item *copy) const {
+    GraphicsSvgItem *cp = dynamic_cast<GraphicsSvgItem *>(copy);
+    if (cp) {
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
         cp->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -155,35 +136,28 @@ void GraphicsSvgItem::copyItemParameters(Item *copy) const
     }
 }
 
-void GraphicsSvgItem::setRenderingQuality(RenderingQuality pRenderingQuality)
-{
+void GraphicsSvgItem::setRenderingQuality(RenderingQuality pRenderingQuality) {
     Item::setRenderingQuality(pRenderingQuality);
 
-    if (pRenderingQuality == RenderingQualityHigh)
-    {
+    if (pRenderingQuality == RenderingQualityHigh) {
         setCacheMode(QGraphicsItem::NoCache);
-    }
-    else
-    {
+    } else {
         setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     }
 }
 
 
-GraphicsScene* GraphicsSvgItem::scene()
-{
-    return qobject_cast<GraphicsScene*>(QGraphicsItem::scene());
+GraphicsScene *GraphicsSvgItem::scene() {
+    return qobject_cast<GraphicsScene *>(QGraphicsItem::scene());
 }
 
 
-
-GraphicsPixmapItem* GraphicsSvgItem::toPixmapItem() const
-{
+GraphicsPixmapItem *GraphicsSvgItem::toPixmapItem() const {
     QImage image(renderer()->viewBox().size(), QImage::Format_ARGB32);
     QPainter painter(&image);
     renderer()->render(&painter);
 
-    GraphicsPixmapItem *pixmapItem =  new GraphicsPixmapItem();
+    GraphicsPixmapItem *pixmapItem = new GraphicsPixmapItem();
     pixmapItem->setPixmap(QPixmap::fromImage(image));
 
     pixmapItem->setPos(this->pos());
@@ -195,16 +169,16 @@ GraphicsPixmapItem* GraphicsSvgItem::toPixmapItem() const
     return pixmapItem;
 }
 
-void GraphicsSvgItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsSvgItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    setData(GraphicsItemData::ItemUuid,
+            QVariant(
+                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
 
-void GraphicsSvgItem::clearSource()
-{
+void GraphicsSvgItem::clearSource() {
     QString fileName = PersistenceManager::imageDirectory + "/" + uuid().toString() + ".svg";
-    QString diskPath =  Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
+    QString diskPath = Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
     FileSystemUtils::deleteFile(diskPath);
 }

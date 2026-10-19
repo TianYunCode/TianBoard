@@ -6,42 +6,40 @@
 
 class GraphicsScene;
 
-class DocumentThumbnailWidget: public ThumbnailWidget
-{
+class DocumentThumbnailWidget : public ThumbnailWidget {
     Q_OBJECT
 
-    public:
-        DocumentThumbnailWidget(QWidget* parent);
-        virtual ~DocumentThumbnailWidget();
+public:
+    DocumentThumbnailWidget(QWidget *parent);
+    virtual ~DocumentThumbnailWidget();
 
-        void setDragEnabled(bool enabled);
-        bool dragEnabled() const;
+    void setDragEnabled(bool enabled);
+    bool dragEnabled() const;
 
-        void hightlightItem(int index);
+    void hightlightItem(int index);
 
-    public slots:
-        virtual void setGraphicsItems(const QList<QGraphicsItem*>& pGraphicsItems,
-            const QList<QUrl>& pItemPaths, const QStringList pLabels = QStringList(),
-            const QString& pMimeType = QString(""));
+public slots:
+    virtual void setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsItems, const QList<QUrl> &pItemPaths,
+                                  const QStringList pLabels = QStringList(),
+                                  const QString &pMimeType = QString(""));
 
-	signals:
-        void sceneDropped(DocumentProxy* proxy, int source, int target);
+signals:
+    void sceneDropped(DocumentProxy *proxy, int source, int target);
 
-    private slots:
-        void autoScroll();
+private slots:
+    void autoScroll();
 
-    protected:
-        virtual void mouseMoveEvent(QMouseEvent *event);
+protected:
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
-        virtual void dragEnterEvent(QDragEnterEvent *event);
-        virtual void dragLeaveEvent(QDragLeaveEvent *event);
-        virtual void dragMoveEvent(QDragMoveEvent *event);
-        virtual void dropEvent(QDropEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragLeaveEvent(QDragLeaveEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
-    private:
-        void deleteDropCaret();
+private:
+    void deleteDropCaret();
 
-        struct Private;
-        std::unique_ptr<Private> d;
+    struct Private;
+    std::unique_ptr<Private> d;
 };
-

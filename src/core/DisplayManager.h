@@ -6,106 +6,85 @@ class BlackoutWidget;
 class BoardView;
 class VirtualDesktop;
 
-class DisplayManager : public QObject
-{
+class DisplayManager : public QObject {
     Q_OBJECT
 
-    public:
-        DisplayManager(QObject *parent = 0);
-        virtual ~DisplayManager();
+public:
+    DisplayManager(QObject *parent = 0);
+    virtual ~DisplayManager();
 
-        int numScreens();
+    int numScreens();
 
-        int numPreviousViews();
+    int numPreviousViews();
 
-        void setControlWidget(QWidget* pControlWidget);
+    void setControlWidget(QWidget *pControlWidget);
 
-        void setDisplayWidget(QWidget* pDisplayWidget);
+    void setDisplayWidget(QWidget *pDisplayWidget);
 
-        void setDesktopWidget(QWidget* pControlWidget);
+    void setDesktopWidget(QWidget *pControlWidget);
 
-        void setPreviousDisplaysWidgets(QList<BoardView*> pPreviousViews);
+    void setPreviousDisplaysWidgets(QList<BoardView *> pPreviousViews);
 
-        bool hasControl()
-        {
-            return mControlScreenIndex > -1;
-        }
+    bool hasControl() { return mControlScreenIndex > -1; }
 
-        bool hasDisplay()
-        {
-            return mDisplayScreenIndex > -1;
-        }
+    bool hasDisplay() { return mDisplayScreenIndex > -1; }
 
-        bool hasPrevious()
-        {
-            return !mPreviousScreenIndexes.isEmpty();
-        }
+    bool hasPrevious() { return !mPreviousScreenIndexes.isEmpty(); }
 
-        enum DisplayRole
-        {
-            None = 0, Control, Display, Previous1, Previous2, Previous3, Previous4, Previous5
-        };
+    enum DisplayRole { None = 0, Control, Display, Previous1, Previous2, Previous3, Previous4, Previous5 };
 
-        bool useMultiScreen() { return mUseMultiScreen; }
+    bool useMultiScreen() { return mUseMultiScreen; }
 
-        void setUseMultiScreen(bool pUse);
+    void setUseMultiScreen(bool pUse);
 
-        int controleScreenIndex()
-        {
-            return mControlScreenIndex;
-        }
+    int controleScreenIndex() { return mControlScreenIndex; }
 
-        int displayScreenIndex() const
-        {
-            return mDisplayScreenIndex;
-        }
+    int displayScreenIndex() const { return mDisplayScreenIndex; }
 
-        QRect controlGeometry();
-        QRect displayGeometry();
+    QRect controlGeometry();
+    QRect displayGeometry();
 
-   signals:
-        void screenLayoutChanged();
-        void adjustDisplayViewsRequired();
+signals:
+    void screenLayoutChanged();
+    void adjustDisplayViewsRequired();
 
-   public slots:
-        void reinitScreens(bool bswap);
+public slots:
+    void reinitScreens(bool bswap);
 
-        void adjustScreens(int screen);
+    void adjustScreens(int screen);
 
-        void blackout();
+    void blackout();
 
-        void unBlackout();
+    void unBlackout();
 
-        void setRoleToScreen(DisplayRole role, int screenIndex);
+    void setRoleToScreen(DisplayRole role, int screenIndex);
 
-        void swapDisplayScreens(bool swap);
+    void swapDisplayScreens(bool swap);
 
-    private:
-        void positionScreens();
+private:
+    void positionScreens();
 
-        void initScreenIndexes();
+    void initScreenIndexes();
 
-        int mControlScreenIndex;
+    int mControlScreenIndex;
 
-        int mDisplayScreenIndex;
+    int mDisplayScreenIndex;
 
-        QList<int> mPreviousScreenIndexes;
+    QList<int> mPreviousScreenIndexes;
 
-        VirtualDesktop* mDesktop;
+    VirtualDesktop *mDesktop;
 
-        QWidget* mControlWidget;
+    QWidget *mControlWidget;
 
-        QWidget* mDisplayWidget;
+    QWidget *mDisplayWidget;
 
-        QWidget *mDesktopWidget;
+    QWidget *mDesktopWidget;
 
-        QList<BoardView*> mPreviousDisplayWidgets;
+    QList<BoardView *> mPreviousDisplayWidgets;
 
-        QList<BlackoutWidget*> mBlackoutWidgets;
+    QList<BlackoutWidget *> mBlackoutWidgets;
 
-        QList<DisplayRole> mScreenIndexesRoles;
+    QList<DisplayRole> mScreenIndexesRoles;
 
-        bool mUseMultiScreen;
-
+    bool mUseMultiScreen;
 };
-

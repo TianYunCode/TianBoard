@@ -3,8 +3,7 @@
 #include <QtWidgets>
 #include <QMenu>
 
-class ModelMenu : public QMenu
-{
+class ModelMenu : public QMenu {
     Q_OBJECT
 
 public:
@@ -36,8 +35,8 @@ protected:
     void createMenu(const QModelIndex &parent, int max, QMenu *parentMenu = 0, QMenu *menu = 0);
 
 signals:
-	void activated(const QModelIndex &index);
-	void hovered(const QString &text);
+    void activated(const QModelIndex &index);
+    void hovered(const QString &text);
 
 private slots:
     void aboutToShow();
@@ -54,5 +53,3 @@ private:
     QAbstractItemModel *m_model;
     QPersistentModelIndex m_root;
 };
-
-

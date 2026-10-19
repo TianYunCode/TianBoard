@@ -4,12 +4,11 @@
 #include "ui/ActionPalette.h"
 
 
-struct ActionPalette::Private
-{
-    QList<ActionPaletteButton*> mButtons;
-    QButtonGroup* mButtonGroup{nullptr};
-    QList<QAction*> mActions;
-    QMap<QAction*, ActionPaletteButton*> mMapActionToButton;
+struct ActionPalette::Private {
+    QList<ActionPaletteButton *> mButtons;
+    QButtonGroup *mButtonGroup{nullptr};
+    QList<QAction *> mActions;
+    QMap<QAction *, ActionPaletteButton *> mMapActionToButton;
     bool mIsClosable{false};
     Qt::ToolButtonStyle mToolButtonStyle{Qt::ToolButtonIconOnly};
     bool mAutoClose{false};
@@ -18,41 +17,31 @@ struct ActionPalette::Private
     bool m_customCloseProcessing{false};
 };
 
-ActionPalette::ActionPalette(QList<QAction*> actions, Qt::Orientation orientation, QWidget * parent)
-    : FloatingPalette(Qt::TopRightCorner, parent)
-    , d(new Private)
-{
+ActionPalette::ActionPalette(QList<QAction *> actions, Qt::Orientation orientation, QWidget *parent)
+    : FloatingPalette(Qt::TopRightCorner, parent), d(new Private) {
     init(orientation);
     setActions(actions);
 }
 
 
-ActionPalette::ActionPalette(Qt::Orientation orientation, QWidget * parent)
-     : FloatingPalette(Qt::TopRightCorner, parent)
-     , d(new Private)
-{
+ActionPalette::ActionPalette(Qt::Orientation orientation, QWidget *parent)
+    : FloatingPalette(Qt::TopRightCorner, parent), d(new Private) {
     init(orientation);
 }
 
 
-ActionPalette::ActionPalette(QWidget * parent)
-     : FloatingPalette(Qt::TopRightCorner, parent)
-     , d(new Private)
-{
+ActionPalette::ActionPalette(QWidget *parent) : FloatingPalette(Qt::TopRightCorner, parent), d(new Private) {
     init(Qt::Vertical);
 }
 
 
-ActionPalette::ActionPalette(Qt::Corner corner, QWidget * parent, Qt::Orientation orient)
-     : FloatingPalette(corner, parent)
-     , d(new Private)
-{
+ActionPalette::ActionPalette(Qt::Corner corner, QWidget *parent, Qt::Orientation orient)
+    : FloatingPalette(corner, parent), d(new Private) {
     init(orient);
 }
 
 
-void ActionPalette::init(Qt::Orientation orientation)
-{
+void ActionPalette::init(Qt::Orientation orientation) {
     initButtonState();
 
     if (orientation == Qt::Horizontal)
@@ -63,8 +52,7 @@ void ActionPalette::init(Qt::Orientation orientation)
     updateLayout();
 }
 
-void ActionPalette::initButtonState()
-{
+void ActionPalette::initButtonState() {
     d->m_customCloseProcessing = false;
 
     d->mButtonSize = QSize(32, 32);
@@ -75,62 +63,50 @@ void ActionPalette::initButtonState()
     d->mButtons.clear();
 }
 
-void ActionPalette::setAutoClose(bool autoClose)
-{
+void ActionPalette::setAutoClose(bool autoClose) {
     d->mAutoClose = autoClose;
 }
 
-void ActionPalette::setCustomCloseProcessing(bool customCloseProcessing)
-{
+void ActionPalette::setCustomCloseProcessing(bool customCloseProcessing) {
     d->m_customCloseProcessing = customCloseProcessing;
 }
 
-const QList<ActionPaletteButton*>& ActionPalette::buttons() const
-{
+const QList<ActionPaletteButton *> &ActionPalette::buttons() const {
     return d->mButtons;
 }
 
-void ActionPalette::clearButtons()
-{
+void ActionPalette::clearButtons() {
     d->mButtons.clear();
 }
 
-QButtonGroup* ActionPalette::buttonGroup() const
-{
+QButtonGroup *ActionPalette::buttonGroup() const {
     return d->mButtonGroup;
 }
 
-void ActionPalette::setButtonGroup(QButtonGroup* group)
-{
+void ActionPalette::setButtonGroup(QButtonGroup *group) {
     d->mButtonGroup = group;
 }
 
-Qt::ToolButtonStyle ActionPalette::toolButtonStyle() const
-{
+Qt::ToolButtonStyle ActionPalette::toolButtonStyle() const {
     return d->mToolButtonStyle;
 }
 
-void ActionPalette::appendAction(QAction* action)
-{
+void ActionPalette::appendAction(QAction *action) {
     d->mActions << action;
 }
 
-void ActionPalette::clearActions()
-{
+void ActionPalette::clearActions() {
     d->mActions.clear();
 }
 
-void ActionPalette::clearButtonMap()
-{
+void ActionPalette::clearButtonMap() {
     d->mMapActionToButton.clear();
 }
 
-void ActionPalette::setActions(QList<QAction*> actions)
-{
+void ActionPalette::setActions(QList<QAction *> actions) {
     clearButtonMap();
 
-    foreach(QAction* action, actions)
-    {
+    foreach (QAction *action, actions) {
         addAction(action);
     }
 
@@ -138,9 +114,8 @@ void ActionPalette::setActions(QList<QAction*> actions)
 }
 
 
-ActionPaletteButton* ActionPalette::createPaletteButton(QAction* action, QWidget *parent)
-{
-    ActionPaletteButton* button = new ActionPaletteButton(action, parent);
+ActionPaletteButton *ActionPalette::createPaletteButton(QAction *action, QWidget *parent) {
+    ActionPaletteButton *button = new ActionPaletteButton(action, parent);
     button->setIconSize(d->mButtonSize);
     button->setToolButtonStyle(d->mToolButtonStyle);
 
@@ -151,59 +126,49 @@ ActionPaletteButton* ActionPalette::createPaletteButton(QAction* action, QWidget
 
     d->mMapActionToButton[action] = button;
 
-    connect(button, &ActionPaletteButton::clicked,
-            this, &ActionPalette::buttonClicked);
-    connect(action, &QAction::changed,
-            this, &ActionPalette::actionChanged);
+    connect(button, &ActionPaletteButton::clicked, this, &ActionPalette::buttonClicked);
+    connect(action, &QAction::changed, this, &ActionPalette::actionChanged);
 
     return button;
 }
 
-void ActionPalette::addAction(QAction* action)
-{
-    ActionPaletteButton* button = createPaletteButton(action, this);
+void ActionPalette::addAction(QAction *action) {
+    ActionPaletteButton *button = createPaletteButton(action, this);
 
     layout()->addWidget(button);
 
     appendAction(action);
 }
 
-void ActionPalette::buttonClicked()
-{
-    if (d->mAutoClose)
-    {
+void ActionPalette::buttonClicked() {
+    if (d->mAutoClose) {
         close();
     }
 }
 
-QList<QAction*> ActionPalette::actions()
-{
+QList<QAction *> ActionPalette::actions() {
     return d->mActions;
 }
 
 
-ActionPalette::~ActionPalette()
-{
+ActionPalette::~ActionPalette() {
     qDeleteAll(d->mButtons.begin(), d->mButtons.end());
     d->mButtons.clear();
 }
 
 
-void ActionPalette::setButtonIconSize(const QSize& size)
-{
-    foreach(QToolButton* button, d->mButtons)
+void ActionPalette::setButtonIconSize(const QSize &size) {
+    foreach (QToolButton *button, d->mButtons)
         button->setIconSize(size);
 
     d->mButtonSize = size;
 }
 
 
-void ActionPalette::groupActions()
-{
+void ActionPalette::groupActions() {
     setButtonGroup(new QButtonGroup(this));
     int i = 0;
-    foreach(QToolButton* button, d->mButtons)
-    {
+    foreach (QToolButton *button, d->mButtons) {
         d->mButtonGroup->addButton(button, i);
         ++i;
     }
@@ -212,44 +177,36 @@ void ActionPalette::groupActions()
 }
 
 
-void ActionPalette::setToolButtonStyle(Qt::ToolButtonStyle tbs)
-{
-    foreach(QToolButton* button, d->mButtons)
+void ActionPalette::setToolButtonStyle(Qt::ToolButtonStyle tbs) {
+    foreach (QToolButton *button, d->mButtons)
         button->setToolButtonStyle(tbs);
 
     d->mToolButtonStyle = tbs;
 
     updateLayout();
-
 }
 
-void ActionPalette::updateLayout()
-{
-    if (d->mToolButtonStyle == Qt::ToolButtonIconOnly)
-    {
-        layout()->setContentsMargins (sLayoutContentMargin / 2  + border(), sLayoutContentMargin / 2  + border()
-                , sLayoutContentMargin / 2  + border(), sLayoutContentMargin / 2  + border());
+void ActionPalette::updateLayout() {
+    if (d->mToolButtonStyle == Qt::ToolButtonIconOnly) {
+        layout()->setContentsMargins(sLayoutContentMargin / 2 + border(), sLayoutContentMargin / 2 + border(),
+                                     sLayoutContentMargin / 2 + border(),
+                                     sLayoutContentMargin / 2 + border());
+    } else {
+        layout()->setContentsMargins(sLayoutContentMargin + border(), sLayoutContentMargin + border(),
+                                     sLayoutContentMargin + border(), sLayoutContentMargin + border());
     }
-    else
-    {
-        layout()->setContentsMargins (sLayoutContentMargin  + border(), sLayoutContentMargin  + border()
-                , sLayoutContentMargin  + border(), sLayoutContentMargin + border());
-
-    }
-   update();
+    update();
 }
 
 
-void ActionPalette::setClosable(bool pClosable)
-{
+void ActionPalette::setClosable(bool pClosable) {
     d->mIsClosable = pClosable;
 
     updateLayout();
 }
 
 
-int ActionPalette::border()
-{
+int ActionPalette::border() {
     if (d->mIsClosable)
         return 10;
     else
@@ -257,32 +214,27 @@ int ActionPalette::border()
 }
 
 
-void ActionPalette::paintEvent(QPaintEvent *event)
-{
+void ActionPalette::paintEvent(QPaintEvent *event) {
     FloatingPalette::paintEvent(event);
 
-    if (d->mIsClosable)
-    {
+    if (d->mIsClosable) {
         QPainter painter(this);
         painter.drawPixmap(0, 0, QPixmap(":/images/close.svg"));
     }
 }
 
 
-void ActionPalette::close()
-{
-    if(!d->m_customCloseProcessing)
+void ActionPalette::close() {
+    if (!d->m_customCloseProcessing)
         hide();
 
     emit closed();
 }
 
 
-void ActionPalette::mouseReleaseEvent(QMouseEvent * event)
-{
-    if (d->mIsClosable && event->pos().x() >= 0 && event->pos().x() < QPixmap(":/images/close.svg").width()
-        && event->pos().y() >= 0 && event->pos().y() < QPixmap(":/images/close.svg").height())
-    {
+void ActionPalette::mouseReleaseEvent(QMouseEvent *event) {
+    if (d->mIsClosable && event->pos().x() >= 0 && event->pos().x() < QPixmap(":/images/close.svg").width() &&
+        event->pos().y() >= 0 && event->pos().y() < QPixmap(":/images/close.svg").height()) {
         event->accept();
         close();
     }
@@ -291,23 +243,18 @@ void ActionPalette::mouseReleaseEvent(QMouseEvent * event)
 }
 
 
-void ActionPalette::actionChanged()
-{
-    for(int i = 0; i < d->mActions.length() && i < d->mButtons.length(); i++)
-    {
+void ActionPalette::actionChanged() {
+    for (int i = 0; i < d->mActions.length() && i < d->mButtons.length(); i++) {
         d->mButtons.at(i)->setVisible(d->mActions.at(i)->isVisible());
     }
 }
 
-void ActionPalette::clearLayout()
-{
-    QLayout* pLayout = layout();
-    if(NULL != pLayout)
-    {
-        while(!pLayout->isEmpty())
-        {
-            QLayoutItem* pItem = pLayout->itemAt(0);
-            QWidget* pW = pItem->widget();
+void ActionPalette::clearLayout() {
+    QLayout *pLayout = layout();
+    if (NULL != pLayout) {
+        while (!pLayout->isEmpty()) {
+            QLayoutItem *pItem = pLayout->itemAt(0);
+            QWidget *pW = pItem->widget();
             pLayout->removeItem(pItem);
             delete pItem;
             pLayout->removeWidget(pW);
@@ -319,12 +266,11 @@ void ActionPalette::clearLayout()
     }
 }
 
-ActionPaletteButton::ActionPaletteButton(QAction* action, QWidget * parent)
-    : QToolButton(parent)
-{
+ActionPaletteButton::ActionPaletteButton(QAction *action, QWidget *parent) : QToolButton(parent) {
     setIconSize(QSize(32, 32));
     setDefaultAction(action);
-    setStyleSheet(QString("QToolButton {color: white; font-weight: bold; font-family: Arial; background-color: transparent; border: none}"));
+    setStyleSheet(QString("QToolButton {color: white; font-weight: bold; font-family: Arial; "
+                          "background-color: transparent; border: none}"));
 
     setFocusPolicy(Qt::NoFocus);
 
@@ -332,21 +278,16 @@ ActionPaletteButton::ActionPaletteButton(QAction* action, QWidget * parent)
 }
 
 
-ActionPaletteButton::~ActionPaletteButton()
-{
-
-}
+ActionPaletteButton::~ActionPaletteButton() {}
 
 
-void ActionPaletteButton::mouseDoubleClickEvent(QMouseEvent *event)
-{
+void ActionPaletteButton::mouseDoubleClickEvent(QMouseEvent *event) {
     Q_UNUSED(event);
 
     emit doubleClicked();
 }
 
-QSize ActionPalette::buttonSize()
-{
+QSize ActionPalette::buttonSize() {
     return d->mButtonSize;
 }
 
@@ -354,17 +295,15 @@ QSize ActionPalette::buttonSize()
  * \brief Returns the button related to the given action
  * @param action as the given action
  */
-ActionPaletteButton* ActionPalette::getButtonFromAction(QAction *action)
-{
-    ActionPaletteButton* pButton = NULL;
+ActionPaletteButton *ActionPalette::getButtonFromAction(QAction *action) {
+    ActionPaletteButton *pButton = NULL;
 
     pButton = d->mMapActionToButton.value(action);
 
     return pButton;
 }
 
-bool ActionPaletteButton::hitButton(const QPoint &pos) const
-{
+bool ActionPaletteButton::hitButton(const QPoint &pos) const {
     Q_UNUSED(pos);
     return true;
 }

@@ -6,75 +6,69 @@
 #include "ui/StylusPalette.h"
 
 class AbstractDrawRuler;
-class DrawingController : public QObject
-{
+class DrawingController : public QObject {
     Q_OBJECT
 
-    private:
-        DrawingController(QObject * parent = 0);
-        virtual ~DrawingController();
+private:
+    DrawingController(QObject *parent = 0);
+    virtual ~DrawingController();
 
-    public:
-        static DrawingController* drawingController();
-        static void destroy();
+public:
+    static DrawingController *drawingController();
+    static void destroy();
 
-        int stylusTool();
-        int latestDrawingTool();
+    int stylusTool();
+    int latestDrawingTool();
 
-        bool isDrawingTool();
+    bool isDrawingTool();
 
-        int currentToolWidthIndex();
-        qreal currentToolWidth();
-        int currentToolColorIndex();
-        QColor currentToolColor();
-        QColor toolColor(bool onDarkBackground);
+    int currentToolWidthIndex();
+    qreal currentToolWidth();
+    int currentToolColorIndex();
+    QColor currentToolColor();
+    QColor toolColor(bool onDarkBackground);
 
-        void setPenColor(bool onDarkBackground, const QColor& color, int pIndex);
-        void setMarkerColor(bool onDarkBackground, const QColor& color, int pIndex);
-        void setMarkerAlpha(qreal alpha);
+    void setPenColor(bool onDarkBackground, const QColor &color, int pIndex);
+    void setMarkerColor(bool onDarkBackground, const QColor &color, int pIndex);
+    void setMarkerAlpha(qreal alpha);
 
-        AbstractDrawRuler* mActiveRuler;
+    AbstractDrawRuler *mActiveRuler;
 
-        void setInDestopMode(bool mode){
-            mIsDesktopMode = mode;
-        }
+    void setInDestopMode(bool mode) { mIsDesktopMode = mode; }
 
-        bool isInDesktopMode(){
-            return mIsDesktopMode;
-        }
-		
-    public slots:
-        void setStylusTool(int tool);
-        void setLineWidthIndex(int index);
-        void setColorIndex(int index);
-        void setEraserWidthIndex(int index);
+    bool isInDesktopMode() { return mIsDesktopMode; }
 
-    signals:
-        void stylusToolChanged(int tool);
-        void colorPaletteChanged();
+public slots:
+    void setStylusTool(int tool);
+    void setLineWidthIndex(int index);
+    void setColorIndex(int index);
+    void setEraserWidthIndex(int index);
 
-        void lineWidthIndexChanged(int index);
-        void colorIndexChanged(int index);
+signals:
+    void stylusToolChanged(int tool);
+    void colorPaletteChanged();
 
-    private:
-        StylusTool::Enum mStylusTool;
-        StylusTool::Enum mLatestDrawingTool;
-        bool mIsDesktopMode;
+    void lineWidthIndexChanged(int index);
+    void colorIndexChanged(int index);
 
-        static DrawingController* sDrawingController;
+private:
+    StylusTool::Enum mStylusTool;
+    StylusTool::Enum mLatestDrawingTool;
+    bool mIsDesktopMode;
 
-    private slots:
-        void penToolSelected(bool checked);
-        void eraserToolSelected(bool checked);
-        void markerToolSelected(bool checked);
-        void selectorToolSelected(bool checked);
-        void playToolSelected(bool checked);
-        void handToolSelected(bool checked);
-        void zoomInToolSelected(bool checked);
-        void zoomOutToolSelected(bool checked);
-        void pointerToolSelected(bool checked);
-        void lineToolSelected(bool checked);
-        void textToolSelected(bool checked);
-        void captureToolSelected(bool checked);
+    static DrawingController *sDrawingController;
+
+private slots:
+    void penToolSelected(bool checked);
+    void eraserToolSelected(bool checked);
+    void markerToolSelected(bool checked);
+    void selectorToolSelected(bool checked);
+    void playToolSelected(bool checked);
+    void handToolSelected(bool checked);
+    void zoomInToolSelected(bool checked);
+    void zoomOutToolSelected(bool checked);
+    void pointerToolSelected(bool checked);
+    void lineToolSelected(bool checked);
+    void textToolSelected(bool checked);
+    void captureToolSelected(bool checked);
 };
-

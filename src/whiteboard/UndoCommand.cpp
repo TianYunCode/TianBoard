@@ -1,13 +1,10 @@
 #include "whiteboard/UndoCommand.h"
 
 
-UndoCommand::UndoCommand(QUndoCommand* parent):QUndoCommand(parent)
-{
+UndoCommand::UndoCommand(QUndoCommand *parent) : QUndoCommand(parent) {
     // NOOP
 }
 
-UndoCommand::~UndoCommand()
-{
+UndoCommand::~UndoCommand() {
     // NOOP
 }
-

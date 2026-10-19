@@ -15,35 +15,32 @@
 
 class QGraphicsVideoItem;
 
-class GraphicsMediaItem : public QObject, public Item, public GraphicsItem, public QGraphicsRectItem, public ResizableGraphicsItem
-{
+class GraphicsMediaItem : public QObject,
+                          public Item,
+                          public GraphicsItem,
+                          public QGraphicsRectItem,
+                          public ResizableGraphicsItem {
     Q_OBJECT
 
 public:
-    typedef enum{
-        mediaType_Video,
-        mediaType_Audio
-    } mediaType;
+    typedef enum { mediaType_Video, mediaType_Audio } mediaType;
 
     enum { Type = GraphicsItemType::MediaItemType };
 
-    virtual int type() const
-    {
-        return Type;
-    }
+    virtual int type() const { return Type; }
 
-    static GraphicsMediaItem* createMediaItem(const QUrl& pMediaFileUrl, QGraphicsItem* parent = 0);
+    static GraphicsMediaItem *createMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
 
-    GraphicsMediaItem(const QUrl& pMediaFileUrl, QGraphicsItem* parent = 0);
+    GraphicsMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
     ~GraphicsMediaItem();
 
     virtual mediaType getMediaType() const = 0;
 
-    virtual GraphicsScene* scene();
-    bool hasLinkedImage() const             { return haveLinkedImage; }
-    virtual QUrl mediaFileUrl() const       { return mMediaFileUrl; }
-    bool isMuted() const                    { return mMuted; }
-    qint64 initialPos() const               { return mInitialPos; }
+    virtual GraphicsScene *scene();
+    bool hasLinkedImage() const { return haveLinkedImage; }
+    virtual QUrl mediaFileUrl() const { return mMediaFileUrl; }
+    bool isMuted() const { return mMuted; }
+    qint64 initialPos() const { return mInitialPos; }
 
     bool isMediaSeekable() const;
     qint64 mediaDuration() const;
@@ -56,7 +53,7 @@ public:
 
     QRectF boundingRect() const;
 
-    QSizeF size() const { return rect().size(); } 
+    QSizeF size() const { return rect().size(); }
 
     // Setters
     virtual void setMediaFileUrl(QUrl url);
@@ -64,7 +61,7 @@ public:
     void setMediaPos(qint64 p);
     virtual void setSourceUrl(const QUrl &pSourceUrl);
     void setSelected(bool selected);
-    void setMinimumSize(const QSize& size);
+    void setMinimumSize(const QSize &size);
     void setUuid(const QUuid &pUuid);
 
     virtual void copyItemParameters(Item *copy) const;
@@ -122,41 +119,33 @@ protected:
     QString mErrorString;
 };
 
-class GraphicsAudioItem: public GraphicsMediaItem
-{
+class GraphicsAudioItem : public GraphicsMediaItem {
     Q_OBJECT
 
 public:
-    enum { Type = GraphicsItemType::AudioItemType};
-    virtual int type() const
-    {
-        return Type;
-    }
+    enum { Type = GraphicsItemType::AudioItemType };
+    virtual int type() const { return Type; }
 
-    GraphicsAudioItem(const QUrl& pMediaFileUrl, QGraphicsItem *parent = 0);
+    GraphicsAudioItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
     mediaType getMediaType() const { return mediaType_Audio; }
 
-    virtual Item* deepCopy() const;
+    virtual Item *deepCopy() const;
 };
 
-class GraphicsVideoItem: public GraphicsMediaItem
-{
+class GraphicsVideoItem : public GraphicsMediaItem {
     Q_OBJECT
 
 public:
-    enum { Type = GraphicsItemType::VideoItemType};
-    virtual int type() const
-    {
-        return Type;
-    }
+    enum { Type = GraphicsItemType::VideoItemType };
+    virtual int type() const { return Type; }
 
-    GraphicsVideoItem(const QUrl& pMediaFileUrl, QGraphicsItem *parent = 0);
+    GraphicsVideoItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
 
     mediaType getMediaType() const { return mediaType_Video; }
 
     void setSize(int width, int height);
 
-    virtual Item* deepCopy() const;
+    virtual Item *deepCopy() const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
@@ -181,4 +170,3 @@ protected:
 
     bool mHasVideoOutput;
 };
-

@@ -6,12 +6,11 @@
 #include <QToolButton>
 #include <QActionGroup>
 
-class ToolbarButtonGroup : public QWidget
-{
+class ToolbarButtonGroup : public QWidget {
     Q_OBJECT
 
 public:
-    ToolbarButtonGroup(QToolBar *toolbar, const QList<QAction*> &actions = QList<QAction*>());
+    ToolbarButtonGroup(QToolBar *toolbar, const QList<QAction *> &actions = QList<QAction *>());
     virtual ~ToolbarButtonGroup();
 
     void setIcon(const QIcon &icon, int index);
@@ -34,12 +33,11 @@ signals:
     void currentIndexChanged(int index);
 
 private:
-	QToolButton         *mToolButton;
-	QString              mLabel;
-	QList<QAction*>      mActions;
-	QList<QToolButton*>  mButtons;
-	int                  mCurrentIndex;
-	bool                 mDisplayLabel;
-	QActionGroup*        mActionGroup;
+    QToolButton *mToolButton;
+    QString mLabel;
+    QList<QAction *> mActions;
+    QList<QToolButton *> mButtons;
+    int mCurrentIndex;
+    bool mDisplayLabel;
+    QActionGroup *mActionGroup;
 };
-

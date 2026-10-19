@@ -16,29 +16,23 @@ THIRD_PARTY_WARNINGS_DISABLE
 THIRD_PARTY_WARNINGS_ENABLE
 
 
-ExportDocument::ExportDocument(QObject *parent)
-    : ExportAdaptor(parent)
-{
-        ExportDocument::tr("Page"); // dummy slot for translation
+ExportDocument::ExportDocument(QObject *parent) : ExportAdaptor(parent) {
+    ExportDocument::tr("Page"); // dummy slot for translation
 }
 
-ExportDocument::~ExportDocument()
-{
+ExportDocument::~ExportDocument() {
     // NOOP
 }
 
-void ExportDocument::persist(DocumentProxy* pDocumentProxy)
-{
+void ExportDocument::persist(DocumentProxy *pDocumentProxy) {
     persistLocally(pDocumentProxy, tr("Export as TianBoard Document"));
 }
 
 
-bool ExportDocument::persistsDocument(DocumentProxy* pDocumentProxy, const QString &filename)
-{
+bool ExportDocument::persistsDocument(DocumentProxy *pDocumentProxy, const QString &filename) {
     QuaZip zip(filename);
     zip.setFileNameCodec("UTF-8");
-    if(!zip.open(QuaZip::mdCreate))
-    {
+    if (!zip.open(QuaZip::mdCreate)) {
         qWarning("Export failed. Cause: zip.open(): %d", zip.getZipError());
         return false;
     }
@@ -50,20 +44,17 @@ bool ExportDocument::persistsDocument(DocumentProxy* pDocumentProxy, const QStri
 
     zip.close();
 
-    if(zip.getZipError() != 0)
-    {
+    if (zip.getZipError() != 0) {
         qWarning("Export failed. Cause: zip.close(): %d", zip.getZipError());
         return false;
     }
-
 
 
     return true;
 }
 
 
-void ExportDocument::processing(const QString& pObjectName, int pCurrent, int pTotal)
-{
+void ExportDocument::processing(const QString &pObjectName, int pCurrent, int pTotal) {
     QString localized = ExportDocument::tr(pObjectName.toUtf8());
 
     if (mIsVerbose)
@@ -71,20 +62,16 @@ void ExportDocument::processing(const QString& pObjectName, int pCurrent, int pT
 }
 
 
-
-QString ExportDocument::exportExtention()
-{
+QString ExportDocument::exportExtention() {
     return QString(".tbz");
 }
 
-QString ExportDocument::exportName()
-{
+QString ExportDocument::exportName() {
     return tr("Export to TianBoard Format");
 }
 
-bool ExportDocument::associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
-{
-    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel*>(selectedIndex.model());
+bool ExportDocument::associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel *>(selectedIndex.model());
     if (!selectedIndex.isValid() || docModel->isCatalog(selectedIndex)) {
         return false;
     }

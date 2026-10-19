@@ -6,8 +6,7 @@
 
 class QMainWindow;
 
-struct MainWindowUi
-{
+struct MainWindowUi {
     QAction *actionStylus;
     QAction *actionBackgrounds;
     QAction *actionUndo;
@@ -109,4 +108,3 @@ struct MainWindowUi
     void setupUi(QMainWindow *mw);
     void retranslateUi(QMainWindow *mw);
 };
-

@@ -19,30 +19,27 @@
 #include "core/PersistenceManager.h"
 #include "ui/ThumbnailView.h"
 
-struct BoardThumbnailsView::Private
-{
-    QList<DraggableThumbnailView*> mThumbnails;
+struct BoardThumbnailsView::Private {
+    QList<DraggableThumbnailView *> mThumbnails;
     int mThumbnailWidth{0};
     int mThumbnailMinWidth{0};
     int mMargin{0};
-    DraggableThumbnailView* mDropSource{nullptr};
-    DraggableThumbnailView* mDropTarget{nullptr};
-    QGraphicsRectItem* mDropBar{nullptr};
+    DraggableThumbnailView *mDropSource{nullptr};
+    DraggableThumbnailView *mDropTarget{nullptr};
+    QGraphicsRectItem *mDropBar{nullptr};
     int mLongPressInterval{0};
     QTimer mLongPressTimer;
     QPoint mLastPressedMousePos;
 };
 
 BoardThumbnailsView::BoardThumbnailsView(QWidget *parent, const char *name)
-    : QGraphicsView(parent)
-    , d(new Private)
-{
+    : QGraphicsView(parent), d(new Private) {
     d->mThumbnailMinWidth = 60;
     d->mMargin = 20;
     d->mDropBar = new QGraphicsRectItem(0);
     d->mLongPressInterval = 350;
 
-    setScene(new QGraphicsScene(this));    
+    setScene(new QGraphicsScene(this));
 
     d->mDropBar->setPen(QPen(Qt::darkGray));
     d->mDropBar->setBrush(QBrush(Qt::lightGray));
@@ -53,43 +50,50 @@ BoardThumbnailsView::BoardThumbnailsView(QWidget *parent, const char *name)
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameShadow(QFrame::Plain);
 
-    d->mThumbnailWidth = width() - 2*d->mMargin;
+    d->mThumbnailWidth = width() - 2 * d->mMargin;
 
     d->mLongPressTimer.setInterval(d->mLongPressInterval);
     d->mLongPressTimer.setSingleShot(true);
 
-    connect(Application::boardController, &DocumentContainer::initThumbnailsRequired, this, &BoardThumbnailsView::initThumbnails, Qt::UniqueConnection);
-    connect(Application::boardController, &DocumentContainer::addThumbnailRequired, this, &BoardThumbnailsView::addThumbnail, Qt::UniqueConnection);
-    connect(Application::boardController, &DocumentContainer::moveThumbnailRequired, this, &BoardThumbnailsView::moveThumbnail, Qt::UniqueConnection);
-    connect(this, &BoardThumbnailsView::moveThumbnailRequired, this, &BoardThumbnailsView::moveThumbnail, Qt::UniqueConnection);
-    connect(Application::boardController, &DocumentContainer::updateThumbnailsRequired, this, &BoardThumbnailsView::updateThumbnails, Qt::UniqueConnection);
-    connect(Application::boardController, &DocumentContainer::removeThumbnailRequired, this, &BoardThumbnailsView::removeThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::initThumbnailsRequired, this,
+            &BoardThumbnailsView::initThumbnails, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::addThumbnailRequired, this,
+            &BoardThumbnailsView::addThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::moveThumbnailRequired, this,
+            &BoardThumbnailsView::moveThumbnail, Qt::UniqueConnection);
+    connect(this, &BoardThumbnailsView::moveThumbnailRequired, this, &BoardThumbnailsView::moveThumbnail,
+            Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::updateThumbnailsRequired, this,
+            &BoardThumbnailsView::updateThumbnails, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::removeThumbnailRequired, this,
+            &BoardThumbnailsView::removeThumbnail, Qt::UniqueConnection);
 
-    connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardThumbnailsView::longPressTimeout, Qt::UniqueConnection);
+    connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardThumbnailsView::longPressTimeout,
+            Qt::UniqueConnection);
 
-    connect(this, &BoardThumbnailsView::mousePressAndHoldEventRequired, this, &BoardThumbnailsView::mousePressAndHoldEvent, Qt::UniqueConnection);
+    connect(this, &BoardThumbnailsView::mousePressAndHoldEventRequired, this,
+            &BoardThumbnailsView::mousePressAndHoldEvent, Qt::UniqueConnection);
 
-    connect(Application::boardController, &BoardController::pageSelectionChanged, this, &BoardThumbnailsView::ensureVisibleThumbnail, Qt::UniqueConnection);
-    connect(Application::boardController, &BoardController::centerOnThumbnailRequired, this, &BoardThumbnailsView::centerOnThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &BoardController::pageSelectionChanged, this,
+            &BoardThumbnailsView::ensureVisibleThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &BoardController::centerOnThumbnailRequired, this,
+            &BoardThumbnailsView::centerOnThumbnail, Qt::UniqueConnection);
 }
 
 BoardThumbnailsView::~BoardThumbnailsView() = default;
 
-void BoardThumbnailsView::moveThumbnail(int from, int to)
-{
+void BoardThumbnailsView::moveThumbnail(int from, int to) {
     d->mThumbnails.move(from, to);
 
     updateThumbnailsPos();
 }
 
-void BoardThumbnailsView::updateThumbnails()
-{
+void BoardThumbnailsView::updateThumbnails() {
     updateThumbnailsPos();
 }
 
-void BoardThumbnailsView::removeThumbnail(int i)
-{
-    DraggableThumbnailView* item = d->mThumbnails.at(i);
+void BoardThumbnailsView::removeThumbnail(int i) {
+    DraggableThumbnailView *item = d->mThumbnails.at(i);
 
     scene()->removeItem(item->pageNumber());
     scene()->removeItem(item);
@@ -99,19 +103,19 @@ void BoardThumbnailsView::removeThumbnail(int i)
     updateThumbnailsPos();
 }
 
-DraggableThumbnailView* BoardThumbnailsView::createThumbnail(DocumentContainer* source, int i)
-{
-    Application::showMessage(tr("Loading page (%1/%2)").arg(i+1).arg(source->selectedDocument()->pageCount()));
+DraggableThumbnailView *BoardThumbnailsView::createThumbnail(DocumentContainer *source, int i) {
+    Application::showMessage(
+        tr("Loading page (%1/%2)").arg(i + 1).arg(source->selectedDocument()->pageCount()));
 
-    GraphicsScene* pageScene = PersistenceManager::persistenceManager()->loadDocumentScene(source->selectedDocument(), i);
-    ThumbnailView* pageView = new ThumbnailView(pageScene);
+    GraphicsScene *pageScene =
+        PersistenceManager::persistenceManager()->loadDocumentScene(source->selectedDocument(), i);
+    ThumbnailView *pageView = new ThumbnailView(pageScene);
 
     return new DraggableThumbnailView(pageView, source->selectedDocument(), i);
 }
 
-void BoardThumbnailsView::addThumbnail(DocumentContainer* source, int i)
-{
-    DraggableThumbnailView* item = createThumbnail(source, i);
+void BoardThumbnailsView::addThumbnail(DocumentContainer *source, int i) {
+    DraggableThumbnailView *item = createThumbnail(source, i);
     d->mThumbnails.insert(i, item);
 
     scene()->addItem(item);
@@ -120,10 +124,8 @@ void BoardThumbnailsView::addThumbnail(DocumentContainer* source, int i)
     updateThumbnailsPos();
 }
 
-void BoardThumbnailsView::clearThumbnails()
-{
-    for(int i = 0; i < d->mThumbnails.size(); i++)
-    {
+void BoardThumbnailsView::clearThumbnails() {
+    for (int i = 0; i < d->mThumbnails.size(); i++) {
         scene()->removeItem(d->mThumbnails.at(i)->pageNumber());
         scene()->removeItem(d->mThumbnails.at(i));
         d->mThumbnails.at(i)->deleteLater();
@@ -132,12 +134,10 @@ void BoardThumbnailsView::clearThumbnails()
     d->mThumbnails.clear();
 }
 
-void BoardThumbnailsView::initThumbnails(DocumentContainer* source)
-{
+void BoardThumbnailsView::initThumbnails(DocumentContainer *source) {
     clearThumbnails();
 
-    for(int i = 0; i < source->selectedDocument()->pageCount(); i++)
-    {
+    for (int i = 0; i < source->selectedDocument()->pageCount(); i++) {
         d->mThumbnails.append(createThumbnail(source, i));
 
         scene()->addItem(d->mThumbnails.last());
@@ -147,58 +147,54 @@ void BoardThumbnailsView::initThumbnails(DocumentContainer* source)
     updateThumbnailsPos();
 }
 
-void BoardThumbnailsView::centerOnThumbnail(int index)
-{
+void BoardThumbnailsView::centerOnThumbnail(int index) {
     centerOn(d->mThumbnails.at(index));
 }
 
-void BoardThumbnailsView::ensureVisibleThumbnail(int index)
-{
+void BoardThumbnailsView::ensureVisibleThumbnail(int index) {
     ensureVisible(d->mThumbnails.at(index));
 }
 
-void BoardThumbnailsView::updateThumbnailsPos()
-{    
+void BoardThumbnailsView::updateThumbnailsPos() {
     qreal thumbnailHeight = d->mThumbnailWidth / Settings::minScreenRatio;
 
-    for (int i=0; i < d->mThumbnails.length(); i++)
-    {
+    for (int i = 0; i < d->mThumbnails.length(); i++) {
         d->mThumbnails.at(i)->setSceneIndex(i);
         d->mThumbnails.at(i)->setPageNumber(i);
         d->mThumbnails.at(i)->updatePos(d->mThumbnailWidth, thumbnailHeight);
     }
 
-    scene()->setSceneRect(0, 0, scene()->itemsBoundingRect().size().width() - verticalScrollBar()->width(), scene()->itemsBoundingRect().size().height());
+    scene()->setSceneRect(0, 0, scene()->itemsBoundingRect().size().width() - verticalScrollBar()->width(),
+                          scene()->itemsBoundingRect().size().height());
 
     update();
 }
 
-void BoardThumbnailsView::resizeEvent(QResizeEvent *event)
-{
+void BoardThumbnailsView::resizeEvent(QResizeEvent *event) {
     Q_UNUSED(event);
 
     // Update the thumbnails width
-    d->mThumbnailWidth = (width() > d->mThumbnailMinWidth) ? width() - verticalScrollBar()->width() - 2*d->mMargin : d->mThumbnailMinWidth;
+    d->mThumbnailWidth = (width() > d->mThumbnailMinWidth)
+                             ? width() - verticalScrollBar()->width() - 2 * d->mMargin
+                             : d->mThumbnailMinWidth;
 
     // Refresh the scene
     updateThumbnailsPos();
 
-    emit Application::boardController->centerOnThumbnailRequired(Application::boardController->activeSceneIndex());
+    emit Application::boardController->centerOnThumbnailRequired(
+        Application::boardController->activeSceneIndex());
 }
 
-void BoardThumbnailsView::mousePressEvent(QMouseEvent *event)
-{
+void BoardThumbnailsView::mousePressEvent(QMouseEvent *event) {
     QGraphicsView::mousePressEvent(event);
 
-    if (!event->isAccepted())
-    {
+    if (!event->isAccepted()) {
         d->mLongPressTimer.start();
         d->mLastPressedMousePos = event->pos();
 
-        DraggableThumbnailView* item = dynamic_cast<DraggableThumbnailView*>(itemAt(event->pos()));
+        DraggableThumbnailView *item = dynamic_cast<DraggableThumbnailView *>(itemAt(event->pos()));
 
-        if (item)
-        {
+        if (item) {
             Application::boardController->persistViewPositionOnCurrentScene();
             Application::boardController->persistCurrentScene();
             Application::boardController->setActiveDocumentScene(item->sceneIndex());
@@ -207,102 +203,89 @@ void BoardThumbnailsView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void BoardThumbnailsView::mouseMoveEvent(QMouseEvent *event)
-{
+void BoardThumbnailsView::mouseMoveEvent(QMouseEvent *event) {
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void BoardThumbnailsView::longPressTimeout()
-{
+void BoardThumbnailsView::longPressTimeout() {
     if (QApplication::mouseButtons() != Qt::NoButton)
         emit mousePressAndHoldEventRequired(d->mLastPressedMousePos);
 
     d->mLongPressTimer.stop();
 }
 
-void BoardThumbnailsView::mousePressAndHoldEvent(QPoint pos)
-{
-    DraggableThumbnailView* item = dynamic_cast<DraggableThumbnailView*>(itemAt(pos));
-    if (item)
-    {
+void BoardThumbnailsView::mousePressAndHoldEvent(QPoint pos) {
+    DraggableThumbnailView *item = dynamic_cast<DraggableThumbnailView *>(itemAt(pos));
+    if (item) {
         d->mDropSource = item;
         d->mDropTarget = item;
 
-        QPixmap pixmap = item->widget()->grab().scaledToWidth(d->mThumbnailWidth/2);
+        QPixmap pixmap = item->widget()->grab().scaledToWidth(d->mThumbnailWidth / 2);
 
         QDrag *drag = new QDrag(this);
         drag->setMimeData(new QMimeData());
         drag->setPixmap(pixmap);
-        drag->setHotSpot(QPoint(pixmap.width()/2, pixmap.height()/2));
+        drag->setHotSpot(QPoint(pixmap.width() / 2, pixmap.height() / 2));
 
         drag->exec();
-    }   
+    }
 }
 
-void BoardThumbnailsView::mouseReleaseEvent(QMouseEvent *event)
-{
+void BoardThumbnailsView::mouseReleaseEvent(QMouseEvent *event) {
     d->mLongPressTimer.stop();
 
     QGraphicsView::mouseReleaseEvent(event);
 }
 
-void BoardThumbnailsView::dragEnterEvent(QDragEnterEvent *event)
-{
+void BoardThumbnailsView::dragEnterEvent(QDragEnterEvent *event) {
     d->mDropBar->show();
 
-    if (event->source() == this)
-    {
+    if (event->source() == this) {
         event->setDropAction(Qt::MoveAction);
         event->accept();
-    }
-    else
-    {
+    } else {
         event->acceptProposedAction();
     }
 }
 
-void BoardThumbnailsView::dragMoveEvent(QDragMoveEvent *event)
-{        
+void BoardThumbnailsView::dragMoveEvent(QDragMoveEvent *event) {
     QPointF position = event->pos();
 
     //autoscroll during drag'n'drop
     QPointF scenePos = mapToScene(position.toPoint());
     int thumbnailHeight = d->mThumbnailWidth / Settings::minScreenRatio;
-    QRectF thumbnailArea(0, scenePos.y() - thumbnailHeight/2, d->mThumbnailWidth, thumbnailHeight);
+    QRectF thumbnailArea(0, scenePos.y() - thumbnailHeight / 2, d->mThumbnailWidth, thumbnailHeight);
 
     ensureVisible(thumbnailArea);
 
-    DraggableThumbnailView* item = dynamic_cast<DraggableThumbnailView*>(itemAt(position.toPoint()));
-    if (item)
-    {
+    DraggableThumbnailView *item = dynamic_cast<DraggableThumbnailView *>(itemAt(position.toPoint()));
+    if (item) {
         if (item != d->mDropTarget)
             d->mDropTarget = item;
 
         qreal scale = item->transform().m11();
 
-        QPointF itemCenter(item->pos().x() + (item->boundingRect().width()-verticalScrollBar()->width()) * scale,
+        QPointF itemCenter(item->pos().x() +
+                               (item->boundingRect().width() - verticalScrollBar()->width()) * scale,
                            item->pos().y() + item->boundingRect().height() * scale / 2);
 
         bool dropAbove = mapToScene(position.toPoint()).y() < itemCenter.y();
         bool movingUp = d->mDropSource->sceneIndex() > item->sceneIndex();
         qreal y = 0;
 
-        if (movingUp)
-        {
-            if (dropAbove)
-            {
+        if (movingUp) {
+            if (dropAbove) {
                 y = item->pos().y() - Settings::thumbnailSpacing / 2;
                 if (d->mDropBar->y() != y)
-                    d->mDropBar->setRect(QRectF(item->pos().x(), y, d->mThumbnailWidth-verticalScrollBar()->width(), 3));
+                    d->mDropBar->setRect(
+                        QRectF(item->pos().x(), y, d->mThumbnailWidth - verticalScrollBar()->width(), 3));
             }
-        }
-        else
-        {
-            if (!dropAbove)
-            {
+        } else {
+            if (!dropAbove) {
                 y = item->pos().y() + item->boundingRect().height() * scale + Settings::thumbnailSpacing / 2;
                 if (d->mDropBar->y() != y)
-                    d->mDropBar->setRect(QRectF(item->pos().x(), y, d->mThumbnailWidth-verticalScrollBar()->width(), 3));
+                    d->mDropBar->setRect(
+                        QRectF(item->pos().x(), y, d->mThumbnailWidth - verticalScrollBar()->width(), 3));
             }
         }
     }
@@ -310,12 +293,12 @@ void BoardThumbnailsView::dragMoveEvent(QDragMoveEvent *event)
     event->acceptProposedAction();
 }
 
-void BoardThumbnailsView::dropEvent(QDropEvent *event)
-{
+void BoardThumbnailsView::dropEvent(QDropEvent *event) {
     Q_UNUSED(event);
 
     if (d->mDropSource->sceneIndex() != d->mDropTarget->sceneIndex())
-        Application::boardController->moveSceneToIndex(d->mDropSource->sceneIndex(), d->mDropTarget->sceneIndex());
+        Application::boardController->moveSceneToIndex(d->mDropSource->sceneIndex(),
+                                                       d->mDropTarget->sceneIndex());
 
     d->mDropSource = NULL;
     d->mDropTarget = NULL;

@@ -3,41 +3,33 @@
 #include <QtGui>
 
 
-namespace
-{
-    // QPdfDocument::render() paints the whole page, so the cache holds one full
-    // page per renderer. The edge cap bounds the cost of a deeply zoomed page
-    // (2048x2048 ARGB32 is 16 MB) at the price of a softer image beyond it.
-    const int kMaxRenderEdge = 2048;
-}
+namespace {
+// QPdfDocument::render() paints the whole page, so the cache holds one full
+// page per renderer. The edge cap bounds the cost of a deeply zoomed page
+// (2048x2048 ARGB32 is 16 MB) at the price of a softer image beyond it.
+const int kMaxRenderEdge = 2048;
+} // namespace
 
-QPdfRenderer::QPdfRenderer(const QString &filename, bool importingFile)
-    : mCachedPageIndex(-1)
-{
+QPdfRenderer::QPdfRenderer(const QString &filename, bool importingFile) : mCachedPageIndex(-1) {
     Q_UNUSED(importingFile);
 
     mDocument.load(filename);
 }
 
-QPdfRenderer::~QPdfRenderer()
-{
+QPdfRenderer::~QPdfRenderer() {
     // NOOP
 }
 
-bool QPdfRenderer::isValid() const
-{
-    return mDocument.status() == QPdfDocument::Status::Ready
-        && mDocument.error() == QPdfDocument::Error::None
-        && mDocument.pageCount() > 0;
+bool QPdfRenderer::isValid() const {
+    return mDocument.status() == QPdfDocument::Status::Ready &&
+           mDocument.error() == QPdfDocument::Error::None && mDocument.pageCount() > 0;
 }
 
-int QPdfRenderer::pageCount() const
-{
+int QPdfRenderer::pageCount() const {
     return isValid() ? mDocument.pageCount() : 0;
 }
 
-QSizeF QPdfRenderer::pageSizeF(int pageNumber) const
-{
+QSizeF QPdfRenderer::pageSizeF(int pageNumber) const {
     if (!isValid() || pageNumber < 1 || pageNumber > mDocument.pageCount())
         return QSizeF();
 
@@ -45,12 +37,10 @@ QSizeF QPdfRenderer::pageSizeF(int pageNumber) const
     // already takes the page /Rotate into account, so no transposition here.
     const QSizeF pointSize = mDocument.pagePointSize(pageNumber - 1);
 
-    return QSizeF(pointSize.width() * dpiForRendering / 72.0,
-                  pointSize.height() * dpiForRendering / 72.0);
+    return QSizeF(pointSize.width() * dpiForRendering / 72.0, pointSize.height() * dpiForRendering / 72.0);
 }
 
-int QPdfRenderer::pageRotation(int pageNumber) const
-{
+int QPdfRenderer::pageRotation(int pageNumber) const {
     Q_UNUSED(pageNumber);
 
     // Qt6::Pdf applies the page's own rotation inside render() and does not
@@ -59,16 +49,14 @@ int QPdfRenderer::pageRotation(int pageNumber) const
     return 0;
 }
 
-QString QPdfRenderer::title() const
-{
+QString QPdfRenderer::title() const {
     if (!isValid())
         return QString();
 
     return mDocument.metaData(QPdfDocument::MetaDataField::Title).toString();
 }
 
-QImage QPdfRenderer::renderedPage(int pageIndex, const QSize &pixelSize)
-{
+QImage QPdfRenderer::renderedPage(int pageIndex, const QSize &pixelSize) {
     if (pageIndex == mCachedPageIndex && pixelSize == mCachedPixelSize && !mCachedImage.isNull())
         return mCachedImage;
 
@@ -83,8 +71,7 @@ QImage QPdfRenderer::renderedPage(int pageIndex, const QSize &pixelSize)
     return mCachedImage;
 }
 
-void QPdfRenderer::render(QPainter *p, int pageNumber, const QRectF &bounds)
-{
+void QPdfRenderer::render(QPainter *p, int pageNumber, const QRectF &bounds) {
     if (!isValid() || !p)
         return;
 

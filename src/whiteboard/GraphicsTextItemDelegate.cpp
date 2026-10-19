@@ -20,27 +20,29 @@ const int GraphicsTextItemDelegate::sMinPixelSize = 8;
 const int GraphicsTextItemDelegate::sMinPointSize = 8;
 
 
-AlignTextButton::AlignTextButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent, Qt::WindowFrameSection section)
-    : DelegateButton(fileName, pDelegated, parent, section)
-    , lft(new QSvgRenderer(QString(":/images/leftAligned.svg")))
-    , cntr(new QSvgRenderer(QString(":/images/centerAligned.svg")))
-    , rght(new QSvgRenderer(QString(":/images/rightAligned.svg")))
-    , mxd(new QSvgRenderer(QString(":/images/notAligned.svg")))
-    , mHideMixed(true)
-{
+AlignTextButton::AlignTextButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent,
+                                 Qt::WindowFrameSection section)
+    : DelegateButton(fileName, pDelegated, parent, section),
+      lft(new QSvgRenderer(QString(":/images/leftAligned.svg"))),
+      cntr(new QSvgRenderer(QString(":/images/centerAligned.svg"))),
+      rght(new QSvgRenderer(QString(":/images/rightAligned.svg"))),
+      mxd(new QSvgRenderer(QString(":/images/notAligned.svg"))),
+      mHideMixed(true) {
     setKind(k_left);
 }
 
-AlignTextButton::~AlignTextButton()
-{
-    if (lft) delete lft;
-    if (cntr) delete cntr;
-    if (rght) delete rght;
-    if (mxd) delete mxd;
+AlignTextButton::~AlignTextButton() {
+    if (lft)
+        delete lft;
+    if (cntr)
+        delete cntr;
+    if (rght)
+        delete rght;
+    if (mxd)
+        delete mxd;
 }
 
-void AlignTextButton::setKind(int pKind)
-{
+void AlignTextButton::setKind(int pKind) {
     if (mHideMixed && pKind == k_mixed) {
         qDebug() << "Mixed button is hidden, can't process it";
         return;
@@ -51,8 +53,7 @@ void AlignTextButton::setKind(int pKind)
     setSharedRenderer(rndrer);
 }
 
-void AlignTextButton::setNextKind()
-{
+void AlignTextButton::setNextKind() {
     int mxKind = MAX_KIND;
     if (mHideMixed) {
         mxKind--;
@@ -60,8 +61,7 @@ void AlignTextButton::setNextKind()
     setKind(mKind == mxKind ? 0 : ++mKind);
 }
 
-int AlignTextButton::nextKind() const
-{
+int AlignTextButton::nextKind() const {
     int mxKind = MAX_KIND;
     if (mHideMixed) {
         mxKind--;
@@ -70,16 +70,15 @@ int AlignTextButton::nextKind() const
     return mKind == mxKind ? 0 : ++result;
 }
 
-GraphicsTextItemDelegate::GraphicsTextItemDelegate(GraphicsTextItem* pDelegated, QObject *)
-    : GraphicsItemDelegate(pDelegated,0, GF_COMMON | GF_REVOLVABLE | GF_TITLE_BAR_USED)
-    , mFontButton(0)
-    , mColorButton(0)
-    , mDecreaseSizeButton(0)
-    , mIncreaseSizeButton(0)
-    , mAlignButton(0)
-    , mLastFontPixelSize(-1)
-    , delta(5)
-{
+GraphicsTextItemDelegate::GraphicsTextItemDelegate(GraphicsTextItem *pDelegated, QObject *)
+    : GraphicsItemDelegate(pDelegated, 0, GF_COMMON | GF_REVOLVABLE | GF_TITLE_BAR_USED),
+      mFontButton(0),
+      mColorButton(0),
+      mDecreaseSizeButton(0),
+      mIncreaseSizeButton(0),
+      mAlignButton(0),
+      mLastFontPixelSize(-1),
+      delta(5) {
     delegated()->setData(GraphicsItemData::ItemEditable, QVariant(true));
     delegated()->setPlainText("");
 
@@ -89,13 +88,10 @@ GraphicsTextItemDelegate::GraphicsTextItemDelegate(GraphicsTextItem* pDelegated,
 
     font.setPointSize(Settings::settings()->fontPointSize());
     format.setFont(font);
-    if (Settings::settings()->isDarkBackground())
-    {
+    if (Settings::settings()->isDarkBackground()) {
         if (GraphicsTextItem::lastUsedTextColor == Qt::black)
             GraphicsTextItem::lastUsedTextColor = Qt::white;
-    }
-    else
-    {
+    } else {
         if (GraphicsTextItem::lastUsedTextColor == Qt::white)
             GraphicsTextItem::lastUsedTextColor = Qt::black;
     }
@@ -108,17 +104,17 @@ GraphicsTextItemDelegate::GraphicsTextItemDelegate(GraphicsTextItem* pDelegated,
     delegated()->adjustSize();
     delegated()->contentsChanged();
 
-    connect(delegated()->document(), &QTextDocument::cursorPositionChanged, this, &GraphicsTextItemDelegate::onCursorPositionChanged);
-    connect(delegated()->document(), &QTextDocument::modificationChanged, this, &GraphicsTextItemDelegate::onModificationChanged);
+    connect(delegated()->document(), &QTextDocument::cursorPositionChanged, this,
+            &GraphicsTextItemDelegate::onCursorPositionChanged);
+    connect(delegated()->document(), &QTextDocument::modificationChanged, this,
+            &GraphicsTextItemDelegate::onModificationChanged);
 }
 
-GraphicsTextItemDelegate::~GraphicsTextItemDelegate()
-{
+GraphicsTextItemDelegate::~GraphicsTextItemDelegate() {
     // NOOP
 }
 
-QFont GraphicsTextItemDelegate::createDefaultFont()
-{
+QFont GraphicsTextItemDelegate::createDefaultFont() {
     QTextCharFormat textFormat;
 
     QString fFamily = Settings::settings()->fontFamily();
@@ -142,8 +138,7 @@ QFont GraphicsTextItemDelegate::createDefaultFont()
     return font;
 }
 
-void GraphicsTextItemDelegate::createControls()
-{
+void GraphicsTextItemDelegate::createControls() {
     GraphicsItemDelegate::createControls();
 
     if (!mFontButton) {
@@ -175,8 +170,7 @@ void GraphicsTextItemDelegate::createControls()
         mButtons << mAlignButton;
     }
 
-    foreach(DelegateButton* button, mButtons)
-    {
+    foreach (DelegateButton *button, mButtons) {
         button->hide();
         button->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
@@ -184,15 +178,13 @@ void GraphicsTextItemDelegate::createControls()
     // 改 z 值会重建选择框，并把操作模式默认成“缩放”，
     // 文本需要的却是“调整尺寸”，所以在这里补一次调用。
     frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
-
 }
 
 /**
  * @brief Calculate the width of the toolbar containing the text item-related buttons
  * @return The space between the left-most and right-most buttons in pixels
  */
-qreal GraphicsTextItemDelegate::titleBarWidth()
-{
+qreal GraphicsTextItemDelegate::titleBarWidth() {
     if (!mFontButton)
         return 0;
 
@@ -203,18 +195,18 @@ qreal GraphicsTextItemDelegate::titleBarWidth()
     qreal frameLeftCoordinate = mFontButton->pos().x();
     qreal frameRightCoordinate = frameLeftCoordinate;
 
-    foreach(DelegateButton* button, mButtons) {
+    foreach (DelegateButton *button, mButtons) {
         if (button->getSection() == Qt::TitleBarArea) {
             frameLeftCoordinate = qMin(button->pos().x(), frameLeftCoordinate);
-            frameRightCoordinate = qMax(button->pos().x() + button->boundingRect().width(), frameRightCoordinate);
+            frameRightCoordinate =
+                qMax(button->pos().x() + button->boundingRect().width(), frameRightCoordinate);
         }
     }
 
     return frameRightCoordinate - frameLeftCoordinate;
 }
 
-void GraphicsTextItemDelegate::freeButtons()
-{
+void GraphicsTextItemDelegate::freeButtons() {
     mButtons.removeOne(mFontButton);
     delete mFontButton;
     mFontButton = 0;
@@ -239,37 +231,29 @@ void GraphicsTextItemDelegate::freeButtons()
 }
 
 
-
-
-void GraphicsTextItemDelegate::contentsChanged()
-{
+void GraphicsTextItemDelegate::contentsChanged() {
     delegated()->contentsChanged();
 }
 
 // This method is used to filter the available fonts. Only the web-compliant fonts
 // will remain in the font list.
-void GraphicsTextItemDelegate::customize(QFontDialog &fontDialog)
-{
+void GraphicsTextItemDelegate::customize(QFontDialog &fontDialog) {
     if (Settings::settings()->isDarkBackground()) {
         fontDialog.setStyleSheet("background-color: white;");
     }
 
     QListView *fontNameListView = NULL;
-    QList<QListView*> listViews = fontDialog.findChildren<QListView*>();
-    if (listViews.count() > 0)
-    {
+    QList<QListView *> listViews = fontDialog.findChildren<QListView *>();
+    if (listViews.count() > 0) {
         fontNameListView = listViews.at(0);
-        foreach (QListView* listView, listViews)
-        {
+        foreach (QListView *listView, listViews) {
             if (listView->pos().x() < fontNameListView->pos().x())
                 fontNameListView = listView;
         }
     }
-    if (fontNameListView)
-    {
-        QStringListModel *stringListModel = dynamic_cast<QStringListModel*>(fontNameListView->model());
-        if (stringListModel)
-        {
+    if (fontNameListView) {
+        QStringListModel *stringListModel = dynamic_cast<QStringListModel *>(fontNameListView->model());
+        if (stringListModel) {
             QStringList dialogFontNames = stringListModel->stringList();
             QStringList safeWebFontNames;
             safeWebFontNames.append("Arial");
@@ -282,35 +266,33 @@ void GraphicsTextItemDelegate::customize(QFontDialog &fontDialog)
             safeWebFontNames.append("Trebuchet MS");
             safeWebFontNames.append("Verdana");
 
-            QStringList customFontList =  Resources::resources()->customFontList();
+            QStringList customFontList = Resources::resources()->customFontList();
             int index = 0;
-            foreach (QString dialogFontName, dialogFontNames){
-                if (safeWebFontNames.contains(dialogFontName, Qt::CaseInsensitive) || customFontList.contains(dialogFontName, Qt::CaseSensitive))
+            foreach (QString dialogFontName, dialogFontNames) {
+                if (safeWebFontNames.contains(dialogFontName, Qt::CaseInsensitive) ||
+                    customFontList.contains(dialogFontName, Qt::CaseSensitive))
                     index++;
                 else
                     stringListModel->removeRow(index);
             }
         }
     }
-    QList<QComboBox*> comboBoxes = fontDialog.findChildren<QComboBox*>();
+    QList<QComboBox *> comboBoxes = fontDialog.findChildren<QComboBox *>();
     if (comboBoxes.count() > 0)
         comboBoxes.at(0)->setEnabled(false);
 }
 
 
-void GraphicsTextItemDelegate::pickFont()
-{
-    if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0)
-    {
+void GraphicsTextItemDelegate::pickFont() {
+    if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0) {
         // https://bugreports.qt.io/browse/QTBUG-79637
-        QFontDialog fontDialog(static_cast<QGraphicsView*>(Application::boardController->controlView()));
+        QFontDialog fontDialog(static_cast<QGraphicsView *>(Application::boardController->controlView()));
 
         fontDialog.setOption(QFontDialog::DontUseNativeDialog);
         fontDialog.setCurrentFont(delegated()->textCursor().charFormat().font());
         customize(fontDialog);
 
-        if (fontDialog.exec())
-        {
+        if (fontDialog.exec()) {
             QFont selectedFont = fontDialog.selectedFont();
             Settings::settings()->setFontFamily(selectedFont.family());
             Settings::settings()->setBoldFont(selectedFont.bold());
@@ -332,20 +314,17 @@ void GraphicsTextItemDelegate::pickFont()
     }
 }
 
-void GraphicsTextItemDelegate::pickColor()
-{
-    if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0)
-    {
-        QColorDialog colorDialog(delegated()->defaultTextColor(), static_cast<QGraphicsView*>(Application::boardController->controlView()));
+void GraphicsTextItemDelegate::pickColor() {
+    if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0) {
+        QColorDialog colorDialog(delegated()->defaultTextColor(),
+                                 static_cast<QGraphicsView *>(Application::boardController->controlView()));
         colorDialog.setWindowTitle(tr("Text Color"));
         colorDialog.setOption(QColorDialog::DontUseNativeDialog);
-        if (Settings::settings()->isDarkBackground())
-        {
+        if (Settings::settings()->isDarkBackground()) {
             colorDialog.setStyleSheet("background-color: white;");
         }
 
-        if (colorDialog.exec())
-        {
+        if (colorDialog.exec()) {
             QColor selectedColor = colorDialog.selectedColor();
 
             QTextCursor curCursor = delegated()->textCursor();
@@ -355,8 +334,8 @@ void GraphicsTextItemDelegate::pickColor()
             curCursor.mergeCharFormat(format);
             delegated()->setTextCursor(curCursor);
 
-            if (!curCursor.hasSelection() || (curCursor.selectedText().length() == delegated()->toPlainText().length()))
-            {
+            if (!curCursor.hasSelection() ||
+                (curCursor.selectedText().length() == delegated()->toPlainText().length())) {
                 delegated()->setDefaultTextColor(selectedColor);
                 GraphicsTextItem::lastUsedTextColor = selectedColor;
             }
@@ -368,24 +347,21 @@ void GraphicsTextItemDelegate::pickColor()
     }
 }
 
-void GraphicsTextItemDelegate::decreaseSize()
-{
+void GraphicsTextItemDelegate::decreaseSize() {
     ChangeTextSize(-delta, changeSize);
 }
 
-void GraphicsTextItemDelegate::increaseSize()
-{
-   ChangeTextSize(delta, changeSize);
+void GraphicsTextItemDelegate::increaseSize() {
+    ChangeTextSize(delta, changeSize);
 }
 
-void GraphicsTextItemDelegate::alignButtonProcess()
-{
+void GraphicsTextItemDelegate::alignButtonProcess() {
     qDebug() << "alignButtonProcess() clicked";
     QObject *sndr = sender();
 
     if (sndr == mAlignButton) {
         qDebug() << "Align button";
-        AlignTextButton *asAlText = static_cast<AlignTextButton*>(mAlignButton);
+        AlignTextButton *asAlText = static_cast<AlignTextButton *>(mAlignButton);
         if (asAlText->nextKind() == AlignTextButton::k_mixed) {
             restoreTextCursorFormats();
             asAlText->setNextKind();
@@ -396,17 +372,17 @@ void GraphicsTextItemDelegate::alignButtonProcess()
         QTextCursor cur = delegated()->textCursor();
         QTextBlockFormat fmt = cur.blockFormat();
         switch (asAlText->kind()) {
-        case AlignTextButton::k_left:
-            fmt.setAlignment(Qt::AlignLeft);
-            break;
-        case AlignTextButton::k_center:
-            fmt.setAlignment(Qt::AlignCenter);
-            break;
-        case AlignTextButton::k_right:
-            fmt.setAlignment(Qt::AlignRight);
-            break;
-        case AlignTextButton::k_mixed:
-            break;
+            case AlignTextButton::k_left:
+                fmt.setAlignment(Qt::AlignLeft);
+                break;
+            case AlignTextButton::k_center:
+                fmt.setAlignment(Qt::AlignCenter);
+                break;
+            case AlignTextButton::k_right:
+                fmt.setAlignment(Qt::AlignRight);
+                break;
+            case AlignTextButton::k_mixed:
+                break;
         }
 
         delegated()->setTextCursor(cur);
@@ -417,32 +393,27 @@ void GraphicsTextItemDelegate::alignButtonProcess()
     qDebug() << "sender process" << sndr;
 }
 
-void GraphicsTextItemDelegate::onCursorPositionChanged(const QTextCursor &cursor)
-{
+void GraphicsTextItemDelegate::onCursorPositionChanged(const QTextCursor &cursor) {
     qDebug() << "cursor position changed";
     qDebug() << "-----------------------";
     qDebug() << "we have a selection!" << cursor.selectionStart();
     qDebug() << "-----------------------";
 }
 
-void GraphicsTextItemDelegate::onModificationChanged(bool ch)
-{
+void GraphicsTextItemDelegate::onModificationChanged(bool ch) {
     Q_UNUSED(ch);
     qDebug() << "modification changed";
 }
 
-void GraphicsTextItemDelegate::onContentChanged()
-{
+void GraphicsTextItemDelegate::onContentChanged() {
     qDebug() << "onContentChanged";
 }
 
-GraphicsTextItem* GraphicsTextItemDelegate::delegated()
-{
-    return static_cast<GraphicsTextItem*>(mDelegated);
+GraphicsTextItem *GraphicsTextItemDelegate::delegated() {
+    return static_cast<GraphicsTextItem *>(mDelegated);
 }
 
-void GraphicsTextItemDelegate::setEditable(bool editable)
-{
+void GraphicsTextItemDelegate::setEditable(bool editable) {
     if (editable) {
         delegated()->setTextInteractionFlags(Qt::TextEditorInteraction);
         mDelegated->setData(GraphicsItemData::ItemEditable, QVariant(true));
@@ -456,36 +427,33 @@ void GraphicsTextItemDelegate::setEditable(bool editable)
     }
 }
 
-void GraphicsTextItemDelegate::remove(bool canUndo)
-{
+void GraphicsTextItemDelegate::remove(bool canUndo) {
     GraphicsItemDelegate::remove(canUndo);
 }
 
-bool GraphicsTextItemDelegate::isEditable()
-{
+bool GraphicsTextItemDelegate::isEditable() {
     return mDelegated->data(GraphicsItemData::ItemEditable).toBool();
 }
 
-void GraphicsTextItemDelegate::decorateMenu(QMenu *menu)
-{
+void GraphicsTextItemDelegate::decorateMenu(QMenu *menu) {
     GraphicsItemDelegate::decorateMenu(menu);
 
     mEditableAction = menu->addAction(tr("Editable"), this, &GraphicsTextItemDelegate::setEditable);
     mEditableAction->setCheckable(true);
     mEditableAction->setChecked(isEditable());
-
 }
 
-void GraphicsTextItemDelegate::updateMenuActionState()
-{
+void GraphicsTextItemDelegate::updateMenuActionState() {
     GraphicsItemDelegate::updateMenuActionState();
 }
 
-bool GraphicsTextItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsTextItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     mSelectionData.mButtonIsPressed = true;
-    qDebug() << "Reporting selection  of the cursor (mouse press)" << delegated()->textCursor().selection().isEmpty();
-    qDebug() << QString("Anchor: %1\nposition: %2 (mouse press)").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
+    qDebug() << "Reporting selection  of the cursor (mouse press)"
+             << delegated()->textCursor().selection().isEmpty();
+    qDebug() << QString("Anchor: %1\nposition: %2 (mouse press)")
+                    .arg(delegated()->textCursor().anchor())
+                    .arg(delegated()->textCursor().position());
 
     if (!GraphicsItemDelegate::mousePressEvent(event)) {
         return false;
@@ -494,11 +462,13 @@ bool GraphicsTextItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
     return true;
 }
 
-bool GraphicsTextItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsTextItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (mSelectionData.mButtonIsPressed) {
-        qDebug() << "Reporting selection of the cursor (mouse move)" << delegated()->textCursor().selection().isEmpty();
-        qDebug() << QString("Anchor: %1\nposition: %2 (mouse mouse move)").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
+        qDebug() << "Reporting selection of the cursor (mouse move)"
+                 << delegated()->textCursor().selection().isEmpty();
+        qDebug() << QString("Anchor: %1\nposition: %2 (mouse mouse move)")
+                        .arg(delegated()->textCursor().anchor())
+                        .arg(delegated()->textCursor().position());
     }
 
     if (!GraphicsItemDelegate::mouseMoveEvent(event)) {
@@ -508,11 +478,13 @@ bool GraphicsTextItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return true;
 }
 
-bool GraphicsTextItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsTextItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     mSelectionData.mButtonIsPressed = false;
-    qDebug() << "Reporting selection of the cursor (mouse release)" << delegated()->textCursor().selection().isEmpty();
-    qDebug() << QString("Anchor: %1\nposition: %2 (mouse mouse release)").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
+    qDebug() << "Reporting selection of the cursor (mouse release)"
+             << delegated()->textCursor().selection().isEmpty();
+    qDebug() << QString("Anchor: %1\nposition: %2 (mouse mouse release)")
+                    .arg(delegated()->textCursor().anchor())
+                    .arg(delegated()->textCursor().position());
     updateAlighButtonState();
 
     if (!GraphicsItemDelegate::mouseReleaseEvent(event)) {
@@ -522,46 +494,40 @@ bool GraphicsTextItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event
     return true;
 }
 
-bool GraphicsTextItemDelegate::keyPressEvent(QKeyEvent *event)
-{
+bool GraphicsTextItemDelegate::keyPressEvent(QKeyEvent *event) {
     Q_UNUSED(event);
     return true;
 }
 
-bool GraphicsTextItemDelegate::keyReleaseEvent(QKeyEvent *event)
-{
+bool GraphicsTextItemDelegate::keyReleaseEvent(QKeyEvent *event) {
     if (!delegated()->hasFocus()) {
         return true;
     }
 
     switch (event->key()) {
-    case Qt::Key_Left:
-    case Qt::Key_Right:
-    case Qt::Key_Up:
-    case Qt::Key_Down:
-        updateAlighButtonState();
-        break;
+        case Qt::Key_Left:
+        case Qt::Key_Right:
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+            updateAlighButtonState();
+            break;
     }
 
     qDebug() << "Key has been released" << QString::number(event->key(), 16);
     return true;
 }
 
-void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode changeMode)
-{
+void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode changeMode) {
     // round it to the nearest hundredth
-    factor = floor(factor*100+0.5)/100.;
+    factor = floor(factor * 100 + 0.5) / 100.;
 
-    if (scaleSize == changeMode)
-    {
+    if (scaleSize == changeMode) {
         if (1 == factor)
             return;
-    }
-    else
-        if (0 == factor)
-            return;
+    } else if (0 == factor)
+        return;
 
-    GraphicsTextItem *item = dynamic_cast<GraphicsTextItem*>(delegated());
+    GraphicsTextItem *item = dynamic_cast<GraphicsTextItem *>(delegated());
 
     if (item && (QString() == item->toPlainText()))
         return;
@@ -572,8 +538,7 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
     int anchorPos = cursor.anchor();
     int cursorPos = cursor.position();
 
-    if (!cursor.hasSelection())
-    {
+    if (!cursor.hasSelection()) {
         cursor.select(QTextCursor::Document);
     }
 
@@ -591,59 +556,52 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
     QBrush curBrush;
     QBrush nextCharBrush;
 
-   // we search continuous blocks of the text with the same PointSize and allpy new settings for them.
-    cursor.setPosition (startPos, QTextCursor::MoveAnchor);
-    while(iCursorPos < endPos)
-    {
+    // we search continuous blocks of the text with the same PointSize and allpy new settings for them.
+    cursor.setPosition(startPos, QTextCursor::MoveAnchor);
+    while (iCursorPos < endPos) {
         bEndofTheSameBlock = false;
         iBlockLen = 0;
 
         // Here we get the point size of the first character
-        cursor.setPosition (iCursorPos+1, QTextCursor::KeepAnchor);
+        cursor.setPosition(iCursorPos + 1, QTextCursor::KeepAnchor);
         curFont = cursor.charFormat().font();
         curBrush = cursor.charFormat().foreground();
         iPointSize = curFont.pointSize();
 
         // Then we position the end cursor to the start cursor position
-        cursor.setPosition (iCursorPos, QTextCursor::KeepAnchor);
+        cursor.setPosition(iCursorPos, QTextCursor::KeepAnchor);
 
-        do
-        {
+        do {
             // Get the next character font size
-            cursor.setPosition (iCursorPos+iBlockLen+1, QTextCursor::KeepAnchor);
+            cursor.setPosition(iCursorPos + iBlockLen + 1, QTextCursor::KeepAnchor);
             nextCharFont = cursor.charFormat().font();
             nextCharBrush = cursor.charFormat().foreground();
             iNextPointSize = nextCharFont.pointSize();
 
-            if (
-                    (iPointSize != iNextPointSize)
-                 || (iCursorPos+iBlockLen >= endPos)
-                 || (curFont.family().compare(nextCharFont.family()) != 0)
-                 || (curFont.italic() != nextCharFont.italic())
-                 || (curFont.bold() != nextCharFont.bold())
-                 || (curFont.underline() != nextCharFont.underline())
-                 || (curBrush != nextCharBrush))
-            {
+            if ((iPointSize != iNextPointSize) || (iCursorPos + iBlockLen >= endPos) ||
+                (curFont.family().compare(nextCharFont.family()) != 0) ||
+                (curFont.italic() != nextCharFont.italic()) || (curFont.bold() != nextCharFont.bold()) ||
+                (curFont.underline() != nextCharFont.underline()) || (curBrush != nextCharBrush)) {
                 bEndofTheSameBlock = true;
                 break;
             }
 
             iBlockLen++;
 
-        }while(!bEndofTheSameBlock);
+        } while (!bEndofTheSameBlock);
 
 
         //setting new parameters
         QFont tmpFont = curFont;
         int iNewPointSize = (changeSize == changeMode) ? (iPointSize + factor) : (iPointSize * factor);
-        tmpFont.setPointSize( (iNewPointSize > 0)?iNewPointSize:1);
+        tmpFont.setPointSize((iNewPointSize > 0) ? iNewPointSize : 1);
         textFormat.setFont(tmpFont);
         textFormat.setForeground(curBrush);
-        cursor.setPosition (iCursorPos+iBlockLen, QTextCursor::KeepAnchor);
+        cursor.setPosition(iCursorPos + iBlockLen, QTextCursor::KeepAnchor);
         cursor.mergeCharFormat(textFormat);
 
         iCursorPos += iBlockLen;
-        cursor.setPosition (iCursorPos, QTextCursor::MoveAnchor);
+        cursor.setPosition(iCursorPos, QTextCursor::MoveAnchor);
 
         curFont = nextCharFont;
     }
@@ -651,25 +609,23 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
     delegated()->setFont(curFont);
     Settings::settings()->setFontPointSize(iPointSize);
     //returning initial selection
-    cursor.setPosition (anchorPos, QTextCursor::MoveAnchor);
-    cursor.setPosition (cursorPos, QTextCursor::KeepAnchor);
+    cursor.setPosition(anchorPos, QTextCursor::MoveAnchor);
+    cursor.setPosition(cursorPos, QTextCursor::KeepAnchor);
 
     delegated()->setTextCursor(cursor);
 }
 
-void GraphicsTextItemDelegate::recolor()
-{
+void GraphicsTextItemDelegate::recolor() {
     QTextCursor cursor = delegated()->textCursor();
     QTextCharFormat textFormat;
 
     int anchorPos = cursor.anchor();
     int cursorPos = cursor.position();
 
-    if (0 == anchorPos-cursorPos)
-    {
+    if (0 == anchorPos - cursorPos) {
         // If nothing is selected, then we select all the text
-        cursor.setPosition (0, QTextCursor::MoveAnchor);
-        cursor.setPosition (cursor.document()->characterCount()-1, QTextCursor::KeepAnchor);
+        cursor.setPosition(0, QTextCursor::MoveAnchor);
+        cursor.setPosition(cursor.document()->characterCount() - 1, QTextCursor::KeepAnchor);
     }
 
     int startPos = qMin(cursor.anchor(), cursor.position());
@@ -683,77 +639,68 @@ void GraphicsTextItemDelegate::recolor()
     QBrush curBrush;
     QBrush nextCharBrush;
 
-    cursor.setPosition (startPos, QTextCursor::MoveAnchor);
-    while(iCursorPos < endPos)
-    {
+    cursor.setPosition(startPos, QTextCursor::MoveAnchor);
+    while (iCursorPos < endPos) {
         bEndofTheSameBlock = false;
         iBlockLen = 0;
 
         // Here we get the point size of the first character
-        cursor.setPosition (iCursorPos+1, QTextCursor::KeepAnchor);
+        cursor.setPosition(iCursorPos + 1, QTextCursor::KeepAnchor);
         curBrush = cursor.charFormat().foreground();
 
         // Then we position the end cursor to the start cursor position
-        cursor.setPosition (iCursorPos, QTextCursor::KeepAnchor);
+        cursor.setPosition(iCursorPos, QTextCursor::KeepAnchor);
 
-        do
-        {
-            cursor.setPosition (iCursorPos+iBlockLen+1, QTextCursor::KeepAnchor);
+        do {
+            cursor.setPosition(iCursorPos + iBlockLen + 1, QTextCursor::KeepAnchor);
             nextCharBrush = cursor.charFormat().foreground();
 
-            if (curBrush != nextCharBrush || (iCursorPos+iBlockLen >= endPos))
-            {
+            if (curBrush != nextCharBrush || (iCursorPos + iBlockLen >= endPos)) {
                 bEndofTheSameBlock = true;
                 break;
             }
 
             iBlockLen++;
 
-        }while(!bEndofTheSameBlock);
+        } while (!bEndofTheSameBlock);
 
 
         //setting new parameters
-        if (delegated()->scene()->isDarkBackground())
-        {
-            if (curBrush.color() == Qt::black)
-            {
+        if (delegated()->scene()->isDarkBackground()) {
+            if (curBrush.color() == Qt::black) {
                 curBrush = QBrush(Qt::white);
             }
-        }
-        else
-        {
-            if (curBrush.color() == Qt::white)
-            {
+        } else {
+            if (curBrush.color() == Qt::white) {
                 curBrush = QBrush(Qt::black);
             }
         }
 
-        cursor.setPosition (iCursorPos+iBlockLen, QTextCursor::KeepAnchor);
+        cursor.setPosition(iCursorPos + iBlockLen, QTextCursor::KeepAnchor);
         textFormat.setForeground(curBrush);
         cursor.mergeCharFormat(textFormat);
 
         iCursorPos += iBlockLen;
-        cursor.setPosition (iCursorPos, QTextCursor::MoveAnchor);
+        cursor.setPosition(iCursorPos, QTextCursor::MoveAnchor);
 
         curFont = nextCharFont;
     }
 
     delegated()->setFont(curFont);
     //returning initial selection
-    cursor.setPosition (anchorPos, QTextCursor::MoveAnchor);
-    cursor.setPosition (cursorPos, QTextCursor::KeepAnchor);
+    cursor.setPosition(anchorPos, QTextCursor::MoveAnchor);
+    cursor.setPosition(cursorPos, QTextCursor::KeepAnchor);
 
     delegated()->setTextCursor(cursor);
 }
 
-void GraphicsTextItemDelegate::updateAlighButtonState()
-{
+void GraphicsTextItemDelegate::updateAlighButtonState() {
     if (!mAlignButton) {
         return;
     }
 
     qDebug() << "new cursor position" << delegated()->textCursor().position();
-    AlignTextButton *asAlBtn = static_cast<AlignTextButton*>(mAlignButton);
+    AlignTextButton *asAlBtn = static_cast<AlignTextButton *>(mAlignButton);
 
     if (!oneBlockSelection()) {
         asAlBtn->setMixedButtonVisible(true);
@@ -776,8 +723,7 @@ void GraphicsTextItemDelegate::updateAlighButtonState()
     }
 }
 
-bool GraphicsTextItemDelegate::oneBlockSelection()
-{
+bool GraphicsTextItemDelegate::oneBlockSelection() {
     const QTextCursor cursor = delegated()->textCursor();
     int pos = cursor.position();
     int anchor = cursor.anchor();
@@ -797,15 +743,13 @@ bool GraphicsTextItemDelegate::oneBlockSelection()
     return false;
 }
 
-void GraphicsTextItemDelegate::saveTextCursorFormats()
-{
+void GraphicsTextItemDelegate::saveTextCursorFormats() {
     mSelectionData.anchor = delegated()->textCursor().anchor();
     mSelectionData.position = delegated()->textCursor().position();
     mSelectionData.html = delegated()->document()->toHtml();
 }
 
-void GraphicsTextItemDelegate::restoreTextCursorFormats()
-{
+void GraphicsTextItemDelegate::restoreTextCursorFormats() {
     delegated()->document()->setHtml(mSelectionData.html);
 
     int min = qMin(mSelectionData.position, mSelectionData.anchor);
@@ -818,20 +762,16 @@ void GraphicsTextItemDelegate::restoreTextCursorFormats()
     delegated()->setTextCursor(tcrsr);
 }
 
-void GraphicsTextItemDelegate::scaleTextSize(qreal multiplyer)
-{
+void GraphicsTextItemDelegate::scaleTextSize(qreal multiplyer) {
     ChangeTextSize(multiplyer, scaleSize);
 }
 
-QVariant GraphicsTextItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
-{
-    if (change == QGraphicsItem::ItemSelectedChange)
-    {
-        if (delegated()->isSelected())
-        {
+QVariant GraphicsTextItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change,
+                                              const QVariant &value) {
+    if (change == QGraphicsItem::ItemSelectedChange) {
+        if (delegated()->isSelected()) {
             QTextCursor c = delegated()->textCursor();
-            if (c.hasSelection())
-            {
+            if (c.hasSelection()) {
                 c.clearSelection();
                 delegated()->setTextCursor(c);
             }

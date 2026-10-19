@@ -6,8 +6,7 @@
 class GraphicsScene;
 class GraphicsGroupContainerItem;
 
-class GraphicsItemGroupUndoCommand : public UndoCommand
-{
+class GraphicsItemGroupUndoCommand : public UndoCommand {
 public:
     GraphicsItemGroupUndoCommand(GraphicsScene *pScene, GraphicsGroupContainerItem *pGroupCreated);
     virtual ~GraphicsItemGroupUndoCommand();
@@ -21,8 +20,7 @@ protected:
 private:
     GraphicsScene *mScene;
     GraphicsGroupContainerItem *mGroup;
-    QList<QGraphicsItem*> mItems;
+    QList<QGraphicsItem *> mItems;
 
     bool mFirstRedo;
 };
-

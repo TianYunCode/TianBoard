@@ -35,36 +35,31 @@ class BoardView;
 
 const double PI = 4.0 * atan(1.0);
 
-class ZLayerController : public QObject
-{
+class ZLayerController : public QObject {
     Q_OBJECT
 
 public:
     struct ItemLayerTypeData {
         ItemLayerTypeData() : bottomLimit(0), topLimit(0), curValue(0), incStep(1) {}
-        ItemLayerTypeData(qreal bot, qreal top, qreal increment = 1) : bottomLimit(bot), topLimit(top), curValue(bot), incStep(increment) {}
+        ItemLayerTypeData(qreal bot, qreal top, qreal increment = 1)
+            : bottomLimit(bot), topLimit(top), curValue(bot), incStep(increment) {}
         qreal bottomLimit;
         qreal topLimit;
         qreal curValue;
         qreal incStep;
     };
 
-    enum moveDestination {
-        up,
-        down,
-        top,
-        bottom
-    };
+    enum moveDestination { up, down, top, bottom };
 
     typedef QMap<itemLayerType::Enum, ItemLayerTypeData> ScopeMap;
 
     ZLayerController(QGraphicsScene *scene);
 
-    qreal getBottomLimit(itemLayerType::Enum key) const {return scopeMap.value(key).bottomLimit;}
-    qreal getTopLimit(itemLayerType::Enum key) const {return scopeMap.value(key).topLimit;}
-    bool validLayerType(itemLayerType::Enum key) const {return scopeMap.contains(key);}
+    qreal getBottomLimit(itemLayerType::Enum key) const { return scopeMap.value(key).bottomLimit; }
+    qreal getTopLimit(itemLayerType::Enum key) const { return scopeMap.value(key).topLimit; }
+    bool validLayerType(itemLayerType::Enum key) const { return scopeMap.contains(key); }
 
-    static qreal errorNum() {return errorNumber;}
+    static qreal errorNum() { return errorNumber; }
 
     qreal generateZLevel(itemLayerType::Enum key);
     qreal generateZLevel(QGraphicsItem *item);
@@ -82,372 +77,316 @@ private:
     QGraphicsScene *mScene;
 };
 
-class GraphicsScene: public CoreGraphicsScene, public Item
-{
+class GraphicsScene : public CoreGraphicsScene, public Item {
     Q_OBJECT
 
+public:
+    enum clearCase { clearItemsAndAnnotations = 0, clearAnnotations, clearItems, clearBackground };
+
+    void enableUndoRedoStack() { mUndoRedoStackEnabled = true; }
+    void setURStackEnable(bool enable) { mUndoRedoStackEnabled = enable; }
+    bool isURStackIsEnabled() { return mUndoRedoStackEnabled; }
+
+    GraphicsScene(DocumentProxy *parent, bool enableUndoRedoStack = true);
+    virtual ~GraphicsScene();
+
+    virtual Item *deepCopy() const;
+
+    virtual void copyItemParameters(Item *copy) const { Q_UNUSED(copy); }
+
+    GraphicsScene *sceneDeepCopy() const;
+
+    void clearContent(clearCase pCase = clearItemsAndAnnotations);
+
+    bool inputDevicePress(const QPointF &scenePos, const qreal &pressure = 1.0);
+    bool inputDeviceMove(const QPointF &scenePos, const qreal &pressure = 1.0);
+    bool inputDeviceRelease();
+
+    void leaveEvent(QEvent *event);
+
+    void addItem(QGraphicsItem *item);
+    void removeItem(QGraphicsItem *item);
+
+    void addItems(const QSet<QGraphicsItem *> &item);
+    void removeItems(const QSet<QGraphicsItem *> &item);
+
+    GraphicsWidgetItem *addWidget(const QUrl &pWidgetUrl, const QPointF &pPos = QPointF(0, 0));
+    GraphicsAppleWidgetItem *addAppleWidget(const QUrl &pWidgetUrl, const QPointF &pPos = QPointF(0, 0));
+    GraphicsWebWidgetItem *addWebWidget(const QUrl &pWidgetUrl, const QPointF &pPos = QPointF(0, 0));
+    void addGraphicsWidget(GraphicsWidgetItem *graphicsWidget, const QPointF &pPos = QPointF(0, 0));
+
+    QPointF lastCenter();
+    void setLastCenter(QPointF center);
+
+    GraphicsMediaItem *addMedia(const QUrl &pMediaFileUrl, bool shouldPlayAsap,
+                                const QPointF &pPos = QPointF(0, 0));
+    GraphicsMediaItem *addVideo(const QUrl &pVideoFileUrl, bool shouldPlayAsap,
+                                const QPointF &pPos = QPointF(0, 0));
+    GraphicsMediaItem *addAudio(const QUrl &pAudioFileUrl, bool shouldPlayAsap,
+                                const QPointF &pPos = QPointF(0, 0));
+    GraphicsSvgItem *addSvg(const QUrl &pSvgFileUrl, const QPointF &pPos = QPointF(0, 0),
+                            const QByteArray pData = QByteArray());
+    GraphicsTextItem *addText(const QString &pString, const QPointF &pTopLeft = QPointF(0, 0));
+
+    GraphicsTextItem *addTextWithFont(const QString &pString, const QPointF &pTopLeft = QPointF(0, 0),
+                                      int pointSize = -1, const QString &fontFamily = "", bool bold = false,
+                                      bool italic = false);
+    GraphicsTextItem *addTextHtml(const QString &pString = QString(),
+                                  const QPointF &pTopLeft = QPointF(0, 0));
+
+    GraphicsGroupContainerItem *createGroup(QList<QGraphicsItem *> items);
+    void addGroup(GraphicsGroupContainerItem *groupItem);
+
+    QGraphicsItem *setAsBackgroundObject(QGraphicsItem *item, bool pAdaptTransformation = false,
+                                         bool expand = false);
+    void unsetBackgroundObject();
+
+    QGraphicsItem *backgroundObject() const { return mBackgroundObject; }
+
+    bool isBackgroundObject(const QGraphicsItem *item) const { return item == mBackgroundObject; }
+
+    QGraphicsItem *scaleToFitDocumentSize(QGraphicsItem *item, bool center = false, int margin = 0,
+                                          bool expand = false);
+
+    QRectF normalizedSceneRect(qreal ratio = -1.0);
+
+    QGraphicsItem *itemForUuid(QUuid uuid);
+
+    void moveTo(const QPointF &pPoint);
+    void drawLineTo(const QPointF &pEndPoint, const qreal &pWidth, bool bLineStyle);
+    void drawLineTo(const QPointF &pEndPoint, const qreal &pStartWidth, const qreal &endWidth,
+                    bool bLineStyle);
+    void eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth);
+    void drawArcTo(const QPointF &pCenterPoint, qreal pSpanAngle);
+    void drawCurve(const QList<QPair<QPointF, qreal>> &points);
+    void drawCurve(const QList<QPointF> &points, qreal startWidth, qreal endWidth);
+
+    bool isEmpty() const;
+
+    void setDocument(DocumentProxy *pDocument);
+
+    DocumentProxy *document() const { return mDocument; }
+
+    bool isDarkBackground() const { return mDarkBackground; }
+
+    bool isLightBackground() const { return !mDarkBackground; }
+
+    PageBackground pageBackground() const { return mPageBackground; }
+
+    int backgroundGridSize() const { return mBackgroundGridSize; }
+
+    bool hasBackground() { return (mBackgroundObject != 0); }
+
+    void addRuler(QPointF center);
+    void addProtractor(QPointF center);
+    void addCompass(QPointF center);
+    void addTriangle(QPointF center);
+    void addMagnifier(MagnifierParams params);
+
+    void addMask(const QPointF &center = QPointF());
+    void addCache();
+
+    QList<QGraphicsItem *> getFastAccessItems() { return mFastAccessItems; }
+
+    class SceneViewState {
     public:
-		enum clearCase {
-			clearItemsAndAnnotations = 0, 
-			clearAnnotations, 
-			clearItems,
-			clearBackground
-		};
-
-        void enableUndoRedoStack(){mUndoRedoStackEnabled = true;}
-        void setURStackEnable(bool enable){mUndoRedoStackEnabled = enable;}
-        bool isURStackIsEnabled(){return mUndoRedoStackEnabled;}
-
-        GraphicsScene(DocumentProxy *parent, bool enableUndoRedoStack = true);
-        virtual ~GraphicsScene();
-
-        virtual Item* deepCopy() const;
-
-        virtual void copyItemParameters(Item *copy) const {Q_UNUSED(copy);}
-
-        GraphicsScene* sceneDeepCopy() const;
-
-        void clearContent(clearCase pCase = clearItemsAndAnnotations);
-
-        bool inputDevicePress(const QPointF& scenePos, const qreal& pressure = 1.0);
-        bool inputDeviceMove(const QPointF& scenePos, const qreal& pressure = 1.0);
-        bool inputDeviceRelease();
-
-        void leaveEvent (QEvent* event);
-
-        void addItem(QGraphicsItem* item);
-        void removeItem(QGraphicsItem* item);
-
-        void addItems(const QSet<QGraphicsItem*>& item);
-        void removeItems(const QSet<QGraphicsItem*>& item);
-
-        GraphicsWidgetItem* addWidget(const QUrl& pWidgetUrl, const QPointF& pPos = QPointF(0, 0));
-        GraphicsAppleWidgetItem* addAppleWidget(const QUrl& pWidgetUrl, const QPointF& pPos = QPointF(0, 0));
-        GraphicsWebWidgetItem* addWebWidget(const QUrl& pWidgetUrl, const QPointF& pPos = QPointF(0, 0));
-        void addGraphicsWidget(GraphicsWidgetItem* graphicsWidget, const QPointF& pPos = QPointF(0, 0));
-
-        QPointF lastCenter();
-        void setLastCenter(QPointF center);
-
-        GraphicsMediaItem* addMedia(const QUrl& pMediaFileUrl, bool shouldPlayAsap, const QPointF& pPos = QPointF(0, 0));
-        GraphicsMediaItem* addVideo(const QUrl& pVideoFileUrl, bool shouldPlayAsap, const QPointF& pPos = QPointF(0, 0));
-        GraphicsMediaItem* addAudio(const QUrl& pAudioFileUrl, bool shouldPlayAsap, const QPointF& pPos = QPointF(0, 0));
-        GraphicsSvgItem* addSvg(const QUrl& pSvgFileUrl, const QPointF& pPos = QPointF(0, 0), const QByteArray pData = QByteArray());
-        GraphicsTextItem* addText(const QString& pString, const QPointF& pTopLeft = QPointF(0, 0));
-
-        GraphicsTextItem*  addTextWithFont(const QString& pString, const QPointF& pTopLeft = QPointF(0, 0)
-                , int pointSize = -1, const QString& fontFamily = "", bool bold = false, bool italic = false);
-        GraphicsTextItem* addTextHtml(const QString &pString = QString(), const QPointF& pTopLeft = QPointF(0, 0));
-
-        GraphicsGroupContainerItem *createGroup(QList<QGraphicsItem*> items);
-        void addGroup(GraphicsGroupContainerItem *groupItem);
-
-        QGraphicsItem* setAsBackgroundObject(QGraphicsItem* item, bool pAdaptTransformation = false, bool expand = false);
-        void unsetBackgroundObject();
-
-        QGraphicsItem* backgroundObject() const
-        {
-            return mBackgroundObject;
+        SceneViewState() {
+            zoomFactor = 1;
+            horizontalPosition = 0;
+            verticalPostition = 0;
+            mLastSceneCenter = QPointF();
         }
 
-        bool isBackgroundObject(const QGraphicsItem* item) const
-        {
-            return item == mBackgroundObject;
+        SceneViewState(qreal pZoomFactor, int pHorizontalPosition, int pVerticalPostition,
+                       QPointF sceneCenter = QPointF()) {
+            zoomFactor = pZoomFactor;
+            horizontalPosition = pHorizontalPosition;
+            verticalPostition = pVerticalPostition;
+            mLastSceneCenter = sceneCenter;
         }
 
-        QGraphicsItem* scaleToFitDocumentSize(QGraphicsItem* item, bool center = false, int margin = 0, bool expand = false);
-
-        QRectF normalizedSceneRect(qreal ratio = -1.0);
-
-        QGraphicsItem *itemForUuid(QUuid uuid);
-
-        void moveTo(const QPointF& pPoint);
-        void drawLineTo(const QPointF& pEndPoint, const qreal& pWidth, bool bLineStyle);
-        void drawLineTo(const QPointF& pEndPoint, const qreal& pStartWidth, const qreal& endWidth, bool bLineStyle);
-        void eraseLineTo(const QPointF& pEndPoint, const qreal& pWidth);
-        void drawArcTo(const QPointF& pCenterPoint, qreal pSpanAngle);
-        void drawCurve(const QList<QPair<QPointF, qreal> > &points);
-        void drawCurve(const QList<QPointF>& points, qreal startWidth, qreal endWidth);
-
-        bool isEmpty() const;
-
-        void setDocument(DocumentProxy* pDocument);
-
-        DocumentProxy* document() const
-        {
-            return mDocument;
-        }
-
-        bool isDarkBackground() const
-        {
-            return mDarkBackground;
-        }
-
-        bool isLightBackground() const
-        {
-            return !mDarkBackground;
-        }
-
-        PageBackground pageBackground() const
-        {
-            return mPageBackground;
-        }
-
-        int backgroundGridSize() const
-        {
-            return mBackgroundGridSize;
-        }
-
-        bool hasBackground()
-        {
-            return (mBackgroundObject != 0);
-        }
-
-        void addRuler(QPointF center);
-        void addProtractor(QPointF center);
-        void addCompass(QPointF center);
-        void addTriangle(QPointF center);
-        void addMagnifier(MagnifierParams params);
-
-        void addMask(const QPointF &center = QPointF());
-        void addCache();
-
-        QList<QGraphicsItem*> getFastAccessItems()
-        {
-            return mFastAccessItems;
-        }
-
-        class SceneViewState
-        {
-            public:
-                SceneViewState()
-                {
-                    zoomFactor = 1;
-                    horizontalPosition = 0;
-                    verticalPostition = 0;
-                    mLastSceneCenter = QPointF();
-                }
-
-                SceneViewState(qreal pZoomFactor, int pHorizontalPosition, int pVerticalPostition, QPointF sceneCenter = QPointF())
-                {
-                    zoomFactor = pZoomFactor;
-                    horizontalPosition = pHorizontalPosition;
-                    verticalPostition = pVerticalPostition;
-                    mLastSceneCenter = sceneCenter;
-                }
-
-                QPointF lastSceneCenter()
-                {
-                    return mLastSceneCenter;
-                }
-
-                void setLastSceneCenter(QPointF center)
-                {
-                    mLastSceneCenter = center;
-                }
-
-                QPointF mLastSceneCenter;
-
-                qreal zoomFactor;
-                int horizontalPosition;
-                int verticalPostition;
-        };
-
-        SceneViewState viewState() const
-        {
-            return mViewState;
-        }
+        QPointF lastSceneCenter() { return mLastSceneCenter; }
 
-        void setViewState(const SceneViewState& pViewState)
-        {
-            mViewState = pViewState;
-        }
+        void setLastSceneCenter(QPointF center) { mLastSceneCenter = center; }
 
-        virtual void setRenderingQuality(Item::RenderingQuality pRenderingQuality);
+        QPointF mLastSceneCenter;
 
-        QList<QUrl> relativeDependencies() const;
+        qreal zoomFactor;
+        int horizontalPosition;
+        int verticalPostition;
+    };
 
-        QSize nominalSize();
-
-        QSize sceneSize();
+    SceneViewState viewState() const { return mViewState; }
 
-        void setNominalSize(const QSize& pSize);
+    void setViewState(const SceneViewState &pViewState) { mViewState = pViewState; }
 
-        void setNominalSize(int pWidth, int pHeight);
+    virtual void setRenderingQuality(Item::RenderingQuality pRenderingQuality);
 
-        qreal changeZLevelTo(QGraphicsItem *item, ZLayerController::moveDestination dest, bool addUndo=false);
+    QList<QUrl> relativeDependencies() const;
 
-        enum RenderingContext
-        {
-            Screen = 0, NonScreen, PdfExport, Recording
-        };
+    QSize nominalSize();
 
-        void setRenderingContext(RenderingContext pRenderingContext)
-        {
-            mRenderingContext = pRenderingContext;
-        }
+    QSize sceneSize();
 
-        RenderingContext renderingContext() const
-        {
-            return mRenderingContext;
-        }
+    void setNominalSize(const QSize &pSize);
 
-        QSet<QGraphicsItem*> tools(){ return mTools;}
+    void setNominalSize(int pWidth, int pHeight);
 
-        void registerTool(QGraphicsItem* item)
-        {
-            mTools << item;
-        }
+    qreal changeZLevelTo(QGraphicsItem *item, ZLayerController::moveDestination dest, bool addUndo = false);
 
-        const QPointF& previousPoint()
-        {
-            return mPreviousPoint;
-        }
+    enum RenderingContext { Screen = 0, NonScreen, PdfExport, Recording };
 
-        void setSelectedZLevel(QGraphicsItem *item);
-        void setOwnZlevel(QGraphicsItem *item);
+    void setRenderingContext(RenderingContext pRenderingContext) { mRenderingContext = pRenderingContext; }
 
-        static QUuid getPersonalUuid(QGraphicsItem *item);
+    RenderingContext renderingContext() const { return mRenderingContext; }
 
-        GraphicsPolygonItem* polygonToPolygonItem(const QPolygonF pPolygon);
-        void clearSelectionFrame();
-        BoardView *controlView();
-        void notifyZChanged(QGraphicsItem *item, qreal zValue);
-        void deselectAllItemsExcept(QGraphicsItem* graphicsItem);
+    QSet<QGraphicsItem *> tools() { return mTools; }
 
-        QRectF annotationsBoundingRect() const;
+    void registerTool(QGraphicsItem *item) { mTools << item; }
 
-	public slots:
-        void updateSelectionFrame();
-        void updateSelectionFrameWrapper(int);
-        void initStroke();
-        void hideTool();
+    const QPointF &previousPoint() { return mPreviousPoint; }
 
-        void setBackground(bool pIsDark, PageBackground pBackground);
-        void setBackgroundZoomFactor(qreal zoom);
-        void setBackgroundGridSize(int pSize);
-        void setDrawingMode(bool bModeDesktop);
-        void deselectAllItems();
+    void setSelectedZLevel(QGraphicsItem *item);
+    void setOwnZlevel(QGraphicsItem *item);
 
-        GraphicsPixmapItem* addPixmap(const QPixmap& pPixmap,
-										QGraphicsItem* replaceFor,
-										const QPointF& pPos = QPointF(0,0),
-										qreal scaleFactor = 1.0,
-										bool pUseAnimation = false,
-										bool useProxyForDocumentPath = false);
+    static QUuid getPersonalUuid(QGraphicsItem *item);
 
-        void textUndoCommandAdded(GraphicsTextItem *textItem);
+    GraphicsPolygonItem *polygonToPolygonItem(const QPolygonF pPolygon);
+    void clearSelectionFrame();
+    BoardView *controlView();
+    void notifyZChanged(QGraphicsItem *item, qreal zValue);
+    void deselectAllItemsExcept(QGraphicsItem *graphicsItem);
 
-        void setToolCursor(int tool);
+    QRectF annotationsBoundingRect() const;
 
-        void selectionChangedProcessing();
-        void moveMagnifier();
-        void moveMagnifier(QPoint newPos, bool forceGrab = false);
-        void closeMagnifier();
-        void zoomInMagnifier();
-        void zoomOutMagnifier();
-        void changeMagnifierMode(int mode);
-        void resizedMagnifier(qreal newPercent);
+public slots:
+    void updateSelectionFrame();
+    void updateSelectionFrameWrapper(int);
+    void initStroke();
+    void hideTool();
 
-    protected:
-        GraphicsPolygonItem* lineToPolygonItem(const QLineF& pLine, const qreal& pWidth);
-        GraphicsPolygonItem* lineToPolygonItem(const QLineF &pLine, const qreal &pStartWidth, const qreal &pEndWidth);
+    void setBackground(bool pIsDark, PageBackground pBackground);
+    void setBackgroundZoomFactor(qreal zoom);
+    void setBackgroundGridSize(int pSize);
+    void setDrawingMode(bool bModeDesktop);
+    void deselectAllItems();
 
-        GraphicsPolygonItem* arcToPolygonItem(const QLineF& pStartRadius, qreal pSpanAngle, qreal pWidth);
-        GraphicsPolygonItem* curveToPolygonItem(const QList<QPair<QPointF, qreal> > &points);
-        GraphicsPolygonItem* curveToPolygonItem(const QList<QPointF> &points, qreal startWidth, qreal endWidth);
-        void addPolygonItemToCurrentStroke(GraphicsPolygonItem* polygonItem);
+    GraphicsPixmapItem *addPixmap(const QPixmap &pPixmap, QGraphicsItem *replaceFor,
+                                  const QPointF &pPos = QPointF(0, 0), qreal scaleFactor = 1.0,
+                                  bool pUseAnimation = false, bool useProxyForDocumentPath = false);
 
-        void initPolygonItem(GraphicsPolygonItem*);
+    void textUndoCommandAdded(GraphicsTextItem *textItem);
 
-        void drawEraser(const QPointF& pEndPoint, bool pressed = true);
-        void redrawEraser(bool pressed);
-        void hideEraser();
-        void drawPointer(const QPointF& pEndPoint, bool isFirstDraw = false);
-        void drawMarkerCircle(const QPointF& pEndPoint);
-        void drawPenCircle(const QPointF& pEndPoint);
-        void hideMarkerCircle();
-        void hidePenCircle();
-        void DisposeMagnifierQWidgets();
+    void setToolCursor(int tool);
 
-        virtual void keyReleaseEvent(QKeyEvent * keyEvent);
+    void selectionChangedProcessing();
+    void moveMagnifier();
+    void moveMagnifier(QPoint newPos, bool forceGrab = false);
+    void closeMagnifier();
+    void zoomInMagnifier();
+    void zoomOutMagnifier();
+    void changeMagnifierMode(int mode);
+    void resizedMagnifier(qreal newPercent);
 
-        void recolorAllItems();
+protected:
+    GraphicsPolygonItem *lineToPolygonItem(const QLineF &pLine, const qreal &pWidth);
+    GraphicsPolygonItem *lineToPolygonItem(const QLineF &pLine, const qreal &pStartWidth,
+                                           const qreal &pEndWidth);
 
-        virtual void drawItems (QPainter * painter, int numItems,
-                               QGraphicsItem * items[], const QStyleOptionGraphicsItem options[], QWidget * widget = 0);
+    GraphicsPolygonItem *arcToPolygonItem(const QLineF &pStartRadius, qreal pSpanAngle, qreal pWidth);
+    GraphicsPolygonItem *curveToPolygonItem(const QList<QPair<QPointF, qreal>> &points);
+    GraphicsPolygonItem *curveToPolygonItem(const QList<QPointF> &points, qreal startWidth, qreal endWidth);
+    void addPolygonItemToCurrentStroke(GraphicsPolygonItem *polygonItem);
 
-        QGraphicsItem* rootItem(QGraphicsItem* item) const;
+    void initPolygonItem(GraphicsPolygonItem *);
 
-        virtual void drawBackground(QPainter *painter, const QRectF &rect);
+    void drawEraser(const QPointF &pEndPoint, bool pressed = true);
+    void redrawEraser(bool pressed);
+    void hideEraser();
+    void drawPointer(const QPointF &pEndPoint, bool isFirstDraw = false);
+    void drawMarkerCircle(const QPointF &pEndPoint);
+    void drawPenCircle(const QPointF &pEndPoint);
+    void hideMarkerCircle();
+    void hidePenCircle();
+    void DisposeMagnifierQWidgets();
 
-    private:
-        void setDocumentUpdated();
-        void createEraiser();
-        void createPointer();
-        void createMarkerCircle();
-        void createPenCircle();
-        void updateEraserColor();
-        void updateMarkerCircleColor();
-        void updatePenCircleColor();
-        bool hasTextItemWithFocus(GraphicsGroupContainerItem* item);
-        void simplifyCurrentStroke();
+    virtual void keyReleaseEvent(QKeyEvent *keyEvent);
 
-        QGraphicsEllipseItem* mEraser;
-        QGraphicsEllipseItem* mPointer;
-        QGraphicsEllipseItem* mMarkerCircle;
-        QGraphicsEllipseItem* mPenCircle;
+    void recolorAllItems();
 
-        QSet<QGraphicsItem*> mAddedItems;
-        QSet<QGraphicsItem*> mRemovedItems;
+    virtual void drawItems(QPainter *painter, int numItems, QGraphicsItem *items[],
+                           const QStyleOptionGraphicsItem options[], QWidget *widget = 0);
 
-        DocumentProxy* mDocument;
+    QGraphicsItem *rootItem(QGraphicsItem *item) const;
 
-        bool mDarkBackground;
-        PageBackground mPageBackground;
-        int mBackgroundGridSize;
+    virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
-        bool mIsDesktopMode;
-        qreal mZoomFactor;
+private:
+    void setDocumentUpdated();
+    void createEraiser();
+    void createPointer();
+    void createMarkerCircle();
+    void createPenCircle();
+    void updateEraserColor();
+    void updateMarkerCircleColor();
+    void updatePenCircleColor();
+    bool hasTextItemWithFocus(GraphicsGroupContainerItem *item);
+    void simplifyCurrentStroke();
 
-        QGraphicsItem* mBackgroundObject;
+    QGraphicsEllipseItem *mEraser;
+    QGraphicsEllipseItem *mPointer;
+    QGraphicsEllipseItem *mMarkerCircle;
+    QGraphicsEllipseItem *mPenCircle;
 
-        QPointF mPreviousPoint;
-        qreal mPreviousWidth;
-        qreal mDistanceFromLastStrokePoint;
+    QSet<QGraphicsItem *> mAddedItems;
+    QSet<QGraphicsItem *> mRemovedItems;
 
-        QList<GraphicsPolygonItem*> mPreviousPolygonItems;
+    DocumentProxy *mDocument;
 
-        SceneViewState mViewState;
+    bool mDarkBackground;
+    PageBackground mPageBackground;
+    int mBackgroundGridSize;
 
-        bool mInputDeviceIsPressed;
+    bool mIsDesktopMode;
+    qreal mZoomFactor;
 
-        QSet<QGraphicsItem*> mTools;
+    QGraphicsItem *mBackgroundObject;
 
-        GraphicsPolygonItem *mArcPolygonItem;
+    QPointF mPreviousPoint;
+    qreal mPreviousWidth;
+    qreal mDistanceFromLastStrokePoint;
 
-        QSize mNominalSize;
+    QList<GraphicsPolygonItem *> mPreviousPolygonItems;
 
-        RenderingContext mRenderingContext;
+    SceneViewState mViewState;
 
-        GraphicsStroke* mCurrentStroke;
+    bool mInputDeviceIsPressed;
 
-        int mItemCount;
+    QSet<QGraphicsItem *> mTools;
 
-        QList<QGraphicsItem*> mFastAccessItems;
+    GraphicsPolygonItem *mArcPolygonItem;
 
-        bool mHasCache;
-        bool mUndoRedoStackEnabled;
+    QSize mNominalSize;
 
-        Magnifier *magniferControlViewWidget;
-        Magnifier *magniferDisplayViewWidget;
+    RenderingContext mRenderingContext;
 
-        ZLayerController *mZLayerController;
-        GraphicsPolygonItem* mpLastPolygon;
-        GraphicsPolygonItem* mTempPolygon;
+    GraphicsStroke *mCurrentStroke;
 
-        bool mDrawWithCompass;
-        GraphicsPolygonItem *mCurrentPolygon;
-        SelectionFrame *mSelectionFrame;
+    int mItemCount;
+
+    QList<QGraphicsItem *> mFastAccessItems;
+
+    bool mHasCache;
+    bool mUndoRedoStackEnabled;
+
+    Magnifier *magniferControlViewWidget;
+    Magnifier *magniferDisplayViewWidget;
+
+    ZLayerController *mZLayerController;
+    GraphicsPolygonItem *mpLastPolygon;
+    GraphicsPolygonItem *mTempPolygon;
+
+    bool mDrawWithCompass;
+    GraphicsPolygonItem *mCurrentPolygon;
+    SelectionFrame *mSelectionFrame;
 };
-

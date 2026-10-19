@@ -4,12 +4,11 @@
 
 class GraphicsGroupContainerItem;
 
-class GraphicsGroupContainerItemDelegate : public GraphicsItemDelegate
-{
-Q_OBJECT
+class GraphicsGroupContainerItemDelegate : public GraphicsItemDelegate {
+    Q_OBJECT
 
 public:
-    GraphicsGroupContainerItemDelegate(QGraphicsItem* pDelegated, QObject * parent = 0);
+    GraphicsGroupContainerItemDelegate(QGraphicsItem *pDelegated, QObject *parent = 0);
     GraphicsGroupContainerItem *delegated();
 
 protected:
@@ -27,4 +26,3 @@ private slots:
 private:
     DelegateButton *mDestroyGroupButton;
 };
-

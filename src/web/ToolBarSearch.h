@@ -6,8 +6,7 @@
 
 class AutoSaver;
 
-class ToolbarSearch : public SearchLineEdit
-{
+class ToolbarSearch : public SearchLineEdit {
     Q_OBJECT;
 
 public:
@@ -15,7 +14,7 @@ public:
     ~ToolbarSearch();
 
 signals:
-	void search(const QUrl &url);
+    void search(const QUrl &url);
 
 public slots:
     void clear();
@@ -33,5 +32,3 @@ private:
     int mMaxSavedSearches;
     QStringListModel *mStringListModel;
 };
-
-

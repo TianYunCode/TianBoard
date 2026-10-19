@@ -10,9 +10,8 @@
 #include "whiteboard/BoardView.h"
 
 
-struct ZoomPalette::Private
-{
-    BoardController* mBoardController{nullptr};
+struct ZoomPalette::Private {
+    BoardController *mBoardController{nullptr};
     QPushButton *mCurrentZoomButton{nullptr};
     QPushButton *mHundredButton{nullptr};
     QPushButton *mShowAllButton{nullptr};
@@ -20,24 +19,25 @@ struct ZoomPalette::Private
     bool mIsExpanded{true};
 };
 
-ZoomPalette::ZoomPalette(QWidget* parent)
-    : FloatingPalette(Qt::BottomRightCorner, parent)
-    , d(new Private)
-{
+ZoomPalette::ZoomPalette(QWidget *parent) : FloatingPalette(Qt::BottomRightCorner, parent), d(new Private) {
     d->mBoardController = Application::boardController;
-    QLayout* layout = new QVBoxLayout(this);
+    QLayout *layout = new QVBoxLayout(this);
     d->mCurrentZoomButton = new QPushButton(parent);
-    d->mCurrentZoomButton->setStyleSheet(QString("QPushButton { color: white; background-color: transparent; border: none; font-family: Arial; font-weight: bold; font-size: 20px }"));
+    d->mCurrentZoomButton->setStyleSheet(
+        QString("QPushButton { color: white; background-color: transparent; border: none; font-family: "
+                "Arial; font-weight: bold; font-size: 20px }"));
     d->mCurrentZoomButton->setFocusPolicy(Qt::NoFocus);
     connect(d->mCurrentZoomButton, &QPushButton::clicked, this, &ZoomPalette::showHideExtraButton);
     connect(d->mBoardController, &BoardController::zoomChanged, this, &ZoomPalette::refreshPalette);
     connect(d->mBoardController, &BoardController::activeSceneChanged, this, &ZoomPalette::refreshPalette);
 
     d->mHundredButton = new QPushButton(parent);
-    d->mHundredButton->setStyleSheet(QString("QPushButton { color: white; background-color: transparent; border: none; font-family: Arial; font-weight: bold; font-size: 20px }"));
+    d->mHundredButton->setStyleSheet(
+        QString("QPushButton { color: white; background-color: transparent; border: none; font-family: "
+                "Arial; font-weight: bold; font-size: 20px }"));
     d->mHundredButton->setFocusPolicy(Qt::NoFocus);
     d->mHundredButton->setIcon(QIcon(":/images/stylusPalette/restoreZoom.png"));
-    d->mHundredButton->setIconSize(QSize(42,42));
+    d->mHundredButton->setIconSize(QSize(42, 42));
     connect(d->mHundredButton, &QPushButton::clicked, this, &ZoomPalette::goHundred);
 
     layout->setContentsMargins(radius() + 15, 4, radius() + 15, 4);
@@ -47,62 +47,48 @@ ZoomPalette::ZoomPalette(QWidget* parent)
     refreshPalette();
 }
 
-ZoomPalette::~ZoomPalette()
-{
+ZoomPalette::~ZoomPalette() {
     delete d->mCurrentZoomButton;
 }
 
-void ZoomPalette::showHideExtraButton()
-{
-    if (d->mIsExpanded)
-    {
+void ZoomPalette::showHideExtraButton() {
+    if (d->mIsExpanded) {
         d->mHundredButton->setVisible(false);
         d->mIsExpanded = false;
         adjustSizeAndPosition(false);
-    }
-    else
-    {
+    } else {
         d->mHundredButton->setVisible(true);
         d->mIsExpanded = true;
         adjustSizeAndPosition(true);
     }
-
 }
 
-void ZoomPalette::goHundred()
-{
+void ZoomPalette::goHundred() {
     d->mBoardController->zoomRestore();
 }
 
-void ZoomPalette::hide()
-{
+void ZoomPalette::hide() {
     qreal currentZoomFactor = d->mBoardController->currentZoom();
 
     bool showAsNoZoom = (currentZoomFactor > 0.9 && currentZoomFactor < 1.1);
-    if (showAsNoZoom)
-    {
+    if (showAsNoZoom) {
         FloatingPalette::hide();
     }
 }
 
-void ZoomPalette::refreshPalette()
-{
+void ZoomPalette::refreshPalette() {
     qreal currentZoomFactor = d->mBoardController->currentZoom();
     bool showAsNoZoom = (currentZoomFactor > 0.9 && currentZoomFactor < 1.1);
-    if (showAsNoZoom)
-    {
+    if (showAsNoZoom) {
         currentZoomFactor = 1;
     }
     QString stringFactor = tr("%1 x").arg(currentZoomFactor, 0, 'f', 1);
 
     d->mCurrentZoomButton->setText(stringFactor);
     adjustSizeAndPosition();
-    if (showAsNoZoom)
-    {
+    if (showAsNoZoom) {
         QTimer::singleShot(500, this, &ZoomPalette::hide);
-    }
-    else
-    {
+    } else {
         show();
         raise();
     }

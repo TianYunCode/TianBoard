@@ -4,8 +4,7 @@
 
 #include <memory>
 
-class SqueezeLabel : public QLabel
-{
+class SqueezeLabel : public QLabel {
     Q_OBJECT;
 
 public:
@@ -19,5 +18,3 @@ private:
     struct Private;
     std::unique_ptr<Private> d;
 };
-
-

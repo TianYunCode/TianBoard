@@ -2,8 +2,7 @@
 
 #include <QtNetwork>
 
-class NetworkAccessManager : public QNetworkAccessManager
-{
+class NetworkAccessManager : public QNetworkAccessManager {
     Q_OBJECT
 
 public:
@@ -14,7 +13,8 @@ public:
     virtual QNetworkReply *get(const QNetworkRequest &request);
 
 protected:
-    virtual QNetworkReply * createRequest ( Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0 );
+    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req,
+                                         QIODevice *outgoingData = 0);
 
 private:
     QList<QString> sslTrustedHostList;
@@ -28,4 +28,3 @@ private slots:
     void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *auth);
     void sslErrors(QNetworkReply *reply, const QList<QSslError> &error);
 };
-

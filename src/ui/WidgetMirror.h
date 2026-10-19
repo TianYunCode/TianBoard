@@ -4,12 +4,11 @@
 
 #include <memory>
 
-class WidgetMirror : public QWidget
-{
+class WidgetMirror : public QWidget {
     Q_OBJECT
 
 public:
-    WidgetMirror(QWidget* sourceWidget, QWidget* parent = nullptr);
+    WidgetMirror(QWidget *sourceWidget, QWidget *parent = nullptr);
     ~WidgetMirror() override;
 
 public slots:
@@ -17,11 +16,9 @@ public slots:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
-    void paintEvent (QPaintEvent * event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

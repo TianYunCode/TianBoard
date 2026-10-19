@@ -8,68 +8,60 @@
 #include <wmsdk.h>
 #pragma comment(lib, "wmvcore.lib")
 
-class WindowsMediaFile : public QObject
-{
+class WindowsMediaFile : public QObject {
     Q_OBJECT;
 
-    public:
-        WindowsMediaFile(QObject * pParent = 0);
-        virtual ~WindowsMediaFile();
+public:
+    WindowsMediaFile(QObject *pParent = 0);
+    virtual ~WindowsMediaFile();
 
-        bool init(const QString& videoFileName, const QString& profileData
-                , int pFramesPerSecond, int pixelWidth, int pixelHeight, int bitsPerPixel);
+    bool init(const QString &videoFileName, const QString &profileData, int pFramesPerSecond, int pixelWidth,
+              int pixelHeight, int bitsPerPixel);
 
-        bool close();
+    bool close();
 
-        bool appendVideoFrame(const QImage& pPix, long msTimeStamp);
+    bool appendVideoFrame(const QImage &pPix, long msTimeStamp);
 
-        void startNewChapter(const QString& pLabel, long timestamp);
+    void startNewChapter(const QString &pLabel, long timestamp);
 
-        QString lastErrorMessage() const
-        {
-            return mLastErrorMessage;
-        }
+    QString lastErrorMessage() const { return mLastErrorMessage; }
 
-    public slots:
-       void appendAudioBuffer(WAVEHDR*, long);
+public slots:
+    void appendAudioBuffer(WAVEHDR *, long);
 
-    private:
-        bool initVideoStream(int pixelWidth, int pixelHeight, int bitsPerPixel);
+private:
+    bool initVideoStream(int pixelWidth, int pixelHeight, int bitsPerPixel);
 
-        void setLastErrorMessage(const QString& error);
+    void setLastErrorMessage(const QString &error);
 
-        void releaseWMObjects();
+    void releaseWMObjects();
 
-        QWORD msToSampleTime(long ms)
-        {
-            QWORD qwordMs = ms;
-            return (qwordMs * 10000);
-        }
+    QWORD msToSampleTime(long ms) {
+        QWORD qwordMs = ms;
+        return (qwordMs * 10000);
+    }
 
-        IWMProfile *mWMProfile;
-        IWMWriter *mWMWriter;
-        IWMWriterPushSink *mPushSink;
+    IWMProfile *mWMProfile;
+    IWMWriter *mWMWriter;
+    IWMWriterPushSink *mPushSink;
 
-        IWMInputMediaProps *mWMInputVideoProps;
-        IWMInputMediaProps *mWMInputAudioProps;
-        IWMProfileManager *mWMProfileManager;
+    IWMInputMediaProps *mWMInputVideoProps;
+    IWMInputMediaProps *mWMInputAudioProps;
+    IWMProfileManager *mWMProfileManager;
 
-        HDC mWMhDC;
-        DWORD mVideoInputIndex;
-        DWORD mAudioInputIndex;
-        DWORD mFramesPerSecond;
+    HDC mWMhDC;
+    DWORD mVideoInputIndex;
+    DWORD mAudioInputIndex;
+    DWORD mFramesPerSecond;
 
-        QString mLastErrorMessage;
+    QString mLastErrorMessage;
 
-        struct MarkerInfo
-        {
-            QString label;
-            long timestamp;
-        };
+    struct MarkerInfo {
+        QString label;
+        long timestamp;
+    };
 
-        QList<MarkerInfo> mChapters;
+    QList<MarkerInfo> mChapters;
 
-        QString mVideoFileName;
-
+    QString mVideoFileName;
 };
-

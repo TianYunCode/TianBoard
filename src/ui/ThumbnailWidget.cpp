@@ -20,10 +20,9 @@
 #include "whiteboard/BoardPaletteManager.h"
 
 
-struct ThumbnailWidget::Private
-{
-    QList<QGraphicsItem*> mGraphicItems;
-    QList<ThumbnailTextItem*> mLabelsItems;
+struct ThumbnailWidget::Private {
+    QList<QGraphicsItem *> mGraphicItems;
+    QList<ThumbnailTextItem *> mLabelsItems;
     QPointF mMousePressScenePos;
     QPoint mMousePressPos;
     QList<QUrl> mItemsPaths;
@@ -41,74 +40,65 @@ struct ThumbnailWidget::Private
     qreal mThumbnailHeight{0};
     qreal mSpacing{0};
 
-    Thumbnail* mLastSelectedThumbnail{nullptr};
+    Thumbnail *mLastSelectedThumbnail{nullptr};
     int mSelectionSpan{0};
     QRectF mPrevLassoRect;
-    QGraphicsRectItem* mLassoRectItem{nullptr};
-    QSet<QGraphicsItem*> mSelectedThumbnailItems;
-    QSet<QGraphicsItem*> mPreviouslyIncrementalSelectedItemsX;
-    QSet<QGraphicsItem*> mPreviouslyIncrementalSelectedItemsY;
+    QGraphicsRectItem *mLassoRectItem{nullptr};
+    QSet<QGraphicsItem *> mSelectedThumbnailItems;
+    QSet<QGraphicsItem *> mPreviouslyIncrementalSelectedItemsX;
+    QSet<QGraphicsItem *> mPreviouslyIncrementalSelectedItemsY;
     QElapsedTimer mClickTime;
 };
 
-struct Thumbnail::Private
-{
-    QGraphicsRectItem* mSelectionItem{nullptr};
+struct Thumbnail::Private {
+    QGraphicsRectItem *mSelectionItem{nullptr};
     bool mAddedToScene{false};
 
     int mColumn{0};
     int mRow{0};
-    ThumbnailTextItem* mLabel{nullptr};
+    ThumbnailTextItem *mLabel{nullptr};
 };
 
-struct ThumbnailTextItem::Private
-{
+struct ThumbnailTextItem::Private {
     qreal mWidth{0};
     QString mUnelidedText;
     bool mIsHighlighted{false};
 };
 
-struct SceneThumbnailPixmap::Private
-{
-    DocumentProxy* mProxy{nullptr};
+struct SceneThumbnailPixmap::Private {
+    DocumentProxy *mProxy{nullptr};
     int mSceneIndex{0};
 };
 
-struct SceneThumbnailNavigPixmap::Private
-{
+struct SceneThumbnailNavigPixmap::Private {
     bool mEditable{false};
 };
 
-struct ThumbnailProxyWidget::Private
-{
-    DocumentProxy* mDocumentProxy{nullptr};
+struct ThumbnailProxyWidget::Private {
+    DocumentProxy *mDocumentProxy{nullptr};
     int mSceneIndex{0};
 };
 
-struct DraggableThumbnail::Private
-{
-    ThumbnailTextItem* mPageNumber{nullptr};
+struct DraggableThumbnail::Private {
+    ThumbnailTextItem *mPageNumber{nullptr};
     bool mEditable{false};
 };
 
-struct DraggableThumbnailPixmap::Private
-{
-    ThumbnailPixmap* mThumbnailPixmap{nullptr};
+struct DraggableThumbnailPixmap::Private {
+    ThumbnailPixmap *mThumbnailPixmap{nullptr};
 };
 
-struct DraggableThumbnailView::Private
-{
-    ThumbnailView* mThumbnailView{nullptr};
+struct DraggableThumbnailView::Private {
+    ThumbnailView *mThumbnailView{nullptr};
 };
 
-struct ThumbnailUI::ThumbnailUIIcon::Private
-{
+struct ThumbnailUI::ThumbnailUIIcon::Private {
     int mPos{0};
 };
 
-ThumbnailWidget::ThumbnailWidget(QWidget* parent)
-    : QGraphicsView(parent)
-    , d(new Private)
+ThumbnailWidget::ThumbnailWidget(QWidget *parent)
+    : QGraphicsView(parent),
+      d(new Private)
 
 {
     d->mThumbnailWidth = Settings::defaultThumbnailWidth;
@@ -127,104 +117,90 @@ ThumbnailWidget::ThumbnailWidget(QWidget* parent)
 
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    connect(&d->mThumbnailsScene, &QGraphicsScene::selectionChanged, this, &ThumbnailWidget::sceneSelectionChanged);
+    connect(&d->mThumbnailsScene, &QGraphicsScene::selectionChanged, this,
+            &ThumbnailWidget::sceneSelectionChanged);
 }
 
 
-ThumbnailWidget::~ThumbnailWidget()
-{
+ThumbnailWidget::~ThumbnailWidget() {
     disconnect(&d->mThumbnailsScene, &QGraphicsScene::selectionChanged, nullptr, nullptr);
 }
 
 
-qreal ThumbnailWidget::thumbnailWidth()
-{
+qreal ThumbnailWidget::thumbnailWidth() {
     return d->mThumbnailWidth;
 }
 
 
-void ThumbnailWidget::setBackgroundBrush(const QBrush& brush)
-{
+void ThumbnailWidget::setBackgroundBrush(const QBrush &brush) {
     d->mThumbnailsScene.setBackgroundBrush(brush);
 }
 
 
-const QList<QGraphicsItem*>& ThumbnailWidget::graphicItems() const
-{
+const QList<QGraphicsItem *> &ThumbnailWidget::graphicItems() const {
     return d->mGraphicItems;
 }
 
 
-const QList<ThumbnailTextItem*>& ThumbnailWidget::labelsItems() const
-{
+const QList<ThumbnailTextItem *> &ThumbnailWidget::labelsItems() const {
     return d->mLabelsItems;
 }
 
 
-const QPoint& ThumbnailWidget::mousePressPos() const
-{
+const QPoint &ThumbnailWidget::mousePressPos() const {
     return d->mMousePressPos;
 }
 
 
-qreal ThumbnailWidget::spacing()
-{
+qreal ThumbnailWidget::spacing() {
     return d->mSpacing;
 }
 
 
-void ThumbnailWidget::setCanDrag(bool canDrag)
-{
+void ThumbnailWidget::setCanDrag(bool canDrag) {
     d->bCanDrag = canDrag;
 }
 
 
-void ThumbnailWidget::setThumbnailWidth(qreal pThumbnailWidth)
-{
+void ThumbnailWidget::setThumbnailWidth(qreal pThumbnailWidth) {
     d->mThumbnailWidth = pThumbnailWidth;
 
     refreshScene();
 }
 
 
-void ThumbnailWidget::setSpacing(qreal pSpacing)
-{
+void ThumbnailWidget::setSpacing(qreal pSpacing) {
     d->mSpacing = pSpacing;
 
     refreshScene();
 }
 
 
-void ThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem*>& pGraphicsItems
-        , const QList<QUrl>& pItemsPaths
-        , const QStringList pLabels
-        , const QString& pMimeType)
-{
+void ThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsItems,
+                                       const QList<QUrl> &pItemsPaths, const QStringList pLabels,
+                                       const QString &pMimeType) {
     Q_ASSERT(pItemsPaths.count() == pLabels.count());
     d->mGraphicItems = pGraphicsItems;
     d->mItemsPaths = pItemsPaths;
     d->mMimeType = pMimeType;
     d->mLabels = pLabels;
 
-    foreach(QGraphicsItem* it, d->mThumbnailsScene.items())
-    {
+    foreach (QGraphicsItem *it, d->mThumbnailsScene.items()) {
         d->mThumbnailsScene.removeItem(it, true);
     }
 
     // set lasso to 0 as it has been cleared as well
     d->mLassoRectItem = 0;
 
-    foreach (QGraphicsItem* item, pGraphicsItems)
-    {
-        if (item->scene() != &d->mThumbnailsScene){
+    foreach (QGraphicsItem *item, pGraphicsItems) {
+        if (item->scene() != &d->mThumbnailsScene) {
             d->mThumbnailsScene.addItem(item);
         }
     }
 
     d->mLabelsItems.clear();
 
-    foreach (const QString label, pLabels)
-    {
+    foreach (const QString label, pLabels) {
         QFontMetrics fm(font());
         ThumbnailTextItem *labelItem =
             new ThumbnailTextItem(label); // deleted while replace or by the scene destruction
@@ -239,14 +215,12 @@ void ThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem*>& pGraphicsIte
 }
 
 
-void ThumbnailWidget::refreshScene()
-{
+void ThumbnailWidget::refreshScene() {
     int nbColumns = (geometry().width() - d->mSpacing) / (d->mThumbnailWidth + d->mSpacing);
 
     int labelSpacing = 0;
 
-    if (d->mLabelsItems.size() > 0)
-    {
+    if (d->mLabelsItems.size() > 0) {
         QFontMetrics fm(d->mLabelsItems.at(0)->font());
         labelSpacing = Settings::thumbnailSpacing + fm.height();
     }
@@ -254,9 +228,8 @@ void ThumbnailWidget::refreshScene()
 
     qreal thumbnailHeight = d->mThumbnailWidth / Settings::minScreenRatio;
 
-    for (int i = 0; i < d->mGraphicItems.size(); i++)
-    {
-        QGraphicsItem* item = d->mGraphicItems.at(i);
+    for (int i = 0; i < d->mGraphicItems.size(); i++) {
+        QGraphicsItem *item = d->mGraphicItems.at(i);
 
         qreal scaleWidth = d->mThumbnailWidth / item->boundingRect().width();
         qreal scaleHeight = thumbnailHeight / item->boundingRect().height();
@@ -264,7 +237,7 @@ void ThumbnailWidget::refreshScene()
         qreal scaleFactor = qMin(scaleWidth, scaleHeight);
 
         //bitmap should not be stretched
-        Thumbnail* pix = dynamic_cast<Thumbnail*>(item);
+        Thumbnail *pix = dynamic_cast<Thumbnail *>(item);
         if (pix)
             scaleFactor = qMin(scaleFactor, 1.0);
 
@@ -278,31 +251,32 @@ void ThumbnailWidget::refreshScene()
         int columnIndex = i % nbColumns;
         int rowIndex = i / nbColumns;
 
-        if (pix)
-        {
+        if (pix) {
             pix->setColumn(columnIndex);
             pix->setRow(rowIndex);
         }
 
         int w = item->boundingRect().width();
         int h = item->boundingRect().height();
-        QPointF pos(
-                d->mSpacing + (d->mThumbnailWidth - w * scaleFactor) / 2 + columnIndex * (d->mThumbnailWidth + d->mSpacing),
-                d->mSpacing + rowIndex * (thumbnailHeight + d->mSpacing + labelSpacing) + (thumbnailHeight - h * scaleFactor) / 2);
+        QPointF pos(d->mSpacing + (d->mThumbnailWidth - w * scaleFactor) / 2 +
+                        columnIndex * (d->mThumbnailWidth + d->mSpacing),
+                    d->mSpacing + rowIndex * (thumbnailHeight + d->mSpacing + labelSpacing) +
+                        (thumbnailHeight - h * scaleFactor) / 2);
 
         item->setPos(pos);
 
-        if (d->mLabelsItems.size() > i)
-        {
+        if (d->mLabelsItems.size() > i) {
             QFontMetrics fm(d->mLabelsItems.at(i)->font(), this);
             QString elidedText = fm.elidedText(d->mLabels.at(i), Qt::ElideRight, d->mThumbnailWidth);
 
             d->mLabelsItems.at(i)->setPlainText(elidedText);
-            d->mLabelsItems.at(i)->setWidth(fm.horizontalAdvance(elidedText) + 2 * d->mLabelsItems.at(i)->document()->documentMargin());
+            d->mLabelsItems.at(i)->setWidth(fm.horizontalAdvance(elidedText) +
+                                            2 * d->mLabelsItems.at(i)->document()->documentMargin());
 
             pos.setY(pos.y() + (thumbnailHeight + h * scaleFactor) / 2 + 5);
             qreal labelWidth = fm.horizontalAdvance(elidedText);
-            pos.setX(d->mSpacing + (d->mThumbnailWidth - labelWidth) / 2 + columnIndex * (d->mThumbnailWidth + d->mSpacing));
+            pos.setX(d->mSpacing + (d->mThumbnailWidth - labelWidth) / 2 +
+                     columnIndex * (d->mThumbnailWidth + d->mSpacing));
             d->mLabelsItems.at(i)->setPos(pos);
         }
     }
@@ -312,38 +286,34 @@ void ThumbnailWidget::refreshScene()
     if (vertScrollBar && vertScrollBar->isVisible())
         scrollBarThickness = vertScrollBar->width();
 
-    setSceneRect(0, 0,
-            geometry().width() - scrollBarThickness,
-            d->mSpacing + ((((d->mGraphicItems.size() - 1) / nbColumns) + 1) * (thumbnailHeight + d->mSpacing + labelSpacing)));
+    setSceneRect(0, 0, geometry().width() - scrollBarThickness,
+                 d->mSpacing + ((((d->mGraphicItems.size() - 1) / nbColumns) + 1) *
+                                (thumbnailHeight + d->mSpacing + labelSpacing)));
 }
 
 
-QList<QGraphicsItem*> ThumbnailWidget::selectedItems()
-{
-    QList<QGraphicsItem*> sortedSelectedItems = d->mThumbnailsScene.selectedItems();
+QList<QGraphicsItem *> ThumbnailWidget::selectedItems() {
+    QList<QGraphicsItem *> sortedSelectedItems = d->mThumbnailsScene.selectedItems();
     std::sort(sortedSelectedItems.begin(), sortedSelectedItems.end(), thumbnailLessThan);
     return sortedSelectedItems;
 }
 
 
-void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
-{
+void ThumbnailWidget::mousePressEvent(QMouseEvent *event) {
     d->mClickTime.start();
     d->mMousePressPos = event->pos();
 
-    ThumbnailPixmap* sceneItem = dynamic_cast<ThumbnailPixmap*>(itemAt(d->mMousePressPos));
-    if(sceneItem==NULL)
-    {
+    ThumbnailPixmap *sceneItem = dynamic_cast<ThumbnailPixmap *>(itemAt(d->mMousePressPos));
+    if (sceneItem == NULL) {
         event->ignore();
         return;
     }
 
     d->mMousePressScenePos = mapToScene(d->mMousePressPos);
-    QGraphicsItem* underlyingItem = itemAt(d->mMousePressPos);
+    QGraphicsItem *underlyingItem = itemAt(d->mMousePressPos);
     Thumbnail *previousSelectedThumbnail = d->mLastSelectedThumbnail;
 
-    if (!dynamic_cast<Thumbnail*>(underlyingItem))
-    {
+    if (!dynamic_cast<Thumbnail *>(underlyingItem)) {
         deleteLasso();
 
         RubberBand rubberBand(QRubberBand::Rectangle);
@@ -366,19 +336,16 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
         // The following code must stay in synch with <Qt installation folder>\src\gui\styles\qwindowsxpstyle.cpp
         QColor highlight = option.palette.color(QPalette::Active, QPalette::Highlight);
         d->mLassoRectItem->setPen(highlight.darker(120));
-        QColor dimHighlight(qMin(highlight.red() / 2 + 110, 255),
-                            qMin(highlight.green() / 2 + 110, 255),
-                            qMin(highlight.blue() / 2 + 110, 255),
-                            127);
+        QColor dimHighlight(qMin(highlight.red() / 2 + 110, 255), qMin(highlight.green() / 2 + 110, 255),
+                            qMin(highlight.blue() / 2 + 110, 255), 127);
         d->mLassoRectItem->setBrush(dimHighlight);
 #endif
 
         d->mLassoRectItem->setZValue(10000);
         d->mLassoRectItem->setRect(QRectF(d->mMousePressScenePos, QSizeF()));
 
-        if (Qt::ControlModifier & event->modifiers() || Qt::ShiftModifier & event->modifiers())
-        {
-           // mSelectedThumbnailItems = QSet<QGraphicsItem*>(selectedItems().begin(), selectedItems().end());
+        if (Qt::ControlModifier & event->modifiers() || Qt::ShiftModifier & event->modifiers()) {
+            // mSelectedThumbnailItems = QSet<QGraphicsItem*>(selectedItems().begin(), selectedItems().end());
             return;
         }
 
@@ -386,96 +353,89 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
         d->mPreviouslyIncrementalSelectedItemsX.clear();
         d->mPreviouslyIncrementalSelectedItemsY.clear();
         QGraphicsView::mousePressEvent(event);
-    }
-    else if (Qt::ShiftModifier & event->modifiers())
-    {
-        if (previousSelectedThumbnail)
-        {
-            QGraphicsItem* previousSelectedItem = dynamic_cast<QGraphicsItem*>(previousSelectedThumbnail);
-            if (previousSelectedItem)
-            {
+    } else if (Qt::ShiftModifier & event->modifiers()) {
+        if (previousSelectedThumbnail) {
+            QGraphicsItem *previousSelectedItem = dynamic_cast<QGraphicsItem *>(previousSelectedThumbnail);
+            if (previousSelectedItem) {
                 int index1 = d->mGraphicItems.indexOf(previousSelectedItem);
                 int index2 = d->mGraphicItems.indexOf(underlyingItem);
-                if (-1 == index2)
-                {
-                    d->mSelectedThumbnailItems = QSet<QGraphicsItem*>(selectedItems().begin(), selectedItems().end());
+                if (-1 == index2) {
+                    d->mSelectedThumbnailItems =
+                        QSet<QGraphicsItem *>(selectedItems().begin(), selectedItems().end());
                     return;
                 }
                 d->mSelectionSpan = index2 - index1;
-                selectItems(qMin(index1, index2), d->mSelectionSpan < 0 ? - d->mSelectionSpan + 1 : d->mSelectionSpan + 1);
+                selectItems(qMin(index1, index2),
+                            d->mSelectionSpan < 0 ? -d->mSelectionSpan + 1 : d->mSelectionSpan + 1);
                 return;
             }
         }
-    }
-    else
-    {
-        d->mLastSelectedThumbnail = dynamic_cast<Thumbnail*>(underlyingItem);
-        if (!underlyingItem->isSelected())
-        {
+    } else {
+        d->mLastSelectedThumbnail = dynamic_cast<Thumbnail *>(underlyingItem);
+        if (!underlyingItem->isSelected()) {
             int index = d->mGraphicItems.indexOf(underlyingItem);
             selectItemAt(index, Qt::ControlModifier & event->modifiers());
-        }
-        else
-        {
+        } else {
             QGraphicsView::mousePressEvent(event);
         }
         if (!d->mLastSelectedThumbnail && d->mGraphicItems.count() > 0)
-            d->mLastSelectedThumbnail = dynamic_cast<Thumbnail*>(d->mGraphicItems.at(0));
+            d->mLastSelectedThumbnail = dynamic_cast<Thumbnail *>(d->mGraphicItems.at(0));
         d->mSelectionSpan = 0;
         return;
     }
 }
 
 
-void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
-{
+void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event) {
     int distance = (d->mMousePressPos - event->pos()).manhattanLength();
 
     if (0 == (event->buttons() & Qt::LeftButton) || distance < QApplication::startDragDistance())
         return;
 
-    if (d->mLassoRectItem)
-    {
+    if (d->mLassoRectItem) {
         d->bSelectionInProgress = true;
         int incrementLassoMinWidth = 2;
         QPointF currentScenePos = mapToScene(event->pos());
-        QRectF lassoRect(
-            qMin(d->mMousePressScenePos.x(), currentScenePos.x()), qMin(d->mMousePressScenePos.y(), currentScenePos.y()),
-            qAbs(d->mMousePressScenePos.x() - currentScenePos.x()), qAbs(d->mMousePressScenePos.y() - currentScenePos.y()));
+        QRectF lassoRect(qMin(d->mMousePressScenePos.x(), currentScenePos.x()),
+                         qMin(d->mMousePressScenePos.y(), currentScenePos.y()),
+                         qAbs(d->mMousePressScenePos.x() - currentScenePos.x()),
+                         qAbs(d->mMousePressScenePos.y() - currentScenePos.y()));
         if (QPoint() == d->prevMoveMousePos)
             d->prevMoveMousePos = currentScenePos;
-        QRectF incrementXSelection(
-            qMin(d->prevMoveMousePos.x(), currentScenePos.x()), qMin(d->mMousePressScenePos.y(), currentScenePos.y()),
-            qAbs(d->prevMoveMousePos.x() - currentScenePos.x())+incrementLassoMinWidth, qAbs(d->mMousePressScenePos.y() - currentScenePos.y()));
-        QRectF incrementYSelection(
-            qMin(d->mMousePressScenePos.x(), currentScenePos.x()), qMin(d->prevMoveMousePos.y(), currentScenePos.y()),
-            qAbs(d->mMousePressScenePos.x() - currentScenePos.x()), qAbs(d->prevMoveMousePos.y() - currentScenePos.y())+incrementLassoMinWidth);
+        QRectF incrementXSelection(qMin(d->prevMoveMousePos.x(), currentScenePos.x()),
+                                   qMin(d->mMousePressScenePos.y(), currentScenePos.y()),
+                                   qAbs(d->prevMoveMousePos.x() - currentScenePos.x()) +
+                                       incrementLassoMinWidth,
+                                   qAbs(d->mMousePressScenePos.y() - currentScenePos.y()));
+        QRectF incrementYSelection(qMin(d->mMousePressScenePos.x(), currentScenePos.x()),
+                                   qMin(d->prevMoveMousePos.y(), currentScenePos.y()),
+                                   qAbs(d->mMousePressScenePos.x() - currentScenePos.x()),
+                                   qAbs(d->prevMoveMousePos.y() - currentScenePos.y()) +
+                                       incrementLassoMinWidth);
 
         d->prevMoveMousePos = currentScenePos;
         d->mLassoRectItem->setRect(lassoRect);
 
-        QSet<QGraphicsItem*> lassoSelectedThumbnailItems;
+        QSet<QGraphicsItem *> lassoSelectedThumbnailItems;
 
-        QSet<QGraphicsItem*> toUnset;
-        QSet<QGraphicsItem*> toSet;
+        QSet<QGraphicsItem *> toUnset;
+        QSet<QGraphicsItem *> toSet;
 
         // for horizontal moving
-        QSet<QGraphicsItem*> incSelectedItemsX = QSet<QGraphicsItem*>(scene()->items(incrementXSelection, Qt::IntersectsItemBoundingRect).begin(), scene()->items(incrementXSelection, Qt::IntersectsItemBoundingRect).end());
-        foreach (QGraphicsItem *lassoSelectedItem, incSelectedItemsX)
-        {
-            if (lassoSelectedItem)
-            {
-                ThumbnailPixmap *thumbnailItem = dynamic_cast<ThumbnailPixmap*>(lassoSelectedItem);
+        QSet<QGraphicsItem *> incSelectedItemsX =
+            QSet<QGraphicsItem *>(scene()->items(incrementXSelection, Qt::IntersectsItemBoundingRect).begin(),
+                                  scene()->items(incrementXSelection, Qt::IntersectsItemBoundingRect).end());
+        foreach (QGraphicsItem *lassoSelectedItem, incSelectedItemsX) {
+            if (lassoSelectedItem) {
+                ThumbnailPixmap *thumbnailItem = dynamic_cast<ThumbnailPixmap *>(lassoSelectedItem);
                 if (thumbnailItem)
-                     lassoSelectedThumbnailItems += lassoSelectedItem;
+                    lassoSelectedThumbnailItems += lassoSelectedItem;
             }
         }
 
-        if(lassoRect.width() < d->mPrevLassoRect.width())
-        {
+        if (lassoRect.width() < d->mPrevLassoRect.width()) {
             if (!lassoSelectedThumbnailItems.contains(d->mPreviouslyIncrementalSelectedItemsX))
                 toUnset += d->mPreviouslyIncrementalSelectedItemsX - lassoSelectedThumbnailItems;
-
         }
         d->mPreviouslyIncrementalSelectedItemsX = lassoSelectedThumbnailItems;
 
@@ -486,23 +446,21 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
         // for vertical moving
 
-        QSet<QGraphicsItem*> incSelectedItemsY = QSet<QGraphicsItem*>(scene()->items(incrementYSelection, Qt::IntersectsItemBoundingRect).begin(), scene()->items(incrementYSelection, Qt::IntersectsItemBoundingRect).end());
-        foreach (QGraphicsItem *lassoSelectedItem, incSelectedItemsY)
-        {
-            if (lassoSelectedItem)
-            {
-                ThumbnailPixmap *thumbnailItem = dynamic_cast<ThumbnailPixmap*>(lassoSelectedItem);
+        QSet<QGraphicsItem *> incSelectedItemsY =
+            QSet<QGraphicsItem *>(scene()->items(incrementYSelection, Qt::IntersectsItemBoundingRect).begin(),
+                                  scene()->items(incrementYSelection, Qt::IntersectsItemBoundingRect).end());
+        foreach (QGraphicsItem *lassoSelectedItem, incSelectedItemsY) {
+            if (lassoSelectedItem) {
+                ThumbnailPixmap *thumbnailItem = dynamic_cast<ThumbnailPixmap *>(lassoSelectedItem);
 
                 if (thumbnailItem)
                     lassoSelectedThumbnailItems += lassoSelectedItem;
             }
         }
 
-        if(lassoRect.height() < d->mPrevLassoRect.height())
-        {
+        if (lassoRect.height() < d->mPrevLassoRect.height()) {
             if (!lassoSelectedThumbnailItems.contains(d->mPreviouslyIncrementalSelectedItemsY))
                 toUnset += d->mPreviouslyIncrementalSelectedItemsY - lassoSelectedThumbnailItems;
-
         }
         d->mPreviouslyIncrementalSelectedItemsY = lassoSelectedThumbnailItems;
 
@@ -512,59 +470,51 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
         toSet -= toUnset;
 
-        foreach (QGraphicsItem *item, toSet)
-        {
+        foreach (QGraphicsItem *item, toSet) {
             item->setSelected(true);
         }
 
-        foreach (QGraphicsItem *item, toUnset)
-        {
+        foreach (QGraphicsItem *item, toUnset) {
             item->setSelected(false);
         }
 
         d->mSelectedThumbnailItems += lassoSelectedThumbnailItems;
         d->mPrevLassoRect = lassoRect;
 
-        if (Qt::ControlModifier & event->modifiers())
-        {
-            for (int i = 0; i < d->mSelectedThumbnailItems.count()-1; i++)
-            {
+        if (Qt::ControlModifier & event->modifiers()) {
+            for (int i = 0; i < d->mSelectedThumbnailItems.count() - 1; i++) {
                 d->mSelectedThumbnailItems.values().at(i)->setSelected(true);
             }
         }
-    }
-    else
-    {
+    } else {
         d->bSelectionInProgress = false;
         if (0 == selectedItems().size())
             return;
 
-        if(d->bCanDrag)
-        {
+        if (d->bCanDrag) {
             QDrag *drag = new QDrag(this);
             QMimeData *mime = new QMimeData();
 
             if (d->mMimeType.length() > 0)
-                mime->setData(d->mMimeType, QByteArray()); // trick the d&d system to register our own mime type
+                mime->setData(d->mMimeType,
+                              QByteArray()); // trick the d&d system to register our own mime type
 
             drag->setMimeData(mime);
 
             QList<QUrl> qlElements;
 
-            foreach (QGraphicsItem* item, selectedItems())
-            {
-                if (d->mGraphicItems.contains(item))
-                {
-                    if (d->mGraphicItems.indexOf(item) <= d->mItemsPaths.size()){
+            foreach (QGraphicsItem *item, selectedItems()) {
+                if (d->mGraphicItems.contains(item)) {
+                    if (d->mGraphicItems.indexOf(item) <= d->mItemsPaths.size()) {
                         qlElements << d->mItemsPaths.at(d->mGraphicItems.indexOf(item));
                     }
                 }
             }
 
-            if (qlElements.size() > 0){
-                            mime->setUrls(qlElements);
-                            drag->setMimeData(mime);
-                            drag->exec(Qt::CopyAction);
+            if (qlElements.size() > 0) {
+                mime->setUrls(qlElements);
+                drag->setMimeData(mime);
+                drag->exec(Qt::CopyAction);
             }
         }
     }
@@ -573,176 +523,155 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void ThumbnailWidget::mouseReleaseEvent(QMouseEvent *event)
-{
+void ThumbnailWidget::mouseReleaseEvent(QMouseEvent *event) {
     int elapsedTimeSincePress = d->mClickTime.elapsed();
     d->prevMoveMousePos = QPoint();
     deleteLasso();
     QGraphicsView::mouseReleaseEvent(event);
 
-    if(elapsedTimeSincePress < STARTDRAGTIME) {
+    if (elapsedTimeSincePress < STARTDRAGTIME) {
         emit mouseClick(itemAt(event->pos()), 0);
     }
 }
 
 
-void ThumbnailWidget::keyPressEvent(QKeyEvent *event)
-{
-    if (d->mLastSelectedThumbnail)
-    {
-        QGraphicsItem *lastSelectedGraphicsItem = dynamic_cast<QGraphicsItem*>(d->mLastSelectedThumbnail);
-        if (!lastSelectedGraphicsItem) return;
+void ThumbnailWidget::keyPressEvent(QKeyEvent *event) {
+    if (d->mLastSelectedThumbnail) {
+        QGraphicsItem *lastSelectedGraphicsItem = dynamic_cast<QGraphicsItem *>(d->mLastSelectedThumbnail);
+        if (!lastSelectedGraphicsItem)
+            return;
         int startSelectionIndex = d->mGraphicItems.indexOf(lastSelectedGraphicsItem);
         int previousSelectedThumbnailIndex = startSelectionIndex + d->mSelectionSpan;
 
-        switch (event->key())
-        {
-        case Qt::Key_Down:
-        case Qt::Key_Up:
-            {
-                if (rowCount() <= 1) break;
-                if (Qt::ShiftModifier & event->modifiers())
-                {
+        switch (event->key()) {
+            case Qt::Key_Down:
+            case Qt::Key_Up: {
+                if (rowCount() <= 1)
+                    break;
+                if (Qt::ShiftModifier & event->modifiers()) {
                     int endSelectionIndex;
-                    if (Qt::Key_Down == event->key())
-                    {
+                    if (Qt::Key_Down == event->key()) {
                         endSelectionIndex = previousSelectedThumbnailIndex + columnCount();
-                        if (endSelectionIndex >= d->mGraphicItems.count()) break;
-                    }
-                    else
-                    {
+                        if (endSelectionIndex >= d->mGraphicItems.count())
+                            break;
+                    } else {
                         endSelectionIndex = previousSelectedThumbnailIndex - columnCount();
-                        if (endSelectionIndex < 0) break;
+                        if (endSelectionIndex < 0)
+                            break;
                     }
 
-                    int startIndex = startSelectionIndex < endSelectionIndex ? startSelectionIndex : endSelectionIndex;
-                    int count = startSelectionIndex < endSelectionIndex ? endSelectionIndex - startSelectionIndex + 1 : startSelectionIndex - endSelectionIndex + 1;
-                    d->mSelectionSpan = startSelectionIndex < endSelectionIndex ? (count - 1) : - (count - 1);
+                    int startIndex =
+                        startSelectionIndex < endSelectionIndex ? startSelectionIndex : endSelectionIndex;
+                    int count = startSelectionIndex < endSelectionIndex
+                                    ? endSelectionIndex - startSelectionIndex + 1
+                                    : startSelectionIndex - endSelectionIndex + 1;
+                    d->mSelectionSpan = startSelectionIndex < endSelectionIndex ? (count - 1) : -(count - 1);
                     selectItems(startIndex, count);
-                }
-                else
-                {
+                } else {
                     int toSelectIndex;
-                    if (Qt::Key_Down == event->key())
-                    {
+                    if (Qt::Key_Down == event->key()) {
                         toSelectIndex = previousSelectedThumbnailIndex + columnCount();
-                        if (toSelectIndex >= d->mGraphicItems.count()) break;
-                    }
-                    else
-                    {
+                        if (toSelectIndex >= d->mGraphicItems.count())
+                            break;
+                    } else {
                         toSelectIndex = previousSelectedThumbnailIndex - columnCount();
-                        if (toSelectIndex < 0) break;
+                        if (toSelectIndex < 0)
+                            break;
                     }
 
                     selectItemAt(toSelectIndex, Qt::ControlModifier & event->modifiers());
                     d->mSelectionSpan = 0;
                 }
-            }
-            break;
+            } break;
 
-        case Qt::Key_Left:
-        case Qt::Key_Right:
-            {
+            case Qt::Key_Left:
+            case Qt::Key_Right: {
                 QGraphicsItem *previousSelectedItem = d->mGraphicItems.at(previousSelectedThumbnailIndex);
-                Thumbnail *previousSelectedThumbnail = dynamic_cast<Thumbnail*>(previousSelectedItem);
-                if (!previousSelectedThumbnail) break;
+                Thumbnail *previousSelectedThumbnail = dynamic_cast<Thumbnail *>(previousSelectedItem);
+                if (!previousSelectedThumbnail)
+                    break;
 
-                if (Qt::Key_Left == event->key())
-                {
-                    if (0 == previousSelectedThumbnail->column()) break;
-                }
-                else
-                {
+                if (Qt::Key_Left == event->key()) {
+                    if (0 == previousSelectedThumbnail->column())
+                        break;
+                } else {
                     if (previousSelectedThumbnail->column() == columnCount() - 1 ||
-                        previousSelectedThumbnailIndex == d->mGraphicItems.count() - 1) break;
+                        previousSelectedThumbnailIndex == d->mGraphicItems.count() - 1)
+                        break;
                 }
 
-                if (Qt::ShiftModifier & event->modifiers())
-                {
+                if (Qt::ShiftModifier & event->modifiers()) {
                     int endSelectionIndex;
-                    if (Qt::Key_Left == event->key())
-                    {
+                    if (Qt::Key_Left == event->key()) {
                         endSelectionIndex = previousSelectedThumbnailIndex - 1;
-                        if (endSelectionIndex < 0) break;
-                    }
-                    else
-                    {
+                        if (endSelectionIndex < 0)
+                            break;
+                    } else {
                         endSelectionIndex = previousSelectedThumbnailIndex + 1;
-                        if (endSelectionIndex >= d->mGraphicItems.count()) break;
+                        if (endSelectionIndex >= d->mGraphicItems.count())
+                            break;
                     }
 
-                    int startIndex = startSelectionIndex < endSelectionIndex ? startSelectionIndex : endSelectionIndex;
-                    int count = startSelectionIndex < endSelectionIndex ? endSelectionIndex - startSelectionIndex + 1 : startSelectionIndex - endSelectionIndex + 1;
-                    d->mSelectionSpan = startSelectionIndex < endSelectionIndex ? (count - 1) : - (count - 1);
+                    int startIndex =
+                        startSelectionIndex < endSelectionIndex ? startSelectionIndex : endSelectionIndex;
+                    int count = startSelectionIndex < endSelectionIndex
+                                    ? endSelectionIndex - startSelectionIndex + 1
+                                    : startSelectionIndex - endSelectionIndex + 1;
+                    d->mSelectionSpan = startSelectionIndex < endSelectionIndex ? (count - 1) : -(count - 1);
                     selectItems(startIndex, count);
-                }
-                else
-                {
+                } else {
                     if (Qt::Key_Left == event->key())
-                        selectItemAt(previousSelectedThumbnailIndex - 1, Qt::ControlModifier & event->modifiers());
+                        selectItemAt(previousSelectedThumbnailIndex - 1,
+                                     Qt::ControlModifier & event->modifiers());
                     else
-                        selectItemAt(previousSelectedThumbnailIndex + 1, Qt::ControlModifier & event->modifiers());
+                        selectItemAt(previousSelectedThumbnailIndex + 1,
+                                     Qt::ControlModifier & event->modifiers());
 
                     d->mSelectionSpan = 0;
                 }
-            }
-            break;
+            } break;
 
-        case Qt::Key_Home:
-            {
-                if (Qt::ShiftModifier & event->modifiers())
-                {
-                    d->mSelectionSpan = - startSelectionIndex;
+            case Qt::Key_Home: {
+                if (Qt::ShiftModifier & event->modifiers()) {
+                    d->mSelectionSpan = -startSelectionIndex;
                     selectItems(0, startSelectionIndex + 1);
-                }
-                else
-                {
+                } else {
                     selectItemAt(0, Qt::ControlModifier & event->modifiers());
                     d->mSelectionSpan = 0;
                 }
-            }
-            break;
+            } break;
 
-        case Qt::Key_End:
-            {
-                if (Qt::ShiftModifier & event->modifiers())
-                {
+            case Qt::Key_End: {
+                if (Qt::ShiftModifier & event->modifiers()) {
                     d->mSelectionSpan = d->mGraphicItems.count() - startSelectionIndex - 1;
                     selectItems(startSelectionIndex, d->mSelectionSpan + 1);
-                }
-                else
-                {
+                } else {
                     selectItemAt(d->mGraphicItems.count() - 1, Qt::ControlModifier & event->modifiers());
                     d->mSelectionSpan = 0;
                 }
-            }
-            break;
-        case Qt::Key_A:
-            {
+            } break;
+            case Qt::Key_A: {
                 if (Qt::ControlModifier & event->modifiers())
                     selectAll();
-            }
-            break;
+            } break;
         }
     }
     QGraphicsView::keyPressEvent(event);
 }
 
 
-void ThumbnailWidget::focusInEvent(QFocusEvent *event)
-{
+void ThumbnailWidget::focusInEvent(QFocusEvent *event) {
     Q_UNUSED(event);
 
-    if (0 == selectedItems().count() && d->mGraphicItems.count() > 0 && Qt::TabFocusReason == event->reason())
-    {
+    if (0 == selectedItems().count() && d->mGraphicItems.count() > 0 &&
+        Qt::TabFocusReason == event->reason()) {
         selectItemAt(0);
         d->mSelectionSpan = 0;
     }
 }
 
 
-void ThumbnailWidget::resizeEvent(QResizeEvent *event)
-{
+void ThumbnailWidget::resizeEvent(QResizeEvent *event) {
     Q_UNUSED(event);
 
     refreshScene();
@@ -751,95 +680,78 @@ void ThumbnailWidget::resizeEvent(QResizeEvent *event)
 }
 
 
-void ThumbnailWidget::sceneSelectionChanged()
-{
+void ThumbnailWidget::sceneSelectionChanged() {
     emit selectionChanged();
 }
 
 
-void ThumbnailWidget::selectItemAt(int pIndex, bool extend)
-{
-    QGraphicsItem* itemToSelect = 0;
+void ThumbnailWidget::selectItemAt(int pIndex, bool extend) {
+    QGraphicsItem *itemToSelect = 0;
 
     if (pIndex >= 0 && pIndex < d->mGraphicItems.size())
         itemToSelect = d->mGraphicItems.at(pIndex);
 
-    foreach (QGraphicsItem* item, items())
-    {
-        if (item == itemToSelect)
-        {
-            d->mLastSelectedThumbnail = dynamic_cast<Thumbnail*>(item);
+    foreach (QGraphicsItem *item, items()) {
+        if (item == itemToSelect) {
+            d->mLastSelectedThumbnail = dynamic_cast<Thumbnail *>(item);
             item->setSelected(true);
             ensureVisible(item);
-        }
-        else if (!extend)
-        {
+        } else if (!extend) {
             item->setSelected(false);
         }
     }
 }
 
-void ThumbnailWidget::unselectItemAt(int pIndex)
-{
-    if (pIndex >= 0 && pIndex < d->mGraphicItems.size())
-    {
+void ThumbnailWidget::unselectItemAt(int pIndex) {
+    if (pIndex >= 0 && pIndex < d->mGraphicItems.size()) {
         QGraphicsItem *itemToUnselect = d->mGraphicItems.at(pIndex);
         itemToUnselect->setSelected(false);
     }
 }
 
 
-void ThumbnailWidget::selectItems(int startIndex, int count)
-{
-    for (int i = 0; i < d->mGraphicItems.count(); i++)
-    {
+void ThumbnailWidget::selectItems(int startIndex, int count) {
+    for (int i = 0; i < d->mGraphicItems.count(); i++) {
         d->mGraphicItems.at(i)->setSelected(i >= startIndex && i < startIndex + count);
     }
 }
 
 
-void ThumbnailWidget::selectAll()
-{
-    foreach (QGraphicsItem* item, d->mGraphicItems)
-    {
+void ThumbnailWidget::selectAll() {
+    foreach (QGraphicsItem *item, d->mGraphicItems) {
         item->setSelected(true);
     }
 }
 
-int ThumbnailWidget::rowCount() const
-{
-    Thumbnail *lastThumbnail = dynamic_cast<Thumbnail*>(d->mGraphicItems.last());
+int ThumbnailWidget::rowCount() const {
+    Thumbnail *lastThumbnail = dynamic_cast<Thumbnail *>(d->mGraphicItems.last());
     return lastThumbnail ? lastThumbnail->row() + 1 : 0;
 }
 
-int ThumbnailWidget::columnCount() const
-{
-    Thumbnail *lastThumbnail = dynamic_cast<Thumbnail*>(d->mGraphicItems.last());
-    if (!lastThumbnail) return 0;
+int ThumbnailWidget::columnCount() const {
+    Thumbnail *lastThumbnail = dynamic_cast<Thumbnail *>(d->mGraphicItems.last());
+    if (!lastThumbnail)
+        return 0;
     int lastRow = lastThumbnail->row();
     int lastColumn = lastThumbnail->column();
     return lastRow > 0 ? (d->mGraphicItems.count() - lastColumn - 1) / lastRow : d->mGraphicItems.count();
 }
 
 
-void ThumbnailWidget::mouseDoubleClickEvent(QMouseEvent * event)
-{
-    QGraphicsItem* item = itemAt(event->pos());
+void ThumbnailWidget::mouseDoubleClickEvent(QMouseEvent *event) {
+    QGraphicsItem *item = itemAt(event->pos());
 
-    if (item)
-    {
+    if (item) {
         int index = d->mGraphicItems.indexOf(item);
         emit mouseDoubleClick(item, index);
     }
 }
 
 
-bool ThumbnailWidget::thumbnailLessThan(QGraphicsItem* item1, QGraphicsItem* item2)
-{
-    Thumbnail *thumbnail1 = dynamic_cast<Thumbnail*>(item1);
-    Thumbnail *thumbnail2 = dynamic_cast<Thumbnail*>(item2);
-    if (thumbnail1 && thumbnail2)
-    {
+bool ThumbnailWidget::thumbnailLessThan(QGraphicsItem *item1, QGraphicsItem *item2) {
+    Thumbnail *thumbnail1 = dynamic_cast<Thumbnail *>(item1);
+    Thumbnail *thumbnail2 = dynamic_cast<Thumbnail *>(item2);
+    if (thumbnail1 && thumbnail2) {
         if (thumbnail1->row() != thumbnail2->row())
             return thumbnail1->row() < thumbnail2->row();
         else
@@ -848,10 +760,8 @@ bool ThumbnailWidget::thumbnailLessThan(QGraphicsItem* item1, QGraphicsItem* ite
     return false;
 }
 
-void ThumbnailWidget::deleteLasso()
-{
-    if (d->mLassoRectItem && scene())
-    {
+void ThumbnailWidget::deleteLasso() {
+    if (d->mLassoRectItem && scene()) {
         scene()->removeItem(d->mLassoRectItem);
         delete d->mLassoRectItem;
         d->mLassoRectItem = 0;
@@ -859,97 +769,75 @@ void ThumbnailWidget::deleteLasso()
 }
 
 
-Thumbnail::Thumbnail()
-    : d(new Private)
-{
+Thumbnail::Thumbnail() : d(new Private) {
     d->mSelectionItem = new QGraphicsRectItem(0, 0, 0, 0);
     d->mSelectionItem->setPen(QPen(Settings::treeViewBackgroundColor, 8));
-
 }
 
-Thumbnail::~Thumbnail()
-{
+Thumbnail::~Thumbnail() {
     if (d->mSelectionItem && !d->mAddedToScene)
         delete d->mSelectionItem;
 }
 
-void Thumbnail::itemChange(QGraphicsItem *item, QGraphicsItem::GraphicsItemChange change, const QVariant &value)
-{
+void Thumbnail::itemChange(QGraphicsItem *item, QGraphicsItem::GraphicsItemChange change,
+                           const QVariant &value) {
     Q_UNUSED(value);
 
-    if ((change == QGraphicsItem::ItemSelectedHasChanged
-            || change == QGraphicsItem::ItemTransformHasChanged
-            || change == QGraphicsItem::ItemPositionHasChanged)
-            &&  item->scene())
-    {
-        if (item->isSelected())
-        {
-            if (!d->mSelectionItem->scene())
-            {
+    if ((change == QGraphicsItem::ItemSelectedHasChanged ||
+         change == QGraphicsItem::ItemTransformHasChanged ||
+         change == QGraphicsItem::ItemPositionHasChanged) &&
+        item->scene()) {
+        if (item->isSelected()) {
+            if (!d->mSelectionItem->scene()) {
                 item->scene()->addItem(d->mSelectionItem);
                 d->mSelectionItem->setZValue(item->zValue() - 1);
                 d->mAddedToScene = true;
             }
 
-            d->mSelectionItem->setRect(
-                item->sceneBoundingRect().x() - 5,
-                item->sceneBoundingRect().y() - 5,
-                item->sceneBoundingRect().width() + 10,
-                item->sceneBoundingRect().height() + 10);
+            d->mSelectionItem->setRect(item->sceneBoundingRect().x() - 5, item->sceneBoundingRect().y() - 5,
+                                       item->sceneBoundingRect().width() + 10,
+                                       item->sceneBoundingRect().height() + 10);
 
             d->mSelectionItem->show();
 
-        }
-        else
-        {
+        } else {
             d->mSelectionItem->hide();
         }
     }
 }
 
-int Thumbnail::column()
-{
+int Thumbnail::column() {
     return d->mColumn;
 }
 
-void Thumbnail::setColumn(int column)
-{
+void Thumbnail::setColumn(int column) {
     d->mColumn = column;
 }
 
-int Thumbnail::row()
-{
+int Thumbnail::row() {
     return d->mRow;
 }
 
-void Thumbnail::setRow(int row)
-{
+void Thumbnail::setRow(int row) {
     d->mRow = row;
 }
 
-ThumbnailTextItem *Thumbnail::label()
-{
+ThumbnailTextItem *Thumbnail::label() {
     return d->mLabel;
 }
 
-void Thumbnail::setLabel(ThumbnailTextItem *label)
-{
+void Thumbnail::setLabel(ThumbnailTextItem *label) {
     d->mLabel = label;
 }
 
 ThumbnailTextItem::ThumbnailTextItem(int index)
-    : QGraphicsTextItem(tr("Page %0").arg(index+1))
-    , d(new Private)
-{
+    : QGraphicsTextItem(tr("Page %0").arg(index + 1)), d(new Private) {
     d->mWidth = 0;
     d->mUnelidedText = toPlainText();
     d->mIsHighlighted = false;
 }
 
-ThumbnailTextItem::ThumbnailTextItem(const QString& text)
-    : QGraphicsTextItem(text)
-    , d(new Private)
-{
+ThumbnailTextItem::ThumbnailTextItem(const QString &text) : QGraphicsTextItem(text), d(new Private) {
     d->mWidth = 0;
     d->mUnelidedText = text;
     d->mIsHighlighted = false;
@@ -959,149 +847,118 @@ ThumbnailTextItem::ThumbnailTextItem(const QString& text)
 
 ThumbnailTextItem::~ThumbnailTextItem() = default;
 
-QRectF ThumbnailTextItem::boundingRect() const
-{
+QRectF ThumbnailTextItem::boundingRect() const {
     return QRectF(QPointF(0.0, 0.0), QSize(d->mWidth, QFontMetricsF(font()).height() + 5));
 }
 
-void ThumbnailTextItem::setWidth(qreal pWidth)
-{
-        if (d->mWidth != pWidth)
-        {
-                prepareGeometryChange();
-                d->mWidth = pWidth;
-                computeText();
-        }
+void ThumbnailTextItem::setWidth(qreal pWidth) {
+    if (d->mWidth != pWidth) {
+        prepareGeometryChange();
+        d->mWidth = pWidth;
+        computeText();
+    }
 }
 
-qreal ThumbnailTextItem::width()
-{
+qreal ThumbnailTextItem::width() {
     return d->mWidth;
 }
 
-void ThumbnailTextItem::highlight()
-{
-        if (!d->mIsHighlighted)
-        {
-                d->mIsHighlighted = true;
-                computeText();
-        }
+void ThumbnailTextItem::highlight() {
+    if (!d->mIsHighlighted) {
+        d->mIsHighlighted = true;
+        computeText();
+    }
 }
 
-void ThumbnailTextItem::computeText()
-{
+void ThumbnailTextItem::computeText() {
     QFontMetricsF fm(font());
     QString elidedText = fm.elidedText(d->mUnelidedText, Qt::ElideRight, d->mWidth);
 
-    if (d->mIsHighlighted)
-    {
+    if (d->mIsHighlighted) {
         setHtml("<span style=\"color: #6682b5\">" + elidedText + "</span>");
-    }
-    else
-    {
+    } else {
         setPlainText(elidedText);
     }
 }
 
-SceneThumbnailPixmap::SceneThumbnailPixmap(const QPixmap& pix, DocumentProxy* proxy, int pSceneIndex)
-    : ThumbnailPixmap(pix)
-    , d(new Private)
-{
+SceneThumbnailPixmap::SceneThumbnailPixmap(const QPixmap &pix, DocumentProxy *proxy, int pSceneIndex)
+    : ThumbnailPixmap(pix), d(new Private) {
     d->mProxy = proxy;
     d->mSceneIndex = pSceneIndex;
 }
 
 SceneThumbnailPixmap::~SceneThumbnailPixmap() = default;
 
-DocumentProxy* SceneThumbnailPixmap::proxy()
-{
+DocumentProxy *SceneThumbnailPixmap::proxy() {
     return d->mProxy;
 }
 
-int SceneThumbnailPixmap::sceneIndex()
-{
+int SceneThumbnailPixmap::sceneIndex() {
     return d->mSceneIndex;
 }
 
-void SceneThumbnailPixmap::highlight()
-{
+void SceneThumbnailPixmap::highlight() {}
 
-}
-
-SceneThumbnailNavigPixmap::SceneThumbnailNavigPixmap(const QPixmap& pix, DocumentProxy* proxy, int pSceneIndex)
-    : SceneThumbnailPixmap(pix, proxy, pSceneIndex)
-    , d(new Private)
-{
+SceneThumbnailNavigPixmap::SceneThumbnailNavigPixmap(const QPixmap &pix, DocumentProxy *proxy,
+                                                     int pSceneIndex)
+    : SceneThumbnailPixmap(pix, proxy, pSceneIndex), d(new Private) {
     d->mEditable = false;
 
-    if(0 <= DocumentContainer::pageFromSceneIndex(pSceneIndex)){
+    if (0 <= DocumentContainer::pageFromSceneIndex(pSceneIndex)) {
         setAcceptHoverEvents(true);
         setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
 }
 
-SceneThumbnailNavigPixmap::~SceneThumbnailNavigPixmap()
-{
+SceneThumbnailNavigPixmap::~SceneThumbnailNavigPixmap() {}
 
-}
-
-bool SceneThumbnailNavigPixmap::editable()
-{
+bool SceneThumbnailNavigPixmap::editable() {
     return d->mEditable;
 }
 
-bool SceneThumbnailNavigPixmap::deletable()
-{
+bool SceneThumbnailNavigPixmap::deletable() {
     return proxy()->pageCount() > 1;
 }
 
-bool SceneThumbnailNavigPixmap::movableUp()
-{
+bool SceneThumbnailNavigPixmap::movableUp() {
     return sceneIndex() > 0;
 }
 
-bool SceneThumbnailNavigPixmap::movableDown()
-{
-    return sceneIndex() < (proxy()->pageCount() -1);
+bool SceneThumbnailNavigPixmap::movableDown() {
+    return sceneIndex() < (proxy()->pageCount() - 1);
 }
 
-void SceneThumbnailNavigPixmap::showUI()
-{
+void SceneThumbnailNavigPixmap::showUI() {
     setEditable(true);
 }
 
-void SceneThumbnailNavigPixmap::hideUI()
-{
+void SceneThumbnailNavigPixmap::hideUI() {
     setEditable(false);
 }
 
-void SceneThumbnailNavigPixmap::setEditable(bool editable)
-{
+void SceneThumbnailNavigPixmap::setEditable(bool editable) {
     d->mEditable = editable;
 }
 
-void SceneThumbnailNavigPixmap::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
+void SceneThumbnailNavigPixmap::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     event->accept();
     showUI();
     update();
 }
 
-void SceneThumbnailNavigPixmap::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
+void SceneThumbnailNavigPixmap::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     event->accept();
     hideUI();
     update();
 }
 
-void SceneThumbnailNavigPixmap::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void SceneThumbnailNavigPixmap::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                                      QWidget *widget) {
     SceneThumbnailPixmap::paint(painter, option, widget);
     using namespace ThumbnailUI;
 
-    if (editable())
-    {
-        if(deletable())
+    if (editable()) {
+        if (deletable())
             draw(painter, *getIcon("close"));
         else
             draw(painter, *getIcon("closeDisabled"));
@@ -1110,26 +967,19 @@ void SceneThumbnailNavigPixmap::paint(QPainter *painter, const QStyleOptionGraph
     }
 }
 
-void SceneThumbnailNavigPixmap::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+void SceneThumbnailNavigPixmap::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     QPointF p = event->pos();
 
     using namespace ThumbnailUI;
 
-    if (triggered(p.y()))
-    {
-        if(deletable() && getIcon("close")->triggered(p.x()))
-        {
+    if (triggered(p.y())) {
+        if (deletable() && getIcon("close")->triggered(p.x())) {
             event->accept();
             deletePage();
-        }
-        else if(getIcon("duplicate")->triggered(p.x()))
-        {
+        } else if (getIcon("duplicate")->triggered(p.x())) {
             event->accept();
             duplicatePage();
-        }
-        else
-        {
+        } else {
             event->ignore();
         }
         /*
@@ -1144,55 +994,49 @@ void SceneThumbnailNavigPixmap::mousePressEvent(QGraphicsSceneMouseEvent *event)
             moveDownPage();
         }
         */
-    }
-    else
-    {
+    } else {
         event->ignore();
     }
 }
 
-void SceneThumbnailNavigPixmap::deletePage()
-{
-    if(Application::mainWindow->yesNoQuestion(QObject::tr("Remove Page"), QObject::tr("Are you sure you want to remove 1 page from the selected document '%0'?").arg(proxy()->metaData(Settings::documentName).toString()))){
+void SceneThumbnailNavigPixmap::deletePage() {
+    if (Application::mainWindow->yesNoQuestion(
+            QObject::tr("Remove Page"),
+            QObject::tr("Are you sure you want to remove 1 page from the selected document '%0'?")
+                .arg(proxy()->metaData(Settings::documentName).toString()))) {
         Application::boardController->deleteScene(sceneIndex());
     }
 }
 
-void SceneThumbnailNavigPixmap::duplicatePage()
-{
+void SceneThumbnailNavigPixmap::duplicatePage() {
     Application::boardController->duplicateScene(sceneIndex());
 }
 
-void SceneThumbnailNavigPixmap::moveUpPage()
-{
-    if (sceneIndex()!=0)
+void SceneThumbnailNavigPixmap::moveUpPage() {
+    if (sceneIndex() != 0)
         Application::boardController->moveSceneToIndex(sceneIndex(), sceneIndex() - 1);
 }
 
-void SceneThumbnailNavigPixmap::moveDownPage()
-{
-    if (sceneIndex() < Application::boardController->selectedDocument()->pageCount()-1)
+void SceneThumbnailNavigPixmap::moveDownPage() {
+    if (sceneIndex() < Application::boardController->selectedDocument()->pageCount() - 1)
         Application::boardController->moveSceneToIndex(sceneIndex(), sceneIndex() + 1);
 }
 
 
-void ImgTextThumbnailElement::Place(int row, int col, qreal width, qreal height)
-{
+void ImgTextThumbnailElement::Place(int row, int col, qreal width, qreal height) {
     int labelSpacing = 0;
-    if(this->caption)
-    {
+    if (this->caption) {
         QFontMetrics fm(this->caption->font());
         labelSpacing = Settings::thumbnailSpacing + fm.height();
     }
-    if(this->thumbnail)
-    {
+    if (this->thumbnail) {
         int w = this->thumbnail->boundingRect().width();
         int h = this->thumbnail->boundingRect().height();
 
         qreal scaleWidth = width / w;
         qreal scaleHeight = height / h;
         qreal scaleFactor = qMin(scaleWidth, scaleHeight);
-        Thumbnail* pix = dynamic_cast<Thumbnail*>(this->thumbnail);
+        Thumbnail *pix = dynamic_cast<Thumbnail *>(this->thumbnail);
 
         QTransform transform;
         transform.scale(scaleFactor, scaleFactor);
@@ -1201,8 +1045,7 @@ void ImgTextThumbnailElement::Place(int row, int col, qreal width, qreal height)
         this->thumbnail->setTransform(transform);
         this->thumbnail->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-        if(pix)
-        {
+        if (pix) {
             pix->setColumn(col);
             pix->setRow(row);
         }
@@ -1215,13 +1058,13 @@ void ImgTextThumbnailElement::Place(int row, int col, qreal width, qreal height)
 
         this->thumbnail->setPos(pos);
 
-        if(this->caption)
-        {
+        if (this->caption) {
             QFontMetrics fm(this->caption->font());
             QString elidedText = fm.elidedText(this->caption->toPlainText(), Qt::ElideRight, width);
 
             this->caption->setPlainText(elidedText);
-            this->caption->setWidth(fm.horizontalAdvance(elidedText) + 2 * this->caption->document()->documentMargin());
+            this->caption->setWidth(fm.horizontalAdvance(elidedText) +
+                                    2 * this->caption->document()->documentMargin());
             pos.setY(pos.y() + (height + h * scaleFactor) / 2 + 5); // What is this 5 ??
             qreal labelWidth = fm.horizontalAdvance(elidedText);
             pos.setX((width - labelWidth) / 2 + col * (width + border));
@@ -1230,103 +1073,85 @@ void ImgTextThumbnailElement::Place(int row, int col, qreal width, qreal height)
     }
 }
 
-ThumbnailProxyWidget::ThumbnailProxyWidget(DocumentProxy* proxy, int index)
-    : QGraphicsProxyWidget()
-    , d(new Private)
-{
+ThumbnailProxyWidget::ThumbnailProxyWidget(DocumentProxy *proxy, int index)
+    : QGraphicsProxyWidget(), d(new Private) {
     d->mDocumentProxy = proxy;
     d->mSceneIndex = index;
 }
 
 ThumbnailProxyWidget::~ThumbnailProxyWidget() = default;
 
-DocumentProxy* ThumbnailProxyWidget::documentProxy()
-{
+DocumentProxy *ThumbnailProxyWidget::documentProxy() {
     return d->mDocumentProxy;
 }
 
-void ThumbnailProxyWidget::setSceneIndex(int i)
-{
+void ThumbnailProxyWidget::setSceneIndex(int i) {
     d->mSceneIndex = i;
 }
 
-int ThumbnailProxyWidget::sceneIndex()
-{
+int ThumbnailProxyWidget::sceneIndex() {
     return d->mSceneIndex;
 }
 
-DraggableThumbnail::DraggableThumbnail(DocumentProxy* documentProxy, int index)
-    : ThumbnailProxyWidget(documentProxy, index)
-    , d(new Private)
-{
+DraggableThumbnail::DraggableThumbnail(DocumentProxy *documentProxy, int index)
+    : ThumbnailProxyWidget(documentProxy, index), d(new Private) {
     d->mPageNumber = new ThumbnailTextItem(index);
     d->mEditable = false;
 }
 
-DraggableThumbnail::~DraggableThumbnail()
-{
+DraggableThumbnail::~DraggableThumbnail() {
     delete d->mPageNumber;
     d->mPageNumber = nullptr;
 }
 
-bool DraggableThumbnail::editable()
-{
+bool DraggableThumbnail::editable() {
     return d->mEditable;
 }
 
-bool DraggableThumbnail::deletable()
-{
+bool DraggableThumbnail::deletable() {
     return documentProxy()->pageCount() > 1;
 }
 
-bool DraggableThumbnail::movableUp()
-{
+bool DraggableThumbnail::movableUp() {
     return sceneIndex() > 0;
 }
 
-bool DraggableThumbnail::movableDown()
-{
-    return sceneIndex() < (documentProxy()->pageCount() -1);
+bool DraggableThumbnail::movableDown() {
+    return sceneIndex() < (documentProxy()->pageCount() - 1);
 }
 
-void DraggableThumbnail::showUI()
-{
+void DraggableThumbnail::showUI() {
     setEditable(true);
 }
 
-void DraggableThumbnail::hideUI()
-{
+void DraggableThumbnail::hideUI() {
     setEditable(false);
 }
 
-void DraggableThumbnail::setEditable(bool editable)
-{
+void DraggableThumbnail::setEditable(bool editable) {
     d->mEditable = editable;
 }
 
-ThumbnailTextItem* DraggableThumbnail::pageNumber()
-{
+ThumbnailTextItem *DraggableThumbnail::pageNumber() {
     return d->mPageNumber;
 }
 
-void DraggableThumbnail::setPageNumber(int i)
-{
-    d->mPageNumber->setPlainText(tr("Page %0").arg(i+1));
+void DraggableThumbnail::setPageNumber(int i) {
+    d->mPageNumber->setPlainText(tr("Page %0").arg(i + 1));
 
     if (Application::boardController->activeSceneIndex() == i)
-        d->mPageNumber->setHtml("<span style=\";font-weight:bold;color: red\">" + tr("Page %0").arg(i+1) + "</span>");
+        d->mPageNumber->setHtml("<span style=\";font-weight:bold;color: red\">" + tr("Page %0").arg(i + 1) +
+                                "</span>");
     else
-        d->mPageNumber->setHtml("<span style=\";color: #000000\">" + tr("Page %0").arg(i+1) + "</span>");
+        d->mPageNumber->setHtml("<span style=\";color: #000000\">" + tr("Page %0").arg(i + 1) + "</span>");
 }
 
-void DraggableThumbnail::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void DraggableThumbnail::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     QGraphicsProxyWidget::paint(painter, option, widget);
     using namespace ThumbnailUI;
 
-    if (editable())
-    {        
-        if(deletable())
+    if (editable()) {
+        if (deletable())
             draw(painter, *getIcon("close"));
         else
             draw(painter, *getIcon("closeDisabled"));
@@ -1344,68 +1169,59 @@ void DraggableThumbnail::paint(QPainter *painter, const QStyleOptionGraphicsItem
         else
             draw(painter, *getIcon("moveDownDisabled"));
         */
-
     }
 }
 
-void DraggableThumbnail::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
+void DraggableThumbnail::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     event->accept();
     showUI();
     update();
 }
 
-void DraggableThumbnail::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
+void DraggableThumbnail::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     event->accept();
     hideUI();
     update();
 }
 
-void DraggableThumbnail::deletePage()
-{
-    if(Application::mainWindow->yesNoQuestion(QObject::tr("Remove Page"), QObject::tr("Are you sure you want to remove 1 page from the selected document '%0'?").arg(Application::documentController->selectedDocument()->metaData(Settings::documentName).toString()))){
+void DraggableThumbnail::deletePage() {
+    if (Application::mainWindow->yesNoQuestion(
+            QObject::tr("Remove Page"),
+            QObject::tr("Are you sure you want to remove 1 page from the selected document '%0'?")
+                .arg(Application::documentController->selectedDocument()
+                         ->metaData(Settings::documentName)
+                         .toString()))) {
         Application::boardController->deleteScene(sceneIndex());
     }
 }
 
-void DraggableThumbnail::duplicatePage()
-{
+void DraggableThumbnail::duplicatePage() {
     Application::boardController->duplicateScene(sceneIndex());
 }
 
-void DraggableThumbnail::moveUpPage()
-{
-    if (sceneIndex()!=0)
+void DraggableThumbnail::moveUpPage() {
+    if (sceneIndex() != 0)
         Application::boardController->moveSceneToIndex(sceneIndex(), sceneIndex() - 1);
 }
 
-void DraggableThumbnail::moveDownPage()
-{
-    if (sceneIndex() < Application::boardController->selectedDocument()->pageCount()-1)
+void DraggableThumbnail::moveDownPage() {
+    if (sceneIndex() < Application::boardController->selectedDocument()->pageCount() - 1)
         Application::boardController->moveSceneToIndex(sceneIndex(), sceneIndex() + 1);
 }
 
-void DraggableThumbnail::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+void DraggableThumbnail::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     QPointF p = event->pos();
 
     using namespace ThumbnailUI;
 
-    if (triggered(p.y()))
-    {
-        if(deletable() && getIcon("close")->triggered(p.x()))
-        {
+    if (triggered(p.y())) {
+        if (deletable() && getIcon("close")->triggered(p.x())) {
             event->accept();
             deletePage();
-        }
-        else if(getIcon("duplicate")->triggered(p.x()))
-        {
+        } else if (getIcon("duplicate")->triggered(p.x())) {
             event->accept();
             duplicatePage();
-        }
-        else
-        {
+        } else {
             event->ignore();
         }
         /*
@@ -1413,21 +1229,17 @@ void DraggableThumbnail::mousePressEvent(QGraphicsSceneMouseEvent *event)
             moveUpPage();
         else if (movableDown() && getIcon("moveDown")->triggered(p.x()))
             moveDownPage();*/
-    }
-    else
-    {
+    } else {
         event->ignore();
     }
 }
 
-void DraggableThumbnail::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void DraggableThumbnail::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     event->accept();
 }
 
 
-void DraggableThumbnail::updatePos(qreal width, qreal height)
-{
+void DraggableThumbnail::updatePos(qreal width, qreal height) {
     QFontMetrics fm(d->mPageNumber->font());
     int labelSpacing = Settings::thumbnailSpacing + fm.height();
 
@@ -1446,18 +1258,18 @@ void DraggableThumbnail::updatePos(qreal width, qreal height)
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     QPointF position((width - w * scaledFactor) / 2,
-                sceneIndex() * (height + labelSpacing) + (height - h * scaledFactor) / 2);
+                     sceneIndex() * (height + labelSpacing) + (height - h * scaledFactor) / 2);
 
     setPos(position);
 
     position.setY(position.y() + (height + h * scaledFactor) / 2);
-    position.setX(position.x() + (w * scaledFactor - fm.horizontalAdvance(d->mPageNumber->toPlainText())) / 2);
+    position.setX(position.x() +
+                  (w * scaledFactor - fm.horizontalAdvance(d->mPageNumber->toPlainText())) / 2);
 
     d->mPageNumber->setPos(position);
 }
 
-void DraggableThumbnailPixmap::updatePos(qreal width, qreal height)
-{
+void DraggableThumbnailPixmap::updatePos(qreal width, qreal height) {
     QFontMetrics fm(pageNumber()->font());
     int labelSpacing = Settings::thumbnailSpacing + fm.height();
 
@@ -1476,7 +1288,7 @@ void DraggableThumbnailPixmap::updatePos(qreal width, qreal height)
     thumbnailPixmap()->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     QPointF position((width - w * scaledFactor) / 2,
-                sceneIndex() * (height + labelSpacing) + (height - h * scaledFactor) / 2);
+                     sceneIndex() * (height + labelSpacing) + (height - h * scaledFactor) / 2);
 
     thumbnailPixmap()->setPos(position);
 
@@ -1486,68 +1298,57 @@ void DraggableThumbnailPixmap::updatePos(qreal width, qreal height)
     pageNumber()->setPos(position);
 }
 
-DraggableThumbnailPixmap::DraggableThumbnailPixmap(ThumbnailPixmap* thumbnailPixmap, DocumentProxy* documentProxy, int index)
-    : DraggableThumbnail(documentProxy, index)
-    , d(new Private)
-{
+DraggableThumbnailPixmap::DraggableThumbnailPixmap(ThumbnailPixmap *thumbnailPixmap,
+                                                   DocumentProxy *documentProxy, int index)
+    : DraggableThumbnail(documentProxy, index), d(new Private) {
     d->mThumbnailPixmap = thumbnailPixmap;
 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setAcceptDrops(true);
 }
 
-DraggableThumbnailPixmap::~DraggableThumbnailPixmap()
-{
+DraggableThumbnailPixmap::~DraggableThumbnailPixmap() {}
 
-}
-
-ThumbnailPixmap* DraggableThumbnailPixmap::thumbnailPixmap()
-{
+ThumbnailPixmap *DraggableThumbnailPixmap::thumbnailPixmap() {
     return d->mThumbnailPixmap;
 }
 
-DraggableThumbnailView::DraggableThumbnailView(ThumbnailView* thumbnailView, DocumentProxy* documentProxy, int index)
-    : DraggableThumbnail(documentProxy, index)
-    , d(new Private)
-{
+DraggableThumbnailView::DraggableThumbnailView(ThumbnailView *thumbnailView, DocumentProxy *documentProxy,
+                                               int index)
+    : DraggableThumbnail(documentProxy, index), d(new Private) {
     d->mThumbnailView = thumbnailView;
 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setWidget(d->mThumbnailView);
-    setAcceptDrops(true);            
+    setAcceptDrops(true);
 }
 
-DraggableThumbnailView::~DraggableThumbnailView()
-{
+DraggableThumbnailView::~DraggableThumbnailView() {
     // mPageNumber is owned by ~DraggableThumbnail; deleting it here was a
     // double free on every DraggableThumbnailView.
 }
 
-ThumbnailView* DraggableThumbnailView::thumbnailView()
-{
+ThumbnailView *DraggableThumbnailView::thumbnailView() {
     return d->mThumbnailView;
 }
 
-ThumbnailTextItem* DraggableThumbnailView::pageNumber()
-{
+ThumbnailTextItem *DraggableThumbnailView::pageNumber() {
     return DraggableThumbnail::pageNumber();
 }
 
-void DraggableThumbnailView::setPageNumber(int i)
-{
-    pageNumber()->setPlainText(tr("Page %0").arg(i+1));
+void DraggableThumbnailView::setPageNumber(int i) {
+    pageNumber()->setPlainText(tr("Page %0").arg(i + 1));
 
     if (Application::boardController->activeSceneIndex() == i)
-        pageNumber()->setHtml("<span style=\";font-weight:bold;color: red\">" + tr("Page %0").arg(i+1) + "</span>");
+        pageNumber()->setHtml("<span style=\";font-weight:bold;color: red\">" + tr("Page %0").arg(i + 1) +
+                              "</span>");
     else
-        pageNumber()->setHtml("<span style=\";color: #000000\">" + tr("Page %0").arg(i+1) + "</span>");
+        pageNumber()->setHtml("<span style=\";color: #000000\">" + tr("Page %0").arg(i + 1) + "</span>");
 }
 
 
-ThumbnailUI::ThumbnailUIIcon::ThumbnailUIIcon(const QString& filename, int pos)
-    : QPixmap(QSize(ThumbnailUI::ICONSIZE, ThumbnailUI::ICONSIZE))
-    , d(new Private)
-{
+ThumbnailUI::ThumbnailUIIcon::ThumbnailUIIcon(const QString &filename, int pos)
+    : QPixmap(QSize(ThumbnailUI::ICONSIZE, ThumbnailUI::ICONSIZE)), d(new Private) {
     d->mPos = pos;
 
     QSvgRenderer svgRenderer(filename);
@@ -1560,21 +1361,18 @@ ThumbnailUI::ThumbnailUIIcon::ThumbnailUIIcon(const QString& filename, int pos)
 
 ThumbnailUI::ThumbnailUIIcon::~ThumbnailUIIcon() = default;
 
-int ThumbnailUI::ThumbnailUIIcon::pos() const
-{
+int ThumbnailUI::ThumbnailUIIcon::pos() const {
     return d->mPos;
 }
 
-bool ThumbnailUI::ThumbnailUIIcon::triggered(qreal x) const
-{
+bool ThumbnailUI::ThumbnailUIIcon::triggered(qreal x) const {
     using namespace ThumbnailUI;
-    return (x >= pos()*(ICONSIZE + ICONSPACING) && x <= (pos()+1)*ICONSIZE + pos()*ICONSPACING);
+    return (x >= pos() * (ICONSIZE + ICONSPACING) && x <= (pos() + 1) * ICONSIZE + pos() * ICONSPACING);
 }
 
-ThumbnailUI::ThumbnailUIIcon* ThumbnailUI::addIcon(const QString& thumbnailIcon, int pos)
-{
+ThumbnailUI::ThumbnailUIIcon *ThumbnailUI::addIcon(const QString &thumbnailIcon, int pos) {
     QString thumbnailIconPath = ":images/" + thumbnailIcon + ".svg";
-    ThumbnailUIIcon* newIcon = new ThumbnailUIIcon(thumbnailIconPath, pos);
+    ThumbnailUIIcon *newIcon = new ThumbnailUIIcon(thumbnailIconPath, pos);
 
     using namespace ThumbnailUI::_private;
     if (!newIcon)
@@ -1585,8 +1383,7 @@ ThumbnailUI::ThumbnailUIIcon* ThumbnailUI::addIcon(const QString& thumbnailIcon,
     return newIcon;
 }
 
-ThumbnailUI::ThumbnailUIIcon* ThumbnailUI::getIcon(const QString& thumbnailIcon)
-{
+ThumbnailUI::ThumbnailUIIcon *ThumbnailUI::getIcon(const QString &thumbnailIcon) {
     using namespace ThumbnailUI::_private;
     if (!catalog.contains(thumbnailIcon))
         qDebug() << "cannot get Icon: check path ':images/" + thumbnailIcon + ".svg'";
@@ -1594,14 +1391,12 @@ ThumbnailUI::ThumbnailUIIcon* ThumbnailUI::getIcon(const QString& thumbnailIcon)
     return catalog.value(thumbnailIcon, NULL);
 }
 
-void ThumbnailUI::draw(QPainter *painter, const ThumbnailUIIcon &thumbnailIcon)
-{
+void ThumbnailUI::draw(QPainter *painter, const ThumbnailUIIcon &thumbnailIcon) {
     using namespace ThumbnailUI;
     painter->drawPixmap(thumbnailIcon.pos() * (ICONSIZE + ICONSPACING), 0, ICONSIZE, ICONSIZE, thumbnailIcon);
 }
 
-void ThumbnailUI::_private::initCatalog()
-{
+void ThumbnailUI::_private::initCatalog() {
     using namespace ThumbnailUI;
     using namespace ThumbnailUI::_private;
 
@@ -1617,7 +1412,6 @@ void ThumbnailUI::_private::initCatalog()
     addIcon("moveDownDisabled", 3);
 }
 
-bool ThumbnailUI::triggered(qreal y)
-{
+bool ThumbnailUI::triggered(qreal y) {
     return (y >= 0 && y <= ThumbnailUI::ICONSIZE);
 }

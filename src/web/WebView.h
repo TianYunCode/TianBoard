@@ -9,21 +9,19 @@
 class BrowserWindow;
 class QWebEngineDownloadRequest;
 
-class WebPage : public QWebEnginePage
-{
+class WebPage : public QWebEnginePage {
     Q_OBJECT;
 
 public:
     WebPage(QObject *parent = 0);
     BrowserWindow *mainWindow();
 
-    void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level,
-                                  const QString &message, int lineNumber,
-                                  const QString &sourceID) override;
+    void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message,
+                                  int lineNumber, const QString &sourceID) override;
 
 protected:
     bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override;
-	QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type);
+    QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type);
 
     //bool supportsExtension(Extension extension) const {
     //    if (extension == QWebEnginePage::ErrorPageExtension)
@@ -61,8 +59,7 @@ private:
     bool mOpenInNewTab;
 };
 
-class WebView : public WebTrapWebView
-{
+class WebView : public WebTrapWebView {
     Q_OBJECT
 
 public:
@@ -94,4 +91,3 @@ private:
     WebPage *mPage;
     QElapsedTimer mLoadStartTime;
 };
-

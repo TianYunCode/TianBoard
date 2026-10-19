@@ -5,16 +5,15 @@
 #include "whiteboard/Item.h"
 #include "whiteboard/CoreGraphicsScene.h"
 
-class GraphicsGroupContainerItem : public QGraphicsItem, public Item, public GraphicsItem
-{
+class GraphicsGroupContainerItem : public QGraphicsItem, public Item, public GraphicsItem {
 public:
-    GraphicsGroupContainerItem (QGraphicsItem *parent = 0);
+    GraphicsGroupContainerItem(QGraphicsItem *parent = 0);
     virtual ~GraphicsGroupContainerItem();
 
     void addToGroup(QGraphicsItem *item);
     void removeFromGroup(QGraphicsItem *item);
-    void setCurrentItem(QGraphicsItem *item){mCurrentItem = item;}
-    QGraphicsItem *getCurrentItem() const {return mCurrentItem;}
+    void setCurrentItem(QGraphicsItem *item) { mCurrentItem = item; }
+    QGraphicsItem *getCurrentItem() const { return mCurrentItem; }
     void deselectCurrentItem();
 
     QRectF boundingRect() const;
@@ -27,10 +26,7 @@ public:
 
     enum { Type = GraphicsItemType::groupContainerType };
 
-    virtual int type() const
-    {
-        return Type;
-    }
+    virtual int type() const { return Type; }
 
     virtual void setUuid(const QUuid &pUuid);
     void destroy(bool canUndo = true);
@@ -49,6 +45,4 @@ protected:
 private:
     QRectF itemsBoundingRect;
     QGraphicsItem *mCurrentItem;
-
 };
-

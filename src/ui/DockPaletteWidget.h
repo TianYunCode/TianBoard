@@ -7,19 +7,12 @@
 #include <memory>
 
 /** 白板当前处于哪个界面，决定哪些停靠面板可见 */
-enum class DockWidgetMode
-{
-    Board,
-    Web,
-    Document,
-    Desktop
-};
+enum class DockWidgetMode { Board, Web, Document, Desktop };
 
-class DockPaletteWidget : public QWidget
-{
+class DockPaletteWidget : public QWidget {
     Q_OBJECT
 public:
-    DockPaletteWidget(QWidget* parent=0, const char* name="DockPaletteWidget");
+    DockPaletteWidget(QWidget *parent = 0, const char *name = "DockPaletteWidget");
     ~DockPaletteWidget();
 
     QPixmap iconToRight();
@@ -34,18 +27,17 @@ public:
     void setVisibleState(bool state);
 
 signals:
-    void hideTab(DockPaletteWidget* widget);
-    void showTab(DockPaletteWidget* widget);
+    void hideTab(DockPaletteWidget *widget);
+    void showTab(DockPaletteWidget *widget);
 
 public slots:
     void slot_changeMode(DockWidgetMode newMode);
 
 protected:
-    void setName(const QString& name);
-    void setIconToRight(const QPixmap& icon);
-    void setIconToLeft(const QPixmap& icon);
+    void setName(const QString &name);
+    void setIconToRight(const QPixmap &icon);
+    void setIconToLeft(const QPixmap &icon);
 
     struct Private;
     std::unique_ptr<Private> d;
 };
-

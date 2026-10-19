@@ -4,54 +4,43 @@
 #include "ui/RightPalette.h"
 
 
-struct RightPalette::Private
-{
-};
+struct RightPalette::Private {};
 
-RightPalette::RightPalette(QWidget *parent, const char *name):
-    DockPalette(DockPaletteType::Right, parent)
-    , d(new Private)
-{
+RightPalette::RightPalette(QWidget *parent, const char *name)
+    : DockPalette(DockPaletteType::Right, parent), d(new Private) {
     setObjectName(name);
     setOrientation(DockOrientation::Right);
     setCollapseWidth(120);
     bool isCollapsed = false;
-    if(currentMode() == DockWidgetMode::Board){
+    if (currentMode() == DockWidgetMode::Board) {
         setLastWidth(Settings::settings()->rightLibPaletteBoardModeWidth->get().toInt());
         isCollapsed = Settings::settings()->rightLibPaletteBoardModeIsCollapsed->get().toBool();
-    }
-    else{
+    } else {
         setLastWidth(Settings::settings()->rightLibPaletteDesktopModeWidth->get().toInt());
         isCollapsed = Settings::settings()->rightLibPaletteDesktopModeIsCollapsed->get().toBool();
     }
-    if(isCollapsed)
-        resize(0,parentWidget()->height());
+    if (isCollapsed)
+        resize(0, parentWidget()->height());
     else
         resize(lastWidth(), parentWidget()->height());
 }
 
-RightPalette::~RightPalette()
-{
-}
+RightPalette::~RightPalette() {}
 
-void RightPalette::mouseMoveEvent(QMouseEvent *event)
-{
-    if(canResize())
-    {
+void RightPalette::mouseMoveEvent(QMouseEvent *event) {
+    if (canResize()) {
         DockPalette::mouseMoveEvent(event);
     }
 }
 
-void RightPalette::resizeEvent(QResizeEvent *event)
-{
+void RightPalette::resizeEvent(QResizeEvent *event) {
     int newWidth = width();
-    if(currentMode() == DockWidgetMode::Board){
-        if(newWidth > collapseWidth())
+    if (currentMode() == DockWidgetMode::Board) {
+        if (newWidth > collapseWidth())
             Settings::settings()->rightLibPaletteBoardModeWidth->set(newWidth);
         Settings::settings()->rightLibPaletteBoardModeIsCollapsed->set(newWidth == 0);
-    }
-    else{
-        if(newWidth > collapseWidth())
+    } else {
+        if (newWidth > collapseWidth())
             Settings::settings()->rightLibPaletteDesktopModeWidth->set(newWidth);
         Settings::settings()->rightLibPaletteDesktopModeIsCollapsed->set(newWidth == 0);
     }
@@ -59,28 +48,25 @@ void RightPalette::resizeEvent(QResizeEvent *event)
     emit resized();
 }
 
-void RightPalette::updateMaxWidth()
-{
+void RightPalette::updateMaxWidth() {
     setMaximumWidth((int)(parentWidget()->width() * 0.45));
     setMaximumHeight(parentWidget()->height());
     setMinimumHeight(parentWidget()->height());
 }
 
-bool RightPalette::switchMode(DockWidgetMode mode)
-{
+bool RightPalette::switchMode(DockWidgetMode mode) {
     int newModeWidth;
-    if(mode == DockWidgetMode::Board){
+    if (mode == DockWidgetMode::Board) {
         setLastWidth(Settings::settings()->rightLibPaletteBoardModeWidth->get().toInt());
         newModeWidth = lastWidth();
-        if(Settings::settings()->rightLibPaletteBoardModeIsCollapsed->get().toBool())
+        if (Settings::settings()->rightLibPaletteBoardModeIsCollapsed->get().toBool())
             newModeWidth = 0;
-    }
-    else{
+    } else {
         setLastWidth(Settings::settings()->rightLibPaletteDesktopModeWidth->get().toInt());
         newModeWidth = lastWidth();
-        if(Settings::settings()->rightLibPaletteDesktopModeIsCollapsed->get().toBool())
+        if (Settings::settings()->rightLibPaletteDesktopModeIsCollapsed->get().toBool())
             newModeWidth = 0;
     }
-    resize(newModeWidth,height());
+    resize(newModeWidth, height());
     return DockPalette::switchMode(mode);
 }

@@ -1,27 +1,22 @@
 #include "whiteboard/ToolsManager.h"
 
 
-ToolsManager* ToolsManager::sManager = 0;
+ToolsManager *ToolsManager::sManager = 0;
 
-ToolsManager* ToolsManager::manager()
-{
+ToolsManager *ToolsManager::manager() {
     if (!sManager)
         sManager = new ToolsManager(Application::staticMemoryCleaner);
     return sManager;
 }
 
-void ToolsManager::destroy()
-{
+void ToolsManager::destroy() {
     if (sManager)
         delete sManager;
     sManager = NULL;
 }
 
 
-ToolsManager::ToolsManager(QObject *parent)
-    : QObject(parent)
-{
-
+ToolsManager::ToolsManager(QObject *parent) : QObject(parent) {
     mask.id = "tianboardtool://mask";
     mask.icon = QPixmap(":/images/toolPalette/maskTool.png");
     mask.label = tr("Mask");
@@ -50,7 +45,7 @@ ToolsManager::ToolsManager(QObject *parent)
     protractor.icon = QPixmap(":/images/toolPalette/protractorTool.png");
     protractor.label = tr("Protractor");
     protractor.version = "1.0";
-    mToolsIcon.insert(protractor.id,":/images/toolPalette/protractorTool.png");
+    mToolsIcon.insert(protractor.id, ":/images/toolPalette/protractorTool.png");
     mDescriptors << protractor;
 
 
@@ -58,7 +53,7 @@ ToolsManager::ToolsManager(QObject *parent)
     triangle.icon = QPixmap(":/images/toolPalette/triangleTool.png");
     triangle.label = tr("Triangle");
     triangle.version = "1.0";
-    mToolsIcon.insert(triangle.id,":/images/toolPalette/triangleTool.png");
+    mToolsIcon.insert(triangle.id, ":/images/toolPalette/triangleTool.png");
     mDescriptors << triangle;
 
 
@@ -66,7 +61,7 @@ ToolsManager::ToolsManager(QObject *parent)
     magnifier.icon = QPixmap(":/images/toolPalette/magnifierTool.png");
     magnifier.label = tr("Magnifier");
     magnifier.version = "1.0";
-    mToolsIcon.insert(magnifier.id,":/images/toolPalette/magnifierTool.png");
+    mToolsIcon.insert(magnifier.id, ":/images/toolPalette/magnifierTool.png");
     mDescriptors << magnifier;
 
 
@@ -76,10 +71,8 @@ ToolsManager::ToolsManager(QObject *parent)
     cache.version = "1.0";
     mToolsIcon.insert(cache.id, ":/images/toolPalette/cacheTool.png");
     mDescriptors << cache;
-
 }
 
-ToolsManager::~ToolsManager()
-{
+ToolsManager::~ToolsManager() {
     // NOOP
 }

@@ -9,7 +9,6 @@
 #include "whiteboard/BoardController.h"
 
 
-
 const QColor AbstractDrawRuler::sLightBackgroundMiddleFillColor = QColor(0x72, 0x72, 0x72, sFillTransparency);
 const QColor AbstractDrawRuler::sLightBackgroundEdgeFillColor = QColor(0xc3, 0xc3, 0xc3, sFillTransparency);
 const QColor AbstractDrawRuler::sLightBackgroundDrawColor = QColor(0x33, 0x33, 0x33, sDrawTransparency);
@@ -25,15 +24,11 @@ const int AbstractDrawRuler::sDrawTransparency = 192;
 const int AbstractDrawRuler::sRoundingRadius = sLeftEdgeMargin / 2;
 
 
-AbstractDrawRuler::AbstractDrawRuler()
-    : mShowButtons(false)
-    , mAntiScaleRatio(1.0)
-{
+AbstractDrawRuler::AbstractDrawRuler() : mShowButtons(false), mAntiScaleRatio(1.0) {
     sPixelsPerCentimeter = Application::boardController->activeScene()->backgroundGridSize();
 }
 
-void AbstractDrawRuler::create(QGraphicsItem& item)
-{
+void AbstractDrawRuler::create(QGraphicsItem &item) {
     item.setFlag(QGraphicsItem::ItemIsMovable, true);
     item.setFlag(QGraphicsItem::ItemIsSelectable, true);
     item.setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
@@ -46,75 +41,59 @@ void AbstractDrawRuler::create(QGraphicsItem& item)
 }
 
 
-AbstractDrawRuler::~AbstractDrawRuler()
-{
-}
+AbstractDrawRuler::~AbstractDrawRuler() {}
 
-QCursor AbstractDrawRuler::moveCursor() const
-{
+QCursor AbstractDrawRuler::moveCursor() const {
     return Qt::SizeAllCursor;
 }
 
-QCursor AbstractDrawRuler::rotateCursor() const
-{
+QCursor AbstractDrawRuler::rotateCursor() const {
     return Resources::resources()->rotateCursor;
 }
 
-QCursor AbstractDrawRuler::closeCursor() const
-{
+QCursor AbstractDrawRuler::closeCursor() const {
     return Qt::ArrowCursor;
 }
 
-QCursor AbstractDrawRuler::drawRulerLineCursor() const
-{
+QCursor AbstractDrawRuler::drawRulerLineCursor() const {
     return Resources::resources()->drawLineRulerCursor;
 }
 
-QColor AbstractDrawRuler::drawColor() const
-{
+QColor AbstractDrawRuler::drawColor() const {
     return scene()->isDarkBackground() ? sDarkBackgroundDrawColor : sLightBackgroundDrawColor;
 }
 
-QColor AbstractDrawRuler::middleFillColor() const
-{
+QColor AbstractDrawRuler::middleFillColor() const {
     return scene()->isDarkBackground() ? sDarkBackgroundMiddleFillColor : sLightBackgroundMiddleFillColor;
 }
 
-QColor AbstractDrawRuler::edgeFillColor() const
-{
+QColor AbstractDrawRuler::edgeFillColor() const {
     return scene()->isDarkBackground() ? sDarkBackgroundEdgeFillColor : sLightBackgroundEdgeFillColor;
 }
 
-QFont AbstractDrawRuler::font() const
-{
+QFont AbstractDrawRuler::font() const {
     QFont font("Arial");
     font.setPixelSize(16);
     return font;
 }
 
-void AbstractDrawRuler::StartLine(const QPointF& position, qreal width)
-{
+void AbstractDrawRuler::StartLine(const QPointF &position, qreal width) {
     Q_UNUSED(position);
     Q_UNUSED(width);
 }
-void AbstractDrawRuler::DrawLine(const QPointF& position, qreal width)
-{
+void AbstractDrawRuler::DrawLine(const QPointF &position, qreal width) {
     Q_UNUSED(position);
     Q_UNUSED(width);
 }
-void AbstractDrawRuler::EndLine()
-{}
+void AbstractDrawRuler::EndLine() {}
 
 
-void AbstractDrawRuler::paint()
-{
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+void AbstractDrawRuler::paint() {
+    mAntiScaleRatio =
+        1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);
 
     mCloseSvgItem->setTransform(antiScaleTransform);
     mCloseSvgItem->setPos(closeButtonRect().topLeft());
-
 }
-
-

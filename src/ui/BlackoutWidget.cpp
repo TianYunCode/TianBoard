@@ -3,16 +3,13 @@
 #include "ui/BlackoutWidget.h"
 
 
-struct BlackoutWidget::Private
-{
-    QGridLayout* gridLayout{nullptr};
-    QToolButton* iconButton{nullptr};
-    QLabel* labelClickToReturn{nullptr};
+struct BlackoutWidget::Private {
+    QGridLayout *gridLayout{nullptr};
+    QToolButton *iconButton{nullptr};
+    QLabel *labelClickToReturn{nullptr};
 };
 
-BlackoutWidget::BlackoutWidget(QWidget *parent)
-    : QWidget(parent), d(new Private)
-{
+BlackoutWidget::BlackoutWidget(QWidget *parent) : QWidget(parent), d(new Private) {
     setAttribute(Qt::WA_DeleteOnClose);
 
     if (objectName().isEmpty())
@@ -45,7 +42,8 @@ BlackoutWidget::BlackoutWidget(QWidget *parent)
     d->labelClickToReturn->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
     QPalette labelPalette;
     labelPalette.setBrush(QPalette::WindowText, QBrush(QColor(255, 255, 255, 255), Qt::SolidPattern));
-    labelPalette.setBrush(QPalette::Disabled, QPalette::WindowText, QBrush(QColor(113, 113, 113, 255), Qt::SolidPattern));
+    labelPalette.setBrush(QPalette::Disabled, QPalette::WindowText,
+                          QBrush(QColor(113, 113, 113, 255), Qt::SolidPattern));
     d->labelClickToReturn->setPalette(labelPalette);
     QFont font;
     font.setPointSize(20);
@@ -62,37 +60,29 @@ BlackoutWidget::BlackoutWidget(QWidget *parent)
 
 BlackoutWidget::~BlackoutWidget() = default;
 
-void BlackoutWidget::setReturnControlsVisible(bool visible)
-{
+void BlackoutWidget::setReturnControlsVisible(bool visible) {
     d->iconButton->setVisible(visible);
     d->labelClickToReturn->setVisible(visible);
 }
 
-void BlackoutWidget::mousePressEvent(QMouseEvent *event)
-{
+void BlackoutWidget::mousePressEvent(QMouseEvent *event) {
     Q_UNUSED(event);
     doActivity();
 }
 
 
-void BlackoutWidget::keyPressEvent(QKeyEvent *event)
-{
-    if (!event->isAccepted())
-    {
-        if (event->key() == Qt::Key_B)
-        {
+void BlackoutWidget::keyPressEvent(QKeyEvent *event) {
+    if (!event->isAccepted()) {
+        if (event->key() == Qt::Key_B) {
             doActivity();
             event->accept();
-        }
-        else
-        {
+        } else {
             event->ignore();
         }
     }
 }
 
 
-void BlackoutWidget::doActivity()
-{
+void BlackoutWidget::doActivity() {
     emit activity();
 }

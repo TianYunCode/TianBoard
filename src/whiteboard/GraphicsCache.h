@@ -6,23 +6,18 @@
 #include "whiteboard/Item.h"
 #include "utils/Enums.h"
 
-typedef enum
-{
-    eMaskShape_Circle,
-    eMaskShap_Rectangle
-}eMaskShape;
+typedef enum { eMaskShape_Circle, eMaskShap_Rectangle } eMaskShape;
 
-class GraphicsCache : public QGraphicsRectItem, public Item
-{
+class GraphicsCache : public QGraphicsRectItem, public Item {
 public:
-    static GraphicsCache* instance(GraphicsScene *scene);
+    static GraphicsCache *instance(GraphicsScene *scene);
     ~GraphicsCache();
 
     enum { Type = GraphicsItemType::cacheItemType };
 
-    virtual int type() const{ return Type;}
+    virtual int type() const { return Type; }
 
-    virtual Item* deepCopy() const;
+    virtual Item *deepCopy() const;
 
     virtual void copyItemParameters(Item *copy) const;
 
@@ -40,7 +35,7 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
 private:
-    static QMap<GraphicsScene*, GraphicsCache*> sInstances;
+    static QMap<GraphicsScene *, GraphicsCache *> sInstances;
 
     QColor mMaskColor;
     eMaskShape mMaskShape;
@@ -49,11 +44,10 @@ private:
     QPointF mShapePos;
     int mOldShapeWidth;
     QPointF mOldShapePos;
-    GraphicsScene* mScene;
+    GraphicsScene *mScene;
 
     GraphicsCache(GraphicsScene *scene);
-    
+
     void init();
     QRectF updateRect(QPointF currentPoint);
 };
-

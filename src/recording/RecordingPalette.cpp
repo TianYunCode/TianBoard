@@ -11,20 +11,18 @@
 #include "ui/MainWindow.h"
 
 
-struct RecordingPalette::Private
-{
+struct RecordingPalette::Private {
     QLabel *mTimerLabel{nullptr};
     VuMeter *mLevelMeter{nullptr};
 };
 
-RecordingPalette::RecordingPalette(QWidget *parent)
-     : ActionPalette(Qt::Horizontal, parent)
-     , d(new Private)
-{
+RecordingPalette::RecordingPalette(QWidget *parent) : ActionPalette(Qt::Horizontal, parent), d(new Private) {
     addAction(Application::mainWindow->ui().actionRecordingStart);
 
     d->mTimerLabel = new QLabel(this);
-    d->mTimerLabel->setStyleSheet(QString("QLabel {color: #1296DB; font-size: 14px; font-weight: bold; font-family: Arial; background-color: transparent; border: none}"));
+    d->mTimerLabel->setStyleSheet(
+        QString("QLabel {color: #1296DB; font-size: 14px; font-weight: bold; font-family: Arial; "
+                "background-color: transparent; border: none}"));
     recordingProgressChanged(0);
 
     layout()->addWidget(d->mTimerLabel);
@@ -36,36 +34,32 @@ RecordingPalette::RecordingPalette(QWidget *parent)
 
     addAction(Application::mainWindow->ui().actionRecordingConfig);
 
-    foreach(QWidget* menuWidget,  Application::mainWindow->ui().actionRecordingConfig->associatedWidgets())
-    {
-        QToolButton *tb = qobject_cast<QToolButton*>(menuWidget);
+    foreach (QWidget *menuWidget, Application::mainWindow->ui().actionRecordingConfig->associatedWidgets()) {
+        QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
 
         tb->setIconSize(QSize(16, 16));
 
-        if (tb && !tb->menu())
-        {
+        if (tb && !tb->menu()) {
             tb->setObjectName("buttonMenu");
             tb->setPopupMode(QToolButton::InstantPopup);
-            QMenu* menu = new QMenu(this);
+            QMenu *menu = new QMenu(this);
 
-            foreach(QAction* audioInputAction, RecordingController::instance()->audioRecordingDevicesActions())
-            {
+            foreach (QAction *audioInputAction,
+                     RecordingController::instance()->audioRecordingDevicesActions()) {
                 menu->addAction(audioInputAction);
             }
 
             menu->addSeparator();
 
-            foreach(QAction* videoSizeAction, RecordingController::instance()->videoSizeActions())
-            {
+            foreach (QAction *videoSizeAction, RecordingController::instance()->videoSizeActions()) {
                 menu->addAction(videoSizeAction);
             }
 
             menu->addSeparator();
 
-            QList<QAction*> publication = RecordingController::instance()->publicationActions();
+            QList<QAction *> publication = RecordingController::instance()->publicationActions();
 
-            foreach(QAction* publicationAction, publication)
-            {
+            foreach (QAction *publicationAction, publication) {
                 menu->addAction(publicationAction);
             }
 
@@ -75,16 +69,13 @@ RecordingPalette::RecordingPalette(QWidget *parent)
 }
 
 
-RecordingPalette::~RecordingPalette()
-{
+RecordingPalette::~RecordingPalette() {
     // NOOP
 }
 
 
-void RecordingPalette::recordingStateChanged(RecordingController::RecordingState state)
-{
-    if (state == RecordingController::Recording)
-    {
+void RecordingPalette::recordingStateChanged(RecordingController::RecordingState state) {
+    if (state == RecordingController::Recording) {
         Application::mainWindow->ui().actionRecordingStart->setChecked(true);
         Application::mainWindow->ui().actionRecordingStart->setEnabled(true);
 
@@ -94,9 +85,7 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
         //Application::mainWindow->actionRecordingMic->setEnabled(false);
 
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(false);
-    }
-    else if (state == RecordingController::Stopped)
-    {
+    } else if (state == RecordingController::Stopped) {
         Application::mainWindow->ui().actionRecordingStart->setChecked(false);
         Application::mainWindow->ui().actionRecordingStart->setEnabled(true);
 
@@ -105,9 +94,7 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
 
         //Application::mainWindow->actionRecordingMic->setEnabled(true);
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(true);
-    }
-    else if (state == RecordingController::Paused)
-    {
+    } else if (state == RecordingController::Paused) {
         Application::mainWindow->ui().actionRecordingStart->setChecked(true);
         Application::mainWindow->ui().actionRecordingStart->setEnabled(true);
 
@@ -116,9 +103,7 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
 
         //Application::mainWindow->actionRecordingMic->setEnabled(false);
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(false);
-    }
-    else
-    {
+    } else {
         Application::mainWindow->ui().actionRecordingStart->setEnabled(false);
         Application::mainWindow->ui().actionRecordingPause->setEnabled(false);
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(false);
@@ -126,8 +111,7 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
 }
 
 
-void RecordingPalette::recordingProgressChanged(qint64 ms)
-{
+void RecordingPalette::recordingProgressChanged(qint64 ms) {
     int min = ms / 60000;
     int seconds = (ms / 1000) % 60;
 
@@ -135,37 +119,29 @@ void RecordingPalette::recordingProgressChanged(qint64 ms)
 }
 
 
-void RecordingPalette::audioLevelChanged(quint8 level)
-{
+void RecordingPalette::audioLevelChanged(quint8 level) {
     d->mLevelMeter->setVolume(level);
 }
 
 
-VuMeter::VuMeter(QWidget* pParent)
-    : QWidget(pParent)
-    , mVolume(0)
-{
+VuMeter::VuMeter(QWidget *pParent) : QWidget(pParent), mVolume(0) {
     // NOOP
 }
 
 
-VuMeter::~VuMeter()
-{
+VuMeter::~VuMeter() {
     // NOOP
 }
 
-void VuMeter::setVolume(quint8 pVolume)
-{
-    if (mVolume != pVolume)
-    {
+void VuMeter::setVolume(quint8 pVolume) {
+    if (mVolume != pVolume) {
         mVolume = pVolume;
         update();
     }
 }
 
 
-void VuMeter::paintEvent(QPaintEvent* e)
-{
+void VuMeter::paintEvent(QPaintEvent *e) {
     Q_UNUSED(e);
 
     QPainter painter(this);
@@ -175,4 +151,3 @@ void VuMeter::paintEvent(QPaintEvent* e)
 
     painter.fillRect(rect, Settings::documentViewLightColor);
 }
-

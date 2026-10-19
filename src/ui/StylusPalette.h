@@ -6,8 +6,7 @@
 
 #include "ui/ActionPalette.h"
 
-class StylusPalette : public ActionPalette
-{
+class StylusPalette : public ActionPalette {
     Q_OBJECT
 
 public:
@@ -15,7 +14,7 @@ public:
     virtual ~StylusPalette();
 
     void initPosition();
-		
+
 private slots:
     void stylusToolDoubleClicked();
 
@@ -26,4 +25,3 @@ private:
 signals:
     void stylusToolDoubleClicked(int tool);
 };
-

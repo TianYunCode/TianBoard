@@ -18,26 +18,23 @@
 #include "content/SvgSubsetAdaptor.h"
 
 
-void ThumbnailAdaptor::generateMissingThumbnails(DocumentProxy* proxy)
-{
+void ThumbnailAdaptor::generateMissingThumbnails(DocumentProxy *proxy) {
     int existingPageCount = proxy->pageCount();
 
-    for (int iPageNo = 0; iPageNo < existingPageCount; ++iPageNo)
-    {
-        QString thumbFileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", iPageNo);
+    for (int iPageNo = 0; iPageNo < existingPageCount; ++iPageNo) {
+        QString thumbFileName =
+            proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", iPageNo);
 
         QFile thumbFile(thumbFileName);
 
-        if (!thumbFile.exists())
-        {
+        if (!thumbFile.exists()) {
             bool displayMessage = (existingPageCount > 5);
 
             int thumbCount = 0;
 
-            GraphicsScene* scene = SvgSubsetAdaptor::loadScene(proxy, iPageNo);
+            GraphicsScene *scene = SvgSubsetAdaptor::loadScene(proxy, iPageNo);
 
-            if (scene)
-            {
+            if (scene) {
                 thumbCount++;
 
                 if (displayMessage && thumbCount == 1)
@@ -48,24 +45,21 @@ void ThumbnailAdaptor::generateMissingThumbnails(DocumentProxy* proxy)
 
             if (displayMessage && thumbCount > 0)
                 Application::showMessage(tr("%1 thumbnails generated ...").arg(thumbCount));
-
         }
     }
 }
 
-const QPixmap* ThumbnailAdaptor::get(DocumentProxy* proxy, int pageIndex)
-{
-    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", pageIndex);
+const QPixmap *ThumbnailAdaptor::get(DocumentProxy *proxy, int pageIndex) {
+    QString fileName =
+        proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", pageIndex);
 
     QFile file(fileName);
-    if (!file.exists())
-    {
+    if (!file.exists()) {
         generateMissingThumbnails(proxy);
     }
 
-    QPixmap* pix = new QPixmap();
-    if (file.exists())
-    {
+    QPixmap *pix = new QPixmap();
+    if (file.exists()) {
         //Warning. Works only with modified Qt
 #ifdef Q_OS_LINUX
         pix->load(fileName, 0, Qt::AutoColor);
@@ -76,27 +70,26 @@ const QPixmap* ThumbnailAdaptor::get(DocumentProxy* proxy, int pageIndex)
     return pix;
 }
 
-void ThumbnailAdaptor::load(DocumentProxy* proxy, QList<const QPixmap*>& list)
-{
+void ThumbnailAdaptor::load(DocumentProxy *proxy, QList<const QPixmap *> &list) {
     generateMissingThumbnails(proxy);
 
-    foreach(const QPixmap* pm, list){
+    foreach (const QPixmap *pm, list) {
         delete pm;
         pm = NULL;
     }
     list.clear();
-    for(int i=0; i<proxy->pageCount(); i++)
+    for (int i = 0; i < proxy->pageCount(); i++)
         list.append(get(proxy, i));
 }
 
-void ThumbnailAdaptor::persistScene(DocumentProxy* proxy, GraphicsScene* pScene, int pageIndex, bool overrideModified)
-{
-    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", pageIndex);
+void ThumbnailAdaptor::persistScene(DocumentProxy *proxy, GraphicsScene *pScene, int pageIndex,
+                                    bool overrideModified) {
+    QString fileName =
+        proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", pageIndex);
 
     QFile thumbFile(fileName);
 
-    if (pScene->isModified() || overrideModified || !thumbFile.exists())
-    {
+    if (pScene->isModified() || overrideModified || !thumbFile.exists()) {
         qreal nominalWidth = pScene->nominalSize().width();
         qreal nominalHeight = pScene->nominalSize().height();
         qreal ratio = nominalWidth / nominalHeight;
@@ -113,12 +106,9 @@ void ThumbnailAdaptor::persistScene(DocumentProxy* proxy, GraphicsScene* pScene,
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-        if (pScene->isDarkBackground())
-        {
+        if (pScene->isDarkBackground()) {
             painter.fillRect(imageRect, Qt::black);
-        }
-        else
-        {
+        } else {
             painter.fillRect(imageRect, Qt::white);
         }
 
@@ -135,9 +125,9 @@ void ThumbnailAdaptor::persistScene(DocumentProxy* proxy, GraphicsScene* pScene,
 }
 
 
-QUrl ThumbnailAdaptor::thumbnailUrl(DocumentProxy* proxy, int pageIndex)
-{
-    QString fileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", pageIndex);
+QUrl ThumbnailAdaptor::thumbnailUrl(DocumentProxy *proxy, int pageIndex) {
+    QString fileName =
+        proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", pageIndex);
 
     return QUrl::fromLocalFile(fileName);
 }

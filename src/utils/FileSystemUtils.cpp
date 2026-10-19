@@ -14,57 +14,52 @@ THIRD_PARTY_WARNINGS_ENABLE
 QStringList FileSystemUtils::sTempDirToCleanUp;
 
 
-FileSystemUtils::FileSystemUtils()
-{
+FileSystemUtils::FileSystemUtils() {
     // NOOP
 }
 
 
-FileSystemUtils::~FileSystemUtils()
-{
+FileSystemUtils::~FileSystemUtils() {
     // NOOP
 }
 
 
-QString FileSystemUtils::removeLocalFilePrefix(QString input)
-{
+QString FileSystemUtils::removeLocalFilePrefix(QString input) {
 #ifdef Q_OS_WIN
-    if(input.startsWith("file:///"))
+    if (input.startsWith("file:///"))
         return input.mid(8);
     else
         return input;
 #else
-    if(input.startsWith("file://"))
+    if (input.startsWith("file://"))
         return input.mid(7);
     else
         return input;
 #endif
 }
 
-QString FileSystemUtils::applicationResourcesDirectory()
-{
+QString FileSystemUtils::applicationResourcesDirectory() {
     return QCoreApplication::applicationDirPath();
 }
 
-bool FileSystemUtils::isAZipFile(QString &filePath)
-{
-   if(QFileInfo(filePath).isDir()) return false;
-   QFile file(filePath);
-   if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-       return false;
+bool FileSystemUtils::isAZipFile(QString &filePath) {
+    if (QFileInfo(filePath).isDir())
+        return false;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
 
-   bool result = false;
-   QByteArray responseArray = file.readLine(10);
-   QString responseString(responseArray);
+    bool result = false;
+    QByteArray responseArray = file.readLine(10);
+    QString responseString(responseArray);
 
-   result = responseString.startsWith("pk", Qt::CaseInsensitive);
+    result = responseString.startsWith("pk", Qt::CaseInsensitive);
 
-   file.close();
-   return result;
+    file.close();
+    return result;
 }
 
-bool FileSystemUtils::copyFile(const QString &source, const QString &destination, bool overwrite)
-{
+bool FileSystemUtils::copyFile(const QString &source, const QString &destination, bool overwrite) {
     if (!QFile::exists(source)) {
         qDebug() << "file" << source << "does not present in fs";
         return false;
@@ -72,7 +67,7 @@ bool FileSystemUtils::copyFile(const QString &source, const QString &destination
 
     QString normalizedDestination = destination;
     if (QFile::exists(normalizedDestination)) {
-        if  (QFileInfo(normalizedDestination).isFile() && overwrite) {
+        if (QFileInfo(normalizedDestination).isFile() && overwrite) {
             QFile::remove(normalizedDestination);
         }
     } else {
@@ -88,8 +83,7 @@ bool FileSystemUtils::copyFile(const QString &source, const QString &destination
     return QFile::copy(source, normalizedDestination);
 }
 
-bool FileSystemUtils::copy(const QString &source, const QString &destination, bool overwrite)
-{
+bool FileSystemUtils::copy(const QString &source, const QString &destination, bool overwrite) {
     if (QFileInfo(source).isDir()) {
         return copyDir(source, destination);
     } else {
@@ -97,33 +91,28 @@ bool FileSystemUtils::copy(const QString &source, const QString &destination, bo
     }
 }
 
-bool FileSystemUtils::deleteFile(const QString &path)
-{
+bool FileSystemUtils::deleteFile(const QString &path) {
     QFile f(path);
     f.setPermissions(path, QFile::ReadOwner | QFile::WriteOwner);
     return f.remove();
 }
 
-QString FileSystemUtils::defaultTempDirPath()
-{
+QString FileSystemUtils::defaultTempDirPath() {
     return QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + defaultTempDirName();
 }
 
-QString FileSystemUtils::createTempDir(const QString& templateString, bool autoDeleteOnExit)
-{
-    QString appTempDir =  QStandardPaths::writableLocation(QStandardPaths::TempLocation)
-                                  + "/" + templateString;
+QString FileSystemUtils::createTempDir(const QString &templateString, bool autoDeleteOnExit) {
+    QString appTempDir =
+        QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + templateString;
 
     int index = 0;
     QDir dir;
 
-    do
-    {
+    do {
         index++;
         QString dirName = appTempDir + QString("%1").arg(index);
         dir = QDir(dirName);
-    }
-    while(dir.exists() && index < 10000);
+    } while (dir.exists() && index < 10000);
 
     dir.mkpath(dir.path());
 
@@ -134,8 +123,7 @@ QString FileSystemUtils::createTempDir(const QString& templateString, bool autoD
 }
 
 
-QString FileSystemUtils::nextAvailableFileName(const QString& filename, const QString& inter)
-{
+QString FileSystemUtils::nextAvailableFileName(const QString &filename, const QString &inter) {
     QFile f(filename);
 
     if (!f.exists())
@@ -149,23 +137,18 @@ QString FileSystemUtils::nextAvailableFileName(const QString& filename, const QS
     QString base = fi.dir().path() + "/" + fi.baseName();
     QString suffix = fi.suffix();
 
-    do
-    {
+    do {
         index++;
         uniqueFilename = base + QString("%1%2").arg(inter).arg(index) + "." + suffix;
         f.setFileName(uniqueFilename);
-    }
-    while(f.exists() && index < 10000);
+    } while (f.exists() && index < 10000);
 
     return uniqueFilename;
-
 }
 
 
-void FileSystemUtils::deleteAllTempDirCreatedDuringSession()
-{
-    foreach (QString dirPath, sTempDirToCleanUp)
-    {
+void FileSystemUtils::deleteAllTempDirCreatedDuringSession() {
+    foreach (QString dirPath, sTempDirToCleanUp) {
         qWarning() << "will delete" << dirPath;
 
         deleteDir(dirPath);
@@ -173,45 +156,36 @@ void FileSystemUtils::deleteAllTempDirCreatedDuringSession()
 }
 
 
-
-void FileSystemUtils::cleanupGhostTempFolders(const QString& templateString)
-{
+void FileSystemUtils::cleanupGhostTempFolders(const QString &templateString) {
     QDir dir(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
-    foreach (QFileInfo dirContent, dir.entryInfoList(QDir::Dirs
-          | QDir::NoDotAndDotDot | QDir::Hidden , QDir::Name))
-    {
-        if (dirContent.fileName().startsWith(templateString))
-        {
+    foreach (QFileInfo dirContent,
+             dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden, QDir::Name)) {
+        if (dirContent.fileName().startsWith(templateString)) {
             deleteDir(dirContent.absoluteFilePath());
         }
     }
 }
 
 
-QStringList FileSystemUtils::allFiles(const QString& pDirPath, bool isRecursive)
-{
+QStringList FileSystemUtils::allFiles(const QString &pDirPath, bool isRecursive) {
     QStringList result;
     if (pDirPath == "" || pDirPath == "." || pDirPath == "..")
         return result;
 
     QDir dir(pDirPath);
 
-    foreach(QFileInfo dirContent, dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot , QDir::Name))
-    {
-        if (isRecursive && dirContent.isDir())
-        {
+    foreach (QFileInfo dirContent,
+             dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
+        if (isRecursive && dirContent.isDir()) {
             result << allFiles(dirContent.absoluteFilePath());
-        }
-        else
-        {
+        } else {
             result << dirContent.absoluteFilePath();
         }
     }
     return result;
 }
 
-QFileInfoList FileSystemUtils::allElementsInDirectory(const QString& pDirPath)
-{
+QFileInfoList FileSystemUtils::allElementsInDirectory(const QString &pDirPath) {
     QDir dir = QDir(pDirPath);
     dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
     dir.setSorting(QDir::DirsFirst);
@@ -220,26 +194,20 @@ QFileInfoList FileSystemUtils::allElementsInDirectory(const QString& pDirPath)
 }
 
 
-bool FileSystemUtils::deleteDir(const QString& pDirPath)
-{
+bool FileSystemUtils::deleteDir(const QString &pDirPath) {
     if (pDirPath == "" || pDirPath == "." || pDirPath == "..")
         return false;
 
     QDir dir(pDirPath);
 
-    if (dir.exists())
-    {
-        foreach(QFileInfo dirContent, dir.entryInfoList(QDir::Files | QDir::Dirs
-                | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System , QDir::Name))
-        {
-            if (dirContent.isDir())
-            {
+    if (dir.exists()) {
+        foreach (QFileInfo dirContent, dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot |
+                                                             QDir::Hidden | QDir::System,
+                                                         QDir::Name)) {
+            if (dirContent.isDir()) {
                 deleteDir(dirContent.absoluteFilePath());
-            }
-            else
-            {
-                if (!dirContent.dir().remove(dirContent.fileName()))
-                {
+            } else {
+                if (!dirContent.dir().remove(dirContent.fileName())) {
                     return false;
                 }
             }
@@ -250,8 +218,7 @@ bool FileSystemUtils::deleteDir(const QString& pDirPath)
 }
 
 
-bool FileSystemUtils::copyDir(const QString& pSourceDirPath, const QString& pTargetDirPath)
-{
+bool FileSystemUtils::copyDir(const QString &pSourceDirPath, const QString &pTargetDirPath) {
     if (pSourceDirPath == "" || pSourceDirPath == "." || pSourceDirPath == "..")
         return false;
 
@@ -263,23 +230,18 @@ bool FileSystemUtils::copyDir(const QString& pSourceDirPath, const QString& pTar
 
     bool successSoFar = true;
 
-    foreach(QFileInfo dirContent, dirSource.entryInfoList(QDir::Files | QDir::Dirs
-            | QDir::NoDotAndDotDot | QDir::Hidden , QDir::Name))
-    {
-        if (successSoFar)
-        {
-            if (dirContent.isDir())
-            {
-                successSoFar = copyDir(pSourceDirPath + "/" + dirContent.fileName(), pTargetDirPath + "/" + dirContent.fileName());
-            }
-            else
-            {
+    foreach (
+        QFileInfo dirContent,
+        dirSource.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden, QDir::Name)) {
+        if (successSoFar) {
+            if (dirContent.isDir()) {
+                successSoFar = copyDir(pSourceDirPath + "/" + dirContent.fileName(),
+                                       pTargetDirPath + "/" + dirContent.fileName());
+            } else {
                 QFile f(pSourceDirPath + "/" + dirContent.fileName());
                 successSoFar = f.copy(pTargetDirPath + "/" + dirContent.fileName());
             }
-        }
-        else
-        {
+        } else {
             break;
         }
     }
@@ -288,24 +250,18 @@ bool FileSystemUtils::copyDir(const QString& pSourceDirPath, const QString& pTar
 }
 
 
-bool FileSystemUtils::moveDir(const QString& pSourceDirPath, const QString& pTargetDirPath)
-{
+bool FileSystemUtils::moveDir(const QString &pSourceDirPath, const QString &pTargetDirPath) {
     bool copySuccess = copyDir(pSourceDirPath, pTargetDirPath);
 
-    if (copySuccess)
-    {
+    if (copySuccess) {
         return deleteDir(pSourceDirPath);
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
 
 
-
-QString FileSystemUtils::cleanName(const QString& name)
-{
+QString FileSystemUtils::cleanName(const QString &name) {
     QString result = name;
     result = result.remove("/");
     result = result.remove(":");
@@ -322,33 +278,28 @@ QString FileSystemUtils::cleanName(const QString& name)
     return result;
 }
 
-QString FileSystemUtils::normalizeFilePath(const QString& pFilePath)
-{
+QString FileSystemUtils::normalizeFilePath(const QString &pFilePath) {
     QString result = pFilePath;
     return result.replace("\\", "/");
 }
 
-QString FileSystemUtils::digitFileFormat(const QString& s, int digit)
-{
+QString FileSystemUtils::digitFileFormat(const QString &s, int digit) {
     return s.arg(digit, 3, 10, QLatin1Char('0'));
 }
 
 
-QString FileSystemUtils::thumbnailPath(const QString& path)
-{
+QString FileSystemUtils::thumbnailPath(const QString &path) {
     QFileInfo pathInfo(path);
 
     return pathInfo.dir().absolutePath() + "/" + pathInfo.completeBaseName() + ".thumbnail.png";
 }
 
-QString FileSystemUtils::extension(const QString& fileName)
-{
+QString FileSystemUtils::extension(const QString &fileName) {
     QString extension("");
 
     int lastDotIndex = fileName.lastIndexOf(".");
 
-    if (lastDotIndex > 0)
-    {
+    if (lastDotIndex > 0) {
         extension = fileName.right(fileName.length() - lastDotIndex - 1).toLower();
 
         if (extension.endsWith("/") || extension.endsWith("\\"))
@@ -358,8 +309,7 @@ QString FileSystemUtils::extension(const QString& fileName)
     return extension;
 }
 
-QString FileSystemUtils::lastPathComponent(const QString& path)
-{
+QString FileSystemUtils::lastPathComponent(const QString &path) {
     QString lastPathComponent = normalizeFilePath(path);
 
     int lastSeparatorIndex = lastPathComponent.lastIndexOf("/");
@@ -369,364 +319,386 @@ QString FileSystemUtils::lastPathComponent(const QString& path)
         lastSeparatorIndex = lastPathComponent.lastIndexOf("/");
     }
 
-    if (lastSeparatorIndex > 0){
+    if (lastSeparatorIndex > 0) {
         lastPathComponent = lastPathComponent.right(lastPathComponent.length() - lastSeparatorIndex - 1);
-    }
-    else {
+    } else {
         return 0;
     }
 
     return lastPathComponent;
 }
 
-QString FileSystemUtils::mimeTypeFromFileName(const QString& fileName)
-{
+QString FileSystemUtils::mimeTypeFromFileName(const QString &fileName) {
     QString ext = extension(fileName);
 
-    if (ext == "xls" || ext == "xlsx") return "application/msexcel";
-    if (ext == "ppt" || ext == "pptx") return "application/mspowerpoint";
-    if (ext == "ief") return "image/ief";
-    if (ext == "m3u") return "audio/x-mpegurl";
-    if (ext == "key") return "application/x-iwork-keynote-sffkeynote";
-    if (ext == "odf") return "application/vnd.oasis.opendocument.formula";
-    if (ext == "aif" || ext == "aiff" || ext == "aifc") return "audio/x-aiff";
-    if (ext == "odp") return "application/vnd.oasis.opendocument.presentation";
-    if (ext == "xml") return "application/xml";
-    if (ext == "rgb") return "image/x-rgb";
-    if (ext == "ods") return "application/vnd.oasis.opendocument.spreadsheet";
-    if (ext == "rtf") return "text/rtf";
-    if (ext == "odt") return "application/vnd.oasis.opendocument.text";
-    if (ext == "xbm") return "image/x-xbitmap";
-    if (ext == "lsx" || ext == "lsf") return "video/x-la-asf";
-    if (ext == "jfif") return "image/pipeg";
-    if (ext == "ppm") return "image/x-portable-pixmap";
-    if (ext == "csv") return "text/csv";
-    if (ext == "pgm") return "image/x-portable-graymap";
-    if (ext == "odc") return "application/vnd.oasis.opendocument.chart";
-    if (ext == "odb") return "application/vnd.oasis.opendocument.database";
-    if (ext == "cmx") return "image/x-cmx";
-    if (ext == "ico") return "image/x-icon";
-    if (ext == "mp3") return "audio/mpeg";
-    if (ext == "wav") return "audio/x-wav";
-    if (ext == "pbm") return "image/x-portable-bitmap";
-    if (ext == "ras") return "image/x-cmu-raster";
-    if (ext == "txt") return "text/plain";
-    if (ext == "xpm") return "image/x-xpixmap";
-    if (ext == "ra" || ext == "ram") return "audio/x-pn-realaudio";
-    if (ext == "numbers") return "application/x-iwork-numbers-sffnumbers";
-    if (ext == "snd" || ext == "au") return "audio/basic";
-    if (ext == "zip") return "application/zip";
-    if (ext == "pages") return "application/x-iwork-pages-sffpages";
-    if (ext == "movie") return "video/x-sgi-movie";
-    if (ext == "xwd") return "image/x-xwindowdump";
-    if (ext == "pnm") return "image/x-portable-anymap";
-    if (ext == "cod") return "image/cis-cod";
-    if (ext == "doc" || ext == "docx") return "application/msword";
-    if (ext == "html") return "text/html";
-    if (ext == "mid" || ext == "rmi") return "audio/mid";
-    if (ext == "jpeg" || ext == "jpg" || ext == "jpe") return "image/jpeg";
-    if (ext == "png") return "image/png";
-    if (ext == "bmp") return "image/bmp";
-    if (ext == "tiff" || ext == "tif") return "image/tiff";
-    if (ext == "gif") return "image/gif";
-    if (ext == "svg" || ext == "svgz") return "image/svg+xml";
-    if (ext == "pdf") return "application/pdf";
-    if (ext == "mov" || ext == "qt") return "video/quicktime";
-    if (ext == "mpg" || ext == "mpeg" || ext == "mp2" || ext == "mpe" || ext == "mpa" || ext == "mpv2") return "video/mpeg";
-    if (ext == "mp4") return "video/mp4";
-    if (ext == "asf" || ext == "asx" || ext == "asr") return "video/x-ms-asf";
-    if (ext == "wmv") return "video/x-ms-wmv";
-    if (ext == "wvx") return "video/x-ms-wvx";
-    if (ext == "wm") return "video/x-ms-wm";
-    if (ext == "wmx") return "video/x-ms-wmx";
-    if (ext == "avi") return "video/x-msvideo";
-    if (ext == "ogv") return "video/ogg";
-    if (ext == "flv") return "video/x-flv";
-    if (ext == "m4v") return "video/x-m4v";
+    if (ext == "xls" || ext == "xlsx")
+        return "application/msexcel";
+    if (ext == "ppt" || ext == "pptx")
+        return "application/mspowerpoint";
+    if (ext == "ief")
+        return "image/ief";
+    if (ext == "m3u")
+        return "audio/x-mpegurl";
+    if (ext == "key")
+        return "application/x-iwork-keynote-sffkeynote";
+    if (ext == "odf")
+        return "application/vnd.oasis.opendocument.formula";
+    if (ext == "aif" || ext == "aiff" || ext == "aifc")
+        return "audio/x-aiff";
+    if (ext == "odp")
+        return "application/vnd.oasis.opendocument.presentation";
+    if (ext == "xml")
+        return "application/xml";
+    if (ext == "rgb")
+        return "image/x-rgb";
+    if (ext == "ods")
+        return "application/vnd.oasis.opendocument.spreadsheet";
+    if (ext == "rtf")
+        return "text/rtf";
+    if (ext == "odt")
+        return "application/vnd.oasis.opendocument.text";
+    if (ext == "xbm")
+        return "image/x-xbitmap";
+    if (ext == "lsx" || ext == "lsf")
+        return "video/x-la-asf";
+    if (ext == "jfif")
+        return "image/pipeg";
+    if (ext == "ppm")
+        return "image/x-portable-pixmap";
+    if (ext == "csv")
+        return "text/csv";
+    if (ext == "pgm")
+        return "image/x-portable-graymap";
+    if (ext == "odc")
+        return "application/vnd.oasis.opendocument.chart";
+    if (ext == "odb")
+        return "application/vnd.oasis.opendocument.database";
+    if (ext == "cmx")
+        return "image/x-cmx";
+    if (ext == "ico")
+        return "image/x-icon";
+    if (ext == "mp3")
+        return "audio/mpeg";
+    if (ext == "wav")
+        return "audio/x-wav";
+    if (ext == "pbm")
+        return "image/x-portable-bitmap";
+    if (ext == "ras")
+        return "image/x-cmu-raster";
+    if (ext == "txt")
+        return "text/plain";
+    if (ext == "xpm")
+        return "image/x-xpixmap";
+    if (ext == "ra" || ext == "ram")
+        return "audio/x-pn-realaudio";
+    if (ext == "numbers")
+        return "application/x-iwork-numbers-sffnumbers";
+    if (ext == "snd" || ext == "au")
+        return "audio/basic";
+    if (ext == "zip")
+        return "application/zip";
+    if (ext == "pages")
+        return "application/x-iwork-pages-sffpages";
+    if (ext == "movie")
+        return "video/x-sgi-movie";
+    if (ext == "xwd")
+        return "image/x-xwindowdump";
+    if (ext == "pnm")
+        return "image/x-portable-anymap";
+    if (ext == "cod")
+        return "image/cis-cod";
+    if (ext == "doc" || ext == "docx")
+        return "application/msword";
+    if (ext == "html")
+        return "text/html";
+    if (ext == "mid" || ext == "rmi")
+        return "audio/mid";
+    if (ext == "jpeg" || ext == "jpg" || ext == "jpe")
+        return "image/jpeg";
+    if (ext == "png")
+        return "image/png";
+    if (ext == "bmp")
+        return "image/bmp";
+    if (ext == "tiff" || ext == "tif")
+        return "image/tiff";
+    if (ext == "gif")
+        return "image/gif";
+    if (ext == "svg" || ext == "svgz")
+        return "image/svg+xml";
+    if (ext == "pdf")
+        return "application/pdf";
+    if (ext == "mov" || ext == "qt")
+        return "video/quicktime";
+    if (ext == "mpg" || ext == "mpeg" || ext == "mp2" || ext == "mpe" || ext == "mpa" || ext == "mpv2")
+        return "video/mpeg";
+    if (ext == "mp4")
+        return "video/mp4";
+    if (ext == "asf" || ext == "asx" || ext == "asr")
+        return "video/x-ms-asf";
+    if (ext == "wmv")
+        return "video/x-ms-wmv";
+    if (ext == "wvx")
+        return "video/x-ms-wvx";
+    if (ext == "wm")
+        return "video/x-ms-wm";
+    if (ext == "wmx")
+        return "video/x-ms-wmx";
+    if (ext == "avi")
+        return "video/x-msvideo";
+    if (ext == "ogv")
+        return "video/ogg";
+    if (ext == "flv")
+        return "video/x-flv";
+    if (ext == "m4v")
+        return "video/x-m4v";
     // W3C widget
-    if (ext == "wgt") 
-		return "application/widget";
-    if (ext == "wgs") 
-		return "application/search";
+    if (ext == "wgt")
+        return "application/widget";
+    if (ext == "wgs")
+        return "application/search";
     // Apple widget
-    if (ext == "wdgt") 
-		return "application/vnd.apple-widget";
-    if (ext == "swf") 
-		return "application/x-shockwave-flash";
+    if (ext == "wdgt")
+        return "application/vnd.apple-widget";
+    if (ext == "swf")
+        return "application/x-shockwave-flash";
 
     return "";
-
 }
 
-QString FileSystemUtils::fileExtensionFromMimeType(const QString& pMimeType)
-{
-    if (pMimeType == "application/msexcel") 
-		return "xls";
-    if (pMimeType == "application/mspowerpoint") 
-		return "ppt";
-    if (pMimeType == "image/ief") 
-		return "ief";
-    if (pMimeType == "audio/x-mpegurl") 
-		return "m3u";
-    if (pMimeType == "application/x-iwork-keynote-sffkeynote") 
-		return "key";
-    if (pMimeType == "application/vnd.oasis.opendocument.formula") 
-		return "odf";
-    if (pMimeType == "audio/x-aiff") 
-		return "aif";
-    if (pMimeType == "application/vnd.oasis.opendocument.presentation") 
-		return "odp";
-    if (pMimeType == "application/xml") 
-		return "xml";
-    if (pMimeType == "image/x-rgb") 
-		return "rgb";
-    if (pMimeType == "application/vnd.oasis.opendocument.spreadsheet") 
-		return "ods";
-    if (pMimeType == "text/rtf") 
-		return "rtf";
-    if (pMimeType == "application/vnd.oasis.opendocument.text") 
-		return "odt";
-    if (pMimeType == "image/x-xbitmap") 
-		return "xbm";
-    if (pMimeType == "video/x-la-asf") 
-		return "lsx";
-    if (pMimeType == "image/pipeg") 
-		return "jfif";
-    if (pMimeType == "image/x-portable-pixmap") 
-		return "ppm";
-    if (pMimeType == "text/csv") 
-		return "csv";
-    if (pMimeType == "image/x-portable-graymap") 
-		return "pgm";
-    if (pMimeType == "application/vnd.oasis.opendocument.chart") 
-		return "odc";
-    if (pMimeType == "application/vnd.oasis.opendocument.database") 
-		return "odb";
-    if (pMimeType == "image/x-cmx") 
-		return "cmx";
-    if (pMimeType == "image/x-icon") 
-		return "ico";
-    if (pMimeType == "audio/mpeg") 
-		return "mp3";
-    if (pMimeType == "audio/x-wav") 
-		return "wav";
-    if (pMimeType == "image/x-portable-bitmap") 
-		return "pbm";
-    if (pMimeType == "image/x-cmu-raster") 
-		return "ras";
-    if (pMimeType == "text/plain") 
-		return "txt";
-    if (pMimeType == "image/x-xpixmap") 
-		return "xpm";
-    if (pMimeType == "audio/x-pn-realaudio") 
-		return "ram";
-    if (pMimeType == "application/x-iwork-numbers-sffnumbers") 
-		return "numbers";
-    if (pMimeType == "audio/basic") 
-		return "snd";
-    if (pMimeType == "application/zip") 
-		return "zip";
-    if (pMimeType == "application/x-iwork-pages-sffpages") 
-		return "pages";
-    if (pMimeType == "video/x-sgi-movie") 
-		return "movie";
-    if (pMimeType == "image/x-xwindowdump") 
-		return "xwd";
-    if (pMimeType == "image/x-portable-anymap") 
-		return "pnm";
+QString FileSystemUtils::fileExtensionFromMimeType(const QString &pMimeType) {
+    if (pMimeType == "application/msexcel")
+        return "xls";
+    if (pMimeType == "application/mspowerpoint")
+        return "ppt";
+    if (pMimeType == "image/ief")
+        return "ief";
+    if (pMimeType == "audio/x-mpegurl")
+        return "m3u";
+    if (pMimeType == "application/x-iwork-keynote-sffkeynote")
+        return "key";
+    if (pMimeType == "application/vnd.oasis.opendocument.formula")
+        return "odf";
+    if (pMimeType == "audio/x-aiff")
+        return "aif";
+    if (pMimeType == "application/vnd.oasis.opendocument.presentation")
+        return "odp";
+    if (pMimeType == "application/xml")
+        return "xml";
+    if (pMimeType == "image/x-rgb")
+        return "rgb";
+    if (pMimeType == "application/vnd.oasis.opendocument.spreadsheet")
+        return "ods";
+    if (pMimeType == "text/rtf")
+        return "rtf";
+    if (pMimeType == "application/vnd.oasis.opendocument.text")
+        return "odt";
+    if (pMimeType == "image/x-xbitmap")
+        return "xbm";
+    if (pMimeType == "video/x-la-asf")
+        return "lsx";
+    if (pMimeType == "image/pipeg")
+        return "jfif";
+    if (pMimeType == "image/x-portable-pixmap")
+        return "ppm";
+    if (pMimeType == "text/csv")
+        return "csv";
+    if (pMimeType == "image/x-portable-graymap")
+        return "pgm";
+    if (pMimeType == "application/vnd.oasis.opendocument.chart")
+        return "odc";
+    if (pMimeType == "application/vnd.oasis.opendocument.database")
+        return "odb";
+    if (pMimeType == "image/x-cmx")
+        return "cmx";
+    if (pMimeType == "image/x-icon")
+        return "ico";
+    if (pMimeType == "audio/mpeg")
+        return "mp3";
+    if (pMimeType == "audio/x-wav")
+        return "wav";
+    if (pMimeType == "image/x-portable-bitmap")
+        return "pbm";
+    if (pMimeType == "image/x-cmu-raster")
+        return "ras";
+    if (pMimeType == "text/plain")
+        return "txt";
+    if (pMimeType == "image/x-xpixmap")
+        return "xpm";
+    if (pMimeType == "audio/x-pn-realaudio")
+        return "ram";
+    if (pMimeType == "application/x-iwork-numbers-sffnumbers")
+        return "numbers";
+    if (pMimeType == "audio/basic")
+        return "snd";
+    if (pMimeType == "application/zip")
+        return "zip";
+    if (pMimeType == "application/x-iwork-pages-sffpages")
+        return "pages";
+    if (pMimeType == "video/x-sgi-movie")
+        return "movie";
+    if (pMimeType == "image/x-xwindowdump")
+        return "xwd";
+    if (pMimeType == "image/x-portable-anymap")
+        return "pnm";
     if (pMimeType == "image/cis-cod")
-		return "cod";
-    if (pMimeType == "application/msword") 
-		return "doc";
-    if (pMimeType == "text/html") 
-		return "html";
-    if (pMimeType == "audio/mid") 
-		return "mid";
-    if (pMimeType == "image/jpeg") 
-		return "jpeg";
-    if (pMimeType == "image/png") 
-		return "png";
-    if (pMimeType == "image/bmp") 
-		return "bmp";
-    if (pMimeType == "image/tiff") 
-		return "tiff";
-    if (pMimeType == "image/gif") 
-		return "gif";
-    if (pMimeType == "image/svg+xml") 
-		return "svg";
-    if (pMimeType == "application/pdf") 
-		return "pdf";
-    if (pMimeType == "video/quicktime") 
-		return "mov";
-    if (pMimeType == "video/mpeg") 
-		return "mpg";
-    if (pMimeType == "video/mp4") 
-		return "mp4";
-    if (pMimeType == "video/x-ms-asf") 
-		return "asf";
-    if (pMimeType == "video/x-ms-wmv") 
-		return "wmv";
-    if (pMimeType == "video/x-ms-wvx") 
-		return "wvx";
-    if (pMimeType == "video/x-ms-wm") 
-		return "wm";
-    if (pMimeType == "video/x-ms-wmx") 
-		return "wmx";
-    if (pMimeType == "video/x-msvideo") 
-		return "avi";
-    if (pMimeType == "video/ogg") 
-		return "ogv";
-    if (pMimeType == "video/x-flv") 
-		return "flv";
-    if (pMimeType == "video/x-m4v") 
-		return "m4v";
-    if (pMimeType == "application/widget") 
-		return "wgt";
-    if (pMimeType == "application/vnd.apple-widget") 
-		return "wdgt";
-    if (pMimeType == "application/x-shockwave-flash") 
-		return "swf";
+        return "cod";
+    if (pMimeType == "application/msword")
+        return "doc";
+    if (pMimeType == "text/html")
+        return "html";
+    if (pMimeType == "audio/mid")
+        return "mid";
+    if (pMimeType == "image/jpeg")
+        return "jpeg";
+    if (pMimeType == "image/png")
+        return "png";
+    if (pMimeType == "image/bmp")
+        return "bmp";
+    if (pMimeType == "image/tiff")
+        return "tiff";
+    if (pMimeType == "image/gif")
+        return "gif";
+    if (pMimeType == "image/svg+xml")
+        return "svg";
+    if (pMimeType == "application/pdf")
+        return "pdf";
+    if (pMimeType == "video/quicktime")
+        return "mov";
+    if (pMimeType == "video/mpeg")
+        return "mpg";
+    if (pMimeType == "video/mp4")
+        return "mp4";
+    if (pMimeType == "video/x-ms-asf")
+        return "asf";
+    if (pMimeType == "video/x-ms-wmv")
+        return "wmv";
+    if (pMimeType == "video/x-ms-wvx")
+        return "wvx";
+    if (pMimeType == "video/x-ms-wm")
+        return "wm";
+    if (pMimeType == "video/x-ms-wmx")
+        return "wmx";
+    if (pMimeType == "video/x-msvideo")
+        return "avi";
+    if (pMimeType == "video/ogg")
+        return "ogv";
+    if (pMimeType == "video/x-flv")
+        return "flv";
+    if (pMimeType == "video/x-m4v")
+        return "m4v";
+    if (pMimeType == "application/widget")
+        return "wgt";
+    if (pMimeType == "application/vnd.apple-widget")
+        return "wdgt";
+    if (pMimeType == "application/x-shockwave-flash")
+        return "swf";
 
     return "";
-
 }
 
-MimeType::Enum FileSystemUtils::mimeTypeFromString(const QString& typeString)
-{
+MimeType::Enum FileSystemUtils::mimeTypeFromString(const QString &typeString) {
     MimeType::Enum type = MimeType::UNKNOWN;
 
-    if (typeString == "image/jpeg"
-        || typeString == "image/png"
-        || typeString == "image/gif"
-        || typeString == "image/tiff"
-        || typeString == "image/bmp")
-    {
+    if (typeString == "image/jpeg" || typeString == "image/png" || typeString == "image/gif" ||
+        typeString == "image/tiff" || typeString == "image/bmp") {
         type = MimeType::RasterImage;
-    }
-    else if (typeString == "image/svg+xml")
-    {
+    } else if (typeString == "image/svg+xml") {
         type = MimeType::VectorImage;
-    }
-    else if (typeString == "application/vnd.apple-widget")
-    {
+    } else if (typeString == "application/vnd.apple-widget") {
         type = MimeType::AppleWidget;
-    }
-    else if (typeString == "application/widget")
-    {
+    } else if (typeString == "application/widget") {
         type = MimeType::WebWidget;
-    }
-    else if (typeString.startsWith("video/"))
-    {
+    } else if (typeString.startsWith("video/")) {
         type = MimeType::Video;
-    }
-    else if (typeString.startsWith("audio/"))
-    {
+    } else if (typeString.startsWith("audio/")) {
         type = MimeType::Audio;
-    }
-    else if (typeString.startsWith("application/pdf"))
-    {
+    } else if (typeString.startsWith("application/pdf")) {
         type = MimeType::PDF;
-    }
-    else if (typeString.startsWith("application/tianboard-tool"))
-    {
+    } else if (typeString.startsWith("application/tianboard-tool")) {
         type = MimeType::NativeTool;
     }
     return type;
-
 }
 
-MimeType::Enum FileSystemUtils::mimeTypeFromUrl(const QUrl& url)
-{
+MimeType::Enum FileSystemUtils::mimeTypeFromUrl(const QUrl &url) {
     return mimeTypeFromString(mimeTypeFromFileName(url.toString()));
 }
 
-QString FileSystemUtils::getFirstExistingFileFromList(const QString& path, const QStringList& files)
-{
+QString FileSystemUtils::getFirstExistingFileFromList(const QString &path, const QStringList &files) {
     QString fullpath = path;
 
-    if (!path.endsWith("/"))
-    {
+    if (!path.endsWith("/")) {
         fullpath += "/";
     }
 
-    foreach(QString filename, files)
-    {
+    foreach (QString filename, files) {
         QFile file;
 
         file.setFileName(fullpath + filename);
 
-        if (file.exists())
-        {
+        if (file.exists()) {
             return fullpath + filename;
         }
     }
 
     return "";
-
 }
 
-bool FileSystemUtils::compressDirInZip(const QDir& pDir, const QString& pDestPath, QuaZipFile *pOutZipFile, bool pRootDocumentFolder, ProcessingProgressListener* progressListener)
-{
+bool FileSystemUtils::compressDirInZip(const QDir &pDir, const QString &pDestPath, QuaZipFile *pOutZipFile,
+                                       bool pRootDocumentFolder,
+                                       ProcessingProgressListener *progressListener) {
     QFileInfoList files = pDir.entryInfoList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
 
     QStringList filters;
     filters << "*.svg";
     QFileInfoList pageFiles = pDir.entryInfoList(filters);
 
-    foreach (QFileInfo file, files)
-    {
-        if (file.isDir())
-        {
+    foreach (QFileInfo file, files) {
+        if (file.isDir()) {
             QDir dir(file.absoluteFilePath());
-            if (!compressDirInZip(dir, pDestPath + dir.dirName() + "/" , pOutZipFile, false))
-            {
+            if (!compressDirInZip(dir, pDestPath + dir.dirName() + "/", pOutZipFile, false)) {
                 return false;
             }
         }
 
-        if (file.isFile())
-        {
+        if (file.isFile()) {
             QString objectType;
-            if (pRootDocumentFolder)
-            {
+            if (pRootDocumentFolder) {
                 objectType = "Page";
-            }
-            else
-            {
+            } else {
                 objectType = pDir.dirName();
             }
 
-            if (!pRootDocumentFolder)
-            {
+            if (!pRootDocumentFolder) {
                 if (progressListener)
                     progressListener->processing(objectType, files.indexOf(file), files.size());
             }
             // we ignore thumbnails message because it is very fast.
-            else if (progressListener && file.suffix() == "svg")
-            {
+            else if (progressListener && file.suffix() == "svg") {
                 progressListener->processing(objectType, pageFiles.indexOf(file), pageFiles.size());
             }
 
             QFile inFile(file.absoluteFilePath());
-            if(!inFile.open(QIODevice::ReadOnly))
-            {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: inFile.open(): " << inFile.errorString();
+            if (!inFile.open(QIODevice::ReadOnly)) {
+                qWarning() << "Compression of file" << inFile.fileName()
+                           << " failed. Cause: inFile.open(): " << inFile.errorString();
                 return false;
             }
 
             qDebug() << "will open" << pDestPath << file.fileName() << inFile.fileName();
 
-            if(!pOutZipFile->open(QIODevice::WriteOnly, QuaZipNewInfo(pDestPath + file.fileName(), inFile.fileName())))
-            {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: outFile.open(): " << pOutZipFile->getZipError();
+            if (!pOutZipFile->open(QIODevice::WriteOnly,
+                                   QuaZipNewInfo(pDestPath + file.fileName(), inFile.fileName()))) {
+                qWarning() << "Compression of file" << inFile.fileName()
+                           << " failed. Cause: outFile.open(): " << pOutZipFile->getZipError();
                 inFile.close();
                 return false;
             }
 
             pOutZipFile->write(inFile.readAll());
-            if(pOutZipFile->getZipError() != UNZ_OK)
-            {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: outFile.write(): " << pOutZipFile->getZipError();
+            if (pOutZipFile->getZipError() != UNZ_OK) {
+                qWarning() << "Compression of file" << inFile.fileName()
+                           << " failed. Cause: outFile.write(): " << pOutZipFile->getZipError();
 
                 inFile.close();
                 pOutZipFile->close();
@@ -734,9 +706,9 @@ bool FileSystemUtils::compressDirInZip(const QDir& pDir, const QString& pDestPat
             }
 
             pOutZipFile->close();
-            if(pOutZipFile->getZipError() != UNZ_OK)
-            {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: outFile.close(): " << pOutZipFile->getZipError();
+            if (pOutZipFile->getZipError() != UNZ_OK) {
+                qWarning() << "Compression of file" << inFile.fileName()
+                           << " failed. Cause: outFile.close(): " << pOutZipFile->getZipError();
 
                 inFile.close();
                 return false;
@@ -749,12 +721,10 @@ bool FileSystemUtils::compressDirInZip(const QDir& pDir, const QString& pDestPat
     return true;
 }
 
-bool FileSystemUtils::expandZipToDir(const QFile& pZipFile, const QDir& pTargetDir)
-{
+bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetDir) {
     QuaZip zip(pZipFile.fileName());
 
-    if(!zip.open(QuaZip::mdUnzip))
-    {
+    if (!zip.open(QuaZip::mdUnzip)) {
         qWarning() << "ZIP expand failed. Cause zip.open(): " << zip.getZipError();
         return false;
     }
@@ -765,27 +735,23 @@ bool FileSystemUtils::expandZipToDir(const QFile& pZipFile, const QDir& pTargetD
 
     QString documentRootFolder = pTargetDir.absolutePath();
 
-    if(!pTargetDir.exists())
+    if (!pTargetDir.exists())
         pTargetDir.mkpath(documentRootFolder);
 
     QFile out;
     char c;
-    for(bool more = zip.goToFirstFile(); more; more = zip.goToNextFile())
-    {
-        if(!zip.getCurrentFileInfo(&info))
-        {
+    for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile()) {
+        if (!zip.getCurrentFileInfo(&info)) {
             qWarning() << "ZIP expand failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
             return false;
         }
 
-        if(!file.open(QIODevice::ReadOnly))
-        {
+        if (!file.open(QIODevice::ReadOnly)) {
             qWarning() << "ZIP expand failed. Cause: file.open(): " << zip.getZipError();
             return false;
         }
 
-        if(file.getZipError()!= UNZ_OK)
-        {
+        if (file.getZipError() != UNZ_OK) {
             qWarning() << "ZIP expand failed. Cause: file.getFileName(): " << zip.getZipError();
             return false;
         }
@@ -802,52 +768,46 @@ bool FileSystemUtils::expandZipToDir(const QFile& pZipFile, const QDir& pTargetD
         // Not ZIP/UNZIP package's fault either.
         // The slowest thing here is out.putChar(c).
         QByteArray outFileContent = file.readAll();
-        if (out.write(outFileContent) == -1)
-        {
+        if (out.write(outFileContent) == -1) {
             // qWarning() << "ZIP expand failed. Cause: Unable to write file";
             // this may happen if we are decompressing a directory
         }
 
-        while(file.getChar(&c))
+        while (file.getChar(&c))
             out.putChar(c);
 
         out.close();
 
-        if(file.getZipError()!= UNZ_OK)
-        {
+        if (file.getZipError() != UNZ_OK) {
             qWarning() << "ZIP expand failed. Cause: " << zip.getZipError();
             return false;
         }
 
-        if(!file.atEnd())
-        {
+        if (!file.atEnd()) {
             qWarning() << "ZIP expand failed. Cause: read all but not EOF";
             return false;
         }
 
         file.close();
 
-        if(file.getZipError()!= UNZ_OK)
-        {
-            qWarning() << "ZIP expand failed. Cause: file.close(): " <<  file.getZipError();
+        if (file.getZipError() != UNZ_OK) {
+            qWarning() << "ZIP expand failed. Cause: file.close(): " << file.getZipError();
             return false;
         }
     }
 
     zip.close();
 
-    if(zip.getZipError()!= UNZ_OK)
-    {
-      qWarning() << "ZIP expand failed. Cause: zip.close(): " << zip.getZipError();
-      return false;
+    if (zip.getZipError() != UNZ_OK) {
+        qWarning() << "ZIP expand failed. Cause: zip.close(): " << zip.getZipError();
+        return false;
     }
 
     return true;
 }
 
 
-QString FileSystemUtils::md5InHex(const QByteArray &pByteArray)
-{
+QString FileSystemUtils::md5InHex(const QByteArray &pByteArray) {
     MD5_CTX ctx;
     MD5_Init(&ctx);
     MD5_Update(&ctx, pByteArray.data(), pByteArray.size());
@@ -858,8 +818,7 @@ QString FileSystemUtils::md5InHex(const QByteArray &pByteArray)
     return QString(QByteArray((char *)result, 16).toHex());
 }
 
-QString FileSystemUtils::md5(const QByteArray &pByteArray)
-{
+QString FileSystemUtils::md5(const QByteArray &pByteArray) {
     MD5_CTX ctx;
     MD5_Init(&ctx);
     MD5_Update(&ctx, pByteArray.data(), pByteArray.size());
@@ -868,20 +827,17 @@ QString FileSystemUtils::md5(const QByteArray &pByteArray)
     MD5_Final(result, &ctx);
     QString s;
 
-    for(int i = 0; i < 16; i++)
-    {
+    for (int i = 0; i < 16; i++) {
         s += QChar(result[i]);
     }
 
     return s;
 }
 
-QString FileSystemUtils::readTextFile(QString path)
-{
+QString FileSystemUtils::readTextFile(QString path) {
     QFile file(path);
 
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
         return in.readAll();
     }

@@ -34,12 +34,12 @@
 #include "model/DocumentController.h"
 
 
-const QString PersistenceManager::imageDirectory = "images"; // added to PersistenceManager::mAllDirectories
+const QString PersistenceManager::imageDirectory = "images";   // added to PersistenceManager::mAllDirectories
 const QString PersistenceManager::objectDirectory = "objects"; // added to PersistenceManager::mAllDirectories
 const QString PersistenceManager::widgetDirectory = "widgets"; // added to PersistenceManager::mAllDirectories
-const QString PersistenceManager::videoDirectory = "videos"; // added to PersistenceManager::mAllDirectories
-const QString PersistenceManager::audioDirectory = "audios"; // added to
-const QString PersistenceManager::fileDirectory = "files"; // Issue 1683 (Evolution) - AOU - 20131206
+const QString PersistenceManager::videoDirectory = "videos";   // added to PersistenceManager::mAllDirectories
+const QString PersistenceManager::audioDirectory = "audios";   // added to
+const QString PersistenceManager::fileDirectory = "files";     // Issue 1683 (Evolution) - AOU - 20131206
 
 const QString PersistenceManager::myDocumentsName = "MyDocuments";
 const QString PersistenceManager::modelsName = "Models";
@@ -47,13 +47,9 @@ const QString PersistenceManager::fFolders = "folders.xml";
 const QString PersistenceManager::tFolder = "folder";
 const QString PersistenceManager::aName = "name";
 
-PersistenceManager * PersistenceManager::sSingleton = 0;
+PersistenceManager *PersistenceManager::sSingleton = 0;
 
-PersistenceManager::PersistenceManager(QObject *pParent)
-    : QObject(pParent)
-    , mHasPurgedDocuments(false)
-{
-
+PersistenceManager::PersistenceManager(QObject *pParent) : QObject(pParent), mHasPurgedDocuments(false) {
     xmlFolderStructureFilename = "model";
 
     mDocumentSubDirectories << imageDirectory;
@@ -64,7 +60,7 @@ PersistenceManager::PersistenceManager(QObject *pParent)
     mDocumentSubDirectories << fileDirectory; // Issue 1683 (Evolution) - AOU - 20131206
 
     mDocumentRepositoryPath = Settings::userDocumentDirectory();
-    mFoldersXmlStorageName =  mDocumentRepositoryPath + "/" + fFolders;
+    mFoldersXmlStorageName = mDocumentRepositoryPath + "/" + fFolders;
 
     mDocumentTreeStructureModel = new DocumentTreeModel(this);
     createDocumentProxiesStructure();
@@ -73,35 +69,30 @@ PersistenceManager::PersistenceManager(QObject *pParent)
     emit proxyListChanged();
 }
 
-PersistenceManager* PersistenceManager::persistenceManager()
-{
-    if (!sSingleton)
-    {
+PersistenceManager *PersistenceManager::persistenceManager() {
+    if (!sSingleton) {
         sSingleton = new PersistenceManager(Application::staticMemoryCleaner);
     }
 
     return sSingleton;
 }
 
-void PersistenceManager::destroy()
-{
+void PersistenceManager::destroy() {
     if (sSingleton)
         delete sSingleton;
     sSingleton = NULL;
 }
 
-PersistenceManager::~PersistenceManager()
-{
-}
+PersistenceManager::~PersistenceManager() {}
 
-void PersistenceManager::createDocumentProxiesStructure(bool interactive)
-{
+void PersistenceManager::createDocumentProxiesStructure(bool interactive) {
     mDocumentRepositoryPath = Settings::userDocumentDirectory();
 
     QDir rootDir(mDocumentRepositoryPath);
     rootDir.mkpath(rootDir.path());
 
-    QFileInfoList contentList = rootDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+    QFileInfoList contentList =
+        rootDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
     createDocumentProxiesStructure(contentList, interactive);
 
     if (QFileInfo(mFoldersXmlStorageName).exists()) {
@@ -110,15 +101,15 @@ void PersistenceManager::createDocumentProxiesStructure(bool interactive)
         if (inFile.open(QIODevice::ReadOnly)) {
             QString domString(inFile.readAll());
 
-            int errorLine = 0; int errorColumn = 0;
+            int errorLine = 0;
+            int errorColumn = 0;
             QString errorStr;
 
             if (xmlDom.setContent(domString, &errorStr, &errorLine, &errorColumn)) {
                 loadFolderTreeFromXml("", xmlDom.firstChildElement());
             } else {
                 qDebug() << "Error reading content of " << mFoldersXmlStorageName << Qt::endl
-                         << "Error:" << inFile.errorString()
-                         << "Line:" << errorLine
+                         << "Error:" << inFile.errorString() << "Line:" << errorLine
                          << "Column:" << errorColumn;
             }
             inFile.close();
@@ -129,10 +120,8 @@ void PersistenceManager::createDocumentProxiesStructure(bool interactive)
     }
 }
 
-void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &contentInfo, bool interactive)
-{
-    foreach(QFileInfo path, contentInfo)
-    {
+void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &contentInfo, bool interactive) {
+    foreach (QFileInfo path, contentInfo) {
         QString fullPath = path.absoluteFilePath();
 
         QMap<QString, QVariant> metadatas = MetadataDcSubsetAdaptor::load(fullPath);
@@ -141,7 +130,8 @@ void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &con
         QString docName = metadatas.value(Settings::documentName, QString()).toString();
 
         if (docName.isEmpty()) {
-            qDebug() << "Group name and document name are empty in PersistenceManager::createDocumentProxiesStructure()";
+            qDebug() << "Group name and document name are empty in "
+                        "PersistenceManager::createDocumentProxiesStructure()";
             continue;
         }
 
@@ -150,17 +140,14 @@ void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &con
             return;
         }
 
-        DocumentProxy* docProxy = new DocumentProxy(fullPath, metadatas); // managed in DocumentTreeNode
-        foreach(QString key, metadatas.keys()) {
+        DocumentProxy *docProxy = new DocumentProxy(fullPath, metadatas); // managed in DocumentTreeNode
+        foreach (QString key, metadatas.keys()) {
             docProxy->setMetaData(key, metadatas.value(key));
         }
 
-        if (metadatas.contains(Settings::documentPageCount))
-        {
+        if (metadatas.contains(Settings::documentPageCount)) {
             docProxy->setPageCount(metadatas.value(Settings::documentPageCount).toInt());
-        }
-        else
-        {
+        } else {
             int pageCount = sceneCount(docProxy);
             docProxy->setPageCount(pageCount);
         }
@@ -172,21 +159,18 @@ void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &con
     }
 }
 
-QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(DocumentProxy *pProxy)
-{
+QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(DocumentProxy *pProxy) {
     //TODO: remove this hack, needed for double-click on a document package
     Qt::CursorShape saveShape;
-    if(Application::overrideCursor()){
+    if (Application::overrideCursor()) {
         saveShape = Application::overrideCursor()->shape();
         Application::overrideCursor()->setShape(Qt::ArrowCursor);
-    }
-    else
+    } else
         saveShape = Qt::ArrowCursor;
 
     QDialog::DialogCode result = QDialog::Rejected;
 
-    if (Application::documentController
-            && Application::documentController->mainWidget()) {
+    if (Application::documentController && Application::documentController->mainWidget()) {
         QString docGroupName = pProxy->metaData(Settings::documentGroupName).toString();
         QModelIndex parentIndex = mDocumentTreeStructureModel->goTo(docGroupName);
         if (!parentIndex.isValid()) {
@@ -198,12 +182,9 @@ QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(Docu
         QString docName = pProxy->metaData(Settings::documentName).toString();
 
         if (docList.contains(docName)) {
-            DocumentReplaceDialog *replaceDialog = new DocumentReplaceDialog(docName
-                                                                                 , docList
-                                                                                 , /*Application::documentController->mainWidget()*/0
-                                                                                 , Qt::Widget);
-            if (replaceDialog->exec() == QDialog::Accepted)
-            {
+            DocumentReplaceDialog *replaceDialog = new DocumentReplaceDialog(
+                docName, docList, /*Application::documentController->mainWidget()*/ 0, Qt::Widget);
+            if (replaceDialog->exec() == QDialog::Accepted) {
                 result = QDialog::Accepted;
                 QString resultName = replaceDialog->lineEditText();
                 int i = docList.indexOf(resultName);
@@ -211,8 +192,7 @@ QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(Docu
                     QModelIndex replaceIndex = mDocumentTreeStructureModel->index(i, 0, parentIndex);
                     DocumentProxy *replaceProxy = mDocumentTreeStructureModel->proxyData(replaceIndex);
 
-                    if (mDocumentTreeStructureModel->currentIndex() == replaceIndex)
-                    {
+                    if (mDocumentTreeStructureModel->currentIndex() == replaceIndex) {
                         Application::documentController->selectDocument(pProxy, true, true);
                     }
 
@@ -232,34 +212,30 @@ QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(Docu
             mDocumentTreeStructureModel->addDocument(pProxy, parentIndex);
             result = QDialog::Accepted;
         }
-
     }
-// TODO: 这个 if 是临时绕法
-    if(Application::overrideCursor())
+    // TODO: 这个 if 是临时绕法
+    if (Application::overrideCursor())
         Application::overrideCursor()->setShape(saveShape);
 
     return result;
 }
 
-QString PersistenceManager::adjustDocumentVirtualPath(const QString &str)
-{
+QString PersistenceManager::adjustDocumentVirtualPath(const QString &str) {
     QStringList pathList = str.split("/", Qt::SkipEmptyParts);
 
     if (pathList.isEmpty()) {
         pathList.append(myDocumentsName);
     }
 
-    if (pathList.first() != myDocumentsName
-            && pathList.first() != Settings::trashedDocumentGroupNamePrefix
-            && pathList.first() != modelsName) {
+    if (pathList.first() != myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix &&
+        pathList.first() != modelsName) {
         pathList.prepend(myDocumentsName);
     }
 
     return pathList.join("/");
 }
 
-void PersistenceManager::closing()
-{
+void PersistenceManager::closing() {
     QDir rootDir(mDocumentRepositoryPath);
     rootDir.mkpath(rootDir.path());
 
@@ -275,18 +251,16 @@ void PersistenceManager::closing()
 
         outFile.close();
     } else {
-        qDebug() << "failed to open document" <<  mFoldersXmlStorageName << "for writing" << Qt::endl
+        qDebug() << "failed to open document" << mFoldersXmlStorageName << "for writing" << Qt::endl
                  << "Error string:" << outFile.errorString();
     }
 }
 
-bool PersistenceManager::isSceneInCached(DocumentProxy *proxy, int index) const
-{
+bool PersistenceManager::isSceneInCached(DocumentProxy *proxy, int index) const {
     return mSceneCache.contains(proxy, index);
 }
 
-QStringList PersistenceManager::allShapes()
-{
+QStringList PersistenceManager::allShapes() {
     QString shapeLibraryPath = Settings::settings()->applicationShapeLibraryDirectory();
 
     QDir dir(shapeLibraryPath);
@@ -297,16 +271,14 @@ QStringList PersistenceManager::allShapes()
     QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
     QStringList paths;
 
-    foreach(QString file, files)
-    {
+    foreach (QString file, files) {
         paths.append(shapeLibraryPath + QString("/") + file);
     }
 
     return paths;
 }
 
-QStringList PersistenceManager::allGips()
-{
+QStringList PersistenceManager::allGips() {
     QString gipLibraryPath = Settings::settings()->userGipLibraryDirectory();
 
     QDir dir(gipLibraryPath);
@@ -314,8 +286,7 @@ QStringList PersistenceManager::allGips()
     QStringList files = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
     QStringList paths;
 
-    foreach(QString file, files)
-    {
+    foreach (QString file, files) {
         QFileInfo fi(file);
 
         if (Settings::settings()->widgetFileExtensions.contains(fi.suffix()))
@@ -325,16 +296,14 @@ QStringList PersistenceManager::allGips()
     return paths;
 }
 
-QStringList PersistenceManager::allImages(const QDir& dir)
-{
+QStringList PersistenceManager::allImages(const QDir &dir) {
     if (!dir.exists())
         dir.mkpath(dir.path());
 
     QStringList files = dir.entryList(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot, QDir::Name);
     QStringList paths;
 
-    foreach(QString file, files)
-    {
+    foreach (QString file, files) {
         paths.append(dir.path() + QString("/") + file);
     }
 
@@ -342,16 +311,14 @@ QStringList PersistenceManager::allImages(const QDir& dir)
 }
 
 
-QStringList PersistenceManager::allVideos(const QDir& dir)
-{
+QStringList PersistenceManager::allVideos(const QDir &dir) {
     if (!dir.exists())
         dir.mkpath(dir.path());
 
     QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
     QStringList paths;
 
-    foreach(QString file, files)
-    {
+    foreach (QString file, files) {
         paths.append(dir.path() + QString("/") + file);
     }
 
@@ -359,16 +326,14 @@ QStringList PersistenceManager::allVideos(const QDir& dir)
 }
 
 
-QStringList PersistenceManager::allWidgets(const QDir& dir)
-{
+QStringList PersistenceManager::allWidgets(const QDir &dir) {
     if (!dir.exists())
         dir.mkpath(dir.path());
 
     QStringList files = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
     QStringList paths;
 
-    foreach(QString file, files)
-    {
+    foreach (QString file, files) {
         QFileInfo fi(file);
 
         if (Settings::settings()->widgetFileExtensions.contains(fi.suffix()))
@@ -379,46 +344,37 @@ QStringList PersistenceManager::allWidgets(const QDir& dir)
 }
 
 
-DocumentProxy* PersistenceManager::createDocument(const QString& pGroupName
-                                                      , const QString& pName
-                                                      , bool withEmptyPage
-                                                      , QString directory
-                                                      , int pageCount
-                                                      , bool promptDialogIfExists)
-{
+DocumentProxy *PersistenceManager::createDocument(const QString &pGroupName, const QString &pName,
+                                                  bool withEmptyPage, QString directory, int pageCount,
+                                                  bool promptDialogIfExists) {
     DocumentProxy *doc;
-    if(directory.length() != 0 ){
+    if (directory.length() != 0) {
         doc = new DocumentProxy(directory); // deleted in PersistenceManager::destructor
         doc->setPageCount(pageCount);
-    }
-    else{
+    } else {
         checkIfDocumentRepositoryExists();
         doc = new DocumentProxy();
     }
 
-    if (pGroupName.length() > 0)
-    {
+    if (pGroupName.length() > 0) {
         doc->setMetaData(Settings::documentGroupName, pGroupName);
     }
 
-    if (pName.length() > 0)
-    {
+    if (pName.length() > 0) {
         doc->setMetaData(Settings::documentName, pName);
     }
 
     doc->setMetaData(Settings::documentVersion, Settings::currentFileVersion);
-    QString currentDate =  StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime());
-    doc->setMetaData(Settings::documentUpdatedAt,currentDate);
-    doc->setMetaData(Settings::documentDate,currentDate);
+    QString currentDate = StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime());
+    doc->setMetaData(Settings::documentUpdatedAt, currentDate);
+    doc->setMetaData(Settings::documentDate, currentDate);
 
     if (withEmptyPage) {
         createDocumentSceneAt(doc, 0);
-    }
-    else{
+    } else {
         this->generatePathIfNeeded(doc);
         QDir dir(doc->persistencePath());
-        if (!dir.mkpath(doc->persistencePath()))
-        {
+        if (!dir.mkpath(doc->persistencePath())) {
             return 0; // if we can't create the path, abort function.
         }
     }
@@ -440,14 +396,11 @@ DocumentProxy* PersistenceManager::createDocument(const QString& pGroupName
     return doc;
 }
 
-DocumentProxy* PersistenceManager::createNewDocument(const QString& pGroupName
-                                                      , const QString& pName
-                                                      , bool withEmptyPage
-                                                      , QString directory
-                                                      , int pageCount
-                                                      , bool promptDialogIfExists)
-{
-    DocumentProxy *resultDoc = createDocument(pGroupName, pName, withEmptyPage, directory, pageCount, promptDialogIfExists);
+DocumentProxy *PersistenceManager::createNewDocument(const QString &pGroupName, const QString &pName,
+                                                     bool withEmptyPage, QString directory, int pageCount,
+                                                     bool promptDialogIfExists) {
+    DocumentProxy *resultDoc =
+        createDocument(pGroupName, pName, withEmptyPage, directory, pageCount, promptDialogIfExists);
     if (resultDoc) {
         mDocumentTreeStructureModel->markDocumentAsNew(resultDoc);
     }
@@ -455,42 +408,37 @@ DocumentProxy* PersistenceManager::createNewDocument(const QString& pGroupName
     return resultDoc;
 }
 
-DocumentProxy* PersistenceManager::createDocumentFromDir(const QString& pDocumentDirectory
-                                                             , const QString& pGroupName
-                                                             , const QString& pName
-                                                             , bool withEmptyPage
-                                                             , bool addTitlePage
-                                                             , bool promptDialogIfExists)
-{
+DocumentProxy *PersistenceManager::createDocumentFromDir(const QString &pDocumentDirectory,
+                                                         const QString &pGroupName, const QString &pName,
+                                                         bool withEmptyPage, bool addTitlePage,
+                                                         bool promptDialogIfExists) {
     checkIfDocumentRepositoryExists();
 
-    DocumentProxy* doc = new DocumentProxy(pDocumentDirectory); // deleted in PersistenceManager::destructor
+    DocumentProxy *doc = new DocumentProxy(pDocumentDirectory); // deleted in PersistenceManager::destructor
 
-    if (pGroupName.length() > 0)
-    {
+    if (pGroupName.length() > 0) {
         doc->setMetaData(Settings::documentGroupName, pGroupName);
     }
 
-    if (pName.length() > 0)
-    {
+    if (pName.length() > 0) {
         doc->setMetaData(Settings::documentName, pName);
     }
 
     QMap<QString, QVariant> metadatas = MetadataDcSubsetAdaptor::load(pDocumentDirectory);
 
-    if(withEmptyPage) createDocumentSceneAt(doc, 0);
-    if(addTitlePage) persistDocumentScene(doc, mSceneCache.createScene(doc, 0, false), 0);
+    if (withEmptyPage)
+        createDocumentSceneAt(doc, 0);
+    if (addTitlePage)
+        persistDocumentScene(doc, mSceneCache.createScene(doc, 0, false), 0);
 
-    foreach(QString key, metadatas.keys())
-    {
+    foreach (QString key, metadatas.keys()) {
         doc->setMetaData(key, metadatas.value(key));
     }
 
     doc->setUuid(QUuid::createUuid());
     doc->setPageCount(sceneCount(doc));
 
-    for(int i = 0; i < doc->pageCount(); i++)
-    {
+    for (int i = 0; i < doc->pageCount(); i++) {
         SvgSubsetAdaptor::setSceneUuid(doc, i, QUuid::createUuid());
     }
 
@@ -515,8 +463,7 @@ DocumentProxy* PersistenceManager::createDocumentFromDir(const QString& pDocumen
 }
 
 
-void PersistenceManager::deleteDocument(DocumentProxy* pDocumentProxy)
-{
+void PersistenceManager::deleteDocument(DocumentProxy *pDocumentProxy) {
     checkIfDocumentRepositoryExists();
 
     emit documentWillBeDeleted(pDocumentProxy);
@@ -529,8 +476,7 @@ void PersistenceManager::deleteDocument(DocumentProxy* pDocumentProxy)
     pDocumentProxy->deleteLater();
 }
 
-DocumentProxy* PersistenceManager::duplicateDocument(DocumentProxy* pDocumentProxy)
-{
+DocumentProxy *PersistenceManager::duplicateDocument(DocumentProxy *pDocumentProxy) {
     checkIfDocumentRepositoryExists();
 
     DocumentProxy *copy = new DocumentProxy(); // deleted in PersistenceManager::destructor
@@ -540,18 +486,16 @@ DocumentProxy* PersistenceManager::duplicateDocument(DocumentProxy* pDocumentPro
     FileSystemUtils::copyDir(pDocumentProxy->persistencePath(), copy->persistencePath());
 
     // regenerate scenes UUIDs
-    for(int i = 0; i < pDocumentProxy->pageCount(); i++)
-    {
+    for (int i = 0; i < pDocumentProxy->pageCount(); i++) {
         SvgSubsetAdaptor::setSceneUuid(pDocumentProxy, i, QUuid::createUuid());
     }
 
-    foreach(QString key, pDocumentProxy->metaDatas().keys())
-    {
+    foreach (QString key, pDocumentProxy->metaDatas().keys()) {
         copy->setMetaData(key, pDocumentProxy->metaDatas().value(key));
-    }    
+    }
 
     copy->setMetaData(Settings::documentName,
-            pDocumentProxy->metaData(Settings::documentName).toString() + " " + tr("(copy)"));
+                      pDocumentProxy->metaData(Settings::documentName).toString() + " " + tr("(copy)"));
 
     copy->setUuid(QUuid::createUuid());
 
@@ -564,26 +508,22 @@ DocumentProxy* PersistenceManager::duplicateDocument(DocumentProxy* pDocumentPro
     emit documentCreated(copy);
 
     return copy;
-
 }
 
 
-void PersistenceManager::deleteDocumentScenes(DocumentProxy* proxy, const QList<int>& indexes)
-{
+void PersistenceManager::deleteDocumentScenes(DocumentProxy *proxy, const QList<int> &indexes) {
     checkIfDocumentRepositoryExists();
 
     int pageCount = PersistenceManager::persistenceManager()->sceneCount(proxy);
 
     QList<int> compactedIndexes;
 
-    foreach(int index, indexes)
-    {
+    foreach (int index, indexes) {
         if (!compactedIndexes.contains(index))
             compactedIndexes.append(index);
     }
 
-    if (compactedIndexes.size() == pageCount)
-    {
+    if (compactedIndexes.size() == pageCount) {
         deleteDocument(proxy);
         return;
     }
@@ -591,22 +531,19 @@ void PersistenceManager::deleteDocumentScenes(DocumentProxy* proxy, const QList<
     if (compactedIndexes.size() == 0)
         return;
 
-    foreach(int index, compactedIndexes)
-    {
+    foreach (int index, compactedIndexes) {
         emit documentSceneWillBeDeleted(proxy, index);
     }
 
     QString sourceName = proxy->metaData(Settings::documentName).toString();
-    DocumentProxy *trashDocProxy = createDocument(Settings::trashedDocumentGroupNamePrefix/* + sourceGroupName*/, sourceName, false);
+    DocumentProxy *trashDocProxy =
+        createDocument(Settings::trashedDocumentGroupNamePrefix /* + sourceGroupName*/, sourceName, false);
 
-    foreach(int index, compactedIndexes)
-    {
+    foreach (int index, compactedIndexes) {
         GraphicsScene *scene = loadDocumentScene(proxy, index);
-        if (scene)
-        {
+        if (scene) {
             //scene is about to move into new document
-            foreach (QUrl relativeFile, scene->relativeDependencies())
-            {
+            foreach (QUrl relativeFile, scene->relativeDependencies()) {
                 QString source = scene->document()->persistencePath() + "/" + relativeFile.toString();
                 QString target = trashDocProxy->persistencePath() + "/" + relativeFile.toString();
 
@@ -621,103 +558,96 @@ void PersistenceManager::deleteDocumentScenes(DocumentProxy* proxy, const QList<
         }
     }
 
-    for (int i = 1; i < pageCount; i++)
-    {
-        renamePage(trashDocProxy, i , i - 1);
+    for (int i = 1; i < pageCount; i++) {
+        renamePage(trashDocProxy, i, i - 1);
     }
 
-    foreach(int index, compactedIndexes)
-    {
-        QString svgFileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", index);
+    foreach (int index, compactedIndexes) {
+        QString svgFileName =
+            proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", index);
 
         QFile::remove(svgFileName);
 
-        QString thumbFileName = proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", index);
+        QString thumbFileName =
+            proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", index);
 
         QFile::remove(thumbFileName);
 
         mSceneCache.removeScene(proxy, index);
 
         proxy->decPageCount();
-
     }
 
     std::sort(compactedIndexes.begin(), compactedIndexes.end());
 
     int offset = 1;
 
-    for (int i = compactedIndexes.at(0) + 1; i < pageCount; i++)
-    {
-        if(compactedIndexes.contains(i))
-        {
+    for (int i = compactedIndexes.at(0) + 1; i < pageCount; i++) {
+        if (compactedIndexes.contains(i)) {
             offset++;
-        }
-        else
-        {
-            renamePage(proxy, i , i - offset);
+        } else {
+            renamePage(proxy, i, i - offset);
 
             mSceneCache.moveScene(proxy, i, i - offset);
-
         }
     }
 }
 
 
-void PersistenceManager::duplicateDocumentScene(DocumentProxy* proxy, int index)
-{
+void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index) {
     checkIfDocumentRepositoryExists();
 
     int pageCount = PersistenceManager::persistenceManager()->sceneCount(proxy);
 
-    for (int i = pageCount; i > index + 1; i--)
-    {
-        renamePage(proxy, i - 1 , i);
+    for (int i = pageCount; i > index + 1; i--) {
+        renamePage(proxy, i - 1, i);
 
         mSceneCache.moveScene(proxy, i - 1, i);
-
     }
 
-    copyPage(proxy, index , index + 1);
+    copyPage(proxy, index, index + 1);
 
     //TODO: write a proper way to handle object on disk
     GraphicsScene *scene = loadDocumentScene(proxy, index + 1);
     if (!scene)
         return;
 
-    foreach(QGraphicsItem* item, scene->items())
-    {
+    foreach (QGraphicsItem *item, scene->items()) {
         // GraphicsAudioItem and GraphicsVideoItem report their own Type, so
         // qgraphicsitem_cast never matches the abstract base and the media file
         // used to be shared by both pages.
-        GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem*> (item);
+        GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem *>(item);
 
-        if (mediaItem){
+        if (mediaItem) {
             QString source = mediaItem->mediaFileUrl().toLocalFile();
             QString destination = source;
             QUuid newUuid = QUuid::createUuid();
             QString fileName = QFileInfo(source).completeBaseName();
-            destination = destination.replace(fileName,newUuid.toString());
-            QFile::copy(source,destination);
+            destination = destination.replace(fileName, newUuid.toString());
+            QFile::copy(source, destination);
             mediaItem->setMediaFileUrl(QUrl::fromLocalFile(destination));
             continue;
         }
 
-        GraphicsWidgetItem* widget = qgraphicsitem_cast<GraphicsWidgetItem*>(item);
-        if(widget){
+        GraphicsWidgetItem *widget = qgraphicsitem_cast<GraphicsWidgetItem *>(item);
+        if (widget) {
             QUuid newUUid = QUuid::createUuid();
             QString newUUidString = newUUid.toString().remove("{").remove("}");
             QString actualUuidString = widget->uuid().toString().remove("{").remove("}");
 
-            QString widgetSourcePath = proxy->persistencePath() + "/" + PersistenceManager::widgetDirectory + "/{" + actualUuidString + "}.wgt";
-            QString screenshotSourcePath = proxy->persistencePath() + "/" +  PersistenceManager::widgetDirectory + "/" + actualUuidString + ".png";
+            QString widgetSourcePath = proxy->persistencePath() + "/" + PersistenceManager::widgetDirectory +
+                                       "/{" + actualUuidString + "}.wgt";
+            QString screenshotSourcePath = proxy->persistencePath() + "/" +
+                                           PersistenceManager::widgetDirectory + "/" + actualUuidString +
+                                           ".png";
 
             QString widgetDestinationPath = widgetSourcePath;
-            widgetDestinationPath = widgetDestinationPath.replace(actualUuidString,newUUidString);
+            widgetDestinationPath = widgetDestinationPath.replace(actualUuidString, newUUidString);
             QString screenshotDestinationPath = screenshotSourcePath;
-            screenshotDestinationPath = screenshotDestinationPath.replace(actualUuidString,newUUidString);
+            screenshotDestinationPath = screenshotDestinationPath.replace(actualUuidString, newUUidString);
 
-            FileSystemUtils::copyDir(widgetSourcePath,widgetDestinationPath);
-            QFile::copy(screenshotSourcePath,screenshotDestinationPath);
+            FileSystemUtils::copyDir(widgetSourcePath, widgetDestinationPath);
+            QFile::copy(screenshotSourcePath, screenshotDestinationPath);
 
             widget->setUuid(newUUid);
 
@@ -726,42 +656,43 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy* proxy, int index)
             continue;
         }
 
-        GraphicsPixmapItem* pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem*>(item);
-        if(pixmapItem){
-            QString source = proxy->persistencePath() + "/" +  PersistenceManager::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
+        GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
+        if (pixmapItem) {
+            QString source = proxy->persistencePath() + "/" + PersistenceManager::imageDirectory + "/" +
+                             pixmapItem->uuid().toString() + ".png";
             QString destination = source;
             QUuid newUuid = QUuid::createUuid();
             QString fileName = QFileInfo(source).completeBaseName();
-            destination = destination.replace(fileName,newUuid.toString());
-            QFile::copy(source,destination);
+            destination = destination.replace(fileName, newUuid.toString());
+            QFile::copy(source, destination);
             pixmapItem->setUuid(newUuid);
             continue;
         }
 
-        GraphicsSvgItem* svgItem = qgraphicsitem_cast<GraphicsSvgItem*>(item);
-        if(svgItem){
-            QString source = proxy->persistencePath() + "/" +  PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+        GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
+        if (svgItem) {
+            QString source = proxy->persistencePath() + "/" + PersistenceManager::imageDirectory + "/" +
+                             svgItem->uuid().toString() + ".svg";
             QString destination = source;
             QUuid newUuid = QUuid::createUuid();
             QString fileName = QFileInfo(source).completeBaseName();
-            destination = destination.replace(fileName,newUuid.toString());
-            QFile::copy(source,destination);
+            destination = destination.replace(fileName, newUuid.toString());
+            QFile::copy(source, destination);
             svgItem->setUuid(newUuid);
             continue;
         }
-
     }
     scene->setModified(true);
 
-    persistDocumentScene(proxy,scene, index + 1);
+    persistDocumentScene(proxy, scene, index + 1);
 
     proxy->incPageCount();
 
     emit documentSceneCreated(proxy, index + 1);
 }
 
-void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, DocumentProxy *to, int toIndex)
-{
+void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, DocumentProxy *to,
+                                           int toIndex) {
     if (from == to && toIndex <= fromIndex) {
         qDebug() << "operation is not supported" << Q_FUNC_INFO;
         return;
@@ -780,8 +711,10 @@ void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, D
 
     to->incPageCount();
 
-    QString thumbTmp(from->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", fromIndex));
-    QString thumbTo(to->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", toIndex));
+    QString thumbTmp(from->persistencePath() +
+                     FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", fromIndex));
+    QString thumbTo(to->persistencePath() +
+                    FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", toIndex));
 
     QFile::remove(thumbTo);
     QFile::copy(thumbTmp, thumbTo);
@@ -793,23 +726,23 @@ void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, D
     ctrl->addPixmapAt(pix, toIndex);
     ctrl->TreeViewSelectionChanged(ctrl->firstSelectedTreeIndex(), QModelIndex());
 
-//    emit documentSceneCreated(to, toIndex + 1);
+    //    emit documentSceneCreated(to, toIndex + 1);
 }
 
 
-GraphicsScene* PersistenceManager::createDocumentSceneAt(DocumentProxy* proxy, int index, bool useUndoRedoStack)
-{
+GraphicsScene *PersistenceManager::createDocumentSceneAt(DocumentProxy *proxy, int index,
+                                                         bool useUndoRedoStack) {
     int count = sceneCount(proxy);
 
-    for(int i = count - 1; i >= index; i--)
-        renamePage(proxy, i , i + 1);
+    for (int i = count - 1; i >= index; i--)
+        renamePage(proxy, i, i + 1);
 
-    mSceneCache.shiftUpScenes(proxy, index, count -1);
+    mSceneCache.shiftUpScenes(proxy, index, count - 1);
 
     GraphicsScene *newScene = mSceneCache.createScene(proxy, index, useUndoRedoStack);
 
     newScene->setBackground(Settings::settings()->isDarkBackground(),
-            Settings::settings()->Settings::pageBackground());
+                            Settings::settings()->Settings::pageBackground());
 
     newScene->setBackgroundGridSize(Settings::settings()->crossSize);
 
@@ -823,18 +756,17 @@ GraphicsScene* PersistenceManager::createDocumentSceneAt(DocumentProxy* proxy, i
 }
 
 
-void PersistenceManager::insertDocumentSceneAt(DocumentProxy* proxy, GraphicsScene* scene, int index, bool persist)
-{
+void PersistenceManager::insertDocumentSceneAt(DocumentProxy *proxy, GraphicsScene *scene, int index,
+                                               bool persist) {
     scene->setDocument(proxy);
 
     int count = sceneCount(proxy);
 
-    for(int i = count - 1; i >= index; i--)
-    {
-        renamePage(proxy, i , i + 1);
+    for (int i = count - 1; i >= index; i--) {
+        renamePage(proxy, i, i + 1);
     }
 
-    mSceneCache.shiftUpScenes(proxy, index, count -1);
+    mSceneCache.shiftUpScenes(proxy, index, count - 1);
 
     mSceneCache.insert(proxy, index, scene);
 
@@ -845,12 +777,10 @@ void PersistenceManager::insertDocumentSceneAt(DocumentProxy* proxy, GraphicsSce
     proxy->incPageCount();
 
     emit documentSceneCreated(proxy, index);
-
 }
 
 
-void PersistenceManager::moveSceneToIndex(DocumentProxy* proxy, int source, int target)
-{
+void PersistenceManager::moveSceneToIndex(DocumentProxy *proxy, int source, int target) {
     checkIfDocumentRepositoryExists();
 
     if (source == target)
@@ -859,21 +789,18 @@ void PersistenceManager::moveSceneToIndex(DocumentProxy* proxy, int source, int 
     QFile svgTmp(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", source));
     svgTmp.rename(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.tmp", target));
 
-    QFile thumbTmp(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", source));
-    thumbTmp.rename(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.tmp", target));
+    QFile thumbTmp(proxy->persistencePath() +
+                   FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", source));
+    thumbTmp.rename(proxy->persistencePath() +
+                    FileSystemUtils::digitFileFormat("/page%1.thumbnail.tmp", target));
 
-    if (source < target)
-    {
-        for (int i = source + 1; i <= target; i++)
-        {
-            renamePage(proxy, i , i - 1);
+    if (source < target) {
+        for (int i = source + 1; i <= target; i++) {
+            renamePage(proxy, i, i - 1);
         }
-    }
-    else
-    {
-        for (int i = source - 1; i >= target; i--)
-        {
-            renamePage(proxy, i , i + 1);
+    } else {
+        for (int i = source - 1; i >= target; i--) {
+            renamePage(proxy, i, i + 1);
         }
     }
 
@@ -881,20 +808,20 @@ void PersistenceManager::moveSceneToIndex(DocumentProxy* proxy, int source, int 
     svg.rename(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", target));
 
     QFile thumb(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.tmp", target));
-    thumb.rename(proxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", target));
+    thumb.rename(proxy->persistencePath() +
+                 FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", target));
 
     mSceneCache.moveScene(proxy, source, target);
 }
 
 
-GraphicsScene* PersistenceManager::loadDocumentScene(DocumentProxy* proxy, int sceneIndex)
-{
+GraphicsScene *PersistenceManager::loadDocumentScene(DocumentProxy *proxy, int sceneIndex) {
     if (mSceneCache.contains(proxy, sceneIndex))
         return mSceneCache.value(proxy, sceneIndex);
     else {
-        GraphicsScene* scene = SvgSubsetAdaptor::loadScene(proxy, sceneIndex);
-        if(!scene){
-            createDocumentSceneAt(proxy,0);
+        GraphicsScene *scene = SvgSubsetAdaptor::loadScene(proxy, sceneIndex);
+        if (!scene) {
+            createDocumentSceneAt(proxy, 0);
             scene = SvgSubsetAdaptor::loadScene(proxy, 0);
         }
 
@@ -905,13 +832,12 @@ GraphicsScene* PersistenceManager::loadDocumentScene(DocumentProxy* proxy, int s
     }
 }
 
-void PersistenceManager::reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument)
-{
+void PersistenceManager::reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument) {
     return mSceneCache.reassignDocProxy(newDocument, oldDocument);
 }
 
-void PersistenceManager::persistDocumentScene(DocumentProxy* pDocumentProxy, GraphicsScene* pScene, const int pSceneIndex)
-{
+void PersistenceManager::persistDocumentScene(DocumentProxy *pDocumentProxy, GraphicsScene *pScene,
+                                              const int pSceneIndex) {
     checkIfDocumentRepositoryExists();
 
     pScene->deselectAllItems();
@@ -924,8 +850,7 @@ void PersistenceManager::persistDocumentScene(DocumentProxy* pDocumentProxy, Gra
     if (pDocumentProxy->isModified())
         MetadataDcSubsetAdaptor::persist(pDocumentProxy);
 
-    if (pScene->isModified())
-    {
+    if (pScene->isModified()) {
         SvgSubsetAdaptor::persistScene(pDocumentProxy, pScene, pSceneIndex);
 
         ThumbnailAdaptor::persistScene(pDocumentProxy, pScene, pSceneIndex);
@@ -937,8 +862,7 @@ void PersistenceManager::persistDocumentScene(DocumentProxy* pDocumentProxy, Gra
 }
 
 
-DocumentProxy* PersistenceManager::persistDocumentMetadata(DocumentProxy* pDocumentProxy)
-{
+DocumentProxy *PersistenceManager::persistDocumentMetadata(DocumentProxy *pDocumentProxy) {
     MetadataDcSubsetAdaptor::persist(pDocumentProxy);
 
     emit documentMetadataChanged(pDocumentProxy);
@@ -947,53 +871,56 @@ DocumentProxy* PersistenceManager::persistDocumentMetadata(DocumentProxy* pDocum
 }
 
 
-void PersistenceManager::renamePage(DocumentProxy* pDocumentProxy, const int sourceIndex, const int targetIndex)
-{
-    QFile svg(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", sourceIndex));
-    svg.rename(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg",  targetIndex));
+void PersistenceManager::renamePage(DocumentProxy *pDocumentProxy, const int sourceIndex,
+                                    const int targetIndex) {
+    QFile svg(pDocumentProxy->persistencePath() +
+              FileSystemUtils::digitFileFormat("/page%1.svg", sourceIndex));
+    svg.rename(pDocumentProxy->persistencePath() +
+               FileSystemUtils::digitFileFormat("/page%1.svg", targetIndex));
 
-    QFile thumb(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
-    thumb.rename(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
+    QFile thumb(pDocumentProxy->persistencePath() +
+                FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
+    thumb.rename(pDocumentProxy->persistencePath() +
+                 FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
 }
 
 
-void PersistenceManager::copyPage(DocumentProxy* pDocumentProxy, const int sourceIndex, const int targetIndex)
-{
-    QFile svg(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg",sourceIndex));
-    svg.copy(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", targetIndex));
+void PersistenceManager::copyPage(DocumentProxy *pDocumentProxy, const int sourceIndex,
+                                  const int targetIndex) {
+    QFile svg(pDocumentProxy->persistencePath() +
+              FileSystemUtils::digitFileFormat("/page%1.svg", sourceIndex));
+    svg.copy(pDocumentProxy->persistencePath() +
+             FileSystemUtils::digitFileFormat("/page%1.svg", targetIndex));
 
     SvgSubsetAdaptor::setSceneUuid(pDocumentProxy, targetIndex, QUuid::createUuid());
 
-    QFile thumb(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
-    thumb.copy(pDocumentProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
+    QFile thumb(pDocumentProxy->persistencePath() +
+                FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
+    thumb.copy(pDocumentProxy->persistencePath() +
+               FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
 }
 
 
-int PersistenceManager::sceneCount(const DocumentProxy* proxy)
-{
+int PersistenceManager::sceneCount(const DocumentProxy *proxy) {
     const QString pPath = proxy->persistencePath();
 
     int pageIndex = 0;
     bool moreToProcess = true;
     bool addedMissingZeroPage = false;
 
-    while (moreToProcess)
-    {
+    while (moreToProcess) {
         QString fileName = pPath + FileSystemUtils::digitFileFormat("/page%1.svg", pageIndex);
 
         QFile file(fileName);
 
-        if (file.exists())
-        {
+        if (file.exists()) {
             pageIndex++;
-        }
-        else
-        {
+        } else {
             moreToProcess = false;
         }
     }
 
-    if(pageIndex == 1 && addedMissingZeroPage){
+    if (pageIndex == 1 && addedMissingZeroPage) {
         // increment is done only to check if there are other pages than the missing zero page
         // This situation means -> no pages on the document
         return 0;
@@ -1002,65 +929,63 @@ int PersistenceManager::sceneCount(const DocumentProxy* proxy)
     return pageIndex;
 }
 
-QStringList PersistenceManager::getSceneFileNames(const QString& folder)
-{
+QStringList PersistenceManager::getSceneFileNames(const QString &folder) {
     QDir dir(folder, "page???.svg", QDir::Name, QDir::Files);
     return dir.entryList();
 }
 
-QString PersistenceManager::generateUniqueDocumentPath(const QString& baseFolder)
-{
+QString PersistenceManager::generateUniqueDocumentPath(const QString &baseFolder) {
     QDateTime now = QDateTime::currentDateTime();
     QString dirName = now.toString("yyyy-MM-dd hh-mm-ss.zzz");
 
     return baseFolder + QString("/TianBoard Document %1").arg(dirName);
 }
 
-QString PersistenceManager::generateUniqueDocumentPath()
-{
+QString PersistenceManager::generateUniqueDocumentPath() {
     return generateUniqueDocumentPath(Settings::userDocumentDirectory());
 }
 
 
-void PersistenceManager::generatePathIfNeeded(DocumentProxy* pDocumentProxy)
-{
-    if (pDocumentProxy->persistencePath().length() == 0)
-    {
+void PersistenceManager::generatePathIfNeeded(DocumentProxy *pDocumentProxy) {
+    if (pDocumentProxy->persistencePath().length() == 0) {
         pDocumentProxy->setPersistencePath(generateUniqueDocumentPath());
     }
 }
 
 
-bool PersistenceManager::addDirectoryContentToDocument(const QString& documentRootFolder, DocumentProxy* pDocument)
-{
+bool PersistenceManager::addDirectoryContentToDocument(const QString &documentRootFolder,
+                                                       DocumentProxy *pDocument) {
     QStringList sourceScenes = getSceneFileNames(documentRootFolder);
     if (sourceScenes.empty())
         return false;
 
     int targetPageCount = pDocument->pageCount();
 
-    for(int sourceIndex = 0 ; sourceIndex < sourceScenes.size(); sourceIndex++)
-    {
+    for (int sourceIndex = 0; sourceIndex < sourceScenes.size(); sourceIndex++) {
         int targetIndex = targetPageCount + sourceIndex;
 
         QFile svg(documentRootFolder + "/" + sourceScenes[sourceIndex]);
-        if (!svg.copy(pDocument->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.svg", targetIndex)))
+        if (!svg.copy(pDocument->persistencePath() +
+                      FileSystemUtils::digitFileFormat("/page%1.svg", targetIndex)))
             return false;
 
         SvgSubsetAdaptor::setSceneUuid(pDocument, targetIndex, QUuid::createUuid());
 
-        QFile thumb(documentRootFolder + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
+        QFile thumb(documentRootFolder +
+                    FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
         // We can ignore error in this case, thumbnail will be genarated
-        thumb.copy(pDocument->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
+        thumb.copy(pDocument->persistencePath() +
+                   FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
     }
 
-    foreach(QString dir, mDocumentSubDirectories)
-    {
-        qDebug() << "copying " << documentRootFolder << "/" << dir << " to " << pDocument->persistencePath() << "/" + dir;
+    foreach (QString dir, mDocumentSubDirectories) {
+        qDebug() << "copying " << documentRootFolder << "/" << dir << " to " << pDocument->persistencePath()
+                 << "/" + dir;
 
         QDir srcDir(documentRootFolder + "/" + dir);
         if (srcDir.exists())
-            if (!FileSystemUtils::copyDir(documentRootFolder + "/" + dir, pDocument->persistencePath() + "/" + dir))
+            if (!FileSystemUtils::copyDir(documentRootFolder + "/" + dir,
+                                          pDocument->persistencePath() + "/" + dir))
                 return false;
     }
 
@@ -1071,9 +996,8 @@ bool PersistenceManager::addDirectoryContentToDocument(const QString& documentRo
 }
 
 
-bool PersistenceManager::isEmpty(DocumentProxy* pDocumentProxy)
-{
-    if(!pDocumentProxy)
+bool PersistenceManager::isEmpty(DocumentProxy *pDocumentProxy) {
+    if (!pDocumentProxy)
         return true;
 
     if (pDocumentProxy->pageCount() > 1)
@@ -1083,13 +1007,10 @@ bool PersistenceManager::isEmpty(DocumentProxy* pDocumentProxy)
 
     bool empty = false;
 
-    if (theSoleScene)
-    {
+    if (theSoleScene) {
         empty = theSoleScene->isEmpty();
         delete theSoleScene;
-    }
-    else
-    {
+    } else {
         empty = true;
     }
 
@@ -1097,29 +1018,22 @@ bool PersistenceManager::isEmpty(DocumentProxy* pDocumentProxy)
 }
 
 
-void PersistenceManager::purgeEmptyDocuments()
-{
-    QList<DocumentProxy*> toBeDeleted;
+void PersistenceManager::purgeEmptyDocuments() {
+    QList<DocumentProxy *> toBeDeleted;
 
-    foreach(DocumentProxy* docProxy, mDocumentTreeStructureModel->newDocuments())
-    {
-        if (isEmpty(docProxy))
-        {
+    foreach (DocumentProxy *docProxy, mDocumentTreeStructureModel->newDocuments()) {
+        if (isEmpty(docProxy)) {
             toBeDeleted << docProxy;
         }
     }
 
-    foreach(DocumentProxy* docProxy, toBeDeleted)
-    {
+    foreach (DocumentProxy *docProxy, toBeDeleted) {
         deleteDocument(docProxy);
     }
 }
 
-QString PersistenceManager::documentFilePath(DocumentProxy* pDocumentProxy,
-                                              const QString& subdir,
-                                              const QUuid& objectUuid,
-                                              const QString& suffix)
-{
+QString PersistenceManager::documentFilePath(DocumentProxy *pDocumentProxy, const QString &subdir,
+                                             const QUuid &objectUuid, const QString &suffix) {
     if (!pDocumentProxy || objectUuid.isNull())
         return QString();
 
@@ -1137,13 +1051,8 @@ QString PersistenceManager::documentFilePath(DocumentProxy* pDocumentProxy,
     return destinationPath;
 }
 
-bool PersistenceManager::addFileToDocument(DocumentProxy* pDocumentProxy,
-                                                     QString path,
-                                                     const QString& subdir,
-                                                     QUuid objectUuid,
-                                                     QString& destinationPath,
-                                                     QByteArray* data)
-{
+bool PersistenceManager::addFileToDocument(DocumentProxy *pDocumentProxy, QString path, const QString &subdir,
+                                           QUuid objectUuid, QString &destinationPath, QByteArray *data) {
     Q_ASSERT(path.length());
     QFileInfo fi(path);
 
@@ -1154,8 +1063,7 @@ bool PersistenceManager::addFileToDocument(DocumentProxy* pDocumentProxy,
     if (destinationPath.isEmpty())
         return false;
 
-    if (data == NULL)
-    {
+    if (data == NULL) {
         QFile source(path);
         return source.copy(destinationPath);
     }
@@ -1170,11 +1078,8 @@ bool PersistenceManager::addFileToDocument(DocumentProxy* pDocumentProxy,
     return n == data->size();
 }
 
-bool PersistenceManager::addGraphicsWidgetToDocument(DocumentProxy *pDocumentProxy,
-                                                       QString path,
-                                                       QUuid objectUuid,
-                                                       QString& destinationPath)
-{
+bool PersistenceManager::addGraphicsWidgetToDocument(DocumentProxy *pDocumentProxy, QString path,
+                                                     QUuid objectUuid, QString &destinationPath) {
     QFileInfo fi(path);
 
     if (!fi.exists() || !pDocumentProxy || objectUuid.isNull())
@@ -1183,96 +1088,87 @@ bool PersistenceManager::addGraphicsWidgetToDocument(DocumentProxy *pDocumentPro
     QString widgetRootDir = path;
     QString extension = QFileInfo(widgetRootDir).suffix();
 
-    destinationPath = pDocumentProxy->persistencePath() + "/" + widgetDirectory +  "/" + objectUuid.toString() + "." + extension;
+    destinationPath = pDocumentProxy->persistencePath() + "/" + widgetDirectory + "/" +
+                      objectUuid.toString() + "." + extension;
 
     if (!QFile::exists(destinationPath)) {
         QDir dir;
         if (!dir.mkpath(destinationPath))
             return false;
         return FileSystemUtils::copyDir(widgetRootDir, destinationPath);
-    }
-    else
+    } else
         return false;
 }
 
 
-void PersistenceManager::documentRepositoryChanged(const QString& path)
-{
+void PersistenceManager::documentRepositoryChanged(const QString &path) {
     Q_UNUSED(path);
     checkIfDocumentRepositoryExists();
 }
 
 
-void PersistenceManager::checkIfDocumentRepositoryExists()
-{
+void PersistenceManager::checkIfDocumentRepositoryExists() {
     QDir rp(mDocumentRepositoryPath);
 
-    if (!rp.exists())
-    {
+    if (!rp.exists()) {
         // we have lost the document repository ..
 
         QString humanPath = QDir::cleanPath(mDocumentRepositoryPath);
         humanPath = QDir::toNativeSeparators(humanPath);
 
-        Application::mainWindow->warning(tr("Document Repository Loss"),tr("TianBoard has lost access to the document repository '%1'. Unfortunately the application must shut down to avoid data corruption. Latest changes may be lost as well.").arg(humanPath));
+        Application::mainWindow->warning(
+            tr("Document Repository Loss"),
+            tr("TianBoard has lost access to the document repository '%1'. Unfortunately the application "
+               "must shut down to avoid data corruption. Latest changes may be lost as well.")
+                .arg(humanPath));
 
         Application::quit();
     }
 }
 
-void PersistenceManager::saveFoldersTreeToXml(QXmlStreamWriter &writer, const QModelIndex &parentIndex)
-{
-    for (int i = 0; i < mDocumentTreeStructureModel->rowCount(parentIndex); i++)
-    {
+void PersistenceManager::saveFoldersTreeToXml(QXmlStreamWriter &writer, const QModelIndex &parentIndex) {
+    for (int i = 0; i < mDocumentTreeStructureModel->rowCount(parentIndex); i++) {
         QModelIndex currentIndex = mDocumentTreeStructureModel->index(i, 0, parentIndex);
-        if (mDocumentTreeStructureModel->isCatalog(currentIndex))
-        {
+        if (mDocumentTreeStructureModel->isCatalog(currentIndex)) {
             writer.writeStartElement(tFolder);
-            writer.writeAttribute(aName, mDocumentTreeStructureModel->nodeFromIndex(currentIndex)->nodeName());
+            writer.writeAttribute(aName,
+                                  mDocumentTreeStructureModel->nodeFromIndex(currentIndex)->nodeName());
             saveFoldersTreeToXml(writer, currentIndex);
             writer.writeEndElement();
         }
     }
 }
 
-void PersistenceManager::loadFolderTreeFromXml(const QString &path, const QDomElement &element)
-{
-
+void PersistenceManager::loadFolderTreeFromXml(const QString &path, const QDomElement &element) {
     QDomElement iterElement = element.firstChildElement();
-    while(!iterElement.isNull())
-    {
+    while (!iterElement.isNull()) {
         QString leafPath;
-        if (tFolder == iterElement.tagName())
-        {
+        if (tFolder == iterElement.tagName()) {
             leafPath = iterElement.attribute(aName);
 
-            if (!leafPath.isEmpty())
-            {
+            if (!leafPath.isEmpty()) {
                 mDocumentTreeStructureModel->goTo(path + "/" + leafPath);
                 if (!iterElement.firstChildElement().isNull())
-                    loadFolderTreeFromXml(path + "/" +  leafPath, iterElement);
+                    loadFolderTreeFromXml(path + "/" + leafPath, iterElement);
             }
         }
         iterElement = iterElement.nextSiblingElement();
     }
 }
 
-bool PersistenceManager::mayHaveVideo(DocumentProxy* pDocumentProxy)
-{
+bool PersistenceManager::mayHaveVideo(DocumentProxy *pDocumentProxy) {
     QDir videoDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::videoDirectory);
 
     return videoDir.exists() && videoDir.entryInfoList().length() > 0;
 }
 
-bool PersistenceManager::mayHaveAudio(DocumentProxy* pDocumentProxy)
-{
+bool PersistenceManager::mayHaveAudio(DocumentProxy *pDocumentProxy) {
     QDir audioDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::audioDirectory);
 
     return audioDir.exists() && audioDir.entryInfoList().length() > 0;
 }
 
-bool PersistenceManager::mayHavePDF(DocumentProxy* pDocumentProxy)
-{
+bool PersistenceManager::mayHavePDF(DocumentProxy *pDocumentProxy) {
     QDir objectDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::objectDirectory);
 
     QStringList filters;
@@ -1282,8 +1178,7 @@ bool PersistenceManager::mayHavePDF(DocumentProxy* pDocumentProxy)
 }
 
 
-bool PersistenceManager::mayHaveSVGImages(DocumentProxy* pDocumentProxy)
-{
+bool PersistenceManager::mayHaveSVGImages(DocumentProxy *pDocumentProxy) {
     QDir imageDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::imageDirectory);
 
     QStringList filters;
@@ -1293,8 +1188,7 @@ bool PersistenceManager::mayHaveSVGImages(DocumentProxy* pDocumentProxy)
 }
 
 
-bool PersistenceManager::mayHaveWidget(DocumentProxy* pDocumentProxy)
-{
+bool PersistenceManager::mayHaveWidget(DocumentProxy *pDocumentProxy) {
     QDir widgetDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::widgetDirectory);
 
     return widgetDir.exists() && widgetDir.entryInfoList(QDir::Dirs).length() > 0;

@@ -4,26 +4,21 @@
 #include "ui/WidgetMirror.h"
 
 
-struct WidgetMirror::Private
-{
+struct WidgetMirror::Private {
     QPointer<QWidget> sourceWidget;
 };
 
-WidgetMirror::WidgetMirror(QWidget* sourceWidget, QWidget* parent)
-    : QWidget(parent), d(new Private)
-{
+WidgetMirror::WidgetMirror(QWidget *sourceWidget, QWidget *parent) : QWidget(parent), d(new Private) {
     d->sourceWidget = sourceWidget;
     sourceWidget->installEventFilter(this);
 }
 
 WidgetMirror::~WidgetMirror() = default;
 
-bool WidgetMirror::eventFilter(QObject *obj, QEvent *event)
-{
+bool WidgetMirror::eventFilter(QObject *obj, QEvent *event) {
     bool result = QObject::eventFilter(obj, event);
 
-    if (event->type() == QEvent::Paint && obj == d->sourceWidget.data())
-    {
+    if (event->type() == QEvent::Paint && obj == d->sourceWidget.data()) {
         QPaintEvent *paintEvent = static_cast<QPaintEvent *>(event);
         update(paintEvent->rect());
     }
@@ -31,8 +26,7 @@ bool WidgetMirror::eventFilter(QObject *obj, QEvent *event)
     return result;
 }
 
-void WidgetMirror::paintEvent(QPaintEvent *event)
-{
+void WidgetMirror::paintEvent(QPaintEvent *event) {
     if (!d->sourceWidget)
         return;
 
@@ -45,10 +39,8 @@ void WidgetMirror::paintEvent(QPaintEvent *event)
 }
 
 
-void WidgetMirror::setSourceWidget(QWidget *sourceWidget)
-{
-    if (d->sourceWidget)
-    {
+void WidgetMirror::setSourceWidget(QWidget *sourceWidget) {
+    if (d->sourceWidget) {
         d->sourceWidget->removeEventFilter(this);
     }
 

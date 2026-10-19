@@ -11,21 +11,20 @@ class MainWindow;
 class WebToolsPalette;
 class WebView;
 
-class WebController : public QObject
-{
+class WebController : public QObject {
     Q_OBJECT
 
 public:
-    WebController(MainWindow* mainWindow);
+    WebController(MainWindow *mainWindow);
     virtual ~WebController();
     void closing();
     void adaptToolBar();
 
     void showTabAtTop(bool attop);
 
-    void loadUrl(const QUrl& url);
+    void loadUrl(const QUrl &url);
 
-    QWebEngineView* createNewTab();
+    QWebEngineView *createNewTab();
 
     void show();
 
@@ -34,42 +33,37 @@ protected:
     QPixmap getScreenPixmap();
 
 signals:
-	void imageCaptured(const QPixmap& pCapturedPixmap, bool pageMode, const QUrl& source);
-	void activeWebPageChanged(WebView* pWebView);
+    void imageCaptured(const QPixmap &pCapturedPixmap, bool pageMode, const QUrl &source);
+    void activeWebPageChanged(WebView *pWebView);
 
 public slots:
     void screenLayoutChanged();
 
-    void setSourceWidget(QWidget* pWidget);
+    void setSourceWidget(QWidget *pWidget);
     void customCapture();
     void toogleMirroring(bool checked);
 
-    QWidget* controlView()
-    {
-        return mBrowserWidget;
-    }
+    QWidget *controlView() { return mBrowserWidget; }
 
     void copy();
     void paste();
     void cut();
-	void triggerWebTools(bool checked);
+    void triggerWebTools(bool checked);
 
 private slots:
-	void activePageChanged();
-	void toggleWebTrap(bool checked);
+    void activePageChanged();
+    void toggleWebTrap(bool checked);
 
 private:
     void webBrowserInstance();
 
     MainWindow *mMainWindow;
 
-    BrowserWindow* mCurrentWebBrowser;
+    BrowserWindow *mCurrentWebBrowser;
 
-    QWidget* mBrowserWidget;
+    QWidget *mBrowserWidget;
 
-    WebToolsPalette* mToolsCurrentPalette;
+    WebToolsPalette *mToolsCurrentPalette;
 
     bool mDownloadViewIsVisible;
-
 };
-

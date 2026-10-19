@@ -16,24 +16,19 @@
 #include "whiteboard/GraphicsMediaItem.h"
 
 
-GraphicsMediaItemDelegate::GraphicsMediaItemDelegate(GraphicsMediaItem* pDelegated, QObject * parent)
-    : GraphicsItemDelegate(pDelegated, parent, GF_COMMON
-                             | GF_RESPECT_RATIO
-                             | GF_TOOLBAR_USED)
-    , mPlayPauseButton(NULL)
-    , mToolBarShowTimer(NULL)
-    , m_iToolBarShowingInterval(5000)
-{
+GraphicsMediaItemDelegate::GraphicsMediaItemDelegate(GraphicsMediaItem *pDelegated, QObject *parent)
+    : GraphicsItemDelegate(pDelegated, parent, GF_COMMON | GF_RESPECT_RATIO | GF_TOOLBAR_USED),
+      mPlayPauseButton(NULL),
+      mToolBarShowTimer(NULL),
+      m_iToolBarShowingInterval(5000) {
     QPalette palette;
-    palette.setBrush ( QPalette::Light, Qt::darkGray );
+    palette.setBrush(QPalette::Light, Qt::darkGray);
 
     if (delegated()->isMuted())
         delegated()->setMute(true);
-
 }
 
-bool GraphicsMediaItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsMediaItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
     mToolBarItem->show();
     positionHandles();
@@ -50,11 +45,9 @@ bool GraphicsMediaItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
  * The toolbar then auto-hides after a set amount of time, if the video is currently
  * playing or is paused.
  */
-void GraphicsMediaItemDelegate::showToolBar(bool autohide)
-{
+void GraphicsMediaItemDelegate::showToolBar(bool autohide) {
     mToolBarItem->show();
     if (mToolBarShowTimer) {
-
         if (delegated()->isPlaying() || delegated()->isPaused())
             mToolBarShowTimer->start();
         else
@@ -70,39 +63,39 @@ void GraphicsMediaItemDelegate::showToolBar(bool autohide)
     }
 }
 
-void GraphicsMediaItemDelegate::hideToolBar()
-{
+void GraphicsMediaItemDelegate::hideToolBar() {
     mToolBarItem->hide();
 }
 
-void GraphicsMediaItemDelegate::buildButtons()
-{
-    if(!mPlayPauseButton){
-        mPlayPauseButton = new DelegateButton(":/images/play.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
-        connect(mPlayPauseButton, &DelegateButton::clicked,
-                this, &GraphicsMediaItemDelegate::togglePlayPause);
+void GraphicsMediaItemDelegate::buildButtons() {
+    if (!mPlayPauseButton) {
+        mPlayPauseButton =
+            new DelegateButton(":/images/play.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
+        connect(mPlayPauseButton, &DelegateButton::clicked, this,
+                &GraphicsMediaItemDelegate::togglePlayPause);
 
         mStopButton = new DelegateButton(":/images/stop.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
-        connect(mStopButton, &DelegateButton::clicked,
-                delegated(), &GraphicsMediaItem::stop);
+        connect(mStopButton, &DelegateButton::clicked, delegated(), &GraphicsMediaItem::stop);
 
         mMediaControl = new DelegateMediaControl(delegated(), mToolBarItem);
         mMediaControl->setFlag(QGraphicsItem::ItemIsSelectable, true);
         GraphicsItem::assignZValue(mMediaControl, delegated()->zValue());
 
         if (delegated()->isMuted())
-            mMuteButton = new DelegateButton(":/images/soundOff.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
+            mMuteButton =
+                new DelegateButton(":/images/soundOff.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
         else
-            mMuteButton = new DelegateButton(":/images/soundOn.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
+            mMuteButton =
+                new DelegateButton(":/images/soundOn.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
 
-        connect(mMuteButton, &DelegateButton::clicked,
-                delegated(), &GraphicsMediaItem::toggleMute);
-        connect(mMuteButton, &DelegateButton::clicked,
-                this, &GraphicsMediaItemDelegate::toggleMute); // for changing button image
+        connect(mMuteButton, &DelegateButton::clicked, delegated(), &GraphicsMediaItem::toggleMute);
+        connect(mMuteButton, &DelegateButton::clicked, this,
+                &GraphicsMediaItemDelegate::toggleMute); // for changing button image
 
         mToolBarButtons << mPlayPauseButton << mStopButton << mMuteButton;
 
-        mToolBarItem->setItemsOnToolBar(QList<QGraphicsItem*>() << mPlayPauseButton << mStopButton << mMediaControl  << mMuteButton );
+        mToolBarItem->setItemsOnToolBar(QList<QGraphicsItem *>()
+                                        << mPlayPauseButton << mStopButton << mMediaControl << mMuteButton);
         mToolBarItem->setVisibleOnBoard(true);
         mToolBarItem->setShifting(false);
 
@@ -115,17 +108,15 @@ void GraphicsMediaItemDelegate::buildButtons()
         }
 
         else {
-            connect(mPlayPauseButton, &DelegateButton::clicked,
-                    mToolBarShowTimer, qOverload<>(&QTimer::start));
+            connect(mPlayPauseButton, &DelegateButton::clicked, mToolBarShowTimer,
+                    qOverload<>(&QTimer::start));
 
-            connect(mStopButton, &DelegateButton::clicked,
-                    mToolBarShowTimer, qOverload<>(&QTimer::start));
+            connect(mStopButton, &DelegateButton::clicked, mToolBarShowTimer, qOverload<>(&QTimer::start));
 
-            connect(mMediaControl, &DelegateMediaControl::used,
-                    mToolBarShowTimer, qOverload<>(&QTimer::start));
+            connect(mMediaControl, &DelegateMediaControl::used, mToolBarShowTimer,
+                    qOverload<>(&QTimer::start));
 
-            connect(mMuteButton, &DelegateButton::clicked,
-                    mToolBarShowTimer, qOverload<>(&QTimer::start));
+            connect(mMuteButton, &DelegateButton::clicked, mToolBarShowTimer, qOverload<>(&QTimer::start));
         }
 
 
@@ -133,24 +124,21 @@ void GraphicsMediaItemDelegate::buildButtons()
     }
 }
 
-GraphicsMediaItemDelegate::~GraphicsMediaItemDelegate()
-{
-    if (mToolBarShowTimer){
+GraphicsMediaItemDelegate::~GraphicsMediaItemDelegate() {
+    if (mToolBarShowTimer) {
         delete mToolBarShowTimer;
         mToolBarShowTimer = NULL;
     }
 }
 
-void GraphicsMediaItemDelegate::positionHandles()
-{
+void GraphicsMediaItemDelegate::positionHandles() {
     GraphicsItemDelegate::positionHandles();
 
-    GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem*>(mDelegated);
-    if (mediaItem)
-    {
+    GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem *>(mDelegated);
+    if (mediaItem) {
         QRectF toolBarRect = mToolBarItem->rect();
 
-        mToolBarItem->setPos(0, mediaItem->boundingRect().height()-mToolBarItem->rect().height());
+        mToolBarItem->setPos(0, mediaItem->boundingRect().height() - mToolBarItem->rect().height());
 
         toolBarRect.setWidth(mediaItem->boundingRect().width());
         mToolBarItem->show();
@@ -159,7 +147,7 @@ void GraphicsMediaItemDelegate::positionHandles()
     }
 
     int toolBarButtonsWidth = 0;
-    foreach (DelegateButton* button, mToolBarButtons)
+    foreach (DelegateButton *button, mToolBarButtons)
         toolBarButtonsWidth += button->boundingRect().width() + mToolBarItem->getElementsPadding();
 
     QRectF mediaItemRect = mMediaControl->rect();
@@ -174,8 +162,7 @@ void GraphicsMediaItemDelegate::positionHandles()
         mToolBarItem->show();
 }
 
-void GraphicsMediaItemDelegate::remove(bool canUndo)
-{
+void GraphicsMediaItemDelegate::remove(bool canUndo) {
     if (delegated())
         delegated()->stop();
 
@@ -183,8 +170,7 @@ void GraphicsMediaItemDelegate::remove(bool canUndo)
 }
 
 
-void GraphicsMediaItemDelegate::toggleMute()
-{
+void GraphicsMediaItemDelegate::toggleMute() {
     if (delegated()->isMuted())
         mMuteButton->setFileName(":/images/soundOff.svg");
     else
@@ -192,29 +178,25 @@ void GraphicsMediaItemDelegate::toggleMute()
 }
 
 
-GraphicsMediaItem* GraphicsMediaItemDelegate::delegated()
-{
-    return dynamic_cast<GraphicsMediaItem*>(mDelegated);
+GraphicsMediaItem *GraphicsMediaItemDelegate::delegated() {
+    return dynamic_cast<GraphicsMediaItem *>(mDelegated);
 }
 
-void GraphicsMediaItemDelegate::togglePlayPause()
-{
+void GraphicsMediaItemDelegate::togglePlayPause() {
     if (delegated())
         delegated()->togglePlayPause();
 }
 
-void GraphicsMediaItemDelegate::mediaStatusChanged(QMediaPlayer::MediaStatus status)
-{
+void GraphicsMediaItemDelegate::mediaStatusChanged(QMediaPlayer::MediaStatus status) {
     // Possible statuses are: UnknownMediaStatus, NoMedia, LoadingMedia, LoadedMedia,
     // StalledMedia, BufferingMedia, BufferedMedia, EndOfMedia, InvalidMedia
-	
+
     if (status == QMediaPlayer::LoadedMedia)
         mMediaControl->totalTimeChanged(delegated()->mediaDuration());
 
     // At the beginning of the video, play/pause to load and display the first frame
-    if ((status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia)
-            && delegated()->mediaPosition() == delegated()->initialPos()
-            && !delegated()->isStopped()) {
+    if ((status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia) &&
+        delegated()->mediaPosition() == delegated()->initialPos() && !delegated()->isStopped()) {
         delegated()->play();
         delegated()->pause();
     }
@@ -228,8 +210,7 @@ void GraphicsMediaItemDelegate::mediaStatusChanged(QMediaPlayer::MediaStatus sta
     updatePlayPauseState();
 }
 
-void GraphicsMediaItemDelegate::mediaStateChanged(QMediaPlayer::PlaybackState state)
-{
+void GraphicsMediaItemDelegate::mediaStateChanged(QMediaPlayer::PlaybackState state) {
     Q_UNUSED(state);
     // Possible states are StoppedState, PlayingState and PausedState
 
@@ -238,8 +219,7 @@ void GraphicsMediaItemDelegate::mediaStateChanged(QMediaPlayer::PlaybackState st
 }
 
 
-void GraphicsMediaItemDelegate::updatePlayPauseState()
-{
+void GraphicsMediaItemDelegate::updatePlayPauseState() {
     if (delegated()->playerState() == QMediaPlayer::PlayingState)
         mPlayPauseButton->setFileName(":/images/pause.svg");
     else
@@ -247,20 +227,17 @@ void GraphicsMediaItemDelegate::updatePlayPauseState()
 }
 
 
-void GraphicsMediaItemDelegate::updateTicker(qint64 time)
-{
+void GraphicsMediaItemDelegate::updateTicker(qint64 time) {
     mMediaControl->totalTimeChanged(delegated()->mediaDuration());
     mMediaControl->updateTicker(time);
 }
 
 
-void GraphicsMediaItemDelegate::totalTimeChanged(qint64 newTotalTime)
-{
+void GraphicsMediaItemDelegate::totalTimeChanged(qint64 newTotalTime) {
     mMediaControl->totalTimeChanged(newTotalTime);
 }
 
-void GraphicsMediaItemDelegate::showHide(bool show)
-{
+void GraphicsMediaItemDelegate::showHide(bool show) {
     QVariant showFlag = QVariant(show ? ItemLayerType::Object : ItemLayerType::Control);
     showHideRecurs(showFlag, mDelegated);
     mDelegated->update();

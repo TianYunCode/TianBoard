@@ -12,12 +12,11 @@ class QGraphicsSceneMouseEvent;
 class QGraphicsItem;
 class GraphicsCurtainItem;
 
-class GraphicsCurtainItemDelegate : public GraphicsItemDelegate
-{
+class GraphicsCurtainItemDelegate : public GraphicsItemDelegate {
     Q_OBJECT
 
 public:
-    GraphicsCurtainItemDelegate(GraphicsCurtainItem* pDelegated, QObject * parent = 0);
+    GraphicsCurtainItemDelegate(GraphicsCurtainItem *pDelegated, QObject *parent = 0);
     virtual ~GraphicsCurtainItemDelegate();
 
     virtual bool mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -28,6 +27,4 @@ public:
 
 public slots:
     virtual void remove(bool checked, bool canUndo = true);
-
 };
-

@@ -7,13 +7,12 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
 
-class BackgroundPalette : public ActionPalette
-{
-Q_OBJECT
+class BackgroundPalette : public ActionPalette {
+    Q_OBJECT
 
 public:
-    BackgroundPalette(QList<QAction*> actions, QWidget* parent = 0);
-    BackgroundPalette(QWidget* parent = 0);
+    BackgroundPalette(QList<QAction *> actions, QWidget *parent = 0);
+    BackgroundPalette(QWidget *parent = 0);
     ~BackgroundPalette() override;
 
     void addAction(QAction *action);
@@ -21,7 +20,7 @@ public:
     void clearLayout();
 
 public slots:
-    void showEvent(QShowEvent* event);
+    void showEvent(QShowEvent *event);
     void backgroundChanged();
     void refresh();
 
@@ -35,6 +34,4 @@ protected:
 
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

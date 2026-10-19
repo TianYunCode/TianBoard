@@ -9,17 +9,14 @@
 
 class GraphicsScene;
 
-class ThumbnailView : public QGraphicsView
-{
+class ThumbnailView : public QGraphicsView {
     Q_OBJECT
 
 public:
-    ThumbnailView(GraphicsScene *scene, QWidget* parent =0);
+    ThumbnailView(GraphicsScene *scene, QWidget *parent = 0);
     virtual ~ThumbnailView();
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

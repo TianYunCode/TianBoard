@@ -8,21 +8,18 @@
 #include "whiteboard/GraphicsCurtainItem.h"
 
 
-GraphicsCurtainItemDelegate::GraphicsCurtainItemDelegate(GraphicsCurtainItem* pDelegated, QObject * parent)
-    : GraphicsItemDelegate(pDelegated, parent, GF_MENU_SPECIFIED | GF_DUPLICATION_ENABLED)
-{
+GraphicsCurtainItemDelegate::GraphicsCurtainItemDelegate(GraphicsCurtainItem *pDelegated, QObject *parent)
+    : GraphicsItemDelegate(pDelegated, parent, GF_MENU_SPECIFIED | GF_DUPLICATION_ENABLED) {
     //NOOP
 }
 
 
-GraphicsCurtainItemDelegate::~GraphicsCurtainItemDelegate()
-{
+GraphicsCurtainItemDelegate::~GraphicsCurtainItemDelegate() {
     //NOOP
 }
 
-void GraphicsCurtainItemDelegate::init()
-{
-    if(!mFrame){
+void GraphicsCurtainItemDelegate::init() {
+    if (!mFrame) {
         createControls();
         mFrame->hide();
         mZOrderUpButton->hide();
@@ -31,8 +28,7 @@ void GraphicsCurtainItemDelegate::init()
 }
 
 
-bool GraphicsCurtainItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
+bool GraphicsCurtainItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
 
     startUndoStep();
@@ -45,17 +41,13 @@ bool GraphicsCurtainItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *even
     //    return true;
     //}
     //else
-    {
-        return false;
-    }
-
+    { return false; }
 }
 
 
-QVariant GraphicsCurtainItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
-{
-    if (change == QGraphicsItem::ItemVisibleHasChanged)
-    {
+QVariant GraphicsCurtainItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change,
+                                                 const QVariant &value) {
+    if (change == QGraphicsItem::ItemVisibleHasChanged) {
         //GraphicsScene* ownerScene = qobject_cast<GraphicsScene*>(mDelegated->scene());
         //if(ownerScene)
         //    ownerScene->setModified(true);
@@ -64,26 +56,22 @@ QVariant GraphicsCurtainItemDelegate::itemChange(QGraphicsItem::GraphicsItemChan
     return GraphicsItemDelegate::itemChange(change, value);
 }
 
-void GraphicsCurtainItemDelegate::positionHandles()
-{
+void GraphicsCurtainItemDelegate::positionHandles() {
     GraphicsItemDelegate::positionHandles();
-    if(mZOrderUpButton)
+    if (mZOrderUpButton)
         mZOrderUpButton->hide();
-    if(mZOrderDownButton)
+    if (mZOrderDownButton)
         mZOrderDownButton->hide();
 }
 
-void GraphicsCurtainItemDelegate::remove(bool checked, bool canUndo)
-{
+void GraphicsCurtainItemDelegate::remove(bool checked, bool canUndo) {
     Q_UNUSED(checked);
     Q_UNUSED(canUndo);
 
-    GraphicsCurtainItem *curtain = dynamic_cast<GraphicsCurtainItem*>(mDelegated);
+    GraphicsCurtainItem *curtain = dynamic_cast<GraphicsCurtainItem *>(mDelegated);
 
-    if (curtain)
-    {
+    if (curtain) {
         curtain->setVisible(false);
         curtain->triggerRemovedSignal();
     }
 }
-

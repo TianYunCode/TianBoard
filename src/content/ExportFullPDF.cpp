@@ -23,15 +23,9 @@
 #include "content/ExportPDF.h"
 
 
-
-
-
-
-ExportFullPDF::ExportFullPDF(QObject *parent)
-    : ExportAdaptor(parent)
-{
+ExportFullPDF::ExportFullPDF(QObject *parent) : ExportAdaptor(parent) {
     //need to calculate screen resolution
-    VirtualDesktop* desktop = VirtualDesktop::instance();
+    VirtualDesktop *desktop = VirtualDesktop::instance();
     int dpiCommon = desktop->physicalDpi();
     mScaleFactor = 72.0f / dpiCommon; // 1pt = 1/72 inch
 
@@ -39,14 +33,12 @@ ExportFullPDF::ExportFullPDF(QObject *parent)
 }
 
 
-ExportFullPDF::~ExportFullPDF()
-{
+ExportFullPDF::~ExportFullPDF() {
     // NOOP
 }
 
 
-void ExportFullPDF::saveOverlayPdf(DocumentProxy* pDocumentProxy, const QString& filename)
-{
+void ExportFullPDF::saveOverlayPdf(DocumentProxy *pDocumentProxy, const QString &filename) {
     if (!pDocumentProxy || filename.length() == 0 || pDocumentProxy->pageCount() == 0)
         return;
 
@@ -54,16 +46,15 @@ void ExportFullPDF::saveOverlayPdf(DocumentProxy* pDocumentProxy, const QString&
 }
 
 
-void ExportFullPDF::persist(DocumentProxy* pDocumentProxy)
-{
+void ExportFullPDF::persist(DocumentProxy *pDocumentProxy) {
     persistLocally(pDocumentProxy, tr("Export as PDF File"));
 }
 
 
-bool ExportFullPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& filename)
-{
+bool ExportFullPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &filename) {
     QFile file(filename);
-    if (file.exists()) file.remove();
+    if (file.exists())
+        file.remove();
 
     QString overlayName = filename;
     overlayName.replace(".pdf", "_overlay.pdf");
@@ -76,13 +67,10 @@ bool ExportFullPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QStrin
 
     saveOverlayPdf(pDocumentProxy, overlayName);
 
-    if (!mHasPDFBackgrounds)
-    {
+    if (!mHasPDFBackgrounds) {
         QFile f(overlayName);
         f.rename(filename);
-    }
-    else
-    {
+    } else {
         //Merger merger;
         //try
         //{
@@ -98,7 +86,7 @@ bool ExportFullPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QStrin
         //        GraphicsPDFItem *pdfItem = qgraphicsitem_cast<GraphicsPDFItem*>(scene->backgroundObject());
 
         //        QSize pageSize = scene->nominalSize();
-        //        
+        //
         //        if (pdfItem)
         //        {
         //            QString pdfName = PersistenceManager::objectDirectory + "/" + pdfItem->fileUuid().toString() + ".pdf";
@@ -177,8 +165,7 @@ bool ExportFullPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QStrin
         //    mSimpleExporter->persistsDocument(pDocumentProxy, filename);
         //}
 
-        if (!Application::app()->isVerbose())
-        {
+        if (!Application::app()->isVerbose()) {
             QFile::remove(overlayName);
         }
     }
@@ -186,9 +173,8 @@ bool ExportFullPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QStrin
     return true;
 }
 
-bool ExportFullPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
-{
-    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel*>(selectedIndex.model());
+bool ExportFullPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel *>(selectedIndex.model());
     if (!selectedIndex.isValid() || docModel->isCatalog(selectedIndex)) {
         return false;
     }
@@ -197,12 +183,10 @@ bool ExportFullPDF::associatedActionactionAvailableFor(const QModelIndex &select
 }
 
 
-QString ExportFullPDF::exportExtention()
-{
+QString ExportFullPDF::exportExtention() {
     return QString(".pdf");
 }
 
-QString ExportFullPDF::exportName()
-{
+QString ExportFullPDF::exportName() {
     return tr("Export to PDF");
 }

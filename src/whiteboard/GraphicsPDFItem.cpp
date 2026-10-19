@@ -7,74 +7,61 @@
 #include "whiteboard/GraphicsItemDelegate.h"
 
 
-GraphicsPDFItem::GraphicsPDFItem(PDFRenderer *renderer, int pageNumber, QGraphicsItem* parent)
-    : PdfPageItem(renderer, pageNumber, parent)
-{
+GraphicsPDFItem::GraphicsPDFItem(PDFRenderer *renderer, int pageNumber, QGraphicsItem *parent)
+    : PdfPageItem(renderer, pageNumber, parent) {
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object); //deprecated
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::BackgroundItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(
+            itemLayerType::BackgroundItem)); //Necessary to set if we want z value to be assigned correctly
 
     setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON));
 }
 
 
-GraphicsPDFItem::~GraphicsPDFItem()
-{
-}
+GraphicsPDFItem::~GraphicsPDFItem() {}
 
 
-QVariant GraphicsPDFItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
+QVariant GraphicsPDFItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     QVariant newValue = Delegate()->itemChange(change, value);
     return PdfPageItem::itemChange(change, newValue);
 }
 
-void GraphicsPDFItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsPDFItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
-void GraphicsPDFItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (Delegate()->mousePressEvent(event))
-    {
+void GraphicsPDFItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mousePressEvent(event)) {
         // NOOP
-    }
-    else
-    {
+    } else {
         PdfPageItem::mousePressEvent(event);
     }
 }
 
 
-void GraphicsPDFItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (Delegate()->mouseMoveEvent(event))
-    {
+void GraphicsPDFItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mouseMoveEvent(event)) {
         // NOOP
-    }
-    else
-    {
+    } else {
         PdfPageItem::mouseMoveEvent(event);
     }
 }
 
 
-void GraphicsPDFItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsPDFItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     Delegate()->mouseReleaseEvent(event);
     PdfPageItem::mouseReleaseEvent(event);
 }
 
-void GraphicsPDFItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsPDFItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     PdfPageItem::paint(painter, option, widget);
     Delegate()->postpaint(painter, option, widget);
 }
 
-Item* GraphicsPDFItem::deepCopy() const
-{
-    GraphicsPDFItem *copy =  new GraphicsPDFItem(mRenderer, mPageNumber, parentItem());
+Item *GraphicsPDFItem::deepCopy() const {
+    GraphicsPDFItem *copy = new GraphicsPDFItem(mRenderer, mPageNumber, parentItem());
 
     copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
 
@@ -83,11 +70,9 @@ Item* GraphicsPDFItem::deepCopy() const
     return copy;
 }
 
-void GraphicsPDFItem::copyItemParameters(Item *copy) const
-{
-    GraphicsPDFItem *cp = dynamic_cast<GraphicsPDFItem*>(copy);
-    if (cp)
-    {
+void GraphicsPDFItem::copyItemParameters(Item *copy) const {
+    GraphicsPDFItem *cp = dynamic_cast<GraphicsPDFItem *>(copy);
+    if (cp) {
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
         cp->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -98,34 +83,28 @@ void GraphicsPDFItem::copyItemParameters(Item *copy) const
     }
 }
 
-void GraphicsPDFItem::setRenderingQuality(RenderingQuality pRenderingQuality)
-{
+void GraphicsPDFItem::setRenderingQuality(RenderingQuality pRenderingQuality) {
     Item::setRenderingQuality(pRenderingQuality);
 
-    if (pRenderingQuality == RenderingQualityHigh)
-    {
+    if (pRenderingQuality == RenderingQualityHigh) {
         setCacheMode(QGraphicsItem::NoCache);
-    }
-    else
-    {
+    } else {
         setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     }
 }
 
 
-GraphicsScene* GraphicsPDFItem::scene()
-{
-    return qobject_cast<GraphicsScene*>(QGraphicsItem::scene());
+GraphicsScene *GraphicsPDFItem::scene() {
+    return qobject_cast<GraphicsScene *>(QGraphicsItem::scene());
 }
 
 
-GraphicsPixmapItem* GraphicsPDFItem::toPixmapItem() const
-{   
+GraphicsPixmapItem *GraphicsPDFItem::toPixmapItem() const {
     QPixmap pixmap(mRenderer->pageSizeF(mPageNumber).toSize());
     QPainter painter(&pixmap);
     mRenderer->render(&painter, mPageNumber);
 
-    GraphicsPixmapItem *pixmapItem =  new GraphicsPixmapItem();
+    GraphicsPixmapItem *pixmapItem = new GraphicsPixmapItem();
     pixmapItem->setPixmap(pixmap);
 
     pixmapItem->setPos(this->pos());
@@ -136,5 +115,3 @@ GraphicsPixmapItem* GraphicsPDFItem::toPixmapItem() const
 
     return pixmapItem;
 }
-
-

@@ -12,11 +12,10 @@
 #include "utils/FileSystemUtils.h"
 
 
-static QPixmap* sClosePixmap = 0;
-static QPixmap* sUnpinPixmap = 0;
+static QPixmap *sClosePixmap = 0;
+static QPixmap *sUnpinPixmap = 0;
 
-struct ToolWidget::Private
-{
+struct ToolWidget::Private {
     QWebEngineView *mWebView{nullptr};
     GraphicsWidgetItem *mToolWidget{nullptr};
 
@@ -27,10 +26,8 @@ struct ToolWidget::Private
 };
 
 
-ToolWidget::ToolWidget(const QUrl& pUrl, QWidget *pParent)
-    : QWidget(pParent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)
-    , d(new Private)
-{
+ToolWidget::ToolWidget(const QUrl &pUrl, QWidget *pParent)
+    : QWidget(pParent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), d(new Private) {
     int widgetType = GraphicsWidgetItem::widgetType(pUrl);
     if (widgetType == WidgetType::Apple)
         d->mToolWidget = new GraphicsAppleWidgetItem(pUrl);
@@ -43,30 +40,25 @@ ToolWidget::ToolWidget(const QUrl& pUrl, QWidget *pParent)
 }
 
 ToolWidget::ToolWidget(GraphicsWidgetItem *pWidget, QWidget *pParent)
-    : QWidget(pParent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)
-    , d(new Private)
-{
+    : QWidget(pParent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), d(new Private) {
     d->mToolWidget = pWidget;
 
     initialize();
 }
 
-ToolWidget::~ToolWidget()
-{
+ToolWidget::~ToolWidget() {
     // NOOP
 }
 
-void ToolWidget::initialize()
-{
+void ToolWidget::initialize() {
     if (!sClosePixmap)
         sClosePixmap = new QPixmap(":/images/close.svg");
 
-    if(!sUnpinPixmap)
+    if (!sUnpinPixmap)
         sUnpinPixmap = new QPixmap(":/images/unpin.svg");
 
     GraphicsScene *wscene = dynamic_cast<GraphicsScene *>(d->mToolWidget->scene());
-    if (wscene)
-    {
+    if (wscene) {
         wscene->removeItemFromDeletion(d->mToolWidget);
         wscene->removeItem(d->mToolWidget);
     }
@@ -87,7 +79,8 @@ void ToolWidget::initialize()
     layout()->setContentsMargins(d->mContentMargin, d->mContentMargin, d->mContentMargin, d->mContentMargin);
     layout()->addWidget(d->mWebView);
 
-    setFixedSize(d->mToolWidget->boundingRect().width() + d->mContentMargin * 2, d->mToolWidget->boundingRect().height() + d->mContentMargin * 2);
+    setFixedSize(d->mToolWidget->boundingRect().width() + d->mContentMargin * 2,
+                 d->mToolWidget->boundingRect().height() + d->mContentMargin * 2);
 
     // 小部件的 JS 桥在 Qt6 没有 addToJavaScriptWindowObject 的等价物（要换成 QWebChannel
     // 并改页面脚本），所以这里只加载页面，不再生成无人接收的 API 对象。
@@ -98,14 +91,11 @@ void ToolWidget::initialize()
 }
 
 
-bool ToolWidget::eventFilter(QObject *obj, QEvent *event)
-{
-    if (d->mShouldMoveWidget && obj == d->mWebView && event->type() == QEvent::MouseMove)
-    {
-        QMouseEvent *mouseMoveEvent = static_cast<QMouseEvent*>(event);
+bool ToolWidget::eventFilter(QObject *obj, QEvent *event) {
+    if (d->mShouldMoveWidget && obj == d->mWebView && event->type() == QEvent::MouseMove) {
+        QMouseEvent *mouseMoveEvent = static_cast<QMouseEvent *>(event);
 
-        if (mouseMoveEvent->buttons() & Qt::LeftButton)
-        {
+        if (mouseMoveEvent->buttons() & Qt::LeftButton) {
             move(pos() - d->mMousePressPos + d->mWebView->mapTo(this, mouseMoveEvent->pos()));
 
             event->accept();
@@ -117,8 +107,7 @@ bool ToolWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-void ToolWidget::mousePressEvent(QMouseEvent *event)
-{
+void ToolWidget::mousePressEvent(QMouseEvent *event) {
     QWidget::mousePressEvent(event);
 
     /* did webkit consume the mouse press ? */
@@ -128,34 +117,32 @@ void ToolWidget::mousePressEvent(QMouseEvent *event)
     update();
 }
 
-void ToolWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if(d->mShouldMoveWidget && (event->buttons() & Qt::LeftButton)) {
+void ToolWidget::mouseMoveEvent(QMouseEvent *event) {
+    if (d->mShouldMoveWidget && (event->buttons() & Qt::LeftButton)) {
         move(pos() - d->mMousePressPos + event->pos());
         event->accept();
     }
     QWidget::mouseMoveEvent(event);
 }
 
-void ToolWidget::mouseReleaseEvent(QMouseEvent *event)
-{
+void ToolWidget::mouseReleaseEvent(QMouseEvent *event) {
     d->mShouldMoveWidget = false;
 
-    if (event->pos().x() >= 0 && event->pos().x() < sClosePixmap->width() && event->pos().y() >= 0 && event->pos().y() < sClosePixmap->height()) {
+    if (event->pos().x() >= 0 && event->pos().x() < sClosePixmap->width() && event->pos().y() >= 0 &&
+        event->pos().y() < sClosePixmap->height()) {
         Application::boardController->removeTool(this);
         event->accept();
-    }
-    else if (d->mToolWidget->canBeContent() && event->pos().x() >= d->mContentMargin && event->pos().x() < d->mContentMargin + sUnpinPixmap->width() && event->pos().y() >= 0 && event->pos().y() < sUnpinPixmap->height()) {
+    } else if (d->mToolWidget->canBeContent() && event->pos().x() >= d->mContentMargin &&
+               event->pos().x() < d->mContentMargin + sUnpinPixmap->width() && event->pos().y() >= 0 &&
+               event->pos().y() < sUnpinPixmap->height()) {
         Application::boardController->moveToolWidgetToScene(this);
         event->accept();
-    }
-    else
-        QWidget::mouseReleaseEvent(event); /* don't propgate to parent, the widget is deleted in Application */
-
+    } else
+        QWidget::mouseReleaseEvent(
+            event); /* don't propgate to parent, the widget is deleted in Application */
 }
 
-void ToolWidget::paintEvent(QPaintEvent *event)
-{
+void ToolWidget::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
 
     //if (isActiveWindow())
@@ -165,12 +152,9 @@ void ToolWidget::paintEvent(QPaintEvent *event)
         painter.setPen(Qt::NoPen);
         painter.setBrush(QColor(127, 127, 127, 127));
 
-        painter.drawRoundedRect(QRectF(sClosePixmap->width() / 2
-                                     , sClosePixmap->height() / 2
-                                     , width() - sClosePixmap->width()
-                                     , d->mFrameWidth)
-                                     , d->mFrameWidth / 2
-                                     , d->mFrameWidth / 2);
+        painter.drawRoundedRect(QRectF(sClosePixmap->width() / 2, sClosePixmap->height() / 2,
+                                       width() - sClosePixmap->width(), d->mFrameWidth),
+                                d->mFrameWidth / 2, d->mFrameWidth / 2);
 
         painter.drawPixmap(0, 0, *sClosePixmap);
 
@@ -179,27 +163,23 @@ void ToolWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-GraphicsWidgetItem* ToolWidget::toolWidget() const
-{
+GraphicsWidgetItem *ToolWidget::toolWidget() const {
     return d->mToolWidget;
 }
 
-QPoint ToolWidget::naturalCenter() const
-{
+QPoint ToolWidget::naturalCenter() const {
     if (d->mWebView)
         return d->mWebView->geometry().center();
     else
         return QPoint(0, 0);
 }
 
-void ToolWidget::remove()
-{
+void ToolWidget::remove() {
     d->mToolWidget = NULL;
     hide();
     deleteLater();
 }
 
-void ToolWidget::centerOn(const QPoint& pos)
-{
+void ToolWidget::centerOn(const QPoint &pos) {
     QWidget::move(pos - QPoint(width() / 2, height() / 2));
 }

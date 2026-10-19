@@ -7,25 +7,18 @@
 
 
 ImportAdaptor::ImportAdaptor(bool _documentBased, QObject *parent)
-    :QObject(parent),
-    documentBased(_documentBased)
-{
+    : QObject(parent), documentBased(_documentBased) {
     // NOOP
 }
 
-ImportAdaptor::~ImportAdaptor()
-{
+ImportAdaptor::~ImportAdaptor() {
     // NOOP
 }
 
-PageBasedImportAdaptor::PageBasedImportAdaptor(QObject *parent)
-    :ImportAdaptor(false, parent)
-{
+PageBasedImportAdaptor::PageBasedImportAdaptor(QObject *parent) : ImportAdaptor(false, parent) {
     // NOOP
 }
 
-DocumentBasedImportAdaptor::DocumentBasedImportAdaptor(QObject *parent)
-    :ImportAdaptor(true, parent)
-{
+DocumentBasedImportAdaptor::DocumentBasedImportAdaptor(QObject *parent) : ImportAdaptor(true, parent) {
     // NOOP
 }

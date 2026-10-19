@@ -12,21 +12,21 @@ class Settings;
 class PreferencesController;
 class BrushPropertiesFrame;
 
-class PreferencesDialog : public QDialog
-{
+class PreferencesDialog : public QDialog {
     Q_OBJECT
 
 public:
     // Hand-written equivalent of the former ui_preferences.h form, defined in the .cpp.
     struct Ui;
 
-    PreferencesDialog(PreferencesController* prefController, QWidget* parent = 0,Qt::WindowFlags f = Qt::WindowFlags() );
+    PreferencesDialog(PreferencesController *prefController, QWidget *parent = 0,
+                      Qt::WindowFlags f = Qt::WindowFlags());
     ~PreferencesDialog();
 
-    Ui& ui();
+    Ui &ui();
 
 protected:
-    void closeEvent(QCloseEvent* e);
+    void closeEvent(QCloseEvent *e);
     PreferencesController *mPreferencesController;
 
 private:
@@ -34,8 +34,7 @@ private:
     std::unique_ptr<Private> d;
 };
 
-class PreferencesController : public QObject
-{
+class PreferencesController : public QObject {
     Q_OBJECT
 
 public:
@@ -49,16 +48,16 @@ protected:
     void wire();
     void init();
 
-    PreferencesDialog* mPreferencesWindow;
-    PreferencesDialog::Ui* mPreferencesUI;
-    BrushPropertiesFrame* mPenProperties;
-    BrushPropertiesFrame* mMarkerProperties;
-    ColorPicker* mDarkBackgroundGridColorPicker;
-    ColorPicker* mLightBackgroundGridColorPicker;
+    PreferencesDialog *mPreferencesWindow;
+    PreferencesDialog::Ui *mPreferencesUI;
+    BrushPropertiesFrame *mPenProperties;
+    BrushPropertiesFrame *mMarkerProperties;
+    ColorPicker *mDarkBackgroundGridColorPicker;
+    ColorPicker *mLightBackgroundGridColorPicker;
 
 public slots:
     // BrushPropertiesFrame 在自己的构造函数里连它，必须对外可见
-    void colorSelected(const QColor&);
+    void colorSelected(const QColor &);
 
 protected slots:
     void close();
@@ -68,8 +67,8 @@ protected slots:
     void lightBackgroundCrossOpacityValueChanged(int value);
     void widthSliderChanged(int value);
     void opacitySliderChanged(int value);
-    void setCrossColorOnDarkBackground(const QColor& color);
-    void setCrossColorOnLightBackground(const QColor& color);
+    void setCrossColorOnDarkBackground(const QColor &color);
+    void setCrossColorOnLightBackground(const QColor &color);
     void toolbarPositionChanged(bool checked);
     void toolbarOrientationVertical(bool checked);
     void toolbarOrientationHorizontal(bool checked);
@@ -82,28 +81,28 @@ private:
     static qreal sSliderRatio;
     static qreal sMinPenWidth;
     static qreal sMaxPenWidth;
-    VirtualDesktop* mDesktop;
-
+    VirtualDesktop *mDesktop;
 };
 
-class BrushPropertiesFrame
-{
+class BrushPropertiesFrame {
 public:
     // Hand-written equivalent of the former ui_brushProperties.h form, defined in the .cpp.
     struct Ui;
 
-    BrushPropertiesFrame(QFrame* owner, const QList<QColor>& lightBackgroundColors,const QList<QColor>& darkBackgroundColors, const QList<QColor>& lightBackgroundSelectedColors,const QList<QColor>& darkBackgroundSelectedColors, PreferencesController* controller);
+    BrushPropertiesFrame(QFrame *owner, const QList<QColor> &lightBackgroundColors,
+                         const QList<QColor> &darkBackgroundColors,
+                         const QList<QColor> &lightBackgroundSelectedColors,
+                         const QList<QColor> &darkBackgroundSelectedColors,
+                         PreferencesController *controller);
 
     virtual ~BrushPropertiesFrame();
 
-    Ui& ui();
+    Ui &ui();
 
-    QList<ColorPicker*>& lightBackgroundColorPickers();
-    QList<ColorPicker*>& darkBackgroundColorPickers();
+    QList<ColorPicker *> &lightBackgroundColorPickers();
+    QList<ColorPicker *> &darkBackgroundColorPickers();
 
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

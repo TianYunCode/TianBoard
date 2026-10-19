@@ -2,8 +2,7 @@
 
 #include <QWidget>
 
-class SpinningWheel : public QWidget
-{
+class SpinningWheel : public QWidget {
     Q_OBJECT
 
 public:
@@ -23,5 +22,3 @@ private:
     QAtomicInt mPosition;
     int mTimerID;
 };
-
-

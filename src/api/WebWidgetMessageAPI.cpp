@@ -5,29 +5,23 @@
 
 
 WebWidgetMessageAPI::WebWidgetMessageAPI(GraphicsWidgetItem *graphicsWidgetItem, QObject *parent)
-    : QObject(parent)
-    , mGraphicsWidgetItem(graphicsWidgetItem)
-{
-    connect(WebWidgetMessageBroker::instance(), &WebWidgetMessageBroker::newMessage,
-            this, &WebWidgetMessageAPI::onNewMessage, Qt::QueuedConnection);
+    : QObject(parent), mGraphicsWidgetItem(graphicsWidgetItem) {
+    connect(WebWidgetMessageBroker::instance(), &WebWidgetMessageBroker::newMessage, this,
+            &WebWidgetMessageAPI::onNewMessage, Qt::QueuedConnection);
 }
 
-WebWidgetMessageAPI::~WebWidgetMessageAPI()
-{
+WebWidgetMessageAPI::~WebWidgetMessageAPI() {
     // NOOP
 }
 
 
-void WebWidgetMessageAPI::sendMessage(const QString& pTopicName, const QString& pMessage)
-{
+void WebWidgetMessageAPI::sendMessage(const QString &pTopicName, const QString &pMessage) {
     WebWidgetMessageBroker::instance()->sendMessage(pTopicName, pMessage);
 }
 
 
-void WebWidgetMessageAPI::onNewMessage(const QString& pTopicName, const QString& pMessage)
-{
-    if (mSubscribedTopics.contains(pTopicName))
-    {
+void WebWidgetMessageAPI::onNewMessage(const QString &pTopicName, const QString &pMessage) {
+    if (mSubscribedTopics.contains(pTopicName)) {
         //if (mGraphicsWidgetItem && mGraphicsWidgetItem->page() && mGraphicsWidgetItem->page()->mainFrame())
         {
             QString js;
@@ -37,40 +31,32 @@ void WebWidgetMessageAPI::onNewMessage(const QString& pTopicName, const QString&
 
             //mGraphicsWidgetItem->page()->
             //    mainFrame()->evaluateJavaScript(js);
-
         }
     }
 }
 
 
+WebWidgetMessageBroker *WebWidgetMessageBroker::sInstance = 0;
 
-WebWidgetMessageBroker* WebWidgetMessageBroker::sInstance = 0;
 
-
-WebWidgetMessageBroker::WebWidgetMessageBroker(QObject *parent)
-    : QObject(parent)
-{
+WebWidgetMessageBroker::WebWidgetMessageBroker(QObject *parent) : QObject(parent) {
     // NOOP
 }
 
 
-WebWidgetMessageBroker::~WebWidgetMessageBroker()
-{
+WebWidgetMessageBroker::~WebWidgetMessageBroker() {
     // NOOP
 }
 
 
-WebWidgetMessageBroker* WebWidgetMessageBroker::instance()
-{
+WebWidgetMessageBroker *WebWidgetMessageBroker::instance() {
     if (!sInstance)
         sInstance = new WebWidgetMessageBroker(Application::staticMemoryCleaner);
 
     return sInstance;
-
 }
 
 
-void WebWidgetMessageBroker::sendMessage(const QString& pTopicName, const QString& pMessage)
-{
+void WebWidgetMessageBroker::sendMessage(const QString &pTopicName, const QString &pMessage) {
     emit newMessage(pTopicName, pMessage);
 }

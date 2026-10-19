@@ -9,28 +9,18 @@
 #include <QObject>
 
 
-ExportIwb::ExportIwb(QObject *parent)
-: ExportAdaptor(parent)
-{
+ExportIwb::ExportIwb(QObject *parent) : ExportAdaptor(parent) {}
 
-}
-
-ExportIwb::~ExportIwb()
-{
-
-}
-QString ExportIwb::exportName()
-{
+ExportIwb::~ExportIwb() {}
+QString ExportIwb::exportName() {
     return tr("Export to IWB");
 }
 
-QString ExportIwb::exportExtention()
-{
+QString ExportIwb::exportExtention() {
     return QString(".iwb");
 }
 
-void ExportIwb::persist(DocumentProxy* pDocument)
-{
+void ExportIwb::persist(DocumentProxy *pDocument) {
     QString src = pDocument->persistencePath();
 
     if (!pDocument)
@@ -38,34 +28,27 @@ void ExportIwb::persist(DocumentProxy* pDocument)
 
     QString filename = askForFileName(pDocument, tr("Export as IWB File"));
 
-    if (filename.length() > 0)
-    {
+    if (filename.length() > 0) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
         if (mIsVerbose)
             Application::showMessage(tr("Exporting document..."));
 
-            IwbDocumentAdaptor toIWBExporter;
-            if (toIWBExporter.convertPageToIwb(src, filename))
-            {
-                if (mIsVerbose)
-                    Application::showMessage(tr("Export successful."));
-            }
-            else 
-                if (mIsVerbose)
-                    Application::showMessage(tr("Export failed."));
+        IwbDocumentAdaptor toIWBExporter;
+        if (toIWBExporter.convertPageToIwb(src, filename)) {
+            if (mIsVerbose)
+                Application::showMessage(tr("Export successful."));
+        } else if (mIsVerbose)
+            Application::showMessage(tr("Export failed."));
 
         showErrorsList(toIWBExporter.getConversionMessages());
 
         QApplication::restoreOverrideCursor();
-
     }
-    
 }
 
-bool ExportIwb::associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
-{
-    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel*>(selectedIndex.model());
+bool ExportIwb::associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+    const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel *>(selectedIndex.model());
     if (!selectedIndex.isValid() || docModel->isCatalog(selectedIndex)) {
         return false;
     }

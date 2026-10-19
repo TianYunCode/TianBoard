@@ -6,16 +6,13 @@
 
 class DocumentProxy;
 
-class ExportWeb : public ExportAdaptor
-{
+class ExportWeb : public ExportAdaptor {
     Q_OBJECT;
 
-    public:
-        ExportWeb(QObject *parent = 0);
-        virtual ~ExportWeb();
+public:
+    ExportWeb(QObject *parent = 0);
+    virtual ~ExportWeb();
 
-        virtual QString exportName();
-        virtual void persist(DocumentProxy* pDocument);
-
+    virtual QString exportName();
+    virtual void persist(DocumentProxy *pDocument);
 };
-

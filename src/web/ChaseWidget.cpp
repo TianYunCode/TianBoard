@@ -4,8 +4,7 @@
 #include <QApplication>
 
 
-struct ChaseWidget::Private
-{
+struct ChaseWidget::Private {
     int mSegment{0};
     int mDelay{0};
     int mStep{0};
@@ -16,9 +15,7 @@ struct ChaseWidget::Private
 };
 
 ChaseWidget::ChaseWidget(QWidget *parent, QPixmap pixmap, bool pixmapEnabled)
-    : QWidget(parent)
-    , d(new Private)
-{
+    : QWidget(parent), d(new Private) {
     d->mDelay = 100;
     d->mStep = 40;
     d->mTimerID = -1;
@@ -29,18 +26,15 @@ ChaseWidget::ChaseWidget(QWidget *parent, QPixmap pixmap, bool pixmapEnabled)
 ChaseWidget::~ChaseWidget() = default;
 
 
-void ChaseWidget::setAnimated(bool value)
-{
+void ChaseWidget::setAnimated(bool value) {
     if (d->mAnimated == value)
         return;
     d->mAnimated = value;
-    if (d->mTimerID != -1) 
-    {
+    if (d->mTimerID != -1) {
         killTimer(d->mTimerID);
         d->mTimerID = -1;
     }
-    if (d->mAnimated) 
-    {
+    if (d->mAnimated) {
         d->mSegment = 0;
         d->mTimerID = startTimer(d->mDelay);
     }
@@ -48,12 +42,10 @@ void ChaseWidget::setAnimated(bool value)
 }
 
 
-void ChaseWidget::paintEvent(QPaintEvent *event)
-{
+void ChaseWidget::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
     QPainter p(this);
-    if (d->mPixmapEnabled && !d->mPixmap.isNull()) 
-    {
+    if (d->mPixmapEnabled && !d->mPixmap.isNull()) {
         p.drawPixmap(0, 0, d->mPixmap);
         return;
     }
@@ -64,17 +56,16 @@ void ChaseWidget::paintEvent(QPaintEvent *event)
 
     p.setRenderHint(QPainter::Antialiasing, true);
 
-    if(d->mAnimated)
+    if (d->mAnimated)
         p.setPen(Qt::gray);
     else
         p.setPen(QPen(palette().dark().color()));
 
     p.translate(width() / 2, height() / 2); // center
 
-    for (int segment = 0; segment < segmentCount(); ++segment) 
-    {
+    for (int segment = 0; segment < segmentCount(); ++segment) {
         p.rotate(QApplication::isRightToLeft() ? d->mStep : -d->mStep);
-        if(d->mAnimated)
+        if (d->mAnimated)
             p.setBrush(colorForSegment(segment));
         else
             p.setBrush(palette().brush(QPalette::Window));
@@ -83,16 +74,13 @@ void ChaseWidget::paintEvent(QPaintEvent *event)
 }
 
 
-QSize ChaseWidget::sizeHint() const
-{
+QSize ChaseWidget::sizeHint() const {
     return QSize(32, 32);
 }
 
 
-void ChaseWidget::timerEvent(QTimerEvent *event)
-{
-    if (event->timerId() == d->mTimerID) 
-    {
+void ChaseWidget::timerEvent(QTimerEvent *event) {
+    if (event->timerId() == d->mTimerID) {
         ++d->mSegment;
         update();
     }
@@ -100,22 +88,18 @@ void ChaseWidget::timerEvent(QTimerEvent *event)
 }
 
 
-QColor ChaseWidget::colorForSegment(int seg) const
-{
+QColor ChaseWidget::colorForSegment(int seg) const {
     int index = ((seg + d->mSegment) % segmentCount());
     int comp = qMax(0, 255 - (index * (255 / segmentCount())));
     return QColor(comp, comp, comp, 255);
 }
 
 
-int ChaseWidget::segmentCount() const
-{
+int ChaseWidget::segmentCount() const {
     return 360 / d->mStep;
 }
 
 
-void ChaseWidget::setPixmapEnabled(bool enable)
-{
+void ChaseWidget::setPixmapEnabled(bool enable) {
     d->mPixmapEnabled = enable;
 }
-

@@ -10,11 +10,10 @@
 
 #include <memory>
 
-class BoardThumbnailsView : public QGraphicsView
-{
+class BoardThumbnailsView : public QGraphicsView {
     Q_OBJECT
 public:
-    BoardThumbnailsView(QWidget* parent=0, const char* name="BoardThumbnailsView");
+    BoardThumbnailsView(QWidget *parent = 0, const char *name = "BoardThumbnailsView");
     ~BoardThumbnailsView() override;
 
 public slots:
@@ -22,8 +21,8 @@ public slots:
     void centerOnThumbnail(int index);
 
     void clearThumbnails();
-    void initThumbnails(DocumentContainer* source);
-    void addThumbnail(DocumentContainer* source, int i);
+    void initThumbnails(DocumentContainer *source);
+    void addThumbnail(DocumentContainer *source, int i);
     void moveThumbnail(int from, int to);
     void removeThumbnail(int i);
     void updateThumbnails();
@@ -34,9 +33,9 @@ public slots:
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
-    virtual void dragEnterEvent(QDragEnterEvent* event);
-    virtual void dragMoveEvent(QDragMoveEvent* event);
-    virtual void dropEvent(QDropEvent* event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
@@ -47,10 +46,9 @@ signals:
     void moveThumbnailRequired(int from, int to);
 
 private:
-    DraggableThumbnailView* createThumbnail(DocumentContainer* source, int i);
+    DraggableThumbnailView *createThumbnail(DocumentContainer *source, int i);
     void updateThumbnailsPos();
 
     struct Private;
     std::unique_ptr<Private> d;
 };
-

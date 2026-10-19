@@ -14,15 +14,11 @@
 #include "ui/IconButton.h"
 
 
-struct WebToolsPalette::Private
-{
-};
+struct WebToolsPalette::Private {};
 
 WebToolsPalette::WebToolsPalette(QWidget *parent)
-    : ActionPalette(Qt::TopRightCorner, parent)
-    , d(new Private)
-{
-    QList<QAction*> actions;
+    : ActionPalette(Qt::TopRightCorner, parent), d(new Private) {
+    QList<QAction *> actions;
 
     actions << Application::mainWindow->ui().actionWebCustomCapture;
 
@@ -37,10 +33,6 @@ WebToolsPalette::WebToolsPalette(QWidget *parent)
 }
 
 
-WebToolsPalette::~WebToolsPalette()
-{
+WebToolsPalette::~WebToolsPalette() {
     // NOOP
 }
-
-
-

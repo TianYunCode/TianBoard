@@ -16,45 +16,38 @@
 #include "whiteboard/BoardController.h"
 
 
-GraphicsPixmapItem::GraphicsPixmapItem(QGraphicsItem* parent)
-    : QGraphicsPixmapItem(parent)
-{
-    setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON
-                                           | GF_FLIPPABLE_ALL_AXIS
-                                           | GF_REVOLVABLE
-                                           | GF_RESPECT_RATIO
-                                           | GF_TOOLBAR_USED));
+GraphicsPixmapItem::GraphicsPixmapItem(QGraphicsItem *parent) : QGraphicsPixmapItem(parent) {
+    setDelegate(new GraphicsItemDelegate(
+        this, 0, GF_COMMON | GF_FLIPPABLE_ALL_AXIS | GF_REVOLVABLE | GF_RESPECT_RATIO | GF_TOOLBAR_USED));
 
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
     setTransformationMode(Qt::SmoothTransformation);
 
-    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(
+        GraphicsItemData::itemLayerType,
+        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
     setData(GraphicsItemData::ItemCanBeSetAsBackground, true);
 
-    setUuid(QUuid::createUuid()); //more logical solution is in creating uuid for element in element's constructor
+    setUuid(
+        QUuid::createUuid()); //more logical solution is in creating uuid for element in element's constructor
 }
 
-GraphicsPixmapItem::~GraphicsPixmapItem()
-{
-}
+GraphicsPixmapItem::~GraphicsPixmapItem() {}
 
-QVariant GraphicsPixmapItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
+QVariant GraphicsPixmapItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     QVariant newValue = Delegate()->itemChange(change, value);
     return QGraphicsPixmapItem::itemChange(change, newValue);
 }
 
-void GraphicsPixmapItem::setUuid(const QUuid &pUuid)
-{
+void GraphicsPixmapItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
-void GraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    QMimeData* pMime = new QMimeData();
+void GraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    QMimeData *pMime = new QMimeData();
     pMime->setImageData(pixmap().toImage());
     Delegate()->setMimeData(pMime);
     qreal k = (qreal)pixmap().width() / 100.0;
@@ -63,37 +56,28 @@ void GraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     Delegate()->setDragPixmap(pixmap().scaled(newSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
-    if (Delegate()->mousePressEvent(event))
-    {
+    if (Delegate()->mousePressEvent(event)) {
         //NOOP
-    }
-    else
-    {
-//        QGraphicsPixmapItem::mousePressEvent(event);
+    } else {
+        //        QGraphicsPixmapItem::mousePressEvent(event);
     }
 }
 
-void GraphicsPixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (Delegate()->mouseMoveEvent(event))
-    {
+void GraphicsPixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    if (Delegate()->mouseMoveEvent(event)) {
         // NOOP;
-    }
-    else
-    {
+    } else {
         QGraphicsPixmapItem::mouseMoveEvent(event);
     }
 }
 
-void GraphicsPixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
+void GraphicsPixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     Delegate()->mouseReleaseEvent(event);
     QGraphicsPixmapItem::mouseReleaseEvent(event);
 }
 
 
-void GraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
+void GraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     painter->setRenderHint(QPainter::Antialiasing, false);
 
     // Never draw the rubber band, we draw our custom selection with the DelegateFrame
@@ -107,22 +91,19 @@ void GraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 }
 
 
-Item* GraphicsPixmapItem::deepCopy() const
-{
-   GraphicsPixmapItem* copy = new GraphicsPixmapItem();
+Item *GraphicsPixmapItem::deepCopy() const {
+    GraphicsPixmapItem *copy = new GraphicsPixmapItem();
 
-   copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
 
-   copyItemParameters(copy);
+    copyItemParameters(copy);
 
-   return copy;
+    return copy;
 }
 
-void GraphicsPixmapItem::copyItemParameters(Item *copy) const
-{
-    GraphicsPixmapItem *cp = dynamic_cast<GraphicsPixmapItem*>(copy);
-    if (cp)
-    {
+void GraphicsPixmapItem::copyItemParameters(Item *copy) const {
+    GraphicsPixmapItem *cp = dynamic_cast<GraphicsPixmapItem *>(copy);
+    if (cp) {
         cp->setPixmap(this->pixmap());
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
@@ -136,27 +117,23 @@ void GraphicsPixmapItem::copyItemParameters(Item *copy) const
     }
 }
 
-GraphicsScene* GraphicsPixmapItem::scene()
-{
-    return qobject_cast<GraphicsScene*>(QGraphicsItem::scene());
+GraphicsScene *GraphicsPixmapItem::scene() {
+    return qobject_cast<GraphicsScene *>(QGraphicsItem::scene());
 }
 
 
-void GraphicsPixmapItem::setOpacity(qreal op)
-{
+void GraphicsPixmapItem::setOpacity(qreal op) {
     QGraphicsPixmapItem::setOpacity(op);
 }
 
 
-qreal GraphicsPixmapItem::opacity() const
-{
+qreal GraphicsPixmapItem::opacity() const {
     return QGraphicsPixmapItem::opacity();
 }
 
 
-void GraphicsPixmapItem::clearSource()
-{
+void GraphicsPixmapItem::clearSource() {
     QString fileName = PersistenceManager::imageDirectory + "/" + uuid().toString() + ".png";
-    QString diskPath =  Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
+    QString diskPath = Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
     FileSystemUtils::deleteFile(diskPath);
 }

@@ -7,8 +7,7 @@
 class QPushButton;
 class BoardController;
 
-class ZoomPalette : public FloatingPalette
-{
+class ZoomPalette : public FloatingPalette {
     Q_OBJECT
 
 public:
@@ -26,6 +25,4 @@ private slots:
 private:
     struct Private;
     std::unique_ptr<Private> d;
-
 };
-

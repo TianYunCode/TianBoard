@@ -5,24 +5,21 @@
 
 class DocumentProxy;
 
-class ImportDocumentSetAdaptor : public ImportAdaptor
-{
+class ImportDocumentSetAdaptor : public ImportAdaptor {
     Q_OBJECT
 
-    public:
-        ImportDocumentSetAdaptor(QObject *parent = 0);
-        virtual ~ImportDocumentSetAdaptor();
+public:
+    ImportDocumentSetAdaptor(QObject *parent = 0);
+    virtual ~ImportDocumentSetAdaptor();
 
-        virtual QStringList supportedExtentions();
-        virtual QString importFileFilter();
+    virtual QStringList supportedExtentions();
+    virtual QString importFileFilter();
 
-        QFileInfoList importData(const QString &zipFile, const QString &destination);
+    QFileInfoList importData(const QString &zipFile, const QString &destination);
 
-//        virtual DocumentProxy* importFile(const QFile& pFile, const QString& pGroup);
-//        virtual bool addFileToDocument(DocumentProxy* pDocument, const QFile& pFile);
+    //        virtual DocumentProxy* importFile(const QFile& pFile, const QString& pGroup);
+    //        virtual bool addFileToDocument(DocumentProxy* pDocument, const QFile& pFile);
 
-    private:
-        bool extractFileToDir(const QFile& pZipFile, const QString& pDir);
-
+private:
+    bool extractFileToDir(const QFile &pZipFile, const QString &pDir);
 };
-

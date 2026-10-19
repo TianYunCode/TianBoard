@@ -3,12 +3,11 @@
 #include "ui/SpinningWheel.h"
 
 
-struct MessageWindow::Private
-{
+struct MessageWindow::Private {
     QHBoxLayout *mLayout{nullptr};
     SpinningWheel *mSpinningWheel{nullptr};
     QLabel *mLabel{nullptr};
-    QBasicTimer  mTimer;
+    QBasicTimer mTimer;
 
     int mOriginalAlpha{0};
     int mFadingStep{0};
@@ -17,15 +16,14 @@ struct MessageWindow::Private
 };
 
 MessageWindow::MessageWindow(QWidget *parent)
-    : FloatingPalette(Qt::BottomLeftCorner, parent)
-    , d(new Private)
-{
+    : FloatingPalette(Qt::BottomLeftCorner, parent), d(new Private) {
     d->mTimerID = -1;
 
     d->mLayout = new QHBoxLayout(this);
     d->mSpinningWheel = new SpinningWheel(parent);
     d->mLabel = new QLabel(parent);
-    d->mLabel->setStyleSheet(QString("QLabel { color: white; background-color: transparent; border: none; font-family: Arial; font-size: 14px }"));
+    d->mLabel->setStyleSheet(QString("QLabel { color: white; background-color: transparent; border: none; "
+                                     "font-family: Arial; font-size: 14px }"));
 
     d->mOriginalAlpha = 255;
 
@@ -39,13 +37,11 @@ MessageWindow::MessageWindow(QWidget *parent)
     d->mLayout->addWidget(d->mLabel);
 }
 
-MessageWindow::~MessageWindow()
-{
+MessageWindow::~MessageWindow() {
     // NOOP
 }
 
-void MessageWindow::showMessage(const QString& message, bool showSpinningWheel)
-{
+void MessageWindow::showMessage(const QString &message, bool showSpinningWheel) {
     d->mTimer.stop();
 
     d->mLabel->setText(message);
@@ -53,13 +49,10 @@ void MessageWindow::showMessage(const QString& message, bool showSpinningWheel)
     setBackgroundAlpha(d->mOriginalAlpha);
     d->mFadingStep = 25;
 
-    if (showSpinningWheel)
-    {
+    if (showSpinningWheel) {
         d->mSpinningWheel->show();
         d->mSpinningWheel->startAnimation();
-    }
-    else
-    {
+    } else {
         d->mSpinningWheel->hide();
         d->mSpinningWheel->stopAnimation();
         d->mTimer.start(50, this);
@@ -73,28 +66,23 @@ void MessageWindow::showMessage(const QString& message, bool showSpinningWheel)
     QCoreApplication::sendPostedEvents();
 }
 
-void MessageWindow::timerEvent(QTimerEvent *event)
-{
+void MessageWindow::timerEvent(QTimerEvent *event) {
     Q_UNUSED(event);
 
     d->mFadingStep--;
 
-    if (d->mFadingStep < 1)
-    {
+    if (d->mFadingStep < 1) {
         hide();
         d->mTimer.stop();
         d->mSpinningWheel->stopAnimation();
-    }
-    else if (d->mFadingStep < 10)
-    {
+    } else if (d->mFadingStep < 10) {
         setBackgroundAlpha(d->mOriginalAlpha / 10 * d->mFadingStep);
 
         update();
     }
 }
 
-void MessageWindow::hideMessage()
-{
+void MessageWindow::hideMessage() {
     d->mFadingStep = 0;
     hide();
     QCoreApplication::sendPostedEvents();

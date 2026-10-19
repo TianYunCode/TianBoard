@@ -4,11 +4,10 @@
 #include "whiteboard/GraphicsScene.h"
 
 
-GraphicsItemTransformUndoCommand::GraphicsItemTransformUndoCommand(QGraphicsItem* pItem,
-     const QPointF& prevPos, const QTransform& prevTransform, const qreal& prevZValue,
-     const QSizeF& prevSize, bool setToBackground)
-    : UndoCommand()
-{
+GraphicsItemTransformUndoCommand::GraphicsItemTransformUndoCommand(
+    QGraphicsItem *pItem, const QPointF &prevPos, const QTransform &prevTransform, const qreal &prevZValue,
+    const QSizeF &prevSize, bool setToBackground)
+    : UndoCommand() {
     mItem = pItem;
     mPreviousTransform = prevTransform;
     mCurrentTransform = pItem->transform();
@@ -20,7 +19,7 @@ GraphicsItemTransformUndoCommand::GraphicsItemTransformUndoCommand(QGraphicsItem
     mCurrentZValue = pItem->zValue();
 
     mPreviousSize = prevSize;
-    ResizableGraphicsItem* resizableItem = dynamic_cast<ResizableGraphicsItem*>(pItem);
+    ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(pItem);
 
     if (resizableItem)
         mCurrentSize = resizableItem->size();
@@ -28,15 +27,13 @@ GraphicsItemTransformUndoCommand::GraphicsItemTransformUndoCommand(QGraphicsItem
     mSetToBackground = setToBackground;
 }
 
-GraphicsItemTransformUndoCommand::~GraphicsItemTransformUndoCommand()
-{
+GraphicsItemTransformUndoCommand::~GraphicsItemTransformUndoCommand() {
     // NOOP
 }
 
-void GraphicsItemTransformUndoCommand::undo()
-{
+void GraphicsItemTransformUndoCommand::undo() {
     if (mSetToBackground) {
-        GraphicsScene* scene = dynamic_cast<GraphicsScene*>(mItem->scene());
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(mItem->scene());
         if (scene && scene->isBackgroundObject(mItem)) {
             scene->unsetBackgroundObject();
         }
@@ -46,16 +43,15 @@ void GraphicsItemTransformUndoCommand::undo()
     mItem->setTransform(mPreviousTransform);
     mItem->setZValue(mPreviousZValue);
 
-    ResizableGraphicsItem* resizableItem = dynamic_cast<ResizableGraphicsItem*>(mItem);
+    ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(mItem);
 
     if (resizableItem)
         resizableItem->resize(mPreviousSize);
 }
 
-void GraphicsItemTransformUndoCommand::redo()
-{
+void GraphicsItemTransformUndoCommand::redo() {
     if (mSetToBackground) {
-        GraphicsScene* scene = dynamic_cast<GraphicsScene*>(mItem->scene());
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(mItem->scene());
         if (scene)
             scene->setAsBackgroundObject(mItem);
     }
@@ -64,7 +60,7 @@ void GraphicsItemTransformUndoCommand::redo()
     mItem->setTransform(mCurrentTransform);
     mItem->setZValue(mCurrentZValue);
 
-    ResizableGraphicsItem* resizableItem = dynamic_cast<ResizableGraphicsItem*>(mItem);
+    ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(mItem);
 
     if (resizableItem)
         resizableItem->resize(mCurrentSize);

@@ -14,29 +14,26 @@
 #include "ui/MainWindow.h"
 
 
-struct DesktopPalette::Private
-{
+struct DesktopPalette::Private {
     QAction *mShowHideAction{nullptr};
     QAction *mDisplaySelectAction{nullptr};
     QAction *mMaximizeAction{nullptr};
     QAction *mActionBoard{nullptr};
     QAction *mActionCustomSelect{nullptr};
-    QAction* mActionTest{nullptr};
+    QAction *mActionTest{nullptr};
 
-    RightPalette* rightPalette{nullptr};
+    RightPalette *rightPalette{nullptr};
 };
 
-DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
-    : ActionPalette(Qt::TopLeftCorner, parent)
-    , d(new Private)
-{
+DesktopPalette::DesktopPalette(QWidget *parent, RightPalette *_rightPalette)
+    : ActionPalette(Qt::TopLeftCorner, parent), d(new Private) {
     d->rightPalette = _rightPalette;
 
-    QList<QAction*> actions;
+    QList<QAction *> actions;
 
-	QIcon boardIcon;
-	boardIcon.addPixmap(QPixmap(":/images/toolbar/board.png"), QIcon::Normal, QIcon::Off);
-	boardIcon.addPixmap(QPixmap(":/images/toolbar/boardOn.png"), QIcon::Normal, QIcon::On);
+    QIcon boardIcon;
+    boardIcon.addPixmap(QPixmap(":/images/toolbar/board.png"), QIcon::Normal, QIcon::Off);
+    boardIcon.addPixmap(QPixmap(":/images/toolbar/boardOn.png"), QIcon::Normal, QIcon::On);
     d->mActionBoard = new QAction(QIcon(":/images/toolbar/board.png"), tr("Show TianBoard"), this);
     connect(d->mActionBoard, &QAction::triggered, this, [this] { emit boardClick(); });
     actions << d->mActionBoard;
@@ -50,23 +47,24 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
     if (PlatformUtils::hasVirtualKeyboard())
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
 
-	QIcon actionCustomIcon;
-	actionCustomIcon.addPixmap(QPixmap(":/images/toolbar/captureScreen.png"), QIcon::Normal, QIcon::Off);
-	actionCustomIcon.addPixmap(QPixmap(":/images/toolbar/captureScreenOn.png"), QIcon::Normal, QIcon::On);
-    d->mActionCustomSelect = new QAction(QIcon(":/images/toolbar/captureScreen.png"), tr("Capture Part of the Screen"), this);
+    QIcon actionCustomIcon;
+    actionCustomIcon.addPixmap(QPixmap(":/images/toolbar/captureScreen.png"), QIcon::Normal, QIcon::Off);
+    actionCustomIcon.addPixmap(QPixmap(":/images/toolbar/captureScreenOn.png"), QIcon::Normal, QIcon::On);
+    d->mActionCustomSelect =
+        new QAction(QIcon(":/images/toolbar/captureScreen.png"), tr("Capture Part of the Screen"), this);
     connect(d->mActionCustomSelect, &QAction::triggered, this, [this] { emit customClick(); });
     actions << d->mActionCustomSelect;
 
-	QIcon displaySelectIcon;
-	displaySelectIcon.addPixmap(QPixmap(":/images/toolbar/captureArea.png"), QIcon::Normal, QIcon::Off);
-	displaySelectIcon.addPixmap(QPixmap(":/images/toolbar/captureAreaOn.png"), QIcon::Normal, QIcon::On);
+    QIcon displaySelectIcon;
+    displaySelectIcon.addPixmap(QPixmap(":/images/toolbar/captureArea.png"), QIcon::Normal, QIcon::Off);
+    displaySelectIcon.addPixmap(QPixmap(":/images/toolbar/captureAreaOn.png"), QIcon::Normal, QIcon::On);
     d->mDisplaySelectAction = new QAction(displaySelectIcon, tr("Capture the Screen"), this);
     connect(d->mDisplaySelectAction, &QAction::triggered, this, [this] { emit screenClick(); });
     actions << d->mDisplaySelectAction;
 
     QIcon showHideIcon;
-    showHideIcon.addPixmap(QPixmap(":/images/toolbar/eyeOpened.png"), QIcon::Normal , QIcon::On);
-    showHideIcon.addPixmap(QPixmap(":/images/toolbar/eyeClosed.png"), QIcon::Normal , QIcon::Off);
+    showHideIcon.addPixmap(QPixmap(":/images/toolbar/eyeOpened.png"), QIcon::Normal, QIcon::On);
+    showHideIcon.addPixmap(QPixmap(":/images/toolbar/eyeClosed.png"), QIcon::Normal, QIcon::Off);
     d->mShowHideAction = new QAction(showHideIcon, "", this);
     d->mShowHideAction->setCheckable(true);
 
@@ -90,41 +88,33 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
     connect(d->rightPalette, &RightPalette::resized, this, &DesktopPalette::parentResized);
 }
 
-DesktopPalette::~DesktopPalette()
-{
+DesktopPalette::~DesktopPalette() {}
 
-}
-
-void DesktopPalette::adjustPosition()
-{
+void DesktopPalette::adjustPosition() {
     QPoint pos = this->pos();
-    if(this->pos().y() < 30){
+    if (this->pos().y() < 30) {
         pos.setY(30);
         moveInsideParent(pos);
     }
 }
 
-void DesktopPalette::disappearForCapture()
-{
+void DesktopPalette::disappearForCapture() {
     setWindowOpacity(0.0);
     qApp->processEvents();
 }
 
 
-void DesktopPalette::appear()
-{
+void DesktopPalette::appear() {
     setWindowOpacity(1.0);
 }
 
 
-void DesktopPalette::showHideClick(bool checked)
-{
+void DesktopPalette::showHideClick(bool checked) {
     Application::applicationController->mirroringEnabled(checked);
 }
 
 
-void DesktopPalette::updateShowHideState(bool pShowEnabled)
-{
+void DesktopPalette::updateShowHideState(bool pShowEnabled) {
     if (d->mShowHideAction)
         d->mShowHideAction->setChecked(pShowEnabled);
 
@@ -138,22 +128,19 @@ void DesktopPalette::updateShowHideState(bool pShowEnabled)
 }
 
 
-void DesktopPalette::setShowHideButtonVisible(bool visible)
-{
+void DesktopPalette::setShowHideButtonVisible(bool visible) {
     d->mShowHideAction->setVisible(visible);
 }
 
 
-void DesktopPalette::setDisplaySelectButtonVisible(bool visible)
-{
+void DesktopPalette::setDisplaySelectButtonVisible(bool visible) {
     d->mDisplaySelectAction->setVisible(visible);
 }
 
 //  Called when the palette is near the border and must be minimized
-void DesktopPalette::minimizeMe(eMinimizedLocation location)
-{
+void DesktopPalette::minimizeMe(eMinimizedLocation location) {
     Q_UNUSED(location);
-    QList<QAction*> actions;
+    QList<QAction *> actions;
     clearLayout();
 
     actions << d->mMaximizeAction;
@@ -162,14 +149,13 @@ void DesktopPalette::minimizeMe(eMinimizedLocation location)
     adjustSizeAndPosition();
 
 #ifdef Q_OS_LINUX
-        emit refreshMask();
+    emit refreshMask();
 #endif
 }
 
 //  Called when the user wants to maximize the palette
-void DesktopPalette::maximizeMe()
-{
-    QList<QAction*> actions;
+void DesktopPalette::maximizeMe() {
+    QList<QAction *> actions;
     clearLayout();
 
     actions << d->mActionBoard;
@@ -192,12 +178,11 @@ void DesktopPalette::maximizeMe()
     // Notify that the maximization has been done
     emit maximized();
 #ifdef Q_OS_LINUX
-        emit refreshMask();
+    emit refreshMask();
 #endif
 }
 
-void DesktopPalette::showEvent(QShowEvent *event)
-{
+void DesktopPalette::showEvent(QShowEvent *event) {
     Q_UNUSED(event);
     QIcon penIcon;
     QIcon markerIcon;
@@ -215,8 +200,7 @@ void DesktopPalette::showEvent(QShowEvent *event)
     adjustPosition();
 }
 
-void DesktopPalette::hideEvent(QHideEvent *event)
-{
+void DesktopPalette::hideEvent(QHideEvent *event) {
     Q_UNUSED(event);
     QIcon penIcon;
     QIcon markerIcon;
@@ -232,13 +216,11 @@ void DesktopPalette::hideEvent(QHideEvent *event)
     Application::mainWindow->ui().actionEraser->setIcon(eraserIcon);
 }
 
-QPoint DesktopPalette::buttonPos(QAction *action)
-{
+QPoint DesktopPalette::buttonPos(QAction *action) {
     QPoint p;
 
-    ActionPaletteButton* pB = getButtonFromAction(action);
-    if(NULL != pB)
-    {
+    ActionPaletteButton *pB = getButtonFromAction(action);
+    if (NULL != pB) {
         p = pB->pos();
     }
 
@@ -246,17 +228,14 @@ QPoint DesktopPalette::buttonPos(QAction *action)
 }
 
 
-int DesktopPalette::getParentRightOffset()
-{
+int DesktopPalette::getParentRightOffset() {
     return d->rightPalette->width();
 }
 
-void DesktopPalette::parentResized()
-{
+void DesktopPalette::parentResized() {
     QPoint p = pos();
-    if (minimizedLocation() == eMinimizedLocation_Right)
-    {
-        p.setX(parentWidget()->width() - getParentRightOffset() -width());
+    if (minimizedLocation() == eMinimizedLocation_Right) {
+        p.setX(parentWidget()->width() - getParentRightOffset() - width());
     }
 
     moveInsideParent(p);

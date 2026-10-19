@@ -10,13 +10,13 @@
  * @param parent as the parent widget
  * @param name as the object name
  */
-PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name):DockPaletteWidget(parent)
-  , mNavigator(NULL)
-  , mLayout(NULL)
-  , mHLayout(NULL)
-  , mPageNbr(NULL)
-  , mClock(NULL)
-{
+PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
+    : DockPaletteWidget(parent),
+      mNavigator(NULL),
+      mLayout(NULL),
+      mHLayout(NULL),
+      mPageNbr(NULL),
+      mClock(NULL) {
     setObjectName(name);
     setName("PageNavigator");
     setVisibleState(true);
@@ -42,12 +42,14 @@ PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name):Do
     mHLayout->addWidget(mClock);
 
     // Configure the page number indicator
-    mPageNbr->setStyleSheet(QString("QLabel { color: #1296DB; background-color: transparent; border: none; font-family: Arial; font-weight: bold; font-size: 20px }"));
+    mPageNbr->setStyleSheet(QString("QLabel { color: #1296DB; background-color: transparent; border: none; "
+                                    "font-family: Arial; font-weight: bold; font-size: 20px }"));
     setPageNumber(0, 0);
     mPageNbr->setAlignment(Qt::AlignHCenter);
 
     // Configure the clock
-    mClock->setStyleSheet(QString("QLabel {color: #1296DB; background-color: transparent; text-align: center; font-family: Arial; font-weight: bold; font-size: 20px}"));
+    mClock->setStyleSheet(QString("QLabel {color: #1296DB; background-color: transparent; text-align: "
+                                  "center; font-family: Arial; font-weight: bold; font-size: 20px}"));
     mTimeFormat = QLocale::system().timeFormat(QLocale::ShortFormat);
     mClock->setAlignment(Qt::AlignHCenter);
 
@@ -55,38 +57,31 @@ PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name):Do
     mTimeFormat = mTimeFormat.remove(":ss");
     mTimeFormat = mTimeFormat.remove(":s");
     mTimerID = startTimer(1000);
-
 }
 
 /**
  * \brief Destructor
  */
-PageNavigationWidget::~PageNavigationWidget()
-{
+PageNavigationWidget::~PageNavigationWidget() {
     killTimer(mTimerID);
 
-    if(NULL != mClock)
-    {
+    if (NULL != mClock) {
         delete mClock;
         mClock = NULL;
     }
-    if(NULL != mPageNbr)
-    {
+    if (NULL != mPageNbr) {
         delete mPageNbr;
         mPageNbr = NULL;
     }
-    if(NULL != mHLayout)
-    {
+    if (NULL != mHLayout) {
         delete mHLayout;
         mHLayout = NULL;
     }
-    if(NULL != mLayout)
-    {
+    if (NULL != mLayout) {
         delete mLayout;
         mLayout = NULL;
     }
-    if(NULL != mNavigator)
-    {
+    if (NULL != mNavigator) {
         delete mNavigator;
         mNavigator = NULL;
     }
@@ -96,8 +91,7 @@ PageNavigationWidget::~PageNavigationWidget()
  * \brief Notify a timer event
  * @param event as the timer event
  */
-void PageNavigationWidget::timerEvent(QTimerEvent *event)
-{
+void PageNavigationWidget::timerEvent(QTimerEvent *event) {
     Q_UNUSED(event);
     updateTime();
 }
@@ -105,10 +99,9 @@ void PageNavigationWidget::timerEvent(QTimerEvent *event)
 /**
  * \brief Update the current time
  */
-void PageNavigationWidget::updateTime()
-{
+void PageNavigationWidget::updateTime() {
     if (mClock)
-        mClock->setText(QLocale::system().toString (QTime::currentTime(), mTimeFormat));
+        mClock->setText(QLocale::system().toString(QTime::currentTime(), mTimeFormat));
 }
 
 /**
@@ -116,8 +109,7 @@ void PageNavigationWidget::updateTime()
  * @param current as the current page
  * @param total as the total number of pages
  */
-void PageNavigationWidget::setPageNumber(int current, int total)
-{
+void PageNavigationWidget::setPageNumber(int current, int total) {
     mPageNbr->setText(QString("%1 / %2").arg(current).arg(total));
 }
 
@@ -125,8 +117,7 @@ void PageNavigationWidget::setPageNumber(int current, int total)
  * \brief Get the custom margin value
  * @return the custom margin value
  */
-int PageNavigationWidget::customMargin()
-{
+int PageNavigationWidget::customMargin() {
     return 5;
 }
 
@@ -134,8 +125,6 @@ int PageNavigationWidget::customMargin()
  * \brief Get the border value
  * @return the border value
  */
-int PageNavigationWidget::border()
-{
+int PageNavigationWidget::border() {
     return 5;
 }
-

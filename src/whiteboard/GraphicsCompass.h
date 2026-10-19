@@ -8,8 +8,7 @@
 
 class GraphicsScene;
 
-class GraphicsCompass: public QObject, public QGraphicsRectItem, public Item
-{
+class GraphicsCompass : public QObject, public QGraphicsRectItem, public Item {
     Q_OBJECT
 
 public:
@@ -18,12 +17,9 @@ public:
 
     enum { Type = GraphicsItemType::CompassItemType };
 
-    virtual int type() const
-    {
-        return Type;
-    }
+    virtual int type() const { return Type; }
 
-    virtual Item* deepCopy() const;
+    virtual Item *deepCopy() const;
 
     virtual void copyItemParameters(Item *copy) const;
 
@@ -70,7 +66,7 @@ private:
     QPainterPath hingeShape() const;
     QPainterPath pencilBaseShape() const;
     QPainterPath pencilArmShape() const;
-    GraphicsScene* scene() const;
+    GraphicsScene *scene() const;
     QColor drawColor() const;
     QColor middleFillColor() const;
     QColor edgeFillColor() const;
@@ -88,8 +84,8 @@ private:
     qreal mSpanAngleInDegrees;
     QPointF mSceneArcStartPoint;
     bool mDrewCircle;
-    QGraphicsSvgItem* mCloseSvgItem;
-    QGraphicsSvgItem* mResizeSvgItem;
+    QGraphicsSvgItem *mCloseSvgItem;
+    QGraphicsSvgItem *mResizeSvgItem;
     qreal mAntiScaleRatio;
     bool mDrewCenterCross;
 
@@ -128,4 +124,3 @@ private:
     static const int sDisplayRadiusOnPencilArmMinLength = 300;
     static const int sDisplayRadiusUnitMinLength = 250;
 };
-

@@ -15,11 +15,10 @@
     Searches are turned into urls that use Google to perform search
  */
 ToolbarSearch::ToolbarSearch(QWidget *parent)
-    : SearchLineEdit(parent)
-    , mAutosaver(new AutoSaver(this))
-    , mMaxSavedSearches(10)
-    , mStringListModel(new QStringListModel(this))
-{
+    : SearchLineEdit(parent),
+      mAutosaver(new AutoSaver(this)),
+      mMaxSavedSearches(10),
+      mStringListModel(new QStringListModel(this)) {
     QMenu *m = menu();
     connect(m, &QMenu::aboutToShow, this, &ToolbarSearch::aboutToShowMenu);
     connect(m, &QMenu::triggered, this, &ToolbarSearch::triggeredMenuAction);
@@ -33,13 +32,11 @@ ToolbarSearch::ToolbarSearch(QWidget *parent)
     load();
 }
 
-ToolbarSearch::~ToolbarSearch()
-{
+ToolbarSearch::~ToolbarSearch() {
     mAutosaver->saveIfNeccessary();
 }
 
-void ToolbarSearch::save()
-{
+void ToolbarSearch::save() {
     QSettings settings;
     settings.beginGroup(QLatin1String("toolbarsearch"));
     settings.setValue(QLatin1String("recentSearches"), mStringListModel->stringList());
@@ -47,8 +44,7 @@ void ToolbarSearch::save()
     settings.endGroup();
 }
 
-void ToolbarSearch::load()
-{
+void ToolbarSearch::load() {
     QSettings settings;
     settings.beginGroup(QLatin1String("toolbarsearch"));
     QStringList list = settings.value(QLatin1String("recentSearches")).toStringList();
@@ -57,8 +53,7 @@ void ToolbarSearch::load()
     settings.endGroup();
 }
 
-void ToolbarSearch::searchNow()
-{
+void ToolbarSearch::searchNow() {
     QString searchText = lineEdit()->text();
     QStringList newList = mStringListModel->stringList();
 
@@ -70,7 +65,7 @@ void ToolbarSearch::searchNow()
         newList.removeLast();
 
     QWebEngineSettings *globalSettings = QWebEngineProfile::defaultProfile()->settings();
-    if (!globalSettings->testAttribute(QWebEngineSettings::JavascriptEnabled))//PrivateBrowsingEnabled
+    if (!globalSettings->testAttribute(QWebEngineSettings::JavascriptEnabled)) //PrivateBrowsingEnabled
     {
         mStringListModel->setStringList(newList);
         mAutosaver->changeOccurred();
@@ -86,22 +81,19 @@ void ToolbarSearch::searchNow()
     emit search(url);
 }
 
-void ToolbarSearch::aboutToShowMenu()
-{
+void ToolbarSearch::aboutToShowMenu() {
     lineEdit()->selectAll();
     QMenu *m = menu();
     m->clear();
     QStringList list = mStringListModel->stringList();
-    if (list.isEmpty())
-    {
+    if (list.isEmpty()) {
         m->addAction(tr("No Recent Searches"));
         return;
     }
 
     QAction *recent = m->addAction(tr("Recent Searches"));
     recent->setEnabled(false);
-    for (int i = 0; i < list.count(); ++i)
-    {
+    for (int i = 0; i < list.count(); ++i) {
         QString text = list.at(i);
         m->addAction(text)->setData(text);
     }
@@ -109,20 +101,17 @@ void ToolbarSearch::aboutToShowMenu()
     m->addAction(tr("Clear Recent Searches"), this, &ToolbarSearch::clear);
 }
 
-void ToolbarSearch::triggeredMenuAction(QAction *action)
-{
+void ToolbarSearch::triggeredMenuAction(QAction *action) {
     QVariant v = action->data();
-    if (v.canConvert<QString>())
-    {
+    if (v.canConvert<QString>()) {
         QString text = v.toString();
         lineEdit()->setText(text);
         searchNow();
     }
 }
 
-void ToolbarSearch::clear()
-{
+void ToolbarSearch::clear() {
     mStringListModel->setStringList(QStringList());
-    mAutosaver->changeOccurred();;
+    mAutosaver->changeOccurred();
+    ;
 }
-

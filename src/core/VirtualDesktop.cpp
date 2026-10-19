@@ -4,14 +4,12 @@
 #include <QScreen>
 #include <qt_windows.h>
 
-struct VirtualDesktop::Private
-{
+struct VirtualDesktop::Private {
     int mLastScreenCount{-1};
 };
 
-VirtualDesktop* VirtualDesktop::instance()
-{
-    static VirtualDesktop* sInstance(0);
+VirtualDesktop *VirtualDesktop::instance() {
+    static VirtualDesktop *sInstance(0);
 
     if (!sInstance)
         sInstance = new VirtualDesktop;
@@ -19,10 +17,7 @@ VirtualDesktop* VirtualDesktop::instance()
     return sInstance;
 }
 
-VirtualDesktop::VirtualDesktop()
-    : QWidget()
-    , d(new Private)
-{
+VirtualDesktop::VirtualDesktop() : QWidget(), d(new Private) {
     // Qt6 没有 QGuiApplication::screensChanged，屏幕插拔只能靠原生 WM_DISPLAYCHANGE。
     qApp->installNativeEventFilter(this);
 
@@ -33,30 +28,26 @@ VirtualDesktop::VirtualDesktop()
 
 VirtualDesktop::~VirtualDesktop() = default;
 
-bool VirtualDesktop::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
-{
+bool VirtualDesktop::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) {
     Q_UNUSED(eventType);
     Q_UNUSED(result);
 
-    MSG *msg = static_cast<MSG*>(message);
+    MSG *msg = static_cast<MSG *>(message);
     if (msg && msg->message == WM_DISPLAYCHANGE)
         syncScreens();
 
     return false;
 }
 
-void VirtualDesktop::onPrimaryScreenChanged(QScreen *screen)
-{
+void VirtualDesktop::onPrimaryScreenChanged(QScreen *screen) {
     Q_UNUSED(screen);
     syncScreens();
 }
 
-void VirtualDesktop::syncScreens()
-{
-    const QList<QScreen*> screens = QGuiApplication::screens();
+void VirtualDesktop::syncScreens() {
+    const QList<QScreen *> screens = QGuiApplication::screens();
 
-    foreach(QScreen *scr, screens)
-    {
+    foreach (QScreen *scr, screens) {
         disconnect(scr, 0, this, 0);
         connect(scr, &QScreen::geometryChanged, this, &VirtualDesktop::onScreenGeometryChanged);
         connect(scr, &QScreen::availableGeometryChanged, this, &VirtualDesktop::onAvailableGeometryChanged);
@@ -73,35 +64,29 @@ void VirtualDesktop::syncScreens()
     d->mLastScreenCount = count;
 }
 
-void VirtualDesktop::onScreenGeometryChanged()
-{
+void VirtualDesktop::onScreenGeometryChanged() {
     setGeometry(virtualGeometry());
-    emit resized(indexOf(qobject_cast<QScreen*>(sender())));
+    emit resized(indexOf(qobject_cast<QScreen *>(sender())));
 }
 
-void VirtualDesktop::onAvailableGeometryChanged()
-{
-    emit workAreaResized(indexOf(qobject_cast<QScreen*>(sender())));
+void VirtualDesktop::onAvailableGeometryChanged() {
+    emit workAreaResized(indexOf(qobject_cast<QScreen *>(sender())));
 }
 
-int VirtualDesktop::indexOf(const QScreen *scr) const
-{
-    return QGuiApplication::screens().indexOf(const_cast<QScreen*>(scr));
+int VirtualDesktop::indexOf(const QScreen *scr) const {
+    return QGuiApplication::screens().indexOf(const_cast<QScreen *>(scr));
 }
 
-int VirtualDesktop::numScreens() const
-{
+int VirtualDesktop::numScreens() const {
     return QGuiApplication::screens().size();
 }
 
-int VirtualDesktop::primaryScreen() const
-{
+int VirtualDesktop::primaryScreen() const {
     const int index = indexOf(QGuiApplication::primaryScreen());
     return index == -1 ? 0 : index;
 }
 
-int VirtualDesktop::normalizeScreen(int screen) const
-{
+int VirtualDesktop::normalizeScreen(int screen) const {
     if (screen == -1)
         return -1;
 
@@ -113,58 +98,50 @@ int VirtualDesktop::normalizeScreen(int screen) const
     return screen;
 }
 
-QScreen* VirtualDesktop::screen(int screen) const
-{
-    const QList<QScreen*> screens = QGuiApplication::screens();
+QScreen *VirtualDesktop::screen(int screen) const {
+    const QList<QScreen *> screens = QGuiApplication::screens();
     const int index = normalizeScreen(screen);
 
     return (index >= 0 && index < screens.size()) ? screens.at(index) : QGuiApplication::primaryScreen();
 }
 
-QRect VirtualDesktop::screenGeometry(int screen) const
-{
+QRect VirtualDesktop::screenGeometry(int screen) const {
     const int index = normalizeScreen(screen);
 
     if (index == -1)
         return virtualGeometry();
 
-    const QList<QScreen*> screens = QGuiApplication::screens();
+    const QList<QScreen *> screens = QGuiApplication::screens();
     return (index < screens.size()) ? screens.at(index)->geometry() : QRect();
 }
 
-QRect VirtualDesktop::screenGeometry(const QPoint &point) const
-{
+QRect VirtualDesktop::screenGeometry(const QPoint &point) const {
     return screenGeometry(screenNumber(point));
 }
 
-QRect VirtualDesktop::screenGeometry(const QWidget *widget) const
-{
+QRect VirtualDesktop::screenGeometry(const QWidget *widget) const {
     return screenGeometry(screenNumber(widget));
 }
 
-QRect VirtualDesktop::availableGeometry(int screen) const
-{
+QRect VirtualDesktop::availableGeometry(int screen) const {
     const int index = normalizeScreen(screen);
 
     if (index == -1)
         return virtualGeometry();
 
-    const QList<QScreen*> screens = QGuiApplication::screens();
+    const QList<QScreen *> screens = QGuiApplication::screens();
     return (index < screens.size()) ? screens.at(index)->availableGeometry() : QRect();
 }
 
-QRect VirtualDesktop::availableGeometry(const QPoint &point) const
-{
+QRect VirtualDesktop::availableGeometry(const QPoint &point) const {
     return availableGeometry(screenNumber(point));
 }
 
-QRect VirtualDesktop::availableGeometry(const QWidget *widget) const
-{
+QRect VirtualDesktop::availableGeometry(const QWidget *widget) const {
     return availableGeometry(screenNumber(widget));
 }
 
-int VirtualDesktop::screenNumber(const QWidget *widget) const
-{
+int VirtualDesktop::screenNumber(const QWidget *widget) const {
     if (!widget)
         return -1;
 
@@ -172,12 +149,10 @@ int VirtualDesktop::screenNumber(const QWidget *widget) const
     return index == -1 ? primaryScreen() : index;
 }
 
-int VirtualDesktop::screenNumber(const QPoint &point) const
-{
-    const QList<QScreen*> screens = QGuiApplication::screens();
+int VirtualDesktop::screenNumber(const QPoint &point) const {
+    const QList<QScreen *> screens = QGuiApplication::screens();
 
-    for (int i = 0; i < screens.size(); i++)
-    {
+    for (int i = 0; i < screens.size(); i++) {
         if (screens.at(i)->geometry().contains(point))
             return i;
     }
@@ -185,27 +160,24 @@ int VirtualDesktop::screenNumber(const QPoint &point) const
     return primaryScreen();
 }
 
-QRect VirtualDesktop::virtualGeometry() const
-{
+QRect VirtualDesktop::virtualGeometry() const {
     const QScreen *primary = QGuiApplication::primaryScreen();
     if (primary)
         return primary->virtualGeometry();
 
     QRect unionRect;
-    foreach(QScreen *scr, QGuiApplication::screens())
+    foreach (QScreen *scr, QGuiApplication::screens())
         unionRect = unionRect.united(scr->geometry());
 
     return unionRect;
 }
 
-int VirtualDesktop::physicalDpi() const
-{
+int VirtualDesktop::physicalDpi() const {
     const QScreen *primary = QGuiApplication::primaryScreen();
     return primary ? qRound((primary->physicalDotsPerInchX() + primary->physicalDotsPerInchY()) / 2.0) : 96;
 }
 
-QPixmap VirtualDesktop::grabScreen(QScreen *screen, const QRect &globalRect)
-{
+QPixmap VirtualDesktop::grabScreen(QScreen *screen, const QRect &globalRect) {
     if (!screen)
         screen = QGuiApplication::primaryScreen();
 
@@ -216,9 +188,6 @@ QPixmap VirtualDesktop::grabScreen(QScreen *screen, const QRect &globalRect)
     // 全局坐标折算成屏内坐标。
     const QPoint origin = screen->geometry().topLeft();
 
-    return screen->grabWindow(0,
-                               globalRect.x() - origin.x(),
-                               globalRect.y() - origin.y(),
-                               globalRect.width(),
-                               globalRect.height());
+    return screen->grabWindow(0, globalRect.x() - origin.x(), globalRect.y() - origin.y(), globalRect.width(),
+                              globalRect.height());
 }

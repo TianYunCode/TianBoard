@@ -12,8 +12,7 @@
 #include <QFileInfo>
 #include <QProcess>
 
-class TestSmoke : public QObject
-{
+class TestSmoke : public QObject {
     Q_OBJECT
 
 private slots:
@@ -22,9 +21,9 @@ private slots:
 
 private:
     enum Outcome {
-        Completed = 0,    // 活过启动链、干净退出
-        BusyHandoff,      // 秒退且退出码 0：像是把请求转给了已存在的实例
-        Broken            // 真失败，原因在 reason 里
+        Completed = 0, // 活过启动链、干净退出
+        BusyHandoff,   // 秒退且退出码 0：像是把请求转给了已存在的实例
+        Broken         // 真失败，原因在 reason 里
     };
 
     Outcome runOnce(const QString &exe, QByteArray *log, QString *reason);
@@ -36,11 +35,10 @@ static const char *kBrokenConnectMarkers[] = {
     "QObject::connect",
 };
 
-void TestSmoke::applicationStartsAndStaysAlive()
-{
+void TestSmoke::applicationStartsAndStaysAlive() {
     const QString exe = qEnvironmentVariable("TIANBOARD_EXE");
-    QVERIFY2(!exe.isEmpty(),
-             "set TIANBOARD_EXE to the built TianBoard.exe (ctest does it through the test's ENVIRONMENT property)");
+    QVERIFY2(!exe.isEmpty(), "set TIANBOARD_EXE to the built TianBoard.exe (ctest does it through the test's "
+                             "ENVIRONMENT property)");
     QVERIFY2(QFileInfo::exists(exe), qPrintable(QStringLiteral("missing executable: %1").arg(exe)));
 
     QByteArray log;
@@ -65,8 +63,7 @@ void TestSmoke::applicationStartsAndStaysAlive()
     QSKIP("没能独占一次干净的启动：TianBoard 每次都立即把请求转给已存在的实例");
 }
 
-TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QString *reason)
-{
+TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QString *reason) {
     QProcess app;
     app.setProgram(exe);
     app.setWorkingDirectory(QFileInfo(exe).absolutePath());
@@ -84,7 +81,8 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
 
     if (app.state() != QProcess::Running) {
         *reason = QStringLiteral("TianBoard exited by itself with code %1 (exit status %2)")
-                      .arg(app.exitCode()).arg(app.exitStatus());
+                      .arg(app.exitCode())
+                      .arg(app.exitStatus());
         return (app.exitCode() == 0 && app.exitStatus() == QProcess::NormalExit) ? BusyHandoff : Broken;
     }
 
@@ -105,13 +103,14 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
     *log += app.readAll();
 
     if (app.exitStatus() == QProcess::CrashExit) {
-        *reason = QStringLiteral("TianBoard crashed while shutting down\n%1")
-                      .arg(QString::fromLocal8Bit(*log));
+        *reason =
+            QStringLiteral("TianBoard crashed while shutting down\n%1").arg(QString::fromLocal8Bit(*log));
         return Broken;
     }
     if (app.exitCode() != 0) {
         *reason = QStringLiteral("TianBoard exited with code %1 while shutting down\n%2")
-                      .arg(app.exitCode()).arg(QString::fromLocal8Bit(*log));
+                      .arg(app.exitCode())
+                      .arg(QString::fromLocal8Bit(*log));
         return Broken;
     }
 
@@ -130,8 +129,7 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
     return Completed;
 }
 
-void TestSmoke::runtimeDataIsDeployedNextToTheExecutable()
-{
+void TestSmoke::runtimeDataIsDeployedNextToTheExecutable() {
     const QDir appDir = QFileInfo(qEnvironmentVariable("TIANBOARD_EXE")).absoluteDir();
 
     // FileSystemUtils::applicationResourcesDirectory() == applicationDirPath(), so

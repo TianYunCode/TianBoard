@@ -6,8 +6,7 @@
 
 class ForeighnObjectsHandlerPrivate;
 
-class ForeighnObjectsHandler
-{
+class ForeighnObjectsHandler {
 public:
     ForeighnObjectsHandler();
     ~ForeighnObjectsHandler();
@@ -15,12 +14,10 @@ public:
     void cure(const QList<QUrl> &dirs);
     void cure(const QUrl &dir);
 
-    void copyPage(const QUrl &fromDir, int fromIndex,
-                  const QUrl &toDir, int toIndex);
+    void copyPage(const QUrl &fromDir, int fromIndex, const QUrl &toDir, int toIndex);
 
 private:
     ForeighnObjectsHandlerPrivate *d;
 
     friend class ForeighnObjectsHandlerPrivate;
 };
-
