@@ -38,41 +38,35 @@
   拆依赖环时抽出来的接口一律走这个命名，一眼能看出它是“只有契约”的头。
   目前全仓还没有这个形式的文件（最接近的是 `platform/WindowCapture.h`），
   后续拆环时按这个名字补。
-* **不带 `WB`/`UB` 前缀，也不带尾部下划线**。历史遗留的名字已经清掉一轮
-  （`DownloadManager_` → `WebDownloadManager`，`ub_message_output` → `messageOutputHandler`）。
-  新代码不要再起 `WBFoo`/`UBFoo`/`Foo_` 这种名字。仍然存在的宏与前缀是例外，属于下一阶段
-  改名范围：`WB_FREE_CONTROL`、`DemoLibrary`（`WB_MAX_ZOOM` 已成 `MAX_ZOOM_LEVEL`，
-  `CFF*` 一族已成 `Iwb*`）。
-* **格式与表名的短大写标识符不算品牌前缀，禁止顺手改名**。`content/IwbConstants.h` 里的
-  `tWBZ*`/`aWBZ*`/`avWBZ*`/`tUBZG`/`pageFileExtentionUBZ` 这类常量是 IWB/Sankoré 文档沿用下来的
-  **XML 标签名与属性名**（值分别是 `"size"`、`"viewBox"`、`"g"`、`"svg"` 等），
-  `svgWBZNS` 更是 IMS Global 的 `iwb_v1p0` 命名空间；`IwbDocumentAdaptor`/`IwbSubsetAdaptor`
-  里成片的 `parseWBZ*`/`*FromUBZ` 是读写这些标签的函数名。它们和文档内容逐字节对应，改了
-  就是改协议。改名只改包裹它们的类与文件（`CFFAdaptor` → `IwbDocumentAdaptor` 这一轮，
-  这些 token 一字未动：每个文件行数与 `WBZ/UBZ/UBX` 出现次数 21/83/2 都保持原样）。
+* **不带 `WB`/`UB` 前缀，也不带尾部下划线**。历史名字已清空：`DownloadManager_` →
+  `WebDownloadManager`、`ub_message_output` → `messageOutputHandler`、`WB_MAX_ZOOM` →
+  `MAX_ZOOM_LEVEL`、`WB_FREE_CONTROL` 宏就地展开后删除、`CFF*` 一族 → `Iwb*`、
+  `DemoLibrary` 已不存在、`eWBDock*` 四组枚举改成 `enum class`、`ub*`/`WBZ`/`UBZ` 标识符
+  全部按语义改名。新代码不要再起 `WBFoo`/`UBFoo`/`Foo_` 这种名字。
+* **文档协议的“值”冻结，只有标识符可以改**。`content/IwbConstants.h` 里
+  `tPage*`/`aPage*`/`avPageText`/`svgPageNS` 这些常量的**右值**是写进 `.tbz` 的标签名、
+  属性名与命名空间 URI（`"size"`、`"viewBox"`、`"g"`、`IMS 的 iwb_v1p0`……），
+  改一个字符就是改格式；`IwbDocumentAdaptor`/`IwbSubsetAdaptor` 里
+  `parsePage*`/`*FromPageElement` 是读写这些标签的函数名，同理只能改名字不能改语义。
+  本轮的改名严格守住这条线：只动标识符，每个常量的右值一字未改（可用
+  `git show` 对照 `IwbConstants.h` 的 diff 验证）。
 * 命名空间：**全局类型不加项目前缀命名空间**。改造时把 `WB`/`UB` 前缀去掉后**没有换新的**，
   新标识符同样不加 `WB`/`UB`/`TianBoard` 前缀；确实需要分组时用一个作用域明确的小命名空间
   （已有的例子是 `ThumbnailUI`、`Ui`），不要为“看起来现代”而全仓套一层 `tianboard::`。
 
-## 三、include guard
+## 三、防重复包含
 
-形如 `TIANBOARD_<PATH>_<FILE>_H`，其中 `<FILE>` 是文件名大写在最外层，`<PATH>` 为
-可选的模块段。现存 173 个头的实际形态是 `TIANBOARD_<FILE>_H`（例：
-`TIANBOARD_BLACKOUTWIDGET_H`），因为全仓头文件名唯一，不带模块段也不歧义。
+`src/` 下 172 个头文件里 171 个用 `#pragma once`，新增头文件也一律用它，不要再写
+`#ifndef` 守卫。
 
-```cpp
-#ifndef TIANBOARD_BOARDCONTROLLER_H
-#define TIANBOARD_BOARDCONTROLLER_H
-...
-#endif // TIANBOARD_BOARDCONTROLLER_H
-```
+**唯一例外是 `src/app/resource.h`**：它只被 `TianBoard.rc` include，而 `rc.exe` 的
+预处理器不认 `#pragma once`。实测把它改成 pragma 之后 `rc.exe` 照样返回 0，但产出的
+`.res` 只剩 32 字节，图标与版本信息静默消失——所以它保留 IDE 生成的
+`#ifndef APSTUDIO_READONLY_SYMBOLS` 那套守卫，别“顺手统一”。
 
-* `#endif` 后面带 guard 名注释；
-* guard 以下划线结尾的旧写法已全部清掉，新文件不要再产生；
-* 两个例外要知道：`app/resource.h`（IDE 生成的 `APSTUDIO` guard，别动）与
-  `recording/WindowsMediaFile.h`（`#ifndef inteface`，见疑点台账）；
-* 新头文件如果与 `third/` 里的头同名（`ioapi.h`、`unzip.h`、`zip.h`、`zconf.h`……），
-  必须加上模块段：`TIANBOARD_CONTENT_ZIP_H`。
+另外 `src/recording/WindowsMediaFile.h:5` 的 `#ifndef inteface` 不是 include guard
+（守卫已经是 `#pragma once`），它包住的是 `#define interface struct` 这个 Windows SDK
+老写法，别当残留删掉。
 
 ## 四、Pimpl
 

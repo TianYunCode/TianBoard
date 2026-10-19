@@ -27,7 +27,7 @@ cmake --build build --config Debug --target tst_stringutils tst_geometryutils ts
 cd build && ctest -C Debug
 ```
 
-`tests/` 下是 Qt Test 用例，一共 7 个，`ctest -C Debug` 全部通过。`tst_stringutils`、`tst_geometryutils`、`tst_version` 只链接被测的那几个 `utils/*.cpp`，可以脱离整个应用栈单独构建、单独运行。`tst_pdfrenderer` 用 QPdfWriter 现场生成一份两页 PDF，验证 `content/QPdfRenderer` 的契约：页码从 1 起、`pageSizeF` 按 DPI 把点换算成像素、`render` 真的把页面画出来、只画 `exposedRect` 指定的局部、坏文件被判为无效而不是崩溃。`tst_assets` 检查 `res/TianBoard.qrc` 登记的每个文件确实存在、`res/images` 下每个文件都能解码、品牌图形按设计渲染（瓦片外透明、瓦片内是蓝色渐变、T 形笔画是白的）。`tst_smoke` 读取 `TIANBOARD_EXE`（由 ctest 的 ENVIRONMENT 属性注入）真正拉起 TianBoard.exe，确认它跑完启动链并活过 6 秒、退出时不是崩溃、且启动日志里没有失效的 SIGNAL/SLOT 连接；它同时校验 `etc/`、`library/`、`customizations/` 与 `etc/TianBoard.config` 确实和可执行文件同级。`tst_language` 加载 `Language/TianBoard_zh_CN.qm`，断言 `MainWindow` 的 “Preferences / Documents / Undo” 确实取到“设置 / 文档 / 撤销”，再断言摘掉翻译器后回落到源文本。
+`tests/` 下是 Qt Test 用例，一共 7 个，`ctest -C Debug` 全部通过。`tst_stringutils`、`tst_geometryutils`、`tst_version` 只链接被测的那几个 `utils/*.cpp`，可以脱离整个应用栈单独构建、单独运行。`tst_pdfrenderer` 用 QPdfWriter 现场生成一份两页 PDF，验证 `content/QPdfRenderer` 的契约：页码从 1 起、`pageSizeF` 按 DPI 把点换算成像素、`render` 真的把页面画出来、只画 `exposedRect` 指定的局部、坏文件被判为无效而不是崩溃。`tst_assets` 检查 `res/TianBoard.qrc` 登记的每个文件确实存在、`res/images` 下每个文件都能解码、品牌图形按设计渲染（瓦片外透明、瓦片内是蓝色渐变、T 形笔画是白的），并把 `library/` 与 `images/` 下每个 SVG 真渲染一遍：接管消息处理器捕获 QtSvg 的解析告警（超限的 path 只会打印一句 `Invalid path data; path truncated.` 然后画出半个图形），同时要求画布上确实有像素。`tst_smoke` 读取 `TIANBOARD_EXE`（由 ctest 的 ENVIRONMENT 属性注入）真正拉起 TianBoard.exe，确认它跑完启动链并活过 6 秒、退出时不是崩溃、且启动日志里没有失效的 SIGNAL/SLOT 连接；它同时校验 `etc/`、`library/`、`customizations/` 与 `etc/TianBoard.config` 确实和可执行文件同级。`tst_language` 加载 `Language/TianBoard_zh_CN.qm`，断言 `MainWindow` 的 “Preferences / Documents / Undo” 确实取到“设置 / 文档 / 撤销”，再断言摘掉翻译器后回落到源文本。
 
 ## 语言切换
 
@@ -53,8 +53,8 @@ D:/Qt/6.9.3/msvc2022_64/bin/lupdate.exe -no-obsolete \
 `lconvert.exe <新.ts> <旧.ts> -o <合并.ts>`（后一个输入的译文优先）合回去，再逐条补齐
 用户看得见的部分。
 
-当前抽取到 498 条源文本，`zh_CN` 已译完 260 条（覆盖主窗口工具栏/菜单动作与提示、设置对话框
-各标签页、录屏控制器与调色板、IWB 导入导出、下载管理与桌面调色板），其余 238 条自动回落到英文。
+当前抽取到 485 条源文本，`zh_CN` 已译完 251 条（覆盖主窗口工具栏/菜单动作与提示、设置对话框
+各标签页、录屏控制器与调色板、IWB 导入导出、下载管理与桌面调色板），其余 234 条自动回落到英文。
 `Ctrl+T`、`PgUp` 这类快捷键串是按键名本身，不译。
 
 ## 目录结构

@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="419"/>
+        <location filename="../../src/core/Application.cpp" line="420"/>
         <source>Page Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="435"/>
+        <location filename="../../src/core/Application.cpp" line="436"/>
         <source>Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
@@ -51,60 +51,60 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="393"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="392"/>
         <source>Saving document...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="399"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="398"/>
         <source>Document has just been saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="734"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="733"/>
         <source>Deleting page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="744"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="743"/>
         <source>Page %1 deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1098"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1095"/>
         <source>Downloading content %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1106"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1103"/>
         <source>Download finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1224"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1269"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2105"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2140"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1221"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1266"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2100"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2135"/>
         <source>Add file operation failed: file copying error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1368"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1365"/>
         <source>Unknown tool type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1423"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1420"/>
         <source>Unknown content type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2482"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2477"/>
         <source>Add Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2484"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2479"/>
         <source>All Supported (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -202,38 +202,38 @@
 <context>
     <name>DocumentController</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1649"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3300"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1641"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3280"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1650"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1642"/>
         <source>Untitled Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1722"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1714"/>
         <source>New Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1893"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1885"/>
         <source>Add Folder of Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1894"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1886"/>
         <source>Add Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1895"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1887"/>
         <source>Add Pages from File</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="2224"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2216"/>
         <source>duplicated %1 page</source>
         <comment>duplicated %1 pages</comment>
         <translation type="unfinished">
@@ -242,96 +242,96 @@
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2237"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2229"/>
         <source>Duplicating Document %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2241"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2233"/>
         <source>Document %1 copied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2251"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2243"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2251"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2243"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2734"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2839"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2714"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2819"/>
         <source>Open Supported File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2764"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2854"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2744"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2834"/>
         <source>Importing file %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2772"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2867"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2752"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2847"/>
         <source>Failed to import file ... </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2789"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2769"/>
         <source>Import all Images from Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2804"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2784"/>
         <source>Folder does not contain any image files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3039"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3019"/>
         <source>Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3040"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3020"/>
         <source>The document &apos;%1&apos; has been generated with a newer version of TianBoard (%2). By opening it, you may lose some information. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3097"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3077"/>
         <source>Add all Images to Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3098"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3078"/>
         <source>All Images (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3111"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3091"/>
         <source>Selection does not contain any image files!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3304"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3284"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3308"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3312"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3288"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3292"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3541"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3521"/>
         <source>Page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3543"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3523"/>
         <source>Title page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -436,7 +436,7 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="661"/>
+        <location filename="../../src/model/DocumentController.cpp" line="658"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -447,12 +447,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeView</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1426"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1418"/>
         <source>Copying page %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="1470"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1462"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -460,12 +460,12 @@ Providing a new name will create a new document.</source>
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1480"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1472"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1480"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1472"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -672,16 +672,16 @@ Providing a new name will create a new document.</source>
     </message>
     <message>
         <location filename="../../src/content/ExportDocument.cpp" line="32"/>
-        <source>Export as UBZ File</source>
+        <source>Export as TianBoard Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="71"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="70"/>
         <source>Exporting %1 %2 of %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="83"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="82"/>
         <source>Export to TianBoard Format</source>
         <translation type="unfinished"></translation>
     </message>
@@ -697,7 +697,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="47"/>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="60"/>
-        <source>Export as UBX File</source>
+        <source>Export as TianBoard Document Set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -716,8 +716,8 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="122"/>
-        <source>Export to TianBoard UBX Format</source>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="121"/>
+        <source>Export to TianBoard Document Set Format</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -816,17 +816,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeatureProperties</name>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="1020"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="1015"/>
         <source>Add to page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="1024"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="1019"/>
         <source>Add to library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="1029"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="1024"/>
         <source>Object informations</source>
         <translation type="unfinished"></translation>
     </message>
@@ -877,43 +877,43 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeaturesController</name>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="305"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="303"/>
         <source>Audios</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="306"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="304"/>
         <source>Movies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="307"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="305"/>
         <source>Pictures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="309"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="307"/>
         <source>Applications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="310"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="308"/>
         <source>Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="311"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="309"/>
         <source>Favorites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="313"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="311"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="717"/>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="833"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="714"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="830"/>
         <source>ImportedImage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -921,17 +921,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeaturesNewFolderDialog</name>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="747"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="745"/>
         <source>Accept</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="748"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="746"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="749"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="747"/>
         <source>Enter a new folder name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -939,7 +939,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeaturesProgressInfo</name>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="854"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="852"/>
         <source>Loading </source>
         <translation type="unfinished"></translation>
     </message>
@@ -960,22 +960,22 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsItemDelegate</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="674"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="680"/>
         <source>Locked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="681"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="687"/>
         <source>Visible on Extended Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="690"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="696"/>
         <source>Set as background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="700"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="706"/>
         <source>Go to Content Source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1009,12 +1009,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsTextItemDelegate</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="341"/>
+        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="340"/>
         <source>Text Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="474"/>
+        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="473"/>
         <source>Editable</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1152,964 +1152,899 @@ Providing a new name will create a new document.</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="666"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="800"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="802"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="634"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="753"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="755"/>
         <source>TianBoard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="667"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="668"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="635"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="636"/>
         <source>Stylus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="670"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="638"/>
         <source>Ctrl+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="672"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="640"/>
         <source>Backgrounds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="674"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="642"/>
         <source>Change Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="676"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="644"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="678"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="646"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="680"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="648"/>
         <source>Redo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="682"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="650"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="684"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="652"/>
         <source>Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="686"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="750"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="654"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="718"/>
         <source>Previous Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="689"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="657"/>
         <source>PgUp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="691"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="659"/>
         <source>Next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="693"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="757"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="661"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="725"/>
         <source>Next Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="696"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="664"/>
         <source>PgDown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="698"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1106"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="666"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1047"/>
         <source>Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="700"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="668"/>
         <source>Manage Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="703"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="671"/>
         <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="705"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1105"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="673"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1046"/>
         <source>Web</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="707"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="675"/>
         <source>Web Browsing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="710"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="678"/>
         <source>Ctrl+W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="712"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="716"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="720"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1002"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="680"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="684"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="688"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="955"/>
         <source>Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="714"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="682"/>
         <source>Small Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="718"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="686"/>
         <source>Medium Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="722"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="690"/>
         <source>Large Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="724"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="692"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="726"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="694"/>
         <source>Quit TianBoard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="728"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="732"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="736"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="968"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="696"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="700"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="704"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="921"/>
         <source>Eraser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="730"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="698"/>
         <source>Smalle Eraser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="734"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="702"/>
         <source>Medium Eraser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="738"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="706"/>
         <source>Large Eraser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="740"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="742"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="744"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="745"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="746"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="747"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="708"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="710"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="712"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="713"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="714"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="715"/>
         <source>Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="748"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="716"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="753"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="721"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="755"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="723"/>
         <source>Forward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="760"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="728"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="762"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="730"/>
         <source>Reload</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="764"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="732"/>
         <source>Reload Current Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="766"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="734"/>
         <source>Home</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="768"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="736"/>
         <source>Load Home Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="770"/>
-        <source>Bookmarks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="772"/>
-        <source>Show Bookmarks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="774"/>
-        <source>Bookmark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="776"/>
-        <source>Add Bookmark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="778"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1104"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="738"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1045"/>
         <source>Board</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="780"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="740"/>
         <source>Display Board</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="783"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="743"/>
         <source>Ctrl+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="785"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="745"/>
         <source>Erase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="787"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="747"/>
         <source>Erase Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="789"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="749"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="791"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="751"/>
         <source>Display Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="793"/>
-        <source>Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="795"/>
-        <source>Show Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="798"/>
-        <source>Ctrl+L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="804"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="757"/>
         <source>Show Desktop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="806"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="759"/>
         <source>Show Computer Desktop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="809"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="762"/>
         <source>Ctrl+Shift+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="811"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="764"/>
         <source>Bigger</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="813"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="993"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="766"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="946"/>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="816"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="769"/>
         <source>Ctrl++</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="818"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="771"/>
         <source>Smaller</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="820"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="994"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="773"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="947"/>
         <source>Zoom Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="823"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="776"/>
         <source>Ctrl+-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="825"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="778"/>
         <source>New Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="827"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="780"/>
         <source>Create a New Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="829"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="782"/>
         <source>New Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="831"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="784"/>
         <source>Create a New Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="833"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="786"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="835"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="788"/>
         <source>Import a Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="837"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="790"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="839"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="792"/>
         <source>Export a Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="841"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="794"/>
         <source>Open in Board</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="843"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="796"/>
         <source>Open Page in Board</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="846"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="799"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="848"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="801"/>
         <source>Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="850"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="803"/>
         <source>Duplicate Selected Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="852"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="805"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="854"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="807"/>
         <source>Delete Selected Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="857"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="810"/>
         <source>Del</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="859"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="812"/>
         <source>Add to Working Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="861"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="814"/>
         <source>Add Selected Content to Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="863"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="960"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="816"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="913"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="865"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="818"/>
         <source>Add Content to Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="867"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="820"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="869"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="822"/>
         <source>Rename Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="871"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="875"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="824"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="828"/>
         <source>Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="873"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="877"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="826"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="830"/>
         <source>Display Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="879"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="832"/>
         <source>Multi Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="880"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="881"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="833"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="834"/>
         <source>Wide Size (16/9)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="883"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="836"/>
         <source>Use Document Wide Size (16/9)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="885"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="886"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="838"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="839"/>
         <source>Regular Size (4/3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="888"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="841"/>
         <source>Use Document Regular Size (4/3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="890"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="891"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="843"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="844"/>
         <source>Custom Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="893"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="846"/>
         <source>Use Custom Document Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="895"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="848"/>
         <source>Stop Loading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="897"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="850"/>
         <source>Stop Loading Web Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="899"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="852"/>
         <source>Cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="900"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="853"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="901"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="854"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="902"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="855"/>
         <source>Sleep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="904"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="857"/>
         <source>Put Presentation to Sleep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="906"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="859"/>
         <source>Virtual Keyboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="908"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="861"/>
         <source>Display Virtual Keyboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="910"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="913"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="863"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="866"/>
         <source>Plain Light Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="911"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="916"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="921"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="864"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="869"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="874"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="915"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="918"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="868"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="871"/>
         <source>Grid Light Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="920"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="923"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="873"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="876"/>
         <source>Ruled Light Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="925"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="928"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="878"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="881"/>
         <source>Plain Dark Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="926"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="931"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="936"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="879"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="884"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="889"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="930"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="933"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="883"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="886"/>
         <source>Grid Dark Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="935"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="938"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="888"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="891"/>
         <source>Ruled Dark Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="940"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="893"/>
         <source>Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="942"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="895"/>
         <source>Record the Screen to Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1051"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1004"/>
         <source>Pause Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1053"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1006"/>
         <source>Recording Config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1055"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1008"/>
         <source>Configure Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="944"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="897"/>
         <source>Record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="946"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="899"/>
         <source>Start Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="948"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="901"/>
         <source>Erase Items</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="950"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="903"/>
         <source>Erase All Items</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="952"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1077"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="905"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1022"/>
         <source>Erase Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="954"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="907"/>
         <source>Erase All Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="956"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="909"/>
         <source>Clear Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="958"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="911"/>
         <source>Clear All Elements</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="961"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="914"/>
         <source>Pen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="963"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="916"/>
         <source>Annotate Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="966"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="919"/>
         <source>Ctrl+I</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="970"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="923"/>
         <source>Erase Annotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="973"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="926"/>
         <source>Ctrl+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="975"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="928"/>
         <source>Marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="977"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="930"/>
         <source>Highlight </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="980"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="933"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="982"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="935"/>
         <source>Selector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="984"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="937"/>
         <source>Select And Modify Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="987"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="940"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="989"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="942"/>
         <source>Hand</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="991"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="944"/>
         <source>Scroll Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="995"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="948"/>
         <source>Laser Pointer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="997"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="950"/>
         <source>Virtual Laser Pointer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1000"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="953"/>
         <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1004"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="957"/>
         <source>Draw Lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1007"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="960"/>
         <source>Ctrl+J</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1009"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="962"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1011"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="964"/>
         <source>Write Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1014"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="967"/>
         <source>Ctrl+K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1016"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="969"/>
         <source>Capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1018"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1063"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="971"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1016"/>
         <source>Capture Part of the Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1020"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1021"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="973"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="974"/>
         <source>Add To Current Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1023"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="976"/>
         <source>Add Item To Current Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1025"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="978"/>
         <source>Add To New Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1027"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="980"/>
         <source>Add Item To New Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1029"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="982"/>
         <source>Add To Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1031"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="984"/>
         <source>Add Item To Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1033"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="986"/>
         <source>Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1035"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1039"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="988"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="992"/>
         <source>Create a New Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1037"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="990"/>
         <source>New Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1041"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="994"/>
         <source>Duplicate Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1043"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="996"/>
         <source>Duplicate the Current Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1045"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="998"/>
         <source>Import Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1047"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1000"/>
         <source>Import an External Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1049"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1002"/>
         <source>Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1057"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1010"/>
         <source>Web Trap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1059"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1012"/>
         <source>Trap Web Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1061"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1014"/>
         <source>Custom Capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1065"/>
-        <source>Window Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1067"/>
-        <source>Capture a Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1069"/>
-        <source>Embed Web Content</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1071"/>
-        <source>Capture Embeddable Web Content</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1073"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1018"/>
         <source>Show on Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1075"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1020"/>
         <source>Show Main Screen on Display Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1079"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1024"/>
         <source>Erase all Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1081"/>
-        <source>eduMedia</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1083"/>
-        <source>Import eduMedia simulation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1085"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1026"/>
         <source>Hide TianBoard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1087"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1028"/>
         <source>Hide TianBoard Application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1090"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1031"/>
         <source>Ctrl+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1092"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1033"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1094"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1035"/>
         <source>Interact with items</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1096"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1037"/>
         <source>Erase Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1098"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1039"/>
         <source>Remove the backgound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1100"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1102"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1041"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1043"/>
         <source>Reset grid size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1270"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1211"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1271"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1212"/>
         <source>No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1292"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1233"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2159,17 +2094,17 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PersistenceManager</name>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="556"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="554"/>
         <source>(copy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="1220"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="1217"/>
         <source>Document Repository Loss</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="1220"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="1217"/>
         <source>TianBoard has lost access to the document repository &apos;%1&apos;. Unfortunately the application must shut down to avoid data corruption. Latest changes may be lost as well.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2177,7 +2112,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PlatformUtils</name>
     <message>
-        <location filename="../../src/platform/PlatformUtils_win.cpp" line="181"/>
+        <location filename="../../src/platform/PlatformUtils_win.cpp" line="174"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2455,62 +2390,62 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>RecordingController</name>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="363"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="354"/>
         <source>Failed to start encoder ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="368"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="359"/>
         <source>No screen recording encoder available...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="539"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="530"/>
         <source>Part %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="688"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="679"/>
         <source>on your desktop ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="692"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="683"/>
         <source>in folder %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="695"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="686"/>
         <source>Screen recording created %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="703"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="694"/>
         <source>Screen recording error (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="842"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="829"/>
         <source>Default Audio Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="845"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="832"/>
         <source>No Audio Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="884"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="871"/>
         <source>Small</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="885"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="872"/>
         <source>Medium</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="886"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="873"/>
         <source>Full</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2526,7 +2461,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../../src/core/Settings.cpp" line="917"/>
+        <location filename="../../src/core/Settings.cpp" line="914"/>
         <source>My Movies</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2534,7 +2469,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>StartupHintsPalette</name>
     <message>
-        <location filename="../../src/ui/StartupHintsPalette.cpp" line="42"/>
+        <location filename="../../src/ui/StartupHintsPalette.cpp" line="41"/>
         <source>Visible next time</source>
         <translation type="unfinished"></translation>
     </message>

@@ -41,7 +41,7 @@
   （“从 parseIwbElement() 的结果建组”）。
 - `src/content/ImportIwb.cpp:71/86/215`：导入 .iwb 时的临时目录与内容转换留 TODO ——
   与“旧文档不必保持可读”的既定决策一致，属于可以不填的坑。
-- `src/core/PersistenceManager.cpp:177`（双击打开文档包）与 `:238` 附近（落盘对象处理）：
+- `src/core/PersistenceManager.cpp:177`（双击打开文档包）与 `:237`（落盘对象处理）：
   上游遗留的临时分支；`src/core/Settings.cpp` 里还有一处 `//TODO: user-settable?`。
 - `src/whiteboard/GraphicsItemGroupUndoCommand.cpp:34`：`//Work around. TODO determine why
   does Qt call the redo function on pushing to undo` —— undo 栈语义可疑，动它要写回归。
