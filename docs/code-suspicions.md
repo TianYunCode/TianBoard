@@ -11,23 +11,14 @@
 
 ## 一、空实现与半截实现（有调用点，用户点了没反应）
 
-### 1. 文档标签页的 剪切/复制/粘贴 是三个空函数
-- **位置**：`src/model/DocumentController.cpp:2888/2893/2898`（`cut()`/`copy()`/`paste()`
-  三处，每处一句 `// TODO - implemented me`）
-- **调用点是活的**：`src/core/ApplicationController.cpp:553`（cut）、
-  `566`（copy）、`579`（paste）按当前模式分派，文档模式走的就是这三个空函数。
-- **现象**：在文档界面按 Ctrl+X/C/V 或菜单项，没有任何效果、也没有提示。
-- **建议**：要么实现（缩略图选中项的删除/复制/新建），要么让动作在文档模式下不可用
-  （`setEnabled(false)`），别留“看着能点”的死动作。
-
-### 2. `WebWidgetBoardAPI` 两个方法收了参数不用
+### 1. `WebWidgetBoardAPI` 两个方法收了参数不用
 - **位置**：`src/api/WebWidgetBoardAPI.cpp:367`（`usedMethods`）、`372`（`response`）
 - **现象**：`usedMethods(QStringList methods)` 里 `foreach` 循环体是空的；
   `response(bool correct)` 立刻 `Q_UNUSED(correct)`，注释都是 `// TODO: Implement this method`。
   小部件回报“我用过哪些方法 / 调用成功与否”这两条通道目前没有下游。
 - **建议**：确认这是废弃协议还是待实现；废弃就删掉声明与调用点，待实现就补测试。
 
-### 3. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
+### 2. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
 - **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1018/1045/1064`（`freezedWidgetWrapper.html`、
   按 `npapi-wrapper*` 前缀挑包装页、读 `etc/npapi-wrapper.config.xml`）与
   `src/content/IwbSubsetAdaptor.cpp:896`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
@@ -36,7 +27,7 @@
 - **建议**：要么把 flash 条目明确降级成“不支持的媒体”并提示用户，要么连同
   `res/etc/npapi-wrapper.*`、`freezedWidgetWrapper.html` 一起删。属于产品可见的取舍。
 
-### 4. 小部件的 JS 桥与加载回调在 Qt6 里没有接回来
+### 3. 小部件的 JS 桥与加载回调在 Qt6 里没有接回来
 - **位置**：`src/whiteboard/GraphicsWidgetItem.cpp`（`javaScriptWindowObjectCleared()`、
   `mainFrameLoadFinished()`、`initialLayoutCompleted()`、`injectInlineJavaScript()`）与
   `src/ui/ToolWidget.cpp::initialize()`（只 `load()`，页面里拿不到任何 API 对象）
@@ -53,7 +44,7 @@
 - **建议**：真要恢复脚本桥，需要一次独立改造：定下 QWebChannel 的对象名与 JS 侧包装，
   并把 `WebWidget*API` 三个门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
 
-### 5. 其它 `TODO`（全仓 26 处里的其余部分，按模块列，不再逐条展开）
+### 4. 其它 `TODO`（全仓 23 处里的其余部分，按模块列，不再逐条展开）
 - `src/content/IwbSubsetAdaptor.cpp:98`、`1125`：子集读写有两段没实现
   （“从 parseIwbElement() 的结果建组”）。
 - `src/content/ImportIwb.cpp:64/78/204`：导入 .iwb 时的临时目录与内容转换留 TODO ——
@@ -162,7 +153,7 @@
   个别落到完全无关的代码上）。核对不用肉眼：
   `grep -oE "src/[a-z/]+\.cpp:[0-9]+" docs/code-suspicions.md` 列出来，再
   `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“172 个头/171 个
-  `#pragma once`”“全仓 26 处 TODO”这类计数也是派生数字，改完要重测。
+  `#pragma once`”“全仓 23 处 TODO”这类计数也是派生数字，改完要重测。
 - **构建报错不会让 ctest 变红**：MSBuild `/m` 下某个工程编译失败时其它工程继续，
   `TianBoard.exe` 沿用上一次链接好的旧文件，`ctest` 拿旧产物照样 7/7 通过。本轮
   实证踩过一次（删掉一个成员函数、漏改类内两处非限定调用，坏的提交已经进了历史）。

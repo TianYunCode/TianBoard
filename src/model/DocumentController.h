@@ -369,9 +369,6 @@ public slots:
     void showMessage(const QString &message, bool showSpinningWheel = false);
     void hideMessage();
     void toggleDocumentToolsPalette();
-    void cut();
-    void copy();
-    void paste();
     void focusChanged(QWidget *old, QWidget *current);
     void updateActions();
     void updateExportSubActions(const QModelIndex &selectedIndex);

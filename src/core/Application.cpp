@@ -222,6 +222,17 @@ int Application::exec(const QString &pFileToImport) {
     connect(applicationController, &ApplicationController::mainModeChanged, boardController,
             &BoardController::appMainModeChanged);
 
+    // 只有白板和网页模式真的实现了 剪切/复制/粘贴；文档库模式下这三个动作过去是
+    // "看着能点、按了没反应"（DocumentController 里是三个空函数），现在直接灰掉。
+    connect(applicationController, &ApplicationController::mainModeChanged, this,
+            [this](ApplicationController::MainMode mode) {
+                const bool hasClipboard =
+                    (mode == ApplicationController::Board || mode == ApplicationController::Internet);
+                mainWindow->ui().actionCut->setEnabled(hasClipboard);
+                mainWindow->ui().actionCopy->setEnabled(hasClipboard);
+                mainWindow->ui().actionPaste->setEnabled(hasClipboard);
+            });
+
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController,
             &ApplicationController::showDesktop);
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, this, &Application::stopScript);

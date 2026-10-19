@@ -549,8 +549,6 @@ void ApplicationController::actionCut() {
     if (!Application::closingDown()) {
         if (mMainMode == Board) {
             Application::boardController->cut();
-        } else if (mMainMode == Document) {
-            Application::documentController->cut();
         } else if (mMainMode == Internet) {
             Application::webController->cut();
         }
@@ -562,8 +560,6 @@ void ApplicationController::actionCopy() {
     if (!Application::closingDown()) {
         if (mMainMode == Board) {
             Application::boardController->copy();
-        } else if (mMainMode == Document) {
-            Application::documentController->copy();
         } else if (mMainMode == Internet) {
             Application::webController->copy();
         }
@@ -575,8 +571,6 @@ void ApplicationController::actionPaste() {
     if (!Application::closingDown()) {
         if (mMainMode == Board) {
             Application::boardController->paste();
-        } else if (mMainMode == Document) {
-            Application::documentController->paste();
         } else if (mMainMode == Internet) {
             Application::webController->paste();
         }

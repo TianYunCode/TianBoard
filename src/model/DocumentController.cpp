@@ -2885,21 +2885,6 @@ void DocumentController::toggleDocumentToolsPalette() {
 }
 
 
-void DocumentController::cut() {
-    // TODO - implemented me
-}
-
-
-void DocumentController::copy() {
-    // TODO - implemented me
-}
-
-
-void DocumentController::paste() {
-    // TODO - implemented me
-}
-
-
 void DocumentController::focusChanged(QWidget *old, QWidget *current) {
     DocumentTreeModel *treeModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
