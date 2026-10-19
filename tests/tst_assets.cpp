@@ -4,12 +4,25 @@
 #include <QtTest>
 
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
+#include <QFileInfo>
 #include <QImage>
 #include <QPainter>
 #include <QRegularExpression>
 #include <QSvgRenderer>
 #include <QTextStream>
+
+namespace
+{
+QStringList gCapturedWarnings;
+
+void captureWarning(QtMsgType type, const QMessageLogContext &, const QString &msg)
+{
+    if (type == QtWarningMsg)
+        gCapturedWarnings << msg;
+}
+}
 
 class TestAssets : public QObject
 {
@@ -21,6 +34,7 @@ private slots:
     void brandAssetsReplacedTheForkLogo();
     void appIconRendersAsDesigned();
     void blackoutMarkIsWhiteOnTransparent();
+    void svgAssetsPaintWithoutTruncation();
 
 private:
     static QString resPath(const QString &relative);
@@ -153,6 +167,76 @@ void TestAssets::blackoutMarkIsWhiteOnTransparent()
     const QColor stroke = mark.pixelColor(250, 193);
     QVERIFY2(stroke.red() > 230 && stroke.green() > 230 && stroke.blue() > 230 && stroke.alpha() > 230,
              qPrintable(QStringLiteral("expected a white stroke on the mark, got %1").arg(stroke.name())));
+}
+
+// QtSvg 对单条 path 的坐标量有硬上限，超限只打印一句 “Invalid path data; path
+// truncated.” 然后画出一半的图形。世界地图以前就是这种情况，所以这里把随包发布的
+// 每个 SVG 都真渲染一遍：既不能报解析告警，也必须真的画出像素。
+void TestAssets::svgAssetsPaintWithoutTruncation()
+{
+    const QStringList roots = { resPath(QStringLiteral("library")), resPath(QStringLiteral("images")) };
+    QStringList problems;
+    int checked = 0;
+
+    for (const QString &rootPath : roots) {
+        QDir root(rootPath);
+        QVERIFY2(root.exists(), qPrintable(QStringLiteral("missing asset root %1").arg(rootPath)));
+
+        QDirIterator it(root.path(), { QStringLiteral("*.svg") }, QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            const QString file = it.next();
+            ++checked;
+
+            gCapturedWarnings.clear();
+            QtMessageHandler previous = qInstallMessageHandler(captureWarning);
+
+            QString problem;
+            {
+                // 告警出现在 QSvgRenderer 构造期的解析阶段，必须在构造前后接管 handler。
+                QSvgRenderer renderer(file);
+                if (!renderer.isValid()) {
+                    problem = QStringLiteral("%1: not a valid SVG").arg(file);
+                } else {
+                    QSize size = renderer.defaultSize();
+                    if (size.isEmpty())
+                        size = QSize(128, 128);
+                    if (size.width() > 256 || size.height() > 256)
+                        size.scale(256, 256, Qt::KeepAspectRatio);
+
+                    QImage image(size, QImage::Format_ARGB32_Premultiplied);
+                    image.fill(Qt::transparent);
+                    QPainter painter(&image);
+                    renderer.render(&painter);
+                    painter.end();
+
+                    bool painted = false;
+                    for (int y = 0; y < image.height() && !painted; ++y) {
+                        const uchar *line = image.constScanLine(y);
+                        for (int x = 0; x < image.width(); ++x) {
+                            if (line[4 * x + 3] != 0) {
+                                painted = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!painted)
+                        problem = QStringLiteral("%1: renders nothing").arg(file);
+                }
+            }
+
+            qInstallMessageHandler(previous);
+
+            if (!gCapturedWarnings.isEmpty())
+                problem = QStringLiteral("%1: %2").arg(file, gCapturedWarnings.join(QStringLiteral(" | ")));
+
+            if (!problem.isEmpty())
+                problems << problem;
+        }
+    }
+
+    QVERIFY2(checked > 50, "suspiciously few SVG assets were checked");
+    QVERIFY2(problems.isEmpty(),
+             qPrintable(QStringLiteral("SVG problem(s):\n%1").arg(problems.join(QStringLiteral("\n")))));
 }
 
 QTEST_MAIN(TestAssets)
