@@ -20,9 +20,9 @@ public:
     PageNavigationWidget(QWidget* parent=0, const char* name="PageNavigationWidget");
     ~PageNavigationWidget();
 
-    bool visibleInMode(eWBDockPaletteWidgetMode mode)
+    bool visibleInMode(DockWidgetMode mode)
     {
-        return mode == eWBDockPaletteWidget_BOARD;
+        return mode == DockWidgetMode::Board;
     }
 
 signals:

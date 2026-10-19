@@ -10,7 +10,7 @@ public:
     LeftPalette(QWidget* parent=0, const char* name="LeftPalette");
     ~LeftPalette();
 
-    bool switchMode(eWBDockPaletteWidgetMode mode);
+    bool switchMode(DockWidgetMode mode);
 
 public slots:
     void onDocumentSet(DocumentProxy* documentProxy);

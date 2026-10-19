@@ -8,15 +8,15 @@ struct LeftPalette::Private
 
 
 LeftPalette::LeftPalette(QWidget *parent, const char *name):
-    DockPalette(eWBDockPaletteType_LEFT, parent)
+    DockPalette(DockPaletteType::Left, parent)
     , d(new Private)
 {
     setObjectName(name);
-    setOrientation(eWBDockOrientation_Left);
+    setOrientation(DockOrientation::Left);
     setCollapseWidth(120);
 
     bool isCollapsed = false;
-    if(currentMode() == eWBDockPaletteWidget_BOARD){
+    if(currentMode() == DockWidgetMode::Board){
         setLastWidth(Settings::settings()->leftLibPaletteBoardModeWidth->get().toInt());
         isCollapsed = Settings::settings()->leftLibPaletteBoardModeIsCollapsed->get().toBool();
     }
@@ -44,7 +44,7 @@ void LeftPalette::onDocumentSet(DocumentProxy* documentProxy)
 {
     Q_UNUSED(documentProxy)
     // the tab zero is forced
-    setLastOpenedTabForMode(eWBDockPaletteWidget_BOARD, 0);
+    setLastOpenedTabForMode(DockWidgetMode::Board, 0);
 }
 
 /**
@@ -62,7 +62,7 @@ void LeftPalette::updateMaxWidth()
 void LeftPalette::resizeEvent(QResizeEvent *event)
 {
     int newWidth = width();
-    if(currentMode() == eWBDockPaletteWidget_BOARD){
+    if(currentMode() == DockWidgetMode::Board){
         if(newWidth > collapseWidth())
             Settings::settings()->leftLibPaletteBoardModeWidth->set(newWidth);
         Settings::settings()->leftLibPaletteBoardModeIsCollapsed->set(newWidth == 0);
@@ -76,10 +76,10 @@ void LeftPalette::resizeEvent(QResizeEvent *event)
 }
 
 
-bool LeftPalette::switchMode(eWBDockPaletteWidgetMode mode)
+bool LeftPalette::switchMode(DockWidgetMode mode)
 {
     int newModeWidth;
-    if(mode == eWBDockPaletteWidget_BOARD){
+    if(mode == DockWidgetMode::Board){
         setLastWidth(Settings::settings()->leftLibPaletteBoardModeWidth->get().toInt());
         newModeWidth = lastWidth();
         if(Settings::settings()->leftLibPaletteBoardModeIsCollapsed->get().toBool())

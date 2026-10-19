@@ -307,17 +307,7 @@ void BrowserWindow::slotViewZoomIn()
     if (!currentWebView)
         return;
 
-    QWidget *view = qobject_cast<QWebEngineView*>(currentWebView->page()->parent());
-
-    //UBWebPluginPDFWidget *pdfPluginWidget = view ? view->findChild<UBWebPluginPDFWidget *>("PDFWebPluginWidget") : 0;
-    //if (pdfPluginWidget)
-    //{
-    //    pdfPluginWidget->zoomIn();
-    //}
-    //else
-    {
-        currentWebView->setZoomFactor(currentWebView->zoomFactor() + 0.1);
-    }
+    currentWebView->setZoomFactor(currentWebView->zoomFactor() + 0.1);
 }
 
 void BrowserWindow::slotViewZoomOut()
@@ -327,18 +317,7 @@ void BrowserWindow::slotViewZoomOut()
     if (!currentWebView)
         return;
 
-    QWidget *view = qobject_cast<QWebEngineView*>(currentWebView->page()->parent());
-
-    //UBWebPluginPDFWidget *pdfPluginWidget = view ? view->findChild<UBWebPluginPDFWidget *>("PDFWebPluginWidget") : 0;
-
-    //if (pdfPluginWidget)
-    //{
-    //    pdfPluginWidget->zoomOut();
-    //}
-    //else
-    {
-        currentWebView->setZoomFactor(currentWebView->zoomFactor() - 0.1);
-    }
+    currentWebView->setZoomFactor(currentWebView->zoomFactor() - 0.1);
 }
 
 void BrowserWindow::slotViewResetZoom()

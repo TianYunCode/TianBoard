@@ -9,14 +9,14 @@ struct RightPalette::Private
 };
 
 RightPalette::RightPalette(QWidget *parent, const char *name):
-    DockPalette(eWBDockPaletteType_RIGHT, parent)
+    DockPalette(DockPaletteType::Right, parent)
     , d(new Private)
 {
     setObjectName(name);
-    setOrientation(eWBDockOrientation_Right);
+    setOrientation(DockOrientation::Right);
     setCollapseWidth(120);
     bool isCollapsed = false;
-    if(currentMode() == eWBDockPaletteWidget_BOARD){
+    if(currentMode() == DockWidgetMode::Board){
         setLastWidth(Settings::settings()->rightLibPaletteBoardModeWidth->get().toInt());
         isCollapsed = Settings::settings()->rightLibPaletteBoardModeIsCollapsed->get().toBool();
     }
@@ -45,7 +45,7 @@ void RightPalette::mouseMoveEvent(QMouseEvent *event)
 void RightPalette::resizeEvent(QResizeEvent *event)
 {
     int newWidth = width();
-    if(currentMode() == eWBDockPaletteWidget_BOARD){
+    if(currentMode() == DockWidgetMode::Board){
         if(newWidth > collapseWidth())
             Settings::settings()->rightLibPaletteBoardModeWidth->set(newWidth);
         Settings::settings()->rightLibPaletteBoardModeIsCollapsed->set(newWidth == 0);
@@ -66,10 +66,10 @@ void RightPalette::updateMaxWidth()
     setMinimumHeight(parentWidget()->height());
 }
 
-bool RightPalette::switchMode(eWBDockPaletteWidgetMode mode)
+bool RightPalette::switchMode(DockWidgetMode mode)
 {
     int newModeWidth;
-    if(mode == eWBDockPaletteWidget_BOARD){
+    if(mode == DockWidgetMode::Board){
         setLastWidth(Settings::settings()->rightLibPaletteBoardModeWidth->get().toInt());
         newModeWidth = lastWidth();
         if(Settings::settings()->rightLibPaletteBoardModeIsCollapsed->get().toBool())

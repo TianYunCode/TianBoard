@@ -1,14 +1,5 @@
 #pragma once
 
-#define WB_FREE_CONTROL(Object, Scene) \
-    if (Object) {                      \
-        if (Scene) {                   \
-            Scene->removeItem(Object); \
-        }                              \
-        Object->deleteLater();         \
-        Object = 0;                    \
-    }                                  \
-
 #include <QtWidgets>
 #include <QtSvg>
 #include <QtSvgWidgets>

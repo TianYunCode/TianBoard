@@ -25,13 +25,6 @@ void PlatformUtils::hideFile(const QString &filePath)
 
 }
 
-void PlatformUtils::setFileType(const QString &filePath, unsigned long fileType)
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(fileType);
-
-}
-
 void PlatformUtils::fadeDisplayOut()
 {
     // NOOP

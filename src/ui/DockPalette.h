@@ -21,25 +21,21 @@ class DocumentProxy;
 
 #include "ui/DockPaletteWidget.h"
 
-#define TABSIZE 50    
-#define CLICKTIME 1000000
-
-/**
- * \brief The dock positions
- */
-typedef enum
+/** 停靠面板所在的一侧 */
+enum class DockOrientation
 {
-    eWBDockOrientation_Left, 
-    eWBDockOrientation_Right,
-    eWBDockOrientation_Top,
-    eWBDockOrientation_Bottom
-}eWBDockOrientation;
+    Left,
+    Right,
+    Top,
+    Bottom
+};
 
-typedef enum
+/** 标签朝向 */
+enum class DockTabOrientation
 {
-    eWBDockTabOrientation_Up,
-    eWBDockTabOrientation_Down
-}eWBDockTabOrientation;
+    Up,
+    Down
+};
 
 class DockPalette;
 
@@ -63,11 +59,12 @@ private:
     std::unique_ptr<Private> d;
 };
 
-typedef enum
+/** 左/右停靠面板 */
+enum class DockPaletteType
 {
-    eWBDockPaletteType_LEFT,
-    eWBDockPaletteType_RIGHT
-} eWBDockPaletteType;
+    Left,
+    Right
+};
 
 
 class DockPalette : public QWidget
@@ -76,12 +73,12 @@ class DockPalette : public QWidget
     friend class TabDockPalette;
 
 public:
-    DockPalette(eWBDockPaletteType paletteType, QWidget* parent=0, const char* name="DockPalette");
+    DockPalette(DockPaletteType paletteType, QWidget* parent=0, const char* name="DockPalette");
     ~DockPalette();
 
-    eWBDockOrientation orientation();
-    void setOrientation(eWBDockOrientation orientation);
-    void setTabsOrientation(eWBDockTabOrientation orientation);
+    DockOrientation orientation();
+    void setOrientation(DockOrientation orientation);
+    void setTabsOrientation(DockTabOrientation orientation);
     void showTabWidget(int tabIndex);
     QRect getTabPaletteRect();
 
@@ -100,7 +97,7 @@ public:
 
     void connectSignals();
 
-    bool switchMode(eWBDockPaletteWidgetMode mode);
+    bool switchMode(DockWidgetMode mode);
 
     QVector<DockPaletteWidget*> GetWidgetsList();
 
@@ -110,7 +107,7 @@ public:
     int getAdditionalVOffset() const;
     void setAdditionalVOffset(int newOffset);
 
-    eWBDockPaletteType paletteType();
+    DockPaletteType paletteType();
 
 public slots:
     void onShowTabWidget(DockPaletteWidget* widget);
@@ -131,7 +128,7 @@ protected:
     virtual int collapseWidth();
 
     /** The current mode of the palette */
-    eWBDockPaletteWidgetMode currentMode();
+    DockWidgetMode currentMode();
     /** The last width of the palette */
     int lastWidth();
     void setLastWidth(int width);
@@ -139,7 +136,7 @@ protected:
     /** A flag used to allow the resize */
     bool canResize();
     /** Last opened tab index for the given mode */
-    void setLastOpenedTabForMode(eWBDockPaletteWidgetMode mode, int tabIndex);
+    void setLastOpenedTabForMode(DockWidgetMode mode, int tabIndex);
 
 private slots:
     void onToolbarPosUpdated();

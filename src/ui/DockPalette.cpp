@@ -13,6 +13,11 @@
 
 #include "whiteboard/BoardController.h"
 
+constexpr int kTabSize = 50;
+// 按下与松开间隔小于此值才算“点击”。实际取值极大，等于不设时限：
+// 只要没有触发拖拽改尺寸，松开就按点击处理。
+constexpr int kMaxClickDurationMs = 1000000;
+
 
 struct TabDockPalette::Private
 {
@@ -24,9 +29,9 @@ struct TabDockPalette::Private
 struct DockPalette::Private
 {
     /** The current mode */
-    eWBDockPaletteWidgetMode mCurrentMode{eWBDockPaletteWidget_BOARD};
+    DockWidgetMode mCurrentMode{DockWidgetMode::Board};
     /** The current dock orientation */
-    eWBDockOrientation mOrientation{eWBDockOrientation_Left};
+    DockOrientation mOrientation{DockOrientation::Left};
     /** The current background brush */
     QBrush mBackgroundBrush;
     /** The preferred width */
@@ -46,7 +51,7 @@ struct DockPalette::Private
     /** The mouse pressed position */
     QPoint mMousePressPos;
     /** The tab orientation */
-    eWBDockTabOrientation mTabsOrientation{eWBDockTabOrientation_Up};
+    DockTabOrientation mTabsOrientation{DockTabOrientation::Up};
     /** The h position of the tab */
     int mHTab{0};
     /** The stacked widget */
@@ -62,16 +67,16 @@ struct DockPalette::Private
     /** The current tab widget */
     QString mCrntTabWidget;
     /** Last opened tab index depending on mode */
-    QMap<eWBDockPaletteWidgetMode,int> mLastOpenedTabForMode;
+    QMap<DockWidgetMode,int> mLastOpenedTabForMode;
 
-    eWBDockPaletteType mPaletteType{eWBDockPaletteType_LEFT};
+    DockPaletteType mPaletteType{DockPaletteType::Left};
     TabDockPalette *mTabPalette{nullptr};
 };
 
 /**
  * \brief The constructor
  */
-DockPalette::DockPalette(eWBDockPaletteType paletteType, QWidget *parent, const char *name)
+DockPalette::DockPalette(DockPaletteType paletteType, QWidget *parent, const char *name)
 :QWidget(parent, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint)
 , d(new Private)
 {
@@ -134,7 +139,7 @@ DockPalette::~DockPalette()
     }
 }
 
-eWBDockPaletteWidgetMode DockPalette::currentMode()
+DockWidgetMode DockPalette::currentMode()
 {
     return d->mCurrentMode;
 }
@@ -159,7 +164,7 @@ bool DockPalette::canResize()
     return d->mCanResize;
 }
 
-void DockPalette::setLastOpenedTabForMode(eWBDockPaletteWidgetMode mode, int tabIndex)
+void DockPalette::setLastOpenedTabForMode(DockWidgetMode mode, int tabIndex)
 {
     d->mLastOpenedTabForMode.insert(mode, tabIndex);
 }
@@ -189,7 +194,7 @@ void DockPalette::setAdditionalVOffset(int newOffset)
     d->mTabPalette->d->mVerticalOffset = newOffset;
 }
 
-eWBDockPaletteType DockPalette::paletteType()
+DockPaletteType DockPalette::paletteType()
 {
     return d->mPaletteType;
 }
@@ -203,7 +208,7 @@ void DockPalette::onDocumentSet(DocumentProxy* documentProxy)
  * \brief Get the current orientation
  * @return the current orientation
  */
-eWBDockOrientation DockPalette::orientation()
+DockOrientation DockPalette::orientation()
 {
     return d->mOrientation;
 }
@@ -212,17 +217,17 @@ eWBDockOrientation DockPalette::orientation()
  * \brief Set the current orientation
  * @param orientation as the given orientation
  */
-void DockPalette::setOrientation(eWBDockOrientation orientation)
+void DockPalette::setOrientation(DockOrientation orientation)
 {
     // Set the size
     d->mOrientation = orientation;
 
-    if(orientation == eWBDockOrientation_Left || orientation == eWBDockOrientation_Right)
+    if(orientation == DockOrientation::Left || orientation == DockOrientation::Right)
     {
         setMaximumHeight(parentWidget()->height());
         setMinimumHeight(maximumHeight());
     }
-    else if(orientation == eWBDockOrientation_Top || orientation == eWBDockOrientation_Bottom)
+    else if(orientation == DockOrientation::Top || orientation == DockOrientation::Bottom)
     {
         setMaximumWidth(parentWidget()->width());
         setMinimumWidth(maximumWidth());
@@ -245,15 +250,15 @@ void DockPalette::resizeEvent(QResizeEvent *event)
     QPoint origin;
     switch(d->mOrientation)
     {
-    case eWBDockOrientation_Right:
+    case DockOrientation::Right:
         origin.setX(parentWidget()->width() - this->width());
         origin.setY(0);
         break;
-    case eWBDockOrientation_Bottom:
+    case DockOrientation::Bottom:
         // Not supported yet
-    case eWBDockOrientation_Top:
+    case DockOrientation::Top:
         // Not supported yet
-    case eWBDockOrientation_Left:
+    case DockOrientation::Left:
     default:
         origin.setX(0);
         origin.setY(0);
@@ -304,11 +309,11 @@ void DockPalette::paintEvent(QPaintEvent *event)
     if(0 < nbTabs)
     {
         // First draw the BIG RECTANGLE (I write it big because the rectangle is big...)
-        if(d->mOrientation == eWBDockOrientation_Left)
+        if(d->mOrientation == DockOrientation::Left)
         {
             path.addRect(0.0, 0.0, width(), height());
         }
-        else if(d->mOrientation == eWBDockOrientation_Right)
+        else if(d->mOrientation == DockOrientation::Right)
         {
             path.addRect(0.0, 0.0, width(), height());
         }
@@ -418,7 +423,7 @@ void DockPalette::toggleCollapseExpand()
  * \brief Set the tabs orientation
  * @param orientation as the given tabs orientation
  */
-void DockPalette::setTabsOrientation(eWBDockTabOrientation orientation)
+void DockPalette::setTabsOrientation(DockTabOrientation orientation)
 {
     d->mTabsOrientation = orientation;
 }
@@ -431,11 +436,11 @@ void DockPalette::onToolbarPosUpdated()
     // Get the position of the tab
     if(Settings::settings()->appToolBarPositionedAtTop->get().toBool())
     {
-        setTabsOrientation(eWBDockTabOrientation_Up);
+        setTabsOrientation(DockTabOrientation::Up);
     }
     else
     {
-        setTabsOrientation(eWBDockTabOrientation_Down);
+        setTabsOrientation(DockTabOrientation::Down);
     }
     moveTabs();
     update();
@@ -575,22 +580,22 @@ void DockPalette::onAllDownloadsFinished()
 void DockPalette::moveTabs()
 {
     int x = width();
-    if (d->mOrientation == eWBDockOrientation_Right)
+    if (d->mOrientation == DockOrientation::Right)
     {
         if (parentWidget())
             x = parentWidget()->width() - width() - border() * 2;
     }
 
     int y = border();
-    if(eWBDockTabOrientation_Down == d->mTabsOrientation)
+    if(DockTabOrientation::Down == d->mTabsOrientation)
     {
-        if (d->mOrientation == eWBDockOrientation_Right)
+        if (d->mOrientation == DockOrientation::Right)
         {
             if (parentWidget())
-                y = parentWidget()->height() - border()- d->mTabWidgets.size() * TABSIZE;
+                y = parentWidget()->height() - border()- d->mTabWidgets.size() * kTabSize;
         }
         else
-            y = height() - border()- d->mTabWidgets.size() * TABSIZE;
+            y = height() - border()- d->mTabWidgets.size() * kTabSize;
     }
 
     d->mHTab = y;
@@ -601,7 +606,7 @@ void DockPalette::moveTabs()
 void DockPalette::resizeTabs()
 {
     int numTabs = d->mTabWidgets.size();
-    d->mTabPalette->setFixedSize(2 * border(), (numTabs * TABSIZE) + qMax(numTabs - 1, 0) * tabSpacing());
+    d->mTabPalette->setFixedSize(2 * border(), (numTabs * kTabSize) + qMax(numTabs - 1, 0) * tabSpacing());
 }
 
 QRect DockPalette::getTabPaletteRect()
@@ -625,7 +630,7 @@ void DockPalette::setVisible(bool visible)
     d->mTabPalette->setVisible(visible);
 }
 
-bool DockPalette::switchMode(eWBDockPaletteWidgetMode mode)
+bool DockPalette::switchMode(DockWidgetMode mode)
 {
     d->mLastOpenedTabForMode.insert(d->mCurrentMode, d->mpStackWidget->currentIndex());
     d->mCurrentMode = mode;
@@ -666,7 +671,7 @@ TabDockPalette::TabDockPalette(DockPalette *dockPalette, QWidget *parent) :
     d->dock = dockPalette;
 
     int numTabs = dockPalette->d->mTabWidgets.size();
-    resize(2 * dockPalette->border(), (numTabs * TABSIZE) + qMax(numTabs - 1, 0) * dockPalette->tabSpacing());
+    resize(2 * dockPalette->border(), (numTabs * kTabSize) + qMax(numTabs - 1, 0) * dockPalette->tabSpacing());
 
     setAttribute(Qt::WA_TranslucentBackground);
 }
@@ -692,9 +697,9 @@ void TabDockPalette::paintEvent(QPaintEvent *)
         QPixmap iconPixmap;
 
         switch (d->dock->d->mOrientation) {
-        case eWBDockOrientation_Left:
-            path.addRect(0, yFrom, width() / 2, TABSIZE);
-            path.addRoundedRect(0, yFrom, width(), TABSIZE, d->dock->radius(), d->dock->radius());
+        case DockOrientation::Left:
+            path.addRect(0, yFrom, width() / 2, kTabSize);
+            path.addRoundedRect(0, yFrom, width(), kTabSize, d->dock->radius(), d->dock->radius());
             if (pCrntWidget) {
                 if(d->dock->d->mCollapseWidth >= d->dock->width()) {
                     // Get the collapsed icon
@@ -707,9 +712,9 @@ void TabDockPalette::paintEvent(QPaintEvent *)
             }
             break;
 
-        case eWBDockOrientation_Right:
-            path.addRect(width() /2, yFrom, width() / 2, TABSIZE);
-            path.addRoundedRect(0, yFrom, width(), TABSIZE, d->dock->radius(), d->dock->radius());
+        case DockOrientation::Right:
+            path.addRect(width() /2, yFrom, width() / 2, kTabSize);
+            path.addRoundedRect(0, yFrom, width(), kTabSize, d->dock->radius(), d->dock->radius());
             if (pCrntWidget) {
                 if(d->dock->d->mCollapseWidth >= d->dock->width()) {
                     // Get the collapsed icon
@@ -721,8 +726,8 @@ void TabDockPalette::paintEvent(QPaintEvent *)
             }
             break;
 
-        case eWBDockOrientation_Top: ;
-        case eWBDockOrientation_Bottom: ;
+        case DockOrientation::Top: ;
+        case DockOrientation::Bottom: ;
         default:
             break;
         }
@@ -736,8 +741,8 @@ void TabDockPalette::paintEvent(QPaintEvent *)
         }
 
         painter.drawPath(path);
-        painter.drawPixmap(2, yFrom + 2, width() - 4, TABSIZE - 4, iconPixmap);
-        yFrom += (TABSIZE + d->dock->tabSpacing());
+        painter.drawPixmap(2, yFrom + 2, width() - 4, kTabSize - 4, iconPixmap);
+        yFrom += (kTabSize + d->dock->tabSpacing());
         painter.restore();
     }
 }
@@ -755,16 +760,16 @@ void TabDockPalette::mousePressEvent(QMouseEvent *event)
     d->dock->d->mResized = false;
 
     switch(d->dock->d->mOrientation) {
-    case eWBDockOrientation_Left:
+    case DockOrientation::Left:
         d->dock->d->mCanResize = true;
         break;
-    case eWBDockOrientation_Right:
+    case DockOrientation::Right:
         d->dock->d->mCanResize = true;
         break;
-    case eWBDockOrientation_Top:
+    case DockOrientation::Top:
         // Not supported yet
         break;
-    case eWBDockOrientation_Bottom:
+    case DockOrientation::Bottom:
         // Not supported yet
         break;
     default:
@@ -785,7 +790,7 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event)
 
         switch(d->dock->d->mOrientation) {
 
-        case eWBDockOrientation_Left:
+        case DockOrientation::Left:
             p.setX(p.x() + d->dock->width());
             if(p.x() < d->dock->collapseWidth() && p.x() >= d->dock->minimumWidth()) {
                 d->dock->update();
@@ -798,7 +803,7 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event)
             }
             break;
 
-        case eWBDockOrientation_Right:
+        case DockOrientation::Right:
             p.setX(p.x() - 2 * d->dock->border());
             if((d->dock->x() + p.x() > d->dock->parentWidget()->width() - d->dock->collapseWidth()) && (d->dock->x() + p.x() < d->dock->parentWidget()->width())) {
                 d->dock->update();
@@ -811,8 +816,8 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event)
             }
             break;
 
-        case eWBDockOrientation_Top:
-        case eWBDockOrientation_Bottom:
+        case DockOrientation::Top:
+        case DockOrientation::Bottom:
             if(p.y() <= d->dock->maximumHeight()) {
                 d->dock->resize(width(), p.y());
                 d->dock->d->mResized = true;
@@ -828,7 +833,7 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event)
 void TabDockPalette::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-    if(!d->dock->d->mResized && d->dock->d->mClickTime.elapsed() < CLICKTIME) {
+    if(!d->dock->d->mResized && d->dock->d->mClickTime.elapsed() < kMaxClickDurationMs) {
         int nbTabs = d->dock->d->mTabWidgets.size();
         int clickedTab = 0;
         // If the clicked position is in the tab, perform the related action
@@ -836,9 +841,9 @@ void TabDockPalette::mouseReleaseEvent(QMouseEvent *event)
         if(d->dock->d->mMousePressPos.x() >= 0 &&
                 d->dock->d->mMousePressPos.x() <= width() &&
                 d->dock->d->mMousePressPos.y() >= 0 &&
-                d->dock->d->mMousePressPos.y() <= nbTabs * TABSIZE + (nbTabs -1)*d->dock->tabSpacing()) {
+                d->dock->d->mMousePressPos.y() <= nbTabs * kTabSize + (nbTabs -1)*d->dock->tabSpacing()) {
 
-            clickedTab = (d->dock->d->mMousePressPos.y()) / (TABSIZE + d->dock->tabSpacing());
+            clickedTab = (d->dock->d->mMousePressPos.y()) / (kTabSize + d->dock->tabSpacing());
             d->dock->tabClicked(clickedTab);
         }
     }

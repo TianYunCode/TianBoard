@@ -64,10 +64,10 @@ public:
     FeaturesWidget(QWidget* parent=0, const char* name="FeaturesWidget");
     virtual ~FeaturesWidget();
 
-    bool visibleInMode(eWBDockPaletteWidgetMode mode)
+    bool visibleInMode(DockWidgetMode mode)
     {
-        return mode == eWBDockPaletteWidget_BOARD
-            || mode == eWBDockPaletteWidget_DESKTOP;
+        return mode == DockWidgetMode::Board
+            || mode == DockWidgetMode::Desktop;
     }
     FeaturesController * getFeaturesController() const;
     void importImage(const QImage &image, const QString &fileName = QString());

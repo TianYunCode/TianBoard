@@ -57,7 +57,6 @@ bool ExportDocument::persistsDocument(DocumentProxy* pDocumentProxy, const QStri
     }
 
 
-    PlatformUtils::setFileType(filename, 0x5542647A /* UBdz */);
 
     return true;
 }

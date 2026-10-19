@@ -1559,8 +1559,6 @@ void FeaturesSearchProxyModel::setFilterPrefix(const QString &newPrefix)
 bool FeaturesSearchProxyModel::filterAcceptsRow( int sourceRow, const QModelIndex & sourceParent )const
 {
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-    /*QString name = sourceModel()->data(index, Qt::DisplayRole).toString();
-    eUBLibElementType type = (eUBLibElementType)sourceModel()->data(index, Qt::UserRole + 1).toInt();*/
 
     Feature feature = sourceModel()->data(index, Qt::UserRole + 1).value<Feature>();
     bool isFile = feature.getType() == FEATURE_INTERACTIVE

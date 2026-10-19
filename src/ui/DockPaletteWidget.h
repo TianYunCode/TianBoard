@@ -6,13 +6,14 @@
 
 #include <memory>
 
-typedef enum
+/** 白板当前处于哪个界面，决定哪些停靠面板可见 */
+enum class DockWidgetMode
 {
-    eWBDockPaletteWidget_BOARD,
-    eWBDockPaletteWidget_WEB,
-    eWBDockPaletteWidget_DOCUMENT,
-    eWBDockPaletteWidget_DESKTOP,
-} eWBDockPaletteWidgetMode;
+    Board,
+    Web,
+    Document,
+    Desktop
+};
 
 class DockPaletteWidget : public QWidget
 {
@@ -25,9 +26,9 @@ public:
     QPixmap iconToLeft();
     QString name();
 
-    virtual bool visibleInMode(eWBDockPaletteWidgetMode mode) = 0;
+    virtual bool visibleInMode(DockWidgetMode mode) = 0;
 
-    void registerMode(eWBDockPaletteWidgetMode mode);
+    void registerMode(DockWidgetMode mode);
 
     bool visibleState();
     void setVisibleState(bool state);
@@ -37,7 +38,7 @@ signals:
     void showTab(DockPaletteWidget* widget);
 
 public slots:
-    void slot_changeMode(eWBDockPaletteWidgetMode newMode);
+    void slot_changeMode(DockWidgetMode newMode);
 
 protected:
     void setName(const QString& name);

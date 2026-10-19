@@ -107,7 +107,6 @@ bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QStrin
     }
 
     zip.close();
-    PlatformUtils::setFileType(filename, 0x5542647A /* UBdz */);
 
     return true;
 }

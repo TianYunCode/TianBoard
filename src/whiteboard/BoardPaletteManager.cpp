@@ -125,7 +125,7 @@ void BoardPaletteManager::setupDockPaletteWidgets()
     //  will become visible only when the first download starts
     mRightPalette->registerWidget(mpDownloadWidget);
     mRightPalette->connectSignals();
-    changeMode(eWBDockPaletteWidget_BOARD, true);
+    changeMode(DockWidgetMode::Board, true);
 
     // Hide the tabs that must be hidden
     mRightPalette->removeTab(mpDownloadWidget);
@@ -143,15 +143,15 @@ void BoardPaletteManager::slot_changeMainMode(ApplicationController::MainMode ma
             {
                 // call changeMode only when switch NOT from desktop mode
                 if(!Application::applicationController->isShowingDesktop())
-                    changeMode(eWBDockPaletteWidget_BOARD);
+                    changeMode(DockWidgetMode::Board);
             }
             break;
         case ApplicationController::Internet:
-            changeMode(eWBDockPaletteWidget_WEB);
+            changeMode(DockWidgetMode::Web);
             break;
 
         case ApplicationController::Document:
-            changeMode(eWBDockPaletteWidget_DOCUMENT);
+            changeMode(DockWidgetMode::Document);
             break;
 
         default:
@@ -171,7 +171,7 @@ void BoardPaletteManager::slot_changeDesktopMode(bool isDesktop)
         switch( currMode )
         {
             case ApplicationController::Board:
-                changeMode(eWBDockPaletteWidget_BOARD);
+                changeMode(DockWidgetMode::Board);
                 break;
 
             default:
@@ -179,7 +179,7 @@ void BoardPaletteManager::slot_changeDesktopMode(bool isDesktop)
         }
     }
     else
-        changeMode(eWBDockPaletteWidget_DESKTOP);
+        changeMode(DockWidgetMode::Desktop);
 }
 
 void BoardPaletteManager::setupPalettes()
@@ -617,14 +617,14 @@ void BoardPaletteManager::addItem(const QUrl& pUrl)
         (mContainer->height() - mAddItemPalette->height()) / 5);
 }
 
-void BoardPaletteManager::changeMode(eWBDockPaletteWidgetMode newMode, bool isInit)
+void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit)
 {
     bool rightPaletteVisible = mRightPalette->switchMode(newMode);
     bool leftPaletteVisible = mLeftPalette->switchMode(newMode);
 
     switch( newMode )
     {
-        case eWBDockPaletteWidget_BOARD:
+        case DockWidgetMode::Board:
             {
                 // On Application start up the mAddItemPalette isn't initialized yet
                 if(mAddItemPalette){
@@ -661,7 +661,7 @@ void BoardPaletteManager::changeMode(eWBDockPaletteWidgetMode newMode, bool isIn
             }
             break;
 
-        case eWBDockPaletteWidget_DESKTOP:
+        case DockWidgetMode::Desktop:
             {
                 mAddItemPalette->setParent((QWidget*)Application::applicationController->uninotesController()->drawingView());
                 mLeftPalette->assignParent((QWidget*)Application::applicationController->uninotesController()->drawingView());
@@ -714,7 +714,7 @@ void BoardPaletteManager::changeMode(eWBDockPaletteWidgetMode newMode, bool isIn
             }
             break;
 
-        case eWBDockPaletteWidget_WEB:
+        case DockWidgetMode::Web:
             {
                 mAddItemPalette->setParent(Application::mainWindow);
                 if (PlatformUtils::hasVirtualKeyboard()
@@ -737,7 +737,7 @@ void BoardPaletteManager::changeMode(eWBDockPaletteWidgetMode newMode, bool isIn
             }
             break;
 
-        case eWBDockPaletteWidget_DOCUMENT:
+        case DockWidgetMode::Document:
             {
                 mLeftPalette->setVisible(leftPaletteVisible);
                 mRightPalette->setVisible(rightPaletteVisible);

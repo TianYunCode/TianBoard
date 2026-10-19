@@ -47,8 +47,8 @@ class BoardPaletteManager : public QObject
         void setCurrentWebToolsPalette(WebToolsPalette *palette) {mWebToolsCurrentPalette = palette;}
         WebToolsPalette* mWebToolsCurrentPalette;
 
-        void processPalettersWidget(DockPalette *paletter, eWBDockPaletteWidgetMode mode);
-        void changeMode(eWBDockPaletteWidgetMode newMode, bool isInit = false);
+        void processPalettersWidget(DockPalette *paletter, DockWidgetMode mode);
+        void changeMode(DockWidgetMode newMode, bool isInit = false);
         void startDownloads();
         void stopDownloads();
 

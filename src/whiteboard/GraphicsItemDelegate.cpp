@@ -212,7 +212,13 @@ void GraphicsItemDelegate::freeControls()
     QGraphicsScene *controlsScene = delegated()->scene();
     Q_ASSERT(controlsScene);
 
-    WB_FREE_CONTROL(mFrame, controlsScene);
+    if (mFrame)
+    {
+        if (controlsScene)
+            controlsScene->removeItem(mFrame);
+        mFrame->deleteLater();
+        mFrame = nullptr;
+    }
     freeButtons();
 }
 

@@ -10,7 +10,7 @@ class RightPalette : public DockPalette
 public:
     RightPalette(QWidget* parent=0, const char* name="RightPalette");
     ~RightPalette();
-    bool switchMode(eWBDockPaletteWidgetMode mode);
+    bool switchMode(DockWidgetMode mode);
 
 signals:
     void resized();

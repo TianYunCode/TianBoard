@@ -7,7 +7,7 @@ struct DockPaletteWidget::Private
     QPixmap mIconToLeft;
     QString mName;
 
-    QVector<eWBDockPaletteWidgetMode> mRegisteredModes;
+    QVector<DockWidgetMode> mRegisteredModes;
 
     bool mVisibleState{false};
 };
@@ -65,13 +65,13 @@ void DockPaletteWidget::setVisibleState(bool state)
 /**
   * When a widget registers a mode it means that it would be displayed on that mode
   */
-void DockPaletteWidget::registerMode(eWBDockPaletteWidgetMode mode)
+void DockPaletteWidget::registerMode(DockWidgetMode mode)
 {
     if(!d->mRegisteredModes.contains(mode))
         d->mRegisteredModes.append(mode);
 }
 
-void DockPaletteWidget::slot_changeMode(eWBDockPaletteWidgetMode newMode)
+void DockPaletteWidget::slot_changeMode(DockWidgetMode newMode)
 {
     this->setVisible(this->visibleInMode( newMode ));
 }

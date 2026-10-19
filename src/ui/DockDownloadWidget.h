@@ -13,9 +13,9 @@ public:
     DockDownloadWidget(QWidget* parent=0, const char* name="DockDownloadWidget");
     ~DockDownloadWidget();
 
-    bool visibleInMode(eWBDockPaletteWidgetMode mode)
+    bool visibleInMode(DockWidgetMode mode)
     {
-        return mode == eWBDockPaletteWidget_BOARD;
+        return mode == DockWidgetMode::Board;
     }
 
 private:
