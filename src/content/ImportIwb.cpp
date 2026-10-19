@@ -91,7 +91,7 @@ bool ImportIwb::addFileToDocument(DocumentProxy* pDocument, const QFile& pFile)
         dir.mkdir(destDocument->persistencePath());
 
         //try to import iwb to document
-        if (IwbSubsetAdaptor::ConvertIwbFileToWbz(contentFile, destDocument))
+        if (IwbSubsetAdaptor::convertIwbFileToDocumentPackage(contentFile, destDocument))
         {
             PersistenceManager::persistenceManager()->addDirectoryContentToDocument(destDocument->persistencePath(), pDocument);
             FileSystemUtils::deleteDir(destDocument->persistencePath());
@@ -128,7 +128,7 @@ QString ImportIwb::expandFileToDir(const QFile& pZipFile, const QString& pDir)
     int tmpNumber = 0;
     QDir rootDir;
     while (true) {
-        QString tempPath = QString("%1/sank%2.%3")
+        QString tempPath = QString("%1/importedIwb%2.%3")
                 .arg(pDir)
                 .arg(QDateTime::currentDateTime().toString("dd_MM_yyyy_HH-mm"))
                 .arg(tmpNumber);
@@ -244,7 +244,7 @@ DocumentProxy* ImportIwb::importFile(const QFile& pFile, const QString& pGroup)
 
         DocumentProxy* newDocument = NULL;
         //try to import iwb to document
-        if (IwbSubsetAdaptor::ConvertIwbFileToWbz(contentFile, destDocument))
+        if (IwbSubsetAdaptor::convertIwbFileToDocumentPackage(contentFile, destDocument))
         {
             newDocument = PersistenceManager::persistenceManager()->createDocumentFromDir(destDocument->persistencePath()
                                                                                             ,""

@@ -101,8 +101,8 @@ private:
         void setCoordinatesFromPageElement(const QDomElement &pageElement, QDomElement &iwbElement);
         bool setContentFromPageElement(const QDomElement &pageElement, QDomElement &svgElement);
         void setIwbTextFromHTMLTextNode(const QDomElement htmlTextNode, QDomElement &iwbElement);
-        QString ubzAttrNameToIwbAttrName(QString iwbAttrName);
-        QString ubzAttrValueToIwbAttrName(QString iwbAttrValue);
+        QString packageAttrNameToIwbAttrName(QString iwbAttrName);
+        QString packageAttrValueToIwbAttrName(QString iwbAttrValue);
 
         bool setIwbAttribute(const QString &attributeName, const QString &attributeValue, const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement);
         bool copyPageCommonAttributes(const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement);

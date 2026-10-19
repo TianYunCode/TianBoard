@@ -749,7 +749,7 @@ QString IwbDocumentAdaptor::ToIwbConverter::getSrcContentFolderName(QString href
     for (int i = 0; i < ls.count()-1; i++)
     {
         QString sPart = ls.at(i);
-        if (wbzContentFolders.contains(sPart))
+        if (iwbPackageContentFolders.contains(sPart))
         {
             sRet = sPart;
         }
@@ -886,7 +886,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::itIsSupportedFormat(const QString &form
 
 bool IwbDocumentAdaptor::ToIwbConverter::itIsFormatToConvert(const QString &format) const
 {
-    foreach (QString f, wbzFormatsToConvert.split(","))
+    foreach (QString f, iwbPackageFormatsToConvert.split(","))
     {
         if (format == f)
             return true;
@@ -921,7 +921,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::itIsIWBAttribute(const QString &attribu
 
 bool IwbDocumentAdaptor::ToIwbConverter::isPageAttributeToConvert(const QString &attribute) const
 {
-    foreach (QString attr, wbzElementAttributesToConvert.split(","))
+    foreach (QString attr, iwbPackageAttributesToConvert.split(","))
     {
         if (attribute == attr.trimmed())
             return true;
@@ -977,12 +977,12 @@ QTransform IwbDocumentAdaptor::ToIwbConverter::transformOfPageElement(const QDom
   
     QStringList transformParameters;
 
-    QString ubzTransform = pageElement.attribute(aTransform);
-    ubzTransform.remove("matrix");
-    ubzTransform.remove("(");
-    ubzTransform.remove(")");
+    QString transformAttribute = pageElement.attribute(aTransform);
+    transformAttribute.remove("matrix");
+    transformAttribute.remove("(");
+    transformAttribute.remove(")");
 
-    transformParameters = ubzTransform.split(",", Qt::SkipEmptyParts);
+    transformParameters = transformAttribute.split(",", Qt::SkipEmptyParts);
 
     if (6 <= transformParameters.count())
     {
@@ -1198,9 +1198,9 @@ void IwbDocumentAdaptor::ToIwbConverter::setIwbTextFromHTMLTextNode(const QDomEl
                                     QStringList AttrVal = attr.split(":", Qt::SkipEmptyParts);
                                     if(1 < AttrVal.count())
                                     {    
-                                        QString sAttr = ubzAttrNameToIwbAttrName(AttrVal.at(0));
+                                        QString sAttr = packageAttrNameToIwbAttrName(AttrVal.at(0));
                                         if (itIsSVGElementAttribute(spanElement.tagName(), sAttr))
-                                            spanElement.setAttribute(sAttr, ubzAttrValueToIwbAttrName(AttrVal.at(1)));
+                                            spanElement.setAttribute(sAttr, packageAttrValueToIwbAttrName(AttrVal.at(1)));
                                     }
                                 }
                             }
@@ -1219,7 +1219,7 @@ void IwbDocumentAdaptor::ToIwbConverter::setIwbTextFromHTMLTextNode(const QDomEl
     }
 }
 
-QString IwbDocumentAdaptor::ToIwbConverter::ubzAttrNameToIwbAttrName(QString iwbAttrName)
+QString IwbDocumentAdaptor::ToIwbConverter::packageAttrNameToIwbAttrName(QString iwbAttrName)
 {
     QString sRet = iwbAttrName;
     if (QString("color") == iwbAttrName)
@@ -1230,7 +1230,7 @@ QString IwbDocumentAdaptor::ToIwbConverter::ubzAttrNameToIwbAttrName(QString iwb
     return sRet;
 }
 
-QString IwbDocumentAdaptor::ToIwbConverter::ubzAttrValueToIwbAttrName(QString iwbValue)
+QString IwbDocumentAdaptor::ToIwbConverter::packageAttrValueToIwbAttrName(QString iwbValue)
 {
     QString sRet = iwbValue;
     if (QString("text") == iwbValue)
@@ -1311,9 +1311,9 @@ bool IwbDocumentAdaptor::ToIwbConverter::copyPageCommonAttributes(const QDomElem
     for (int i = 0; i < pageElement.attributes().count(); i++)
     {
         QDomNode attribute = pageElement.attributes().item(i);
-        QString attributeName = ubzAttrNameToIwbAttrName(attribute.nodeName().remove("tb:"));
+        QString attributeName = packageAttrNameToIwbAttrName(attribute.nodeName().remove("tb:"));
 
-        bRet &= setIwbAttribute(attributeName, ubzAttrValueToIwbAttrName(attribute.nodeValue()), pageElement, iwbElement, svgElement);
+        bRet &= setIwbAttribute(attributeName, packageAttrValueToIwbAttrName(attribute.nodeValue()), pageElement, iwbElement, svgElement);
         if (!bRet) break;
     }
     return bRet;
@@ -1764,8 +1764,8 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageText(const QDomElement &elemen
                 QStringList AttrVal = commonAttributes.at(i).split(":", Qt::SkipEmptyParts);
                 if (1 < AttrVal.count())
                 {                
-                    QString sAttr = ubzAttrNameToIwbAttrName(AttrVal.at(0));
-                    QString sVal  = ubzAttrValueToIwbAttrName(AttrVal.at(1));
+                    QString sAttr = packageAttrNameToIwbAttrName(AttrVal.at(0));
+                    QString sVal  = packageAttrValueToIwbAttrName(AttrVal.at(1));
 
                     setIwbAttribute(sAttr, sVal, element, iwbElementPart, svgElementPart);
                 }

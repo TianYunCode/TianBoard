@@ -160,7 +160,7 @@ wav \
 ");
 
 const QString iwbSupportedFileFormats(iwbElementImage + iwbElementVideo + iwbElementAudio);
-const QString wbzFormatsToConvert("svg");
+const QString iwbPackageFormatsToConvert("svg");
 
 const QString iwbSVGImageAttributes(" \
 id, \
@@ -312,7 +312,7 @@ stroke-lineshape-start, \
 stroke-lineshape-end \
 ");
 
-const QString wbzElementAttributesToConvert(" \
+const QString iwbPackageAttributesToConvert(" \
 xlink:href, \
 src, \
 transform, \
@@ -348,7 +348,7 @@ font-stretch, \
 text-align \
 ");
 
-const QString wbzContentFolders("audios,videos,images,widgets");
+const QString iwbPackageContentFolders("audios,videos,images,widgets");
 
 struct ItemLayerType
 {

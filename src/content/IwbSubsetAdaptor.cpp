@@ -95,7 +95,7 @@ static QString apTranslate      = "translate";
 IwbSubsetAdaptor::IwbSubsetAdaptor()
 {}
 
-bool IwbSubsetAdaptor::ConvertIwbFileToWbz(QString &iwbSourceFile, DocumentProxy* pDocument)
+bool IwbSubsetAdaptor::convertIwbFileToDocumentPackage(QString &iwbSourceFile, DocumentProxy* pDocument)
 {
     //TODO
     // fill document proxy metadata
@@ -1476,7 +1476,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::getTempFileName()
     QDir rootDir;
     while (true)
     {
-        mTempFilePath = QString("%1/sanksvg%2.%3")
+        mTempFilePath = QString("%1/iwbSvg%2.%3")
                 .arg(rootDir.tempPath())
                 .arg(QDateTime::currentDateTime().toString("dd_MM_yyyy_HH-mm"))
                 .arg(tmpNumber);
@@ -1496,7 +1496,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::createTempFlashPath()
     QDir systemTmp = QDir::temp();
 
     while (true) {
-        QString dirName = QString("SankTmpFlash%1.%2")
+        QString dirName = QString("IwbFlashTmp%1.%2")
                 .arg(QDateTime::currentDateTime().toString("dd_MM_yyyy_HH-mm"))
                 .arg(tmpNumber++);
         if (!systemTmp.exists(dirName)) {
