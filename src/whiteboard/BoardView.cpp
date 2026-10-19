@@ -1285,11 +1285,11 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
 
 void BoardView::forcedTabletRelease() {
     if (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed || d->mPendingStylusReleaseEvent) {
-        qWarning() << "dirty mouse/tablet state:";
-        qWarning() << "mMouseButtonIsPressed =" << d->mMouseButtonIsPressed;
-        qWarning() << "mTabletStylusIsPressed = " << d->mTabletStylusIsPressed;
-        qWarning() << "mPendingStylusReleaseEvent" << d->mPendingStylusReleaseEvent;
-        qWarning() << "forcing device release";
+        qDebug() << "dirty mouse/tablet state:";
+        qDebug() << "mMouseButtonIsPressed =" << d->mMouseButtonIsPressed;
+        qDebug() << "mTabletStylusIsPressed = " << d->mTabletStylusIsPressed;
+        qDebug() << "mPendingStylusReleaseEvent" << d->mPendingStylusReleaseEvent;
+        qDebug() << "forcing device release";
 
         scene()->inputDeviceRelease();
 

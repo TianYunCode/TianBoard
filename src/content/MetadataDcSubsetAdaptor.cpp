@@ -30,7 +30,7 @@ void MetadataDcSubsetAdaptor::persist(DocumentProxy *proxy) {
         return;
     }
     QString fileName = proxy->persistencePath() + "/" + metadataFilename;
-    qWarning() << "Persisting document; path is" << fileName;
+    qDebug() << "Persisting document; path is" << fileName;
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qCritical() << "cannot open " << fileName << " for writing ...";
@@ -166,7 +166,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
         QSize docSize = dw->screenGeometry(controlScreenIndex).size();
         docSize.setHeight(docSize.height() - 70); // 70 = toolbar height
 
-        qWarning() << "Document size not found, using default view size" << docSize;
+        qDebug() << "Document size not found, using default view size" << docSize;
 
         metadata.insert(Settings::documentSize, QVariant(docSize));
     }

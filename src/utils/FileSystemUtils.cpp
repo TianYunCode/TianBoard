@@ -149,7 +149,7 @@ QString FileSystemUtils::nextAvailableFileName(const QString &filename, const QS
 
 void FileSystemUtils::deleteAllTempDirCreatedDuringSession() {
     foreach (QString dirPath, sTempDirToCleanUp) {
-        qWarning() << "will delete" << dirPath;
+        qDebug() << "will delete" << dirPath;
 
         deleteDir(dirPath);
     }

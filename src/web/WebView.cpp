@@ -152,7 +152,7 @@ void WebView::loadStarted() {
 
 void WebView::loadFinished(bool ok) {
     if (100 != mProgress) {
-        qWarning() << "Received finished signal while progress is still:" << progress() << "Url:" << url();
+        qDebug() << "Received finished signal while progress is still:" << progress() << "Url:" << url();
     }
 
     QString error;

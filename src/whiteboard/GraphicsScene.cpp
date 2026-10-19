@@ -370,8 +370,8 @@ bool GraphicsScene::inputDevicePress(const QPointF &scenePos, const qreal &press
     bool accepted = false;
 
     if (mInputDeviceIsPressed) {
-        qWarning() << "scene received input device pressed, without input device release, muting event as "
-                      "input device move";
+        qDebug() << "scene received input device pressed, without input device release, muting event as "
+                    "input device move";
         accepted = inputDeviceMove(scenePos, pressure);
     } else {
         mInputDeviceIsPressed = true;
