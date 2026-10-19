@@ -36,9 +36,6 @@ protected:
 
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
-    void javaScriptWindowObjectCleared();
-
 private:
     struct Private;
     std::unique_ptr<Private> d;

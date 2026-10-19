@@ -12,10 +12,10 @@
 ## 一、空实现与半截实现（有调用点，用户点了没反应）
 
 ### 1. 文档标签页的 剪切/复制/粘贴 是三个空函数
-- **位置**：`src/model/DocumentController.cpp:3125/3131/3137`（`cut()`/`copy()`/`paste()`
+- **位置**：`src/model/DocumentController.cpp:3127/3133/3139`（`cut()`/`copy()`/`paste()`
   三处，每处一句 `// TODO - implemented me`）
-- **调用点是活的**：`src/core/ApplicationController.cpp:622/626/630`（cut）、
-  `642/646/650`（copy）、`662/666/670`（paste）按当前模式分派，文档模式走的就是这三个空函数。
+- **调用点是活的**：`src/core/ApplicationController.cpp:629`（cut）、
+  `649`（copy）、`669`（paste）按当前模式分派，文档模式走的就是这三个空函数。
 - **现象**：在文档界面按 Ctrl+X/C/V 或菜单项，没有任何效果、也没有提示。
 - **建议**：要么实现（缩略图选中项的删除/复制/新建），要么让动作在文档模式下不可用
   （`setEnabled(false)`），别留“看着能点”的死动作。
@@ -28,24 +28,41 @@
 - **建议**：确认这是废弃协议还是待实现；废弃就删掉声明与调用点，待实现就补测试。
 
 ### 3. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1102/1133/1152`（`freezedWidgetWrapper.html`、
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1101/1132/1151`（`freezedWidgetWrapper.html`、
   按 `npapi-wrapper*` 前缀挑包装页、读 `etc/npapi-wrapper.config.xml`）与
-  `src/content/IwbSubsetAdaptor.cpp:904`（`createNPAPIWrapperInDir(..., "application/x-shockwave-flash", ...)`）
+  `src/content/IwbSubsetAdaptor.cpp:903`（`createNPAPIWrapperInDir(..., "application/x-shockwave-flash", ...)`）
 - **现象**：Qt6 WebEngine 没有 NPAPI/Flash 插件接口，这套包装页只能显示一张“无法播放”的
   静态图；但代码路径是活的，旧文档里的 flash 条目会走到这里。
 - **建议**：要么把 flash 条目明确降级成“不支持的媒体”并提示用户，要么连同
   `res/etc/npapi-wrapper.*`、`freezedWidgetWrapper.html` 一起删。属于产品可见的取舍。
 
-### 4. 其它 `TODO`（全仓 26 处里的其余部分，按模块列，不再逐条展开）
-- `src/content/IwbSubsetAdaptor.cpp:101`、`1140`：子集读写有两段没实现
+### 4. 小部件的 JS 桥与加载回调在 Qt6 里没有接回来
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp`（`javaScriptWindowObjectCleared()`、
+  `mainFrameLoadFinished()`、`initialLayoutCompleted()`、`injectInlineJavaScript()`）与
+  `src/ui/ToolWidget.cpp::initialize()`（只 `load()`，页面里拿不到任何 API 对象）
+- **现象**：Qt5 时代这些槽挂在 `page()->mainFrame()` 的
+  `javaScriptWindowObjectCleared`/`initialLayoutCompleted` 等信号上，Qt6 WebEngine 没有
+  对应信号（要换 `QWebEnginePage::webChannel` + 页面侧 `qwebchannel.js`，小部件自己的
+  脚本不认），所以这些槽没有发送者：`mBoardAPI`/`mWebWidgetAPI` 从不创建，
+  `mInitialLoadDone` 恒为 false ⇒ `hasLoadedSuccessfully()` 恒 false，`paint()` 永远走
+  “未加载”分支。小部件仍能显示（`ToolWidget` 的预览视图是真的），但脚本调不到画板能力。
+- **已顺手修掉的两处故障**：拖放落到小部件上时 `mBoardAPI` 是空指针（现在按需创建）；
+  `ToolWidget::javaScriptWindowObjectCleared()` 每次切活动场景 `new` 一个
+  `WebWidgetBoardAPI`（父对象给场景，无人接收）并重复连接
+  `DownloadManager::downloadFinished` —— 泄漏 + 重复回调，已连同该槽一起删除。
+- **建议**：真要恢复脚本桥，需要一次独立改造：定下 QWebChannel 的对象名与 JS 侧包装，
+  并把 `WebWidget*API` 三个门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
+
+### 5. 其它 `TODO`（全仓 26 处里的其余部分，按模块列，不再逐条展开）
+- `src/content/IwbSubsetAdaptor.cpp:100`、`1139`：子集读写有两段没实现
   （“从 parseIwbElement() 的结果建组”）。
 - `src/content/ImportIwb.cpp:71/86/215`：导入 .iwb 时的临时目录与内容转换留 TODO ——
   与“旧文档不必保持可读”的既定决策一致，属于可以不填的坑。
 - `src/core/PersistenceManager.cpp:177`（双击打开文档包）与 `:237`（落盘对象处理）：
-  上游遗留的临时分支；`src/core/Settings.cpp` 里还有一处 `//TODO: user-settable?`。
+  上游遗留的临时分支；`src/settings/Settings.cpp` 里还有一处 `//TODO: user-settable?`。
 - `src/whiteboard/GraphicsItemGroupUndoCommand.cpp:34`：`//Work around. TODO determine why
   does Qt call the redo function on pushing to undo` —— undo 栈语义可疑，动它要写回归。
-- `src/whiteboard/GraphicsTextItem.cpp:26`、`GraphicsStrokesGroup.cpp:39`、
+- `src/whiteboard/GraphicsTextItem.cpp:27`、`GraphicsStrokesGroup.cpp:39`、
   `GraphicsDelegateFrame.cpp:809`、`GraphicsScene.cpp:691`（笔迹平滑“TODO LATER”）、
   `GraphicsStroke.cpp:181`：绘制热路径上的算法欠账。
 - `src/whiteboard/FeaturesController.h:156`：`//TODO make less complicated for betteer maintainence`
@@ -55,23 +72,7 @@
 - `src/ui/MainWindow.cpp:1193`：导出时文件对话框的 `// HACK`（上游注释说明了为什么不能改成
   常规写法），别顺手“清理”。
 
-## 二、指向不存在文件的死引用（注释里，编译不参与）
-
-这些行指向的文件在本仓库里从来不存在；把它们改成新模块名反而更像“有效路径”，
-所以要么整行删掉，要么保持原样。属于行为无关的死代码清理，单独一批做。
-
-- `src/whiteboard/BoardPaletteManager.cpp:32`：`//#include "network/ServerXMLHttpRequest.h"`
-  （`network/` 已并入 `core/`，该头文件不存在）
-- `src/content/IwbSubsetAdaptor.cpp:35`、`src/content/SvgSubsetAdaptor.cpp:53`：
-  `//#include "qtlogger.h"`（Qt Solutions 的日志头，仓库里没有）
-- `src/content/ExportFullPDF.cpp:25-27`：`//#include <Merger.h>`、`<Exception.h>`、
-  `<Transformation.h>` 与 `//using namespace merge_lib;`（某个 PDF 合并库的残骸）
-- `src/web/TabWidget.cpp:4`：`//#include "ui/History.h"`（模块名是上游 Qt5 时代的，
-  文件本身不存在）
-- `src/web/EditTableView.cpp:2`：`//#include <QtWidgets/QKeyEvent>`
-- `src/web/WebTrapWebView.cpp:5`：`//#include <QWebHitTestResult>`（Qt6 已无该类）
-
-## 三、需要产品决策，不该由重构顺手改掉
+## 二、需要产品决策，不该由重构顺手改掉
 
 - **导出用的 DPI 已经收敛成一个入口，但“取哪个屏”仍未定**：原来 11 处各自写
   `(physicalDpiX()+physicalDpiY())/2` 或只取 `Y`，同一份文档的导出与导入可能按两套比例折算；
@@ -81,9 +82,9 @@
 - **语言只放了中/英**。`LanguageManager` 的机制与 `tst_language` 已就位，加第三种语言
   只要补 `res/i18n/lang_<代码>.ts` 并产出 `Language/TianBoard_<lang>.qm`；
   在有人翻译之前不能凭空往菜单里加语种。
-- **`.clang-format` 全量重排仍未执行**（见第五节倒数第二条），理由不变。
+- **`.clang-format` 全量重排仍未执行**（见第四节倒数第二条），理由不变。
 
-## 四、命名与形态遗留
+## 三、命名与形态遗留
 
 - **`src/app/resource.h` 是全仓唯一保留 `#ifndef` 守卫的头**（`src/` 下 172 个头文件里
   171 个已经是 `#pragma once`）：`rc.exe` 不认识 `#pragma once`，把它改掉会让图标与
@@ -103,13 +104,15 @@
   但改它要连写进 `.tbz` 的 mime 字符串一起看，属于协议层，先记。
 - 类名前缀本轮没换新的：既定决策是“去掉 `WB`/`UB` 前缀且**不换新的**”，所以新代码也别加
   `TianBoard::` 这类项目命名空间（见 [coding-style.md](coding-style.md) 第二章）。
-  `src/` 下已 grep 核对：没有 `UB*`/`ub*`/`WB_*`/`eWB*` 标识符残留。
+  `src/` 下已 grep 核对：没有 `UB*`/`ub*`/`WB_*`/`eWB*` 标识符残留；后来补扫出另外几族
+  历史前缀并一并改名：`wbz*`/`ubz*`（文档包缩写留在标识符里）与临时目录名 `sank*`。
+  这三族现在都不在 `src/` 里，改的时候注意只动标识符，别动写进 `.tbz` 的字符串值。
 - `src/platform/WindowCapture.h`：有 `Q_OBJECT` 但没有同名 `.cpp`（实现是
   `WindowCapture_win.cpp`）。它**必须**继续显式列在 `src/platform/CMakeLists.txt` 里，
   删掉那一行 = moc 不参与 = 捕获窗口信号槽静默失效。同类风险见
   [coding-style.md](coding-style.md) 第四章。
 
-## 五、构建与仓库层面的坑（记下来免得踩回去）
+## 四、构建与仓库层面的坑（记下来免得踩回去）
 
 - **产物目录必须是 `${CMAKE_BINARY_DIR}/bin/<Config>/`，不能钉死到单一 `build/bin/`**。
   静态库属于 ARCHIVE 输出，多配置生成器下 Debug 与 Release 的 `tb_quazip.lib` 同名，

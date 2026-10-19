@@ -68,7 +68,6 @@ class GraphicsWidgetItem : public QGraphicsWidget, public Item, public Resizable
         void removeScript();
 
         void processDropEvent(QGraphicsSceneDragDropEvent *event);
-        bool isDropableData(const QMimeData *data) const;
 
         virtual QUrl getOwnFolder() const;
         virtual void setOwnFolder(const QUrl &newFolder);

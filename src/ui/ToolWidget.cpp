@@ -1,14 +1,11 @@
 #include <QtWidgets>
 #include <QWebEngineView>
-#include <QtWebChannel/QWebChannel>
 
 #include "ui/ToolWidget.h"
-#include "api/WebWidgetBoardAPI.h"
-#include "api/WebWidgetAPI.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsWidgetItem.h"
 #include "platform/PlatformUtils.h"
@@ -52,7 +49,6 @@ ToolWidget::ToolWidget(GraphicsWidgetItem *pWidget, QWidget *pParent)
     d->mToolWidget = pWidget;
 
     initialize();
-    javaScriptWindowObjectCleared();
 }
 
 ToolWidget::~ToolWidget()
@@ -93,16 +89,12 @@ void ToolWidget::initialize()
 
     setFixedSize(d->mToolWidget->boundingRect().width() + d->mContentMargin * 2, d->mToolWidget->boundingRect().height() + d->mContentMargin * 2);
 
-    //connect(mWebView->page()-> mainFrame(), &QWebChannel::javaScriptWindowObjectCleared,
+    // 小部件的 JS 桥在 Qt6 没有 addToJavaScriptWindowObject 的等价物（要换成 QWebChannel
+    // 并改页面脚本），所以这里只加载页面，不再生成无人接收的 API 对象。
     d->mWebView->load(d->mToolWidget->mainHtml());
 
-
     d->mWebView->setAcceptDrops(false);
-    //mWebView->settings()->setAttribute(QWebSettings::PluginsEnabled, true);
     d->mWebView->setAttribute(Qt::WA_OpaquePaintEvent, false);
-
-
-    connect(Application::boardController, &BoardController::activeSceneChanged, this, &ToolWidget::javaScriptWindowObjectCleared);
 }
 
 
@@ -185,19 +177,6 @@ void ToolWidget::paintEvent(QPaintEvent *event)
         if (d->mToolWidget->canBeContent())
             painter.drawPixmap(d->mContentMargin, 0, *sUnpinPixmap);
     }
-}
-
-void ToolWidget::javaScriptWindowObjectCleared()
-{
-    WebWidgetBoardAPI *boardAPI = new WebWidgetBoardAPI(Application::boardController->activeScene(), d->mToolWidget);
-	
-
-    //GraphicsWebWidgetItem *graphicsWebWidgetItem = dynamic_cast<GraphicsWebWidgetItem*>(mToolWidget);
-    //if (graphicsWebWidgetItem)
-    //{
-    //    WebWidgetAPI* widgetAPI = new WebWidgetAPI(graphicsWebWidgetItem);
-    //    mWebView->page()->mainFrame()->addToJavaScriptWindowObject("widget", widgetAPI);
-    //}
 }
 
 GraphicsWidgetItem* ToolWidget::toolWidget() const

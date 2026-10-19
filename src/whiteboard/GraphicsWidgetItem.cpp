@@ -15,7 +15,7 @@
 
 #include "core/ApplicationController.h"
 #include "core/Application.h"
-#include "core/Settings.h"
+#include "settings/Settings.h"
 
 #include "utils/FileSystemUtils.h"
 #include "platform/PlatformUtils.h"
@@ -245,11 +245,13 @@ void GraphicsWidgetItem::removeScript()
 
 void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event)
 {
+    // mBoardAPI 原本只在 javaScriptWindowObjectCleared() 里建，而 Qt6 的
+    // QWebEnginePage 没有那个信号去触发它 —— 拖放落到小部件上就是一次空指针。
+    // 父对象给场景，随场景一起回收。
+    if (!mBoardAPI)
+        mBoardAPI = new WebWidgetBoardAPI(scene(), this);
+
     mBoardAPI->ProcessDropEvent(event);
-}
-bool GraphicsWidgetItem::isDropableData(const QMimeData *data) const
-{
-    return mBoardAPI->isDropableData(data);
 }
 
 QUrl GraphicsWidgetItem::getOwnFolder() const
@@ -575,9 +577,6 @@ void GraphicsWidgetItem::javaScriptWindowObjectCleared()
 
     if(!mBoardAPI)
         mBoardAPI = new WebWidgetBoardAPI(scene(), this);
-
-    //page()->mainFrame()->addToJavaScriptWindowObject("sankore", mBoardAPI);
-
 }
 
 void GraphicsWidgetItem::mainFrameLoadFinished (bool ok)
