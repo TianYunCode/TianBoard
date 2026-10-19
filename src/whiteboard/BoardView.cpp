@@ -77,7 +77,6 @@ struct BoardView::Private
     bool mMarkerPressureSensitive{false};
     bool mUseHighResTabletEvent{false};
 
-    QRubberBand *mRubberBand{nullptr};
     bool mIsCreatingTextZone{false};
     bool mIsCreatingSceneGrabZone{false};
 
@@ -90,7 +89,7 @@ struct BoardView::Private
     QMouseEvent *suspendedMousePressEvent{nullptr};
 
     bool moveRubberBand{false};
-    RubberBand *mUBRubberBand{nullptr};
+    RubberBand *mRubberBand{nullptr};
 
     QList<QGraphicsItem *> mRubberedItems;
     QSet<QGraphicsItem*> mJustSelectedItems;
@@ -194,7 +193,6 @@ void BoardView::init ()
     d->mUsingTabletEraser = false;
     d->mIsCreatingTextZone = false;
     d->mRubberBand = 0;
-    d->mUBRubberBand = 0;
 
     d->mVirtualKeyboardActive = false;
 
@@ -811,8 +809,8 @@ void BoardView::handleItemMouseMove(QMouseEvent *event)
 
 void BoardView::rubberItems()
 {
-    if (d->mUBRubberBand)
-        d->mRubberedItems = items(d->mUBRubberBand->geometry());
+    if (d->mRubberBand)
+        d->mRubberedItems = items(d->mRubberBand->geometry());
 
     foreach(QGraphicsItem *item, d->mRubberedItems)
     {
@@ -1120,11 +1118,11 @@ void BoardView::mouseMoveEvent (QMouseEvent *event)
 
             bandRect = bandRect.normalized();
 
-            if (!d->mUBRubberBand) {
-                d->mUBRubberBand = new RubberBand(QRubberBand::Rectangle, this);
+            if (!d->mRubberBand) {
+                d->mRubberBand = new RubberBand(QRubberBand::Rectangle, this);
             }
-            d->mUBRubberBand->setGeometry(bandRect);
-            d->mUBRubberBand->show();
+            d->mRubberBand->setGeometry(bandRect);
+            d->mRubberBand->show();
 
             //          QTime startTime = QTime::currentTime();
             //          QTime testTime = QTime::currentTime();
@@ -1408,12 +1406,6 @@ void BoardView::mouseReleaseEvent (QMouseEvent *event)
     }
 
 
-    if (d->mUBRubberBand) {
-        d->mUBRubberBand->hide();
-        delete d->mUBRubberBand;
-        d->mUBRubberBand = NULL;
-    }
-
     if (d->mRubberBand) {
         d->mRubberBand->hide();
         delete d->mRubberBand;
@@ -1544,7 +1536,7 @@ void BoardView::dropEvent (QDropEvent *event)
             event->acceptProposedAction();
         }
     }
-    //prevent features in UBFeaturesWidget deletion from the model when event is processing inside
+    // 事件处理期间库条目可能已被模型删除，这里要防住
     //Qt base classes
     if (event->dropAction() == Qt::MoveAction) {
         event->setDropAction(Qt::CopyAction);

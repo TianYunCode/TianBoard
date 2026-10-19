@@ -44,7 +44,7 @@ RecordingPalette::RecordingPalette(QWidget *parent)
 
         if (tb && !tb->menu())
         {
-            tb->setObjectName("ubButtonMenu");
+            tb->setObjectName("buttonMenu");
             tb->setPopupMode(QToolButton::InstantPopup);
             QMenu* menu = new QMenu(this);
 

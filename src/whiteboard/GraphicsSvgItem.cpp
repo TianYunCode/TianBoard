@@ -47,8 +47,8 @@ void GraphicsSvgItem::init()
     setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON
                                            | GF_RESPECT_RATIO
                                            | GF_REVOLVABLE));
-    GraphicsFlags dfl = Delegate()->ubflags();
-    Delegate()->setUBFlags(dfl | GF_FLIPPABLE_ALL_AXIS | GF_REVOLVABLE);
+    GraphicsFlags dfl = Delegate()->frameFlags();
+    Delegate()->setFrameFlags(dfl | GF_FLIPPABLE_ALL_AXIS | GF_REVOLVABLE);
 
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 

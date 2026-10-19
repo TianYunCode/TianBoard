@@ -47,15 +47,15 @@ ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction*> 
 
         if(i == 0)
         {
-            button->setObjectName("ubButtonGroupLeft");
+            button->setObjectName("buttonGroupLeft");
         }
         else if (i == actions.size() - 1)
         {
-            button->setObjectName("ubButtonGroupRight");
+            button->setObjectName("buttonGroupRight");
         }
         else
         {
-            button->setObjectName("ubButtonGroupCenter");
+            button->setObjectName("buttonGroupCenter");
         }
 
         connect(button, SIGNAL(triggered(QAction*)), this, SLOT(selected(QAction*)));

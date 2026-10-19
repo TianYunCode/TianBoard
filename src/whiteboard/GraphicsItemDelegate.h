@@ -255,10 +255,10 @@ class GraphicsItemDelegate : public QObject
         qreal antiScaleRatio() const { return mAntiScaleRatio; }
         virtual void update() {positionHandles();}
 
-        GraphicsFlags ubflags() const {return mFlags;}
-        bool testUBFlags(GraphicsFlags pf) const {return mFlags & pf;}
-        void setUBFlags(GraphicsFlags pf);
-        void setUBFlag(GraphicsFlags pf, bool set = true);
+        GraphicsFlags frameFlags() const {return mFlags;}
+        bool testFrameFlags(GraphicsFlags pf) const {return mFlags & pf;}
+        void setFrameFlags(GraphicsFlags pf);
+        void setFrameFlag(GraphicsFlags pf, bool set = true);
 
         virtual void showToolBar(bool autohide = true) {Q_UNUSED(autohide);}
 

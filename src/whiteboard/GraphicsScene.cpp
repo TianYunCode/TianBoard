@@ -1335,7 +1335,7 @@ GraphicsScene* GraphicsScene::sceneDeepCopy() const
     {
         QGraphicsItem* item = itItems.next();
         QGraphicsItem* cloneItem = 0;
-        Item* ubItem = dynamic_cast<Item*>(item);
+        Item* boardItem = dynamic_cast<Item*>(item);
         GraphicsStroke* stroke = dynamic_cast<GraphicsStroke*>(item);
         GraphicsGroupContainerItem* group = dynamic_cast<GraphicsGroupContainerItem*>(item);
 
@@ -1361,8 +1361,8 @@ GraphicsScene* GraphicsScene::sceneDeepCopy() const
             groupCloned->setTransform(group->transform(), true);
         }
 
-        if (ubItem && !stroke && !group && item->isVisible())
-            cloneItem = dynamic_cast<QGraphicsItem*>(ubItem->deepCopy());
+        if (boardItem && !stroke && !group && item->isVisible())
+            cloneItem = dynamic_cast<QGraphicsItem*>(boardItem->deepCopy());
 
         if (cloneItem)
         {
@@ -2343,11 +2343,11 @@ void GraphicsScene::setRenderingQuality(Item::RenderingQuality pRenderingQuality
     {
         QGraphicsItem *gItem =  itItems.next();
 
-        Item *ubItem = dynamic_cast<Item*>(gItem);
+        Item *boardItem = dynamic_cast<Item*>(gItem);
 
-        if (ubItem)
+        if (boardItem)
         {
-            ubItem->setRenderingQuality(pRenderingQuality);
+            boardItem->setRenderingQuality(pRenderingQuality);
         }
     }
 }
@@ -2635,7 +2635,7 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
         if (keyEvent->matches(QKeySequence::Delete))
 #endif
         {
-            QVector<GraphicsItem*> ubItemsToRemove;
+            QVector<GraphicsItem*> itemsToRemove;
             QVector<QGraphicsItem*> itemToRemove;
 
             bool bRemoveOk = true;
@@ -2649,7 +2649,7 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
                         GraphicsWebWidgetItem *wc3_widget = dynamic_cast<GraphicsWebWidgetItem*>(item);
                         if (0 != wc3_widget)
                         if (!wc3_widget->hasFocus())
-                            ubItemsToRemove << wc3_widget;
+                            itemsToRemove << wc3_widget;
                         break;
                     }
                 case GraphicsTextItem::Type:
@@ -2657,7 +2657,7 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
                         GraphicsTextItem *text_item = dynamic_cast<GraphicsTextItem*>(item);
                         if (0 != text_item){
                             if (!text_item->hasFocus())
-                                ubItemsToRemove << text_item;
+                                itemsToRemove << text_item;
                             else
                                 bRemoveOk = false;
                         }
@@ -2669,7 +2669,7 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
                     GraphicsGroupContainerItem* group_item = dynamic_cast<GraphicsGroupContainerItem*>(item);
                     if(NULL != group_item){
                         if(!hasTextItemWithFocus(group_item))
-                            ubItemsToRemove << group_item;
+                            itemsToRemove << group_item;
                         else
                             bRemoveOk = false;
                     }
@@ -2680,7 +2680,7 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
                     {
                         GraphicsItem *ubgi = dynamic_cast<GraphicsItem*>(item);
                         if (0 != ubgi)
-                            ubItemsToRemove << ubgi;
+                            itemsToRemove << ubgi;
                         else
                             itemToRemove << item;
                     }
@@ -2688,8 +2688,8 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
             }
 
             if(bRemoveOk){
-                foreach(GraphicsItem* pUBItem, ubItemsToRemove){
-                    pUBItem->remove();
+                foreach(GraphicsItem* item, itemsToRemove){
+                    item->remove();
                 }
                 foreach(QGraphicsItem* pItem, itemToRemove){
                     CoreGraphicsScene::removeItem(pItem);

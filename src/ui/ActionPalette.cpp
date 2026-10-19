@@ -328,7 +328,7 @@ ActionPaletteButton::ActionPaletteButton(QAction* action, QWidget * parent)
 
     setFocusPolicy(Qt::NoFocus);
 
-    setObjectName("ubActionPaletteButton");
+    setObjectName("actionPaletteButton");
 }
 
 

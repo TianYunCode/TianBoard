@@ -189,7 +189,7 @@ void BoardController::setupViews()
     mControlView->setTransformationAnchor(QGraphicsView::NoAnchor);
 
     mControlLayout->addWidget(mControlView);
-    mControlContainer->setObjectName("ubBoardControlContainer");
+    mControlContainer->setObjectName("boardControlContainer");
     mMainWindow->addBoardWidget(mControlContainer);
 
     connect(mControlView, SIGNAL(resized(QResizeEvent*)), this, SLOT(boardViewResized(QResizeEvent*)));
@@ -2195,13 +2195,13 @@ void BoardController::cut()
     {
         gi->setSelected(false);
 
-        Item* ubItem = dynamic_cast<Item*>(gi);
-        GraphicsItem *ubGi =  dynamic_cast<GraphicsItem*>(gi);
+        Item* boardItem = dynamic_cast<Item*>(gi);
+        GraphicsItem *giAsItem =  dynamic_cast<GraphicsItem*>(gi);
 
-        if (ubItem && ubGi && !mActiveScene->tools().contains(gi))
+        if (boardItem && giAsItem && !mActiveScene->tools().contains(gi))
         {
-            selected << ubItem->deepCopy();
-            ubGi->remove();
+            selected << boardItem->deepCopy();
+            giAsItem->remove();
         }
     }
 
@@ -2229,10 +2229,10 @@ void BoardController::copy()
 
     foreach(QGraphicsItem* gi, mActiveScene->selectedItems())
     {
-        Item* ubItem = dynamic_cast<Item*>(gi);
+        Item* boardItem = dynamic_cast<Item*>(gi);
 
-        if (ubItem && !mActiveScene->tools().contains(gi))
-            selected << ubItem;
+        if (boardItem && !mActiveScene->tools().contains(gi))
+            selected << boardItem;
     }
 
     if (selected.size() > 0)

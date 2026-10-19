@@ -632,18 +632,18 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
     if (data->hasFormat(Application::mimeTypeBoardPage)) {
         DocumentTreeNode *curNode = nodeFromIndex(index(row - 1, column, parent));
         DocumentProxy *targetDocProxy = curNode->proxyData();
-        const MimeData *ubMime = qobject_cast <const MimeData*>(data);
-        if (!targetDocProxy || !ubMime || !ubMime->items().count()) {
+        const MimeData *mimeValue = qobject_cast <const MimeData*>(data);
+        if (!targetDocProxy || !mimeValue || !mimeValue->items().count()) {
             qDebug() << "an error ocured while parsing " << Application::mimeTypeBoardPage;
             return false;
         }
 
 //        int count = 0;
-        int total = ubMime->items().size();
+        int total = mimeValue->items().size();
 
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-        foreach (MimeDataItem sourceItem, ubMime->items())
+        foreach (MimeDataItem sourceItem, mimeValue->items())
         {
             DocumentProxy *fromProxy = sourceItem.documentProxy();
             int fromIndex = sourceItem.sceneIndex();
@@ -1396,18 +1396,18 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
     {
         DocumentProxy *targetDocProxy = docModel->proxyData(targetIndex);
 
-        const MimeData *ubMime = qobject_cast <const MimeData*>(event->mimeData());
-        if (!targetDocProxy || !ubMime || !ubMime->items().count()) {
+        const MimeData *mimeValue = qobject_cast <const MimeData*>(event->mimeData());
+        if (!targetDocProxy || !mimeValue || !mimeValue->items().count()) {
             qDebug() << "an error ocured while parsing " << Application::mimeTypeBoardPage;
             QTreeView::dropEvent(event);
             return;
         }
 
         int count = 0;
-        int total = ubMime->items().size();
+        int total = mimeValue->items().size();
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-        foreach (MimeDataItem sourceItem, ubMime->items())
+        foreach (MimeDataItem sourceItem, mimeValue->items())
         {
             DocumentProxy *fromProxy = sourceItem.documentProxy();
             int fromIndex = sourceItem.sceneIndex();
@@ -1896,7 +1896,7 @@ void DocumentController::setupViews()
 
             if (tb && !tb->menu())
             {
-                tb->setObjectName("ubButtonMenu");
+                tb->setObjectName("buttonMenu");
                 tb->setPopupMode(QToolButton::InstantPopup);
 
                 QMenu* menu = new QMenu(mDocumentWidget);
@@ -1928,7 +1928,7 @@ void DocumentController::setupViews()
 
             if (tb && !tb->menu())
             {
-                tb->setObjectName("ubButtonMenu");
+                tb->setObjectName("buttonMenu");
                 tb->setPopupMode(QToolButton::InstantPopup);
 
                 tb->setMenu(exportMenu);

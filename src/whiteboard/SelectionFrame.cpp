@@ -96,7 +96,7 @@ void SelectionFrame::setEnclosedItems(const QList<QGraphicsItem*> pGraphicsItems
             mIsLocked = (mIsLocked || nextDelegate->isLocked());
             mEnclosedtems.append(nextDelegate);
             resultRegion |= nextItem->boundingRegion(nextItem->sceneTransform());
-            resultFlags |= nextDelegate->ubflags();
+            resultFlags |= nextDelegate->frameFlags();
         }
     }
 

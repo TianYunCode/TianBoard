@@ -1370,7 +1370,7 @@ void FeaturesModel::deleteItem(const Feature &feature)
 {
     int i = d->featuresList->indexOf(feature);
     if (i == -1) {
-        qDebug() << "no matches in deleting item from UBFEaturesModel";
+        qDebug() << "library item vanished while deleting";
         return;
     }
     removeRow(i, QModelIndex());

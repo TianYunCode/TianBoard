@@ -45,7 +45,7 @@ DelegateButton::DelegateButton(const QString & fileName, QGraphicsItem* pDelegat
 {
     setAcceptedMouseButtons(Qt::LeftButton);
     setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
-    setCacheMode(QGraphicsItem::NoCache); /* because of SANKORE-1017: this allows pixmap to be refreshed when grabbing window, thus teacher screen is synchronized with main screen. */
+    setCacheMode(QGraphicsItem::NoCache); /* 必须 NoCache：抓屏时位图要随窗口刷新，教师屏才能与副屏同步 */
 }
 
 DelegateButton::~DelegateButton()
@@ -148,17 +148,17 @@ GraphicsItemDelegate::GraphicsItemDelegate(QGraphicsItem* pDelegated, QObject * 
     , mToolBarItem(NULL)
     , mMimeData(NULL)
 {
-    setUBFlags(fls);
+    setFrameFlags(fls);
     connect(Application::boardController, SIGNAL(zoomChanged(qreal)), this, SLOT(onZoomChanged()));
 }
 
 void GraphicsItemDelegate::createControls()
 {
-    if (testUBFlags(GF_TOOLBAR_USED) && !mToolBarItem)
+    if (testFrameFlags(GF_TOOLBAR_USED) && !mToolBarItem)
         mToolBarItem = new GraphicsToolBarItem(mDelegated);
 
     if (!mFrame) {
-        mFrame = new GraphicsDelegateFrame(this, QRectF(0, 0, 0, 0), mFrameWidth, testUBFlags(GF_RESPECT_RATIO), testUBFlags(GF_TITLE_BAR_USED));
+        mFrame = new GraphicsDelegateFrame(this, QRectF(0, 0, 0, 0), mFrameWidth, testFrameFlags(GF_RESPECT_RATIO), testFrameFlags(GF_TITLE_BAR_USED));
         mFrame->hide();
         mFrame->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
@@ -167,7 +167,7 @@ void GraphicsItemDelegate::createControls()
         mDeleteButton = new DelegateButton(":/images/close.svg", mDelegated, mFrame, Qt::TopLeftSection);
         mButtons << mDeleteButton;
         connect(mDeleteButton, SIGNAL(clicked()), this, SLOT(remove()));
-        if (testUBFlags(GF_DUPLICATION_ENABLED)){
+        if (testFrameFlags(GF_DUPLICATION_ENABLED)){
             mDuplicateButton = new DelegateButton(":/images/duplicate.svg", mDelegated, mFrame, Qt::TopLeftSection);
             connect(mDuplicateButton, SIGNAL(clicked(bool)), this, SLOT(duplicate()));
             mButtons << mDuplicateButton;
@@ -695,7 +695,7 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
         mSetAsBackgroundAction->setIcon(backgroundIcon);
     }
 
-    if (testUBFlags(GF_SHOW_CONTENT_SOURCE))
+    if (testFrameFlags(GF_SHOW_CONTENT_SOURCE))
     {
         mGotoContentSourceAction = menu->addAction(tr("Go to Content Source"), this, SLOT(gotoContentSource()));
 
@@ -832,7 +832,7 @@ void GraphicsItemDelegate::setButtonsVisible(bool visible)
     }
 }
 
-void GraphicsItemDelegate::setUBFlags(GraphicsFlags pf)
+void GraphicsItemDelegate::setFrameFlags(GraphicsFlags pf)
 {
     mFlags = pf;
 
@@ -841,21 +841,21 @@ void GraphicsItemDelegate::setUBFlags(GraphicsFlags pf)
         return;
     }
 
-    if (testUBFlags(GF_FLIPPABLE_ALL_AXIS)) {
-        mDelegated->setData(GraphicsItemData::ItemFlippable, QVariant(testUBFlags(GF_FLIPPABLE_ALL_AXIS)));
+    if (testFrameFlags(GF_FLIPPABLE_ALL_AXIS)) {
+        mDelegated->setData(GraphicsItemData::ItemFlippable, QVariant(testFrameFlags(GF_FLIPPABLE_ALL_AXIS)));
     }
 
-    if (testUBFlags(GF_REVOLVABLE)) {
-        mDelegated->setData(GraphicsItemData::ItemRotatable, QVariant(testUBFlags(GF_REVOLVABLE)));
+    if (testFrameFlags(GF_REVOLVABLE)) {
+        mDelegated->setData(GraphicsItemData::ItemRotatable, QVariant(testFrameFlags(GF_REVOLVABLE)));
     }
 }
 
-void GraphicsItemDelegate::setUBFlag(GraphicsFlags pf, bool set)
+void GraphicsItemDelegate::setFrameFlag(GraphicsFlags pf, bool set)
 {
     GraphicsFlags fls = mFlags;
     set ? fls |= pf : fls &= ~pf;
 
-    setUBFlags(fls);
+    setFrameFlags(fls);
 }
 
 GraphicsToolBarItem::GraphicsToolBarItem(QGraphicsItem * parent) :

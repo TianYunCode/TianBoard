@@ -28,15 +28,11 @@
 
 
 
+// 录屏只有 Windows 一套实现（WindowsMedia 视频 + WaveIn 音频）。其他平台不再引用
+// 本仓库里并不存在的 ffmpeg 封装，mVideoEncoder 保持为空，录制入口自动不起作用。
 #ifdef Q_OS_WIN
     #include "recording/WindowsMediaVideoEncoder.h"
     #include "recording/WaveRecorder.h"
-#elif defined(Q_OS_OSX)
-    #include "ffmpeg/UBFFmpegVideoEncoder.h"
-    #include "ffmpeg/UBMicrophoneInput.h"
-#elif defined(Q_OS_LINUX)
-    #include "ffmpeg/UBFFmpegVideoEncoder.h"
-    #include "ffmpeg/UBMicrophoneInput.h"
 #endif
 
 
@@ -274,10 +270,6 @@ void RecordingController::start()
 
 #ifdef Q_OS_WIN
 		mVideoEncoder = new WindowsMediaVideoEncoder(this);  //deleted on stop
-#elif defined(Q_OS_OSX)
-        mVideoEncoder = new UBFFmpegVideoEncoder(this);
-#elif defined(Q_OS_LINUX)
-        mVideoEncoder = new UBFFmpegVideoEncoder(this);
 #endif
 
         if (mVideoEncoder)
@@ -758,11 +750,7 @@ QStringList RecordingController::audioRecordingDevices()
     QStringList devices;
 
 #ifdef Q_OS_WIN
-    //devices = WaveRecorder::waveInDevices();
-#elif defined(Q_OS_OSX)
-    devices = UBMicrophoneInput::availableDevicesNames();
-#elif defined(Q_OS_LINUX)
-    devices = UBMicrophoneInput::availableDevicesNames();
+    devices = WaveRecorder::waveInDevices();
 #endif
 
     return devices;

@@ -271,7 +271,7 @@ bool Feature::isDeletable() const
             || elementType == FEATURE_IMAGE
             || elementType == FEATURE_FLASH
             || elementType == FEATURE_FOLDER
-    //Ilia. Just a hotfix. Permission mechanism for UBFeatures should be reworked
+    // TODO: 这是临时补丁，库条目的权限机制需要重新设计
             || getVirtualPath().startsWith("/root/Applications/Web");
 }
 

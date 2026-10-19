@@ -46,18 +46,18 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
     //Check if group is allready rotatable or flippable
     if (childItems().count()) {
         if (GraphicsItem::isFlippable(this) && !GraphicsItem::isFlippable(item)) {
-            Delegate()->setUBFlag(GF_FLIPPABLE_ALL_AXIS, false);
+            Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, false);
         }
         if (GraphicsItem::isRotatable(this) && !GraphicsItem::isRotatable(item)) {
-            Delegate()->setUBFlag(GF_REVOLVABLE, false);
+            Delegate()->setFrameFlag(GF_REVOLVABLE, false);
         }
         if (!GraphicsItem::isLocked(this) && GraphicsItem::isLocked(item)) {
             Delegate()->setLocked(true);
         }
     }
     else {
-        Delegate()->setUBFlag(GF_FLIPPABLE_ALL_AXIS, GraphicsItem::isFlippable(item));
-        Delegate()->setUBFlag(GF_REVOLVABLE, GraphicsItem::isRotatable(item));
+        Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, GraphicsItem::isFlippable(item));
+        Delegate()->setFrameFlag(GF_REVOLVABLE, GraphicsItem::isRotatable(item));
         Delegate()->setLocked(GraphicsItem::isLocked(item));
     }        
 
@@ -186,9 +186,9 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const
     copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
 
     foreach (QGraphicsItem *it, childItems()) {
-        Item *childAsUBItem = dynamic_cast<Item*>(it);
-        if (childAsUBItem) {
-            QGraphicsItem *cloneItem = dynamic_cast<QGraphicsItem*>(childAsUBItem->deepCopy());
+        Item *childAsItem = dynamic_cast<Item*>(it);
+        if (childAsItem) {
+            QGraphicsItem *cloneItem = dynamic_cast<QGraphicsItem*>(childAsItem->deepCopy());
             copy->addToGroup(cloneItem);
         }
     }
@@ -322,8 +322,8 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
                 }
 
             }
-            Delegate()->setUBFlag(GF_FLIPPABLE_ALL_AXIS, flippableNow);
-            Delegate()->setUBFlag(GF_REVOLVABLE, rotatableNow);
+            Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, flippableNow);
+            Delegate()->setFrameFlag(GF_REVOLVABLE, rotatableNow);
             Delegate()->setLocked(lockedNow);
         }
     }

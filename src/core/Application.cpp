@@ -408,7 +408,7 @@ void Application::decorateActionMenu(QAction* action)
 
         if (tb && !tb->menu())
         {
-            tb->setObjectName("ubButtonMenu");
+            tb->setObjectName("buttonMenu");
             tb->setPopupMode(QToolButton::InstantPopup);
             QMenu* menu = new QMenu(mainWindow);
 

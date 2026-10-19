@@ -119,9 +119,9 @@ void SvgSubsetAdaptor::upgradeScene(DocumentProxy* proxy, const int pageIndex)
     //4.2
     QDomDocument doc = loadSceneDocument(proxy, pageIndex);
     QDomElement elSvg = doc.documentElement(); // SVG tag
-    QString ubVersion = elSvg.attributeNS(Settings::documentNamespaceUri, "version", "4.1"); // default to 4.1
+    QString formatVersion = elSvg.attributeNS(Settings::documentNamespaceUri, "version", "4.1"); // default to 4.1
 
-    if (ubVersion.startsWith("4.1") || ubVersion.startsWith("4.2") || ubVersion.startsWith("4.3"))
+    if (formatVersion.startsWith("4.1") || formatVersion.startsWith("4.2") || formatVersion.startsWith("4.3"))
     {
         // migrate to 4.2.1 (or latter)
         GraphicsScene *scene = loadScene(proxy, pageIndex);
@@ -346,11 +346,11 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
 
                 if (!svgUbVersion.isNull())
                 {
-                    QString ubVersion = svgUbVersion.toString();
+                    QString formatVersion = svgUbVersion.toString();
 
                     //may look like : 4 or 4.1 or 4.2 or 4.2.1, etc
 
-                    QStringList parts = ubVersion.split(".");
+                    QStringList parts = formatVersion.split(".");
 
                     if (parts.length() > 0)
                     {
@@ -412,37 +412,37 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 bool crossedBackground = false;
                 bool ruledBackground = false;
 
-                QStringView ubDarkBackground = mXmlReader.attributes().value(mNamespaceUri, "dark-background");
+                QStringView darkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "dark-background");
 
-                if (!ubDarkBackground.isNull())
-                    darkBackground = (ubDarkBackground.toString() == xmlTrue);
+                if (!darkBackgroundValue.isNull())
+                    darkBackground = (darkBackgroundValue.toString() == xmlTrue);
 
-                QStringView ubCrossedBackground = mXmlReader.attributes().value(mNamespaceUri, "crossed-background");
+                QStringView crossedBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "crossed-background");
 
-                if (!ubCrossedBackground.isNull())
-                    crossedBackground = (ubCrossedBackground.toString() == xmlTrue);
+                if (!crossedBackgroundValue.isNull())
+                    crossedBackground = (crossedBackgroundValue.toString() == xmlTrue);
 
 
                 if (crossedBackground) {
-                    QStringView ubGridSize = mXmlReader.attributes().value(mNamespaceUri, "grid-size");
+                    QStringView gridSizeValue = mXmlReader.attributes().value(mNamespaceUri, "grid-size");
 
-                    if (!ubGridSize.isNull()) {
-                        int gridSize = ubGridSize.toInt();
+                    if (!gridSizeValue.isNull()) {
+                        int gridSize = gridSizeValue.toInt();
 
                         mScene->setBackgroundGridSize(gridSize);
                     }
                 }
 
-                QStringView ubRuledBackground = mXmlReader.attributes().value(mNamespaceUri, "ruled-background");
+                QStringView ruledBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "ruled-background");
 
-                if (!ubRuledBackground.isNull())
-                    ruledBackground = (ubRuledBackground.toString() == xmlTrue);
+                if (!ruledBackgroundValue.isNull())
+                    ruledBackground = (ruledBackgroundValue.toString() == xmlTrue);
 
                 if (ruledBackground && !crossedBackground) { // if for some reason both are true, the background will be a grid
-                    QStringView ubGridSize = mXmlReader.attributes().value(mNamespaceUri, "grid-size");
+                    QStringView gridSizeValue = mXmlReader.attributes().value(mNamespaceUri, "grid-size");
 
-                    if (!ubGridSize.isNull()) {
-                        int gridSize = ubGridSize.toInt();
+                    if (!gridSizeValue.isNull()) {
+                        int gridSize = gridSizeValue.toInt();
 
                         mScene->setBackgroundGridSize(gridSize);
                     }
@@ -483,32 +483,32 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 strokesGroup = new GraphicsStrokesGroup();
                 graphicsItemFromSvg(strokesGroup);
 
-                QStringView ubZValue = mXmlReader.attributes().value(mNamespaceUri, "z-value");
+                QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
-                if (!ubZValue.isNull())
+                if (!zValueAttr.isNull())
                 {
-                    mGroupZIndex = ubZValue.toString().toFloat();
+                    mGroupZIndex = zValueAttr.toString().toFloat();
                     mGroupHasInfo = true;
                 }
 
-                QStringView ubFillOnDarkBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+                QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
 
-                if (!ubFillOnDarkBackground.isNull())
+                if (!fillOnDarkBackgroundValue.isNull())
                 {
-                    mGroupDarkBackgroundColor.setNamedColor(ubFillOnDarkBackground.toString());
+                    mGroupDarkBackgroundColor.setNamedColor(fillOnDarkBackgroundValue.toString());
                 }
 
-                QStringView ubFillOnLightBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+                QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-                if (!ubFillOnLightBackground.isNull())
+                if (!fillOnLightBackgroundValue.isNull())
                 {
-                    mGroupLightBackgroundColor.setNamedColor(ubFillOnLightBackground.toString());
+                    mGroupLightBackgroundColor.setNamedColor(fillOnLightBackgroundValue.toString());
                 }
 
-                QStringView ubUuid = mXmlReader.attributes().value(mNamespaceUri, "uuid");
+                QStringView uuidValue = mXmlReader.attributes().value(mNamespaceUri, "uuid");
 
-                if (!ubUuid.isNull())
-                    strokesGroup->setUuid(QUuid::fromString(ubUuid.toString()));
+                if (!uuidValue.isNull())
+                    strokesGroup->setUuid(QUuid::fromString(uuidValue.toString()));
                 else
                     strokesGroup->setUuid(QUuid::createUuid());
 
@@ -612,9 +612,9 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                 {
                     QString href = imageHref.toString();
 
-                    QStringView ubBackground = mXmlReader.attributes().value(mNamespaceUri, "background");
+                    QStringView backgroundValue = mXmlReader.attributes().value(mNamespaceUri, "background");
 
-                    bool isBackground = (!ubBackground.isNull() && ubBackground.toString() == xmlTrue);
+                    bool isBackground = (!backgroundValue.isNull() && backgroundValue.toString() == xmlTrue);
 
                     if (href.contains("png"))
                     {
@@ -936,18 +936,18 @@ GraphicsGroupContainerItem* SvgSubsetAdaptor::SvgSubsetReader::readGroup()
     if(mStrokesList.contains(id))
         shouldSkipSubElements = true;
 
-    QString ubLocked = mXmlReader.attributes().value(mNamespaceUri, "locked").toString();
-    if (!ubLocked.isEmpty())
+    QString lockedValue = mXmlReader.attributes().value(mNamespaceUri, "locked").toString();
+    if (!lockedValue.isEmpty())
     {
-        bool isLocked = ubLocked.contains(xmlTrue);
+        bool isLocked = lockedValue.contains(xmlTrue);
         group->setData(GraphicsItemData::ItemLocked, QVariant(isLocked));
     }
 
-    QStringView ubLayer = mXmlReader.attributes().value(mNamespaceUri, "layer");
-    if (!ubLayer.isNull())
+    QStringView layerValue = mXmlReader.attributes().value(mNamespaceUri, "layer");
+    if (!layerValue.isNull())
     {
         bool ok;
-        int layerAsInt = ubLayer.toString().toInt(&ok);
+        int layerAsInt = layerValue.toString().toInt(&ok);
 
         if (ok)
             group->setData(GraphicsItemData::ItemLayerType, QVariant(layerAsInt));
@@ -1676,12 +1676,12 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
 
     polygonItem->setColor(brushColor);
 
-    QStringView ubFillOnDarkBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
 
-    if (!ubFillOnDarkBackground.isNull())
+    if (!fillOnDarkBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(ubFillOnDarkBackground.toString());
+        color.setNamedColor(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::white;
 
@@ -1695,12 +1695,12 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
         polygonItem->setColorOnDarkBackground(color);
     }
 
-    QStringView ubFillOnLightBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-    if (!ubFillOnLightBackground.isNull())
+    if (!fillOnLightBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(ubFillOnLightBackground.toString());
+        color.setNamedColor(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::black;
         color.setAlphaF(opacity);
@@ -1784,12 +1784,12 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
 
     polygonItem->setColor(brushColor);
 
-    QStringView ubFillOnDarkBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
 
-    if (!ubFillOnDarkBackground.isNull())
+    if (!fillOnDarkBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(ubFillOnDarkBackground.toString());
+        color.setNamedColor(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::white;
 
@@ -1803,12 +1803,12 @@ GraphicsPolygonItem* SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
         polygonItem->setColorOnDarkBackground(color);
     }
 
-    QStringView ubFillOnLightBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-    if (!ubFillOnLightBackground.isNull())
+    if (!fillOnLightBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(ubFillOnLightBackground.toString());
+        color.setNamedColor(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::black;
         color.setAlphaF(opacity);
@@ -1852,20 +1852,20 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
         brushColor.setAlphaF(opacity);
     }
 
-    QStringView ubZValue = mXmlReader.attributes().value(mNamespaceUri, "z-value");
+    QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
     qreal zValue = mGroupZIndex;
-    if (!ubZValue.isNull())
+    if (!zValueAttr.isNull())
     {
-        zValue = ubZValue.toString().toFloat();
+        zValue = zValueAttr.toString().toFloat();
     }
 
     QColor colorOnDarkBackground = mGroupDarkBackgroundColor;
 
-    QStringView ubFillOnDarkBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
-    if (!ubFillOnDarkBackground.isNull())
+    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    if (!fillOnDarkBackgroundValue.isNull())
     {
-        colorOnDarkBackground.setNamedColor(ubFillOnDarkBackground.toString());
+        colorOnDarkBackground.setNamedColor(fillOnDarkBackgroundValue.toString());
     }
 
     if (!colorOnDarkBackground.isValid())
@@ -1875,11 +1875,11 @@ QList<GraphicsPolygonItem*> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromP
 
     QColor colorOnLightBackground = mGroupLightBackgroundColor;
 
-    QStringView ubFillOnLightBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
-    if (!ubFillOnLightBackground.isNull())
+    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    if (!fillOnLightBackgroundValue.isNull())
     {
         QColor colorOnLightBackground;
-        colorOnLightBackground.setNamedColor(ubFillOnLightBackground.toString());
+        colorOnLightBackground.setNamedColor(fillOnLightBackgroundValue.toString());
     }
 
     if (!colorOnLightBackground.isValid())
@@ -2156,11 +2156,11 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
         audioItem->connect(Application::boardController, SIGNAL(activeSceneChanged()), audioItem, SLOT(activeSceneChanged()));
 
     graphicsItemFromSvg(audioItem);
-    QStringView ubPos = mXmlReader.attributes().value(mNamespaceUri, "position");
+    QStringView posValue = mXmlReader.attributes().value(mNamespaceUri, "position");
 
     qint64 p = 0;
-    if (!ubPos.isNull())
-        p = ubPos.toString().toLongLong();
+    if (!posValue.isNull())
+        p = posValue.toString().toLongLong();
 
     audioItem->setInitialPos(p);
     return audioItem;
@@ -2192,12 +2192,12 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
     }
 
     graphicsItemFromSvg(videoItem);
-    QStringView ubPos = mXmlReader.attributes().value(mNamespaceUri, "position");
+    QStringView posValue = mXmlReader.attributes().value(mNamespaceUri, "position");
 
     qint64 p = 0;
-    if (!ubPos.isNull())
+    if (!posValue.isNull())
     {
-        p = ubPos.toString().toLongLong();
+        p = posValue.toString().toLongLong();
     }
 
     videoItem->setInitialPos(p);
@@ -2254,56 +2254,56 @@ void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem* gItem
         }
     }
 
-    QStringView ubZValue = mXmlReader.attributes().value(mNamespaceUri, "z-value");
+    QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
-    if (!ubZValue.isNull()){
+    if (!zValueAttr.isNull()){
         // FIX
         // In the firsts zvalue implemenations values outside the boudaries have been used.
         // No boundaries specified on documentation but to small values are not correctly handled.
-        qreal zValue = ubZValue.toString().toFloat();
+        qreal zValue = zValueAttr.toString().toFloat();
         while(zValue < -999999) zValue /= 10.;
         GraphicsItem::assignZValue(gItem, zValue);
     }
 
-    Item* ubItem = dynamic_cast<Item*>(gItem);
+    Item* boardItem = dynamic_cast<Item*>(gItem);
 
-    if (ubItem)
+    if (boardItem)
     {
-        QStringView ubUuid = mXmlReader.attributes().value(mNamespaceUri, "uuid");
+        QStringView uuidValue = mXmlReader.attributes().value(mNamespaceUri, "uuid");
 
-        if (!ubUuid.isNull())
-            ubItem->setUuid(QUuid(ubUuid.toString()));
+        if (!uuidValue.isNull())
+            boardItem->setUuid(QUuid(uuidValue.toString()));
         else
-            ubItem->setUuid(QUuid::createUuid());
+            boardItem->setUuid(QUuid::createUuid());
 
-        QStringView ubSource = mXmlReader.attributes().value(mNamespaceUri, "source");
+        QStringView sourceValue = mXmlReader.attributes().value(mNamespaceUri, "source");
 
-        if (!ubSource.isNull())
-            ubItem->setSourceUrl(QUrl(ubSource.toString()));
+        if (!sourceValue.isNull())
+            boardItem->setSourceUrl(QUrl(sourceValue.toString()));
     }
 
-    QStringView ubLocked = mXmlReader.attributes().value(mNamespaceUri, "locked");
+    QStringView lockedValue = mXmlReader.attributes().value(mNamespaceUri, "locked");
 
-    if (!ubLocked.isNull())
+    if (!lockedValue.isNull())
     {
-        bool isLocked = (ubLocked.toString() == xmlTrue || ubLocked.toString() == "1");
+        bool isLocked = (lockedValue.toString() == xmlTrue || lockedValue.toString() == "1");
         gItem->setData(GraphicsItemData::ItemLocked, QVariant(isLocked));
     }
 
-    QStringView ubEditable = mXmlReader.attributes().value(mNamespaceUri, "editable");
+    QStringView editableValue = mXmlReader.attributes().value(mNamespaceUri, "editable");
 
-    if (!ubEditable.isNull())
+    if (!editableValue.isNull())
     {
-        bool isEditable = (ubEditable.toString() == xmlTrue || ubEditable.toString() == "1");
+        bool isEditable = (editableValue.toString() == xmlTrue || editableValue.toString() == "1");
         gItem->setData(GraphicsItemData::ItemEditable, QVariant(isEditable));
     }
 
     //deprecated as of 4.4.a.12
-    QStringView ubLayer = mXmlReader.attributes().value(mNamespaceUri, "layer");
-    if (!ubLayer.isNull())
+    QStringView layerValue = mXmlReader.attributes().value(mNamespaceUri, "layer");
+    if (!layerValue.isNull())
     {
         bool ok;
-        int layerAsInt = ubLayer.toString().toInt(&ok);
+        int layerAsInt = layerValue.toString().toInt(&ok);
 
         if (ok)
             gItem->setData(GraphicsItemData::ItemLayerType, QVariant(layerAsInt));
@@ -2328,13 +2328,13 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsItemToSvg(QGraphicsItem* item)
 
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "background", isBackground ? xmlTrue : xmlFalse);
 
-    Item* ubItem = dynamic_cast<Item*>(item);
+    Item* boardItem = dynamic_cast<Item*>(item);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
 
-        QUrl sourceUrl = ubItem->sourceUrl();
+        QUrl sourceUrl = boardItem->sourceUrl();
 
         if (!sourceUrl.isEmpty())
             mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "source", sourceUrl.path());
@@ -2580,20 +2580,20 @@ GraphicsTextItem* SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
 
     graphicsItemFromSvg(textItem);
 
-    QStringView ubFillOnDarkBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
-    QStringView ubFillOnLightBackground = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
+    QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
+    QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
-    if (!ubFillOnDarkBackground.isNull()) {
+    if (!fillOnDarkBackgroundValue.isNull()) {
         QColor color;
-        color.setNamedColor(ubFillOnDarkBackground.toString());
+        color.setNamedColor(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::white;
         textItem->setColorOnDarkBackground(color);
     }
 
-    if (!ubFillOnLightBackground.isNull()) {
+    if (!fillOnLightBackgroundValue.isNull()) {
         QColor color;
-        color.setNamedColor(ubFillOnLightBackground.toString());
+        color.setNamedColor(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
             color = Qt::black;
         textItem->setColorOnLightBackground(color);
@@ -2753,11 +2753,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::curtainItemToSvg(GraphicsCurtainItem* cu
     zs.setNum(curtainItem->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* ubItem = dynamic_cast<Item*>(curtainItem);
+    Item* boardItem = dynamic_cast<Item*>(curtainItem);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
@@ -2812,11 +2812,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::rulerToSvg(GraphicsRuler* item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* ubItem = dynamic_cast<Item*>(item);
+    Item* boardItem = dynamic_cast<Item*>(item);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
@@ -2869,11 +2869,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::compassToSvg(GraphicsCompass* item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* ubItem = dynamic_cast<Item*>(item);
+    Item* boardItem = dynamic_cast<Item*>(item);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
@@ -2934,11 +2934,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::protractorToSvg(GraphicsProtractor* item
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* ubItem = dynamic_cast<Item*>(item);
+    Item* boardItem = dynamic_cast<Item*>(item);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
@@ -3004,11 +3004,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::triangleToSvg(GraphicsTriangle *item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* ubItem = dynamic_cast<Item*>(item);
+    Item* boardItem = dynamic_cast<Item*>(item);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();
@@ -3084,11 +3084,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::cacheToSvg(GraphicsCache* item)
     zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
 
-    Item* ubItem = dynamic_cast<Item*>(item);
+    Item* boardItem = dynamic_cast<Item*>(item);
 
-    if (ubItem)
+    if (boardItem)
     {
-        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(ubItem->uuid()));
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
     }
 
     mXmlWriter.writeEndElement();

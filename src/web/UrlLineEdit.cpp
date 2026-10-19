@@ -42,7 +42,7 @@ ExLineEdit::ExLineEdit(QWidget *parent)
 
     // line edit
     d->mLineEdit->setFrame(false);
-    d->mLineEdit->setObjectName("ubWebBrowserLineEdit");
+    d->mLineEdit->setObjectName("webBrowserLineEdit");
     d->mLineEdit->setFocusProxy(this);
     d->mLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     QPalette clearPalette = d->mLineEdit->palette();

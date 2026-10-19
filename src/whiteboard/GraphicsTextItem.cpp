@@ -26,8 +26,8 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
     // TODO: 控件本应按需创建，这里在构造时就建了出来，与之矛盾
     Delegate()->createControls();
     Delegate()->frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
-    Delegate()->setUBFlag(GF_FLIPPABLE_ALL_AXIS, false);
-    Delegate()->setUBFlag(GF_REVOLVABLE, true);
+    Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, false);
+    Delegate()->setFrameFlag(GF_REVOLVABLE, true);
 
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
     setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly

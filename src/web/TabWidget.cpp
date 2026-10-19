@@ -17,7 +17,7 @@
 TabBar::TabBar(QWidget *parent)
     : QTabBar(parent)
 {
-    setObjectName("ubWebBrowserTabBar");
+    setObjectName("webBrowserTabBar");
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     setAcceptDrops(true);
@@ -168,7 +168,7 @@ TabWidget::TabWidget(QWidget *parent)
     , mLineEdits(0)
     , mTabBar(new TabBar(this))
 {
-    setObjectName("ubWebBrowserTabWidget");
+    setObjectName("webBrowserTabWidget");
     mAddTabIcon = QPixmap(":/images/toolbar/plusBlack.png");
 
     setElideMode(Qt::ElideRight);
