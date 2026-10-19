@@ -12,25 +12,25 @@
 ## 一、空实现与半截实现（有调用点，用户点了没反应）
 
 ### 1. 文档标签页的 剪切/复制/粘贴 是三个空函数
-- **位置**：`src/model/DocumentController.cpp:3127/3133/3139`（`cut()`/`copy()`/`paste()`
+- **位置**：`src/model/DocumentController.cpp:2888/2893/2898`（`cut()`/`copy()`/`paste()`
   三处，每处一句 `// TODO - implemented me`）
-- **调用点是活的**：`src/core/ApplicationController.cpp:629`（cut）、
-  `649`（copy）、`669`（paste）按当前模式分派，文档模式走的就是这三个空函数。
+- **调用点是活的**：`src/core/ApplicationController.cpp:553`（cut）、
+  `566`（copy）、`579`（paste）按当前模式分派，文档模式走的就是这三个空函数。
 - **现象**：在文档界面按 Ctrl+X/C/V 或菜单项，没有任何效果、也没有提示。
 - **建议**：要么实现（缩略图选中项的删除/复制/新建），要么让动作在文档模式下不可用
   （`setEnabled(false)`），别留“看着能点”的死动作。
 
 ### 2. `WebWidgetBoardAPI` 两个方法收了参数不用
-- **位置**：`src/api/WebWidgetBoardAPI.cpp:427`（`usedMethods`）、`436`（`response`）
+- **位置**：`src/api/WebWidgetBoardAPI.cpp:367`（`usedMethods`）、`372`（`response`）
 - **现象**：`usedMethods(QStringList methods)` 里 `foreach` 循环体是空的；
   `response(bool correct)` 立刻 `Q_UNUSED(correct)`，注释都是 `// TODO: Implement this method`。
   小部件回报“我用过哪些方法 / 调用成功与否”这两条通道目前没有下游。
 - **建议**：确认这是废弃协议还是待实现；废弃就删掉声明与调用点，待实现就补测试。
 
 ### 3. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1101/1132/1151`（`freezedWidgetWrapper.html`、
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1018/1045/1064`（`freezedWidgetWrapper.html`、
   按 `npapi-wrapper*` 前缀挑包装页、读 `etc/npapi-wrapper.config.xml`）与
-  `src/content/IwbSubsetAdaptor.cpp:903`（`createNPAPIWrapperInDir(..., "application/x-shockwave-flash", ...)`）
+  `src/content/IwbSubsetAdaptor.cpp:896`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
 - **现象**：Qt6 WebEngine 没有 NPAPI/Flash 插件接口，这套包装页只能显示一张“无法播放”的
   静态图；但代码路径是活的，旧文档里的 flash 条目会走到这里。
 - **建议**：要么把 flash 条目明确降级成“不支持的媒体”并提示用户，要么连同
@@ -54,22 +54,24 @@
   并把 `WebWidget*API` 三个门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
 
 ### 5. 其它 `TODO`（全仓 26 处里的其余部分，按模块列，不再逐条展开）
-- `src/content/IwbSubsetAdaptor.cpp:100`、`1139`：子集读写有两段没实现
+- `src/content/IwbSubsetAdaptor.cpp:98`、`1125`：子集读写有两段没实现
   （“从 parseIwbElement() 的结果建组”）。
-- `src/content/ImportIwb.cpp:71/86/215`：导入 .iwb 时的临时目录与内容转换留 TODO ——
+- `src/content/ImportIwb.cpp:64/78/204`：导入 .iwb 时的临时目录与内容转换留 TODO ——
   与“旧文档不必保持可读”的既定决策一致，属于可以不填的坑。
-- `src/core/PersistenceManager.cpp:177`（双击打开文档包）与 `:237`（落盘对象处理）：
-  上游遗留的临时分支；`src/settings/Settings.cpp` 里还有一处 `//TODO: user-settable?`。
-- `src/whiteboard/GraphicsItemGroupUndoCommand.cpp:34`：`//Work around. TODO determine why
+- `src/core/PersistenceManager.cpp:163`（双击打开文档包的临时绕法）、`:216`（临时 if）
+  与 `:610`（落盘对象处理）：上游遗留的临时分支；`src/settings/Settings.cpp:20`
+  还有一处 `//TODO: user-settable?`。
+- `src/whiteboard/GraphicsItemGroupUndoCommand.cpp:28`：`//Work around. TODO determine why
   does Qt call the redo function on pushing to undo` —— undo 栈语义可疑，动它要写回归。
-- `src/whiteboard/GraphicsTextItem.cpp:27`、`GraphicsStrokesGroup.cpp:39`、
-  `GraphicsDelegateFrame.cpp:809`、`GraphicsScene.cpp:691`（笔迹平滑“TODO LATER”）、
-  `GraphicsStroke.cpp:181`：绘制热路径上的算法欠账。
-- `src/whiteboard/FeaturesController.h:156`：`//TODO make less complicated for betteer maintainence`
-  （原文如此），`FeaturesController.cpp`：`favoritePath` 的取法待定。
-- `src/desktop/DesktopAnnotationController.cpp`（窗口管理器探测没做）、`src/desktop/DesktopPalette.h:29`：
+- `src/whiteboard/GraphicsTextItem.cpp:26`（控件本该按需创建却在构造期建）、
+  `GraphicsStrokesGroup.cpp:36`、`GraphicsDelegateFrame.cpp:750`、
+  `GraphicsScene.cpp:677`（笔迹平滑“TODO LATER”）、`GraphicsStroke.cpp:164`：
+  绘制热路径上的算法欠账。
+- `src/whiteboard/FeaturesController.h:154`：`//TODO make less complicated for betteer maintainence`
+  （原文如此），`FeaturesController.cpp:68`：`favoritePath` 的取法待定。
+- `src/desktop/DesktopAnnotationController.cpp`（窗口管理器探测没做）、`src/desktop/DesktopPalette.h:28`：
   一行被注释掉的 `#ifdef Q_OS_LINUX`（“在 Linux 上放开就会报错”）。
-- `src/ui/MainWindow.cpp:1193`：导出时文件对话框的 `// HACK`（上游注释说明了为什么不能改成
+- `src/ui/MainWindow.cpp:1313`：导出时文件对话框的 `// HACK`（上游注释说明了为什么不能改成
   常规写法），别顺手“清理”。
 
 ## 二、需要产品决策，不该由重构顺手改掉
@@ -82,7 +84,6 @@
 - **语言只放了中/英**。`LanguageManager` 的机制与 `tst_language` 已就位，加第三种语言
   只要补 `res/i18n/lang_<代码>.ts` 并产出 `Language/TianBoard_<lang>.qm`；
   在有人翻译之前不能凭空往菜单里加语种。
-- **`.clang-format` 全量重排仍未执行**（见第四节倒数第二条），理由不变。
 
 ## 三、命名与形态遗留
 
@@ -150,8 +151,27 @@
 - **Qt 对象名与样式表是一对**：`res/etc/TianBoard.css` 用 `QToolButton#buttonGroupLeft`
   这类 `#id` 选择器，改 `setObjectName()` 必须同步改 CSS，否则样式静默脱落，
   `tst_assets` 管不到这一层。
-- **`.clang-format` 与 `scripts/format.ps1` 已就位，但既有文件一个都没格式化**。
-  全量重排要单独排期、按模块分批，不与功能改动混批。
+- **`.clang-format` 读不进去时是"整份配置作废"，不是"忽略那一条"**：里面原先写了个
+  clang-format 不认识的 `CppNamespaceIndentation`，于是它对每个文件都报
+  `invalid argument` 后什么都不做，而 `format.ps1 -Check` 照样把 348 个文件全报成
+  "待格式化"——看起来像"还有好多没排"，实际是"一个都没排成功"。改完配置后要用
+  **单文件 dry run**（`clang-format --style=file:<文件> x.h | diff x.h -`）确认真的读懂了规则，
+  别只看 -Check 的退出码。
+- **文档里引用源码行号的地方，改完代码必须重新 grep 核对**：本台账有 20 来条
+  `文件:行号`，一次 clang-format 全量重排就让它们**全部指偏**（多数偏 10–300 行，
+  个别落到完全无关的代码上）。核对不用肉眼：
+  `grep -oE "src/[a-z/]+\.cpp:[0-9]+" docs/code-suspicions.md` 列出来，再
+  `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“172 个头/171 个
+  `#pragma once`”“全仓 26 处 TODO”这类计数也是派生数字，改完要重测。
+- **构建报错不会让 ctest 变红**：MSBuild `/m` 下某个工程编译失败时其它工程继续，
+  `TianBoard.exe` 沿用上一次链接好的旧文件，`ctest` 拿旧产物照样 7/7 通过。本轮
+  实证踩过一次（删掉一个成员函数、漏改类内两处非限定调用，坏的提交已经进了历史）。
+  所以“验证通过”的前提是**构建日志里 `error C`/`LNK` 计数为 0 且 exe 的 mtime 推进了**，
+  然后才谈测试；也别用 `...; true` 这种收尾，后台任务的退出码会变成那句 `true` 的 0。
+- **格式化结果绑定 clang-format 版本**（首次全量重排用的是 22.1.8）：升版本可能把
+  整棵树再排一遍，所以升版本要单独一次全量提交，不与功能改动混批。长字符串会被拆成
+  相邻字面量（`"…new "` + `"name…"`，值不变），带 `\` 续行的多行字面量则整串是一个
+  token、不会被拆开——文档格式常量别手工改成跨行拼接的写法。
 - `packaging/make-installer.ps1` 找不到 `ISCC.exe` 时**明确失败**（不是跳过），
   并对 stage 里的必需文件做硬校验；`windeployqt` 的模块参数按 Qt6 的名字写
   （`-webenginewidgets`，Qt6 没有 `-webengine` 这个选项）。脚本尚未在装了 Inno Setup

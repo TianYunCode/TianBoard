@@ -5,17 +5,21 @@
 #   powershell -ExecutionPolicy Bypass -F packaging\make-installer.ps1 -Build
 #   powershell -ExecutionPolicy Bypass -F packaging\make-installer.ps1 -Version 1.1.0
 #
-# 打包对象只有一个可执行：build\bin\TianBoard.exe 与它同级的运行期目录
+# 打包对象只有一个可执行：产物目录里的 TianBoard.exe 与它同级的运行期目录
 # etc/ library/ customizations/ Language/，加上 windeployqt 收来的 Qt 运行库。
 # TianBoard 没有 DLL 插件（模块在链接期就并进 exe），所以没有 plugins/ 目录。
 #
-# 版本号单一事实来源 = 根 CMakeLists.txt 的 project(TianBoard VERSION x.y.z)。
-# 注意 src/core/Application.cpp 里那句 "V1.1.0"（关于对话框显示的串）是硬编码的，
-# 发版时要一起核对 —— 脚本会把它打印出来提醒，不自动改。
+# 版本号单一事实来源 = 根 CMakeLists.txt 的 project(TianBoard VERSION x.y.z)，它经
+# TIANBOARD_VERSION 编译进 Application，关于对话框与设置里的版本行都读同一个值。
+# 脚本会扫一遍 src/：再出现硬编码的 "Vx.y.z" 就当作回归直接失败。
 # ======================================================================
 param(
     [switch]$Build,
     [string]$Version,
+    # 要打包的产物目录。默认跟 -Build 的输出去（scripts/build.ps1 -Configuration
+    # release 产出 build-release\bin\RelWithDebInfo）。用 VS 那对预设构建时改成
+    # build\bin\Release 或 build\bin\RelWithDebInfo。
+    [string]$Source = '',
     [string]$QtBin = 'D:\Qt\6.9.3\msvc2022_64\bin',
     [string]$VsDevCmd = 'D:\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat',
     [string]$Iscc = '',
@@ -25,7 +29,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$BinDir = Join-Path $Root 'build\bin'
+if (-not $Source) { $Source = Join-Path $Root 'build-release\bin\RelWithDebInfo' }
+$BinDir = $Source
 $DistDir = Join-Path $Root 'build\dist'
 $StageDir = Join-Path $DistDir 'stage'
 $IssPath = Join-Path $Root 'packaging\TianBoard.iss'
@@ -40,9 +45,13 @@ if (-not $Version) {
 }
 "Version: $Version"
 
-$hardcoded = Select-String -Path (Join-Path $Root 'src\core\Application.cpp') -Pattern '"V(\d+\.\d+\.\d+)"'
+$hardcoded = Select-String -Path (Join-Path $Root 'src\core\Application.cpp') -Pattern '"V\d+\.\d+\.\d+"'
 if ($hardcoded) {
-    "  关于对话框里的硬编码版本串: $($hardcoded.Matches[0].Groups[1].Value) —— 与本安装包版本 $($Version) 不一致时请人工核对(脚本不自动改源码)。"
+    throw @"
+src/core/Application.cpp 里又出现了硬编码版本串：$($hardcoded[0].Line.Trim())
+版本号只能有一个来源（根 CMakeLists.txt 的 project VERSION，经 TIANBOARD_VERSION 编译进来），
+否则安装包版本、关于对话框、设置里的版本行会各说一套。
+"@
 }
 
 # ---- 1. Release 构建 ----
@@ -53,7 +62,14 @@ if ($Build) {
 }
 
 $Exe = Join-Path $BinDir 'TianBoard.exe'
-if (-not (Test-Path $Exe)) { throw "Missing build artifact: $Exe (run with -Build)" }
+if (-not (Test-Path $Exe)) {
+    throw @"
+找不到产物：$Exe
+先构建再打包：-Build（走 scripts/build.ps1 -Configuration release，产物在
+build-release\bin\RelWithDebInfo），或者用 -Source 指到实际目录
+（VS 预设的产物在 build\bin\Release）。
+"@
+}
 
 # ---- 2. 组装 stage：先原样拷 build\bin（exe + POST_BUILD 铺的四个运行期目录），
 #      再在 stage 里跑 windeployqt，避免污染构建目录 ----
@@ -91,7 +107,7 @@ foreach ($dll in @('msvcp140.dll', 'vcruntime140.dll', 'vcruntime140_1.dll', 'co
 Remove-Item (Join-Path $StageDir 'vc_redist.x64.exe') -Force -ErrorAction SilentlyContinue
 
 # ---- 校验必需文件 ----
-# 硬失败：少了这些要么起不来、要么资源解析不到（PlatformUtils::
+# 硬失败：少了这些要么起不来、要么资源解析不到（FileSystemUtils::
 # applicationResourcesDirectory() 就是可执行文件所在目录，tst_smoke 按同一前提校验）。
 $must = @(
     'TianBoard.exe',

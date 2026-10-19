@@ -120,6 +120,10 @@ struct BlackoutWidget::Private
   否则语言切换功能覆盖不到新界面。
 * 换行混用 CRLF/LF：`.gitattributes` 里 `* -text` 禁止任何自动转换，提交前不要跑
   全局换行符“整理”。`scripts/format.ps1` 只按 `.clang-format` 排空白，不动行尾。
+* **排版以 `.clang-format` 为唯一权威**（Qt 基线：4 空格缩进、无制表符、110 列、
+  `char *p`、函数/结构的左花括号跟在同一行即 `BreakBeforeBraces: Attach`、include
+  不自动排序）。全仓已在 2026-10-20 用它排过一遍，所以不要再手写“看起来更顺”的
+  排版；提交前跑 `.\scripts\format.ps1 -Check`，它只认 0。`third/` 永久排除。
 * 信号槽：**一律用函数指针形式** `connect(a, &A::sig, b, &B::slot)`，禁止
   `SIGNAL()`/`SLOT()` 字符串。字符串写错签名不会报错，只在运行时静默不连——本仓
   清掉 613 处时就是这样挖出一批“看着连了其实没连”的旧连接（favicon、麦克风列表、

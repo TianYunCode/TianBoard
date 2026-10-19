@@ -9,8 +9,9 @@
 # 永远排除：build*/ 构建产物、third/ 内联第三方（quazip/zlib/openssl/qtsingleapplication
 # 自带风格，动了它们就把 vendor 代码和自家代码混在一个 diff 里，回滚都分不开）。
 #
-# 注意：本次“模块目录重构”提交**没有**跑它（几百个文件的重排会把结构调整的 diff
-# 淹掉）。想全量格式化要单独排期，一次一个模块。
+# 注意：全仓（src/ + tests/，348 个文件）已在 2026-10-20 用 clang-format 22.1.8 跑过
+# 一次，此后日常约定是提交前 `-Check` 自检。格式化结果由 clang-format 版本决定，
+# 升版本可能把整棵树重排，所以升版本要单独一次全量提交，不与功能改动混批。
 #
 # 踩坑记录（别改回去）：给 clang-format 传参时，把参数写成 `-style=$var` 这种
 # “看起来像参数”的 token，PowerShell 不展开变量，clang-format 收到的值是字面
