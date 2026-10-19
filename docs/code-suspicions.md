@@ -44,7 +44,38 @@
 - **建议**：真要恢复脚本桥，需要一次独立改造：定下 QWebChannel 的对象名与 JS 侧包装，
   并把 `WebWidget*API` 三个门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
 
-### 4. 其它 `TODO`（全仓 23 处里的其余部分，按模块列，不再逐条展开）
+### 4. 「捕获网页」(Web Trap) 在 Qt6 下整条命中测试链是空的
+- **位置**：`src/web/WebTrapWebView.cpp`（`trapElementAtPos()` 的函数体整块在 `/* */` 里、
+  `highliteElementAtPos()` 依赖 `page()->webChannel()`，而全仓没有任何 `setWebChannel` 调用）、
+  `src/web/TabWidget.cpp:332/337`（等着 `pixmapCaptured`/`embedCodeCaptured`，永远等不到）
+- **现象**：Qt5 那套靠 `QWebHitTestResult` 取"页面上这块图/这个嵌入代码"的能力，Qt6
+  WebEngine 没有对应 API（要自己发 JS 到页面里取元素信息）。按钮点亮后只是切换一个内部
+  标志位，什么都不捕获。已把 `actionWebTrap` 在 `WebController::setupPalettes()` 里
+  `setEnabled(false)`，避免用户以为"没反应是我操作不对"。
+- **建议**：恢复就在 `WebEnginePage` 里跑一段脚本取命中元素再回传（截图/内嵌代码两条输出），
+  或者干脆连同工具栏动作一起删掉。
+
+### 5. `FeaturesWidget` / `StartupHintsPalette` 里的 `boardApi` 是拿空场景造的死人对象
+- **位置**：`src/ui/FeaturesWidget.cpp:840`（`new WebWidgetBoardAPI(Application::boardController->activeScene())`）、
+  `src/ui/StartupHintsPalette.cpp:31`（`new WebWidgetBoardAPI(0)`）
+- **为什么恒空**：构造链在 `Application::exec()` 里走到 `boardController->init()` →
+  `setupViews()` → `BoardPaletteManager` → `FeaturesWidget`，而 `setActiveDocumentScene()`
+  要到 `init()` 的后半段才调，所以 `activeScene()` 此刻还是 0。于是这些小部件 API 对象的
+  `if (activeScene() != mScene) return;` 全部提前返回（`pageCount()` 恒 -1），
+  而构造函数照样给全局的 `DownloadManager::downloadFinished` 挂了一条永久接收者。
+- **现状**：不可达（小部件 JS 桥本来就没接回来，见第三节），所以不崩；但每次下载完成都会
+  空转跑一遍这些接收者。
+- **建议**：接第二节那笔账一起做——桥恢复时这些对象要按 `GraphicsWidgetItem::processDropEvent()`
+  那样**按需创建**，不要在构造期拿"当时的活动场景"。`StartupHintsPalette` 整类目前连构造点
+  都被注释（`BoardPaletteManager.cpp:187`），可以先删。
+
+### 6. `.iwb` 的命名空间校验只打日志、不拒绝
+- **位置**：`src/content/IwbSubsetAdaptor.cpp:1100/1108/1127/1207` 四条"incorrect … namespace,
+  incorrect document"，紧跟其后的 `return false` 全被注释掉（`:1101/:1109/:1128/:1208`）
+- **现象**：命名空间对不上照样往下导，每个节点各打一条日志。这既可能是"故意容忍旧文档"，
+  也可能是"当年为了导入某个坏文件临时关掉校验忘了恢复"，属于行为问题，别在日志清理的提交里顺手改。
+
+### 7. 其它 `TODO`（全仓 23 处里的其余部分，按模块列，不再逐条展开）
 - `src/content/IwbSubsetAdaptor.cpp:98`、`1125`：子集读写有两段没实现
   （“从 parseIwbElement() 的结果建组”）。
 - `src/content/ImportIwb.cpp:64/78/204`：导入 .iwb 时的临时目录与内容转换留 TODO ——

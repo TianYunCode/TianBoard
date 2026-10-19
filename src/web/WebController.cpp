@@ -122,6 +122,9 @@ void WebController::setupPalettes() {
 
         connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this,
                 &WebController::toogleMirroring);
+        // 网页捕获在 Qt6 下是空的（trapElementAtPos 整个函数体还在注释里），先灰掉，
+        // 别让用户点亮一个只会改变光标、什么都不捕获的按钮。恢复要重新实现命中测试。
+        mMainWindow->ui().actionWebTrap->setEnabled(false);
         connect(mMainWindow->ui().actionWebTrap, &QAction::toggled, this, &WebController::toggleWebTrap);
 
         mToolsCurrentPalette->hide();
