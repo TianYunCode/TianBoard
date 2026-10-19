@@ -36,8 +36,6 @@ bool DocumentContainer::movePageToIndex(int source, int target) {
     deleteThumbPage(source);
     insertThumbPage(target);
     emit documentThumbnailsUpdated(this);
-    //on board thumbnails view
-    emit moveThumbnailRequired(source, target);
     return true;
 }
 
@@ -46,7 +44,6 @@ void DocumentContainer::deletePages(QList<int> &pageIndexes) {
     int offset = 0;
     foreach (int index, pageIndexes) {
         deleteThumbPage(index - offset);
-        emit removeThumbnailRequired(index - offset);
         offset++;
     }
     emit documentThumbnailsUpdated(this);
@@ -57,7 +54,6 @@ void DocumentContainer::addPage(int index) {
     insertThumbPage(index);
 
     emit documentThumbnailsUpdated(this);
-    emit addThumbnailRequired(this, index);
 }
 
 

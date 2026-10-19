@@ -26,7 +26,6 @@ public:
     TabWidget *tabWidget() const;
     WebView *currentTabWebView() const;
 
-    //void adaptToolBar(bool wideRes);
 
     static WebDownloadManager *downloadManager();
 
@@ -70,9 +69,6 @@ private slots:
     void slotViewResetZoom();
     void slotViewZoomTextOnly(bool enable);
 
-    void slotWebSearch();
-    void slotToggleInspector(bool enable);
-    void slotSelectLineEdit();
     void slotSwapFocus();
 
     void geometryChangeRequested(const QRect &geometry);
@@ -82,6 +78,7 @@ private:
 
     void setupMenu();
     void setupToolBar();
+    void attachHistoryMenu(QAction *action, QMenu *menu);
     void updateStatusbarActionText(bool visible);
 
     struct Private;

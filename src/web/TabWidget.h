@@ -26,7 +26,6 @@ signals:
     void closeOtherTabs(int index);
     void reloadTab(int index);
     void reloadAllTabs();
-    void tabMoveRequested(int fromIndex, int toIndex);
 
 private slots:
     void selectTabAction();

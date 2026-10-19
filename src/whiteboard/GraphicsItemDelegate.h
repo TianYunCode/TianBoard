@@ -240,7 +240,6 @@ public:
 
 signals:
     void showOnDisplayChanged(bool shown);
-    void lockChanged(bool locked);
 
 public slots:
     virtual void remove(bool canUndo = true);

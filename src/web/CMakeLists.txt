@@ -21,8 +21,6 @@ add_library(tb_web OBJECT
     SqueezeLabel.h
     TabWidget.cpp
     TabWidget.h
-    ToolBarSearch.cpp
-    ToolBarSearch.h
     UrlLineEdit.cpp
     UrlLineEdit.h
     WebController.cpp

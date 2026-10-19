@@ -18,7 +18,6 @@
 #include "ui/ActionPalette.h"
 #include "ui/BackgroundPalette.h"
 #include "ui/FavoriteToolPalette.h"
-#include "ui/StartupHintsPalette.h"
 
 #include "web/WebController.h"
 #include "web/BrowserWindow.h"
@@ -53,7 +52,6 @@ BoardPaletteManager::BoardPaletteManager(QWidget *container, BoardController *pB
       mBoardControler(pBoardController),
       mStylusPalette(0),
       mZoomPalette(0),
-      mTipPalette(0),
       mLeftPalette(NULL),
       mRightPalette(NULL),
       mBackgroundsPalette(0),
@@ -184,7 +182,6 @@ void BoardPaletteManager::setupPalettes() {
 
     mStylusPalette->stackUnder(mZoomPalette);
 
-    //mTipPalette = new StartupHintsPalette(mContainer);
     QList<QAction *> backgroundsActions;
 
     backgroundsActions << Application::mainWindow->ui().actionPlainLightBackground;

@@ -16,8 +16,6 @@ add_library(tb_ui OBJECT
     BackgroundPalette.h
     BlackoutWidget.cpp
     BlackoutWidget.h
-    BoardThumbnailsView.cpp
-    BoardThumbnailsView.h
     CachePropertiesWidget.cpp
     CachePropertiesWidget.h
     CircleFrame.cpp
@@ -79,8 +77,6 @@ add_library(tb_ui OBJECT
     ScreenMirror.h
     SpinningWheel.cpp
     SpinningWheel.h
-    StartupHintsPalette.cpp
-    StartupHintsPalette.h
     StylusPalette.cpp
     StylusPalette.h
     ThumbnailView.cpp

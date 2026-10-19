@@ -22,7 +22,6 @@
 #include "web/ChaseWidget.h"
 #include "web/WebDownloadManager.h"
 #include "web/TabWidget.h"
-#include "web/ToolBarSearch.h"
 #include "web/WebView.h"
 
 
@@ -30,13 +29,8 @@ WebDownloadManager *BrowserWindow::sWebDownloadManager = 0;
 
 struct BrowserWindow::Private {
     QToolBar *mWebToolBar{nullptr};
-    //ToolbarSearch *mSearchToolBar;
     ChaseWidget *mChaseWidget{nullptr};
     TabWidget *mTabWidget{nullptr};
-
-    //QAction *mSearchAction;
-
-    QString mLastSearch;
 
     MainWindow *mMainWindow{nullptr};
 
@@ -45,9 +39,7 @@ struct BrowserWindow::Private {
 };
 
 BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(parent), d(new Private) {
-    //, mSearchToolBar(0)
     d->mTabWidget = new TabWidget(this);
-    //, mSearchAction(0)
     d->mMainWindow = mainWindow;
 
     QWebEngineSettings *defaultSettings = QWebEngineProfile::defaultProfile()->settings();
@@ -123,40 +115,14 @@ void BrowserWindow::setupToolBar() {
     d->mHistoryBackMenu = new QMenu(this);
     connect(d->mHistoryBackMenu, &QMenu::aboutToShow, this, &BrowserWindow::aboutToShowBackMenu);
     connect(d->mHistoryBackMenu, &QMenu::triggered, this, &BrowserWindow::openActionUrl);
-
-    //foreach (QWidget* menuWidget,  mMainWindow->ui().actionWebBack->associatedWidgets())
-    //{
-    //    QToolButton *tb = qobject_cast<QToolButton*>(menuWidget);
-
-    //    if (tb && !tb->menu())
-    //    {
-    //        tb->setMenu(mHistoryBackMenu);
-    //       // tb->setStyleSheet("QToolButton::menu-indicator { subcontrol-position: bottom left; padding-left: 8px;}");
-    //    }
-    //}
+    attachHistoryMenu(d->mMainWindow->ui().actionWebBack, d->mHistoryBackMenu);
 
     d->mHistoryForwardMenu = new QMenu(this);
     connect(d->mHistoryForwardMenu, &QMenu::aboutToShow, this, &BrowserWindow::aboutToShowForwardMenu);
     connect(d->mHistoryForwardMenu, &QMenu::triggered, this, &BrowserWindow::openActionUrl);
-
-    //foreach (QWidget* menuWidget,  mMainWindow->ui().actionWebForward->associatedWidgets())
-    //{
-    //    QToolButton *tb = qobject_cast<QToolButton*>(menuWidget);
-
-    //    if (tb && !tb->menu())
-    //    {
-    //        tb->setMenu(mHistoryForwardMenu);
-    //        //tb->setStyleSheet("QToolButton { padding-right: 8px; }");
-    //    }
-    //}
+    attachHistoryMenu(d->mMainWindow->ui().actionWebForward, d->mHistoryForwardMenu);
 
     d->mWebToolBar->insertWidget(d->mMainWindow->ui().actionWebBigger, d->mTabWidget->lineEditStack());
-
-    //mSearchToolBar = new ToolbarSearch(mWebToolBar);
-
-    //mSearchAction = mWebToolBar->insertWidget(mMainWindow->ui().actionWebBigger, mSearchToolBar);
-
-    //connect(mSearchToolBar, SIGNAL(search(const QUrl&)), SLOT(loadUrl(const QUrl&)));
 
     d->mChaseWidget = new ChaseWidget(this);
     d->mWebToolBar->insertWidget(d->mMainWindow->ui().actionWebBigger, d->mChaseWidget);
@@ -170,14 +136,17 @@ void BrowserWindow::setupToolBar() {
     d->mWebToolBar->show();
 }
 
-
-//void BrowserWindow::adaptToolBar(bool wideRes)
-//{
-//    if (mSearchAction)
-//    {
-//        mSearchAction->setVisible(wideRes);
-//    }
-//}
+// 历史菜单挂在后退/前进按钮上：按钮本体仍是"后退一步"，旁边的小箭头展开历史列表。
+void BrowserWindow::attachHistoryMenu(QAction *action, QMenu *menu) {
+    const QList<QWidget *> widgets = action->associatedWidgets();
+    for (QWidget *widget : widgets) {
+        QToolButton *button = qobject_cast<QToolButton *>(widget);
+        if (button && !button->menu()) {
+            button->setMenu(menu);
+            button->setPopupMode(QToolButton::MenuButtonPopup);
+        }
+    }
+}
 
 QUrl BrowserWindow::guessUrlFromString(const QString &string) {
     QString urlStr = string.trimmed();
@@ -252,11 +221,6 @@ WebView *BrowserWindow::createNewTab() {
     return d->mTabWidget->newTab();
 }
 
-void BrowserWindow::slotSelectLineEdit() {
-    d->mTabWidget->currentLineEdit()->selectAll();
-    d->mTabWidget->currentLineEdit()->setFocus();
-}
-
 void BrowserWindow::slotFileSaveAs() {
     downloadManager()->download(currentTabWebView()->url(), true);
 }
@@ -307,15 +271,6 @@ void BrowserWindow::slotViewZoomTextOnly(bool enable) {
 
 void BrowserWindow::slotHome() {
     loadPage(Settings::settings()->webHomePage->get().toString());
-}
-
-void BrowserWindow::slotWebSearch() {
-    //mSearchToolBar->lineEdit()->selectAll();
-    //mSearchToolBar->lineEdit()->setFocus();
-}
-
-void BrowserWindow::slotToggleInspector(bool enable) {
-    Q_UNUSED(enable);
 }
 
 void BrowserWindow::slotSwapFocus() {

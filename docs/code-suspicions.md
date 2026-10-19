@@ -130,7 +130,14 @@
 - **`MimeType::AppleWidget`** 自己的注释写着 “mime type invented by us :-()”，
   却和 `GraphicsWidgetItem` 一路共享 “widget” 语义。名字里的 Apple 商标与实现无关，
   但改它要连写进 `.tbz` 的 mime 字符串一起看，属于协议层，先记。
-- 类名前缀本轮没换新的：既定决策是“去掉 `WB`/`UB` 前缀且**不换新的**”，所以新代码也别加
+- **一批「发出来但没人听」的信号留着没删**（本轮只删了既不发也没人连的那些声明）：
+  `PersistenceManager::proxyListChanged`/`documentCreated`/`documentMetadataChanged`、
+  `DocumentManager::documentUpdated`、`DownloadManager::cancelAllDownloads`/
+  `allDownloadsFinished`、`GraphicsCurtainItem::removed`、`KeyboardPalette::localeChanged`。
+  删它们要连 `emit` 一起删，属于「要么补上接收方、要么删掉」的判断，不适合和别的清理混
+  在一批里做；`WebTrapWebView::objectCaptured`/`webElementCaptured` 则刻意留着——它们
+  是「捕获网页」重写时的目标接口（见第一节第 4 条）。
+- 类名前缀本轮没换新的：既定决策是「去掉 `WB`/`UB` 前缀且**不换新的**」，所以新代码也别加
   `TianBoard::` 这类项目命名空间（见 [coding-style.md](coding-style.md) 第二章）。
   `src/` 下已 grep 核对：没有 `UB*`/`ub*`/`WB_*`/`eWB*` 标识符残留；后来补扫出另外几族
   历史前缀并一并改名：`wbz*`/`ubz*`（文档包缩写留在标识符里）与临时目录名 `sank*`。

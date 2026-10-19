@@ -106,7 +106,6 @@ public:
     QString applicationAudiosLibraryDirectory();
     QString applicationVideosLibraryDirectory();
     QString applicationAnimationsLibraryDirectory();
-    QString applicationStartupHintsDirectory();
 
     QNetworkProxy *httpProxy();
 
@@ -215,7 +214,6 @@ public:
 
     Setting *appUseMultiscreen;
 
-    Setting *appStartupHintsEnabled;
 
     Setting *boardPenFineWidth;
     Setting *boardPenMediumWidth;

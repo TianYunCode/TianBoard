@@ -8,7 +8,6 @@
 #include <QLabel>
 #include <QString>
 
-#include "ui/BoardThumbnailsView.h"
 #include "ui/DocumentNavigator.h"
 #include "ui/DockPaletteWidget.h"
 #include "model/DocumentProxy.h"
@@ -22,7 +21,6 @@ public:
     bool visibleInMode(DockWidgetMode mode) { return mode == DockWidgetMode::Board; }
 
 signals:
-    void resizeRequest(QResizeEvent *event);
 
 public slots:
     void setPageNumber(int current, int total);

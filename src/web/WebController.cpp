@@ -200,9 +200,6 @@ void WebController::adaptToolBar() {
 
     mMainWindow->ui().actionWebReload->setVisible(highResolution);
     mMainWindow->ui().actionStopLoading->setVisible(highResolution);
-
-    //if(mCurrentWebBrowser )
-    //    mCurrentWebBrowser->adaptToolBar(highResolution);
 }
 
 

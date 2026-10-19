@@ -221,7 +221,6 @@ void Settings::init() {
     appLastSessionPageIndex = new Setting(this, "App", "LastSessionPageIndex", 0);
     appUseMultiscreen = new Setting(this, "App", "UseMultiscreenMode", true);
 
-    appStartupHintsEnabled = new Setting(this, "App", "EnableStartupHints", true);
 
     appStartMode = new Setting(this, "App", "StartMode", "");
 
@@ -1087,16 +1086,6 @@ QString Settings::applicationAnimationsLibraryDirectory() {
     }
 }
 
-QString Settings::applicationStartupHintsDirectory() {
-    QString defaultRelativePath = QString("./startupHints");
-
-    QString configPath = value("StartupHintsDirectory", QVariant(defaultRelativePath)).toString();
-
-    if (configPath.startsWith(".")) {
-        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    } else
-        return configPath;
-}
 
 QString Settings::userInteractiveFavoritesDirectory() {
     static QString dirPath = "";

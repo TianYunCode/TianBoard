@@ -23,7 +23,6 @@ class ServerXMLHttpRequest;
 class KeyboardPalette;
 class MainWindow;
 class ApplicationController;
-class StartupHintsPalette;
 
 class BoardPaletteManager : public QObject {
     Q_OBJECT
@@ -75,7 +74,6 @@ private:
     StylusPalette *mStylusPalette;
 
     ZoomPalette *mZoomPalette;
-    StartupHintsPalette *mTipPalette;
     LeftPalette *mLeftPalette;
     RightPalette *mRightPalette;
 

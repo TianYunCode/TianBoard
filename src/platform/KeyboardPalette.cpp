@@ -152,15 +152,6 @@ void KeyboardPalette::hideKeyboard() {
     Application::mainWindow->ui().actionVirtualKeyboard->activate(QAction::Trigger);
 }
 
-void KeyboardPalette::syncPosition(const QPoint &pos) {
-    d->m_pos = pos;
-    move(pos);
-}
-
-void KeyboardPalette::syncLocale(int nLocale) {
-    d->nCurrentLocale = nLocale;
-    setInput(d->locales[d->nCurrentLocale]);
-}
 
 void KeyboardPalette::keyboardPaletteButtonSizeChanged(QVariant size) {
     setKeyButtonSize(size.toString());

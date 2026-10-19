@@ -44,7 +44,6 @@ public:
 #endif
 signals:
     void resized(QResizeEvent *event);
-    void shown();
     void mouseReleased();
 
 protected:

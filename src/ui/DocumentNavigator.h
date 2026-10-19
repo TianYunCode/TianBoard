@@ -45,7 +45,6 @@ protected:
 
 signals:
     void mousePressAndHoldEventRequired();
-    void moveThumbnailRequired(int from, int to);
 
 private:
     void refreshScene();

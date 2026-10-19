@@ -478,14 +478,12 @@ void BoardController::addScene(GraphicsScene *scene, bool replaceActiveIfEmpty) 
         if (replaceActiveIfEmpty && mActiveScene->isEmpty()) {
             PersistenceManager::persistenceManager()->insertDocumentSceneAt(selectedDocument(), clone,
                                                                             mActiveSceneIndex);
-            emit addThumbnailRequired(this, mActiveSceneIndex);
             setActiveDocumentScene(mActiveSceneIndex);
             deleteScene(mActiveSceneIndex + 1);
         } else {
             persistCurrentScene(false, true);
             PersistenceManager::persistenceManager()->insertDocumentSceneAt(selectedDocument(), clone,
                                                                             mActiveSceneIndex + 1);
-            emit addThumbnailRequired(this, mActiveSceneIndex + 1);
             setActiveDocumentScene(mActiveSceneIndex + 1);
         }
 
@@ -512,7 +510,6 @@ void BoardController::duplicateScene(int nIndex) {
     duplicatePages(scIndexes);
     insertThumbPage(nIndex);
     emit documentThumbnailsUpdated(this);
-    emit addThumbnailRequired(this, nIndex + 1);
     selectedDocument()->setMetaData(Settings::documentUpdatedAt,
                                     StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
@@ -1351,7 +1348,6 @@ void BoardController::moveSceneToIndex(int source, int target) {
         mMovingSceneIndex = -1;
 
         emit activeSceneChanged();
-        emit updateThumbnailsRequired();
     }
 }
 
@@ -1526,7 +1522,6 @@ void BoardController::setDisabled(bool disable) {
 void BoardController::selectionChanged() {
     updateActionStates();
     emit pageSelectionChanged(activeSceneIndex());
-    emit updateThumbnailsRequired();
 }
 
 

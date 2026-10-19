@@ -81,8 +81,6 @@ signals:
     void keyboardActivated(bool);
 
 private slots:
-    void syncPosition(const QPoint &pos);
-    void syncLocale(int nLocale);
     void keyboardPaletteButtonSizeChanged(QVariant size);
     void onActivated(bool b);
 

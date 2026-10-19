@@ -191,17 +191,14 @@ public slots:
     void appMainModeChanged(ApplicationController::MainMode);
 
 signals:
-    void newPageAdded();
     void activeSceneChanged();
     void zoomChanged(qreal pZoomFactor);
     void penColorChanged();
     void controlViewportChanged();
     void backgroundChanged();
     void cacheEnabled();
-    void documentReorganized(int index);
     void displayMetadata(QMap<QString, QString> metadata);
     void pageSelectionChanged(int index);
-    void centerOnThumbnailRequired(int index);
 
 protected:
     void setupViews();

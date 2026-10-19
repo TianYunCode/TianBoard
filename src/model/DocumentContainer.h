@@ -51,11 +51,6 @@ signals:
     void documentSet(DocumentProxy *document);
     void documentPageUpdated(int index);
 
-    void initThumbnailsRequired(DocumentContainer *source);
-    void addThumbnailRequired(DocumentContainer *source, int index);
-    void removeThumbnailRequired(int index);
-    void moveThumbnailRequired(int from, int to);
-    void updateThumbnailsRequired();
 
     void documentThumbnailsUpdated(DocumentContainer *source);
 };
