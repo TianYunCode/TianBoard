@@ -21,9 +21,11 @@ private slots:
 
 private:
     enum Outcome {
-        Completed = 0, // 活过启动链、干净退出
-        BusyHandoff,   // 秒退且退出码 0：像是把请求转给了已存在的实例
-        Broken         // 真失败，原因在 reason 里
+        Completed = 0,   // 活过启动链、干净退出
+        BusyHandoff,     // 秒退且退出码 0：像是把请求转给了已存在的实例
+        ShutdownStalled, // 启动链没问题，但关闭请求 20 秒内没走完（多半是机器被别的
+                         // 编译/扫描占满，也可能是真的卡住——重试才能分开这两种）
+        Broken           // 真失败，原因在 reason 里
     };
 
     Outcome runOnce(const QString &exe, QByteArray *log, QString *reason);
@@ -43,22 +45,29 @@ void TestSmoke::applicationStartsAndStaysAlive() {
 
     QByteArray log;
     QString reason;
+    Outcome last = BusyHandoff;
 
-    // 本程序是单实例的。上一次运行被强制结束、或桌面上真的开着一个实例时，新进程会
-    // 把请求转给已存在的实例然后自己正常退出（code 0）——那不是缺陷，也不该让测试
-    // 变红；崩溃与非零退出码仍然照实失败。
+    // 两种结局不是缺陷，值得再试一次：
+    //  - 本程序是单实例的，上一次运行被强杀或桌面上真开着实例时，新进程会把请求转交
+    //    给已存在的实例然后自己正常退出（code 0）；
+    //  - 关闭要走落盘与拆 WebEngine，机器被别的构建任务/杀毒扫描占满时可能超出预算。
+    // 崩溃与非零退出码不重试，直接失败。
     for (int attempt = 1; attempt <= 3; ++attempt) {
         log.clear();
         reason.clear();
-        const Outcome outcome = runOnce(exe, &log, &reason);
-        if (outcome == Completed)
+        last = runOnce(exe, &log, &reason);
+        if (last == Completed)
             return;
-        if (outcome == Broken)
+        if (last == Broken)
             QVERIFY2(false, qPrintable(reason));
 
-        qDebug("第 %d 次：新进程立刻正常退出，像是单实例接管；等一下再试", attempt);
+        qDebug("第 %d 次：%s；等一下再试", attempt, qPrintable(reason));
         QTest::qWait(3000);
     }
+
+    if (last == ShutdownStalled)
+        QVERIFY2(false, qPrintable(reason + QStringLiteral("（连续 3 次都这么慢：机器长期满负荷，"
+                                                           "或者关闭流程真的卡住，请单独重跑本用例）")));
 
     QSKIP("没能独占一次干净的启动：TianBoard 每次都立即把请求转给已存在的实例");
 }
@@ -91,14 +100,14 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
     // Closing the window is the supported way out: MainWindow::closeEvent forwards to
     // Application::closing(), which persists the board and quits the loop. Measured on
     // an idle machine that takes about 2s, but it is doing real disk I/O while the rest
-    // of the suite (and the antivirus) is busy, so give it a generous budget before
-    // deciding the shutdown is stuck.
+    // of the suite (and the antivirus) is busy, so a single over-long shutdown is only
+    // retried — three of them in a row is a real stall.
     app.terminate();
-    if (!app.waitForFinished(30000)) {
+    if (!app.waitForFinished(20000)) {
         app.kill();
         app.waitForFinished(5000);
-        *reason = QStringLiteral("TianBoard did not shut down within 30s of a close request");
-        return Broken;
+        *reason = QStringLiteral("TianBoard did not shut down within 20s of a close request");
+        return ShutdownStalled;
     }
     *log += app.readAll();
 

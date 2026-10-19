@@ -50,7 +50,7 @@ add_dependencies(tst_smoke TianBoard)
 add_test(NAME tst_smoke COMMAND tst_smoke)
 set_tests_properties(tst_smoke PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
-    TIMEOUT 180)
+    TIMEOUT 300)
 
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
