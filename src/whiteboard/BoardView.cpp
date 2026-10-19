@@ -464,7 +464,7 @@ bool BoardView::itemHaveParentWithType(QGraphicsItem *item, int type)
 
 }
 
-bool BoardView::isWBItem(QGraphicsItem *item)
+bool BoardView::isBoardItem(QGraphicsItem *item)
 {
     if ((GraphicsItemType::UserTypesCount > item->type()) && (item->type() > QGraphicsItem::UserType))
         return true;
@@ -585,7 +585,7 @@ bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item)
         break;
     }
 
-    return !isWBItem(item);
+    return !isBoardItem(item);
 }
 
 bool BoardView::itemShouldReceiveSuspendedMousePressEvent(QGraphicsItem *item)
@@ -1241,7 +1241,7 @@ void BoardView::mouseReleaseEvent (QMouseEvent *event)
                 }
                 else
                 {
-                    if (isWBItem(d->movingItem) &&
+                    if (isBoardItem(d->movingItem) &&
                             DelegateButton::Type != d->movingItem->type() &&
                             GraphicsDelegateFrame::Type !=  d->movingItem->type() &&
                             GraphicsCache::Type != d->movingItem->type() &&
@@ -1322,7 +1322,7 @@ void BoardView::mouseReleaseEvent (QMouseEvent *event)
                 bReleaseIsNeed = true;
             }
             else{
-                if (isWBItem(d->movingItem) &&
+                if (isBoardItem(d->movingItem) &&
                         DelegateButton::Type != d->movingItem->type() &&
                         QGraphicsSvgItem::Type !=  d->movingItem->type() &&
                         GraphicsDelegateFrame::Type !=  d->movingItem->type() &&

@@ -46,7 +46,7 @@ void ExportIwb::persist(DocumentProxy* pDocument)
             Application::showMessage(tr("Exporting document..."));
 
             IwbDocumentAdaptor toIWBExporter;
-            if (toIWBExporter.convertWBZToIWB(src, filename))
+            if (toIWBExporter.convertPageToIwb(src, filename))
             {
                 if (mIsVerbose)
                     Application::showMessage(tr("Export successful."));

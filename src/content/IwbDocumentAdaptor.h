@@ -17,7 +17,7 @@ public:
     IwbDocumentAdaptor();
     ~IwbDocumentAdaptor();
 
-    bool convertWBZToIWB(const QString &from, const QString &to);
+    bool convertPageToIwb(const QString &from, const QString &to);
     bool deleteDir(const QString& pDirPath) const;
     QList<QString> getConversionMessages();
 
@@ -66,15 +66,15 @@ private:
         bool createPngFromSvg(QString &svgPath, QString &dstPath,  QTransform transformation, QSize size = QSize());
 
         bool parseSVGGGroup(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parseWBZImage(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parseWBZVideo(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parseWBZAudio(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        bool parsePageImage(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        bool parsePageVideo(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        bool parsePageAudio(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
         bool parseForeignObject(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parseWBZText(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        bool parsePageText(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
 
-        bool parseWBZPolygon(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parseWBZPolyline(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
-        bool parseWBZLine(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);       
+        bool parsePagePolygon(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        bool parsePagePolyline(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);
+        bool parsePageLine(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList);       
         void addSVGElementToResultModel(const QDomElement &element, QMultiMap<int, QDomElement> &dstList, int layer = DEFAULT_LAYER);
         void addIWBElementToResultModel(const QDomElement &element);
 
@@ -92,14 +92,14 @@ private:
         bool itIsFormatToConvert(const QString &format) const;
         bool itIsSVGElementAttribute(const QString ItemType, const QString &AttrName);
         bool itIsIWBAttribute(const QString &attribute) const;
-        bool itIsWBZAttributeToConvert(const QString &attribute) const;
+        bool isPageAttributeToConvert(const QString &attribute) const;
 
         bool ibwAddLine(int x1, int y1, int x2, int y2, QString color=QString(), int width=1, bool isBackground=false);
 
-        QTransform getTransformFromWBZ(const QDomElement &pageElement);
-        void setGeometryFromWBZ(const QDomElement &pageElement, QDomElement &iwbElement);
-        void setCoordinatesFromWBZ(const QDomElement &pageElement, QDomElement &iwbElement);
-        bool setContentFromWBZ(const QDomElement &pageElement, QDomElement &svgElement);
+        QTransform transformOfPageElement(const QDomElement &pageElement);
+        void setGeometryFromPageElement(const QDomElement &pageElement, QDomElement &iwbElement);
+        void setCoordinatesFromPageElement(const QDomElement &pageElement, QDomElement &iwbElement);
+        bool setContentFromPageElement(const QDomElement &pageElement, QDomElement &svgElement);
         void setIwbTextFromHTMLTextNode(const QDomElement htmlTextNode, QDomElement &iwbElement);
         QString ubzAttrNameToIwbAttrName(QString iwbAttrName);
         QString ubzAttrValueToIwbAttrName(QString iwbAttrValue);

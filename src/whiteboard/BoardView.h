@@ -48,7 +48,7 @@ class BoardView : public QGraphicsView
 
 	protected:
 		bool itemIsLocked(QGraphicsItem *item);
-		bool isWBItem(QGraphicsItem *item);
+		bool isBoardItem(QGraphicsItem *item);
 		bool isCppTool(QGraphicsItem *item);
 		void handleItemsSelection(QGraphicsItem *item);
 		bool itemShouldReceiveMousePressEvent(QGraphicsItem *item);

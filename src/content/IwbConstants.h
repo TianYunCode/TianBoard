@@ -59,21 +59,21 @@ const QString aDescription  = "description";
 const QString aCreator  = "creator";
 const QString aAbout  = "about";
 const QString aIWBViewBox = "viewbox";
-const QString aWBZViewBox = "viewBox";
+const QString aPageViewBox = "viewBox";
 const QString aDarkBackground = "dark-background";
 const QString aBackground = "background";
 const QString aCrossedBackground = "crossed-background";
-const QString aWBZType = "type";
-const QString aWBZUuid = "uuid";
-const QString aWBZParent = "parent";
+const QString aPageType = "type";
+const QString aPageUuid = "uuid";
+const QString aPageParent = "parent";
 const QString aFill = "fill"; 
 
 const QString aID = "id";
 const QString aRef = "ref";
 const QString aSVGHref = "xlink:href";
 const QString aIWBHref = "ref";
-const QString aWBZHref = "href";
-const QString aWBZSource = "source";
+const QString aPageHref = "href";
+const QString aPageSource = "source";
 const QString aSrc = "src";
 const QString aSVGRequiredExtension = "requiredExtensions";
 
@@ -94,12 +94,12 @@ const QString aIWBContent = "content";
 
 // Attribute values
 const QString avIWBVersionNo = "1.0"; 
-const QString avWBZText = "text";
+const QString avPageText = "text";
 const QString avFalse = "false";
 const QString avTrue = "true";
 
 // Namespaces and prefixes
-const QString svgWBZNS = "http://www.imsglobal.org/xsd/iwb_v1p0";
+const QString svgPageNS = "http://www.imsglobal.org/xsd/iwb_v1p0";
 const QString svgIWBNS = "http://www.w3.org/2000/svg";
 const QString xlinkNS = "http://www.w3.org/1999/xlink";
 const QString iwbNS = "http://www.imsglobal.org/xsd/iwb_v1p0";
