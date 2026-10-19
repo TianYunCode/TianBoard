@@ -62,7 +62,7 @@ bool ExportPDF::persistsDocument(DocumentProxy* pDocumentProxy, const QString& f
 
     //need to calculate screen resolution
     VirtualDesktop* desktop = VirtualDesktop::instance();
-    int dpiCommon = (desktop->physicalDpiX() + desktop->physicalDpiY()) / 2;
+    int dpiCommon = desktop->physicalDpi();
     float scaleFactor = 72.0f / dpiCommon;
 
     QPainter pdfPainter;

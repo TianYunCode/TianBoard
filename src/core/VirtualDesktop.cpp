@@ -198,16 +198,10 @@ QRect VirtualDesktop::virtualGeometry() const
     return unionRect;
 }
 
-int VirtualDesktop::physicalDpiX() const
+int VirtualDesktop::physicalDpi() const
 {
     const QScreen *primary = QGuiApplication::primaryScreen();
-    return primary ? qRound(primary->physicalDotsPerInchX()) : 96;
-}
-
-int VirtualDesktop::physicalDpiY() const
-{
-    const QScreen *primary = QGuiApplication::primaryScreen();
-    return primary ? qRound(primary->physicalDotsPerInchY()) : 96;
+    return primary ? qRound((primary->physicalDotsPerInchX() + primary->physicalDotsPerInchY()) / 2.0) : 96;
 }
 
 QPixmap VirtualDesktop::grabScreen(QScreen *screen, const QRect &globalRect)

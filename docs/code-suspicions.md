@@ -73,14 +73,13 @@
 
 ## 三、需要产品决策，不该由重构顺手改掉
 
-- **导出 PDF/图片的 DPI 取的是主屏，不是文档所在屏**。落点：
-  `src/core/VirtualDesktop.cpp:201-211`（`physicalDpiX/Y` 里写死
-  `QGuiApplication::primaryScreen()`），调用方 `src/content/ExportPDF.cpp:65`、
-  `src/content/ExportFullPDF.cpp:39`、`src/content/IwbSubsetAdaptor.cpp`。
-  多屏且两屏物理 DPI 不同时代入的是错的 DPI。改它会让写进文档的 `pageDpi` 变化，
-  属于会改变产物内容的决定，要由人确认后再动。
+- **导出用的 DPI 已经收敛成一个入口，但“取哪个屏”仍未定**：原来 11 处各自写
+  `(physicalDpiX()+physicalDpiY())/2` 或只取 `Y`，同一份文档的导出与导入可能按两套比例折算；
+  现在全部走 `VirtualDesktop::physicalDpi()`（固定取主屏）。要改成“画板所在屏”并不安全：
+  `BoardView::resizeEvent` 按“最后 resize 的那个视图”决定 `sceneRect`，多屏下并没有唯一的
+  “画板所在屏”，先要定清楚场景尺寸该跟哪块屏。
 - **语言只放了中/英**。`LanguageManager` 的机制与 `tst_language` 已就位，加第三种语言
-  只要补 `res/i18n/TianBoard_<lang>.ts` 并产出 `Language/TianBoard_<lang>.qm`；
+  只要补 `res/i18n/lang_<代码>.ts` 并产出 `Language/TianBoard_<lang>.qm`；
   在有人翻译之前不能凭空往菜单里加语种。
 - **`.clang-format` 全量重排仍未执行**（见第五节倒数第二条），理由不变。
 

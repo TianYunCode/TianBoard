@@ -404,7 +404,7 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     proxy->setPageDpi(pageDpi.toInt());
 
                 else if (proxy->pageDpi() == 0) {
-                    proxy->setPageDpi((VirtualDesktop::instance()->physicalDpiX() + VirtualDesktop::instance()->physicalDpiY())/2);
+                    proxy->setPageDpi(VirtualDesktop::instance()->physicalDpi());
                     pageDpiSpecified = false;
                 }
 
@@ -771,8 +771,7 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     if (pdfItem)
                     {
                         VirtualDesktop* desktop = VirtualDesktop::instance();
-                        qreal currentDpi = (desktop->physicalDpiX() + desktop->physicalDpiY()) / 2;
-                        // qDebug() << "currentDpi (" << desktop->physicalDpiX() << " + " << desktop->physicalDpiY() << ")/2 = " << currentDpi;
+                        qreal currentDpi = desktop->physicalDpi();
                         qreal pdfScale = qreal(proxy->pageDpi())/currentDpi;
                         // qDebug() << "pdfScale " << pdfScale;
 
@@ -845,7 +844,7 @@ GraphicsScene* SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy* proxy
                     if (textDelegate)
                     {
                         VirtualDesktop* desktop = VirtualDesktop::instance();
-                        qreal currentDpi = (desktop->physicalDpiX() + desktop->physicalDpiY()) / 2;
+                        qreal currentDpi = desktop->physicalDpi();
                         qreal textSizeMultiplier = qreal(proxy->pageDpi())/currentDpi;
                         //textDelegate->scaleTextSize(textSizeMultiplier);
                     }
@@ -1098,7 +1097,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::writeSvgElement(DocumentProxy* proxy)
     VirtualDesktop* desktop = VirtualDesktop::instance();
 
     if (proxy->pageDpi() == 0)
-        proxy->setPageDpi((desktop->physicalDpiX() + desktop->physicalDpiY()) / 2);
+        proxy->setPageDpi(desktop->physicalDpi());
 
     mXmlWriter.writeAttribute("pageDpi", QString::number(proxy->pageDpi()));
 

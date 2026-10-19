@@ -15,7 +15,7 @@ ImportPDF::ImportPDF(QObject *parent)
     : PageBasedImportAdaptor(parent)
 {
     VirtualDesktop* desktop = VirtualDesktop::instance();
-    this->dpi = (desktop->physicalDpiX() + desktop->physicalDpiY()) / 2;
+    this->dpi = desktop->physicalDpi();
 }
 
 

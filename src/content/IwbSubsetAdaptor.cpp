@@ -561,7 +561,7 @@ void IwbSubsetAdaptor::IwbSubsetReader::parseTextAttributes(const QDomElement &e
     //consider inch has 72 liens
     //since svg font size is given in pixels, divide it by pixels per line
     QString fontSz = element.attribute(aFontSize);
-    if (!fontSz.isNull()) fontSize = fontSz.toDouble() * 72 / VirtualDesktop::instance()->physicalDpiY();
+    if (!fontSz.isNull()) fontSize = fontSz.toDouble() * 72 / VirtualDesktop::instance()->physicalDpi();
 
     QString fontColorText = element.attribute(aFill);
     if (!fontColorText.isNull()) fontColor = colorFromString(fontColorText);
@@ -1463,7 +1463,7 @@ QSvgGenerator* IwbSubsetAdaptor::IwbSubsetReader::createSvgGenerator(qreal width
     QSvgGenerator* generator = new QSvgGenerator();
 //    qWarning() << QString("Making generator with file %1, size (%2, %3) and viewbox (%4 %5 %6 %7)").arg(mTempFilePath)
 //        .arg(width).arg(height).arg(0.0).arg(0.0).arg(width).arg(width);
-    generator->setResolution(VirtualDesktop::instance()->physicalDpiY());
+    generator->setResolution(VirtualDesktop::instance()->physicalDpi());
     generator->setFileName(mTempFilePath);
     generator->setSize(QSize(width, height));
     generator->setViewBox(QRectF(0, 0, width, height));

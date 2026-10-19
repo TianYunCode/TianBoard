@@ -36,7 +36,7 @@ ExportFullPDF::ExportFullPDF(QObject *parent)
 {
     //need to calculate screen resolution
     VirtualDesktop* desktop = VirtualDesktop::instance();
-    int dpiCommon = (desktop->physicalDpiX() + desktop->physicalDpiY()) / 2;
+    int dpiCommon = desktop->physicalDpi();
     mScaleFactor = 72.0f / dpiCommon; // 1pt = 1/72 inch
 
     mSimpleExporter = new ExportPDF();

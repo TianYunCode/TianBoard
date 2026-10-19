@@ -149,9 +149,7 @@ void BoardController::initBackgroundGridSize()
     // Later on, this is calculated by `updateSystemScaleFactor` and stored in `mSystemScaleFactor`.
 
     VirtualDesktop* desktop = VirtualDesktop::instance();
-    qreal dpi = (desktop->physicalDpiX() + desktop->physicalDpiY()) / 2.;
-
-    //qDebug() << "dpi: " << dpi;
+    qreal dpi = desktop->physicalDpi();
 
     // The display manager isn't initialized yet so we have to just assume the control view is on the main display
     qreal screenY = desktop->screenGeometry(mControlView).height();

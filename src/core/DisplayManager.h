@@ -55,6 +55,11 @@ class DisplayManager : public QObject
             return mControlScreenIndex;
         }
 
+        int displayScreenIndex() const
+        {
+            return mDisplayScreenIndex;
+        }
+
         QRect controlGeometry();
         QRect displayGeometry();
 
