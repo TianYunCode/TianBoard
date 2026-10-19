@@ -14,6 +14,7 @@
 src/
   ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配
   ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
+  │                （只依赖 utils，与 utils 一样是真 STATIC）
   ├─ core/         应用与各类服务/控制器（Application、ApplicationController、
   │                DisplayManager/VirtualDesktop、LanguageManager、PersistenceManager、
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager…）
@@ -31,8 +32,9 @@ src/
   ├─ ui/           全部界面控件与调色板（原 ui/ + widgets/ + network/ProxyDialog）
   ├─ platform/     平台相关实现：PlatformUtils*、WindowCapture*、CustomCaptureWindow*、
   │                KeyboardPalette*
-  └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、
-                   Globals、CryptoUtils、Enums.h（唯一的 STATIC 模块，出边为零）
+  └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
+                   applicationResourcesDirectory）、Globals、CryptoUtils、Enums.h
+                   （出边为零，最底一层）
 third/             内联第三方：quazip+zlib、openssl 静态库、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/             Qt Test 用例（7 个）
@@ -57,9 +59,12 @@ docs/              本文与编码规范、疑点台账
 
 `core/Settings.h`、`core/Setting.h` → `settings/`（2026-10 的第二次拆分）。原来每个模块
 为了读一个开关都要 include `core/Settings.h`，而 core 是装配点，这一发 include 顺带把
-`core/Application.h` 的整棵依赖拖进调用方。拆出来之后 settings 的出边只有
-`platform/PlatformUtils.h`（拿资源目录）和 utils 的三个纯工具头，13 个模块里有 11 个
-都可以只依赖它而不碰 core（不依赖它的只有 utils 和 settings 本身）。
+`core/Application.h` 的整棵依赖拖进调用方。拆出来之后它只剩两条向上的边，也都断掉了：
+`applicationResourcesDirectory()` 是部署约定而不是平台能力，下沉到
+`utils/FileSystemUtils`（platform 里那份一并删掉，全仓调用点跟着改名）；路径设置里的
+`{UserLoginName}` 改由 `core/Application` 在启动时 `Settings::setUserLoginName()` 推进来。
+于是 settings 的出边只有 utils，成为第二个真 STATIC 模块，13 个模块里有 11 个可以只依赖
+它而不碰 core（不依赖它的只有 utils 和 settings 本身）。
 
 ## 二、运行结构
 
@@ -74,7 +79,7 @@ TianBoard.exe
               DesktopAnnotationController(桌面批注)
 ```
 
-运行期目录约定：`PlatformUtils::applicationResourcesDirectory()` 返回可执行文件所在
+运行期目录约定：`FileSystemUtils::applicationResourcesDirectory()` 返回可执行文件所在
 目录，因此 `etc/`、`library/`、`customizations/`、`Language/` 必须与 exe 同级，由
 `src/app/CMakeLists.txt` 的 POST_BUILD 步骤铺好；`tst_smoke` 会显式校验这一点。
 
@@ -115,14 +120,14 @@ TianBoard.exe
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 22 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 21 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
 
-已经做到的一个：`tb_utils` 是真 `STATIC`。它出边为零，链进去的 .obj 只会被引用它的
-模块用到，跨模块的 `#include` 一旦越界就在编译期失败，而不是等到链接期靠符号缺失才发现。
-这个配方对其它模块同样成立。
+已经做到的两个：`tb_utils` 与 `tb_settings` 是真 `STATIC`。前者出边为零；后者出边只有
+utils。越界的 `#include` 在编译期就失败，而不是等到链接期靠符号缺失才发现——这个配方
+对其它模块同样成立，`settings` 就是刚照着 `utils` 拆出来的。
 
 换成 STATIC 的前置条件：该模块的出边全部落在比它低的层（下表），且没有对上的
 include。
@@ -150,15 +155,16 @@ include。
 | `api` ↔ `whiteboard` | 8 / 2 | `whiteboard/GraphicsWidgetItem.cpp` 反向认 api 门面 |
 | `content` ↔ `ui` | 2 / 4 | `content/ExportAdaptor.cpp` 弹 MessagesDialog/MainWindow |
 | `platform` ↔ `ui` | 4 / 6 | `platform/KeyboardPalette.h` 认 `ui/ActionPalette.h` |
-| `platform` ↔ `whiteboard` | 1 / 8 | `platform/WindowCapture_win.cpp` 认 BoardView |
+| `platform` ↔ `whiteboard` | 1 / 7 | `platform/WindowCapture_win.cpp` 认 BoardView |
 | `platform` ↔ `desktop` | 5 / 2 | WindowCapture_win 认 DesktopPalette/AnnotationController |
 | `desktop` ↔ `whiteboard` | 9 / 2 | BoardView 反向认 DesktopAnnotationController |
 | `recording` ↔ `whiteboard` | 4 / 2 | BoardController 反向认 RecordingController |
 | `web` ↔ `whiteboard` | 5 / 7 | 互相认控制器与图形项 |
-| `settings` ↔ `platform` | 1 / 1 | `settings/Settings.cpp` 认 `platform/PlatformUtils.h`（资源目录）；`platform/*.cpp` 读设置 |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
-`CoreGraphicsScene.cpp` → 两个图形项）已经在前面两次提交里断掉，utils 现在不在任何环上。
+`CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
+`platform/PlatformUtils.h` 拿资源目录，另加 `osUserLoginName`）都已断掉，这两个模块
+都不在任何环上，也已经收紧成 STATIC。
 
 ### 拆环顺序（从叶子往根拆）
 
@@ -166,10 +172,8 @@ include。
 从 `OBJECT` 改成 `STATIC`。
 
 1. ~~**`utils/`**~~（已完成：出边为零，已收紧成 STATIC）
-2. **`settings/`**：只剩一条真边——`Settings.cpp` 要 `PlatformUtils` 的资源目录。
-   把“资源目录在哪”作为参数，或抽一个 `ISettingsHost` 由 app/ 在构造期注入，
-   settings 就只依赖 utils。另一向 `platform → settings`（平台代码读设置）本来就是
-   上指向下，不用动。
+2. ~~**`settings/`**~~（已完成：资源目录下沉到 `utils/FileSystemUtils`，登录名由
+   `core/Application` 启动时注入；出边只有 utils，已收紧成 STATIC）
 3. **`api/`**：断开 `whiteboard/GraphicsWidgetItem.cpp` → api 的反向边（小部件经
    QObject 消息桥调用画板能力，改为画板侧注册回调/接口，api 只认下层的 whiteboard）。
 4. **`model/`**：断开 `model` → `ui`（DocumentController 直接实例化缩略图视图）与
@@ -199,16 +203,24 @@ api         -> content:1, core:6, model:1, settings:1, utils:2, web:1, whiteboar
 app         -> core:1, platform:1, settings:1, utils:1
 content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:50
 core        -> content:15, desktop:2, model:11, platform:5, recording:2, settings:15,
-               ui:11, utils:7, web:2, whiteboard:33
+               ui:11, utils:8, web:2, whiteboard:33
 desktop     -> core:7, platform:5, settings:3, ui:10, web:1, whiteboard:9
-model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:4, whiteboard:6
+model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteboard:6
 platform    -> core:3, desktop:2, settings:1, ui:4, utils:1, whiteboard:1
 recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
-settings    -> platform:1, utils:4
-ui          -> api:4, content:4, core:41, model:11, platform:6, settings:16, utils:9,
+settings    -> utils:4
+ui          -> api:2, content:4, core:41, model:11, platform:6, settings:16, utils:9,
                whiteboard:43
 utils       -> （无出边）
 web         -> core:18, platform:3, settings:5, ui:4, utils:2, whiteboard:5
-whiteboard  -> api:2, content:3, core:66, desktop:2, model:9, platform:8, recording:2,
+whiteboard  -> api:2, content:3, core:66, desktop:2, model:9, platform:7, recording:2,
                settings:20, ui:47, utils:42, web:7
+```
+
+`core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
+重跑这张表不需要脚本，一条 grep 就够：
+
+```text
+grep -rhoE '#include[[:space:]]+"[a-z]+/' src/<模块> | sed -E 's/.*"([a-z]+)\/.*/\1/' \
+  | sort | uniq -c
 ```

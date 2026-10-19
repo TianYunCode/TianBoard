@@ -86,6 +86,12 @@ class Settings : public QObject
 
         void init();
 
+        // 路径设置里的 {UserLoginName} 靠这个展开。登录名只有操作系统知道，
+        // 但由装配层（core/Application）在启动时推进来——设置层不该反过来认识
+        // platform，否则每个读设置的模块都被迫为拿一个开关拖进整棵平台依赖。
+        static void setUserLoginName(const QString &loginName);
+        static QString userLoginName();
+
         //user directories
         static QString userDataDirectory();
         static QString userDocumentDirectory();

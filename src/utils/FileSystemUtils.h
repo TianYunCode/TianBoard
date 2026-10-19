@@ -18,6 +18,10 @@ class FileSystemUtils : public QObject
 
         static QString removeLocalFilePrefix(QString input);
 
+        // 部署约定：etc/ library/ customizations/ Language/ 与可执行文件同级，由
+        // src/app/CMakeLists.txt 的 POST_BUILD 铺好（tst_smoke 按这个前提校验）。
+        static QString applicationResourcesDirectory();
+
         static QString defaultTempDirName() { return QCoreApplication::applicationName(); }
         static QString defaultTempDirPath();
         static QString createTempDir(const QString& templateString = defaultTempDirName(), bool autoDeleteOnExit = true);

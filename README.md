@@ -84,5 +84,6 @@ scripts/         build.ps1 / format.ps1
 ```
 
 每个模块的 `CMakeLists.txt` 显式列出全部源文件（不用 GLOB），新增文件不改清单就不进构建。
-`src/utils` 出边为零，已经从 `OBJECT` 收紧成真 `STATIC` 库；其余模块因为还有 22 组双向
-include 而暂时保持 `OBJECT`，拆环顺序见 [docs/architecture.md](docs/architecture.md) 第四、五节。
+`src/utils`（出边为零）与 `src/settings`（只依赖 utils）已经从 `OBJECT` 收紧成真 `STATIC`
+库；其余模块因为还有 21 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
+[docs/architecture.md](docs/architecture.md) 第四、五节。

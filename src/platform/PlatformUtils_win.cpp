@@ -13,12 +13,6 @@ void PlatformUtils::init()
 }
 
 
-QString PlatformUtils::applicationResourcesDirectory()
-{
-    return QApplication::applicationDirPath();
-}
-
-
 void PlatformUtils::hideFile(const QString &filePath)
 {
     Q_UNUSED(filePath);

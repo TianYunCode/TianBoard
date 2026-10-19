@@ -2,7 +2,6 @@
 
 #include <QtWidgets>
 
-#include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
 #include "utils/CryptoUtils.h"
 
@@ -42,6 +41,18 @@ const int Settings::sDefaultFontPixelSize = 36;
 const char *Settings::sDefaultFontFamily = "Arial";
 
 QString Settings::currentFileVersion = "4.8.0";
+
+QString Settings::sUserLoginName;
+
+void Settings::setUserLoginName(const QString &loginName)
+{
+    sUserLoginName = loginName;
+}
+
+QString Settings::userLoginName()
+{
+    return sUserLoginName;
+}
 
 QBrush Settings::eraserBrushDarkBackground = QBrush(QColor(127, 127, 127, 80));
 QBrush Settings::eraserBrushLightBackground = QBrush(QColor(127, 127, 127, 80));
@@ -125,7 +136,7 @@ QSettings* Settings::getAppSettings()
     if (!Settings::sAppSettings)
     {
         QString tmpSettings = QDir::tempPath() + "/" + qApp->applicationName() + ".config";
-        QString appSettings = PlatformUtils::applicationResourcesDirectory() + "/etc/" + qApp->applicationName() + ".config";
+        QString appSettings = FileSystemUtils::applicationResourcesDirectory() + "/etc/" + qApp->applicationName() + ".config";
 
         // 旧版本升级遗留的临时配置还在时，先读它而不是读正式配置
         if (QFile::exists(tmpSettings))
@@ -1006,7 +1017,7 @@ QString Settings::applicationShapeLibraryDirectory()
     QString configPath = value("Library/ShapeDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else {
         return configPath;
@@ -1016,7 +1027,7 @@ QString Settings::applicationShapeLibraryDirectory()
 QString Settings::applicationCustomizationDirectory()
 {
     QString defaultRelativePath = QString("/customizations");
-    return PlatformUtils::applicationResourcesDirectory() + defaultRelativePath;
+    return FileSystemUtils::applicationResourcesDirectory() + defaultRelativePath;
 
 }
 
@@ -1030,7 +1041,7 @@ QString Settings::userSearchDirectory()
 {
     static QString dirPath = "";
     if(dirPath.isEmpty()){
-        dirPath = PlatformUtils::applicationResourcesDirectory() + "/library/search";
+        dirPath = FileSystemUtils::applicationResourcesDirectory() + "/library/search";
         checkDirectory(dirPath);
     }
     return dirPath;
@@ -1043,7 +1054,7 @@ QString Settings::applicationImageLibraryDirectory()
     QString configPath = value("Library/ImageDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else {
         return configPath;
@@ -1086,7 +1097,7 @@ QString Settings::applicationInteractivesDirectory()
     QString configPath = value("Library/InteractivitiesDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else {
         return configPath;
@@ -1101,7 +1112,7 @@ QString Settings::applicationAudiosLibraryDirectory()
     QString configPath = value("Library/AudiosDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else {
         return configPath;
@@ -1115,7 +1126,7 @@ QString Settings::applicationVideosLibraryDirectory()
     QString configPath = value("Library/VideosDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else {
         return configPath;
@@ -1129,7 +1140,7 @@ QString Settings::applicationAnimationsLibraryDirectory()
     QString configPath = value("Library/AnimationsDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else {
         return configPath;
@@ -1143,7 +1154,7 @@ QString Settings::applicationStartupHintsDirectory()
     QString configPath = value("StartupHintsDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
+        return FileSystemUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
     }
     else
         return configPath;
@@ -1286,8 +1297,8 @@ QString Settings::replaceWildcard(QString& path)
         result = result.replace("{Desktop}", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     }
 
-    if(result.contains("{UserLoginName}") && PlatformUtils::osUserLoginName().length() > 0) {
-        result = result.replace("{UserLoginName}", PlatformUtils::osUserLoginName());
+    if(result.contains("{UserLoginName}") && userLoginName().length() > 0) {
+        result = result.replace("{UserLoginName}", userLoginName());
     }
 
     return result;

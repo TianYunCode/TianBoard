@@ -75,6 +75,8 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     setApplicationVersion(QString::fromLatin1(TIANBOARD_VERSION));
 
+    // 登录名要早于任何路径设置被读；设置层只认这个值，不反向依赖 platform。
+    Settings::setUserLoginName(PlatformUtils::osUserLoginName());
 
     QStringList args = arguments();
 
@@ -106,7 +108,7 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     setStyle("fusion");
 
-	QString css = FileSystemUtils::readTextFile(PlatformUtils::applicationResourcesDirectory() + "/etc/"+ qApp->applicationName()+".css");
+	QString css = FileSystemUtils::readTextFile(FileSystemUtils::applicationResourcesDirectory() + "/etc/"+ qApp->applicationName()+".css");
     if (css.length() > 0)
         setStyleSheet(css);
 

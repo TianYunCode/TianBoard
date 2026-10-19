@@ -5,7 +5,7 @@
 # 这里只做装配：把各模块的 OBJECT 库并成一个 TianBoard.exe，再把运行期
 # 目录铺到可执行文件旁边。不放业务代码。
 #
-# 运行期布局（PlatformUtils::applicationResourcesDirectory() ==
+# 运行期布局（FileSystemUtils::applicationResourcesDirectory() ==
 # applicationDirPath()）：etc/ library/ customizations/ Language/ 必须与
 # TianBoard.exe 同级，POST_BUILD 负责铺；tst_smoke 也按这个前提校验。
 # ======================================================================

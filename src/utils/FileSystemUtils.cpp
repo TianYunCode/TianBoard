@@ -41,6 +41,11 @@ QString FileSystemUtils::removeLocalFilePrefix(QString input)
 #endif
 }
 
+QString FileSystemUtils::applicationResourcesDirectory()
+{
+    return QCoreApplication::applicationDirPath();
+}
+
 bool FileSystemUtils::isAZipFile(QString &filePath)
 {
    if(QFileInfo(filePath).isDir()) return false;

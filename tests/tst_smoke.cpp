@@ -134,7 +134,7 @@ void TestSmoke::runtimeDataIsDeployedNextToTheExecutable()
 {
     const QDir appDir = QFileInfo(qEnvironmentVariable("TIANBOARD_EXE")).absoluteDir();
 
-    // PlatformUtils::applicationResourcesDirectory() == applicationDirPath(), so
+    // FileSystemUtils::applicationResourcesDirectory() == applicationDirPath(), so
     // these three directories and the default configuration must sit beside the
     // exe; without them the app starts with an empty settings tree.
     QVERIFY(appDir.exists("etc"));

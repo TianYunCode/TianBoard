@@ -18,7 +18,6 @@
 #include "settings/Settings.h"
 
 #include "utils/FileSystemUtils.h"
-#include "platform/PlatformUtils.h"
 
 #include "core/NetworkAccessManager.h"
 
@@ -1098,7 +1097,7 @@ QString GraphicsWebWidgetItem::freezedWidgetPage()
 
 QString GraphicsWebWidgetItem::freezedWidgetFilePath()
 {
-    return PlatformUtils::applicationResourcesDirectory() + "/etc/" + "freezedWidgetWrapper.html";
+    return FileSystemUtils::applicationResourcesDirectory() + "/etc/" + "freezedWidgetWrapper.html";
 }
 
 bool GraphicsWebWidgetItem::hasNPAPIWrapper(const QString& pMimeType)
@@ -1124,7 +1123,7 @@ void GraphicsWebWidgetItem::loadNPAPIWrappersTemplates()
     if (!sTemplateLoaded) {
         sNPAPIWrapperTemplates.clear();
 
-        QString etcPath = PlatformUtils::applicationResourcesDirectory() + "/etc/";
+        QString etcPath = FileSystemUtils::applicationResourcesDirectory() + "/etc/";
 
         QDir etcDir(etcPath);
 

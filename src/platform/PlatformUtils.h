@@ -133,7 +133,6 @@ class PlatformUtils
 	public:
         static void init();
         static void destroy();
-        static QString applicationResourcesDirectory();
         static void hideFile(const QString &filePath);
         static void fadeDisplayOut();
         static void fadeDisplayIn();

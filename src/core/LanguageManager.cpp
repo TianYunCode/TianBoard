@@ -9,6 +9,7 @@
 
 #include "settings/Settings.h"
 #include "platform/PlatformUtils.h"
+#include "utils/FileSystemUtils.h"
 
 
 LanguageManager* LanguageManager::sInstance = nullptr;
@@ -62,7 +63,7 @@ namespace
 
     QString appConfigPath()
     {
-        return PlatformUtils::applicationResourcesDirectory() + "/etc/" + QCoreApplication::applicationName() + ".config";
+        return FileSystemUtils::applicationResourcesDirectory() + "/etc/" + QCoreApplication::applicationName() + ".config";
     }
 
     QString readSavedLanguage()

@@ -3,7 +3,7 @@
 #include "core/VirtualDesktop.h"
 
 #include "platform/PlatformUtils.h"
-#include "utils/Version.h"
+#include "utils/FileSystemUtils.h"
 
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
@@ -587,7 +587,7 @@ void ApplicationController::useMultiScreen(bool use)
 
 QStringList ApplicationController::widgetInlineJavaScripts()
 {
-    QString scriptDirPath = PlatformUtils::applicationResourcesDirectory() + "/widget-inline-js";
+    QString scriptDirPath = FileSystemUtils::applicationResourcesDirectory() + "/widget-inline-js";
     QDir scriptDir(scriptDirPath);
 
     QStringList scripts;
