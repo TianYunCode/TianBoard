@@ -226,7 +226,7 @@ class GraphicsItemDelegate : public QObject
 
         virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change,
                 const QVariant &value);
-        virtual GraphicsScene *castUBGraphicsScene();
+        virtual GraphicsScene *owningScene();
         virtual void postpaint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
         void printMessage(const QString &mess) {qDebug() << mess;}

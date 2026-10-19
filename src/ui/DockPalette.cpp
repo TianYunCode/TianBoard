@@ -692,7 +692,7 @@ void TabDockPalette::paintEvent(QPaintEvent *)
         QPixmap iconPixmap;
 
         switch (d->dock->d->mOrientation) {
-        case eWBDockOrientation_Left://zhusizhi
+        case eWBDockOrientation_Left:
             path.addRect(0, yFrom, width() / 2, TABSIZE);
             path.addRoundedRect(0, yFrom, width(), TABSIZE, d->dock->radius(), d->dock->radius());
             if (pCrntWidget) {

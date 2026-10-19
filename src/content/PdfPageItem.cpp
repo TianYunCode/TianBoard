@@ -36,10 +36,7 @@ void PdfPageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     if (!mRenderer || !mRenderer->isValid())
         return;
 
-
-    if (option)
-        mRenderer->render(painter, mPageNumber, option->exposedRect);
-    else
-        qWarning("PdfPageItem::paint: option is null, ignoring painting");
-
+    // Qt 保证 option 非空；真遇到空 option 时退回整页绘制，而不是什么都不画。
+    const QRectF target = option ? option->exposedRect : boundingRect();
+    mRenderer->render(painter, mPageNumber, target);
 }

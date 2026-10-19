@@ -19,8 +19,6 @@ const char *FeaturesWidget::objNameFeatureList = "FeatureList";
 
 const QMargins FeatureListMargins(0, 0, 0, 30);
 const int FeatureListBorderOffset = 10;
-const char featureTypeSplitter = ':';
-static const QString mimeSankoreFeatureTypes = "Sankore/featureTypes";
 
 struct FeaturesWidget::Private
 {
@@ -75,7 +73,7 @@ struct FeaturesWebWidget::Private
     QWebEngineView* mpView{nullptr};
     QWebEngineSettings* mpWebSettings{nullptr};
     QVBoxLayout* mpLayout{nullptr};
-    WebWidgetBoardAPI* mpSankoreAPI{nullptr};
+    WebWidgetBoardAPI* boardApi{nullptr};
 };
 
 struct FeatureProperties::Private
@@ -283,7 +281,7 @@ void FeaturesWidget::deleteElements( const FeaturesMimeData * mimeData )
         }
     }
 
-    d->controller->refreshModels();//zhusizhi
+    d->controller->refreshModels();
 }
 
 void FeaturesWidget::deleteSelectedElements()
@@ -886,7 +884,7 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget* parent, const char* name):QWidget(
     d->mpView = NULL;
     d->mpWebSettings = NULL;
     d->mpLayout = NULL;
-    d->mpSankoreAPI = NULL;
+    d->boardApi = NULL;
 
     setObjectName(name);
 
@@ -897,8 +895,7 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget* parent, const char* name):QWidget(
 
     d->mpView = new QWebEngineView(this);
     d->mpView->setObjectName("SearchEngineView");
-    d->mpSankoreAPI = new WebWidgetBoardAPI(Application::boardController->activeScene());
-    //mpView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
+    d->boardApi = new WebWidgetBoardAPI(Application::boardController->activeScene());
     //connect(mpView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
     d->mpWebSettings = QWebEngineProfile::defaultProfile()->settings();
     d->mpWebSettings->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
@@ -918,10 +915,10 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget* parent, const char* name):QWidget(
 
 FeaturesWebWidget::~FeaturesWebWidget()
 {
-    if( NULL != d->mpSankoreAPI )
+    if( NULL != d->boardApi )
     {
-        delete d->mpSankoreAPI;
-        d->mpSankoreAPI = NULL;
+        delete d->boardApi;
+        d->boardApi = NULL;
     }
     if( NULL != d->mpView )
     {
@@ -937,7 +934,6 @@ FeaturesWebWidget::~FeaturesWebWidget()
 
 void FeaturesWebWidget::javaScriptWindowObjectCleared()
 {
-   // mpView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
 }
 
 void FeaturesWebWidget::showElement(const Feature &elem)
@@ -976,8 +972,7 @@ void FeaturesWebWidget::showElement(const Feature &elem)
 
 void FeaturesWebWidget::onLoadFinished(bool ok)
 {
-    if(ok && NULL != d->mpSankoreAPI){
-       // mpView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
+    if(ok && NULL != d->boardApi){
     }
 }
 
@@ -1273,26 +1268,18 @@ QMimeData* FeaturesModel::mimeData(const QModelIndexList &indexes) const
     FeaturesMimeData *mimeData = new FeaturesMimeData();
     QList <QUrl> urlList;
     QList <Feature> featuresList;
-    QByteArray typeData;
 
     foreach (QModelIndex index, indexes) {
 
         if (index.isValid()) {
             Feature element = data(index, Qt::UserRole + 1).value<Feature>();
             urlList.push_back( element.getFullPath() );
-            QString curPath = element.getFullPath().toLocalFile();
             featuresList.append(element);
-
-            if (!typeData.isNull()) {
-                typeData += FeaturesController::featureTypeSplitter();
-            }
-            typeData += QString::number(element.getType()).toLatin1();
         }
     }
 
     mimeData->setUrls(urlList);
     mimeData->setFeatures(featuresList);
-    mimeData->setData(mimeSankoreFeatureTypes, typeData);
 
     return mimeData;
 }

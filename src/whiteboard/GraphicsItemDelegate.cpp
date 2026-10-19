@@ -244,15 +244,15 @@ GraphicsItemDelegate::~GraphicsItemDelegate()
 
 QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    GraphicsScene *ubScene = castUBGraphicsScene();
+    GraphicsScene *ownerScene = owningScene();
     switch (static_cast<int>(change)) {
 
     case QGraphicsItem::ItemSelectedHasChanged : {
-        if (ubScene) {
+        if (ownerScene) {
             if (value.toBool()) { //selected(true)
-                ubScene->setSelectedZLevel(delegated());
+                ownerScene->setSelectedZLevel(delegated());
             } else {
-                ubScene->setOwnZlevel(delegated());
+                ownerScene->setOwnZlevel(delegated());
                 freeControls();
             }
         }
@@ -272,8 +272,8 @@ QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange chan
         }
         mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
         positionHandles();
-        if (ubScene) {
-            ubScene->setModified(true);
+        if (ownerScene) {
+            ownerScene->setModified(true);
         }
         break;
     }
@@ -281,7 +281,7 @@ QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange chan
     return value;
 }
 
-GraphicsScene *GraphicsItemDelegate::castUBGraphicsScene()
+GraphicsScene *GraphicsItemDelegate::owningScene()
 {
     GraphicsScene *castScene = dynamic_cast<GraphicsScene*>(delegated()->scene());
 
@@ -486,7 +486,7 @@ void GraphicsItemDelegate::remove(bool canUndo)
         /* this is performed because when removing delegated from scene while it contains flash content, segfault happens because of QGraphicsScene::removeItem() */
         GraphicsWidgetItem *mDelegated_casted = dynamic_cast<GraphicsWidgetItem*>(mDelegated);
   /*      if (mDelegated_casted)
-            mDelegated_casted->setHtml(QString());*///zhusizhi
+            mDelegated_casted->setHtml(QString());*/
 
         scene->removeItem(mDelegated);
 
@@ -512,28 +512,28 @@ void GraphicsItemDelegate::duplicate()
 
 void GraphicsItemDelegate::increaseZLevelUp()
 {
-    GraphicsScene *curScene = castUBGraphicsScene();
+    GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::up, true);
     }
 }
 void GraphicsItemDelegate::increaseZlevelTop()
 {
-    GraphicsScene *curScene = castUBGraphicsScene();
+    GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::top, true);
     }
 }
 void GraphicsItemDelegate::increaseZLevelDown()
 {
-    GraphicsScene *curScene = castUBGraphicsScene();
+    GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::down, true);
     }
 }
 void GraphicsItemDelegate::increaseZlevelBottom()
 {
-    GraphicsScene *curScene = castUBGraphicsScene();
+    GraphicsScene *curScene = owningScene();
     if (curScene) {
         curScene->changeZLevelTo(delegated(), ZLayerController::bottom, true);
     }
@@ -580,7 +580,7 @@ void GraphicsItemDelegate::showHideRecurs(const QVariant &pShow, QGraphicsItem *
  */
 void GraphicsItemDelegate::setAsBackground()
 {
-    GraphicsScene* scene = castUBGraphicsScene();
+    GraphicsScene* scene = owningScene();
     QGraphicsItem* item = delegated();
 
     if (scene && item) {

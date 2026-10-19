@@ -73,7 +73,8 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
     setOrganizationDomain("");
     setApplicationName("TianBoard");
 
-	QString version = "V1.1.0";//UBVERSION;
+	QString version = "V1.1.0";
+
     if(version.endsWith("."))
         version = version.left(version.length()-1);
     setApplicationVersion(version);

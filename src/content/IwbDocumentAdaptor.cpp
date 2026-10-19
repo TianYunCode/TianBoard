@@ -451,7 +451,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseMetadata()
 
             QString textContent = nextInElement.text();
             if (!textContent.trimmed().isEmpty()) {
-                if (nextInElement.tagName() == tWBZSize) { 
+                if (nextInElement.tagName() == tPageSize) { 
                     QSize tmpSize = getSVGDimentions(nextInElement.text());
                     if (!tmpSize.isNull()) {
                         mSVGSize = tmpSize;
@@ -479,7 +479,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseContent() {
 
     QDir sourceDir(sourcePath);
     QStringList fileFilters;
-    fileFilters << QString(pageAlias + "???." + pageFileExtentionUBZ);
+    fileFilters << QString(pageAlias + "???." + pageFileExtension);
     QStringList pageList = sourceDir.entryList(fileFilters, QDir::Files, QDir::Name | QDir::IgnoreCase);
 
     QDomElement svgDocumentSection = mDataModel->createElementNS(svgIWBNS, ":"+tSvg);
@@ -551,7 +551,7 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parsePage(const QString &pageFil
                 pageFile.close();
                 return QDomElement();
             }
-        } else if (tagname == tWBZGroups) {
+        } else if (tagname == tPageGroups) {
             group = parseGroupsPageSection(nextTopElement);
             if (group.isNull()) {
                 qDebug() << "Page doesn't contains any groups.";
@@ -621,23 +621,23 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parseSvgPageSection(const QDomEl
     QDomElement nextElement = element.firstChildElement();
     while (!nextElement.isNull()) {
         QString tagName = nextElement.tagName();
-        if      (tagName == tUBZG)             
+        if      (tagName == tPageG)             
 			parseSVGGGroup(nextElement, svgElements);
-        else if (tagName == tWBZImage)         
+        else if (tagName == tPageImage)         
 			parseWBZImage(nextElement, svgElements);
-        else if (tagName == tWBZVideo)        
+        else if (tagName == tPageVideo)        
 			parseWBZVideo(nextElement, svgElements);
-        else if (tagName == tWBZAudio)        
+        else if (tagName == tPageAudio)        
 			parseWBZAudio(nextElement, svgElements);
-        else if (tagName == tWBZForeignObject) 
+        else if (tagName == tPageForeignObject) 
 			parseForeignObject(nextElement, svgElements);
-        else if (tagName == tWBZLine)          
+        else if (tagName == tPageLine)          
 			parseWBZLine(nextElement, svgElements);
-        else if (tagName == tWBZPolygon)       
+        else if (tagName == tPagePolygon)       
 			parseWBZPolygon(nextElement, svgElements);
-        else if (tagName == tWBZPolyline)      
+        else if (tagName == tPagePolyline)      
 			parseWBZPolyline(nextElement, svgElements);
-        else if (tagName == tWBZGroups)        
+        else if (tagName == tPageGroups)        
 			parseGroupsPageSection(nextElement);
 
         nextElement = nextElement.nextSiblingElement();
@@ -727,7 +727,7 @@ QString IwbDocumentAdaptor::ToIwbConverter::getDstContentFolderName(const QStrin
     QString sDstContentFolderName;
 
     // widgets must be saved as .png images.
-    if ((tIWBImage == elementType) || (tWBZForeignObject == elementType))
+    if ((tIWBImage == elementType) || (tPageForeignObject == elementType))
         sDstContentFolderName = cfImages;
     else
     if (tIWBVideo == elementType)
@@ -818,10 +818,10 @@ QString IwbDocumentAdaptor::ToIwbConverter::convertExtention(const QString &ext)
     return sRet;
 }
 
-QString IwbDocumentAdaptor::ToIwbConverter::getElementTypeFromUBZ(const QDomElement &element)
+QString IwbDocumentAdaptor::ToIwbConverter::pageElementTypeName(const QDomElement &element)
 {
     QString sRet;
-    if (tWBZForeignObject == element.tagName())
+    if (tPageForeignObject == element.tagName())
     {
         QString sPath;
         if (element.hasAttribute(aWBZType))
@@ -971,13 +971,13 @@ bool IwbDocumentAdaptor::ToIwbConverter::ibwAddLine(int x1, int y1, int x2, int 
     return bRet;
 }
 
-QTransform IwbDocumentAdaptor::ToIwbConverter::getTransformFromWBZ(const QDomElement &ubzElement)
+QTransform IwbDocumentAdaptor::ToIwbConverter::getTransformFromWBZ(const QDomElement &pageElement)
 {
     QTransform trRet;
   
     QStringList transformParameters;
 
-    QString ubzTransform = ubzElement.attribute(aTransform);
+    QString ubzTransform = pageElement.attribute(aTransform);
     ubzTransform.remove("matrix");
     ubzTransform.remove("(");
     ubzTransform.remove(")");
@@ -1027,23 +1027,23 @@ qreal IwbDocumentAdaptor::ToIwbConverter::getAngleFromTransform(const QTransform
     return angle;
 }
 
-void IwbDocumentAdaptor::ToIwbConverter::setGeometryFromWBZ(const QDomElement &ubzElement, QDomElement &iwbElement)
+void IwbDocumentAdaptor::ToIwbConverter::setGeometryFromWBZ(const QDomElement &pageElement, QDomElement &iwbElement)
 {
-    setCoordinatesFromWBZ(ubzElement,iwbElement);
+    setCoordinatesFromWBZ(pageElement,iwbElement);
 	 
 }
 
-void IwbDocumentAdaptor::ToIwbConverter::setCoordinatesFromWBZ(const QDomElement &ubzElement, QDomElement &iwbElement)
+void IwbDocumentAdaptor::ToIwbConverter::setCoordinatesFromWBZ(const QDomElement &pageElement, QDomElement &iwbElement)
 {
     QTransform tr;
 
-    if (QString() != ubzElement.attribute(aTransform))
-        tr = getTransformFromWBZ(ubzElement);
+    if (QString() != pageElement.attribute(aTransform))
+        tr = getTransformFromWBZ(pageElement);
 
-    qreal x = ubzElement.attribute(aX).toDouble();
-    qreal y = ubzElement.attribute(aY).toDouble();
-    qreal height = ubzElement.attribute(aHeight).toDouble();
-    qreal width = ubzElement.attribute(aWidth).toDouble();
+    qreal x = pageElement.attribute(aX).toDouble();
+    qreal y = pageElement.attribute(aY).toDouble();
+    qreal height = pageElement.attribute(aHeight).toDouble();
+    qreal width = pageElement.attribute(aWidth).toDouble();
 
     qreal alpha = getAngleFromTransform(tr);
  
@@ -1064,20 +1064,20 @@ void IwbDocumentAdaptor::ToIwbConverter::setCoordinatesFromWBZ(const QDomElement
                                                                               .arg(sceneMatrix.dy()));
 }
 
-bool IwbDocumentAdaptor::ToIwbConverter::setContentFromWBZ(const QDomElement &ubzElement, QDomElement &svgElement)
+bool IwbDocumentAdaptor::ToIwbConverter::setContentFromWBZ(const QDomElement &pageElement, QDomElement &svgElement)
 {
     bool bRet = true;
    
     QString srcPath;
-    if (tWBZForeignObject != ubzElement.tagName())
-        srcPath = ubzElement.attribute(aWBZHref);
+    if (tPageForeignObject != pageElement.tagName())
+        srcPath = pageElement.attribute(aWBZHref);
     else 
-        srcPath = ubzElement.attribute(aSrc);
+        srcPath = pageElement.attribute(aSrc);
 
     QString sSrcContentFolder = getSrcContentFolderName(srcPath);
     QString sSrcFileName = sourcePath + "/" + srcPath ;
     QString fileExtention = getExtentionFromFileName(sSrcFileName);
-    QString sDstContentFolder = getDstContentFolderName(ubzElement.tagName());
+    QString sDstContentFolder = getDstContentFolderName(pageElement.tagName());
     QString sDstFileName(QString(QUuid::createUuid().toString()+"."+convertExtention(fileExtention)));
 
 
@@ -1118,7 +1118,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::setContentFromWBZ(const QDomElement &ub
                 if (feSvg == fileExtention)
                 {           
                     QString dstFilePath = destinationPath+"/"+sDstContentFolder+"/"+sDstFileName;
-                    bRet &= createPngFromSvg(sSrcFileName, dstFilePath, getTransformFromWBZ(ubzElement));
+                    bRet &= createPngFromSvg(sSrcFileName, dstFilePath, getTransformFromWBZ(pageElement));
                 }
                 else
                     bRet = false;
@@ -1132,8 +1132,8 @@ bool IwbDocumentAdaptor::ToIwbConverter::setContentFromWBZ(const QDomElement &ub
     }
 	else
     {
-        addLastExportError(QObject::tr("Element ID = ") + QString("%1 \r\n").arg(ubzElement.attribute(aWBZUuid)) 
-                         + QString("Source file  = ") + QString("%1 \r\n").arg(ubzElement.attribute(aWBZSource))
+        addLastExportError(QObject::tr("Element ID = ") + QString("%1 \r\n").arg(pageElement.attribute(aWBZUuid)) 
+                         + QString("Source file  = ") + QString("%1 \r\n").arg(pageElement.attribute(aWBZSource))
                          + QObject::tr("Content is not supported in destination format."));
         bRet = false;
     }
@@ -1181,7 +1181,7 @@ void IwbDocumentAdaptor::ToIwbConverter::setIwbTextFromHTMLTextNode(const QDomEl
             {      
                 QDomElement pElementIwb;
                 QDomElement spanElement = textDoc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + tIWBTspan);
-                setCommonAttributesFromUBZ(htmlPNode.toElement(), pElementIwb, spanElement);
+                copyPageCommonAttributes(htmlPNode.toElement(), pElementIwb, spanElement);
 
                 if (spanNode.hasAttributes())
                 {       
@@ -1239,7 +1239,7 @@ QString IwbDocumentAdaptor::ToIwbConverter::ubzAttrValueToIwbAttrName(QString iw
     return sRet;
 }
 
-bool IwbDocumentAdaptor::ToIwbConverter::setIwbAttribute(const QString &attributeName, const QString &attributeValue, const QDomElement &ubzElement, QDomElement &iwbElement,  QDomElement &svgElement)
+bool IwbDocumentAdaptor::ToIwbConverter::setIwbAttribute(const QString &attributeName, const QString &attributeValue, const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement)
 {  
     bool bRet = true;
     bool bNeedsIWBSection = false;
@@ -1257,25 +1257,25 @@ bool IwbDocumentAdaptor::ToIwbConverter::setIwbAttribute(const QString &attribut
     {
         if (aTransform == attributeName)
         {
-            setGeometryFromWBZ(ubzElement, svgElement);
+            setGeometryFromWBZ(pageElement, svgElement);
         }
         else
             if (attributeName.contains(aWBZUuid))
             {
 
-                QString parentId = ubzElement.attribute(aWBZParent);
+                QString parentId = pageElement.attribute(aWBZParent);
                 QString id;
                 if (!parentId.isEmpty())
-                    id = "{" + parentId + "}" + "{" + ubzElement.attribute(aWBZUuid)+"}";
+                    id = "{" + parentId + "}" + "{" + pageElement.attribute(aWBZUuid)+"}";
                 else
-                    id = "{" + ubzElement.attribute(aWBZUuid)+"}";
+                    id = "{" + pageElement.attribute(aWBZUuid)+"}";
 
                 svgElement.setAttribute(aID, id);
             }
         else 
             if (attributeName.contains(aWBZHref)||attributeName.contains(aSrc))
             {
-                bRet &= setContentFromWBZ(ubzElement, svgElement);
+                bRet &= setContentFromWBZ(pageElement, svgElement);
                 bNeedsIWBSection = bRet||bNeedsIWBSection;
             }
     }
@@ -1290,7 +1290,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::setIwbAttribute(const QString &attribut
         if (0 < iwbElement.attributes().count())
         {
 
-            QStringList tl = ubzElement.attribute(aSVGHref).split("/");
+            QStringList tl = pageElement.attribute(aSVGHref).split("/");
             QString id = tl.at(tl.count()-1);
             // if element already have an ID, we use it. Else we create new id for element.
             if (QString() == id)
@@ -1304,16 +1304,16 @@ bool IwbDocumentAdaptor::ToIwbConverter::setIwbAttribute(const QString &attribut
     return bRet;
 }
 
-bool IwbDocumentAdaptor::ToIwbConverter::setCommonAttributesFromUBZ(const QDomElement &ubzElement, QDomElement &iwbElement,  QDomElement &svgElement)
+bool IwbDocumentAdaptor::ToIwbConverter::copyPageCommonAttributes(const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement)
 {    
     bool bRet = true;
 
-    for (int i = 0; i < ubzElement.attributes().count(); i++)
+    for (int i = 0; i < pageElement.attributes().count(); i++)
     {
-        QDomNode attribute = ubzElement.attributes().item(i);
+        QDomNode attribute = pageElement.attributes().item(i);
         QString attributeName = ubzAttrNameToIwbAttrName(attribute.nodeName().remove("tb:"));
 
-        bRet &= setIwbAttribute(attributeName, ubzAttrValueToIwbAttrName(attribute.nodeValue()), ubzElement, iwbElement, svgElement);
+        bRet &= setIwbAttribute(attributeName, ubzAttrValueToIwbAttrName(attribute.nodeValue()), pageElement, iwbElement, svgElement);
         if (!bRet) break;
     }
     return bRet;
@@ -1394,7 +1394,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::createBackground(const QDomElement &ele
 	
     QDomDocument doc;
 
-    //QDomElement svgBackgroundElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + tWBZImage);
+    //QDomElement svgBackgroundElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + tPageImage);
     QDomElement svgBackgroundElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + tIWBRect);
     QDomElement iwbBackgroundElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
@@ -1547,9 +1547,9 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseSVGGGroup(const QDomElement &eleme
     // Elements can know about its layer, so it must add result QDomElements to ordrered list.
     while (!nextElement.isNull()) {
         QString tagName = nextElement.tagName();
-        if      (tagName == tWBZLine)       parseWBZLine(nextElement, svgElements);
-        else if (tagName == tWBZPolygon)    parseWBZPolygon(nextElement, svgElements);
-        else if (tagName == tWBZPolyline)   parseWBZPolyline(nextElement, svgElements);
+        if      (tagName == tPageLine)       parseWBZLine(nextElement, svgElements);
+        else if (tagName == tPagePolygon)    parseWBZPolygon(nextElement, svgElements);
+        else if (tagName == tPagePolyline)   parseWBZPolyline(nextElement, svgElements);
 
         nextElement = nextElement.nextSiblingElement();
     }
@@ -1577,10 +1577,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZImage(const QDomElement &elemen
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         addSVGElementToResultModel(svgElementPart, dstSvgList, getElementLayer(element));
        
@@ -1603,10 +1603,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZVideo(const QDomElement &elemen
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         QDomElement svgSwitchSection = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + tIWBSwitch);
         svgSwitchSection.appendChild(svgElementPart);
@@ -1643,10 +1643,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZAudio(const QDomElement &elemen
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         //we must create image-containers for audio files
         int audioImageDimention = qMin(svgElementPart.attribute(aWidth).toInt(), svgElementPart.attribute(aHeight).toInt());
@@ -1713,10 +1713,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseForeignObject(const QDomElement &e
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         addSVGElementToResultModel(svgElementPart, dstSvgList, getElementLayer(element));
         if (0 < iwbElementPart.attributes().count())
@@ -1737,7 +1737,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZText(const QDomElement &element
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
     
     if (element.hasChildNodes())
@@ -1748,7 +1748,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZText(const QDomElement &element
 
         setIwbTextFromHTMLTextNode(bodyNode.toElement(), svgElementPart);
 
-        if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+        if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
         {
             QString commonParams;
             for (int i = 0; i < bodyNode.attributes().count(); i++)
@@ -1791,10 +1791,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZPolygon(const QDomElement &elem
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         svgElementPart.setAttribute(aStroke, svgElementPart.attribute(aFill));
         addSVGElementToResultModel(svgElementPart, dstSvgList, getElementLayer(element));
@@ -1827,10 +1827,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZPolyline(const QDomElement &ele
 
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         svgElementPart.setAttribute(aStroke, svgElementPart.attribute(aFill));
         addSVGElementToResultModel(svgElementPart, dstSvgList, getElementLayer(element));
@@ -1860,10 +1860,10 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseWBZLine(const QDomElement &element
     QDomElement resElement;
     QDomDocument doc;
 
-    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + getElementTypeFromUBZ(element));
+    QDomElement svgElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + pageElementTypeName(element));
     QDomElement iwbElementPart = doc.createElementNS(iwbNS,iwbNsPrefix + ":" + tElement);
 
-    if (setCommonAttributesFromUBZ(element, iwbElementPart, svgElementPart))
+    if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
         svgElementPart.setAttribute(aStroke, svgElementPart.attribute(aFill));
         addSVGElementToResultModel(svgElementPart, dstSvgList, getElementLayer(element));

@@ -321,7 +321,6 @@ void RecordingController::start()
 
             QString videoFileName;
 
-			//zhusizhi
             //if (mIntranetPublicationAction && mIntranetPublicationAction->isChecked())
             //{
                 videoFileName = mRecordingPath + "/" + "Recording-"

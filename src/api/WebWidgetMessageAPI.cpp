@@ -26,7 +26,6 @@ void WebWidgetMessageAPI::sendMessage(const QString& pTopicName, const QString& 
 
 void WebWidgetMessageAPI::onNewMessage(const QString& pTopicName, const QString& pMessage)
 {
-	//20210202 zhusizhi
     if (mSubscribedTopics.contains(pTopicName))
     {
         //if (mGraphicsWidgetItem && mGraphicsWidgetItem->page() && mGraphicsWidgetItem->page()->mainFrame())

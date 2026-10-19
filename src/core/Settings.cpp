@@ -128,7 +128,7 @@ QSettings* Settings::getAppSettings()
         QString tmpSettings = QDir::tempPath() + "/" + qApp->applicationName() + ".config";
         QString appSettings = PlatformUtils::applicationResourcesDirectory() + "/etc/" + qApp->applicationName() + ".config";
 
-        // tmpSettings exists when upgrading Uniboard on Mac (see UBPlatformUtils_mac.mm updater:willInstallUpdate:)
+// 旧版本升级遗留的临时配置还在时，先读它而不是读正式配置
         if (QFile::exists(tmpSettings))
         {
             QFile::rename(tmpSettings, appSettings);

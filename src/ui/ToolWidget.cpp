@@ -94,7 +94,6 @@ void ToolWidget::initialize()
     setFixedSize(d->mToolWidget->boundingRect().width() + d->mContentMargin * 2, d->mToolWidget->boundingRect().height() + d->mContentMargin * 2);
 
     //connect(mWebView->page()-> mainFrame(), &QWebChannel::javaScriptWindowObjectCleared,
-    //        this, &ToolWidget::javaScriptWindowObjectCleared);//zhusizhi
     d->mWebView->load(d->mToolWidget->mainHtml());
 
 
@@ -192,7 +191,6 @@ void ToolWidget::javaScriptWindowObjectCleared()
 {
     WebWidgetBoardAPI *boardAPI = new WebWidgetBoardAPI(Application::boardController->activeScene(), d->mToolWidget);
 	
-    //mWebView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", boardAPI);
 
     //GraphicsWebWidgetItem *graphicsWebWidgetItem = dynamic_cast<GraphicsWebWidgetItem*>(mToolWidget);
     //if (graphicsWebWidgetItem)

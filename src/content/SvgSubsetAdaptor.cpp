@@ -2144,8 +2144,8 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
 
     QString href = mDocumentPath + "/" + audioHref.toString();
 
-    //Claudio this is necessary to fix the absolute path added on Sankore 3.1 1.00.00
-    //The absoult path doesn't work when you want to share Sankore documents.
+// 页面里记的是绝对路径，换机器或共享文档后必然失效，
+// 所以导入时折算成相对文档根目录的路径。
     if(!audioHref.toString().startsWith("audios/")){
         int indexOfAudioDirectory = href.lastIndexOf("audios");
         href = mDocumentPath + "/" + href.right(href.length() - indexOfAudioDirectory);
@@ -2179,8 +2179,8 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
 
     QString href = mDocumentPath + "/" + videoHref.toString();
 
-    //Claudio this is necessary to fix the absolute path added on Sankore 3.1 1.00.00
-    //The absoult path doesn't work when you want to share Sankore documents.
+// 页面里记的是绝对路径，换机器或共享文档后必然失效，
+// 所以导入时折算成相对文档根目录的路径。
     if(!videoHref.toString().startsWith("videos/")){
         int indexOfAudioDirectory = href.lastIndexOf("videos");
         href = mDocumentPath + "/" + href.right(href.length() - indexOfAudioDirectory);

@@ -14,7 +14,7 @@ struct StartupHintsPalette::Private
     QCheckBox* mShowNextTime{nullptr};
     QVBoxLayout* mLayout{nullptr};
     QHBoxLayout* mButtonLayout{nullptr};
-    WebWidgetBoardAPI *mpSankoreAPI{nullptr};
+    WebWidgetBoardAPI *boardApi{nullptr};
 	QWebEngineView* mpWebView{nullptr};
 };
 
@@ -31,8 +31,7 @@ StartupHintsPalette::StartupHintsPalette(QWidget *parent) :
         setLayout(d->mLayout);
         QString url = Settings::settings()->applicationStartupHintsDirectory() + "/index.html";
         d->mpWebView = new QWebEngineView(this);
-        d->mpSankoreAPI = new WebWidgetBoardAPI(0);
-        //d->mpWebView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", d->mpSankoreAPI);
+        d->boardApi = new WebWidgetBoardAPI(0);
         //connect(d->mpWebView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
         d->mpWebView->setUrl(QUrl::fromLocalFile(url));
         d->mpWebView->setAcceptDrops(false);
@@ -102,5 +101,4 @@ int StartupHintsPalette::border()
 
 void StartupHintsPalette::javaScriptWindowObjectCleared()
 {
-    //mpWebView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
 }

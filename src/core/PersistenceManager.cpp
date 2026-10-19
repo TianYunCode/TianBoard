@@ -234,7 +234,7 @@ QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(Docu
         }
 
     }
-    //TODO claudio the if is an hack
+// TODO: 这个 if 是临时绕法
     if(Application::overrideCursor())
         Application::overrideCursor()->setShape(saveShape);
 

@@ -181,9 +181,8 @@ void GraphicsTextItemDelegate::createControls()
         button->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
 
-    // Claudio: on changing the zvlaue the frame is updated updateSelectionFrame and
-    // the default value for the operation mode is set (scaling). This isn't the right
-    // mode for text so we call that here.
+    // 改 z 值会重建选择框，并把操作模式默认成“缩放”，
+    // 文本需要的却是“调整尺寸”，所以在这里补一次调用。
     frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
 
 }

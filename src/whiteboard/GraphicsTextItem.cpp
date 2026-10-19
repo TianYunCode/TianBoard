@@ -23,7 +23,7 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
 {
     setDelegate(new GraphicsTextItemDelegate(this, 0));
 
-    // TODO claudio remove this because in contrast with the fact the frame should be created on demand.
+    // TODO: 控件本应按需创建，这里在构造时就建了出来，与之矛盾
     Delegate()->createControls();
     Delegate()->frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
     Delegate()->setUBFlag(GF_FLIPPABLE_ALL_AXIS, false);

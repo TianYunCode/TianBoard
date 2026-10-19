@@ -56,9 +56,9 @@ QVariant GraphicsCurtainItemDelegate::itemChange(QGraphicsItem::GraphicsItemChan
 {
     if (change == QGraphicsItem::ItemVisibleHasChanged)
     {
-        //GraphicsScene* ubScene = qobject_cast<GraphicsScene*>(mDelegated->scene());
-        //if(ubScene)
-        //    ubScene->setModified(true);
+        //GraphicsScene* ownerScene = qobject_cast<GraphicsScene*>(mDelegated->scene());
+        //if(ownerScene)
+        //    ownerScene->setModified(true);
     }
 
     return GraphicsItemDelegate::itemChange(change, value);

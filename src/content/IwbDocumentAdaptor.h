@@ -84,7 +84,7 @@ private:
         QString getFileNameFromPath(QString sPath);
         QString getExtentionFromFileName(const QString &filename);
         QString convertExtention(const QString &ext);
-        QString getElementTypeFromUBZ(const QDomElement &element);
+        QString pageElementTypeName(const QDomElement &element);
 
         int getElementLayer(const QDomElement &element);
 
@@ -96,16 +96,16 @@ private:
 
         bool ibwAddLine(int x1, int y1, int x2, int y2, QString color=QString(), int width=1, bool isBackground=false);
 
-        QTransform getTransformFromWBZ(const QDomElement &ubzElement);
-        void setGeometryFromWBZ(const QDomElement &ubzElement, QDomElement &iwbElement);
-        void setCoordinatesFromWBZ(const QDomElement &ubzElement, QDomElement &iwbElement);
-        bool setContentFromWBZ(const QDomElement &ubzElement, QDomElement &svgElement);
+        QTransform getTransformFromWBZ(const QDomElement &pageElement);
+        void setGeometryFromWBZ(const QDomElement &pageElement, QDomElement &iwbElement);
+        void setCoordinatesFromWBZ(const QDomElement &pageElement, QDomElement &iwbElement);
+        bool setContentFromWBZ(const QDomElement &pageElement, QDomElement &svgElement);
         void setIwbTextFromHTMLTextNode(const QDomElement htmlTextNode, QDomElement &iwbElement);
         QString ubzAttrNameToIwbAttrName(QString iwbAttrName);
         QString ubzAttrValueToIwbAttrName(QString iwbAttrValue);
 
-        bool setIwbAttribute(const QString &attributeName, const QString &attributeValue, const QDomElement &ubzElement, QDomElement &iwbElement,  QDomElement &svgElement);
-        bool setCommonAttributesFromUBZ(const QDomElement &ubzElement, QDomElement &iwbElement,  QDomElement &svgElement);
+        bool setIwbAttribute(const QString &attributeName, const QString &attributeValue, const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement);
+        bool copyPageCommonAttributes(const QDomElement &pageElement, QDomElement &iwbElement,  QDomElement &svgElement);
         void setViewBox(QRect viewbox);
 
         QDomNode findTextNode(const QDomNode &node);

@@ -264,7 +264,6 @@ QRectF BoardController::controlGeometry()
 void BoardController::setupToolbar()
 {
     Settings *settings = Settings::settings();
-	//zhusizhi 20210625
     //// Setup color choice widget
     //QList<QAction *> colorActions;
     //colorActions.append(mMainWindow->ui().actionColor0);

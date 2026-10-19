@@ -295,7 +295,6 @@ FeaturesController::FeaturesController(QWidget *pParentWidget) :
     mLibPicturesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationImageLibraryDirectory());
     mLibAudiosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationAudiosLibraryDirectory());
     mLibVideosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationVideosLibraryDirectory());
-    //mLibAnimationsDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationAnimationsLibraryDirectory());//zhusizhi
     //mLibInteractiveDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationInteractivesDirectory());
     mLibShapesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationShapeLibraryDirectory());
     trashDirectoryPath = QUrl::fromLocalFile(Settings::userTrashDirPath());

@@ -737,7 +737,7 @@ void DesktopAnnotationController::onDesktopPaletteMaximized()
     ActionPaletteButton* pMarkerButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionMarker);
     if(NULL != pMarkerButton)
     {
-        connect(pMarkerButton, SIGNAL(pressed()), this, SLOT(markerActionPressed()));//zhusizhi 20210625
+        connect(pMarkerButton, SIGNAL(pressed()), this, SLOT(markerActionPressed()));
         connect(pMarkerButton, SIGNAL(released()), this, SLOT(markerActionReleased()));
     }
 

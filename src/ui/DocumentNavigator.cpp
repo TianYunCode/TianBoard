@@ -123,7 +123,7 @@ void DocumentNavigator::generateThumbnails(DocumentContainer* source)
 
     for(int i = 0; i < source->selectedDocument()->pageCount(); i++)
     {
-        //claudio This is a very bad hack and shows a architectural problem
+// TODO: 这里的临时绕法暴露了结构问题
         // source->selectedDocument()->pageCount()  !=   source->pageCount()
         if(i>=source->pageCount() || !source->pageAt(i))
             source->insertThumbPage(i);

@@ -46,7 +46,7 @@ QFileInfoList ImportDocumentSetAdaptor::importData(const QString &zipFile, const
     int i = 0;
     QFileInfoList result;
     do {
-      tmpDir = QDir::tempPath() + "/Sankore_tmpImportUBX_" + QString::number(i++);
+      tmpDir = QDir::tempPath() + "/TianBoard_tmpImport_" + QString::number(i++);
     } while (QFileInfo(tmpDir).exists());
 
     QDir(QDir::tempPath()).mkdir(tmpDir);

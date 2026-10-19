@@ -175,7 +175,6 @@ public:
     static QString fileNameFromUrl( const QUrl &url );
     static QImage getIcon( const QString &path, FeatureElementType pFType );
     static bool isDeletable( const QUrl &url );
-    static char featureTypeSplitter() {return ':';}
     static QString categoryNameForVirtualPath(const QString &str);
 
     static const QString virtualRootName;
@@ -240,7 +239,6 @@ private:
     QUrl mLibPicturesDirectoryPath;
     QUrl mLibAudiosDirectoryPath;
     QUrl mLibVideosDirectoryPath;
-    //QUrl mLibInteractiveDirectoryPath;//zhusizhi
     //QUrl mLibAnimationsDirectoryPath;
     QUrl mLibShapesDirectoryPath;
 
