@@ -4,10 +4,10 @@
 #        DisplayManager/VirtualDesktop（多屏）、LanguageManager（取词）、
 #        PersistenceManager（.tbz 落盘）、DocumentManager（文档库）、
 #        SceneCache（场景缓存）、样式与资源（Resources 在 ui/，此处是控制器）、
-#        DownloadManager/DownloadThread、NetworkAccessManager/HttpGet/AutoSaver
+#        DownloadManager、NetworkAccessManager/HttpGet/AutoSaver
 #        （原 network/；ProxyDialog 归 ui/）、MimeData、TextTools、IdleTimer、
 #        ForeignObjectsHandler。
-#        WB.h 与 resource.h 不在这里：前者是纯定义（utils/），后者归可执行目标（app/）。
+#        Enums.h 与 resource.h 不在这里：前者是纯定义（utils/），后者归可执行目标（app/）。
 #
 # 允许依赖：几乎所有模块 —— 服务层本来就是装配点。拆环时要先把它对 ui/
 # whiteboard 的具体类依赖换成接口（见 docs/architecture.md 的债表）。
@@ -26,8 +26,6 @@ add_library(tb_core OBJECT
     DocumentManager.h
     DownloadManager.cpp
     DownloadManager.h
-    DownloadThread.cpp
-    DownloadThread.h
     ForeignObjectsHandler.cpp
     ForeignObjectsHandler.h
     HttpGet.cpp

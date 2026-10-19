@@ -1269,7 +1269,7 @@ void MediaTimer::setNumDigits(int numDigits)
     } else {
         if (numDigits == ndigits)             // no change
             return;
-        register int i;
+        int i;
         int dif;
         if (numDigits > ndigits) {            // expand
             dif = numDigits - ndigits;

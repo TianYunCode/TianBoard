@@ -13,6 +13,8 @@ public:
     virtual ~HttpGet();
 
     QNetworkReply* get(QUrl pUrl, QPointF pPoint = QPointF(0, 0), QSize pSize = QSize(0, 0), bool isBackground = false);
+    // 中止当前请求并释放 reply；reply 只在请求对象自己的线程里被删除。
+    void cancelRequest();
 //        QNetworkReply* get(const sDownloadFileDesc &downlinfo);
 
 signals:

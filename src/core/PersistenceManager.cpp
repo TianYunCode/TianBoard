@@ -1117,6 +1117,28 @@ void PersistenceManager::purgeEmptyDocuments()
     }
 }
 
+QString PersistenceManager::documentFilePath(DocumentProxy* pDocumentProxy,
+                                              const QString& subdir,
+                                              const QUuid& objectUuid,
+                                              const QString& suffix)
+{
+    if (!pDocumentProxy || objectUuid.isNull())
+        return QString();
+
+    const QString documentRoot = pDocumentProxy->persistencePath();
+    const QString destinationPath = documentRoot + "/" + subdir + "/" + objectUuid.toString() + "." + suffix;
+
+    if (QFile::exists(destinationPath))
+        return QString();
+
+    QDir dir;
+    dir.mkdir(documentRoot + "/" + subdir);
+    if (!QFile::exists(documentRoot + "/" + subdir))
+        return QString();
+
+    return destinationPath;
+}
+
 bool PersistenceManager::addFileToDocument(DocumentProxy* pDocumentProxy,
                                                      QString path,
                                                      const QString& subdir,
@@ -1127,50 +1149,27 @@ bool PersistenceManager::addFileToDocument(DocumentProxy* pDocumentProxy,
     Q_ASSERT(path.length());
     QFileInfo fi(path);
 
-    if (!pDocumentProxy || objectUuid.isNull())
-        return false;
     if (data == NULL && !fi.exists())
         return false;
 
-    qDebug() << fi.suffix();
-
-    QString fileName = subdir + "/" + objectUuid.toString() + "." + fi.suffix();
-
-    destinationPath = pDocumentProxy->persistencePath() + "/" + fileName;
-
-    if (!QFile::exists(destinationPath))
-    {
-        QDir dir;
-        dir.mkdir(pDocumentProxy->persistencePath() + "/" + subdir);
-        if (!QFile::exists(pDocumentProxy->persistencePath() + "/" + subdir))
-            return false;
-
-        if (data == NULL)
-        {
-            QFile source(path);
-            return source.copy(destinationPath);
-        }
-        else
-        {
-            QFile newFile(destinationPath);
-
-            if (newFile.open(QIODevice::WriteOnly))
-            {
-                qint64 n = newFile.write(*data);
-                newFile.flush();
-                newFile.close();
-                return n == data->size();
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
-    else
-    {
+    destinationPath = documentFilePath(pDocumentProxy, subdir, objectUuid, fi.suffix());
+    if (destinationPath.isEmpty())
         return false;
+
+    if (data == NULL)
+    {
+        QFile source(path);
+        return source.copy(destinationPath);
     }
+
+    QFile newFile(destinationPath);
+    if (!newFile.open(QIODevice::WriteOnly))
+        return false;
+
+    const qint64 n = newFile.write(*data);
+    newFile.flush();
+    newFile.close();
+    return n == data->size();
 }
 
 bool PersistenceManager::addGraphicsWidgetToDocument(DocumentProxy *pDocumentProxy,

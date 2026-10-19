@@ -6,8 +6,6 @@
 #include "core/DownloadManager.h"
 
 
-sDownloadFileDesc desc;
-
 HttpGet::HttpGet(QObject* parent)
     : QObject(parent)
     , mReply(0)
@@ -21,12 +19,22 @@ HttpGet::HttpGet(QObject* parent)
 
 HttpGet::~HttpGet()
 {
-        if (mReply)
-    {
-        mIsSelfAborting = true;
-        mReply->abort();
-                delete mReply;
-    }
+    cancelRequest();
+}
+
+void HttpGet::cancelRequest()
+{
+    if (!mReply)
+        return;
+
+    mIsSelfAborting = true;
+
+    QNetworkReply* reply = mReply;
+    mReply = 0;
+    disconnect(reply, nullptr, this, nullptr);
+
+    reply->abort();
+    reply->deleteLater();
 }
 
 QNetworkReply* HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackground)
@@ -34,12 +42,12 @@ QNetworkReply* HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackgro
     mPos = pPos;
     mSize = pSize;
     mIsBackground = isBackground;
+    mIsSelfAborting = false;
 
-    if (mReply)
-        delete mReply;
+    cancelRequest();
 
     NetworkAccessManager * nam = NetworkAccessManager::defaultAccessManager();
-    mReply = nam->get(QNetworkRequest(pUrl)); //mReply deleted by this destructor
+    mReply = nam->get(QNetworkRequest(pUrl));
 
     mDownloadedBytes.clear();
 

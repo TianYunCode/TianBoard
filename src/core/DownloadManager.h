@@ -1,12 +1,11 @@
 #pragma once
 
 #include <QObject>
+#include <QAtomicInt>
 #include <QString>
+#include <QThread>
 #include <QVector>
-#include <QMutex>
 #include <QDropEvent>
-
-#include "core/DownloadThread.h"
 
 #include "core/HttpGet.h"
 
@@ -56,12 +55,15 @@ class DownloadHttpFile : public HttpGet
     Q_OBJECT
 public:
     DownloadHttpFile(int fileId, QObject* parent=0);
-    ~DownloadHttpFile();
 
 signals:
     void downloadProgress(int id, qint64 current,qint64 total);
     void downloadFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
     void downloadError(int id);
+
+public slots:
+    // 由 DownloadManager 持有并负责终结；取消与收尾都走这里。
+    void cancel();
 
 private slots:
     void onDownloadFinished(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
@@ -69,25 +71,33 @@ private slots:
 
 private:
     int mId;
+    bool mCancelled;
 };
 
+/**
+ * 把文档内的媒体文件从来源位置复制进文档包。复制本身是阻塞 I/O，放在工作线程；
+ * 但文档路径、选中文档等 GUI 线程状态必须在主线程解析（见 prepare()）。
+ * 对象自持生命周期：线程结束后自行销毁。
+ */
 class AsyncLocalFileDownloader : public QThread
 {
     Q_OBJECT
 public:
     AsyncLocalFileDownloader(sDownloadFileDesc desc, QObject *parent = 0);
 
-    AsyncLocalFileDownloader *download();    
+    AsyncLocalFileDownloader *download();
     void run();
     void abort();
 
 signals:
-    void finished(QString srcUrl, QString resUrl);
     void signal_asyncCopyFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
 
 private:
+    // 只能在 GUI 线程调用：解析来源、取出当前文档、准备好目标路径。
+    bool prepare();
+
     sDownloadFileDesc mDesc;
-    bool m_bAborting;
+    QAtomicInt mAborting;
     QString mFrom;
     QString mTo;
 };
@@ -132,10 +142,10 @@ private:
     void startFileDownload(sDownloadFileDesc desc);
     void checkIfModalRemains();
     void finishDownloads(bool cancel=false);
+    void releaseDownload(int id);
 
     QVector<sDownloadFileDesc> mCrntDL;
     QVector<sDownloadFileDesc> mPendingDL;
-    QMutex mMutex;
     int mLastID;
     QVector<int> mDLAvailability;
     QMap<int, QObject*> mDownloads;

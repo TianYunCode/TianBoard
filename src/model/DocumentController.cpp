@@ -2291,7 +2291,6 @@ void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTr
 					pureSetDocument(newProxy);
 				}
 				emit documentThumbnailsUpdated(this);
-QThread::msleep(100);
 
                 deleteIndexAndAssociatedData(indexes.at(i));
                 
@@ -2369,7 +2368,6 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
 				pureSetDocument(newProxy);
 			}
 			emit documentThumbnailsUpdated(this);
-QThread::msleep(100);
             deleteIndexAndAssociatedData(currentIndex);
             
             break;

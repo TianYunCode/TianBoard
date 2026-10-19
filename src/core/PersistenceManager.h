@@ -114,6 +114,9 @@ class PersistenceManager : public QObject
         virtual void purgeEmptyDocuments();
 
         bool addGraphicsWidgetToDocument(DocumentProxy *mDocumentProxy, QString path, QUuid objectUuid, QString& destinationPath);
+        // 只解析并准备文档包内的目标路径（含建子目录），不搬运数据；失败返回空串。
+        // 拆开是为了让大文件复制能离开 GUI 线程，而文档状态仍只在主线程读取。
+        QString documentFilePath(DocumentProxy* pDocumentProxy, const QString& subdir, const QUuid& objectUuid, const QString& suffix);
         bool addFileToDocument(DocumentProxy* pDocumentProxy, QString path, const QString& subdir,  QUuid objectUuid, QString& destinationPath, QByteArray* data = NULL);
 
         bool mayHaveVideo(DocumentProxy* pDocumentProxy);
