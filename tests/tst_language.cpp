@@ -36,6 +36,14 @@ void TestLanguage::chineseCatalogueTranslatesMainWindowTexts()
     QCOMPARE(QCoreApplication::translate("MainWindow", "Documents"), QString::fromUtf8("文档"));
     QCOMPARE(QCoreApplication::translate("MainWindow", "Undo"), QString::fromUtf8("撤销"));
 
+    // 版本号与关于页文案在手写表单的 PreferencesDialog 上下文里：上下文名一错，
+    // 切语言后这两处不会变；译文里少了 %1，arg() 就没地方填，界面只剩占位符。
+    QCOMPARE(QCoreApplication::translate("PreferencesDialog", "version: %1"),
+             QString::fromUtf8("版本：%1"));
+    QVERIFY(QCoreApplication::translate("PreferencesDialog",
+                                        "TianBoard is copyright © %1. All rights reserved.")
+                .contains(QLatin1String("%1")));
+
     QCoreApplication::removeTranslator(&translator);
 }
 

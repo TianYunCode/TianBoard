@@ -15,8 +15,8 @@
 #include "utils/FileSystemUtils.h"
 #include "utils/StringUtils.h"
 
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/PersistenceManager.h"
 #include "core/DocumentManager.h"
 #include "core/PreferencesController.h"
@@ -73,11 +73,8 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
     setOrganizationDomain("");
     setApplicationName("TianBoard");
 
-	QString version = "V1.1.0";
+    setApplicationVersion(QString::fromLatin1(TIANBOARD_VERSION));
 
-    if(version.endsWith("."))
-        version = version.left(version.length()-1);
-    setApplicationVersion(version);
 
     QStringList args = arguments();
 

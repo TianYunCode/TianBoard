@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="420"/>
+        <location filename="../../src/core/Application.cpp" line="417"/>
         <source>Page Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="436"/>
+        <location filename="../../src/core/Application.cpp" line="433"/>
         <source>Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
@@ -51,60 +51,60 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="394"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="392"/>
         <source>Saving document...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="400"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="398"/>
         <source>Document has just been saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="735"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="733"/>
         <source>Deleting page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="745"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="743"/>
         <source>Page %1 deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1097"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1095"/>
         <source>Downloading content %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1105"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1103"/>
         <source>Download finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1223"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1268"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2102"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2137"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1221"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1266"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2100"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2135"/>
         <source>Add file operation failed: file copying error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1367"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1365"/>
         <source>Unknown tool type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1422"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1420"/>
         <source>Unknown content type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2479"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2477"/>
         <source>Add Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2481"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2479"/>
         <source>All Supported (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -112,12 +112,12 @@
 <context>
     <name>BoardPaletteManager</name>
     <message>
-        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="854"/>
+        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="853"/>
         <source>CapturedImage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="859"/>
+        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="858"/>
         <source>Error Adding Image to Library</source>
         <translation type="unfinished"></translation>
     </message>
@@ -202,38 +202,38 @@
 <context>
     <name>DocumentController</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1641"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3280"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1642"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3284"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1642"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1643"/>
         <source>Untitled Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1714"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1715"/>
         <source>New Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1885"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1886"/>
         <source>Add Folder of Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1886"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1887"/>
         <source>Add Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1887"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1888"/>
         <source>Add Pages from File</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="2216"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2217"/>
         <source>duplicated %1 page</source>
         <comment>duplicated %1 pages</comment>
         <translation type="unfinished">
@@ -242,96 +242,96 @@
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2229"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2230"/>
         <source>Duplicating Document %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2233"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2234"/>
         <source>Document %1 copied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2243"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2244"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2243"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2244"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2714"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2819"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2715"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2820"/>
         <source>Open Supported File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2744"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2834"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2745"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2835"/>
         <source>Importing file %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2752"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2847"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2753"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2848"/>
         <source>Failed to import file ... </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2769"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2770"/>
         <source>Import all Images from Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2784"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2785"/>
         <source>Folder does not contain any image files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3019"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3023"/>
         <source>Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3020"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3024"/>
         <source>The document &apos;%1&apos; has been generated with a newer version of TianBoard (%2). By opening it, you may lose some information. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3077"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3081"/>
         <source>Add all Images to Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3078"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3082"/>
         <source>All Images (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3091"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3095"/>
         <source>Selection does not contain any image files!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3284"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3288"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3288"/>
         <location filename="../../src/model/DocumentController.cpp" line="3292"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3296"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3521"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3525"/>
         <source>Page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3523"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3527"/>
         <source>Title page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -401,22 +401,22 @@
 <context>
     <name>DocumentReplaceDialog</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="78"/>
+        <location filename="../../src/model/DocumentController.cpp" line="79"/>
         <source>Accept</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="79"/>
+        <location filename="../../src/model/DocumentController.cpp" line="80"/>
         <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="80"/>
+        <location filename="../../src/model/DocumentController.cpp" line="81"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="138"/>
+        <location filename="../../src/model/DocumentController.cpp" line="139"/>
         <source>The name %1 is allready used.
 Keeping this name will replace the document.
 Providing a new name will create a new document.</source>
@@ -426,17 +426,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeModel</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="322"/>
+        <location filename="../../src/model/DocumentController.cpp" line="323"/>
         <source>My documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="326"/>
+        <location filename="../../src/model/DocumentController.cpp" line="327"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="658"/>
+        <location filename="../../src/model/DocumentController.cpp" line="659"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -447,12 +447,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeView</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1418"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1419"/>
         <source>Copying page %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="1462"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1463"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -460,12 +460,12 @@ Providing a new name will create a new document.</source>
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1472"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1473"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1472"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1473"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -724,12 +724,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportFullPDF</name>
     <message>
-        <location filename="../../src/content/ExportFullPDF.cpp" line="63"/>
+        <location filename="../../src/content/ExportFullPDF.cpp" line="59"/>
         <source>Export as PDF File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportFullPDF.cpp" line="211"/>
+        <location filename="../../src/content/ExportFullPDF.cpp" line="207"/>
         <source>Export to PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2120,12 +2120,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PreferencesController</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1241"/>
-        <source>version: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1370"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1366"/>
         <source>Marker is pressure sensitive</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2133,208 +2128,213 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1112"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1104"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1113"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1105"/>
         <source>Default Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1114"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1106"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1115"/>
-        <source>version : …</source>
+        <location filename="../../src/core/PreferencesController.cpp" line="1107"/>
+        <source>version: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1116"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1111"/>
+        <source>TianBoard is copyright © %1. All rights reserved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/core/PreferencesController.cpp" line="1113"/>
         <source>Multi display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1117"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1114"/>
         <source>Swap control display and view display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1118"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1115"/>
         <source>Show internal web page content on secondary screen or projector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1119"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1116"/>
         <source>Swap first and second view displays</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1120"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1117"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1121"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1118"/>
         <source>Mode to start in:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1122"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1119"/>
         <source>Board</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1123"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1120"/>
         <source>Desktop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1125"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1122"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1127"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1124"/>
         <source>Stylus Palette</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1128"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1125"/>
         <source>Horizontal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1129"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1126"/>
         <source>Vertical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1130"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1127"/>
         <source>Virtual Keyboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1131"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1128"/>
         <source>Built-in virtual keyboard button size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1132"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1129"/>
         <source>Use system keyboard (recommended)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1133"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1130"/>
         <source>Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1134"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1131"/>
         <source>Positioned at the Top (recommended for tablets)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1135"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1132"/>
         <source>Positioned at the Bottom (recommended for white boards)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1136"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1133"/>
         <source>Display Text Under Button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1137"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1134"/>
         <source>Documents Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1138"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1135"/>
         <source>Display date column on alphabetical sort</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1139"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1136"/>
         <source>Empty trash for documents older than</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1140"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1137"/>
         <source>days</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1141"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1138"/>
         <source>Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1142"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1139"/>
         <source>On Light Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1143"/>
-        <location filename="../../src/core/PreferencesController.cpp" line="1145"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1140"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1142"/>
         <source>Opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1144"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1141"/>
         <source>On Dark Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1146"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1143"/>
         <source>Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1147"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1144"/>
         <source>Pen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1148"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1145"/>
         <source>Marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1149"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1146"/>
         <source>Internet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1150"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1147"/>
         <source>Show Page with External Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1151"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1148"/>
         <source>Home Page:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1152"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1149"/>
         <source>Proxy User:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1153"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1150"/>
         <source>Pass:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1154"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1151"/>
         <source>Network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1155"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1152"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2461,7 +2461,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../../src/core/Settings.cpp" line="914"/>
+        <location filename="../../src/settings/Settings.cpp" line="908"/>
         <source>My Movies</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2477,32 +2477,32 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>TabBar</name>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="62"/>
+        <location filename="../../src/web/TabWidget.cpp" line="61"/>
         <source>New &amp;Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="65"/>
+        <location filename="../../src/web/TabWidget.cpp" line="64"/>
         <source>Clone Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="70"/>
+        <location filename="../../src/web/TabWidget.cpp" line="69"/>
         <source>&amp;Close Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="73"/>
+        <location filename="../../src/web/TabWidget.cpp" line="72"/>
         <source>Close &amp;Other Tabs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="78"/>
+        <location filename="../../src/web/TabWidget.cpp" line="77"/>
         <source>Reload Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="84"/>
+        <location filename="../../src/web/TabWidget.cpp" line="83"/>
         <source>Reload All Tabs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2510,13 +2510,13 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>TabWidget</name>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="189"/>
+        <location filename="../../src/web/TabWidget.cpp" line="188"/>
         <source>Recently Closed Tabs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="347"/>
-        <location filename="../../src/web/TabWidget.cpp" line="370"/>
+        <location filename="../../src/web/TabWidget.cpp" line="346"/>
+        <location filename="../../src/web/TabWidget.cpp" line="369"/>
         <source>(Untitled)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2669,52 +2669,52 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>brushProperties</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="359"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="361"/>
         <source>Pen is Pressure Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="360"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="362"/>
         <source>Opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="361"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="363"/>
         <source>On Light Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="362"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="364"/>
         <source>On Dark Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="363"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="365"/>
         <source>Line Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="364"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="366"/>
         <source>Medium</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="365"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="367"/>
         <source>Strong</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="366"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="368"/>
         <source>Fine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="367"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="369"/>
         <source>Show preview circle from</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="368"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="370"/>
         <source>px</source>
         <translation type="unfinished"></translation>
     </message>

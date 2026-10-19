@@ -1,11 +1,13 @@
 #include "core/PreferencesController.h"
 
-#include "core/Settings.h"
+#include <QDate>
+
+#include "settings/Settings.h"
 #include "core/Application.h"
 
 #include "ui/CircleFrame.h"
 
-#include "core/Setting.h"
+#include "settings/Setting.h"
 #include "core/LanguageManager.h"
 #include "core/ApplicationController.h"
 #include "core/DisplayManager.h"
@@ -1072,18 +1074,8 @@ struct PreferencesDialog::Ui
         verticalLayout_2->setObjectName("verticalLayout_2");
         copyrightTextBrowser = new QTextBrowser(aboutTab);
         copyrightTextBrowser->setObjectName("copyrightTextBrowser");
-        copyrightTextBrowser->setHtml(QString::fromUtf8("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<table border=\"0\" style=\"-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;\">\n"
-"<tr>\n"
-"<td style=\"border: none;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Cantarell'; font-size:10pt;\">TianBoard 1.0.0</span></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Cantarell'; font-size:10pt;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Cantarell'; font-size:10pt;\">TianBoard is copyright \302\251 2020. All rights reserved.</span></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Cantarell'; font-size:10pt;\"><br /></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></td></tr></table></body></html>"));
+        // 文案（含版本号）在 retranslateUi() 里排，切语言和拿到 applicationVersion()
+        // 都只要走那一条路径。
         copyrightTextBrowser->setOpenExternalLinks(true);
 
         verticalLayout_2->addWidget(copyrightTextBrowser);
@@ -1112,7 +1104,12 @@ struct PreferencesDialog::Ui
         preferencesDialog->setWindowTitle(PreferencesDialog::tr("Preferences", nullptr));
         defaultSettingsButton->setText(PreferencesDialog::tr("Default Settings", nullptr));
         closeButton->setText(PreferencesDialog::tr("Close", nullptr));
-        versionLabel->setText(PreferencesDialog::tr("version : \342\200\246", nullptr));
+        versionLabel->setText(PreferencesDialog::tr("version: %1", nullptr)
+                                  .arg(Application::applicationVersion()));
+        copyrightTextBrowser->setHtml(QStringLiteral("<h3>TianBoard %1</h3><p>%2</p>").arg(
+            Application::applicationVersion(),
+            PreferencesDialog::tr("TianBoard is copyright \302\251 %1. All rights reserved.", nullptr)
+                .arg(QDate::currentDate().year())));
         multiDisplayGroupBox->setTitle(PreferencesDialog::tr("Multi display", nullptr));
         swapControlAndDisplayScreensCheckBox->setText(PreferencesDialog::tr("Swap control display and view display", nullptr));
         displayBrowserPageCheckBox->setText(PreferencesDialog::tr("Show internal web page content on secondary screen or projector", nullptr));
@@ -1238,7 +1235,6 @@ void PreferencesController::wire()
 
     // main tab
     mPreferencesUI->mainTabWidget->setCurrentWidget(mPreferencesUI->displayTab);
-    mPreferencesUI->versionLabel->setText(tr("version: ") + Application::applicationVersion());
 
     connect(mPreferencesUI->closeButton, &QPushButton::released, this, &PreferencesController::close);
     connect(mPreferencesUI->defaultSettingsButton, &QPushButton::released, this, &PreferencesController::defaultSettings);
