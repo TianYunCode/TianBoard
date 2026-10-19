@@ -119,6 +119,13 @@ void BoardController::init() {
                 downloadFinished(pSuccess, sourceUrl, contentUrl, pHeader, pData, pPos, pSize, isBackground);
             });
 
+    // 文档被删掉时，BoardController 里缓存的 selectedDocument()（DocumentContainer 的
+    // mCurrentDocument）指向的就是那个正在 deleteLater 的对象——PersistenceManager 一直
+    // 在发这个信号，而接收端从来没连上，于是删掉当前文档之后每一次翻页/保存都在读已释放
+    // 的代理。补上这条连接，切文档的逻辑就在 documentWillBeDeleted() 里。
+    connect(PersistenceManager::persistenceManager(), &PersistenceManager::documentWillBeDeleted, this,
+            &BoardController::documentWillBeDeleted);
+
     DocumentProxy *doc = PersistenceManager::persistenceManager()->createNewDocument();
 
     setActiveDocumentScene(doc);

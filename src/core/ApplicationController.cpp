@@ -151,8 +151,10 @@ void ApplicationController::adaptToolBar() {
     mMainWindow->ui().actionDocument->setEnabled(mMainMode != Document);
 
     if (Document == mMainMode) {
+        // adaptToolBar() 不只在做模式切换时被调（screenLayoutChanged 插拔显示器也会），
+        // 已经在文档模式时再进来一次就会多连一条，focusChanged 一次触发多次。
         connect(qApp, &QApplication::focusChanged, Application::documentController,
-                &DocumentController::focusChanged);
+                &DocumentController::focusChanged, Qt::UniqueConnection);
     } else {
         disconnect(qApp, &QApplication::focusChanged, Application::documentController,
                    &DocumentController::focusChanged);

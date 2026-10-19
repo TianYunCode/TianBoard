@@ -356,11 +356,13 @@ void FeaturesWidget::onDisplayMetadata(QMap<QString, QString> metadata) {
 
     if (!widgetsThumbsUrl.isNull()) {
         previewImageUrl = ":/images/libpalette/loading.png";
-        if (!d->imageGatherer)
+        if (!d->imageGatherer) {
             d->imageGatherer = new DownloadHttpFile(0, this);
-
-        connect(d->imageGatherer, &DownloadHttpFile::downloadFinished, this,
-                &FeaturesWidget::onPreviewLoaded);
+            // 连接只在对象新建时做一次：imageGatherer 是复用的，每看一次部件元数据都
+            // connect 一遍的话，一次下载完成会把 onPreviewLoaded 回调多次。
+            connect(d->imageGatherer, &DownloadHttpFile::downloadFinished, this,
+                    &FeaturesWidget::onPreviewLoaded);
+        }
 
         // We send here the request and store its reply in order to be able to cancel it if needed
         d->imageGatherer->get(QUrl(widgetsThumbsUrl), QPoint(0, 0), QSize(), false);

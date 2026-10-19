@@ -285,7 +285,7 @@ void DesktopAnnotationController::showWindow() {
     mDesktopPalette->setDisplaySelectButtonVisible(true);
 
     connect(Application::applicationController, &ApplicationController::desktopMode, mDesktopPalette,
-            &DesktopPalette::setDisplaySelectButtonVisible);
+            &DesktopPalette::setDisplaySelectButtonVisible, Qt::UniqueConnection);
 
     mDesktopPalette->show();
 
@@ -738,6 +738,27 @@ void DesktopAnnotationController::onDesktopPaletteMinimize() {
                    &DesktopAnnotationController::eraserActionPressed);
         disconnect(pEraserButton, &QAbstractButton::released, this,
                    &DesktopAnnotationController::eraserActionReleased);
+    }
+
+    // Selector —— onDesktopPaletteMaximized() 连了五组按钮，这里过去只断三组，
+    // 于是每"最小化→再打开"一轮，选择/指针就多得一条连接，点一次触发多次。
+    ActionPaletteButton *pSelectorButton =
+        mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionSelector);
+    if (NULL != pSelectorButton) {
+        disconnect(pSelectorButton, &QAbstractButton::pressed, this,
+                   &DesktopAnnotationController::selectorActionPressed);
+        disconnect(pSelectorButton, &QAbstractButton::released, this,
+                   &DesktopAnnotationController::selectorActionReleased);
+    }
+
+    // Pointer
+    ActionPaletteButton *pPointerButton =
+        mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPointer);
+    if (NULL != pPointerButton) {
+        disconnect(pPointerButton, &QAbstractButton::pressed, this,
+                   &DesktopAnnotationController::pointerActionPressed);
+        disconnect(pPointerButton, &QAbstractButton::released, this,
+                   &DesktopAnnotationController::pointerActionReleased);
     }
 }
 

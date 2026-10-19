@@ -403,25 +403,19 @@ void WebWidgetBoardAPI::ProcessDropEvent(QGraphicsSceneDragDropEvent *event) {
     QString contentType;
     bool downloaded = false;
 
-    QGraphicsView *tmpView = mGraphicsWidget->scene()->views().at(0);
-    QPoint dropPoint(mGraphicsWidget->mapFromScene(tmpView->mapToScene(event->pos().toPoint())).toPoint());
     Qt::DropActions dropActions = event->possibleActions();
     Qt::MouseButtons dropMouseButtons = event->buttons();
     Qt::KeyboardModifiers dropModifiers = event->modifiers();
-    QMimeData *dropMimeData = new QMimeData;
-    qDebug() << event->possibleActions();
 
+    // 原来这里是 `new QMimeData` 交给 event->setMimeData()——QDropEvent 不接管所有权，
+    // 每放一次文件就漏一块；栈上的对象活到本函数结束就够了，落点之后没人再读这份数据。
+    QMimeData dropMimeData;
 
     if (pMimeData->hasHtml()) { //Dropping element from web browser
         QString qsHtml = pMimeData->html();
         QString url = Application::urlFromHtml(qsHtml);
 
         if (!url.isEmpty()) {
-            QString str = "test string";
-
-            QMimeData mimeData;
-            mimeData.setData(tMimeText, str.toLatin1());
-
             sDownloadFileDesc desc;
             desc.dest = sDownloadFileDesc::graphicsWidget;
             desc.modal = true;
@@ -458,11 +452,10 @@ void WebWidgetBoardAPI::ProcessDropEvent(QGraphicsSceneDragDropEvent *event) {
             }
         }
     }
-    qDebug() << destFileName;
     QString mimeText = createMimeText(downloaded, contentType, destFileName);
-    dropMimeData->setData(tMimeText, mimeText.toLatin1());
+    dropMimeData.setData(tMimeText, mimeText.toLatin1());
 
-    event->setMimeData(dropMimeData);
+    event->setMimeData(&dropMimeData);
 }
 
 void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc, QByteArray pData) {
