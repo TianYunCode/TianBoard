@@ -1,0 +1,118 @@
+#pragma once
+
+#include <QtGui/QAction>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QWidget>
+
+class QMainWindow;
+
+struct MainWindowUi
+{
+    QAction *actionStylus;
+    QAction *actionBackgrounds;
+    QAction *actionUndo;
+    QAction *actionRedo;
+    QAction *actionBack;
+    QAction *actionForward;
+    QAction *actionDocument;
+    QAction *actionWeb;
+    QAction *actionLineSmall;
+    QAction *actionLineMedium;
+    QAction *actionLineLarge;
+    QAction *actionQuit;
+    QAction *actionEraserSmall;
+    QAction *actionEraserMedium;
+    QAction *actionEraserLarge;
+    QAction *actionColor0;
+    QAction *actionColor1;
+    QAction *actionColor2;
+    QAction *actionColor3;
+    QAction *actionColor4;
+    QAction *actionWebBack;
+    QAction *actionWebForward;
+    QAction *actionWebReload;
+    QAction *actionHome;
+    QAction *actionBookmarks;
+    QAction *actionAddBookmark;
+    QAction *actionBoard;
+    QAction *actionErase;
+    QAction *actionPreferences;
+    QAction *actionLibrary;
+    QAction *actionMenu;
+    QAction *actionDesktop;
+    QAction *actionWebBigger;
+    QAction *actionWebSmaller;
+    QAction *actionNewFolder;
+    QAction *actionNewDocument;
+    QAction *actionImport;
+    QAction *actionExport;
+    QAction *actionOpen;
+    QAction *actionDuplicate;
+    QAction *actionDelete;
+    QAction *actionAddToWorkingDocument;
+    QAction *actionDocumentAdd;
+    QAction *actionRename;
+    QAction *actionDocumentTools;
+    QAction *actionWebTools;
+    QAction *actionMultiScreen;
+    QAction *actionWidePageSize;
+    QAction *actionRegularPageSize;
+    QAction *actionCustomPageSize;
+    QAction *actionStopLoading;
+    QAction *actionCut;
+    QAction *actionCopy;
+    QAction *actionPaste;
+    QAction *actionSleep;
+    QAction *actionVirtualKeyboard;
+    QAction *actionPlainLightBackground;
+    QAction *actionCrossedLightBackground;
+    QAction *actionRuledLightBackground;
+    QAction *actionPlainDarkBackground;
+    QAction *actionCrossedDarkBackground;
+    QAction *actionRuledDarkBackground;
+    QAction *actionRecording;
+    QAction *actionRecordingStart;
+    QAction *actionEraseItems;
+    QAction *actionEraseAnnotations;
+    QAction *actionClearPage;
+    QAction *actionAdd;
+    QAction *actionPen;
+    QAction *actionEraser;
+    QAction *actionMarker;
+    QAction *actionSelector;
+    QAction *actionHand;
+    QAction *actionZoomIn;
+    QAction *actionZoomOut;
+    QAction *actionPointer;
+    QAction *actionLine;
+    QAction *actionText;
+    QAction *actionCapture;
+    QAction *actionAddItemToCurrentPage;
+    QAction *actionAddItemToNewPage;
+    QAction *actionAddItemToLibrary;
+    QAction *actionPages;
+    QAction *actionNewPage;
+    QAction *actionDuplicatePage;
+    QAction *actionImportPage;
+    QAction *actionRecordingPause;
+    QAction *actionRecordingConfig;
+    QAction *actionWebTrap;
+    QAction *actionWebCustomCapture;
+    QAction *actionWebWindowCapture;
+    QAction *actionWebOEmbed;
+    QAction *actionWebShowHideOnDisplay;
+    QAction *actionEraseDesktopAnnotations;
+    QAction *actionEduMedia;
+    QAction *actionHideApplication;
+    QAction *actionPlay;
+    QAction *actionEraseBackground;
+    QAction *actionDefaultGridSize;
+    QWidget *centralwidget;
+    QToolBar *boardToolBar;
+    QToolBar *webToolBar;
+    QToolBar *documentToolBar;
+
+    void setupUi(QMainWindow *mw);
+    void retranslateUi(QMainWindow *mw);
+};
+

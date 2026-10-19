@@ -1,0 +1,60 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 22, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "vs-base",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "architecture": { "value": "x64", "strategy": "set" },
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": { "CMAKE_PREFIX_PATH": "D:/Qt/6.9.3/msvc2022_64" },
+      "comment": "多配置生成器：build/ 下一份 .sln，配置由 --config 决定（Debug / Release / RelWithDebInfo），不用 CMAKE_BUILD_TYPE；产物统一落 build/bin。IDE 与现有工具链走这一对。"
+    },
+    { "name": "vs2022-debug", "displayName": "Debug (VS2022 x64)", "inherits": "vs-base" },
+    { "name": "vs2022-release", "displayName": "Release (VS2022 x64)", "inherits": "vs-base" },
+    {
+      "name": "ninja-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "D:/Qt/6.9.3/msvc2022_64",
+        "CMAKE_MAKE_PROGRAM": "D:/Qt/Tools/Ninja/ninja.exe"
+      },
+      "comment": "cl/link 由 VsDevCmd 环境提供：用 scripts/build.ps1，或在 VS 开发者命令行里 cmake --preset。中间产物按配置分目录（build-debug / build-release），产物仍落 build/bin。"
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug (Ninja)",
+      "inherits": "ninja-base",
+      "binaryDir": "${sourceDir}/build-debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "release",
+      "displayName": "Release (Ninja, RelWithDebInfo + pdb)",
+      "inherits": "ninja-base",
+      "binaryDir": "${sourceDir}/build-release",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "vs2022-debug", "displayName": "build Debug (VS)", "configurePreset": "vs2022-debug", "config": "Debug", "jobs": 8 },
+    { "name": "vs2022-release", "displayName": "build Release (VS, 带 pdb)", "configurePreset": "vs2022-release", "config": "Release", "jobs": 8 },
+    { "name": "debug", "configurePreset": "debug", "jobs": 8 },
+    { "name": "release", "configurePreset": "release", "jobs": 8 }
+  ],
+  "testPresets": [
+    {
+      "name": "vs2022-debug",
+      "configurePreset": "vs2022-debug",
+      "configuration": "Debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}
