@@ -2,8 +2,7 @@
 
 #include <QString>
 
-// 代理的用户名/密码。Windows 上落到凭据管理器（CRED_TYPE_GENERIC），不再是 INI 里
-// 一段"用写死密钥做的 AES"——那种做法任何拿到二进制的人都能解密，等于没加密。
+// 一条凭据（用户名 + 秘密）。
 struct ProxyCredentials {
     QString userName;
     QString password;
@@ -11,9 +10,15 @@ struct ProxyCredentials {
     bool isEmpty() const { return userName.isEmpty() && password.isEmpty(); }
 };
 
+// Windows 凭据管理器（CRED_TYPE_GENERIC）的薄封装：秘密由系统按用户托管，不进 INI，
+// 也不会在二进制里留下任何密钥。按 target 名读写，所以可以被单独链接、单独测。
 class CredentialStore {
 public:
+    static ProxyCredentials read(const QString &targetName);
+    // 两个都空时等价于删除这条凭据。
+    static void write(const QString &targetName, const QString &userName, const QString &password);
+
+    // 本工程目前唯一的用例：HTTP 代理的凭据。
     static ProxyCredentials proxyCredentials();
-    // 两个都空时删除已存的凭据。
     static void setProxyCredentials(const QString &userName, const QString &password);
 };

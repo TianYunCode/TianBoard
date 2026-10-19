@@ -11,13 +11,25 @@
 
 namespace {
 const wchar_t kHttpProxyTarget[] = L"TianBoard/HttpProxy";
+
+// Windows 上 wchar_t 与 char16_t 都是 16 位，QString 内部就是 UTF-16，所以直接借
+// 数据指针，省一次拷贝。
+const wchar_t *utf16(const QString &value) {
+    return reinterpret_cast<const wchar_t *>(value.constData());
 }
 
-ProxyCredentials CredentialStore::proxyCredentials() {
+// CredWrite 用 nullptr 表示"这个字段没有"；空串的 constData() 也返回一个指向 NUL 的
+// 有效指针，所以空必须显式判，不能靠指针是否为空。
+wchar_t *optionalUtf16(const QString &value) {
+    return value.isEmpty() ? nullptr : const_cast<wchar_t *>(utf16(value));
+}
+} // namespace
+
+ProxyCredentials CredentialStore::read(const QString &targetName) {
     ProxyCredentials credentials;
 
     CREDENTIALW *record = nullptr;
-    if (!CredReadW(kHttpProxyTarget, CRED_TYPE_GENERIC, 0, &record))
+    if (!CredReadW(utf16(targetName), CRED_TYPE_GENERIC, 0, &record))
         return credentials;
 
     credentials.userName = QString::fromWCharArray(record->UserName);
@@ -33,33 +45,35 @@ ProxyCredentials CredentialStore::proxyCredentials() {
     return credentials;
 }
 
-void CredentialStore::setProxyCredentials(const QString &userName, const QString &password) {
+void CredentialStore::write(const QString &targetName, const QString &userName, const QString &password) {
     if (userName.isEmpty() && password.isEmpty()) {
-        // 没有凭据时 CredDeleteW 会失败，那正是我们要的状态。
-        CredDeleteW(kHttpProxyTarget, CRED_TYPE_GENERIC, 0);
+        // 没存过时 CredDeleteW 会失败，而那正是我们要的状态。
+        CredDeleteW(utf16(targetName), CRED_TYPE_GENERIC, 0);
         return;
     }
 
     const int passwordBytes = static_cast<int>(password.size() * sizeof(wchar_t));
     if (passwordBytes > CRED_MAX_CREDENTIAL_BLOB_SIZE) {
-        qWarning() << "Proxy password is too long for the credential store; not saved";
+        qWarning() << "Secret is too long for the credential store; nothing was saved for" << targetName;
         return;
     }
 
-    // QString 内部本来就是 UTF-16，直接取数据指针；空的 QString 也必须取 data()
-    // （Qt6 里它返回一个指向 NUL 的有效指针），所以先算好长度再决定要不要给指针。
-    const wchar_t *userNameData = reinterpret_cast<const wchar_t *>(userName.constData());
-    const wchar_t *passwordData = reinterpret_cast<const wchar_t *>(password.constData());
-
     CREDENTIALW record = {};
     record.Type = CRED_TYPE_GENERIC;
-    record.TargetName = const_cast<LPWSTR>(kHttpProxyTarget);
+    record.TargetName = const_cast<wchar_t *>(utf16(targetName));
     record.Persist = CRED_PERSIST_LOCAL_MACHINE;
-    record.UserName = userName.isEmpty() ? nullptr : const_cast<LPWSTR>(userNameData);
-    record.CredentialBlob =
-        password.isEmpty() ? nullptr : reinterpret_cast<LPBYTE>(const_cast<wchar_t *>(passwordData));
+    record.UserName = optionalUtf16(userName);
+    record.CredentialBlob = reinterpret_cast<LPBYTE>(optionalUtf16(password));
     record.CredentialBlobSize = static_cast<DWORD>(passwordBytes);
 
     if (!CredWriteW(&record, 0))
-        qWarning() << "Failed to write the proxy credentials to the credential store";
+        qWarning() << "Failed to write" << targetName << "to the credential store";
+}
+
+ProxyCredentials CredentialStore::proxyCredentials() {
+    return read(QString::fromWCharArray(kHttpProxyTarget));
+}
+
+void CredentialStore::setProxyCredentials(const QString &userName, const QString &password) {
+    write(QString::fromWCharArray(kHttpProxyTarget), userName, password);
 }

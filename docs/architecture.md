@@ -37,7 +37,7 @@ src/
                    （出边为零，最底一层）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（7 个）
+tests/             Qt Test 用例（8 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1
 docs/              本文与编码规范、疑点台账
@@ -208,13 +208,13 @@ include。
 api         -> content:1, core:6, model:1, settings:1, utils:2, web:1, whiteboard:8
 app         -> core:1, platform:1, settings:1, utils:1
 content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:50
-core        -> content:15, desktop:2, model:11, platform:5, recording:2, settings:15,
-               ui:11, utils:8, web:2, whiteboard:33
+core        -> content:15, desktop:2, model:11, platform:7, recording:2, settings:15,
+               ui:11, utils:7, web:2, whiteboard:33
 desktop     -> core:7, platform:5, settings:3, ui:10, web:1, whiteboard:9
 model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteboard:6
 platform    -> core:3, desktop:2, settings:1, ui:4, utils:1, whiteboard:1
 recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
-settings    -> utils:4
+settings    -> utils:3
 ui          -> api:2, content:4, core:41, model:11, platform:6, settings:16, utils:9,
                whiteboard:43
 utils       -> （无出边）

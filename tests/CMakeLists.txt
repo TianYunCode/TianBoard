@@ -29,6 +29,12 @@ tianboard_add_test(tst_version
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/Version.cpp
     LIBS    Qt6::Core)
 
+# 凭据封装只依赖 Qt6::Core 与 advapi32（.cpp 里自己 comment 链接），所以同样能脱离
+# 应用栈单独构建；它写的是当前用户的凭据管理器，target 用进程 PID 隔开并在收尾删掉。
+tianboard_add_test(tst_credentialstore
+    SOURCES ${CMAKE_SOURCE_DIR}/src/platform/CredentialStore_win.cpp
+    LIBS    Qt6::Core)
+
 tianboard_add_test(tst_pdfrenderer
     SOURCES ${CMAKE_SOURCE_DIR}/src/content/PDFRenderer.cpp
             ${CMAKE_SOURCE_DIR}/src/content/QPdfRenderer.cpp
