@@ -322,7 +322,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
                 point.setY(y.toFloat());
                 polygon << point;
             } else {
-                qWarning() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "cannot make sense of a 'point' value" << sCoord;
             }
         }
     }
@@ -434,7 +434,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
                 point.setY(y.toFloat());
                 polygon << point;
             } else {
-                qWarning() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "cannot make sense of a 'point' value" << sCoord;
             }
         }
     }

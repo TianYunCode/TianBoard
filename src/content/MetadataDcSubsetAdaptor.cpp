@@ -135,7 +135,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
                         metadata.insert(Settings::documentSize, QVariant(docSize));
                     }
                     if (!ok) {
-                        qWarning() << "Invalid document size:" << size;
+                        qDebug() << "Invalid document size:" << size;
                     }
 
                     sizeFound = true;

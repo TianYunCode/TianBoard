@@ -1480,7 +1480,7 @@ SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSvg(const QColor &pDefa
                 point.setY(y.toFloat());
                 polygon << point;
             } else {
-                qWarning() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "cannot make sense of a 'point' value" << sCoord;
             }
         }
     } else {
@@ -1722,7 +1722,7 @@ SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromPolylineSvg(const QColor &pDe
                 point.setY(y.toFloat());
                 points << point;
             } else {
-                qWarning() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "cannot make sense of a 'point' value" << sCoord;
             }
         }
 
