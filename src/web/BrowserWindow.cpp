@@ -18,7 +18,6 @@
 
 #include "ui/MainWindow.h"
 
-//#include "pdf/UBWebPluginPDFWidget.h"
 
 
 #include "web/ChaseWidget.h"

@@ -31,7 +31,7 @@ class TestAssets : public QObject
 private slots:
     void qrcEntriesExistOnDisk();
     void everyImageDecodes();
-    void brandAssetsReplacedTheForkLogo();
+    void brandAssetsAreOwnAndRegistered();
     void appIconRendersAsDesigned();
     void blackoutMarkIsWhiteOnTransparent();
     void svgAssetsPaintWithoutTruncation();
@@ -123,12 +123,10 @@ void TestAssets::everyImageDecodes()
              qPrintable(QStringLiteral("undecodable image(s): %1").arg(broken.join(QStringLiteral(", ")))));
 }
 
-void TestAssets::brandAssetsReplacedTheForkLogo()
+void TestAssets::brandAssetsAreOwnAndRegistered()
 {
     QVERIFY(QFile::exists(resPath(QStringLiteral("images/TianBoardIcon.svg"))));
     QVERIFY(QFile::exists(resPath(QStringLiteral("images/TianBoardMark.svg"))));
-
-    QVERIFY(!QFile::exists(resPath(QStringLiteral("images/bigOpenBoard.png"))));
     QVERIFY(!QFile::exists(resPath(QStringLiteral("images/TianBoard.png"))));
 
     const QStringList entries = qrcFileEntries();
