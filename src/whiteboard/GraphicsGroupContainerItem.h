@@ -3,7 +3,7 @@
 #include <QGraphicsItem>
 
 #include "whiteboard/Item.h"
-#include "utils/CoreGraphicsScene.h"
+#include "whiteboard/CoreGraphicsScene.h"
 
 class GraphicsGroupContainerItem : public QGraphicsItem, public Item, public GraphicsItem
 {

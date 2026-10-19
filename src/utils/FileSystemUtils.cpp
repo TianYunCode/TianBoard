@@ -2,7 +2,6 @@
 
 #include <QtWidgets>
 
-#include "core/Application.h"
 
 #include "utils/Globals.h"
 

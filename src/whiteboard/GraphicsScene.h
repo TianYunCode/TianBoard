@@ -2,7 +2,7 @@
 
 #include <QtWidgets>
 
-#include "utils/CoreGraphicsScene.h"
+#include "whiteboard/CoreGraphicsScene.h"
 
 #include "utils/Enums.h"
 

@@ -10,7 +10,7 @@ QString CryptoUtils::sAESSalt("6f0083e0-a90c-11de-ac21-0002a5d5c51b");
 CryptoUtils* CryptoUtils::instance()
 {
     if(!sInstance)
-        sInstance = new CryptoUtils(Application::staticMemoryCleaner);
+        sInstance = new CryptoUtils();
 
     return sInstance;
 }
@@ -23,8 +23,8 @@ void CryptoUtils::destroy()
 }
 
 
-CryptoUtils::CryptoUtils(QObject * pParent)
-    : QObject(pParent)
+CryptoUtils::CryptoUtils()
+    : QObject(nullptr)
 {
     aesInit();
 }

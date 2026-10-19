@@ -18,6 +18,8 @@ add_library(tb_whiteboard OBJECT
     BoardPaletteManager.h
     BoardView.cpp
     BoardView.h
+    CoreGraphicsScene.cpp
+    CoreGraphicsScene.h
     DrawingController.cpp
     DrawingController.h
     FeaturesController.cpp

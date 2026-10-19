@@ -1,20 +1,18 @@
 # ======================================================================
 # utils — 纯工具：字符串 / 几何 / 版本 / 文件系统 / 加解密 / 全局类型定义
 #
-# 内容：StringUtils、GeometryUtils、Version、FileSystemUtils、Globals、
-# CoreGraphicsScene、CryptoUtils，外加 Enums.h（全局枚举与 typedef，原先住在
-# core/，与同类的 Globals.h 放一起）。平台相关的 PlatformUtils* 在
-# src/platform/（对外接口名字没变，仍是 "platform/PlatformUtils.h"）。
+# 内容：StringUtils、GeometryUtils、Version、FileSystemUtils、Globals、CryptoUtils，
+# 外加 Enums.h（全局枚举与 typedef，原先住在 core/，与同类的 Globals.h 放一起）。
+# 平台相关的 PlatformUtils* 在 src/platform/（对外接口名字没变，仍是
+# "platform/PlatformUtils.h"）。
 #
-# 本应只依赖 Qt + OpenSSL 头。尚未成立的边（依赖债，拆环顺序见
-# docs/architecture.md）：
-#   utils -> core      CryptoUtils.h / FileSystemUtils.cpp include core/Application.h
-#   utils -> whiteboard CoreGraphicsScene.cpp include 两个图形项
+# 只依赖 Qt 与 OpenSSL 头：本模块对 core/whiteboard 的反向 include 已经清空
+# （CoreGraphicsScene 归 whiteboard/，CryptoUtils 不再靠 Application 的单例清理，
+# 见提交记录），所以它是第一个从 OBJECT 收紧成真静态库的模块：STATIC 意味着
+# utils 里放不进任何指向别的模块的 include，越界会在编译期直接失败而不是等到链接期。
 # ======================================================================
 
-add_library(tb_utils OBJECT
-    CoreGraphicsScene.cpp
-    CoreGraphicsScene.h
+add_library(tb_utils STATIC
     CryptoUtils.cpp
     CryptoUtils.h
     FileSystemUtils.cpp

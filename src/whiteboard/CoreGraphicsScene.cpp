@@ -1,4 +1,4 @@
-#include "utils/CoreGraphicsScene.h"
+#include "whiteboard/CoreGraphicsScene.h"
 
 #include "whiteboard/GraphicsMediaItem.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"

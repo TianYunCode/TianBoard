@@ -3,8 +3,6 @@
 #include <QtCore>
 #include <openssl/evp.h>
 
-#include "core/Application.h"
-
 class CryptoUtils : public QObject
 {
     Q_OBJECT;
@@ -17,7 +15,7 @@ class CryptoUtils : public QObject
         QString symetricDecrypt(const QString& encrypted);
 
     private:
-        CryptoUtils(QObject * pParent = 0);
+        CryptoUtils();
         virtual ~CryptoUtils();
 
         static CryptoUtils* sInstance;

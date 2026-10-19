@@ -8,7 +8,7 @@
 
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
-#include "utils/CoreGraphicsScene.h"
+#include "whiteboard/CoreGraphicsScene.h"
 #include "core/Settings.h"
 #include "whiteboard/Item.h"
 #include "ui/ThumbnailView.h"
