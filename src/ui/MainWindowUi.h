@@ -32,12 +32,9 @@ struct MainWindowUi
     QAction *actionWebForward;
     QAction *actionWebReload;
     QAction *actionHome;
-    QAction *actionBookmarks;
-    QAction *actionAddBookmark;
     QAction *actionBoard;
     QAction *actionErase;
     QAction *actionPreferences;
-    QAction *actionLibrary;
     QAction *actionMenu;
     QAction *actionDesktop;
     QAction *actionWebBigger;
@@ -98,11 +95,8 @@ struct MainWindowUi
     QAction *actionRecordingConfig;
     QAction *actionWebTrap;
     QAction *actionWebCustomCapture;
-    QAction *actionWebWindowCapture;
-    QAction *actionWebOEmbed;
     QAction *actionWebShowHideOnDisplay;
     QAction *actionEraseDesktopAnnotations;
-    QAction *actionEduMedia;
     QAction *actionHideApplication;
     QAction *actionPlay;
     QAction *actionEraseBackground;

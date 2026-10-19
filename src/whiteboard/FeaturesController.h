@@ -242,7 +242,6 @@ private:
     QUrl mLibVideosDirectoryPath;
     //QUrl mLibInteractiveDirectoryPath;//zhusizhi
     //QUrl mLibAnimationsDirectoryPath;
-    //QUrl mLibApplicationsDirectoryPath;
     QUrl mLibShapesDirectoryPath;
 
     QUrl trashDirectoryPath;

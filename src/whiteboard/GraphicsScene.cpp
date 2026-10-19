@@ -1662,32 +1662,6 @@ void GraphicsScene::addGraphicsWidget(GraphicsWidgetItem* graphicsWidget, const 
     Application::boardController->controlView()->setFocus();
 }
 
-
-
-GraphicsWebWidgetItem* GraphicsScene::addOEmbed(const QUrl& pContentUrl, const QPointF& pPos)
-{
-    QStringList widgetPaths = PersistenceManager::persistenceManager()->allWidgets(Settings::settings()->applicationApplicationsLibraryDirectory());
-
-    GraphicsWebWidgetItem *widget = 0;
-
-    foreach(QString widgetPath, widgetPaths)
-    {
-        if (widgetPath.contains("VideoPicker"))
-        {
-            widget = addWebWidget(QUrl::fromLocalFile(widgetPath), pPos);
-
-            if (widget)
-            {
-                widget->setPreference("oembedUrl", pContentUrl.toString());
-                setDocumentUpdated();
-                break;
-            }
-        }
-    }
-
-    return widget;
-}
-
 GraphicsGroupContainerItem *GraphicsScene::createGroup(QList<QGraphicsItem *> items)
 {
     GraphicsGroupContainerItem *groupItem = new GraphicsGroupContainerItem();

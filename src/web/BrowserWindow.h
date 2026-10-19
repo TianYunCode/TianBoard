@@ -44,9 +44,6 @@ public slots:
 
     void tabCurrentChanged(int);
 
-    void bookmarks();
-    void addBookmark();
-
     void showTabAtTop(bool attop);
 
     void aboutToShowBackMenu();

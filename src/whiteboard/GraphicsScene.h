@@ -139,8 +139,6 @@ class GraphicsScene: public CoreGraphicsScene, public Item
                 , int pointSize = -1, const QString& fontFamily = "", bool bold = false, bool italic = false);
         GraphicsTextItem* addTextHtml(const QString &pString = QString(), const QPointF& pTopLeft = QPointF(0, 0));
 
-        GraphicsWebWidgetItem* addOEmbed(const QUrl& pContentUrl, const QPointF& pPos = QPointF(0, 0));
-
         GraphicsGroupContainerItem *createGroup(QList<QGraphicsItem*> items);
         void addGroup(GraphicsGroupContainerItem *groupItem);
 

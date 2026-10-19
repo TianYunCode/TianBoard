@@ -795,7 +795,6 @@ void BoardController::showDocumentsDialog()
     if (selectedDocument())
         persistCurrentScene();
 
-    Application::mainWindow->ui().actionLibrary->setChecked(false);
 
 }
 
@@ -803,7 +802,6 @@ void BoardController::libraryDialogClosed(int ret)
 {
     Q_UNUSED(ret);
 
-    mMainWindow->ui().actionLibrary->setChecked(false);
 }
 
 
@@ -1882,12 +1880,10 @@ void BoardController::removeTool(ToolWidget* toolWidget)
 
 void BoardController::hide()
 {
-    Application::mainWindow->ui().actionLibrary->setChecked(false);
 }
 
 void BoardController::show()
 {
-    Application::mainWindow->ui().actionLibrary->setChecked(false);
 }
 
 void BoardController::persistCurrentScene(bool isAnAutomaticBackup, bool forceImmediateSave)

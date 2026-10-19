@@ -1,5 +1,5 @@
 # ======================================================================
-# web — 内嵌浏览器（QWebEngine）与网页控制器：WebController、OEmbed 解析、
+# web — 内嵌浏览器（QWebEngine）与网页控制器：WebController、
 #       browser/ 下的浏览器窗口与标签页控件（原 web/browser/，扁平并入）。
 #
 # 允许依赖：utils、content（导入导出走同一套文档格式）。尚未成立的边：
@@ -15,8 +15,6 @@ add_library(tb_web OBJECT
     EditTableView.h
     ModelMenu.cpp
     ModelMenu.h
-    OEmbedParser.cpp
-    OEmbedParser.h
     SearchLineEdit.cpp
     SearchLineEdit.h
     SqueezeLabel.cpp

@@ -175,8 +175,6 @@ void BrowserWindow::setupToolBar()
 
     connect(d->mMainWindow->ui().actionHome, SIGNAL(triggered()), this , SLOT(slotHome()));
 
-    connect(d->mMainWindow->ui().actionBookmarks, SIGNAL(triggered()), this , SLOT(bookmarks()));
-    connect(d->mMainWindow->ui().actionAddBookmark, SIGNAL(triggered()), this , SLOT(addBookmark()));
     connect(d->mMainWindow->ui().actionWebBigger, SIGNAL(triggered()), this , SLOT(slotViewZoomIn()));
     connect(d->mMainWindow->ui().actionWebSmaller, SIGNAL(triggered()), this , SLOT(slotViewZoomOut()));
 
@@ -414,16 +412,6 @@ void BrowserWindow::tabCurrentChanged(int index)
 
     emit activeViewChange(current);
     emit activeViewPageChanged();
-}
-
-void BrowserWindow::bookmarks()
-{
-    loadPage(Settings::settings()->webBookmarksPage->get().toString());
-}
-
-void BrowserWindow::addBookmark()
-{
-    loadPage(Settings::settings()->webAddBookmarkUrl->get().toString() + currentTabWebView()->url().toString());
 }
 
 WebView* BrowserWindow::paintWidget()

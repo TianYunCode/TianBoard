@@ -63,18 +63,14 @@
         <file>images/toolbar/largeEraser.png</file>
         <file>images/toolbar/web.png</file>
         <file>images/toolbar/home.png</file>
-        <file>images/toolbar/library.png</file>
         <file>images/toolbar/clearPage.png</file>
         <file>images/toolbar/reload.png</file>
-        <file>images/toolbar/addBookmark.png</file>
-        <file>images/toolbar/bookmarks.png</file>
         <file>images/toolbar/settings.png</file>
         <file>images/toolbar/eyeClosed.png</file>
         <file>images/toolbar/eyeOpened.png</file>
         <file>images/toolbar/deleteDocument.png</file>
         <file>images/toolbar/newDocument.png</file>
         <file>images/toolbar/newFolder.png</file>
-        <file>images/toolbar/addToolToLibrary.png</file>
         <file>images/toolbar/duplicate.png</file>
         <file>images/toolbar/export.png</file>
         <file>images/toolbar/import.png</file>
@@ -83,7 +79,6 @@
         <file>images/toolbar/menu.png</file>
         <file>images/toolbar/addToWorkingDoc.png</file>
         <file>images/toolbar/rename.png</file>
-        <file>images/toolbar/captureWindow.png</file>
         <file>images/toolbar/stop.png</file>
         <file>images/toolbar/pause.png</file>
         <file>images/toolbar/cut.png</file>
@@ -140,7 +135,6 @@
         <file>images/extraPalette/keyboardOn.png</file>
         <file>images/extraPalette/webTrap.png</file>
         <file>images/extraPalette/webTrapEnabled.png</file>
-        <file>images/extraPalette/oEmbed.png</file>
         <file>images/erasePalette/eraseAll.svg</file>
         <file>images/erasePalette/eraseItem.svg</file>
         <file>images/erasePalette/eraseAnnotation.svg</file>

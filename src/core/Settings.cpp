@@ -320,9 +320,6 @@ void Settings::init()
     webShowPageImmediatelyOnMirroredScreen = new Setting(this, "Web", "ShowPageImediatelyOnMirroredScreen", defaultShowPageImmediatelyOnMirroredScreen);
 
     webHomePage = new Setting(this, "Web", "Homepage", softwareHomeUrl);
-    webBookmarksPage = new Setting(this, "Web", "BookmarksPage", "http://www.baidu.com");
-    webAddBookmarkUrl = new Setting(this, "Web", "AddBookmarkURL", "http://www.baidu.com");
-    webShowAddBookmarkButton = new Setting(this, "Web", "ShowAddBookmarkButton", false);
 
     pageCacheSize = new Setting(this, "App", "PageCacheSize", 20);
 
@@ -1093,20 +1090,6 @@ QString Settings::applicationInteractivesDirectory()
     QString defaultRelativePath = QString("./library/interactivities");
 
     QString configPath = value("Library/InteractivitiesDirectory", QVariant(defaultRelativePath)).toString();
-
-    if (configPath.startsWith(".")) {
-        return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);
-    }
-    else {
-        return configPath;
-    }
-}
-
-QString Settings::applicationApplicationsLibraryDirectory()
-{
-    QString defaultRelativePath = QString("./library/applications");
-
-    QString configPath = value("Library/ApplicationsDirectory", QVariant(defaultRelativePath)).toString();
 
     if (configPath.startsWith(".")) {
         return PlatformUtils::applicationResourcesDirectory() + configPath.right(configPath.size() - 1);

@@ -297,7 +297,6 @@ FeaturesController::FeaturesController(QWidget *pParentWidget) :
     mLibVideosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationVideosLibraryDirectory());
     //mLibAnimationsDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationAnimationsLibraryDirectory());//zhusizhi
     //mLibInteractiveDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationInteractivesDirectory());
-    //mLibApplicationsDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationApplicationsLibraryDirectory());
     mLibShapesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationShapeLibraryDirectory());
     trashDirectoryPath = QUrl::fromLocalFile(Settings::userTrashDirPath());
 
@@ -358,7 +357,6 @@ void FeaturesController::startThread()
             <<  QPair<QUrl, Feature>(mUserPicturesDirectoryPath, picturesElement)
             <<  QPair<QUrl, Feature>(mUserVideoDirectoryPath, moviesElement)
 
-            //<<  QPair<QUrl, Feature>(mLibApplicationsDirectoryPath, applicationsElement)
             <<  QPair<QUrl, Feature>(mLibShapesDirectoryPath, shapesElement)
             //<<  QPair<QUrl, Feature>(mLibInteractiveDirectoryPath, interactElement)
             <<  QPair<QUrl, Feature>(trashDirectoryPath, trashElement);

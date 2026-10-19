@@ -25,8 +25,6 @@ WebToolsPalette::WebToolsPalette(QWidget *parent)
     QList<QAction*> actions;
 
     actions << Application::mainWindow->ui().actionWebCustomCapture;
-    //actions << Application::mainWindow->ui().actionWebWindowCapture;//zhusizhi
-    //actions << Application::mainWindow->ui().actionWebOEmbed;
 
     actions << Application::mainWindow->ui().actionWebShowHideOnDisplay;
 

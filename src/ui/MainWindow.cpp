@@ -155,16 +155,6 @@ void MainWindowUi::setupUi(QMainWindow *mw)
         QIcon icon20;
         icon20.addFile(QString::fromUtf8(":/images/toolbar/home.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         actionHome->setIcon(icon20);
-        actionBookmarks = new QAction(mw);
-        actionBookmarks->setObjectName("actionBookmarks");
-        QIcon icon21;
-        icon21.addFile(QString::fromUtf8(":/images/toolbar/bookmarks.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        actionBookmarks->setIcon(icon21);
-        actionAddBookmark = new QAction(mw);
-        actionAddBookmark->setObjectName("actionAddBookmark");
-        QIcon icon22;
-        icon22.addFile(QString::fromUtf8(":/images/toolbar/addBookmark.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        actionAddBookmark->setIcon(icon22);
         actionBoard = new QAction(mw);
         actionBoard->setObjectName("actionBoard");
         QIcon icon23;
@@ -181,12 +171,6 @@ void MainWindowUi::setupUi(QMainWindow *mw)
         QIcon icon25;
         icon25.addFile(QString::fromUtf8(":/images/toolbar/settings.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         actionPreferences->setIcon(icon25);
-        actionLibrary = new QAction(mw);
-        actionLibrary->setObjectName("actionLibrary");
-        actionLibrary->setCheckable(true);
-        QIcon icon26;
-        icon26.addFile(QString::fromUtf8(":/images/toolbar/library.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        actionLibrary->setIcon(icon26);
         actionMenu = new QAction(mw);
         actionMenu->setObjectName("actionMenu");
         QIcon icon27;
@@ -524,17 +508,6 @@ void MainWindowUi::setupUi(QMainWindow *mw)
         QIcon icon74;
         icon74.addFile(QString::fromUtf8(":/images/toolbar/captureArea.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         actionWebCustomCapture->setIcon(icon74);
-        actionWebWindowCapture = new QAction(mw);
-        actionWebWindowCapture->setObjectName("actionWebWindowCapture");
-        QIcon icon75;
-        icon75.addFile(QString::fromUtf8(":/images/toolbar/captureWindow.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        actionWebWindowCapture->setIcon(icon75);
-        actionWebOEmbed = new QAction(mw);
-        actionWebOEmbed->setObjectName("actionWebOEmbed");
-        actionWebOEmbed->setEnabled(false);
-        QIcon icon76;
-        icon76.addFile(QString::fromUtf8(":/images/extraPalette/oEmbed.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        actionWebOEmbed->setIcon(icon76);
         actionWebShowHideOnDisplay = new QAction(mw);
         actionWebShowHideOnDisplay->setObjectName("actionWebShowHideOnDisplay");
         actionWebShowHideOnDisplay->setCheckable(true);
@@ -547,11 +520,6 @@ void MainWindowUi::setupUi(QMainWindow *mw)
         actionEraseDesktopAnnotations = new QAction(mw);
         actionEraseDesktopAnnotations->setObjectName("actionEraseDesktopAnnotations");
         actionEraseDesktopAnnotations->setIcon(icon56);
-        actionEduMedia = new QAction(mw);
-        actionEduMedia->setObjectName("actionEduMedia");
-        QIcon icon78;
-        icon78.addFile(QString::fromUtf8(":/images/toolbar/addToolToLibrary.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        actionEduMedia->setIcon(icon78);
         actionHideApplication = new QAction(mw);
         actionHideApplication->setObjectName("actionHideApplication");
         QIcon icon79;
@@ -767,14 +735,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
         actionHome->setToolTip(QCoreApplication::translate("MainWindow", "Load Home Page", nullptr));
 #endif // QT_CONFIG(tooltip)
-        actionBookmarks->setText(QCoreApplication::translate("MainWindow", "Bookmarks", nullptr));
-#if QT_CONFIG(tooltip)
-        actionBookmarks->setToolTip(QCoreApplication::translate("MainWindow", "Show Bookmarks", nullptr));
-#endif // QT_CONFIG(tooltip)
-        actionAddBookmark->setText(QCoreApplication::translate("MainWindow", "Bookmark", nullptr));
-#if QT_CONFIG(tooltip)
-        actionAddBookmark->setToolTip(QCoreApplication::translate("MainWindow", "Add Bookmark", nullptr));
-#endif // QT_CONFIG(tooltip)
         actionBoard->setText(QCoreApplication::translate("MainWindow", "Board", nullptr));
 #if QT_CONFIG(tooltip)
         actionBoard->setToolTip(QCoreApplication::translate("MainWindow", "Display Board", nullptr));
@@ -790,13 +750,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
         actionPreferences->setToolTip(QCoreApplication::translate("MainWindow", "Display Preferences", nullptr));
 #endif // QT_CONFIG(tooltip)
-        actionLibrary->setText(QCoreApplication::translate("MainWindow", "Library", nullptr));
-#if QT_CONFIG(tooltip)
-        actionLibrary->setToolTip(QCoreApplication::translate("MainWindow", "Show Library", nullptr));
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-        actionLibrary->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+L", nullptr));
-#endif // QT_CONFIG(shortcut)
         actionMenu->setText(QCoreApplication::translate("MainWindow", "TianBoard", nullptr));
 #if QT_CONFIG(tooltip)
         actionMenu->setToolTip(QCoreApplication::translate("MainWindow", "TianBoard", nullptr));
@@ -1062,14 +1015,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
         actionWebCustomCapture->setToolTip(QCoreApplication::translate("MainWindow", "Capture Part of the Screen", nullptr));
 #endif // QT_CONFIG(tooltip)
-        actionWebWindowCapture->setText(QCoreApplication::translate("MainWindow", "Window Capture", nullptr));
-#if QT_CONFIG(tooltip)
-        actionWebWindowCapture->setToolTip(QCoreApplication::translate("MainWindow", "Capture a Window", nullptr));
-#endif // QT_CONFIG(tooltip)
-        actionWebOEmbed->setText(QCoreApplication::translate("MainWindow", "Embed Web Content", nullptr));
-#if QT_CONFIG(tooltip)
-        actionWebOEmbed->setToolTip(QCoreApplication::translate("MainWindow", "Capture Embeddable Web Content", nullptr));
-#endif // QT_CONFIG(tooltip)
         actionWebShowHideOnDisplay->setText(QCoreApplication::translate("MainWindow", "Show on Display", nullptr));
 #if QT_CONFIG(tooltip)
         actionWebShowHideOnDisplay->setToolTip(QCoreApplication::translate("MainWindow", "Show Main Screen on Display Screen", nullptr));
@@ -1077,10 +1022,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
         actionEraseDesktopAnnotations->setText(QCoreApplication::translate("MainWindow", "Erase Annotations", nullptr));
 #if QT_CONFIG(tooltip)
         actionEraseDesktopAnnotations->setToolTip(QCoreApplication::translate("MainWindow", "Erase all Annotations", nullptr));
-#endif // QT_CONFIG(tooltip)
-        actionEduMedia->setText(QCoreApplication::translate("MainWindow", "eduMedia", nullptr));
-#if QT_CONFIG(tooltip)
-        actionEduMedia->setToolTip(QCoreApplication::translate("MainWindow", "Import eduMedia simulation", nullptr));
 #endif // QT_CONFIG(tooltip)
         actionHideApplication->setText(QCoreApplication::translate("MainWindow", "Hide TianBoard", nullptr));
 #if QT_CONFIG(tooltip)

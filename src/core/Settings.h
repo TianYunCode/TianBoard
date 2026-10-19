@@ -112,7 +112,6 @@ class Settings : public QObject
         //application directory
         QString applicationShapeLibraryDirectory();
         QString applicationImageLibraryDirectory();
-        QString applicationApplicationsLibraryDirectory();
         QString applicationInteractivesDirectory();
         QString applicationCustomizationDirectory();
         QString applicationCustomFontDirectory();
@@ -285,9 +284,6 @@ class Settings : public QObject
         Setting* webShowPageImmediatelyOnMirroredScreen;
 
         Setting* webHomePage;
-        Setting* webBookmarksPage;
-        Setting* webAddBookmarkUrl;
-        Setting* webShowAddBookmarkButton;
 
         Setting* pageCacheSize;
 
