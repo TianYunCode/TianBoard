@@ -325,15 +325,12 @@ DocumentTreeModel::DocumentTreeModel(QObject *parent) :
     //rootNode->addChild(modelsNode);
     DocumentTreeNode *trashNode = new DocumentTreeNode(DocumentTreeNode::Catalog, trashName, tr("Trash"));
     rootNode->addChild(trashNode);
-    //DocumentTreeNode *untitledDocumentsNode = new DocumentTreeNode(DocumentTreeNode::Catalog, PersistenceManager::untitledDocumentsName, tr("Untitled documents"));
-    //myDocsNode->addChild(untitledDocumentsNode);
 
     setRootNode(rootNode);
 
     mRoot = index(0, 0, QModelIndex());
     mMyDocuments =  index(0, 0, QModelIndex());
     mTrash =  index(1, 0, QModelIndex());
-    mUntitledDocuments = index(0, 0, mMyDocuments);
     mAscendingOrder = true;
 }
 
@@ -1012,7 +1009,7 @@ QModelIndex DocumentTreeModel::goTo(const QString &dir)
     QStringList pathList = dir.split("/", Qt::SkipEmptyParts);
 
     if (pathList.isEmpty()) {
-        return untitledDocumentsIndex();
+        return myDocumentsIndex();
     }
 
     if (pathList.first() != PersistenceManager::myDocumentsName
@@ -1051,11 +1048,6 @@ QModelIndex DocumentTreeModel::goTo(const QString &dir)
 bool DocumentTreeModel::inTrash(const QModelIndex &index) const
 {
     return isDescendantOf(index, trashIndex());
-}
-
-bool DocumentTreeModel::inUntitledDocuments(const QModelIndex &index) const
-{
-    return isDescendantOf(index, untitledDocumentsIndex());
 }
 
 bool DocumentTreeModel::inMyDocuments(const QModelIndex &index) const
@@ -2302,22 +2294,17 @@ void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTr
             for (int i =0; i < indexes.size(); i++)
             {
                 QModelIndex currentIndex = indexes.at(i);
-                if (currentIndex == docModel->myDocumentsIndex()) { //Emptying "My documents". Keeping Untitled Documents
+                if (currentIndex == docModel->myDocumentsIndex()) { //清空“我的文档”：所有条目移入回收站，随后补一个空白文档
                     int startInd = 0;
                     while (docModel->rowCount(currentIndex)) {
                         QModelIndex testSubINdecurrentIndex = docModel->index(startInd, 0, currentIndex);
-                        if (testSubINdecurrentIndex == docModel->untitledDocumentsIndex()) {
-                            emptyFolder(testSubINdecurrentIndex, MoveToTrash);
-                            startInd++;
-                            continue;
-                        }
                         if (!testSubINdecurrentIndex.isValid()) {
                             break;
                         }
                         docModel->moveIndex(testSubINdecurrentIndex, docModel->trashIndex());
                     }
                     //Here, we are sure that the current scene has been deleted
-                    createNewDocumentInUntitledFolder();
+                    createEmptyDocument();
                 } 
 				else {
                     //Check if we will delete the current scene
@@ -2326,7 +2313,7 @@ void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTr
 
                     emptyFolder(currentIndex, MoveToTrash); //Empty constant folder
 
-                    if(deleteCurrentScene) createNewDocumentInUntitledFolder();
+                    if(deleteCurrentScene) createEmptyDocument();
                 }
             }
 
@@ -2374,22 +2361,17 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
         }
         case EmptyFolder:
         {
-            if (currentIndex == docModel->myDocumentsIndex()) { //Emptying "My documents". Keeping Untitled Documents
+            if (currentIndex == docModel->myDocumentsIndex()) { //清空“我的文档”：所有条目移入回收站，随后补一个空白文档
                 int startInd = 0;
                 while (docModel->rowCount(currentIndex)) {
                     QModelIndex testSubINdecurrentIndex = docModel->index(startInd, 0, currentIndex);
-                    if (testSubINdecurrentIndex == docModel->untitledDocumentsIndex()) {
-                        emptyFolder(testSubINdecurrentIndex, MoveToTrash);
-                        startInd++;
-                        continue;
-                    }
                     if (!testSubINdecurrentIndex.isValid()) {
                         break;
                     }
                     docModel->moveIndex(testSubINdecurrentIndex, docModel->trashIndex());
                 }
                 //Here, we are sure that the current scene has been deleted
-                createNewDocumentInUntitledFolder();
+                createEmptyDocument();
             } 
 			else {
                 //Check if we will delete the current scene
@@ -2398,7 +2380,7 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
 
                 emptyFolder(currentIndex, MoveToTrash); //Empty constant folder
 
-                if(deleteCurrentScene) createNewDocumentInUntitledFolder();
+                if(deleteCurrentScene) createEmptyDocument();
             }
 
             break;
@@ -2473,7 +2455,7 @@ void DocumentController::moveIndexesToTrash(const QModelIndexList &list, Documen
     docModel->moveIndexes(list, docModel->trashIndex());
 
     if(deleteCurrentScene){
-        createNewDocumentInUntitledFolder();
+        createEmptyDocument();
     }
 
     //selectionModel->clearSelection();
@@ -3566,12 +3548,12 @@ void DocumentController:: refreshDocumentThumbnailsView(DocumentContainer*)
     QApplication::restoreOverrideCursor();
 }
 
-void DocumentController::createNewDocumentInUntitledFolder()
+void DocumentController::createEmptyDocument()
 {
     PersistenceManager *pManager = PersistenceManager::persistenceManager();
     DocumentTreeModel *docModel = pManager->mDocumentTreeStructureModel;
 
-    QString groupName = docModel->virtualPathForIndex(docModel->untitledDocumentsIndex());
+    QString groupName = docModel->virtualPathForIndex(docModel->myDocumentsIndex());
 
     DocumentProxy *document = pManager->createDocument(groupName);
     selectDocument(document);
@@ -3587,17 +3569,14 @@ void DocumentController::collapseAll()
 
     mDocumentsView->documentTreeView()->collapseAll();
 
-    QPersistentModelIndex untiltedDocumentIndex = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->untitledDocumentsIndex();
     QPersistentModelIndex myDocumentIndex = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->myDocumentsIndex();
 
     SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel*>(mDocumentsView->documentTreeView()->model());
 
     if(proxy){
         mDocumentsView->documentTreeView()->setExpanded(proxy->mapFromSource(myDocumentIndex), true);
-        mDocumentsView->documentTreeView()->setExpanded(proxy->mapFromSource(untiltedDocumentIndex), true);
     }else{
         mDocumentsView->documentTreeView()->setExpanded(myDocumentIndex, true);
-        mDocumentsView->documentTreeView()->setExpanded(untiltedDocumentIndex, true);
     }
 
     mDocumentsView->documentTreeView()->setAnimated(true);

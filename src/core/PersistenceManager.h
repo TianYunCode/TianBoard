@@ -32,7 +32,6 @@ class PersistenceManager : public QObject
 
         static const QString myDocumentsName;
         static const QString modelsName;
-        static const QString untitledDocumentsName;
         static const QString fFolders;
         static const QString tFolder;
         static const QString aName;

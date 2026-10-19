@@ -43,7 +43,6 @@ const QString PersistenceManager::fileDirectory = "files"; // Issue 1683 (Evolut
 
 const QString PersistenceManager::myDocumentsName = "MyDocuments";
 const QString PersistenceManager::modelsName = "Models";
-const QString PersistenceManager::untitledDocumentsName = "UntitledDocuments";
 const QString PersistenceManager::fFolders = "folders.xml";
 const QString PersistenceManager::tFolder = "folder";
 const QString PersistenceManager::aName = "name";
@@ -248,7 +247,6 @@ QString PersistenceManager::adjustDocumentVirtualPath(const QString &str)
 
     if (pathList.isEmpty()) {
         pathList.append(myDocumentsName);
-        pathList.append(untitledDocumentsName);
     }
 
     if (pathList.first() != myDocumentsName

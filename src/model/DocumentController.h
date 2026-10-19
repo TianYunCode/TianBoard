@@ -115,7 +115,6 @@ class DocumentTreeModel : public QAbstractItemModel {
 public:
     enum eAncestors {
         aMyDocuments
-        , aUntitledDocuments
         , aModel
         , aTrash
     };
@@ -178,11 +177,10 @@ public:
     bool newNodeAllowed(const QModelIndex &pSelectedIndex)  const;
     QModelIndex goTo(const QString &dir);
     bool inTrash(const QModelIndex &index) const;
-    bool inUntitledDocuments(const QModelIndex &index) const;
     bool isCatalog(const QModelIndex &index) const {return nodeFromIndex(index)->nodeType() == DocumentTreeNode::Catalog;}
     bool isDocument(const QModelIndex &index) const {return nodeFromIndex(index)->nodeType() == DocumentTreeNode::Document;}
     bool isToplevel(const QModelIndex &index) const {return nodeFromIndex(index) ? nodeFromIndex(index)->isTopLevel() : false;}
-    bool isConstant(const QModelIndex &index) const {return isToplevel(index) || (index == mUntitledDocuments);}
+    bool isConstant(const QModelIndex &index) const {return isToplevel(index);}
     bool isOkToRename(const QModelIndex &index) const {return flags(index) & Qt::ItemIsEditable;}
     DocumentProxy *proxyData(const QModelIndex &index) const {return nodeFromIndex(index)->proxyData();}
     void addDocument(DocumentProxy *pProxyData, const QModelIndex &pParent = QModelIndex());
@@ -195,7 +193,6 @@ public:
 
     QPersistentModelIndex myDocumentsIndex() const {return mMyDocuments;}
     QPersistentModelIndex trashIndex() const {return mTrash;}
-    QPersistentModelIndex untitledDocumentsIndex() const {return mMyDocuments;}
     DocumentTreeNode *nodeFromIndex(const QModelIndex &pIndex) const;
     static bool nodeLessThan(const DocumentTreeNode *firstIndex, const DocumentTreeNode *secondIndex);
     void setHighLighted(const QModelIndex &newHighLighted) {mHighLighted = newHighLighted;}
@@ -224,7 +221,6 @@ private:
     QPersistentModelIndex mRoot;
     QPersistentModelIndex mMyDocuments;
     QPersistentModelIndex mTrash;
-    QPersistentModelIndex mUntitledDocuments;
     QList<DocumentProxy*> mNewDocuments;
     QModelIndex mHighLighted;
 
@@ -380,7 +376,7 @@ public slots:
     void createNewDocument();
     void refreshDateColumns();
     void reorderDocuments();
-    void createNewDocumentInUntitledFolder();
+    void createEmptyDocument();
 
     void createNewDocumentGroup();
     void deleteSelectedItem();
