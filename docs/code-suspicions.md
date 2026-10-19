@@ -75,6 +75,11 @@
 - **语言只放了中/英**。`LanguageManager` 的机制与 `tst_language` 已就位，加第三种语言
   只要补 `res/i18n/lang_<代码>.ts` 并产出 `Language/TianBoard_<lang>.qm`；
   在有人翻译之前不能凭空往菜单里加语种。
+- **`Settings` 里 200 多个 `Setting*` 裸指针成员刻意不改**。看着像"该换成
+  `unique_ptr`/注册表"，但那些对象全部以 `this` 为 parent 交给 Qt 的对象树托管，
+  换成智能指针就是双重所有权（`deleteLater`、`removeSetting()` 与 QtAutomation 都会
+  打架）；改成"按域分组的子注册表"则要动 62 个读方，收益只有观感。真要动它，先想清楚
+  解决的是哪个具体毛病，而不是"指针太多"。
 
 ## 三、命名与形态遗留
 
