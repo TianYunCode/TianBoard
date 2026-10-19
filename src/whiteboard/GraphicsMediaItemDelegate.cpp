@@ -79,12 +79,12 @@ void GraphicsMediaItemDelegate::buildButtons()
 {
     if(!mPlayPauseButton){
         mPlayPauseButton = new DelegateButton(":/images/play.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
-        connect(mPlayPauseButton, SIGNAL(clicked(bool)),
-                this, SLOT(togglePlayPause()));
+        connect(mPlayPauseButton, &DelegateButton::clicked,
+                this, &GraphicsMediaItemDelegate::togglePlayPause);
 
         mStopButton = new DelegateButton(":/images/stop.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
-        connect(mStopButton, SIGNAL(clicked(bool)),
-                delegated(), SLOT(stop()));
+        connect(mStopButton, &DelegateButton::clicked,
+                delegated(), &GraphicsMediaItem::stop);
 
         mMediaControl = new DelegateMediaControl(delegated(), mToolBarItem);
         mMediaControl->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -95,10 +95,10 @@ void GraphicsMediaItemDelegate::buildButtons()
         else
             mMuteButton = new DelegateButton(":/images/soundOn.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
 
-        connect(mMuteButton, SIGNAL(clicked(bool)),
-                delegated(), SLOT(toggleMute()));
-        connect(mMuteButton, SIGNAL(clicked(bool)),
-                this, SLOT(toggleMute())); // for changing button image
+        connect(mMuteButton, &DelegateButton::clicked,
+                delegated(), &GraphicsMediaItem::toggleMute);
+        connect(mMuteButton, &DelegateButton::clicked,
+                this, &GraphicsMediaItemDelegate::toggleMute); // for changing button image
 
         mToolBarButtons << mPlayPauseButton << mStopButton << mMuteButton;
 
@@ -110,22 +110,22 @@ void GraphicsMediaItemDelegate::buildButtons()
             if (delegated()->hasLinkedImage()) {
                 mToolBarShowTimer = new QTimer();
                 mToolBarShowTimer->setInterval(m_iToolBarShowingInterval);
-                connect(mToolBarShowTimer, SIGNAL(timeout()), this, SLOT(hideToolBar()));
+                connect(mToolBarShowTimer, &QTimer::timeout, this, &GraphicsMediaItemDelegate::hideToolBar);
             }
         }
 
         else {
-            connect(mPlayPauseButton, SIGNAL(clicked(bool)),
-                    mToolBarShowTimer, SLOT(start()));
+            connect(mPlayPauseButton, &DelegateButton::clicked,
+                    mToolBarShowTimer, qOverload<>(&QTimer::start));
 
-            connect(mStopButton, SIGNAL(clicked(bool)),
-                    mToolBarShowTimer, SLOT(start()));
+            connect(mStopButton, &DelegateButton::clicked,
+                    mToolBarShowTimer, qOverload<>(&QTimer::start));
 
-            connect(mMediaControl, SIGNAL(used()),
-                    mToolBarShowTimer, SLOT(start()));
+            connect(mMediaControl, &DelegateMediaControl::used,
+                    mToolBarShowTimer, qOverload<>(&QTimer::start));
 
-            connect(mMuteButton, SIGNAL(clicked(bool)),
-                    mToolBarShowTimer, SLOT(start()));
+            connect(mMuteButton, &DelegateButton::clicked,
+                    mToolBarShowTimer, qOverload<>(&QTimer::start));
         }
 
 

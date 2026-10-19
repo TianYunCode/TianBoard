@@ -99,7 +99,7 @@ Magnifier::Magnifier(QWidget *parent, bool isInteractive)
 #endif
     }
 
-    connect(&d->mRefreshTimer, SIGNAL(timeout()), this, SLOT(slot_refresh()));
+    connect(&d->mRefreshTimer, &QTimer::timeout, this, &Magnifier::slot_refresh);
 }
 
 Magnifier::~Magnifier()

@@ -78,37 +78,37 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
 
     if (PlatformUtils::hasVirtualKeyboard())
     {
-        connect( Application::boardController->paletteManager()->mKeyboardPalette, SIGNAL(keyboardActivated(bool)), 
-                 mTransparentDrawingView, SLOT(virtualKeyboardActivated(bool)));
+        connect( Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::keyboardActivated,
+                 mTransparentDrawingView, &BoardView::virtualKeyboardActivated);
 
 #ifdef Q_OS_LINUX
-        connect(Application::boardController->paletteManager()->mKeyboardPalette, SIGNAL(moved(QPoint)), this, SLOT(refreshMask()));
-        connect(Application::mainWindow->ui().actionVirtualKeyboard, SIGNAL(triggered(bool)), this, SLOT(refreshMask()));
-        connect(mDesktopPalette,SIGNAL(refreshMask()), this, SLOT(refreshMask()));
+        connect(Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::moved, this, [this] { refreshMask(); });
+        connect(Application::mainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this, [this] { refreshMask(); });
+        connect(mDesktopPalette,&DesktopPalette::refreshMask, this, &DesktopAnnotationController::refreshMask);
 #endif
     }
 
-    connect(mDesktopPalette, SIGNAL(boardClick()), this, SLOT(goToBoard()));
-    connect(mDesktopPalette, SIGNAL(customClick()), this, SLOT(customCapture()));
-    connect(mDesktopPalette, SIGNAL(windowClick()), this, SLOT(windowCapture()));
-    connect(mDesktopPalette, SIGNAL(screenClick()), this, SLOT(screenCapture()));
-    connect(Application::mainWindow->ui().actionPointer, SIGNAL(triggered()), this, SLOT(onToolClicked()));
-    connect(Application::mainWindow->ui().actionSelector, SIGNAL(triggered()), this, SLOT(onToolClicked()));
-    connect(mDesktopPalette, SIGNAL(maximized()), this, SLOT(onDesktopPaletteMaximized()));
-    connect(mDesktopPalette, SIGNAL(minimizeStart(eMinimizedLocation)), this, SLOT(onDesktopPaletteMinimize()));
-    connect(mDesktopPalette, SIGNAL(mouseEntered()), mTransparentDrawingScene, SLOT(hideTool()));
-    connect(mRightPalette, SIGNAL(mouseEntered()), mTransparentDrawingScene, SLOT(hideTool()));
+    connect(mDesktopPalette, &DesktopPalette::boardClick, this, &DesktopAnnotationController::goToBoard);
+    connect(mDesktopPalette, &DesktopPalette::customClick, this, &DesktopAnnotationController::customCapture);
+    connect(mDesktopPalette, &DesktopPalette::windowClick, this, &DesktopAnnotationController::windowCapture);
+    connect(mDesktopPalette, &DesktopPalette::screenClick, this, &DesktopAnnotationController::screenCapture);
+    connect(Application::mainWindow->ui().actionPointer, &QAction::triggered, this, [this] { onToolClicked(); });
+    connect(Application::mainWindow->ui().actionSelector, &QAction::triggered, this, [this] { onToolClicked(); });
+    connect(mDesktopPalette, &FloatingPalette::maximized, this, &DesktopAnnotationController::onDesktopPaletteMaximized);
+    connect(mDesktopPalette, &FloatingPalette::minimizeStart, this, [this] { onDesktopPaletteMinimize(); });
+    connect(mDesktopPalette, &FloatingPalette::mouseEntered, mTransparentDrawingScene, &GraphicsScene::hideTool);
+    connect(mRightPalette, &DockPalette::mouseEntered, mTransparentDrawingScene, &GraphicsScene::hideTool);
 
-    connect(mTransparentDrawingView, SIGNAL(resized(QResizeEvent*)), this, SLOT(onTransparentWidgetResized()));
+    connect(mTransparentDrawingView, &BoardView::resized, this, [this] { onTransparentWidgetResized(); });
 
 
-    connect(DrawingController::drawingController(), SIGNAL(stylusToolChanged(int)), this, SLOT(stylusToolChanged(int)));
+    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged, this, &DesktopAnnotationController::stylusToolChanged);
 
     // Add the desktop associated palettes
     mDesktopPenPalette = new DesktopPenPalette(mTransparentDrawingView, rightPalette); 
 
-    connect(mDesktopPalette, SIGNAL(maximized()), mDesktopPenPalette, SLOT(onParentMaximized()));
-    connect(mDesktopPalette, SIGNAL(minimizeStart(eMinimizedLocation)), mDesktopPenPalette, SLOT(onParentMinimized()));
+    connect(mDesktopPalette, &FloatingPalette::maximized, mDesktopPenPalette, &DesktopPenPalette::onParentMaximized);
+    connect(mDesktopPalette, &FloatingPalette::minimizeStart, mDesktopPenPalette, &DesktopPenPalette::onParentMinimized);
 
     mDesktopMarkerPalette = new DesktopMarkerPalette(mTransparentDrawingView, rightPalette);
     mDesktopEraserPalette = new DesktopEraserPalette(mTransparentDrawingView, rightPalette);
@@ -129,17 +129,17 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     mDesktopMarkerPalette->setVisible(false);
     mDesktopEraserPalette->setVisible(false);
 
-    connect(Application::mainWindow->ui().actionEraseDesktopAnnotations, SIGNAL(triggered()), this, SLOT(eraseDesktopAnnotations()));
-    connect(Application::boardController, SIGNAL(backgroundChanged()), this, SLOT(updateColors()));
-    connect(Application::boardController, SIGNAL(activeSceneChanged()), this, SLOT(updateColors()));
-    connect(&mHoldTimerPen, SIGNAL(timeout()), this, SLOT(penActionReleased()));
-    connect(&mHoldTimerMarker, SIGNAL(timeout()), this, SLOT(markerActionReleased()));
-    connect(&mHoldTimerEraser, SIGNAL(timeout()), this, SLOT(eraserActionReleased()));
+    connect(Application::mainWindow->ui().actionEraseDesktopAnnotations, &QAction::triggered, this, [this] { eraseDesktopAnnotations(); });
+    connect(Application::boardController, &BoardController::backgroundChanged, this, &DesktopAnnotationController::updateColors);
+    connect(Application::boardController, &BoardController::activeSceneChanged, this, &DesktopAnnotationController::updateColors);
+    connect(&mHoldTimerPen, &QTimer::timeout, this, &DesktopAnnotationController::penActionReleased);
+    connect(&mHoldTimerMarker, &QTimer::timeout, this, &DesktopAnnotationController::markerActionReleased);
+    connect(&mHoldTimerEraser, &QTimer::timeout, this, &DesktopAnnotationController::eraserActionReleased);
 
 #ifdef Q_OS_LINUX
-    connect(mDesktopPalette, SIGNAL(moving()), this, SLOT(refreshMask()));
-    connect(Application::boardController->paletteManager()->rightPalette(), SIGNAL(resized()), this, SLOT(refreshMask()));
-    connect(Application::boardController->paletteManager()->addItemPalette(), SIGNAL(closed()), this, SLOT(refreshMask()));
+    connect(mDesktopPalette, &FloatingPalette::moving, this, &DesktopAnnotationController::refreshMask);
+    connect(Application::boardController->paletteManager()->rightPalette(), &RightPalette::resized, this, &DesktopAnnotationController::refreshMask);
+    connect(Application::boardController->paletteManager()->addItemPalette(), &ActionPalette::closed, this, &DesktopAnnotationController::refreshMask);
 #endif
     onDesktopPaletteMaximized();
 
@@ -279,8 +279,8 @@ void DesktopAnnotationController::showWindow()
 {
     mDesktopPalette->setDisplaySelectButtonVisible(true);
 
-    connect(Application::applicationController, SIGNAL(desktopMode(bool))
-            , mDesktopPalette, SLOT(setDisplaySelectButtonVisible(bool)));
+    connect(Application::applicationController, &ApplicationController::desktopMode
+            , mDesktopPalette, &DesktopPalette::setDisplaySelectButtonVisible);
 
     mDesktopPalette->show();
 
@@ -721,40 +721,40 @@ void DesktopAnnotationController::onDesktopPaletteMaximized()
     ActionPaletteButton* pPenButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPen);
     if(NULL != pPenButton)
     {
-        connect(pPenButton, SIGNAL(pressed()), this, SLOT(penActionPressed()));
-        connect(pPenButton, SIGNAL(released()), this, SLOT(penActionReleased()));
+        connect(pPenButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::penActionPressed);
+        connect(pPenButton, &QAbstractButton::released, this, &DesktopAnnotationController::penActionReleased);
     }
 
     // Eraser
     ActionPaletteButton* pEraserButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionEraser);
     if(NULL != pEraserButton)
     {
-        connect(pEraserButton, SIGNAL(pressed()), this, SLOT(eraserActionPressed()));
-        connect(pEraserButton, SIGNAL(released()), this, SLOT(eraserActionReleased()));
+        connect(pEraserButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::eraserActionPressed);
+        connect(pEraserButton, &QAbstractButton::released, this, &DesktopAnnotationController::eraserActionReleased);
     }
 
     // Marker
     ActionPaletteButton* pMarkerButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionMarker);
     if(NULL != pMarkerButton)
     {
-        connect(pMarkerButton, SIGNAL(pressed()), this, SLOT(markerActionPressed()));
-        connect(pMarkerButton, SIGNAL(released()), this, SLOT(markerActionReleased()));
+        connect(pMarkerButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::markerActionPressed);
+        connect(pMarkerButton, &QAbstractButton::released, this, &DesktopAnnotationController::markerActionReleased);
     }
 
     // Pointer
     ActionPaletteButton* pSelectorButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionSelector);
     if(NULL != pSelectorButton)
     {
-        connect(pSelectorButton, SIGNAL(pressed()), this, SLOT(selectorActionPressed()));
-        connect(pSelectorButton, SIGNAL(released()), this, SLOT(selectorActionReleased()));
+        connect(pSelectorButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::selectorActionPressed);
+        connect(pSelectorButton, &QAbstractButton::released, this, &DesktopAnnotationController::selectorActionReleased);
     }
 
     // Pointer
     ActionPaletteButton* pPointerButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPointer);
     if(NULL != pPointerButton)
     {
-        connect(pPointerButton, SIGNAL(pressed()), this, SLOT(pointerActionPressed()));
-        connect(pPointerButton, SIGNAL(released()), this, SLOT(pointerActionReleased()));
+        connect(pPointerButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::pointerActionPressed);
+        connect(pPointerButton, &QAbstractButton::released, this, &DesktopAnnotationController::pointerActionReleased);
     }
 }
 
@@ -768,24 +768,24 @@ void DesktopAnnotationController::onDesktopPaletteMinimize()
     ActionPaletteButton* pPenButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPen);
     if(NULL != pPenButton)
     {
-        disconnect(pPenButton, SIGNAL(pressed()), this, SLOT(penActionPressed()));
-        disconnect(pPenButton, SIGNAL(released()), this, SLOT(penActionReleased()));
+        disconnect(pPenButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::penActionPressed);
+        disconnect(pPenButton, &QAbstractButton::released, this, &DesktopAnnotationController::penActionReleased);
     }
 
     // Marker
     ActionPaletteButton* pMarkerButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionMarker);
     if(NULL != pMarkerButton)
     {
-        disconnect(pMarkerButton, SIGNAL(pressed()), this, SLOT(markerActionPressed()));
-        disconnect(pMarkerButton, SIGNAL(released()), this, SLOT(markerActionReleased()));
+        disconnect(pMarkerButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::markerActionPressed);
+        disconnect(pMarkerButton, &QAbstractButton::released, this, &DesktopAnnotationController::markerActionReleased);
     }
 
     // Eraser
     ActionPaletteButton* pEraserButton = mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionEraser);
     if(NULL != pEraserButton)
     {
-        disconnect(pEraserButton, SIGNAL(pressed()), this, SLOT(eraserActionPressed()));
-        disconnect(pEraserButton, SIGNAL(released()), this, SLOT(eraserActionReleased()));
+        disconnect(pEraserButton, &QAbstractButton::pressed, this, &DesktopAnnotationController::eraserActionPressed);
+        disconnect(pEraserButton, &QAbstractButton::released, this, &DesktopAnnotationController::eraserActionReleased);
     }
 }
 

@@ -115,11 +115,11 @@ DockPalette::DockPalette(DockPaletteType paletteType, QWidget *parent, const cha
 
     // Set the position of the tab
     onToolbarPosUpdated();
-    connect(Settings::settings()->appToolBarPositionedAtTop, SIGNAL(changed(QVariant)), this, SLOT(onToolbarPosUpdated()));
-    connect(DownloadManager::downloadManager(), SIGNAL(allDownloadsFinished()), this, SLOT(onAllDownloadsFinished()));
+    connect(Settings::settings()->appToolBarPositionedAtTop, &Setting::changed, this, &DockPalette::onToolbarPosUpdated);
+    connect(DownloadManager::downloadManager(), &DownloadManager::allDownloadsFinished, this, &DockPalette::onAllDownloadsFinished);
 
-    connect(Application::boardController,SIGNAL(documentSet(DocumentProxy*)),this,SLOT(onDocumentSet(DocumentProxy*)));
-    connect(this,SIGNAL(pageSelectionChangedRequired()),Application::boardController,SLOT(selectionChanged()));
+    connect(Application::boardController,&DocumentContainer::documentSet,this,&DockPalette::onDocumentSet);
+    connect(this,&DockPalette::pageSelectionChangedRequired,Application::boardController,&BoardController::selectionChanged);
 }
 
 /**
@@ -542,8 +542,8 @@ void DockPalette::connectSignals()
 {
     for(int i=0; i < d->mRegisteredWidgets.size(); i++)
     {
-        connect(d->mRegisteredWidgets.at(i), SIGNAL(showTab(DockPaletteWidget*)), this, SLOT(onShowTabWidget(DockPaletteWidget*)));
-        connect(d->mRegisteredWidgets.at(i), SIGNAL(hideTab(DockPaletteWidget*)), this, SLOT(onHideTabWidget(DockPaletteWidget*)));
+        connect(d->mRegisteredWidgets.at(i), &DockPaletteWidget::showTab, this, &DockPalette::onShowTabWidget);
+        connect(d->mRegisteredWidgets.at(i), &DockPaletteWidget::hideTab, this, &DockPalette::onHideTabWidget);
     }
 }
 

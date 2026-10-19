@@ -102,23 +102,26 @@ void BoardController::init()
     setupViews();
     setupToolbar();
 
-    connect(Application::undoStack, SIGNAL(canUndoChanged(bool))
-            , this, SLOT(undoRedoStateChange(bool)));
+    connect(Application::undoStack, &QUndoStack::canUndoChanged
+            , this, &BoardController::undoRedoStateChange);
 
-    connect(Application::undoStack, SIGNAL(canRedoChanged (bool))
-            , this, SLOT(undoRedoStateChange(bool)));
+    connect(Application::undoStack, &QUndoStack::canRedoChanged
+            , this, &BoardController::undoRedoStateChange);
 
-    connect(DrawingController::drawingController(), SIGNAL(stylusToolChanged(int))
-            , this, SLOT(setToolCursor(int)));
+    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged
+            , this, &BoardController::setToolCursor);
 
-    connect(DrawingController::drawingController(), SIGNAL(stylusToolChanged(int))
-            , this, SLOT(stylusToolChanged(int)));
+    connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged
+            , this, &BoardController::stylusToolChanged);
 
     connect(Application::app(), SIGNAL(lastWindowClosed())
             , this, SLOT(lastWindowClosed()));
 
-    connect(DownloadManager::downloadManager(), SIGNAL(downloadModalFinished()), this, SLOT(onDownloadModalFinished()));
-    connect(DownloadManager::downloadManager(), SIGNAL(addDownloadedFileToBoard(bool,QUrl,QUrl,QString,QByteArray,QPointF,QSize,bool)), this, SLOT(downloadFinished(bool,QUrl,QUrl,QString,QByteArray,QPointF,QSize,bool)));
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadModalFinished, this, &BoardController::onDownloadModalFinished);
+    connect(DownloadManager::downloadManager(), &DownloadManager::addDownloadedFileToBoard, this,
+            [this](bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground) {
+                downloadFinished(pSuccess, sourceUrl, contentUrl, pHeader, pData, pPos, pSize, isBackground);
+            });
 
     DocumentProxy* doc = PersistenceManager::persistenceManager()->createNewDocument();
 
@@ -192,7 +195,7 @@ void BoardController::setupViews()
     mControlContainer->setObjectName("boardControlContainer");
     mMainWindow->addBoardWidget(mControlContainer);
 
-    connect(mControlView, SIGNAL(resized(QResizeEvent*)), this, SLOT(boardViewResized(QResizeEvent*)));
+    connect(mControlView, &BoardView::resized, this, &BoardController::boardViewResized);
 
     mDisplayView = new BoardView(this, ItemLayerType::FixedBackground, ItemLayerType::Tool, 0);
     mDisplayView->setInteractive(false);
@@ -203,7 +206,7 @@ void BoardController::setupViews()
     mMessageWindow = new MessageWindow(mControlContainer);
     mMessageWindow->hide();
 
-    connect(this, SIGNAL(activeSceneChanged()), mPaletteManager, SLOT(activeSceneChanged()));
+    connect(this, &BoardController::activeSceneChanged, mPaletteManager, &BoardPaletteManager::activeSceneChanged);
 }
 
 
@@ -355,24 +358,24 @@ void BoardController::setToolCursor(int tool)
 
 void BoardController::connectToolbar()
 {
-    connect(mMainWindow->ui().actionAdd, SIGNAL(triggered()), this, SLOT(addItem()));
-    connect(mMainWindow->ui().actionNewPage, SIGNAL(triggered()), this, SLOT(addScene()));
-    connect(mMainWindow->ui().actionDuplicatePage, SIGNAL(triggered()), this, SLOT(duplicateScene()));
+    connect(mMainWindow->ui().actionAdd, &QAction::triggered, this, &BoardController::addItem);
+    connect(mMainWindow->ui().actionNewPage, &QAction::triggered, this, qOverload<>(&BoardController::addScene));
+    connect(mMainWindow->ui().actionDuplicatePage, &QAction::triggered, this, qOverload<>(&BoardController::duplicateScene));
 
-    connect(mMainWindow->ui().actionClearPage, SIGNAL(triggered()), this, SLOT(clearScene()));
-    connect(mMainWindow->ui().actionEraseItems, SIGNAL(triggered()), this, SLOT(clearSceneItems()));
-    connect(mMainWindow->ui().actionEraseAnnotations, SIGNAL(triggered()), this, SLOT(clearSceneAnnotation()));
-    connect(mMainWindow->ui().actionEraseBackground,SIGNAL(triggered()),this,SLOT(clearSceneBackground()));
+    connect(mMainWindow->ui().actionClearPage, &QAction::triggered, this, &BoardController::clearScene);
+    connect(mMainWindow->ui().actionEraseItems, &QAction::triggered, this, &BoardController::clearSceneItems);
+    connect(mMainWindow->ui().actionEraseAnnotations, &QAction::triggered, this, &BoardController::clearSceneAnnotation);
+    connect(mMainWindow->ui().actionEraseBackground,&QAction::triggered,this,&BoardController::clearSceneBackground);
 
-    connect(mMainWindow->ui().actionUndo, SIGNAL(triggered()), Application::undoStack, SLOT(undo()));
-    connect(mMainWindow->ui().actionRedo, SIGNAL(triggered()), Application::undoStack, SLOT(redo()));
-    connect(mMainWindow->ui().actionRedo, SIGNAL(triggered()), this, SLOT(startScript()));
-    connect(mMainWindow->ui().actionBack, SIGNAL( triggered()), this, SLOT(previousScene()));
-    connect(mMainWindow->ui().actionForward, SIGNAL(triggered()), this, SLOT(nextScene()));
-    connect(mMainWindow->ui().actionSleep, SIGNAL(triggered()), this, SLOT(stopScript()));
-    connect(mMainWindow->ui().actionSleep, SIGNAL(triggered()), this, SLOT(blackout()));
-    connect(mMainWindow->ui().actionVirtualKeyboard, SIGNAL(triggered(bool)), this, SLOT(showKeyboard(bool)));
-    connect(mMainWindow->ui().actionImportPage, SIGNAL(triggered()), this, SLOT(importPage()));
+    connect(mMainWindow->ui().actionUndo, &QAction::triggered, Application::undoStack, &QUndoStack::undo);
+    connect(mMainWindow->ui().actionRedo, &QAction::triggered, Application::undoStack, &QUndoStack::redo);
+    connect(mMainWindow->ui().actionRedo, &QAction::triggered, this, &BoardController::startScript);
+    connect(mMainWindow->ui().actionBack, &QAction::triggered, this, &BoardController::previousScene);
+    connect(mMainWindow->ui().actionForward, &QAction::triggered, this, &BoardController::nextScene);
+    connect(mMainWindow->ui().actionSleep, &QAction::triggered, this, &BoardController::stopScript);
+    connect(mMainWindow->ui().actionSleep, &QAction::triggered, this, &BoardController::blackout);
+    connect(mMainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this, &BoardController::showKeyboard);
+    connect(mMainWindow->ui().actionImportPage, &QAction::triggered, this, &BoardController::importPage);
 }
 
 void BoardController::startScript()
@@ -1464,8 +1467,8 @@ void BoardController::setActiveDocumentScene(DocumentProxy* pDocumentProxy, cons
         updateSystemScaleFactor();
 
         mControlView->setScene(mActiveScene);
-        disconnect(mControlView, SIGNAL(mouseReleased()), mActiveScene, SLOT(updateSelectionFrame()));
-        connect(mControlView, SIGNAL(mouseReleased()), mActiveScene, SLOT(updateSelectionFrame()));
+        disconnect(mControlView, &BoardView::mouseReleased, mActiveScene, &GraphicsScene::updateSelectionFrame);
+        connect(mControlView, &BoardView::mouseReleased, mActiveScene, &GraphicsScene::updateSelectionFrame);
 
         mDisplayView->setScene(mActiveScene);
         mActiveScene->setBackgroundZoomFactor(mControlView->transform().m11());
@@ -1775,7 +1778,7 @@ void BoardController::appMainModeChanged(ApplicationController::MainMode md)
 
     if (!mAutosaveTimer) {
         mAutosaveTimer = new QTimer(this);
-        connect(mAutosaveTimer, SIGNAL(timeout()), this, SLOT(autosaveTimeout()));
+        connect(mAutosaveTimer, &QTimer::timeout, this, &BoardController::autosaveTimeout);
     }
 
     if (md == ApplicationController::Board) {

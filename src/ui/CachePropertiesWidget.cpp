@@ -113,13 +113,13 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name):
     mpPropertiesLayout->addStretch(1);
 
     // Connect signals / slots
-    connect(mpCloseButton, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
-    connect(mpColor, SIGNAL(clicked()), this, SLOT(onColorClicked()));
-    connect(mpCircleButton, SIGNAL(clicked()), this, SLOT(updateShapeButtons()));
-    connect(mpSquareButton, SIGNAL(clicked()), this, SLOT(updateShapeButtons()));
-    connect(mpSizeSlider, SIGNAL(valueChanged(int)), this, SLOT(onSizeChanged(int)));
-    connect(Application::boardController, SIGNAL(activeSceneChanged()), this, SLOT(updateCurrentCache()));
-    connect(Application::boardController, SIGNAL(cacheEnabled()), this, SLOT(onCacheEnabled()));
+    connect(mpCloseButton, &QPushButton::clicked, this, &CachePropertiesWidget::onCloseClicked);
+    connect(mpColor, &QPushButton::clicked, this, &CachePropertiesWidget::onColorClicked);
+    connect(mpCircleButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
+    connect(mpSquareButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
+    connect(mpSizeSlider, &QSlider::valueChanged, this, &CachePropertiesWidget::onSizeChanged);
+    connect(Application::boardController, &BoardController::activeSceneChanged, this, &CachePropertiesWidget::updateCurrentCache);
+    connect(Application::boardController, &BoardController::cacheEnabled, this, &CachePropertiesWidget::onCacheEnabled);
 }
 
 CachePropertiesWidget::~CachePropertiesWidget()

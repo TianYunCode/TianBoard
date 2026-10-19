@@ -72,13 +72,13 @@ DocumentNavigator::DocumentNavigator(QWidget *parent, const char *name):QGraphic
 
     setFrameShadow(QFrame::Plain);
 
-    connect(Application::boardController, SIGNAL(documentThumbnailsUpdated(DocumentContainer*)), this, SLOT(generateThumbnails(DocumentContainer*)));
-    connect(Application::boardController, SIGNAL(documentPageUpdated(int)), this, SLOT(updateSpecificThumbnail(int)));
-    connect(Application::boardController, SIGNAL(pageSelectionChanged(int)), this, SLOT(onScrollToSelectedPage(int)));
+    connect(Application::boardController, &DocumentContainer::documentThumbnailsUpdated, this, &DocumentNavigator::generateThumbnails);
+    connect(Application::boardController, &DocumentContainer::documentPageUpdated, this, &DocumentNavigator::updateSpecificThumbnail);
+    connect(Application::boardController, &BoardController::pageSelectionChanged, this, &DocumentNavigator::onScrollToSelectedPage);
 
-    connect(&d->mLongPressTimer, SIGNAL(timeout()), this, SLOT(longPressTimeout()), Qt::UniqueConnection);
+    connect(&d->mLongPressTimer, &QTimer::timeout, this, &DocumentNavigator::longPressTimeout, Qt::UniqueConnection);
 
-    connect(this, SIGNAL(mousePressAndHoldEventRequired()), this, SLOT(mousePressAndHoldEvent()), Qt::UniqueConnection);
+    connect(this, &DocumentNavigator::mousePressAndHoldEventRequired, this, &DocumentNavigator::mousePressAndHoldEvent, Qt::UniqueConnection);
 }
 
 /**

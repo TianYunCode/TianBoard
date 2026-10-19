@@ -223,6 +223,10 @@ class BoardController : public DocumentContainer
 
         //void regenerateThumbnails();
 
+    public slots:
+        // 由外部（Application）连接的槽，必须对外可见
+        void appMainModeChanged(ApplicationController::MainMode);
+
     signals:
         void newPageAdded();
         void activeSceneChanged();
@@ -246,14 +250,13 @@ class BoardController : public DocumentContainer
         void updateSystemScaleFactor();
         QString truncate(QString text, int maxWidth);
 
-    protected slots:
+    public slots:
         void selectionChanged();
         void undoRedoStateChange(bool canUndo);
         void documentSceneChanged(DocumentProxy* proxy, int pIndex);
 
     private slots:
         void autosaveTimeout();
-        void appMainModeChanged(ApplicationController::MainMode);
 
     private:
         void initBackgroundGridSize();

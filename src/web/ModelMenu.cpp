@@ -12,7 +12,7 @@ ModelMenu::ModelMenu(QWidget * parent)
     , m_separatorRole(0)
     , m_model(0)
 {
-    connect(this, SIGNAL(aboutToShow()), this, SLOT(aboutToShow()));
+    connect(this, &QMenu::aboutToShow, this, &ModelMenu::aboutToShow);
 }
 
 bool ModelMenu::prePopulated()
@@ -94,7 +94,7 @@ void ModelMenu::aboutToShow()
         {
             QModelIndex idx = qvariant_cast<QModelIndex>(v);
             createMenu(idx, -1, menu, menu);
-            disconnect(menu, SIGNAL(aboutToShow()), this, SLOT(aboutToShow()));
+            disconnect(menu, &QMenu::aboutToShow, this, &ModelMenu::aboutToShow);
             return;
         }
     }
@@ -121,7 +121,7 @@ void ModelMenu::createMenu(const QModelIndex &parent, int max, QMenu *parentMenu
         QVariant v;
         v.setValue(parent);
         menu->menuAction()->setData(v);
-        connect(menu, SIGNAL(aboutToShow()), this, SLOT(aboutToShow()));
+        connect(menu, &QMenu::aboutToShow, this, &ModelMenu::aboutToShow);
         return;
     }
 
@@ -129,8 +129,8 @@ void ModelMenu::createMenu(const QModelIndex &parent, int max, QMenu *parentMenu
     if (max != -1)
         end = qMin(max, end);
 
-    connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(triggered(QAction*)));
-    connect(menu, SIGNAL(hovered(QAction*)), this, SLOT(hovered(QAction*)));
+    connect(menu, &QMenu::triggered, this, &ModelMenu::triggered);
+    connect(menu, &QMenu::hovered, this, qOverload<QAction *>(&ModelMenu::hovered));
 
     for (int i = 0; i < end; ++i)
     {

@@ -61,7 +61,7 @@ void WebController::webBrowserInstance()
 
             mMainWindow->addWebWidget(mCurrentWebBrowser);
 
-            connect(mCurrentWebBrowser, SIGNAL(activeViewChange(QWidget*)), this, SLOT(setSourceWidget(QWidget*)));
+            connect(mCurrentWebBrowser, &BrowserWindow::activeViewChange, this, &WebController::setSourceWidget);
 
             BrowserWindow::downloadManager()->setParent(mCurrentWebBrowser, Qt::Tool);
 
@@ -72,7 +72,7 @@ void WebController::webBrowserInstance()
 
             adaptToolBar();
 
-            connect(mCurrentWebBrowser, SIGNAL(activeViewPageChanged()), this, SLOT(activePageChanged()));
+            connect(mCurrentWebBrowser, &BrowserWindow::activeViewPageChanged, this, &WebController::activePageChanged);
 
             mCurrentWebBrowser->loadUrl(currentUrl);
 
@@ -125,10 +125,10 @@ void WebController::setupPalettes()
                     Application::boardController->paletteManager()->mKeyboardPalette, SLOT(onDeactivated()));
 #endif
 
-        connect(mMainWindow->ui().actionWebCustomCapture, SIGNAL(triggered()), this, SLOT(customCapture()));
+        connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this, [this] { customCapture(); });
 
-        connect(mMainWindow->ui().actionWebShowHideOnDisplay, SIGNAL(toggled(bool)), this, SLOT(toogleMirroring(bool)));
-        connect(mMainWindow->ui().actionWebTrap, SIGNAL(toggled(bool)), this, SLOT(toggleWebTrap(bool)));
+        connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this, &WebController::toogleMirroring);
+        connect(mMainWindow->ui().actionWebTrap, &QAction::toggled, this, &WebController::toggleWebTrap);
 
         mToolsCurrentPalette->hide();
         mToolsCurrentPalette->adjustSizeAndPosition();
@@ -140,7 +140,7 @@ void WebController::setupPalettes()
             mToolsCurrentPalette->move(left, top);
         }
         
-		connect(mMainWindow->ui().actionWebTools, SIGNAL(triggered(bool)), this, SLOT(triggerWebTools(bool)));
+		connect(mMainWindow->ui().actionWebTools, &QAction::triggered, this, &WebController::triggerWebTools);
 		mMainWindow->ui().actionWebTools->trigger();
     }
 }

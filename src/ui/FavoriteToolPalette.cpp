@@ -38,7 +38,7 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
             QAction *action = new QAction(desc.label + " " + desc.version, this);
             action->setData(QUrl(desc.id));
             action->setIcon(desc.icon);
-            connect(action, SIGNAL(triggered()), this, SLOT(addFavorite()));
+            connect(action, &QAction::triggered, this, &FavoriteToolPalette::addFavorite);
 
             toolsActions << action;
         }
@@ -58,7 +58,7 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
         QAction *action = new QAction(GraphicsWidgetItem::widgetName(QUrl::fromLocalFile(widgetPath)), this);
         action->setData(QUrl::fromLocalFile(widgetPath));
         action->setIcon(QIcon(GraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(widgetPath))));
-        connect(action, SIGNAL(triggered()), this, SLOT(addFavorite()));
+        connect(action, &QAction::triggered, this, &FavoriteToolPalette::addFavorite);
 
         toolsActions << action;
     }
@@ -80,7 +80,7 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget* parent)
                 QAction *action = new QAction(desc.label + " " + desc.version, this);
                 action->setData(QUrl(desc.id));
                 action->setIcon(desc.icon);
-                connect(action, SIGNAL(triggered()), this, SLOT(addFavorite()));
+                connect(action, &QAction::triggered, this, &FavoriteToolPalette::addFavorite);
 
                 toolsActions << action;
             }

@@ -63,12 +63,12 @@ ApplicationController::ApplicationController(BoardView *pControlView,
 
     mUninoteController = new DesktopAnnotationController(this, rightPalette);
 
-    connect(mDisplayManager, SIGNAL(screenLayoutChanged()), this, SLOT(screenLayoutChanged()));
-    connect(mDisplayManager, SIGNAL(screenLayoutChanged()), mUninoteController, SLOT(screenLayoutChanged()));
-    connect(mDisplayManager, SIGNAL(screenLayoutChanged()), Application::webController, SLOT(screenLayoutChanged()));
-    connect(mDisplayManager, SIGNAL(adjustDisplayViewsRequired()), Application::boardController, SLOT(adjustDisplayViews()));
+    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, this, &ApplicationController::screenLayoutChanged);
+    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mUninoteController, &DesktopAnnotationController::screenLayoutChanged);
+    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &WebController::screenLayoutChanged);
+    connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, Application::boardController, &BoardController::adjustDisplayViews);
     connect(mUninoteController, SIGNAL(imageCaptured(const QPixmap &, bool)), this, SLOT(addCapturedPixmap(const QPixmap &, bool)));
-    connect(mUninoteController, SIGNAL(restoreBoard()), this, SLOT(hideDesktop()));
+    connect(mUninoteController, &DesktopAnnotationController::restoreBoard, this, &ApplicationController::hideDesktop);
 
     for(int i = 0; i < mDisplayManager->numPreviousViews(); i++)
     {
@@ -85,8 +85,8 @@ ApplicationController::ApplicationController(BoardView *pControlView,
         mMirror = new ScreenMirror();
     }
 
-    connect(Application::webController, SIGNAL(imageCaptured(const QPixmap &, bool, const QUrl&))
-            , this, SLOT(addCapturedPixmap(const QPixmap &, bool, const QUrl&)));
+    connect(Application::webController, &WebController::imageCaptured
+            , this, &ApplicationController::addCapturedPixmap);
 }
 
 
@@ -160,11 +160,11 @@ void ApplicationController::adaptToolBar()
 
     if (Document == mMainMode)
     {
-        connect(Application::instance(), SIGNAL(focusChanged(QWidget *, QWidget *)), Application::documentController, SLOT(focusChanged(QWidget *, QWidget *)));
+        connect(qApp, &QApplication::focusChanged, Application::documentController, &DocumentController::focusChanged);
     }
     else
     {
-        disconnect(Application::instance(), SIGNAL(focusChanged(QWidget *, QWidget *)), Application::documentController, SLOT(focusChanged(QWidget *, QWidget *)));
+        disconnect(qApp, &QApplication::focusChanged, Application::documentController, &DocumentController::focusChanged);
         if (Board == mMainMode)
             mMainWindow->ui().actionDuplicate->setEnabled(true);
     }

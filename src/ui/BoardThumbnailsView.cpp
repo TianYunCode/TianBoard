@@ -58,19 +58,19 @@ BoardThumbnailsView::BoardThumbnailsView(QWidget *parent, const char *name)
     d->mLongPressTimer.setInterval(d->mLongPressInterval);
     d->mLongPressTimer.setSingleShot(true);
 
-    connect(Application::boardController, SIGNAL(initThumbnailsRequired(DocumentContainer*)), this, SLOT(initThumbnails(DocumentContainer*)), Qt::UniqueConnection);
-    connect(Application::boardController, SIGNAL(addThumbnailRequired(DocumentContainer*, int)), this, SLOT(addThumbnail(DocumentContainer*, int)), Qt::UniqueConnection);
-    connect(Application::boardController, SIGNAL(moveThumbnailRequired(int, int)), this, SLOT(moveThumbnail(int, int)), Qt::UniqueConnection);
-    connect(this, SIGNAL(moveThumbnailRequired(int, int)), this, SLOT(moveThumbnail(int, int)), Qt::UniqueConnection);
-    connect(Application::boardController, SIGNAL(updateThumbnailsRequired()), this, SLOT(updateThumbnails()), Qt::UniqueConnection);
-    connect(Application::boardController, SIGNAL(removeThumbnailRequired(int)), this, SLOT(removeThumbnail(int)), Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::initThumbnailsRequired, this, &BoardThumbnailsView::initThumbnails, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::addThumbnailRequired, this, &BoardThumbnailsView::addThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::moveThumbnailRequired, this, &BoardThumbnailsView::moveThumbnail, Qt::UniqueConnection);
+    connect(this, &BoardThumbnailsView::moveThumbnailRequired, this, &BoardThumbnailsView::moveThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::updateThumbnailsRequired, this, &BoardThumbnailsView::updateThumbnails, Qt::UniqueConnection);
+    connect(Application::boardController, &DocumentContainer::removeThumbnailRequired, this, &BoardThumbnailsView::removeThumbnail, Qt::UniqueConnection);
 
-    connect(&d->mLongPressTimer, SIGNAL(timeout()), this, SLOT(longPressTimeout()), Qt::UniqueConnection);
+    connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardThumbnailsView::longPressTimeout, Qt::UniqueConnection);
 
-    connect(this, SIGNAL(mousePressAndHoldEventRequired(QPoint)), this, SLOT(mousePressAndHoldEvent(QPoint)), Qt::UniqueConnection);
+    connect(this, &BoardThumbnailsView::mousePressAndHoldEventRequired, this, &BoardThumbnailsView::mousePressAndHoldEvent, Qt::UniqueConnection);
 
-    connect(Application::boardController, SIGNAL(pageSelectionChanged(int)), this, SLOT(ensureVisibleThumbnail(int)), Qt::UniqueConnection);
-    connect(Application::boardController, SIGNAL(centerOnThumbnailRequired(int)), this, SLOT(centerOnThumbnail(int)), Qt::UniqueConnection);
+    connect(Application::boardController, &BoardController::pageSelectionChanged, this, &BoardThumbnailsView::ensureVisibleThumbnail, Qt::UniqueConnection);
+    connect(Application::boardController, &BoardController::centerOnThumbnailRequired, this, &BoardThumbnailsView::centerOnThumbnail, Qt::UniqueConnection);
 }
 
 BoardThumbnailsView::~BoardThumbnailsView() = default;

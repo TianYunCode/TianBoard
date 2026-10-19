@@ -21,7 +21,8 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
     , mLastMousePressTime(QTime::currentTime())
     , isActivatedTextEditor(true)
 {
-    setDelegate(new GraphicsTextItemDelegate(this, 0));
+    auto *textDelegate = new GraphicsTextItemDelegate(this, 0);
+    setDelegate(textDelegate);
 
     // TODO: 控件本应按需创建，这里在构造时就建了出来，与之矛盾
     Delegate()->createControls();
@@ -39,11 +40,12 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem * parent)
 
     setUuid(QUuid::createUuid());
 
-    connect(document(), SIGNAL(contentsChanged()), Delegate(), SLOT(contentsChanged()));
-    connect(document(), SIGNAL(undoCommandAdded()), this, SLOT(undoCommandAdded()));
+    connect(document(), &QTextDocument::contentsChanged,
+            textDelegate, &GraphicsTextItemDelegate::contentsChanged);
+    connect(document(), &QTextDocument::undoCommandAdded, this, &GraphicsTextItem::undoCommandAdded);
 
-    connect(document()->documentLayout(), SIGNAL(documentSizeChanged(const QSizeF &)),
-            this, SLOT(documentSizeChanged(const QSizeF &)));
+    connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
+            this, &GraphicsTextItem::documentSizeChanged);
 
 }
 

@@ -33,7 +33,7 @@ WebTrapWebView::WebTrapWebView(QWidget* parent)
     : QWebEngineView(parent)
     , d(new Private)
 {
-    connect(this, SIGNAL(loadFinished ( bool)), this, SLOT(viewLoadFinished(bool)));
+    connect(this, &QWebEngineView::loadFinished, this, &WebTrapWebView::viewLoadFinished);
 }
 
 

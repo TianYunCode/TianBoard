@@ -61,7 +61,7 @@ void DelegateButton::setFileName(const QString & fileName)
 void DelegateButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (mShowProgressIndicator) {
-        QTimer::singleShot(300, this, SLOT(startShowProgress()));
+        QTimer::singleShot(300, this, &DelegateButton::startShowProgress);
     }
 
     mIsPressed = true;
@@ -149,7 +149,7 @@ GraphicsItemDelegate::GraphicsItemDelegate(QGraphicsItem* pDelegated, QObject * 
     , mMimeData(NULL)
 {
     setFrameFlags(fls);
-    connect(Application::boardController, SIGNAL(zoomChanged(qreal)), this, SLOT(onZoomChanged()));
+    connect(Application::boardController, &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
 }
 
 void GraphicsItemDelegate::createControls()
@@ -166,33 +166,33 @@ void GraphicsItemDelegate::createControls()
     if (!mDeleteButton) {
         mDeleteButton = new DelegateButton(":/images/close.svg", mDelegated, mFrame, Qt::TopLeftSection);
         mButtons << mDeleteButton;
-        connect(mDeleteButton, SIGNAL(clicked()), this, SLOT(remove()));
+        connect(mDeleteButton, &DelegateButton::clicked, this, [this]() { remove(); });
         if (testFrameFlags(GF_DUPLICATION_ENABLED)){
             mDuplicateButton = new DelegateButton(":/images/duplicate.svg", mDelegated, mFrame, Qt::TopLeftSection);
-            connect(mDuplicateButton, SIGNAL(clicked(bool)), this, SLOT(duplicate()));
+            connect(mDuplicateButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::duplicate);
             mButtons << mDuplicateButton;
         }
     }
 
     if (!mMenuButton) {
         mMenuButton = new DelegateButton(":/images/menu.svg", mDelegated, mFrame, Qt::TopLeftSection);
-        connect(mMenuButton, SIGNAL(clicked()), this, SLOT(showMenu()));
+        connect(mMenuButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::showMenu);
         mButtons << mMenuButton;
     }
 
     if (!mZOrderUpButton) {
         mZOrderUpButton = new DelegateButton(":/images/z_layer_up.svg", mDelegated, mFrame, Qt::BottomLeftSection);
         mZOrderUpButton->setShowProgressIndicator(true);
-        connect(mZOrderUpButton, SIGNAL(clicked()), this, SLOT(increaseZLevelUp()));
-        connect(mZOrderUpButton, SIGNAL(longClicked()), this, SLOT(increaseZlevelTop()));
+        connect(mZOrderUpButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::increaseZLevelUp);
+        connect(mZOrderUpButton, &DelegateButton::longClicked, this, &GraphicsItemDelegate::increaseZlevelTop);
         mButtons << mZOrderUpButton;
     }
 
     if (!mZOrderDownButton) {
         mZOrderDownButton = new DelegateButton(":/images/z_layer_down.svg", mDelegated, mFrame, Qt::BottomLeftSection);
         mZOrderDownButton->setShowProgressIndicator(true);
-        connect(mZOrderDownButton, SIGNAL(clicked()), this, SLOT(increaseZLevelDown()));
-        connect(mZOrderDownButton, SIGNAL(longClicked()), this, SLOT(increaseZlevelBottom()));
+        connect(mZOrderDownButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::increaseZLevelDown);
+        connect(mZOrderDownButton, &DelegateButton::longClicked, this, &GraphicsItemDelegate::increaseZlevelBottom);
         mButtons << mZOrderDownButton;
     }
 
@@ -241,7 +241,7 @@ bool GraphicsItemDelegate::controlsExist() const
 GraphicsItemDelegate::~GraphicsItemDelegate()
 {
     if (Application::boardController)
-        disconnect(Application::boardController, SIGNAL(zoomChanged(qreal)), this, SLOT(onZoomChanged()));
+        disconnect(Application::boardController, &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
     // do not release mMimeData.
     // the mMimeData is owned by QDrag since the setMimeData call as specified in the documentation
 }
@@ -677,14 +677,14 @@ void GraphicsItemDelegate::freeButtons()
 
 void GraphicsItemDelegate::decorateMenu(QMenu* menu)
 {
-    mLockAction = menu->addAction(tr("Locked"), this, SLOT(lock(bool)));
+    mLockAction = menu->addAction(tr("Locked"), this, &GraphicsItemDelegate::lock);
     QIcon lockIcon;
     lockIcon.addPixmap(QPixmap(":/images/locked.svg"), QIcon::Normal, QIcon::On);
     lockIcon.addPixmap(QPixmap(":/images/unlocked.svg"), QIcon::Normal, QIcon::Off);
     mLockAction->setIcon(lockIcon);
     mLockAction->setCheckable(true);
 
-    mShowOnDisplayAction = mMenu->addAction(tr("Visible on Extended Screen"), this, SLOT(showHide(bool)));
+    mShowOnDisplayAction = mMenu->addAction(tr("Visible on Extended Screen"), this, &GraphicsItemDelegate::showHide);
     mShowOnDisplayAction->setCheckable(true);
 
     QIcon showIcon;
@@ -693,7 +693,7 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
     mShowOnDisplayAction->setIcon(showIcon);
 
     if (delegated()->data(GraphicsItemData::ItemCanBeSetAsBackground).toBool()) {
-        mSetAsBackgroundAction = mMenu->addAction(tr("Set as background"), this, SLOT(setAsBackground()));
+        mSetAsBackgroundAction = mMenu->addAction(tr("Set as background"), this, &GraphicsItemDelegate::setAsBackground);
         mSetAsBackgroundAction->setCheckable(false);
 
         QIcon backgroundIcon;
@@ -703,7 +703,7 @@ void GraphicsItemDelegate::decorateMenu(QMenu* menu)
 
     if (testFrameFlags(GF_SHOW_CONTENT_SOURCE))
     {
-        mGotoContentSourceAction = menu->addAction(tr("Go to Content Source"), this, SLOT(gotoContentSource()));
+        mGotoContentSourceAction = menu->addAction(tr("Go to Content Source"), this, &GraphicsItemDelegate::gotoContentSource);
 
         QIcon sourceIcon;
         sourceIcon.addPixmap(QPixmap(":/images/toolbar/web.png"), QIcon::Normal, QIcon::On);

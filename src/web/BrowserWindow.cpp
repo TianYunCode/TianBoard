@@ -71,24 +71,24 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow* mainWindow)
 
     this->setLayout(layout);
 
-    connect(d->mTabWidget, SIGNAL(loadPage(const QString &)), this, SLOT(loadPage(const QString &)));
+    connect(d->mTabWidget, &TabWidget::loadPage, this, &BrowserWindow::loadPage);
 
 
-    connect(d->mTabWidget, SIGNAL(setCurrentTitle(const QString &)), this, SLOT(slotUpdateWindowTitle(const QString &)));
+    connect(d->mTabWidget, &TabWidget::setCurrentTitle, this, &BrowserWindow::slotUpdateWindowTitle);
 
-    connect(d->mTabWidget, SIGNAL(loadProgress(int)), this, SLOT(slotLoadProgress(int)));
+    connect(d->mTabWidget, &TabWidget::loadProgress, this, &BrowserWindow::slotLoadProgress);
 
 
-    connect(d->mTabWidget, SIGNAL(loadFinished(bool)), this, SIGNAL(activeViewPageChanged()));
+    connect(d->mTabWidget, &TabWidget::loadFinished, this, [this] (bool) { emit activeViewPageChanged(); });
 
-    connect(d->mTabWidget, SIGNAL(geometryChangeRequested(const QRect &)), this, SLOT(geometryChangeRequested(const QRect &)));
+    connect(d->mTabWidget, &TabWidget::geometryChangeRequested, this, &BrowserWindow::geometryChangeRequested);
 
     slotUpdateWindowTitle();
 
 
     d->mTabWidget->newTab();
 
-    connect(d->mTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabCurrentChanged(int)));
+    connect(d->mTabWidget, &QTabWidget::currentChanged, this, &BrowserWindow::tabCurrentChanged);
 
 }
 
@@ -118,7 +118,7 @@ QSize BrowserWindow::sizeHint() const
 
 void BrowserWindow::setupMenu()
 {
-    new QShortcut(QKeySequence(Qt::Key_F6), this, SLOT(slotSwapFocus()));
+    new QShortcut(QKeySequence(Qt::Key_F6), this, this, &BrowserWindow::slotSwapFocus);
 }
 
 void BrowserWindow::setupToolBar()
@@ -131,8 +131,8 @@ void BrowserWindow::setupToolBar()
     d->mTabWidget->addWebAction(d->mMainWindow->ui().actionStopLoading, QWebEnginePage::Stop);
 
     d->mHistoryBackMenu = new QMenu(this);
-    connect(d->mHistoryBackMenu, SIGNAL(aboutToShow()),this, SLOT(aboutToShowBackMenu()));
-    connect(d->mHistoryBackMenu, SIGNAL(triggered(QAction *)), this, SLOT(openActionUrl(QAction *)));
+    connect(d->mHistoryBackMenu, &QMenu::aboutToShow, this, &BrowserWindow::aboutToShowBackMenu);
+    connect(d->mHistoryBackMenu, &QMenu::triggered, this, &BrowserWindow::openActionUrl);
 
     //foreach (QWidget* menuWidget,  mMainWindow->ui().actionWebBack->associatedWidgets())
     //{
@@ -146,8 +146,8 @@ void BrowserWindow::setupToolBar()
     //}
 
     d->mHistoryForwardMenu = new QMenu(this);
-    connect(d->mHistoryForwardMenu, SIGNAL(aboutToShow()), this, SLOT(aboutToShowForwardMenu()));
-    connect(d->mHistoryForwardMenu, SIGNAL(triggered(QAction *)), this, SLOT(openActionUrl(QAction *)));
+    connect(d->mHistoryForwardMenu, &QMenu::aboutToShow, this, &BrowserWindow::aboutToShowForwardMenu);
+    connect(d->mHistoryForwardMenu, &QMenu::triggered, this, &BrowserWindow::openActionUrl);
 
     //foreach (QWidget* menuWidget,  mMainWindow->ui().actionWebForward->associatedWidgets())
     //{
@@ -172,10 +172,10 @@ void BrowserWindow::setupToolBar()
     d->mWebToolBar->insertWidget(d->mMainWindow->ui().actionWebBigger, d->mChaseWidget);
     d->mWebToolBar->insertSeparator(d->mMainWindow->ui().actionWebBigger);
 
-    connect(d->mMainWindow->ui().actionHome, SIGNAL(triggered()), this , SLOT(slotHome()));
+    connect(d->mMainWindow->ui().actionHome, &QAction::triggered, this, [this] { slotHome(); });
 
-    connect(d->mMainWindow->ui().actionWebBigger, SIGNAL(triggered()), this , SLOT(slotViewZoomIn()));
-    connect(d->mMainWindow->ui().actionWebSmaller, SIGNAL(triggered()), this , SLOT(slotViewZoomOut()));
+    connect(d->mMainWindow->ui().actionWebBigger, &QAction::triggered, this, [this] { slotViewZoomIn(); });
+    connect(d->mMainWindow->ui().actionWebSmaller, &QAction::triggered, this, [this] { slotViewZoomOut(); });
 
     d->mWebToolBar->show();
 }

@@ -330,17 +330,17 @@ FeaturesController::FeaturesController(QWidget *pParentWidget) :
     featuresPathModel->setPath(rootPath);
     featuresPathModel->setSourceModel(featuresModel);
 
-    connect(featuresModel, SIGNAL(dataRestructured()), featuresProxyModel, SLOT(invalidate()));
-    connect(&mCThread, SIGNAL(sendFeature(Feature)), featuresModel, SLOT(addItem(Feature)));
-    connect(&mCThread, SIGNAL(featureSent()), this, SIGNAL(featureAddedFromThread()));
-    connect(&mCThread, SIGNAL(scanStarted()), this, SIGNAL(scanStarted()));
-    connect(&mCThread, SIGNAL(scanFinished()), this, SIGNAL(scanFinished()));
-    connect(&mCThread, SIGNAL(maxFilesCountEvaluated(int)), this, SIGNAL(maxFilesCountEvaluated(int)));
-    connect(&mCThread, SIGNAL(scanCategory(QString)), this, SIGNAL(scanCategory(QString)));
-    connect(&mCThread, SIGNAL(scanPath(QString)), this, SIGNAL(scanPath(QString)));
-    connect(Application::boardController, SIGNAL(npapiWidgetCreated(QString)), this, SLOT(createNpApiFeature(QString)));
+    connect(featuresModel, &FeaturesModel::dataRestructured, featuresProxyModel, &QSortFilterProxyModel::invalidate);
+    connect(&mCThread, &FeaturesComputingThread::sendFeature, featuresModel, &FeaturesModel::addItem);
+    connect(&mCThread, &FeaturesComputingThread::featureSent, this, &FeaturesController::featureAddedFromThread);
+    connect(&mCThread, &FeaturesComputingThread::scanStarted, this, &FeaturesController::scanStarted);
+    connect(&mCThread, &FeaturesComputingThread::scanFinished, this, &FeaturesController::scanFinished);
+    connect(&mCThread, &FeaturesComputingThread::maxFilesCountEvaluated, this, &FeaturesController::maxFilesCountEvaluated);
+    connect(&mCThread, &FeaturesComputingThread::scanCategory, this, &FeaturesController::scanCategory);
+    connect(&mCThread, &FeaturesComputingThread::scanPath, this, &FeaturesController::scanPath);
+    connect(Application::boardController, &BoardController::npapiWidgetCreated, this, &FeaturesController::createNpApiFeature);
 
-    QTimer::singleShot(0, this, SLOT(startThread()));
+    QTimer::singleShot(0, this, &FeaturesController::startThread);
 }
 
 void FeaturesController::startThread()

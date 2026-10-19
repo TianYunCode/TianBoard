@@ -1240,8 +1240,8 @@ void PreferencesController::wire()
     mPreferencesUI->mainTabWidget->setCurrentWidget(mPreferencesUI->displayTab);
     mPreferencesUI->versionLabel->setText(tr("version: ") + Application::applicationVersion());
 
-    connect(mPreferencesUI->closeButton, SIGNAL(released()), this, SLOT(close()));
-    connect(mPreferencesUI->defaultSettingsButton, SIGNAL(released()), this, SLOT(defaultSettings()));
+    connect(mPreferencesUI->closeButton, &QPushButton::released, this, &PreferencesController::close);
+    connect(mPreferencesUI->defaultSettingsButton, &QPushButton::released, this, &PreferencesController::defaultSettings);
 
 
     // OSK preferences
@@ -1250,41 +1250,41 @@ void PreferencesController::wire()
         mPreferencesUI->keyboardPaletteKeyButtonSize->addItem(settings->supportedKeyboardSizes->at(i));
 
 
-    connect(mPreferencesUI->useSystemOSKCheckBox, SIGNAL(clicked(bool)), settings->useSystemOnScreenKeyboard, SLOT(setBool(bool)));
-    connect(mPreferencesUI->useSystemOSKCheckBox, SIGNAL(clicked(bool)), this, SLOT(systemOSKCheckBoxToggled(bool)));
+    connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, settings->useSystemOnScreenKeyboard, &Setting::setBool);
+    connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, this, &PreferencesController::systemOSKCheckBoxToggled);
 
     // Documents Mode preferences
-    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, SIGNAL(clicked(bool)), settings->showDateColumnOnAlphabeticalSort, SLOT(setBool(bool)));
-    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, SIGNAL(clicked(bool)), Application::documentController, SLOT(refreshDateColumns()));
-    connect(mPreferencesUI->emptyTrashForOlderDocuments, SIGNAL(clicked(bool)), settings->emptyTrashForOlderDocuments, SLOT(setBool(bool)));
-    connect(mPreferencesUI->emptyTrashDaysValue, SIGNAL(valueChanged(int)), settings->emptyTrashDaysValue,  SLOT(setInt(int)));
+    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked, settings->showDateColumnOnAlphabeticalSort, &Setting::setBool);
+    connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked, Application::documentController, &DocumentController::refreshDateColumns);
+    connect(mPreferencesUI->emptyTrashForOlderDocuments, &QCheckBox::clicked, settings->emptyTrashForOlderDocuments, &Setting::setBool);
+    connect(mPreferencesUI->emptyTrashDaysValue, &QSpinBox::valueChanged, settings->emptyTrashDaysValue, &Setting::setInt);
 
 
-    connect(mPreferencesUI->keyboardPaletteKeyButtonSize, SIGNAL(currentTextChanged(const QString &)), settings->boardKeyboardPaletteKeyBtnSize, SLOT(setString(const QString &)));
-    connect(mPreferencesUI->startModeComboBox, SIGNAL(currentIndexChanged(int)), settings->appStartMode, SLOT(setInt(int)));
+    connect(mPreferencesUI->keyboardPaletteKeyButtonSize, &QComboBox::currentTextChanged, settings->boardKeyboardPaletteKeyBtnSize, &Setting::setString);
+    connect(mPreferencesUI->startModeComboBox, &QComboBox::currentIndexChanged, settings->appStartMode, &Setting::setInt);
 
     connect(mPreferencesUI->languageComboBox, qOverload<int>(&QComboBox::activated), this, [this](int index) {
         LanguageManager::instance()->setLanguage(mPreferencesUI->languageComboBox->itemData(index).toString());
     });
 
-    connect(mPreferencesUI->useExternalBrowserCheckBox, SIGNAL(clicked(bool)), settings->webUseExternalBrowser, SLOT(setBool(bool)));
-    connect(mPreferencesUI->displayBrowserPageCheckBox, SIGNAL(clicked(bool)), settings->webShowPageImmediatelyOnMirroredScreen, SLOT(setBool(bool)));
-    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, SIGNAL(clicked(bool)), settings->swapControlAndDisplayScreens, SLOT(setBool(bool)));
-    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, SIGNAL(clicked(bool)), Application::applicationController->displayManager(), SLOT(reinitScreens(bool)));
+    connect(mPreferencesUI->useExternalBrowserCheckBox, &QCheckBox::clicked, settings->webUseExternalBrowser, &Setting::setBool);
+    connect(mPreferencesUI->displayBrowserPageCheckBox, &QCheckBox::clicked, settings->webShowPageImmediatelyOnMirroredScreen, &Setting::setBool);
+    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, &QCheckBox::clicked, settings->swapControlAndDisplayScreens, &Setting::setBool);
+    connect(mPreferencesUI->swapControlAndDisplayScreensCheckBox, &QCheckBox::clicked, Application::applicationController->displayManager(), &DisplayManager::reinitScreens);
     if (settings->appHideSwapDisplayScreens->get().toBool())
     {
         mPreferencesUI->swapDisplayScreensCheckBox->hide();
     }
     else
     {
-        connect(mPreferencesUI->swapDisplayScreensCheckBox, SIGNAL(clicked(bool)), Application::applicationController->displayManager(), SLOT(swapDisplayScreens(bool)));
+        connect(mPreferencesUI->swapDisplayScreensCheckBox, &QCheckBox::clicked, Application::applicationController->displayManager(), &DisplayManager::swapDisplayScreens);
     }
 
-    connect(mPreferencesUI->toolbarAtTopRadioButton, SIGNAL(clicked(bool)), this, SLOT(toolbarPositionChanged(bool)));
-    connect(mPreferencesUI->toolbarAtBottomRadioButton, SIGNAL(clicked(bool)), this, SLOT(toolbarPositionChanged(bool)));
-    connect(mPreferencesUI->horizontalChoice, SIGNAL(clicked(bool)), this, SLOT(toolbarOrientationHorizontal(bool)));
-    connect(mPreferencesUI->verticalChoice, SIGNAL(clicked(bool)), this, SLOT(toolbarOrientationVertical(bool)));
-    connect(mPreferencesUI->toolbarDisplayTextCheckBox, SIGNAL(clicked(bool)), settings->appToolBarDisplayText, SLOT(setBool(bool)));
+    connect(mPreferencesUI->toolbarAtTopRadioButton, &QRadioButton::clicked, this, &PreferencesController::toolbarPositionChanged);
+    connect(mPreferencesUI->toolbarAtBottomRadioButton, &QRadioButton::clicked, this, &PreferencesController::toolbarPositionChanged);
+    connect(mPreferencesUI->horizontalChoice, &QRadioButton::clicked, this, &PreferencesController::toolbarOrientationHorizontal);
+    connect(mPreferencesUI->verticalChoice, &QRadioButton::clicked, this, &PreferencesController::toolbarOrientationVertical);
+    connect(mPreferencesUI->toolbarDisplayTextCheckBox, &QCheckBox::clicked, settings->appToolBarDisplayText, &Setting::setBool);
 
     //grid tab
     //On light background
@@ -1317,8 +1317,8 @@ void PreferencesController::wire()
     mLightBackgroundGridColorPicker->setSelectedColorIndex(gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
     mPreferencesUI->lightBackgroundOpacitySlider->setValue(selectedCrossColorLightBackground.alpha()*100 / 255);
 
-    QObject::connect(mLightBackgroundGridColorPicker, SIGNAL(colorSelected(const QColor&)), this, SLOT(setCrossColorOnLightBackground(const QColor&)));
-    connect(mPreferencesUI->lightBackgroundOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(lightBackgroundCrossOpacityValueChanged(int)));
+    QObject::connect(mLightBackgroundGridColorPicker, &ColorPicker::colorSelected, this, &PreferencesController::setCrossColorOnLightBackground);
+    connect(mPreferencesUI->lightBackgroundOpacitySlider, &QSlider::valueChanged, this, &PreferencesController::lightBackgroundCrossOpacityValueChanged);
 
     //On dark background
     QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
@@ -1335,8 +1335,8 @@ void PreferencesController::wire()
     mDarkBackgroundGridColorPicker->setSelectedColorIndex(gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
     mPreferencesUI->darkBackgroundOpacitySlider->setValue(selectedCrossColorDarkBackground.alpha()*100 / 255);
 
-    QObject::connect(mDarkBackgroundGridColorPicker, SIGNAL(colorSelected(const QColor&)), this, SLOT(setCrossColorOnDarkBackground(const QColor&)));
-    connect(mPreferencesUI->darkBackgroundOpacitySlider, SIGNAL(valueChanged(int)), this, SLOT(darkBackgroundCrossOpacityValueChanged(int)));
+    QObject::connect(mDarkBackgroundGridColorPicker, &ColorPicker::colorSelected, this, &PreferencesController::setCrossColorOnDarkBackground);
+    connect(mPreferencesUI->darkBackgroundOpacitySlider, &QSlider::valueChanged, this, &PreferencesController::darkBackgroundCrossOpacityValueChanged);
 
     // pen
     QList<QColor> penLightBackgroundColors = settings->boardPenLightBackgroundColors->colors();
@@ -1350,12 +1350,12 @@ void PreferencesController::wire()
 
     mPenProperties->ui().opacityFrame->hide();
 
-    connect(mPenProperties->ui().fineSlider, SIGNAL(valueChanged(int)), this, SLOT(widthSliderChanged(int)));
-    connect(mPenProperties->ui().mediumSlider, SIGNAL(valueChanged(int)), this, SLOT(widthSliderChanged(int)));
-    connect(mPenProperties->ui().strongSlider, SIGNAL(valueChanged(int)), this, SLOT(widthSliderChanged(int)));
-    connect(mPenProperties->ui().pressureSensitiveCheckBox, SIGNAL(clicked(bool)), settings, SLOT(setPenPressureSensitive(bool)));
-    connect(mPenProperties->ui().circleCheckBox, SIGNAL(clicked(bool)), settings, SLOT(setPenPreviewCircle(bool)));
-    connect(mPenProperties->ui().circleSpinBox, SIGNAL(valueChanged(int)), this, SLOT(penPreviewFromSizeChanged(int)));
+    connect(mPenProperties->ui().fineSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
+    connect(mPenProperties->ui().mediumSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
+    connect(mPenProperties->ui().strongSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
+    connect(mPenProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings, &Settings::setPenPressureSensitive);
+    connect(mPenProperties->ui().circleCheckBox, &QCheckBox::clicked, settings, &Settings::setPenPreviewCircle);
+    connect(mPenProperties->ui().circleSpinBox, &QSpinBox::valueChanged, this, &PreferencesController::penPreviewFromSizeChanged);
 
     // marker
     QList<QColor> markerLightBackgroundColors = settings->boardMarkerLightBackgroundColors->colors();
@@ -1371,11 +1371,11 @@ void PreferencesController::wire()
 
     mMarkerProperties->ui().circleFrame->hide();
 
-    connect(mMarkerProperties->ui().fineSlider, SIGNAL(valueChanged(int)), this, SLOT(widthSliderChanged(int)));
-    connect(mMarkerProperties->ui().mediumSlider, SIGNAL(valueChanged(int)), this, SLOT(widthSliderChanged(int)));
-    connect(mMarkerProperties->ui().strongSlider, SIGNAL(valueChanged(int)), this, SLOT(widthSliderChanged(int)));
-    connect(mMarkerProperties->ui().pressureSensitiveCheckBox, SIGNAL(clicked(bool)), settings, SLOT(setMarkerPressureSensitive(bool)));
-    connect(mMarkerProperties->ui().opacitySlider, SIGNAL(valueChanged(int)), this, SLOT(opacitySliderChanged(int)));
+    connect(mMarkerProperties->ui().fineSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
+    connect(mMarkerProperties->ui().mediumSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
+    connect(mMarkerProperties->ui().strongSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
+    connect(mMarkerProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings, &Settings::setMarkerPressureSensitive);
+    connect(mMarkerProperties->ui().opacitySlider, &QSlider::valueChanged, this, &PreferencesController::opacitySliderChanged);
 }
 
 void PreferencesController::init()
@@ -1821,7 +1821,7 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& l
 
         d->lightBackgroundColorPickers.append(picker);
 
-        QObject::connect(picker, SIGNAL(colorSelected(const QColor&)), controller, SLOT(colorSelected(const QColor&)));
+        QObject::connect(picker, &ColorPicker::colorSelected, controller, &PreferencesController::colorSelected);
 
     }
 
@@ -1847,7 +1847,7 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame* owner, const QList<QColor>& l
 
         d->darkBackgroundColorPickers.append(picker);
 
-        QObject::connect(picker, SIGNAL(colorSelected(const QColor&)), controller, SLOT(colorSelected(const QColor&)));
+        QObject::connect(picker, &ColorPicker::colorSelected, controller, &PreferencesController::colorSelected);
 
     }
 }

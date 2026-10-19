@@ -51,8 +51,9 @@ ExLineEdit::ExLineEdit(QWidget *parent)
 
     // clearButton
     d->mClearButton = new ClearButton(this);
-    connect(d->mClearButton, SIGNAL(clicked()), d->mLineEdit, SLOT(clear()));
-    connect(d->mLineEdit, SIGNAL(textChanged(const QString&)), d->mClearButton, SLOT(textChanged(const QString&)));
+    connect(d->mClearButton, &QAbstractButton::clicked, d->mLineEdit,
+            [this] { d->mLineEdit->clear(); });
+    connect(d->mLineEdit, &QLineEdit::textChanged, d->mClearButton, &ClearButton::textChanged);
 
     d->mClearButton->hide();
 }
@@ -138,8 +139,8 @@ void ExLineEdit::focusOutEvent(QFocusEvent *event)
     d->mLineEdit->event(event);
 
     if (d->mLineEdit->completer()) {
-        connect(d->mLineEdit->completer(), SIGNAL(activated(QString)),
-                         d->mLineEdit, SLOT(setText(QString)));
+        connect(d->mLineEdit->completer(), qOverload<const QString &>(&QCompleter::activated),
+                         d->mLineEdit, &QLineEdit::setText);
         connect(d->mLineEdit->completer(), SIGNAL(highlighted(QString)),
                          d->mLineEdit, SLOT(_q_completionHighlighted(QString)));
     }
@@ -250,11 +251,11 @@ void UrlLineEdit::setWebView(WebView *pWebView)
 {
     d->mWebView = pWebView;
 
-    connect(pWebView, SIGNAL(urlChanged(const QUrl &)),
-        this, SLOT(webViewUrlChanged(const QUrl &)));
+    connect(pWebView, &QWebEngineView::urlChanged,
+        this, &UrlLineEdit::webViewUrlChanged);
 
-    connect(pWebView, SIGNAL(loadProgress(int)),
-        this, SLOT(update()));
+    connect(pWebView, &QWebEngineView::loadProgress,
+        this, [this] { update(); });
 }
 
 

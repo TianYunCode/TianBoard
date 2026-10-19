@@ -38,7 +38,7 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
 	boardIcon.addPixmap(QPixmap(":/images/toolbar/board.png"), QIcon::Normal, QIcon::Off);
 	boardIcon.addPixmap(QPixmap(":/images/toolbar/boardOn.png"), QIcon::Normal, QIcon::On);
     d->mActionBoard = new QAction(QIcon(":/images/toolbar/board.png"), tr("Show TianBoard"), this);
-    connect(d->mActionBoard, SIGNAL(triggered()), this, SIGNAL(boardClick()));
+    connect(d->mActionBoard, &QAction::triggered, this, [this] { emit boardClick(); });
     actions << d->mActionBoard;
 
     actions << Application::mainWindow->ui().actionPen;
@@ -54,14 +54,14 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
 	actionCustomIcon.addPixmap(QPixmap(":/images/toolbar/captureScreen.png"), QIcon::Normal, QIcon::Off);
 	actionCustomIcon.addPixmap(QPixmap(":/images/toolbar/captureScreenOn.png"), QIcon::Normal, QIcon::On);
     d->mActionCustomSelect = new QAction(QIcon(":/images/toolbar/captureScreen.png"), tr("Capture Part of the Screen"), this);
-    connect(d->mActionCustomSelect, SIGNAL(triggered()), this, SIGNAL(customClick()));
+    connect(d->mActionCustomSelect, &QAction::triggered, this, [this] { emit customClick(); });
     actions << d->mActionCustomSelect;
 
 	QIcon displaySelectIcon;
 	displaySelectIcon.addPixmap(QPixmap(":/images/toolbar/captureArea.png"), QIcon::Normal, QIcon::Off);
 	displaySelectIcon.addPixmap(QPixmap(":/images/toolbar/captureAreaOn.png"), QIcon::Normal, QIcon::On);
     d->mDisplaySelectAction = new QAction(displaySelectIcon, tr("Capture the Screen"), this);
-    connect(d->mDisplaySelectAction, SIGNAL(triggered()), this, SIGNAL(screenClick()));
+    connect(d->mDisplaySelectAction, &QAction::triggered, this, [this] { emit screenClick(); });
     actions << d->mDisplaySelectAction;
 
     QIcon showHideIcon;
@@ -70,7 +70,7 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
     d->mShowHideAction = new QAction(showHideIcon, "", this);
     d->mShowHideAction->setCheckable(true);
 
-    connect(d->mShowHideAction, SIGNAL(triggered(bool)), this, SLOT(showHideClick(bool)));
+    connect(d->mShowHideAction, &QAction::toggled, this, &DesktopPalette::showHideClick);
     actions << d->mShowHideAction;
 
     setActions(actions);
@@ -82,12 +82,12 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette* _rightPalette)
     QIcon maximizeIcon;
     maximizeIcon.addPixmap(QPixmap(":/images/toolbar/stylusTab.png"), QIcon::Normal, QIcon::On);
     d->mMaximizeAction = new QAction(maximizeIcon, tr("Show the stylus palette"), this);
-    connect(d->mMaximizeAction, SIGNAL(triggered()), this, SLOT(maximizeMe()));
-    connect(this, SIGNAL(maximizeStart()), this, SLOT(maximizeMe()));
-    connect(this, SIGNAL(minimizeStart(eMinimizedLocation)), this, SLOT(minimizeMe(eMinimizedLocation)));
+    connect(d->mMaximizeAction, &QAction::triggered, this, [this] { maximizeMe(); });
+    connect(this, &FloatingPalette::maximizeStart, this, &DesktopPalette::maximizeMe);
+    connect(this, &FloatingPalette::minimizeStart, this, &DesktopPalette::minimizeMe);
     setMinimizePermission(true);
 
-    connect(d->rightPalette, SIGNAL(resized()), this, SLOT(parentResized()));
+    connect(d->rightPalette, &RightPalette::resized, this, &DesktopPalette::parentResized);
 }
 
 DesktopPalette::~DesktopPalette()

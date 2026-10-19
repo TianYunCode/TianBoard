@@ -155,32 +155,32 @@ FeaturesWidget::FeaturesWidget(QWidget *parent, const char *name)
     d->layout->addWidget(d->centralWidget);
     d->layout->addWidget(d->mActionBar);
 
-    connect(d->centralWidget->listView(), SIGNAL(clicked(const QModelIndex &)), this, SLOT(currentSelected(const QModelIndex &)));
-    connect(this, SIGNAL(sendFileNameList(QStringList)), d->centralWidget, SIGNAL(sendFileNameList(QStringList)));
-    connect(d->mActionBar, SIGNAL(searchElement(const QString &)), this, SLOT( searchStarted(const QString &)));
-    connect(d->mActionBar, SIGNAL(newFolderToCreate()), this, SLOT(createNewFolder()));
-    connect(d->mActionBar, SIGNAL(deleteElements(const FeaturesMimeData *)), this, SLOT(deleteElements(const FeaturesMimeData *)));
-    connect(d->mActionBar, SIGNAL(deleteSelectedElements()), this, SLOT(deleteSelectedElements()));
-    connect(d->mActionBar, SIGNAL(addToFavorite(const FeaturesMimeData *)), this, SLOT(addToFavorite(const FeaturesMimeData *)));
-    connect(d->mActionBar, SIGNAL(removeFromFavorite(const FeaturesMimeData *)), this, SLOT(removeFromFavorite(const FeaturesMimeData *)));
-    connect(d->mActionBar, SIGNAL(addElementsToFavorite() ), this, SLOT ( addElementsToFavorite()) );
-    connect(d->mActionBar, SIGNAL(removeElementsFromFavorite()), this, SLOT (removeElementsFromFavorite()));
+    connect(d->centralWidget->listView(), &FeaturesListView::clicked, this, &FeaturesWidget::currentSelected);
+    connect(this, &FeaturesWidget::sendFileNameList, d->centralWidget, &FeaturesCentralWidget::sendFileNameList);
+    connect(d->mActionBar, &FeaturesActionBar::searchElement, this, &FeaturesWidget::searchStarted);
+    connect(d->mActionBar, &FeaturesActionBar::newFolderToCreate, this, &FeaturesWidget::createNewFolder);
+    connect(d->mActionBar, &FeaturesActionBar::deleteElements, this, &FeaturesWidget::deleteElements);
+    connect(d->mActionBar, &FeaturesActionBar::deleteSelectedElements, this, &FeaturesWidget::deleteSelectedElements);
+    connect(d->mActionBar, &FeaturesActionBar::addToFavorite, this, &FeaturesWidget::addToFavorite);
+    connect(d->mActionBar, &FeaturesActionBar::removeFromFavorite, this, &FeaturesWidget::removeFromFavorite);
+    connect(d->mActionBar, &FeaturesActionBar::addElementsToFavorite, this, &FeaturesWidget::addElementsToFavorite);
+    connect(d->mActionBar, &FeaturesActionBar::removeElementsFromFavorite, this, &FeaturesWidget::removeElementsFromFavorite);
 
-    connect(d->mActionBar, SIGNAL(rescanModel()), this, SLOT(rescanModel()));
-    connect(d->pathListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(currentSelected(const QModelIndex &)));
-    connect(Application::boardController, SIGNAL(displayMetadata(QMap<QString,QString>)), this, SLOT(onDisplayMetadata( QMap<QString,QString>)));
-    connect(DownloadManager::downloadManager(), SIGNAL( addDownloadedFileToLibrary( bool, QUrl, QString, QByteArray, QString))
-             , this, SLOT(onAddDownloadedFileToLibrary(bool, QUrl, QString,QByteArray, QString)));
-    connect(d->centralWidget, SIGNAL(lockMainWidget(bool)), this, SLOT(lockIt(bool)));
+    connect(d->mActionBar, &FeaturesActionBar::rescanModel, this, &FeaturesWidget::rescanModel);
+    connect(d->pathListView, &FeaturesListView::clicked, this, &FeaturesWidget::currentSelected);
+    connect(Application::boardController, &BoardController::displayMetadata, this, &FeaturesWidget::onDisplayMetadata);
+    connect(DownloadManager::downloadManager(), &DownloadManager::addDownloadedFileToLibrary
+             , this, &FeaturesWidget::onAddDownloadedFileToLibrary);
+    connect(d->centralWidget, &FeaturesCentralWidget::lockMainWidget, this, &FeaturesWidget::lockIt);
     connect(d->centralWidget, SIGNAL(createNewFolderSignal(QString)), d->controller, SLOT(addNewFolder(QString)));
     connect(d->controller, SIGNAL(scanStarted()), d->centralWidget, SLOT(scanStarted()));
     connect(d->controller, SIGNAL(scanFinished()), d->centralWidget, SLOT(scanFinished()));
     connect(d->controller, SIGNAL(scanStarted()), d->mActionBar, SLOT(lockIt()));
     connect(d->controller, SIGNAL(scanFinished()), d->mActionBar, SLOT(unlockIt()));
-    connect(d->controller, SIGNAL(maxFilesCountEvaluated(int)), d->centralWidget, SIGNAL(maxFilesCountEvaluated(int)));
-    connect(d->controller, SIGNAL(featureAddedFromThread()), d->centralWidget, SIGNAL(increaseStatusBarValue()));
-    connect(d->controller, SIGNAL(scanCategory(QString)), d->centralWidget, SIGNAL(scanCategory(QString)));
-    connect(d->controller, SIGNAL(scanPath(QString)), d->centralWidget, SIGNAL(scanPath(QString)));
+    connect(d->controller, &FeaturesController::maxFilesCountEvaluated, d->centralWidget, &FeaturesCentralWidget::maxFilesCountEvaluated);
+    connect(d->controller, &FeaturesController::featureAddedFromThread, d->centralWidget, &FeaturesCentralWidget::increaseStatusBarValue);
+    connect(d->controller, &FeaturesController::scanCategory, d->centralWidget, &FeaturesCentralWidget::scanCategory);
+    connect(d->controller, &FeaturesController::scanPath, d->centralWidget, &FeaturesCentralWidget::scanPath);
 }
 
 FeaturesWidget::~FeaturesWidget()
@@ -375,7 +375,7 @@ void FeaturesWidget::onDisplayMetadata( QMap<QString,QString> metadata )
         if (!d->imageGatherer)
             d->imageGatherer = new DownloadHttpFile(0, this);
 
-        connect(d->imageGatherer, SIGNAL(downloadFinished(int, bool, QUrl, QUrl, QString, QByteArray, QPointF, QSize, bool)), this, SLOT(onPreviewLoaded(int, bool, QUrl, QUrl, QString, QByteArray, QPointF, QSize, bool)));
+        connect(d->imageGatherer, &DownloadHttpFile::downloadFinished, this, &FeaturesWidget::onPreviewLoaded);
 
         // We send here the request and store its reply in order to be able to cancel it if needed
         d->imageGatherer->get(QUrl(widgetsThumbsUrl), QPoint(0,0), QSize(), false);
@@ -632,8 +632,8 @@ FeaturesCentralWidget::FeaturesCentralWidget(QWidget *parent) : QWidget(parent),
     d->mAdditionalDataContainer->addWidget(dlg);
     d->mAdditionalDataContainer->setCurrentIndex(NewFolderDialog);
 
-    connect(dlg, SIGNAL(createNewFolder(QString)), this, SLOT(createNewFolderSlot(QString)));
-    connect(dlg, SIGNAL(closeDialog()), this, SLOT(hideAdditionalData()));
+    connect(dlg, &FeaturesNewFolderDialog::createNewFolder, this, &FeaturesCentralWidget::createNewFolderSlot);
+    connect(dlg, &FeaturesNewFolderDialog::closeDialog, this, &FeaturesCentralWidget::hideAdditionalData);
     connect(this, SIGNAL(sendFileNameList(QStringList)), dlg, SLOT(setFileNameList(QStringList)));
 
     //Progress bar to show scanning progress
@@ -776,9 +776,9 @@ FeaturesNewFolderDialog::FeaturesNewFolderDialog(QWidget *parent) : QWidget(pare
 
     d->acceptButton->setEnabled(false);
 
-    connect(d->acceptButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(d->mLineEdit, SIGNAL(textEdited(QString)), this, SLOT(reactOnTextChanged(QString)));
+    connect(d->acceptButton, &QPushButton::clicked, this, &FeaturesNewFolderDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, this, &FeaturesNewFolderDialog::reject);
+    connect(d->mLineEdit, &QLineEdit::textEdited, this, &FeaturesNewFolderDialog::reactOnTextChanged);
 
     reactOnTextChanged(QString());
 }
@@ -910,7 +910,7 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget* parent, const char* name):QWidget(
     d->mpLayout->addWidget(d->mpView);
     d->mpLayout->setContentsMargins(0, 0, 0, 0);
 
-    connect(d->mpView, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
+    connect(d->mpView, &QWebEngineView::loadFinished, this, &FeaturesWebWidget::onLoadFinished);
 }
 
 FeaturesWebWidget::~FeaturesWebWidget()
@@ -1035,8 +1035,8 @@ FeatureProperties::FeatureProperties( QWidget *parent, const char *name ) : QWid
     d->mpLayout->addWidget(d->mpObjInfos, 1);
     d->mpLayout->setContentsMargins(0, 0, 0, 0);
 
-    connect( d->mpAddPageButton, SIGNAL(clicked()), this, SLOT(onAddToPage()) );
-    connect( d->mpAddToLibButton, SIGNAL( clicked() ), this, SLOT(onAddToLib() ) );
+    connect( d->mpAddPageButton, &QPushButton::clicked, this, &FeatureProperties::onAddToPage );
+    connect( d->mpAddToLibButton, &QPushButton::clicked, this, &FeatureProperties::onAddToLib );
 }
 
 FeatureProperties::~FeatureProperties()

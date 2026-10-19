@@ -52,11 +52,11 @@ DownloadWidget::DownloadWidget(QWidget *parent, const char *name):QWidget(parent
     d->mpBttnLayout->addWidget(d->mpCancelBttn, 0);
     d->mpLayout->addLayout(d->mpBttnLayout);
 
-    connect(DownloadManager::downloadManager(), SIGNAL(fileAddedToDownload()), this, SLOT(onFileAddedToDownload()));
-    connect(DownloadManager::downloadManager(), SIGNAL(downloadUpdated(int,qint64,qint64)), this, SLOT(onDownloadUpdated(int,qint64,qint64)));
-    connect(DownloadManager::downloadManager(), SIGNAL(downloadFinished(int)), this, SLOT(onDownloadFinished(int)));
-    connect(d->mpCancelBttn, SIGNAL(clicked()), this, SLOT(onCancelClicked()));
-    connect(d->mpTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onItemClicked(QTreeWidgetItem*,int)));
+    connect(DownloadManager::downloadManager(), &DownloadManager::fileAddedToDownload, this, &DownloadWidget::onFileAddedToDownload);
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadUpdated, this, &DownloadWidget::onDownloadUpdated);
+    connect(DownloadManager::downloadManager(), qOverload<int>(&DownloadManager::downloadFinished), this, &DownloadWidget::onDownloadFinished);
+    connect(d->mpCancelBttn, &QPushButton::clicked, this, &DownloadWidget::onCancelClicked);
+    connect(d->mpTree, &QTreeWidget::itemClicked, this, &DownloadWidget::onItemClicked);
 }
 
 /**

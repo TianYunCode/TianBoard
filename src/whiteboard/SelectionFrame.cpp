@@ -32,7 +32,7 @@ SelectionFrame::SelectionFrame()
     setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::SelectionFrame)); //Necessary to set if we want z value to be assigned correctly
     setFlags(QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsSelectable | ItemIsMovable);
 
-    connect(Application::boardController, SIGNAL(zoomChanged(qreal)), this, SLOT(onZoomChanged(qreal)));
+    connect(Application::boardController, &BoardController::zoomChanged, this, &SelectionFrame::onZoomChanged);
 
     onZoomChanged(Application::boardController->currentZoom());
 }
@@ -459,14 +459,14 @@ QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
 
     if (!mDeleteButton) {
         mDeleteButton = new DelegateButton(":/images/close.svg", this, 0, Qt::TopLeftSection);
-        connect(mDeleteButton, SIGNAL(clicked()), this, SLOT(remove()));
+        connect(mDeleteButton, &DelegateButton::clicked, this, &SelectionFrame::remove);
     }
     result << mDeleteButton;
 
     if (fls | GF_DUPLICATION_ENABLED) {
         if (!mDuplicateButton) {
             mDuplicateButton = new DelegateButton(":/images/duplicate.svg", this, 0, Qt::TopLeftSection);
-            connect(mDuplicateButton, SIGNAL(clicked(bool)), this, SLOT(duplicate()));
+            connect(mDuplicateButton, &DelegateButton::clicked, this, &SelectionFrame::duplicate);
         }
         result <<  mDuplicateButton;
     }
@@ -475,7 +475,7 @@ QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
         if (!mGroupButton) {
             mGroupButton = new DelegateButton(":/images/groupItems.svg", this, 0, Qt::TopLeftSection);
             mGroupButton->setShowProgressIndicator(false);
-            connect(mGroupButton, SIGNAL(clicked()), this, SLOT(groupItems()));
+            connect(mGroupButton, &DelegateButton::clicked, this, &SelectionFrame::groupItems);
         }
         result << mGroupButton;
     }
@@ -484,15 +484,15 @@ QList<DelegateButton*> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
         if (!mZOrderUpButton) {
             mZOrderUpButton = new DelegateButton(":/images/z_layer_up.svg", this, 0, Qt::BottomLeftSection);
             mZOrderUpButton->setShowProgressIndicator(true);
-            connect(mZOrderUpButton, SIGNAL(clicked()), this, SLOT(increaseZlevelUp()));
-            connect(mZOrderUpButton, SIGNAL(longClicked()), this, SLOT(increaseZlevelTop()));
+            connect(mZOrderUpButton, &DelegateButton::clicked, this, &SelectionFrame::increaseZlevelUp);
+            connect(mZOrderUpButton, &DelegateButton::longClicked, this, &SelectionFrame::increaseZlevelTop);
         }
 
         if (!mZOrderDownButton) {
             mZOrderDownButton = new DelegateButton(":/images/z_layer_down.svg", this, 0, Qt::BottomLeftSection);
             mZOrderDownButton->setShowProgressIndicator(true);
-            connect(mZOrderDownButton, SIGNAL(clicked()), this, SLOT(increaseZlevelDown()));
-            connect(mZOrderDownButton, SIGNAL(longClicked()), this, SLOT(increaseZlevelBottom()));
+            connect(mZOrderDownButton, &DelegateButton::clicked, this, &SelectionFrame::increaseZlevelDown);
+            connect(mZOrderDownButton, &DelegateButton::longClicked, this, &SelectionFrame::increaseZlevelBottom);
         }
 
         result << mZOrderUpButton;

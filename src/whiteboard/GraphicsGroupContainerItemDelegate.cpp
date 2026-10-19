@@ -23,14 +23,14 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItemDelegate::delegated()
 
 void GraphicsGroupContainerItemDelegate::decorateMenu(QMenu *menu)
 {
-    mLockAction = menu->addAction(tr("Locked"), this, SLOT(lock(bool)));
+    mLockAction = menu->addAction(tr("Locked"), this, &GraphicsGroupContainerItemDelegate::lock);
     QIcon lockIcon;
     lockIcon.addPixmap(QPixmap(":/images/locked.svg"), QIcon::Normal, QIcon::On);
     lockIcon.addPixmap(QPixmap(":/images/unlocked.svg"), QIcon::Normal, QIcon::Off);
     mLockAction->setIcon(lockIcon);
     mLockAction->setCheckable(true);
 
-    mShowOnDisplayAction = mMenu->addAction(tr("Visible on Extended Screen"), this, SLOT(showHide(bool)));
+    mShowOnDisplayAction = mMenu->addAction(tr("Visible on Extended Screen"), this, &GraphicsGroupContainerItemDelegate::showHide);
     mShowOnDisplayAction->setCheckable(true);
 
     QIcon showIcon;
@@ -44,7 +44,7 @@ void GraphicsGroupContainerItemDelegate::buildButtons()
     if (!mDestroyGroupButton) {
         mDestroyGroupButton = new DelegateButton(":/images/ungroupItems.svg", mDelegated, mFrame, Qt::TopLeftSection);
         mDestroyGroupButton->setShowProgressIndicator(false);
-        connect(mDestroyGroupButton, SIGNAL(clicked()), this, SLOT(destroyGroup()));
+        connect(mDestroyGroupButton, &DelegateButton::clicked, this, &GraphicsGroupContainerItemDelegate::destroyGroup);
         mButtons << mDestroyGroupButton;
     }
 

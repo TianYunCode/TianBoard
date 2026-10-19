@@ -99,8 +99,8 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     Settings *settings = Settings::settings();
 
-    connect(settings->appToolBarPositionedAtTop, SIGNAL(changed(QVariant)), this, SLOT(toolBarPositionChanged(QVariant)));
-    connect(settings->appToolBarDisplayText, SIGNAL(changed(QVariant)), this, SLOT(toolBarDisplayTextChanged(QVariant)));
+    connect(settings->appToolBarPositionedAtTop, &Setting::changed, this, &Application::toolBarPositionChanged);
+    connect(settings->appToolBarDisplayText, &Setting::changed, this, &Application::toolBarDisplayTextChanged);
     updateProtoActionsState();
 
 #ifndef Q_OS_OSX
@@ -199,13 +199,13 @@ int Application::exec(const QString& pFileToImport)
 
     ThumbnailUI::_private::initCatalog();
 
-    connect(mainWindow->ui().actionBoard, SIGNAL(triggered()), this, SLOT(showBoard()));
-    connect(mainWindow->ui().actionWeb, SIGNAL(triggered()), this, SLOT(showInternet()));
-    connect(mainWindow->ui().actionWeb, SIGNAL(triggered()), this, SLOT(stopScript()));
-    connect(mainWindow->ui().actionDocument, SIGNAL(triggered()), this, SLOT(showDocument()));
-    connect(mainWindow->ui().actionDocument, SIGNAL(triggered()), this, SLOT(stopScript()));
-    connect(mainWindow->ui().actionQuit, SIGNAL(triggered()), this, SLOT(closing()));
-    connect(mainWindow, SIGNAL(closeEvent_Signal(QCloseEvent*)), this, SLOT(closeEvent(QCloseEvent*)));
+    connect(mainWindow->ui().actionBoard, &QAction::triggered, this, &Application::showBoard);
+    connect(mainWindow->ui().actionWeb, &QAction::triggered, this, &Application::showInternet);
+    connect(mainWindow->ui().actionWeb, &QAction::triggered, this, &Application::stopScript);
+    connect(mainWindow->ui().actionDocument, &QAction::triggered, this, &Application::showDocument);
+    connect(mainWindow->ui().actionDocument, &QAction::triggered, this, &Application::stopScript);
+    connect(mainWindow->ui().actionQuit, &QAction::triggered, this, &Application::closing);
+    connect(mainWindow, &MainWindow::closeEvent_Signal, this, &Application::closeEvent);
 
     boardController = new BoardController(mainWindow);
     boardController->init();
@@ -222,39 +222,39 @@ int Application::exec(const QString& pFileToImport)
                                                         boardController->paletteManager()->rightPalette());
 
 
-    connect(applicationController, SIGNAL(mainModeChanged(ApplicationController::MainMode)),
-            boardController->paletteManager(), SLOT(slot_changeMainMode(ApplicationController::MainMode)));
+    connect(applicationController, &ApplicationController::mainModeChanged,
+            boardController->paletteManager(), &BoardPaletteManager::slot_changeMainMode);
 
-    connect(applicationController, SIGNAL(desktopMode(bool)),
-            boardController->paletteManager(), SLOT(slot_changeDesktopMode(bool)));
+    connect(applicationController, &ApplicationController::desktopMode,
+            boardController->paletteManager(), &BoardPaletteManager::slot_changeDesktopMode);
 
-    connect(applicationController, SIGNAL(mainModeChanged(ApplicationController::MainMode))
-          , boardController,       SLOT(appMainModeChanged(ApplicationController::MainMode)));
+    connect(applicationController, &ApplicationController::mainModeChanged
+          , boardController,       &BoardController::appMainModeChanged);
 
-    connect(mainWindow->ui().actionDesktop, SIGNAL(triggered(bool)), applicationController, SLOT(showDesktop(bool)));
-    connect(mainWindow->ui().actionDesktop, SIGNAL(triggered(bool)), this, SLOT(stopScript()));
+    connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController, &ApplicationController::showDesktop);
+    connect(mainWindow->ui().actionDesktop, &QAction::triggered, this, &Application::stopScript);
 #if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
-    connect(mainWindow->ui().actionHideApplication, SIGNAL(triggered()), this, SLOT(showMinimized()));
+    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, this, &Application::showMinimized);
 #else
-    connect(mainWindow->ui().actionHideApplication, SIGNAL(triggered()), mainWindow, SLOT(showMinimized()));
+    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow, &MainWindow::showMinimized);
 #endif
 
     mPreferencesController = new PreferencesController(mainWindow);
 
-    connect(mainWindow->ui().actionPreferences, SIGNAL(triggered()), mPreferencesController, SLOT(show()));
+    connect(mainWindow->ui().actionPreferences, &QAction::triggered, mPreferencesController, &PreferencesController::show);
 
 
     toolBarPositionChanged(Settings::settings()->appToolBarPositionedAtTop->get());
 
     bool bUseMultiScreen = Settings::settings()->appUseMultiscreen->get().toBool();
     mainWindow->ui().actionMultiScreen->setChecked(bUseMultiScreen);
-    connect(mainWindow->ui().actionMultiScreen, SIGNAL(triggered(bool)), applicationController, SLOT(useMultiScreen(bool)));
-    connect(mainWindow->ui().actionWidePageSize, SIGNAL(triggered(bool)), boardController, SLOT(setWidePageSize(bool)));
-    connect(mainWindow->ui().actionRegularPageSize, SIGNAL(triggered(bool)), boardController, SLOT(setRegularPageSize(bool)));
+    connect(mainWindow->ui().actionMultiScreen, &QAction::triggered, applicationController, &ApplicationController::useMultiScreen);
+    connect(mainWindow->ui().actionWidePageSize, &QAction::triggered, boardController, &BoardController::setWidePageSize);
+    connect(mainWindow->ui().actionRegularPageSize, &QAction::triggered, boardController, &BoardController::setRegularPageSize);
 
-    connect(mainWindow->ui().actionCut, SIGNAL(triggered()), applicationController, SLOT(actionCut()));
-    connect(mainWindow->ui().actionCopy, SIGNAL(triggered()), applicationController, SLOT(actionCopy()));
-    connect(mainWindow->ui().actionPaste, SIGNAL(triggered()), applicationController, SLOT(actionPaste()));
+    connect(mainWindow->ui().actionCut, &QAction::triggered, applicationController, &ApplicationController::actionCut);
+    connect(mainWindow->ui().actionCopy, &QAction::triggered, applicationController, &ApplicationController::actionCopy);
+    connect(mainWindow->ui().actionPaste, &QAction::triggered, applicationController, &ApplicationController::actionPaste);
 
     applicationController->initScreenLayout(bUseMultiScreen);
     boardController->setupLayout();
@@ -270,7 +270,7 @@ int Application::exec(const QString& pFileToImport)
     emit DrawingController::drawingController()->colorPaletteChanged();
 
     onScreenCountChanged(1);
-    connect(VirtualDesktop::instance(), SIGNAL(screenCountChanged(int)), this, SLOT(onScreenCountChanged(int)));
+    connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this, &Application::onScreenCountChanged);
     return QApplication::exec();
 }
 

@@ -104,9 +104,9 @@ DownloadItem::DownloadItem(QNetworkReply *reply, bool requestFileName, QWidget *
     d->downloadInfoLabel->setPalette(p);
     d->progressBar->setMaximum(0);
     d->tryAgainButton->hide();
-    connect(d->stopButton, SIGNAL(clicked()), this, SLOT(stop()));
-    connect(d->openButton, SIGNAL(clicked()), this, SLOT(open()));
-    connect(d->tryAgainButton, SIGNAL(clicked()), this, SLOT(tryAgain()));
+    connect(d->stopButton, &QAbstractButton::clicked, this, [this] { stop(); });
+    connect(d->openButton, &QAbstractButton::clicked, this, [this] { open(); });
+    connect(d->tryAgainButton, &QAbstractButton::clicked, this, [this] { tryAgain(); });
 
     init();
 }
@@ -126,15 +126,15 @@ void DownloadItem::init()
     qDebug() << "DownloadItem::init() with url:" << m_url;
 
     m_reply->setParent(this);
-    connect(m_reply, SIGNAL(readyRead()), this, SLOT(downloadReadyRead()));
-    connect(m_reply, SIGNAL(errorOccurred(QNetworkReply::NetworkError)),
-            this, SLOT(error(QNetworkReply::NetworkError)));
-    connect(m_reply, SIGNAL(downloadProgress(qint64, qint64)),
-            this, SLOT(downloadProgress(qint64, qint64)));
-    connect(m_reply, SIGNAL(metaDataChanged()),
-            this, SLOT(metaDataChanged()));
-    connect(m_reply, SIGNAL(finished()),
-            this, SLOT(finished()));
+    connect(m_reply, &QNetworkReply::readyRead, this, &DownloadItem::downloadReadyRead);
+    connect(m_reply, &QNetworkReply::errorOccurred,
+            this, &DownloadItem::error);
+    connect(m_reply, &QNetworkReply::downloadProgress,
+            this, &DownloadItem::downloadProgress);
+    connect(m_reply, &QNetworkReply::metaDataChanged,
+            this, &DownloadItem::metaDataChanged);
+    connect(m_reply, &QNetworkReply::finished,
+            this, &DownloadItem::finished);
 
     // reset info
     d->downloadInfoLabel->clear();
@@ -520,7 +520,7 @@ WebDownloadManager::WebDownloadManager(QWidget *parent)
     d->downloadsView->horizontalHeader()->setStretchLastSection(true);
     mModel = new DownloadModel(this);
     d->downloadsView->setModel(mModel);
-    connect(d->cleanupButton, SIGNAL(clicked()), this, SLOT(cleanup()));
+    connect(d->cleanupButton, &QAbstractButton::clicked, this, [this] { cleanup(); });
     load();
 }
 
@@ -590,7 +590,7 @@ void WebDownloadManager::processDownloadedContent(QNetworkReply *reply, bool req
 
 void WebDownloadManager::addItem(DownloadItem *item)
 {
-    connect(item, SIGNAL(statusChanged()), this, SLOT(updateRow()));
+    connect(item, &DownloadItem::statusChanged, this, &WebDownloadManager::updateRow);
     int row = mDownloads.count();
     mModel->beginInsertRows(QModelIndex(), row, row);
     mDownloads.append(item);

@@ -138,10 +138,10 @@ void KeyboardPalette::init()
 
     setKeyButtonSize(Settings::settings()->boardKeyboardPaletteKeyBtnSize->get().toString());
 
-    connect(this, SIGNAL(keyboardActivated(bool)), this, SLOT(onActivated(bool)));
-    connect(Settings::settings()->boardKeyboardPaletteKeyBtnSize, SIGNAL(changed(QVariant)), this, SLOT(keyboardPaletteButtonSizeChanged(QVariant)));
-    connect(Application::mainWindow->ui().actionVirtualKeyboard, SIGNAL(triggered(bool)), this, SLOT(showKeyboard(bool)));
-    connect(this, SIGNAL(closed()), this, SLOT(hideKeyboard()));
+    connect(this, &KeyboardPalette::keyboardActivated, this, &KeyboardPalette::onActivated);
+    connect(Settings::settings()->boardKeyboardPaletteKeyBtnSize, &Setting::changed, this, &KeyboardPalette::keyboardPaletteButtonSizeChanged);
+    connect(Application::mainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this, &KeyboardPalette::showKeyboard);
+    connect(this, &ActionPalette::closed, this, &KeyboardPalette::hideKeyboard);
 
     //------------------------------//
 

@@ -36,10 +36,10 @@ DesktopPenPalette::DesktopPenPalette(QWidget *parent, RightPalette* rightPalette
     colorChoice->displayText(false);
 
     //connect(colorChoice, SIGNAL(activated(int)), this, SLOT(Application::boardController->setColorIndex(int)));
-    connect(DrawingController::drawingController(), SIGNAL(colorIndexChanged(int)), colorChoice, SLOT(setCurrentIndex(int)));
-    connect(DrawingController::drawingController(), SIGNAL(colorIndexChanged(int)), this, SLOT(close()));
-    connect(DrawingController::drawingController(), SIGNAL(colorPaletteChanged()), colorChoice, SLOT(colorPaletteChanged()));
-    connect(DrawingController::drawingController(), SIGNAL(colorPaletteChanged()), this, SLOT(close()));
+    connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, colorChoice, &ToolbarButtonGroup::setCurrentIndex);
+    connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, this, [this] { close(); });
+    connect(DrawingController::drawingController(), &DrawingController::colorPaletteChanged, colorChoice, &ToolbarButtonGroup::colorPaletteChanged);
+    connect(DrawingController::drawingController(), &DrawingController::colorPaletteChanged, this, [this] { close(); });
 
     layout()->addWidget(colorChoice);
 
@@ -53,10 +53,10 @@ DesktopPenPalette::DesktopPenPalette(QWidget *parent, RightPalette* rightPalette
             new ToolbarButtonGroup(Application::mainWindow->ui().boardToolBar, lineWidthActions);
     lineWidthChoice->displayText(false);
 
-    connect(lineWidthChoice, SIGNAL(activated(int)), DrawingController::drawingController(), SLOT(setLineWidthIndex(int)));
-    connect(lineWidthChoice, SIGNAL(activated(int)), this, SLOT(close()));
-    connect(DrawingController::drawingController(), SIGNAL(lineWidthIndexChanged(int)), lineWidthChoice, SLOT(setCurrentIndex(int)));
-    connect(DrawingController::drawingController(), SIGNAL(lineWidthIndexChanged(int)), this, SLOT(close()));
+    connect(lineWidthChoice, &ToolbarButtonGroup::activated, DrawingController::drawingController(), &DrawingController::setLineWidthIndex);
+    connect(lineWidthChoice, &ToolbarButtonGroup::activated, this, [this] { close(); });
+    connect(DrawingController::drawingController(), &DrawingController::lineWidthIndexChanged, lineWidthChoice, &ToolbarButtonGroup::setCurrentIndex);
+    connect(DrawingController::drawingController(), &DrawingController::lineWidthIndexChanged, this, [this] { close(); });
 
     onParentMaximized();
 
@@ -76,7 +76,7 @@ void DesktopPenPalette::onParentMinimized()
 {
     for(int i = 0; i < buttons().size(); i++)
     {
-        disconnect(buttons().at(i), SIGNAL(released()), this, SLOT(onButtonReleased()));
+        disconnect(buttons().at(i), &QAbstractButton::released, this, &DesktopPenPalette::onButtonReleased);
     }
 }
 
@@ -87,7 +87,7 @@ void DesktopPenPalette::onParentMaximized()
 {
     for(int i = 0; i < buttons().size(); i++)
     {
-        connect(buttons().at(i), SIGNAL(released()), this, SLOT(onButtonReleased()));
+        connect(buttons().at(i), &QAbstractButton::released, this, &DesktopPenPalette::onButtonReleased);
     }
 }
 
@@ -103,9 +103,9 @@ DesktopEraserPalette::DesktopEraserPalette(QWidget *parent, RightPalette* rightP
 
     ToolbarButtonGroup *eraserWidthChoice = new ToolbarButtonGroup(Application::mainWindow->ui().boardToolBar, eraserWidthActions);
 
-    connect(eraserWidthChoice, SIGNAL(activated(int)), DrawingController::drawingController(), SLOT(setEraserWidthIndex(int)));
-    connect(eraserWidthChoice, SIGNAL(activated(int)), this, SLOT(close()));
-    connect(Application::mainWindow->ui().actionEraseDesktopAnnotations, SIGNAL(triggered()), this, SLOT(close()));
+    connect(eraserWidthChoice, &ToolbarButtonGroup::activated, DrawingController::drawingController(), &DrawingController::setEraserWidthIndex);
+    connect(eraserWidthChoice, &ToolbarButtonGroup::activated, this, [this] { close(); });
+    connect(Application::mainWindow->ui().actionEraseDesktopAnnotations, &QAction::triggered, this, [this] { close(); });
 
     eraserWidthChoice->displayText(false);
     eraserWidthChoice->setCurrentIndex(Settings::settings()->eraserWidthIndex());
@@ -131,10 +131,10 @@ DesktopMarkerPalette::DesktopMarkerPalette(QWidget *parent, RightPalette* rightP
     colorChoice->displayText(false);
 
     //connect(colorChoice, SIGNAL(activated(int)), this, SLOT(Application::boardController->setColorIndex(int)));
-    connect(DrawingController::drawingController(), SIGNAL(colorIndexChanged(int)), colorChoice, SLOT(setCurrentIndex(int)));
-    connect(DrawingController::drawingController(), SIGNAL(colorIndexChanged(int)), this, SLOT(close()));
-    connect(DrawingController::drawingController(), SIGNAL(colorPaletteChanged()), colorChoice, SLOT(colorPaletteChanged()));
-    connect(DrawingController::drawingController(), SIGNAL(colorPaletteChanged()), this, SLOT(close()));
+    connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, colorChoice, &ToolbarButtonGroup::setCurrentIndex);
+    connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, this, [this] { close(); });
+    connect(DrawingController::drawingController(), &DrawingController::colorPaletteChanged, colorChoice, &ToolbarButtonGroup::colorPaletteChanged);
+    connect(DrawingController::drawingController(), &DrawingController::colorPaletteChanged, this, [this] { close(); });
 
     layout()->addWidget(colorChoice);
 
@@ -147,10 +147,10 @@ DesktopMarkerPalette::DesktopMarkerPalette(QWidget *parent, RightPalette* rightP
     ToolbarButtonGroup *lineWidthChoice = new ToolbarButtonGroup(Application::mainWindow->ui().boardToolBar, lineWidthActions);
     lineWidthChoice->displayText(false);
 
-    connect(lineWidthChoice, SIGNAL(activated(int)), DrawingController::drawingController(), SLOT(setLineWidthIndex(int)));
-    connect(lineWidthChoice, SIGNAL(activated(int)), this, SLOT(close()));
-    connect(DrawingController::drawingController(), SIGNAL(lineWidthIndexChanged(int)), lineWidthChoice, SLOT(setCurrentIndex(int)));
-    connect(DrawingController::drawingController(), SIGNAL(lineWidthIndexChanged(int)), this, SLOT(close()));
+    connect(lineWidthChoice, &ToolbarButtonGroup::activated, DrawingController::drawingController(), &DrawingController::setLineWidthIndex);
+    connect(lineWidthChoice, &ToolbarButtonGroup::activated, this, [this] { close(); });
+    connect(DrawingController::drawingController(), &DrawingController::lineWidthIndexChanged, lineWidthChoice, &ToolbarButtonGroup::setCurrentIndex);
+    connect(DrawingController::drawingController(), &DrawingController::lineWidthIndexChanged, this, [this] { close(); });
 
     layout()->addWidget(lineWidthChoice);
 }

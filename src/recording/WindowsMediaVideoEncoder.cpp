@@ -60,10 +60,10 @@ bool WindowsMediaVideoEncoder::start()
 
     if (mRecordAudio)
     {
-        connect(mWaveRecorder, SIGNAL(newWaveBuffer(WAVEHDR*, long)), mWMVideo
-                        , SLOT(appendAudioBuffer(WAVEHDR*, long)), Qt::DirectConnection);
-        connect(mWaveRecorder, SIGNAL(newWaveBuffer(WAVEHDR*, long)), this
-                        , SLOT(processAudioBuffer(WAVEHDR*, long)), Qt::DirectConnection);
+        connect(mWaveRecorder, &WaveRecorder::newWaveBuffer, mWMVideo
+                        , &WindowsMediaFile::appendAudioBuffer, Qt::DirectConnection);
+        connect(mWaveRecorder, &WaveRecorder::newWaveBuffer, this
+                        , &WindowsMediaVideoEncoder::processAudioBuffer, Qt::DirectConnection);
     }
 
     mIsRecording = true;
@@ -78,10 +78,10 @@ bool WindowsMediaVideoEncoder::stop()
 
     if (mWaveRecorder)
     {
-        disconnect(mWaveRecorder, SIGNAL(newWaveBuffer(WAVEHDR*, long)), mWMVideo
-                , SLOT(appendAudioBuffer(WAVEHDR*, long)));
-        disconnect(mWaveRecorder, SIGNAL(newWaveBuffer(WAVEHDR*, long)), this
-                , SLOT(processAudioBuffer(WAVEHDR*, long)));
+        disconnect(mWaveRecorder, &WaveRecorder::newWaveBuffer, mWMVideo
+                , &WindowsMediaFile::appendAudioBuffer);
+        disconnect(mWaveRecorder, &WaveRecorder::newWaveBuffer, this
+                , &WindowsMediaVideoEncoder::processAudioBuffer);
 
         mWaveRecorder->stop();
         audioOk = mWaveRecorder->close();
@@ -138,11 +138,11 @@ void WindowsMediaVideoEncoder::setRecordAudio(bool pRecordAudio)
 
         if (mRecordAudio)
         {
-            connect(mWaveRecorder, SIGNAL(newWaveBuffer(WAVEHDR*, long)), mWMVideo, SLOT(appendAudioBuffer(WAVEHDR*, long)), Qt::DirectConnection);
+            connect(mWaveRecorder, &WaveRecorder::newWaveBuffer, mWMVideo, &WindowsMediaFile::appendAudioBuffer, Qt::DirectConnection);
         }
         else
         {
-            disconnect(mWaveRecorder, SIGNAL(newWaveBuffer(WAVEHDR*, long)), mWMVideo, SLOT(appendAudioBuffer(WAVEHDR*, long)));
+            disconnect(mWaveRecorder, &WaveRecorder::newWaveBuffer, mWMVideo, &WindowsMediaFile::appendAudioBuffer);
             emit audioLevelChanged(0);
         }
     }

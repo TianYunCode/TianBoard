@@ -253,7 +253,7 @@ void DisplayManager::blackout()
         int screenIndex = screenIndexes.at(i);
 
         BlackoutWidget *blackoutWidget = new BlackoutWidget(); //deleted in DisplayManager::unBlackout
-        connect(blackoutWidget, SIGNAL(activity()), this, SLOT(unBlackout()));
+        connect(blackoutWidget, &BlackoutWidget::activity, this, &DisplayManager::unBlackout);
 
         // display logo on main screen
         blackoutWidget->setReturnControlsVisible(screenIndex == mControlScreenIndex);

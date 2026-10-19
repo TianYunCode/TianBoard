@@ -333,7 +333,7 @@ GraphicsScene::GraphicsScene(DocumentProxy* parent, bool enableUndoRedoStack)
 
 //    Just for debug. Do not delete please
 //    connect(this, SIGNAL(selectionChanged()), this, SLOT(selectionChangedProcessing()));
-    connect(Application::undoStack.data(), SIGNAL(indexChanged(int)), this, SLOT(updateSelectionFrameWrapper(int)));
+    connect(Application::undoStack.data(), &QUndoStack::indexChanged, this, &GraphicsScene::updateSelectionFrameWrapper);
 }
 
 GraphicsScene::~GraphicsScene()
@@ -1832,7 +1832,7 @@ GraphicsTextItem* GraphicsScene::addTextWithFont(const QString& pString, const Q
         Application::undoStack->push(uc);
     }
 
-    connect(textItem, SIGNAL(textUndoCommandAdded(GraphicsTextItem *)), this, SLOT(textUndoCommandAdded(GraphicsTextItem *)));
+    connect(textItem, &GraphicsTextItem::textUndoCommandAdded, this, &GraphicsScene::textUndoCommandAdded);
 
     textItem->setSelected(true);
     textItem->setFocus();
@@ -1856,7 +1856,7 @@ GraphicsTextItem *GraphicsScene::addTextHtml(const QString &pString, const QPoin
         Application::undoStack->push(uc);
     }
 
-    connect(textItem, SIGNAL(textUndoCommandAdded(GraphicsTextItem *)), this, SLOT(textUndoCommandAdded(GraphicsTextItem *)));
+    connect(textItem, &GraphicsTextItem::textUndoCommandAdded, this, &GraphicsScene::textUndoCommandAdded);
 
     textItem->setFocus();
 
@@ -2203,12 +2203,12 @@ void GraphicsScene::addMagnifier(MagnifierParams params)
     magniferControlViewWidget->show();
     magniferDisplayViewWidget->show();
 
-    connect(magniferControlViewWidget, SIGNAL(magnifierMoved_Signal(QPoint)), this, SLOT(moveMagnifier(QPoint)));
-    connect(magniferControlViewWidget, SIGNAL(magnifierClose_Signal()), this, SLOT(closeMagnifier()));
-    connect(magniferControlViewWidget, SIGNAL(magnifierZoomIn_Signal()), this, SLOT(zoomInMagnifier()));
-    connect(magniferControlViewWidget, SIGNAL(magnifierZoomOut_Signal()), this, SLOT(zoomOutMagnifier()));
-    connect(magniferControlViewWidget, SIGNAL(magnifierDrawingModeChange_Signal(int)), this, SLOT(changeMagnifierMode(int)));
-    connect(magniferControlViewWidget, SIGNAL(magnifierResized_Signal(qreal)), this, SLOT(resizedMagnifier(qreal)));
+    connect(magniferControlViewWidget, &Magnifier::magnifierMoved_Signal, this, [this](QPoint newPos) { moveMagnifier(newPos); });
+    connect(magniferControlViewWidget, &Magnifier::magnifierClose_Signal, this, &GraphicsScene::closeMagnifier);
+    connect(magniferControlViewWidget, &Magnifier::magnifierZoomIn_Signal, this, &GraphicsScene::zoomInMagnifier);
+    connect(magniferControlViewWidget, &Magnifier::magnifierZoomOut_Signal, this, &GraphicsScene::zoomOutMagnifier);
+    connect(magniferControlViewWidget, &Magnifier::magnifierDrawingModeChange_Signal, this, &GraphicsScene::changeMagnifierMode);
+    connect(magniferControlViewWidget, &Magnifier::magnifierResized_Signal, this, &GraphicsScene::resizedMagnifier);
 
     setModified(true);
 }

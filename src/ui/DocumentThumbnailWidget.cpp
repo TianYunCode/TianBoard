@@ -29,7 +29,7 @@ DocumentThumbnailWidget::DocumentThumbnailWidget(QWidget* parent)
 
     setCanDrag(false);
     d->mScrollTimer = new QTimer(this);
-    connect(d->mScrollTimer, SIGNAL(timeout()), this, SLOT(autoScroll()));
+    connect(d->mScrollTimer, &QTimer::timeout, this, &DocumentThumbnailWidget::autoScroll);
 }
 
 

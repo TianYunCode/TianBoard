@@ -63,17 +63,17 @@ RecordingController::RecordingController(QObject* pParent)
     , mMediumVideoSizeAction(0)
     , mFullVideoSizeAction(0)
 {
-    connect(Application::applicationController, SIGNAL(mainModeChanged(ApplicationController::MainMode)),
-            this, SLOT(applicationMainModeChanged(ApplicationController::MainMode)));
+    connect(Application::applicationController, &ApplicationController::mainModeChanged,
+            this, &RecordingController::applicationMainModeChanged);
 
-    connect(Application::applicationController, SIGNAL(desktopMode(bool)),
-            this, SLOT(applicationDesktopMode(bool)));
+    connect(Application::applicationController, &ApplicationController::desktopMode,
+            this, &RecordingController::applicationDesktopMode);
 
-    connect(Application::webController, SIGNAL(activeWebPageChanged(WebView*)),
-            this, SLOT(webActiveWebPageChanged(WebView*)));
+    connect(Application::webController, &WebController::activeWebPageChanged,
+            this, &RecordingController::webActiveWebPageChanged);
 
-    connect(Application::app(), SIGNAL(lastWindowClosed()),
-            this, SLOT(applicationAboutToQuit()));
+    connect(Application::app(), &QApplication::lastWindowClosed,
+            this, &RecordingController::applicationAboutToQuit);
 
 }
 
@@ -279,8 +279,8 @@ void RecordingController::start()
 
             if(mRecordingPalette)
             {
-                connect(mVideoEncoder, SIGNAL(audioLevelChanged(quint8))
-                        , mRecordingPalette, SLOT(audioLevelChanged(quint8)));
+                connect(mVideoEncoder, &AbstractVideoEncoder::audioLevelChanged
+                        , mRecordingPalette, &RecordingPalette::audioLevelChanged);
             }
 
             mVideoEncoder->setRecordAudio(!mNoAudioInputDeviceAction->isChecked());
@@ -423,7 +423,7 @@ bool RecordingController::eventFilter(QObject *obj, QEvent *event)
         mWidgetRepaintRectQueue.enqueue(paintEvent->rect());
 
         if (mWidgetRepaintRectQueue.length() == 1)
-            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this, SLOT(processWidgetPaintEvent()));
+            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this, &RecordingController::processWidgetPaintEvent);
      }
 
     return QObject::eventFilter(obj, event);
@@ -476,14 +476,14 @@ void RecordingController::activeSceneChanged()
 {
     if (mSourceScene)
     {
-        disconnect(mSourceScene, SIGNAL(changed(const QList<QRectF>&)),
-                this, SLOT(sceneChanged(const QList<QRectF> &)));
+        disconnect(mSourceScene, &QGraphicsScene::changed,
+                this, &RecordingController::sceneChanged);
     }
 
     mSourceScene = Application::boardController->activeScene();
 
-    connect(mSourceScene, SIGNAL(changed(const QList<QRectF>&)),
-        this, SLOT(sceneChanged(const QList<QRectF> &)));
+    connect(mSourceScene, &QGraphicsScene::changed,
+        this, &RecordingController::sceneChanged);
 
     mInitialized = false;
 
@@ -550,7 +550,7 @@ void RecordingController::sceneChanged(const QList<QRectF> & region)
         }
 
         if (shouldRepaint)
-            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this, SLOT(processScenePaintEvent()));
+            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this, &RecordingController::processScenePaintEvent);
 
     }
 }
@@ -794,16 +794,16 @@ void RecordingController::toggleRecordingPalette(bool visible)
 
         mRecordingPalette->move(mainWindowsPoint);
 
-        connect(Application::mainWindow->ui().actionRecordingStart, SIGNAL(triggered(bool))
-             , this, SLOT(recordToggled(bool)));
+        connect(Application::mainWindow->ui().actionRecordingStart, &QAction::triggered
+             , this, &RecordingController::recordToggled);
 
-        connect(Application::mainWindow->ui().actionRecordingPause, SIGNAL(toggled(bool))
-             , this, SLOT(pauseToggled(bool)));
+        connect(Application::mainWindow->ui().actionRecordingPause, &QAction::toggled
+             , this, &RecordingController::pauseToggled);
 
-        connect(this, SIGNAL(recordingStateChanged(RecordingController::RecordingState))
-                , mRecordingPalette, SLOT(recordingStateChanged(RecordingController::RecordingState)));
-        connect(this, SIGNAL(recordingProgressChanged(qint64))
-                , mRecordingPalette, SLOT(recordingProgressChanged(qint64)));
+        connect(this, &RecordingController::recordingStateChanged
+                , mRecordingPalette, &RecordingPalette::recordingStateChanged);
+        connect(this, &RecordingController::recordingProgressChanged
+                , mRecordingPalette, &RecordingPalette::recordingProgressChanged);
     }
 
     mRecordingPalette->setVisible(visible);

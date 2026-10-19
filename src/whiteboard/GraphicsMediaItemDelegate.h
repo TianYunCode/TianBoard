@@ -32,14 +32,15 @@ public slots:
     void mediaStatusChanged(QMediaPlayer::MediaStatus status);
     void mediaStateChanged(QMediaPlayer::PlaybackState state);
 
+    // GraphicsMediaItem 在自己的构造函数里连它，和上面几个同组
+    void totalTimeChanged(qint64 newTotalTime);
+
 protected slots:
     virtual void remove(bool canUndo = true);
 
     void togglePlayPause();
 
     void updatePlayPauseState();
-
-    void totalTimeChanged(qint64 newTotalTime);
 
     void hideToolBar();
 

@@ -264,7 +264,7 @@ void BoardPaletteManager::setupPalettes()
     mPagePalette->adjustSizeAndPosition();
     mPagePalette->hide();
 
-    connect(Settings::settings()->appToolBarOrientationVertical, SIGNAL(changed(QVariant)), this, SLOT(changeStylusPaletteOrientation(QVariant)));
+    connect(Settings::settings()->appToolBarOrientationVertical, &Setting::changed, this, &BoardPaletteManager::changeStylusPaletteOrientation);
 }
 
 void BoardPaletteManager::pagePaletteButtonPressed()
@@ -272,7 +272,7 @@ void BoardPaletteManager::pagePaletteButtonPressed()
     mPageButtonPressedTime = QTime::currentTime();
 
     mPendingPageButtonPressed = true;
-    QTimer::singleShot(1000, this, SLOT(pagePaletteButtonReleased()));
+    QTimer::singleShot(1000, this, &BoardPaletteManager::pagePaletteButtonReleased);
 }
 
 
@@ -297,10 +297,10 @@ void BoardPaletteManager::pagePaletteButtonReleased()
             mPagePalette->setClosable(true);
 
             // As we recreate the pagePalette every time, we must reconnect the slots
-            connect(Application::mainWindow->ui().actionNewPage, SIGNAL(triggered()), mPagePalette, SLOT(close()));
-            connect(Application::mainWindow->ui().actionDuplicatePage, SIGNAL(triggered()), mPagePalette, SLOT(close()));
-            connect(Application::mainWindow->ui().actionImportPage, SIGNAL(triggered()), mPagePalette, SLOT(close()));
-            connect(mPagePalette, SIGNAL(closed()), this, SLOT(pagePaletteClosed()));
+            connect(Application::mainWindow->ui().actionNewPage, &QAction::triggered, mPagePalette, &ActionPalette::close);
+            connect(Application::mainWindow->ui().actionDuplicatePage, &QAction::triggered, mPagePalette, &ActionPalette::close);
+            connect(Application::mainWindow->ui().actionImportPage, &QAction::triggered, mPagePalette, &ActionPalette::close);
+            connect(mPagePalette, &ActionPalette::closed, this, &BoardPaletteManager::pagePaletteClosed);
 
             togglePagePalette(true);
         }
@@ -318,7 +318,7 @@ void BoardPaletteManager::erasePaletteButtonPressed()
     mEraseButtonPressedTime = QTime::currentTime();
 
     mPendingEraseButtonPressed = true;
-    QTimer::singleShot(1000, this, SLOT(erasePaletteButtonReleased()));
+    QTimer::singleShot(1000, this, &BoardPaletteManager::erasePaletteButtonReleased);
 }
 
 
@@ -353,15 +353,15 @@ void BoardPaletteManager::purchaseLinkActivated(const QString& link)
 
 void BoardPaletteManager::connectPalettes()
 {
-    connect(Application::mainWindow->ui().actionStylus, SIGNAL(toggled(bool)), this, SLOT(toggleStylusPalette(bool)));
+    connect(Application::mainWindow->ui().actionStylus, &QAction::toggled, this, &BoardPaletteManager::toggleStylusPalette);
 
     foreach(QWidget *widget, Application::mainWindow->ui().actionZoomIn->associatedWidgets())
     {
         QAbstractButton *button = qobject_cast<QAbstractButton*>(widget);
         if (button)
         {
-            connect(button, SIGNAL(pressed()), this, SLOT(zoomButtonPressed()));
-            connect(button, SIGNAL(released()), this, SLOT(zoomButtonReleased()));
+            connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::zoomButtonPressed);
+            connect(button, &QAbstractButton::released, this, &BoardPaletteManager::zoomButtonReleased);
         }
     }
 
@@ -370,8 +370,8 @@ void BoardPaletteManager::connectPalettes()
         QAbstractButton *button = qobject_cast<QAbstractButton*>(widget);
         if (button)
         {
-            connect(button, SIGNAL(pressed()), this, SLOT(zoomButtonPressed()));
-            connect(button, SIGNAL(released()), this, SLOT(zoomButtonReleased()));
+            connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::zoomButtonPressed);
+            connect(button, &QAbstractButton::released, this, &BoardPaletteManager::zoomButtonReleased);
         }
     }
 
@@ -380,54 +380,54 @@ void BoardPaletteManager::connectPalettes()
         QAbstractButton *button = qobject_cast<QAbstractButton*>(widget);
         if (button)
         {
-            connect(button, SIGNAL(pressed()), this, SLOT(panButtonPressed()));
-            connect(button, SIGNAL(released()), this, SLOT(panButtonReleased()));
+            connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::panButtonPressed);
+            connect(button, &QAbstractButton::released, this, &BoardPaletteManager::panButtonReleased);
         }
     }
 
-    connect(Application::mainWindow->ui().actionBackgrounds, SIGNAL(toggled(bool)), this, SLOT(toggleBackgroundPalette(bool)));
-    connect(mBackgroundsPalette, SIGNAL(closed()), this, SLOT(backgroundPaletteClosed()));
+    connect(Application::mainWindow->ui().actionBackgrounds, &QAction::toggled, this, &BoardPaletteManager::toggleBackgroundPalette);
+    connect(mBackgroundsPalette, &ActionPalette::closed, this, &BoardPaletteManager::backgroundPaletteClosed);
 
-    connect(Application::mainWindow->ui().actionPlainLightBackground, SIGNAL(triggered()), this, SLOT(changeBackground()));
-    connect(Application::mainWindow->ui().actionCrossedLightBackground, SIGNAL(triggered()), this, SLOT(changeBackground()));
-    connect(Application::mainWindow->ui().actionRuledLightBackground, SIGNAL(triggered()), this, SLOT(changeBackground()));
-    connect(Application::mainWindow->ui().actionPlainDarkBackground, SIGNAL(triggered()), this, SLOT(changeBackground()));
-    connect(Application::mainWindow->ui().actionCrossedDarkBackground, SIGNAL(triggered()), this, SLOT(changeBackground()));
-    connect(Application::mainWindow->ui().actionRuledDarkBackground, SIGNAL(triggered()), this, SLOT(changeBackground()));
-    connect(Application::mainWindow->ui().actionRecording, SIGNAL(triggered(bool)), this, SLOT(toggleRecordingPalette(bool)));
+    connect(Application::mainWindow->ui().actionPlainLightBackground, &QAction::triggered, this, &BoardPaletteManager::changeBackground);
+    connect(Application::mainWindow->ui().actionCrossedLightBackground, &QAction::triggered, this, &BoardPaletteManager::changeBackground);
+    connect(Application::mainWindow->ui().actionRuledLightBackground, &QAction::triggered, this, &BoardPaletteManager::changeBackground);
+    connect(Application::mainWindow->ui().actionPlainDarkBackground, &QAction::triggered, this, &BoardPaletteManager::changeBackground);
+    connect(Application::mainWindow->ui().actionCrossedDarkBackground, &QAction::triggered, this, &BoardPaletteManager::changeBackground);
+    connect(Application::mainWindow->ui().actionRuledDarkBackground, &QAction::triggered, this, &BoardPaletteManager::changeBackground);
+    connect(Application::mainWindow->ui().actionRecording, &QAction::triggered, this, &BoardPaletteManager::toggleRecordingPalette);
 
-    connect(Application::mainWindow->ui().actionAddItemToCurrentPage, SIGNAL(triggered()), this, SLOT(addItemToCurrentPage()));
-    connect(Application::mainWindow->ui().actionAddItemToNewPage, SIGNAL(triggered()), this, SLOT(addItemToNewPage()));
-    connect(Application::mainWindow->ui().actionAddItemToLibrary, SIGNAL(triggered()), this, SLOT(addItemToLibrary()));
+    connect(Application::mainWindow->ui().actionAddItemToCurrentPage, &QAction::triggered, this, &BoardPaletteManager::addItemToCurrentPage);
+    connect(Application::mainWindow->ui().actionAddItemToNewPage, &QAction::triggered, this, &BoardPaletteManager::addItemToNewPage);
+    connect(Application::mainWindow->ui().actionAddItemToLibrary, &QAction::triggered, this, &BoardPaletteManager::addItemToLibrary);
 
-    connect(Application::mainWindow->ui().actionEraseItems, SIGNAL(triggered()), mErasePalette, SLOT(close()));
-    connect(Application::mainWindow->ui().actionEraseAnnotations, SIGNAL(triggered()), mErasePalette, SLOT(close()));
-    connect(Application::mainWindow->ui().actionClearPage, SIGNAL(triggered()), mErasePalette, SLOT(close()));
-    connect(Application::mainWindow->ui().actionEraseBackground,SIGNAL(triggered()),mErasePalette,SLOT(close()));
-    connect(mErasePalette, SIGNAL(closed()), this, SLOT(erasePaletteClosed()));
+    connect(Application::mainWindow->ui().actionEraseItems, &QAction::triggered, mErasePalette, &ActionPalette::close);
+    connect(Application::mainWindow->ui().actionEraseAnnotations, &QAction::triggered, mErasePalette, &ActionPalette::close);
+    connect(Application::mainWindow->ui().actionClearPage, &QAction::triggered, mErasePalette, &ActionPalette::close);
+    connect(Application::mainWindow->ui().actionEraseBackground,&QAction::triggered,mErasePalette,&ActionPalette::close);
+    connect(mErasePalette, &ActionPalette::closed, this, &BoardPaletteManager::erasePaletteClosed);
 
     foreach(QWidget *widget, Application::mainWindow->ui().actionErase->associatedWidgets())
     {
         QAbstractButton *button = qobject_cast<QAbstractButton*>(widget);
         if (button)
         {
-            connect(button, SIGNAL(pressed()), this, SLOT(erasePaletteButtonPressed()));
-            connect(button, SIGNAL(released()), this, SLOT(erasePaletteButtonReleased()));
+            connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::erasePaletteButtonPressed);
+            connect(button, &QAbstractButton::released, this, &BoardPaletteManager::erasePaletteButtonReleased);
         }
     }
 
-    connect(Application::mainWindow->ui().actionNewPage, SIGNAL(triggered()), mPagePalette, SLOT(close()));
-    connect(Application::mainWindow->ui().actionDuplicatePage, SIGNAL(triggered()), mPagePalette, SLOT(close()));
-    connect(Application::mainWindow->ui().actionImportPage, SIGNAL(triggered()), mPagePalette, SLOT(close()));
-    connect(mPagePalette, SIGNAL(closed()), this, SLOT(pagePaletteClosed()));
+    connect(Application::mainWindow->ui().actionNewPage, &QAction::triggered, mPagePalette, &ActionPalette::close);
+    connect(Application::mainWindow->ui().actionDuplicatePage, &QAction::triggered, mPagePalette, &ActionPalette::close);
+    connect(Application::mainWindow->ui().actionImportPage, &QAction::triggered, mPagePalette, &ActionPalette::close);
+    connect(mPagePalette, &ActionPalette::closed, this, &BoardPaletteManager::pagePaletteClosed);
 
     foreach(QWidget *widget, Application::mainWindow->ui().actionPages->associatedWidgets())
     {
         QAbstractButton *button = qobject_cast<QAbstractButton*>(widget);
         if (button)
         {
-            connect(button, SIGNAL(pressed()), this, SLOT(pagePaletteButtonPressed()));
-            connect(button, SIGNAL(released()), this, SLOT(pagePaletteButtonReleased()));
+            connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::pagePaletteButtonPressed);
+            connect(button, &QAbstractButton::released, this, &BoardPaletteManager::pagePaletteButtonReleased);
         }
     }
 }
@@ -510,7 +510,7 @@ void BoardPaletteManager::activeSceneChanged()
     int pageIndex = Application::boardController->activeSceneIndex();
 
     if (mStylusPalette)
-        connect(mStylusPalette, SIGNAL(mouseEntered()), activeScene, SLOT(hideTool()));
+        connect(mStylusPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool);
 
     if (mpPageNavigWidget)
     {
@@ -518,10 +518,10 @@ void BoardPaletteManager::activeSceneChanged()
     }
 
     if (mZoomPalette)
-        connect(mZoomPalette, SIGNAL(mouseEntered()), activeScene, SLOT(hideTool()));
+        connect(mZoomPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool);
 
     if (mBackgroundsPalette) {
-        connect(mBackgroundsPalette, SIGNAL(mouseEntered()), activeScene, SLOT(hideTool()));
+        connect(mBackgroundsPalette, &FloatingPalette::mouseEntered, activeScene, &GraphicsScene::hideTool);
         mBackgroundsPalette->refresh();
     }
 }
@@ -867,7 +867,7 @@ void BoardPaletteManager::zoomButtonPressed()
     mZoomButtonPressedTime = QTime::currentTime();
 
     mPendingZoomButtonPressed = true;
-    QTimer::singleShot(1000, this, SLOT(zoomButtonReleased()));
+    QTimer::singleShot(1000, this, &BoardPaletteManager::zoomButtonReleased);
 }
 
 
@@ -889,7 +889,7 @@ void BoardPaletteManager::panButtonPressed()
     mPanButtonPressedTime = QTime::currentTime();
 
     mPendingPanButtonPressed = true;
-    QTimer::singleShot(1000, this, SLOT(panButtonReleased()));
+    QTimer::singleShot(1000, this, &BoardPaletteManager::panButtonReleased);
 }
 
 

@@ -208,7 +208,7 @@ void ActionPalette::groupActions()
         ++i;
     }
 
-    connect(d->mButtonGroup, SIGNAL(idClicked(int)), this, SIGNAL(buttonGroupClicked(int)));
+    connect(d->mButtonGroup, &QButtonGroup::idClicked, this, &ActionPalette::buttonGroupClicked);
 }
 
 

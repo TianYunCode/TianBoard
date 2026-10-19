@@ -58,7 +58,7 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
         {
             buttonGroup()->addButton(buttons()[i], i);
         }
-        connect(buttonGroup(), SIGNAL(idClicked(int)), this, SIGNAL(buttonGroupClicked(int)));
+        connect(buttonGroup(), &QButtonGroup::idClicked, this, &ActionPalette::buttonGroupClicked);
     }
 
     adjustSizeAndPosition();

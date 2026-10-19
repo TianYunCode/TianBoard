@@ -94,12 +94,12 @@ FeaturesActionBar::FeaturesActionBar( FeaturesController *controller, QWidget* p
     connect(mSearchBar, SIGNAL(textChanged(QString)), this, SLOT(onSearchTextChanged(QString)));
     connect(mpNewFolderAction, SIGNAL(triggered()), this, SLOT(onActionNewFolder()));*/
 
-    connect(d->mpFavoriteAction,SIGNAL(triggered()), this, SLOT(onActionFavorite()));
-    connect(d->mSearchBar, SIGNAL(textChanged(QString)), this, SLOT(onSearchTextChanged(QString)));
-    connect(d->mpNewFolderAction, SIGNAL(triggered()), this, SLOT(onActionNewFolder()));
-    connect(d->mpRemoveFavorite, SIGNAL(triggered()), this, SLOT(onActionRemoveFavorite()));
-    connect(d->mpRescanModelAction, SIGNAL(triggered()), this , SLOT(onActionRescanModel()));
-    connect(d->mpDeleteAction,SIGNAL(triggered()), this, SLOT(onActionTrash()));
+    connect(d->mpFavoriteAction, &QAction::triggered, this, &FeaturesActionBar::onActionFavorite);
+    connect(d->mSearchBar, &QLineEdit::textChanged, this, &FeaturesActionBar::onSearchTextChanged);
+    connect(d->mpNewFolderAction, &QAction::triggered, this, &FeaturesActionBar::onActionNewFolder);
+    connect(d->mpRemoveFavorite, &QAction::triggered, this, &FeaturesActionBar::onActionRemoveFavorite);
+    connect(d->mpRescanModelAction, &QAction::triggered, this, &FeaturesActionBar::onActionRescanModel);
+    connect(d->mpDeleteAction, &QAction::triggered, this, &FeaturesActionBar::onActionTrash);
 
 
     // Build the default toolbar

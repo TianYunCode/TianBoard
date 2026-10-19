@@ -127,13 +127,13 @@ ThumbnailWidget::ThumbnailWidget(QWidget* parent)
 
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    connect(&d->mThumbnailsScene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
+    connect(&d->mThumbnailsScene, &QGraphicsScene::selectionChanged, this, &ThumbnailWidget::sceneSelectionChanged);
 }
 
 
 ThumbnailWidget::~ThumbnailWidget()
 {
-    disconnect(&d->mThumbnailsScene, SIGNAL(selectionChanged()));
+    disconnect(&d->mThumbnailsScene, &QGraphicsScene::selectionChanged, nullptr, nullptr);
 }
 
 

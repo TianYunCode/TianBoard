@@ -108,8 +108,8 @@ GraphicsTextItemDelegate::GraphicsTextItemDelegate(GraphicsTextItem* pDelegated,
     delegated()->adjustSize();
     delegated()->contentsChanged();
 
-    connect(delegated()->document(), SIGNAL(cursorPositionChanged(QTextCursor)), this, SLOT(onCursorPositionChanged(QTextCursor)));
-    connect(delegated()->document(), SIGNAL(modificationChanged(bool)), this, SLOT(onModificationChanged(bool)));
+    connect(delegated()->document(), &QTextDocument::cursorPositionChanged, this, &GraphicsTextItemDelegate::onCursorPositionChanged);
+    connect(delegated()->document(), &QTextDocument::modificationChanged, this, &GraphicsTextItemDelegate::onModificationChanged);
 }
 
 GraphicsTextItemDelegate::~GraphicsTextItemDelegate()
@@ -148,30 +148,30 @@ void GraphicsTextItemDelegate::createControls()
 
     if (!mFontButton) {
         mFontButton = new DelegateButton(":/images/font.svg", mDelegated, mFrame, Qt::TitleBarArea);
-        connect(mFontButton, SIGNAL(clicked(bool)), this, SLOT(pickFont()));
+        connect(mFontButton, &DelegateButton::clicked, this, &GraphicsTextItemDelegate::pickFont);
         mButtons << mFontButton;
     }
     if (!mColorButton) {
         mColorButton = new DelegateButton(":/images/color.svg", mDelegated, mFrame, Qt::TitleBarArea);
-        connect(mColorButton, SIGNAL(clicked(bool)), this, SLOT(pickColor()));
+        connect(mColorButton, &DelegateButton::clicked, this, &GraphicsTextItemDelegate::pickColor);
         mButtons << mColorButton;
     }
 
     if (!mDecreaseSizeButton) {
         mDecreaseSizeButton = new DelegateButton(":/images/minus.svg", mDelegated, mFrame, Qt::TitleBarArea);
-        connect(mDecreaseSizeButton, SIGNAL(clicked(bool)), this, SLOT(decreaseSize()));
+        connect(mDecreaseSizeButton, &DelegateButton::clicked, this, &GraphicsTextItemDelegate::decreaseSize);
         mButtons << mDecreaseSizeButton;
     }
 
     if (!mIncreaseSizeButton) {
         mIncreaseSizeButton = new DelegateButton(":/images/plus.svg", mDelegated, mFrame, Qt::TitleBarArea);
-        connect(mIncreaseSizeButton, SIGNAL(clicked(bool)), this, SLOT(increaseSize()));
+        connect(mIncreaseSizeButton, &DelegateButton::clicked, this, &GraphicsTextItemDelegate::increaseSize);
         mButtons << mIncreaseSizeButton;
     }
 
     if (!mAlignButton) {
         mAlignButton = new AlignTextButton(":/images/plus.svg", mDelegated, mFrame, Qt::TitleBarArea);
-        connect(mAlignButton, SIGNAL(clicked()), this, SLOT(alignButtonProcess()));
+        connect(mAlignButton, &DelegateButton::clicked, this, &GraphicsTextItemDelegate::alignButtonProcess);
         mButtons << mAlignButton;
     }
 
@@ -470,7 +470,7 @@ void GraphicsTextItemDelegate::decorateMenu(QMenu *menu)
 {
     GraphicsItemDelegate::decorateMenu(menu);
 
-    mEditableAction = menu->addAction(tr("Editable"), this, SLOT(setEditable(bool)));
+    mEditableAction = menu->addAction(tr("Editable"), this, &GraphicsTextItemDelegate::setEditable);
     mEditableAction->setCheckable(true);
     mEditableAction->setChecked(isEditable());
 

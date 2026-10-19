@@ -56,6 +56,10 @@ protected:
     ColorPicker* mDarkBackgroundGridColorPicker;
     ColorPicker* mLightBackgroundGridColorPicker;
 
+public slots:
+    // BrushPropertiesFrame 在自己的构造函数里连它，必须对外可见
+    void colorSelected(const QColor&);
+
 protected slots:
     void close();
     void defaultSettings();
@@ -64,7 +68,6 @@ protected slots:
     void lightBackgroundCrossOpacityValueChanged(int value);
     void widthSliderChanged(int value);
     void opacitySliderChanged(int value);
-    void colorSelected(const QColor&);
     void setCrossColorOnDarkBackground(const QColor& color);
     void setCrossColorOnLightBackground(const QColor& color);
     void toolbarPositionChanged(bool checked);

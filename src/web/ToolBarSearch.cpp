@@ -21,14 +21,14 @@ ToolbarSearch::ToolbarSearch(QWidget *parent)
     , mStringListModel(new QStringListModel(this))
 {
     QMenu *m = menu();
-    connect(m, SIGNAL(aboutToShow()), this, SLOT(aboutToShowMenu()));
-    connect(m, SIGNAL(triggered(QAction*)), this, SLOT(triggeredMenuAction(QAction*)));
+    connect(m, &QMenu::aboutToShow, this, &ToolbarSearch::aboutToShowMenu);
+    connect(m, &QMenu::triggered, this, &ToolbarSearch::triggeredMenuAction);
 
     QCompleter *completer = new QCompleter(mStringListModel, this);
     completer->setCompletionMode(QCompleter::InlineCompletion);
     lineEdit()->setCompleter(completer);
 
-    connect(lineEdit(), SIGNAL(returnPressed()), SLOT(searchNow()));
+    connect(lineEdit(), &QLineEdit::returnPressed, this, &ToolbarSearch::searchNow);
     setInactiveText(tr("Search"));
     load();
 }
@@ -106,7 +106,7 @@ void ToolbarSearch::aboutToShowMenu()
         m->addAction(text)->setData(text);
     }
     m->addSeparator();
-    m->addAction(tr("Clear Recent Searches"), this, SLOT(clear()));
+    m->addAction(tr("Clear Recent Searches"), this, &ToolbarSearch::clear);
 }
 
 void ToolbarSearch::triggeredMenuAction(QAction *action)

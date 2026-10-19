@@ -126,8 +126,8 @@ SearchLineEdit::SearchLineEdit(QWidget *parent)
     : ExLineEdit(parent),
     mSearchButton(new SearchButton(this))
 {
-    connect(lineEdit(), SIGNAL(textChanged(const QString &)),
-            this, SIGNAL(textChanged(const QString &)));
+    connect(lineEdit(), &QLineEdit::textChanged,
+            this, &SearchLineEdit::textChanged);
     setLeftWidget(mSearchButton);
     mInactiveText = tr("Search");
 

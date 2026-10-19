@@ -33,20 +33,20 @@ DrawingController::DrawingController(QObject * parent)
     , mLatestDrawingTool((StylusTool::Enum)-1)
     , mIsDesktopMode(false)
 {
-    connect(Settings::settings(), SIGNAL(colorContextChanged()), this, SIGNAL(colorPaletteChanged()));
+    connect(Settings::settings(), &Settings::colorContextChanged, this, &DrawingController::colorPaletteChanged);
 
-    connect(Application::mainWindow->ui().actionPen, SIGNAL(triggered(bool)), this, SLOT(penToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionEraser, SIGNAL(triggered(bool)), this, SLOT(eraserToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionMarker, SIGNAL(triggered(bool)), this, SLOT(markerToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionSelector, SIGNAL(triggered(bool)), this, SLOT(selectorToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionPlay, SIGNAL(triggered(bool)), this, SLOT(playToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionHand, SIGNAL(triggered(bool)), this, SLOT(handToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionZoomIn, SIGNAL(triggered(bool)), this, SLOT(zoomInToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionZoomOut, SIGNAL(triggered(bool)), this, SLOT(zoomOutToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionPointer, SIGNAL(triggered(bool)), this, SLOT(pointerToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionLine, SIGNAL(triggered(bool)), this, SLOT(lineToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionText, SIGNAL(triggered(bool)), this, SLOT(textToolSelected(bool)));
-    connect(Application::mainWindow->ui().actionCapture, SIGNAL(triggered(bool)), this, SLOT(captureToolSelected(bool)));
+    connect(Application::mainWindow->ui().actionPen, &QAction::triggered, this, &DrawingController::penToolSelected);
+    connect(Application::mainWindow->ui().actionEraser, &QAction::triggered, this, &DrawingController::eraserToolSelected);
+    connect(Application::mainWindow->ui().actionMarker, &QAction::triggered, this, &DrawingController::markerToolSelected);
+    connect(Application::mainWindow->ui().actionSelector, &QAction::triggered, this, &DrawingController::selectorToolSelected);
+    connect(Application::mainWindow->ui().actionPlay, &QAction::triggered, this, &DrawingController::playToolSelected);
+    connect(Application::mainWindow->ui().actionHand, &QAction::triggered, this, &DrawingController::handToolSelected);
+    connect(Application::mainWindow->ui().actionZoomIn, &QAction::triggered, this, &DrawingController::zoomInToolSelected);
+    connect(Application::mainWindow->ui().actionZoomOut, &QAction::triggered, this, &DrawingController::zoomOutToolSelected);
+    connect(Application::mainWindow->ui().actionPointer, &QAction::triggered, this, &DrawingController::pointerToolSelected);
+    connect(Application::mainWindow->ui().actionLine, &QAction::triggered, this, &DrawingController::lineToolSelected);
+    connect(Application::mainWindow->ui().actionText, &QAction::triggered, this, &DrawingController::textToolSelected);
+    connect(Application::mainWindow->ui().actionCapture, &QAction::triggered, this, &DrawingController::captureToolSelected);
 
 }
 

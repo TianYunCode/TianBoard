@@ -60,7 +60,7 @@ void BackgroundPalette::init()
     d->mResetDefaultGridSizeButton->setFixedSize(24,24);
     appendAction(Application::mainWindow->ui().actionDefaultGridSize);
 
-    connect(Application::mainWindow->ui().actionDefaultGridSize, SIGNAL(triggered()), this, SLOT(defaultBackgroundGridSize()));
+    connect(Application::mainWindow->ui().actionDefaultGridSize, &QAction::triggered, this, &BackgroundPalette::defaultBackgroundGridSize);
 
     d->mBottomLayout->addSpacing(16);
     d->mBottomLayout->addWidget(d->mSliderLabel);
@@ -141,8 +141,8 @@ void BackgroundPalette::showEvent(QShowEvent* event)
     backgroundChanged();
 
     d->mSlider->setValue(Application::boardController->activeScene()->backgroundGridSize());
-    connect(d->mSlider, SIGNAL(valueChanged(int)),
-            this, SLOT(sliderValueChanged(int)));
+    connect(d->mSlider, &QSlider::valueChanged,
+            this, &BackgroundPalette::sliderValueChanged);
 
     QWidget::showEvent(event);
 }

@@ -39,7 +39,7 @@ void MessagesDialog::setMessages(const QList<QString> messages)
             messagesLayout->addWidget(messageBox);
         }
         QPushButton *closeButton = new QPushButton(tr("Close"), this);
-        connect(closeButton, SIGNAL(clicked(bool)), this, SLOT(dispose()));
+        connect(closeButton, &QPushButton::clicked, this, &MessagesDialog::dispose);
 
         messagesLayout->addWidget(closeButton);
 

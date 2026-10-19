@@ -926,7 +926,7 @@ void BoardView::longPressEvent()
     DrawingController *drawingController = DrawingController::drawingController();
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController ()->stylusTool ();
 
-    disconnect(&d->mLongPressTimer, SIGNAL(timeout()), this, SLOT(longPressEvent()));
+    disconnect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardView::longPressEvent);
 
     if (StylusTool::Selector == currentTool)
     {
@@ -995,7 +995,7 @@ void BoardView::mousePressEvent (QMouseEvent *event)
             if (scene()->backgroundObject() == d->movingItem)
                 d->movingItem = NULL;
 
-            connect(&d->mLongPressTimer, SIGNAL(timeout()), this, SLOT(longPressEvent()));
+            connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardView::longPressEvent);
             if (!d->movingItem && !d->mController->cacheIsVisible())
                 d->mLongPressTimer.start();
 
@@ -1052,7 +1052,7 @@ void BoardView::mousePressEvent (QMouseEvent *event)
             }
             if (scene () && !d->mTabletStylusIsPressed) {
                 if (currentTool == StylusTool::Eraser) {
-                    connect(&d->mLongPressTimer, SIGNAL(timeout()), this, SLOT(longPressEvent()));
+                    connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardView::longPressEvent);
                     d->mLongPressTimer.start();
                 }
                 scene()->inputDevicePress(mapToScene(GeometryUtils::pointConstrainedInRect(event->pos(), rect())));

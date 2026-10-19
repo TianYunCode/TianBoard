@@ -48,26 +48,27 @@ GraphicsMediaItem::GraphicsMediaItem(const QUrl& pMediaFileUrl, QGraphicsItem *p
     mMediaObject->setSource(pMediaFileUrl);
     mAudioOutput->setMuted(mMuted);
 
-    setDelegate(new GraphicsMediaItemDelegate(this));
+    auto *mediaDelegate = new GraphicsMediaItemDelegate(this);
+    setDelegate(mediaDelegate);
 
     setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem));
     setFlag(ItemIsMovable, true);
     setFlag(ItemSendsGeometryChanges, true);
 
-    connect(mMediaObject, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
-            Delegate(), SLOT(mediaStatusChanged(QMediaPlayer::MediaStatus)));
+    connect(mMediaObject, &QMediaPlayer::mediaStatusChanged,
+            mediaDelegate, &GraphicsMediaItemDelegate::mediaStatusChanged);
 
-    connect(mMediaObject, SIGNAL(playbackStateChanged(QMediaPlayer::PlaybackState)),
-            Delegate(), SLOT(mediaStateChanged(QMediaPlayer::PlaybackState)));
+    connect(mMediaObject, &QMediaPlayer::playbackStateChanged,
+            mediaDelegate, &GraphicsMediaItemDelegate::mediaStateChanged);
 
-    connect(mMediaObject, SIGNAL(positionChanged(qint64)),
-            Delegate(), SLOT(updateTicker(qint64)));
+    connect(mMediaObject, &QMediaPlayer::positionChanged,
+            mediaDelegate, &GraphicsMediaItemDelegate::updateTicker);
 
-    connect(mMediaObject, SIGNAL(durationChanged(qint64)),
-            Delegate(), SLOT(totalTimeChanged(qint64)));
+    connect(mMediaObject, &QMediaPlayer::durationChanged,
+            mediaDelegate, &GraphicsMediaItemDelegate::totalTimeChanged);
 
-    connect(Delegate(), SIGNAL(showOnDisplayChanged(bool)),
-            this, SLOT(showOnDisplayChanged(bool)));
+    connect(Delegate(), &GraphicsItemDelegate::showOnDisplayChanged,
+            this, &GraphicsMediaItem::showOnDisplayChanged);
 
     connect(mMediaObject, &QMediaPlayer::errorOccurred,
             this, &GraphicsMediaItem::mediaError);
@@ -106,14 +107,14 @@ GraphicsVideoItem::GraphicsVideoItem(const QUrl &pMediaFileUrl, QGraphicsItem *p
     setMinimumSize(QSize(320, 240));
     setSize(320, 240);
 
-    connect(mVideoItem, SIGNAL(nativeSizeChanged(QSizeF)),
-            this, SLOT(videoSizeChanged(QSizeF)));
+    connect(mVideoItem, &QGraphicsVideoItem::nativeSizeChanged,
+            this, &GraphicsVideoItem::videoSizeChanged);
 
-    connect(mMediaObject, SIGNAL(hasVideoChanged(bool)),
-            this, SLOT(hasVideoChanged(bool)));
+    connect(mMediaObject, &QMediaPlayer::hasVideoChanged,
+            this, &GraphicsVideoItem::hasVideoChanged);
 
-    connect(mMediaObject, SIGNAL(playbackStateChanged(QMediaPlayer::PlaybackState)),
-            this, SLOT(mediaStateChanged(QMediaPlayer::PlaybackState)));
+    connect(mMediaObject, &QMediaPlayer::playbackStateChanged,
+            this, &GraphicsVideoItem::mediaStateChanged);
 
     connect(mMediaObject, &QMediaPlayer::errorOccurred,
             this, &GraphicsVideoItem::mediaError);

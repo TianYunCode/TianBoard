@@ -29,16 +29,16 @@ ZoomPalette::ZoomPalette(QWidget* parent)
     d->mCurrentZoomButton = new QPushButton(parent);
     d->mCurrentZoomButton->setStyleSheet(QString("QPushButton { color: white; background-color: transparent; border: none; font-family: Arial; font-weight: bold; font-size: 20px }"));
     d->mCurrentZoomButton->setFocusPolicy(Qt::NoFocus);
-    connect(d->mCurrentZoomButton, SIGNAL(clicked(bool)), this, SLOT(showHideExtraButton()));
-    connect(d->mBoardController, SIGNAL(zoomChanged(qreal)), this, SLOT(refreshPalette()));
-    connect(d->mBoardController, SIGNAL(activeSceneChanged()), this, SLOT(refreshPalette()));
+    connect(d->mCurrentZoomButton, &QPushButton::clicked, this, &ZoomPalette::showHideExtraButton);
+    connect(d->mBoardController, &BoardController::zoomChanged, this, &ZoomPalette::refreshPalette);
+    connect(d->mBoardController, &BoardController::activeSceneChanged, this, &ZoomPalette::refreshPalette);
 
     d->mHundredButton = new QPushButton(parent);
     d->mHundredButton->setStyleSheet(QString("QPushButton { color: white; background-color: transparent; border: none; font-family: Arial; font-weight: bold; font-size: 20px }"));
     d->mHundredButton->setFocusPolicy(Qt::NoFocus);
     d->mHundredButton->setIcon(QIcon(":/images/stylusPalette/restoreZoom.png"));
     d->mHundredButton->setIconSize(QSize(42,42));
-    connect(d->mHundredButton, SIGNAL(clicked(bool)), this, SLOT(goHundred()));
+    connect(d->mHundredButton, &QPushButton::clicked, this, &ZoomPalette::goHundred);
 
     layout->setContentsMargins(radius() + 15, 4, radius() + 15, 4);
     layout->addWidget(d->mHundredButton);
@@ -99,7 +99,7 @@ void ZoomPalette::refreshPalette()
     adjustSizeAndPosition();
     if (showAsNoZoom)
     {
-        QTimer::singleShot(500, this, SLOT(hide()));
+        QTimer::singleShot(500, this, &ZoomPalette::hide);
     }
     else
     {

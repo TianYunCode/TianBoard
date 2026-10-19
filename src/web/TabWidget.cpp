@@ -21,8 +21,8 @@ TabBar::TabBar(QWidget *parent)
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     setAcceptDrops(true);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(contextMenuRequested(const QPoint &)));
+    connect(this, &QWidget::customContextMenuRequested,
+            this, &TabBar::contextMenuRequested);
 
     QString alt = QLatin1String("Alt+%1");
     for (int i = 1; i <= 10; ++i) {
@@ -31,10 +31,10 @@ TabBar::TabBar(QWidget *parent)
             key = 0;
         QShortcut *shortCut = new QShortcut(alt.arg(key), this);
         mTabShortcuts.append(shortCut);
-        connect(shortCut, SIGNAL(activated()), this, SLOT(selectTabAction()));
+        connect(shortCut, &QShortcut::activated, this, &TabBar::selectTabAction);
     }
     setTabsClosable(true);
-    connect(this, SIGNAL(tabCloseRequested(int)), this, SIGNAL(closeTab(int)));
+    connect(this, &QTabBar::tabCloseRequested, this, qOverload<int>(&TabBar::closeTab));
     setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     setMovable(true);
     setDocumentMode(false);
@@ -59,29 +59,29 @@ void TabBar::selectTabAction()
 void TabBar::contextMenuRequested(const QPoint &position)
 {
     QMenu menu;
-    menu.addAction(tr("New &Tab"), this, SIGNAL(newTab()), QKeySequence::AddTab);
+    menu.addAction(tr("New &Tab"), QKeySequence::AddTab, this, &TabBar::newTab);
     int index = tabAt(position);
     if (-1 != index) {
-        QAction *action = menu.addAction(tr("Clone Tab"), this, SLOT(cloneTab()));
+        QAction *action = menu.addAction(tr("Clone Tab"), this, qOverload<>(&TabBar::cloneTab));
         action->setData(index);
 
         menu.addSeparator();
 
-        action = menu.addAction(tr("&Close Tab"), this, SLOT(closeTab()), QKeySequence::Close);
+        action = menu.addAction(tr("&Close Tab"), QKeySequence::Close, this, qOverload<>(&TabBar::closeTab));
         action->setData(index);
 
-        action = menu.addAction(tr("Close &Other Tabs"), this, SLOT(closeOtherTabs()));
+        action = menu.addAction(tr("Close &Other Tabs"), this, qOverload<>(&TabBar::closeOtherTabs));
         action->setData(index);
 
         menu.addSeparator();
 
-        action = menu.addAction(tr("Reload Tab"), this, SLOT(reloadTab()), QKeySequence::Refresh);
+        action = menu.addAction(tr("Reload Tab"), QKeySequence::Refresh, this, qOverload<>(&TabBar::reloadTab));
         action->setData(index);
     }
     else {
         menu.addSeparator();
     }
-    menu.addAction(tr("Reload All Tabs"), this, SIGNAL(reloadAllTabs()));
+    menu.addAction(tr("Reload All Tabs"), this, &TabBar::reloadAllTabs);
     menu.exec(QCursor::pos());
 }
 
@@ -173,24 +173,24 @@ TabWidget::TabWidget(QWidget *parent)
 
     setElideMode(Qt::ElideRight);
 
-    connect(mTabBar, SIGNAL(newTab()), this, SLOT(newTab()));
-    connect(mTabBar, SIGNAL(closeTab(int)), this, SLOT(closeTab(int)));
-    connect(mTabBar, SIGNAL(cloneTab(int)), this, SLOT(cloneTab(int)));
-    connect(mTabBar, SIGNAL(closeOtherTabs(int)), this, SLOT(closeOtherTabs(int)));
-    connect(mTabBar, SIGNAL(reloadTab(int)), this, SLOT(reloadTab(int)));
-    connect(mTabBar, SIGNAL(reloadAllTabs()), this, SLOT(reloadAllTabs()));
-    connect(mTabBar, SIGNAL(tabMoved(int, int)), this, SLOT(moveTab(int, int)));
+    connect(mTabBar, &TabBar::newTab, this, [this] { newTab(); });
+    connect(mTabBar, qOverload<int>(&TabBar::closeTab), this, &TabWidget::closeTab);
+    connect(mTabBar, qOverload<int>(&TabBar::cloneTab), this, &TabWidget::cloneTab);
+    connect(mTabBar, qOverload<int>(&TabBar::closeOtherTabs), this, &TabWidget::closeOtherTabs);
+    connect(mTabBar, qOverload<int>(&TabBar::reloadTab), this, &TabWidget::reloadTab);
+    connect(mTabBar, &TabBar::reloadAllTabs, this, &TabWidget::reloadAllTabs);
+    connect(mTabBar, &QTabBar::tabMoved, this, &TabWidget::moveTab);
     setTabBar(mTabBar);
     setDocumentMode(false);
 
     mRecentlyClosedTabsMenu = new QMenu(this);
-    connect(mRecentlyClosedTabsMenu, SIGNAL(aboutToShow()), this, SLOT(aboutToShowRecentTabsMenu()));
-    connect(mRecentlyClosedTabsMenu, SIGNAL(triggered(QAction *)), this, SLOT(aboutToShowRecentTriggeredAction(QAction *)));
+    connect(mRecentlyClosedTabsMenu, &QMenu::aboutToShow, this, &TabWidget::aboutToShowRecentTabsMenu);
+    connect(mRecentlyClosedTabsMenu, &QMenu::triggered, this, &TabWidget::aboutToShowRecentTriggeredAction);
     mRecentlyClosedTabsAction = new QAction(tr("Recently Closed Tabs"), this);
     mRecentlyClosedTabsAction->setMenu(mRecentlyClosedTabsMenu);
     mRecentlyClosedTabsAction->setEnabled(false);
 
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+    connect(this, &QTabWidget::currentChanged, this, &TabWidget::currentChanged);
 
     mLineEdits = new QStackedWidget(this);
     mLineEdits->setMinimumWidth(200);
@@ -238,20 +238,20 @@ void TabWidget::currentChanged(int index)
                 this, SIGNAL(showStatusBarMessage(const QString&)));
         disconnect(oldWebView->page(), SIGNAL(linkHovered(const QString&, const QString&, const QString&)),
                 this, SIGNAL(linkHovered(const QString&)));
-        disconnect(oldWebView, SIGNAL(loadProgress(int)),
-                this, SIGNAL(loadProgress(int)));
-        disconnect(oldWebView, SIGNAL(loadFinished(bool)),
-                this, SIGNAL(loadFinished(bool)));
+        disconnect(oldWebView, &QWebEngineView::loadProgress,
+                this, &TabWidget::loadProgress);
+        disconnect(oldWebView, &QWebEngineView::loadFinished,
+                this, &TabWidget::loadFinished);
     }
 
     connect(webView, SIGNAL(statusBarMessage(const QString&)),
             this, SIGNAL(showStatusBarMessage(const QString&)));
     connect(webView->page(), SIGNAL(linkHovered(const QString&, const QString&, const QString&)),
             this, SIGNAL(linkHovered(const QString&)));
-    connect(webView, SIGNAL(loadProgress(int)),
-            this, SIGNAL(loadProgress(int)));
-    connect(webView, SIGNAL(loadFinished (bool)),
-            this, SIGNAL(loadFinished(bool)));
+    connect(webView, &QWebEngineView::loadProgress,
+            this, &TabWidget::loadProgress);
+    connect(webView, &QWebEngineView::loadFinished,
+            this, &TabWidget::loadFinished);
 
     for (int i = 0; i < mWebActions.count(); ++i) {
         WebActionMapper *mapper = mWebActions[i];
@@ -340,7 +340,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
     }
 
     lineEdit->setCompleter(mLineEditCompleter);
-    connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(lineEditReturnPressed()));
+    connect(lineEdit, &QLineEdit::returnPressed, this, &TabWidget::lineEditReturnPressed);
     mLineEdits->addWidget(urlLineEdit);
     mLineEdits->setSizePolicy(lineEdit->sizePolicy());
 
@@ -352,29 +352,32 @@ WebView *TabWidget::newTab(bool makeCurrent)
         p.setColor(QPalette::Window, palette().color(QPalette::Base));
         emptyWidget->setPalette(p);
         emptyWidget->setAutoFillBackground(true);
-        disconnect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+        disconnect(this, &QTabWidget::currentChanged, this, &TabWidget::currentChanged);
         addTab(emptyWidget, tr("(Untitled)"));
-        connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+        connect(this, &QTabWidget::currentChanged, this, &TabWidget::currentChanged);
         return 0;
     }
 
     // webview
     WebView *webView = new WebView;
     urlLineEdit->setWebView(webView);
-    connect(webView, SIGNAL(loadStarted()), this, SLOT(webViewLoadStarted()));
-    connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(webViewIconChanged()));
+    connect(webView, &QWebEngineView::loadStarted, this, &TabWidget::webViewLoadStarted);
+    connect(webView, &QWebEngineView::loadFinished, this, [this] { webViewIconChanged(); });
     connect(webView, SIGNAL(iconChanged()), this, SLOT(webViewIconChanged()));
-    connect(webView, SIGNAL(titleChanged(const QString &)), this, SLOT(webViewTitleChanged(const QString &)));
-    connect(webView, SIGNAL(urlChanged(const QUrl &)), this, SLOT(webViewUrlChanged(const QUrl &)));
-    connect(webView->page(), SIGNAL(windowCloseRequested()), this, SLOT(windowCloseRequested()));
-    connect(webView->page(), SIGNAL(geometryChangeRequested(const QRect &)), this, SIGNAL(geometryChangeRequested(const QRect &)));
+    connect(webView, &QWebEngineView::titleChanged, this, &TabWidget::webViewTitleChanged);
+    connect(webView, &QWebEngineView::urlChanged, this, &TabWidget::webViewUrlChanged);
+    connect(webView->page(), &QWebEnginePage::windowCloseRequested, this, &TabWidget::windowCloseRequested);
+    connect(webView->page(), &QWebEnginePage::geometryChangeRequested, this, &TabWidget::geometryChangeRequested);
     connect(webView->page(), SIGNAL(menuBarVisibilityChangeRequested(bool)), this, SIGNAL(menuBarVisibilityChangeRequested(bool)));
     connect(webView->page(), SIGNAL(statusBarVisibilityChangeRequested(bool)), this, SIGNAL(statusBarVisibilityChangeRequested(bool)));
     connect(webView->page(), SIGNAL(toolBarVisibilityChangeRequested(bool)), this, SIGNAL(toolBarVisibilityChangeRequested(bool)));
 
-    connect(webView, SIGNAL(pixmapCaptured(const QPixmap&, bool)), Application::applicationController, SLOT(addCapturedPixmap(const QPixmap &, bool)));
+    connect(webView, &WebTrapWebView::pixmapCaptured, Application::applicationController,
+            [] (const QPixmap &pixmap, bool pageMode) {
+                Application::applicationController->addCapturedPixmap(pixmap, pageMode);
+            });
 
-    connect(webView, SIGNAL(embedCodeCaptured(const QString&)), Application::applicationController, SLOT(addCapturedEmbedCode(const QString&)));
+    connect(webView, &WebTrapWebView::embedCodeCaptured, Application::applicationController, &ApplicationController::addCapturedEmbedCode);
 
     addTab(webView, tr("(Untitled)"));
     if (makeCurrent)
@@ -699,8 +702,8 @@ WebActionMapper::WebActionMapper(QAction *root, QWebEnginePage::WebAction webAct
 {
     if (!mRootAction)
         return;
-    connect(mRootAction, SIGNAL(triggered()), this, SLOT(rootTriggered()));
-    connect(root, SIGNAL(destroyed(QObject *)), this, SLOT(rootDestroyed()));
+    connect(mRootAction, &QAction::triggered, this, [this] { rootTriggered(); });
+    connect(root, &QObject::destroyed, this, [this] { rootDestroyed(); });
     root->setEnabled(false);
 }
 
@@ -718,7 +721,7 @@ void WebActionMapper::addChild(QAction *action)
 {
     if (!action)
         return;
-    connect(action, SIGNAL(changed()), this, SLOT(childChanged()));
+    connect(action, &QAction::changed, this, &WebActionMapper::childChanged);
 }
 
 QWebEnginePage::WebAction WebActionMapper::webAction() const

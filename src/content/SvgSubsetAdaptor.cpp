@@ -2153,7 +2153,7 @@ GraphicsMediaItem* SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
 
     GraphicsMediaItem* audioItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
     if(audioItem)
-        audioItem->connect(Application::boardController, SIGNAL(activeSceneChanged()), audioItem, SLOT(activeSceneChanged()));
+        audioItem->connect(Application::boardController, &BoardController::activeSceneChanged, audioItem, &GraphicsMediaItem::activeSceneChanged);
 
     graphicsItemFromSvg(audioItem);
     QStringView posValue = mXmlReader.attributes().value(mNamespaceUri, "position");

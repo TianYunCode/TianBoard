@@ -102,7 +102,7 @@ void ToolWidget::initialize()
     d->mWebView->setAttribute(Qt::WA_OpaquePaintEvent, false);
 
 
-    connect(Application::boardController, SIGNAL(activeSceneChanged()), this, SLOT(javaScriptWindowObjectCleared()));
+    connect(Application::boardController, &BoardController::activeSceneChanged, this, &ToolWidget::javaScriptWindowObjectCleared);
 }
 
 
