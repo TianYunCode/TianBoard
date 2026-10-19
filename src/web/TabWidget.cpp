@@ -1,7 +1,6 @@
 #include "web/TabWidget.h"
 
 #include "web/BrowserWindow.h"
-//#include "ui/History.h"
 #include "web/UrlLineEdit.h"
 #include "web/WebView.h"
 

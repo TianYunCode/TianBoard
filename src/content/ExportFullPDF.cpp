@@ -22,13 +22,9 @@
 
 #include "content/ExportPDF.h"
 
-//#include <Merger.h>
-//#include <Exception.h>
-//#include <Transformation.h>
 
 
 
-//using namespace merge_lib;
 
 
 ExportFullPDF::ExportFullPDF(QObject *parent)

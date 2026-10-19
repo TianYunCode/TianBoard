@@ -2,7 +2,6 @@
 
 #include <QtWidgets>
 #include <QtWebEngineWidgets>
-//#include <QWebHitTestResult>
 #include <QWebEnginePage>
 
 #include "web/WebKitUtils.h"

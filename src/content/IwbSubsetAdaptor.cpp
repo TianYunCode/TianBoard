@@ -32,7 +32,6 @@
 #include "core/Application.h"
 #include "QFile"
 
-//#include "qtlogger.h"
 
 //tag names definition. Use them everiwhere!
 static QString tElement         = "element";

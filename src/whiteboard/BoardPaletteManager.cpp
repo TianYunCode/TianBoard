@@ -29,7 +29,6 @@
 
 
 #include "core/NetworkAccessManager.h"
-//#include "network/ServerXMLHttpRequest.h"
 
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsPixmapItem.h"

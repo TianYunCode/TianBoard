@@ -50,7 +50,6 @@
 
 #include "content/PDFRenderer.h"
 
-//#include "qtlogger.h"
 
 const QString SvgSubsetAdaptor::nsSvg = "http://www.w3.org/2000/svg";
 const QString SvgSubsetAdaptor::nsXHtml = "http://www.w3.org/1999/xhtml";
