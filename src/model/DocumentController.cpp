@@ -6,14 +6,15 @@
 
 #include "utils/FileSystemUtils.h"
 #include "utils/StringUtils.h"
+#include "utils/Version.h"
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
 #include "core/DocumentManager.h"
 #include "core/ApplicationController.h"
-#include "core/Settings.h"
-#include "core/Setting.h"
+#include "settings/Settings.h"
+#include "settings/Setting.h"
 #include "core/MimeData.h"
 #include "core/ForeignObjectsHandler.h"
 
@@ -3010,7 +3011,10 @@ bool DocumentController::isOKToOpenDocument(DocumentProxy* proxy)
     //check version
     QString docVersion = proxy->metaData(Settings::documentVersion).toString();
 
-    if (docVersion.isEmpty() || docVersion.startsWith("1.1") || docVersion.startsWith("1.2"))
+    // 这里曾经写死一份 "1.1"/"1.2" 白名单，而读写器早就在往每个文档盖 4.8.0，
+    // 结果自己存的文档也被判成“比本程序还新”，每次打开都弹一次丢失警告。
+    // 现在拿真正的版本序比：只有确实更新于当前格式版本时才问。
+    if (docVersion.isEmpty() || !(Version(docVersion) > Version(Settings::currentFileVersion)))
     {
         return true;
     }

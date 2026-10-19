@@ -11,6 +11,7 @@ private slots:
     void threePartVersion();
     void prereleaseVersion();
     void ordering();
+    void documentNewerThanWriterOnly();
     void unknownFormatYieldsZero();
     void currentDocumentFormatParses();
 };
@@ -47,6 +48,21 @@ void TestVersion::ordering()
     QVERIFY(Version(QStringLiteral("4.8.0")) > Version(QStringLiteral("4.7.9")));
     QVERIFY(Version(QStringLiteral("5.0")) > Version(QStringLiteral("4.99.99")));
     QVERIFY(Version(QStringLiteral("4.8.0")) == Version(QStringLiteral("4.8.0")));
+}
+
+void TestVersion::documentNewerThanWriterOnly()
+{
+    // DocumentController::isOKToOpenDocument() 只该挡“比当前读写器还新”的文档：
+    // 相等和更旧都必须放行，否则本程序自己存的文档每次打开都要弹一次丢失警告。
+    const Version current(QStringLiteral("4.8.0"));
+
+    QVERIFY(Version(QStringLiteral("4.8.0")) <= current);
+    QVERIFY(Version(QStringLiteral("4.1")) <= current);
+    QVERIFY(!(Version(QStringLiteral("5.0")) <= current));
+
+    // 认不出来的串折算成 0，也就一律放行，而不是对着能读的文档误报。
+    QVERIFY(Version(QStringLiteral("2.3.4.5")) <= current);
+    QVERIFY(Version(QString()) <= current);
 }
 
 void TestVersion::unknownFormatYieldsZero()
