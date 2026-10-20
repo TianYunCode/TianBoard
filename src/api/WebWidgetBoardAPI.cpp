@@ -24,13 +24,13 @@
 #include "core/DownloadManager.h"
 
 
-//Known extentions for files, add if you know more supported
+// 已知的受支持后缀，遇到新格式时在这里补充
 const QString audioExtentions = ".mp3.wma.ogg";
 const QString videoExtentions = ".avi.flv";
 const QString imageExtentions = ".png.jpg.tif.bmp.tga";
 const QString htmlExtentions = ".htm.html.xhtml";
 
-//Allways use aliases instead of const char* itself
+// 一律使用别名常量，避免直接使用 const char*
 const QString imageAlias = "image";
 const QString imageAliasCap = "Image";
 const QString videoAlias = "video";
@@ -38,7 +38,7 @@ const QString videoAliasCap = "Video";
 const QString audioAlias = "audio";
 const QString audioAliasCap = "Audio";
 
-//Xml tag names
+// MIME 元数据的 XML 标签名
 const QString tMainSection = "mimedata";
 const QString tType = "type";
 const QString tPath = "path";
@@ -48,7 +48,7 @@ const QString tReady = "ready";
 const QString tMimeText = "text/plain";
 
 
-//Name of path inside widget to store objects
+// 小部件内部存放对象文件的子目录名
 const QString objectsPath = "objects";
 
 WebWidgetBoardAPI::WebWidgetBoardAPI(GraphicsScene *pScene, GraphicsWidgetItem *widget)
@@ -58,6 +58,7 @@ WebWidgetBoardAPI::WebWidgetBoardAPI(GraphicsScene *pScene, GraphicsWidgetItem *
       mIsVisible(false),
       mMessagesAPI(0),
       mDatastoreAPI(0) {
+    // 只有网页小部件才需要脚本通道与文档存储，普通图形项只保留场景门面
     GraphicsWebWidgetItem *webGraphicsWidget = dynamic_cast<GraphicsWebWidgetItem *>(widget);
 
     if (webGraphicsWidget) {
@@ -65,6 +66,7 @@ WebWidgetBoardAPI::WebWidgetBoardAPI(GraphicsScene *pScene, GraphicsWidgetItem *
         mDatastoreAPI = new DatastoreAPI(webGraphicsWidget);
     }
 
+    // 只听全局下载完成事件，再用 webDownloadIds 判断是否属于本小部件
     connect(DownloadManager::downloadManager(),
             qOverload<bool, sDownloadFileDesc, QByteArray>(&DownloadManager::downloadFinished), this,
             &WebWidgetBoardAPI::onDownloadFinished);
@@ -72,7 +74,7 @@ WebWidgetBoardAPI::WebWidgetBoardAPI(GraphicsScene *pScene, GraphicsWidgetItem *
 
 
 WebWidgetBoardAPI::~WebWidgetBoardAPI() {
-    // NOOP
+    // 刻意留空
 }
 
 QObject *WebWidgetBoardAPI::messages() {
@@ -113,6 +115,7 @@ void WebWidgetBoardAPI::setPenColor(const QString &penColor) {
 
     bool conversionState = false;
 
+    // 脚本传 1..4 时按调色板序号取色；减 1 后必须在 1..4 之间才视为序号
     int index = penColor.toInt(&conversionState) - 1;
 
     if (conversionState && index > 0 && index <= 4) {
@@ -156,10 +159,8 @@ void WebWidgetBoardAPI::setMarkerColor(const QString &penColor) {
 
 
 void WebWidgetBoardAPI::addObject(QString pUrl, int width, int height, int x, int y, bool background) {
-    // not great, but make it easily scriptable --
-    //
-    // download url should be moved to the scene from the controller
-    //
+    // 脚本调用只给 URL，真正的下载与落盘交给 BoardController；
+    // 宽高为 0 时由控制器按对象类型选择默认尺寸
 
     if (Application::boardController->activeScene() != mScene)
         return;
@@ -276,6 +277,7 @@ int WebWidgetBoardAPI::currentPageNumber() {
 }
 
 QString WebWidgetBoardAPI::getObjDir() {
+    // 对象文件与网页资源放在小部件自己的目录下，保证文档打包时可整体搬走
     return mGraphicsWidget->getOwnFolder().toLocalFile() + "/" + objectsPath + "/";
 }
 
@@ -293,6 +295,7 @@ QString WebWidgetBoardAPI::pageThumbnail(const int pageNumber) {
     if (!doc)
         return "";
 
+    // 页码从 1 开始，缩略图适配器从 0 开始
     if (pageNumber > doc->pageCount())
         return "";
 
@@ -365,17 +368,17 @@ void WebWidgetBoardAPI::returnStatus(const QString &method, const QString &statu
 }
 
 void WebWidgetBoardAPI::usedMethods(QStringList methods) {
-    // TODO: Implement this method
+    // TODO: 统计脚本实际调用过的方法，目前接口保留但无实现
     foreach (QString method, methods) {}
 }
 
 void WebWidgetBoardAPI::response(bool correct) {
     Q_UNUSED(correct);
-    // TODO: Implement this method
+    // TODO: 接入答题结果反馈，目前接口保留但无实现
 }
 
 void WebWidgetBoardAPI::sendFileMetadata(QString metaData) {
-    //  Build the QMap of metadata and send it to application
+    // 元数据以 XML 传入，逐个子节点取出 key/value 后交给控制器展示
     QMap<QString, QString> qmMetaDatas;
     QDomDocument domDoc;
     domDoc.setContent(metaData);
@@ -411,7 +414,7 @@ void WebWidgetBoardAPI::processDropEvent(QGraphicsSceneDragDropEvent *event) {
     // 每放一次文件就漏一块；栈上的对象活到本函数结束就够了，落点之后没人再读这份数据。
     QMimeData dropMimeData;
 
-    if (pMimeData->hasHtml()) { //Dropping element from web browser
+    if (pMimeData->hasHtml()) { // 从浏览器拖入的网页元素：解析出其中的 URL 再下载
         QString qsHtml = pMimeData->html();
         QString url = Application::urlFromHtml(qsHtml);
 
@@ -422,9 +425,9 @@ void WebWidgetBoardAPI::processDropEvent(QGraphicsSceneDragDropEvent *event) {
             desc.srcUrl = url;
             desc.currentSize = 0;
             desc.name = QFileInfo(url).fileName();
-            desc.totalSize = 0; // The total size will be retrieved during the download
+            desc.totalSize = 0; // 总大小在下载过程中才能得知
 
-            desc.dropPoint = event->pos().toPoint(); //Passing pure event point. No modifications
+            desc.dropPoint = event->pos().toPoint(); // 直接使用事件坐标，不做转换
             desc.dropActions = dropActions;
             desc.dropMouseButtons = dropMouseButtons;
             desc.dropModifiers = dropModifiers;
@@ -432,7 +435,7 @@ void WebWidgetBoardAPI::processDropEvent(QGraphicsSceneDragDropEvent *event) {
             registerIDWidget(DownloadManager::downloadManager()->addFileToDownload(desc));
         }
 
-    } else if (pMimeData->hasUrls()) { //Local file processing
+    } else if (pMimeData->hasUrls()) { // 本地文件：支持的类型直接复制进小部件目录
         QUrl curUrl = pMimeData->urls().first();
         QString sUrl = curUrl.toString();
 
@@ -459,7 +462,7 @@ void WebWidgetBoardAPI::processDropEvent(QGraphicsSceneDragDropEvent *event) {
 }
 
 void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc, QByteArray pData) {
-    //if widget recieves is waiting for this id then process
+    // 只处理本小部件发起、且还在等待中的下载；其余事件直接忽略
     if (!takeIDWidget(desc.id))
         return;
 
@@ -506,14 +509,14 @@ void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc
 
     destFile.close();
 
-    //To make js interpreter accept drop event we need to generate move event first.
+    // 页面脚本只认完整的拖放序列，先补一个 move 事件再发 drop
     QDragMoveEvent pseudoMove(dropPoint, desc.dropActions, &dropMimeData, desc.dropMouseButtons,
                               desc.dropModifiers);
     QApplication::sendEvent(mGraphicsWidget, &pseudoMove);
 
     QDropEvent readyEvent(dropPoint, desc.dropActions, &dropMimeData, desc.dropMouseButtons,
                           desc.dropModifiers);
-    //sending event to destination either it had been downloaded or not
+    // 无论下载成功与否都通知目标，避免页面停在等待状态
     QApplication::sendEvent(mGraphicsWidget, &readyEvent);
     readyEvent.acceptProposedAction();
 }
@@ -529,7 +532,7 @@ QString WebWidgetBoardAPI::createMimeText(bool downloaded, const QString &mimeTy
 
     if (downloaded) {
         if (!mimeType.isEmpty()) {
-            writer.writeTextElement(tType, mimeType); //writing type of element
+            writer.writeTextElement(tType, mimeType); // 写入对象类型
         }
         if (!QFile::exists(fileName)) {
             qDebug() << "file" << fileName << "doesn't exist";
@@ -537,8 +540,9 @@ QString WebWidgetBoardAPI::createMimeText(bool downloaded, const QString &mimeTy
         }
 
         QString relatedFileName = fileName;
+        // 路径必须相对小部件目录，文档整体迁移后仍然有效
         relatedFileName = relatedFileName.remove(mGraphicsWidget->getOwnFolder().toLocalFile() + "/");
-        writer.writeTextElement(tPath, relatedFileName); //writing path to created object
+        writer.writeTextElement(tPath, relatedFileName); // 写入新建对象的相对路径
     }
 
     writer.writeEndElement();
@@ -582,16 +586,17 @@ bool WebWidgetBoardAPI::isDropableData(const QMimeData *pMimeData) const {
 
 DocumentDatastoreAPI::DocumentDatastoreAPI(GraphicsWebWidgetItem *graphicsWidget)
     : WebWidgetStorage(graphicsWidget), mGraphicsWebWidget(graphicsWidget) {
-    // NOOP
+    // 刻意留空：数据全部保存在宿主图形对象里
 }
 
 
 DocumentDatastoreAPI::~DocumentDatastoreAPI() {
-    // NOOP
+    // 刻意留空
 }
 
 
 QString DocumentDatastoreAPI::key(int index) {
+    // QMap 按 key 排序，因此 storage 的枚举顺序是稳定的字典序
     QMap<QString, QString> entries = mGraphicsWebWidget->datastoreEntries();
 
     if (index < entries.size())
@@ -635,6 +640,7 @@ void
 
 
 DatastoreAPI::DatastoreAPI(GraphicsWebWidgetItem *widget) : QObject(widget) {
+    // 以宿主小部件为 parent，保证存储实现随小部件一起销毁
     mDocumentDatastore = new DocumentDatastoreAPI(widget);
 }
 

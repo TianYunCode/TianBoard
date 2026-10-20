@@ -122,7 +122,7 @@ void TabBar::mouseMoveEvent(QMouseEvent *event) {
     QTabBar::mouseMoveEvent(event);
 }
 
-// When index is -1 index chooses the current tab
+// index 为 -1 时表示当前标签页
 void TabWidget::reloadTab(int index) {
     if (index < 0)
         index = currentIndex();
@@ -179,9 +179,9 @@ TabWidget::TabWidget(QWidget *parent)
 }
 
 void TabWidget::clear() {
-    // clear the recently closed tabs
+    // 清空最近关闭记录
     mRecentlyClosedTabs.clear();
-    // clear the line edit history
+    // 清空地址栏历史：重复写入当前文本可丢弃行编辑框内部的撤销记录
     for (int i = 0; i < mLineEdits->count(); ++i) {
         QLineEdit *qLineEdit = lineEdit(i);
         qLineEdit->setText(qLineEdit->text());
@@ -207,6 +207,7 @@ void TabWidget::currentChanged(int index) {
 
     Q_ASSERT(mLineEdits->count() == count());
 
+    // 切页时把加载信号从旧页面摘下、绑到新页面，避免后台标签页也驱动进度与标题。
     WebView *oldWebView = this->webView(mLineEdits->currentIndex());
     if (oldWebView) {
         disconnect(oldWebView, &QWebEngineView::loadProgress, this, &TabWidget::loadProgress);
@@ -216,6 +217,7 @@ void TabWidget::currentChanged(int index) {
     connect(webView, &QWebEngineView::loadProgress, this, &TabWidget::loadProgress);
     connect(webView, &QWebEngineView::loadFinished, this, &TabWidget::loadFinished);
 
+    // 工具栏动作只能指向一个页面，切页后统一改绑到新页面。
     for (int i = 0; i < mWebActions.count(); ++i) {
         WebActionMapper *mapper = mWebActions[i];
         mapper->updateCurrent(webView->page());
@@ -253,7 +255,8 @@ WebView *TabWidget::webView(int index) const {
     if (WebView *webView = qobject_cast<WebView *>(widget)) {
         return webView;
     } else {
-        // optimization to delay creating the first webview
+        // 首个标签页只放了占位控件，真正的 WebView 延迟到第一次访问时创建，
+        // 避免窗口刚建好就初始化昂贵的 WebEngine 页面。
         if (count() == 1) {
             TabWidget *that = const_cast<TabWidget *>(this);
             that->setUpdatesEnabled(false);
@@ -272,7 +275,7 @@ int TabWidget::webViewIndex(WebView *webView) const {
 }
 
 WebView *TabWidget::newTab(bool makeCurrent) {
-    // line edit
+    // 每个标签页都配一个独立地址栏，二者在堆叠区中保持相同索引
     UrlLineEdit *urlLineEdit = new UrlLineEdit;
 
     QSizePolicy urlPolicy = urlLineEdit->sizePolicy();
@@ -283,10 +286,8 @@ WebView *TabWidget::newTab(bool makeCurrent) {
     lineEdit->setSizePolicy(QSizePolicy::MinimumExpanding, policy.verticalPolicy());
 
     if (!mLineEditCompleter && count() > 0) {
-        //HistoryCompletionModel *completionModel = new HistoryCompletionModel(this);
-        //completionModel->setSourceModel(BrowserWindow::historyManager()->historyFilterModel());
         mLineEditCompleter = new QCompleter(this);
-        // Should this be in Qt by default?
+        // 补全列表项高度一致时 QListView 可以跳过逐项测量，弹出更快。
         QAbstractItemView *popup = mLineEditCompleter->popup();
         QListView *listView = qobject_cast<QListView *>(popup);
         if (listView)
@@ -298,7 +299,8 @@ WebView *TabWidget::newTab(bool makeCurrent) {
     mLineEdits->addWidget(urlLineEdit);
     mLineEdits->setSizePolicy(lineEdit->sizePolicy());
 
-    // optimization to delay creating the more expensive WebView, history, etc
+    // 首个标签页先只放一个底色占位控件，真正的 WebEngine 视图在需要时再建；
+    // 临时断开 currentChanged，避免占位页触发地址栏与标题同步。
     if (count() == 0) {
         QWidget *emptyWidget = new QWidget;
         QPalette p = emptyWidget->palette();
@@ -311,7 +313,7 @@ WebView *TabWidget::newTab(bool makeCurrent) {
         return 0;
     }
 
-    // webview
+    // 之后的标签页直接创建 WebView，并把加载、标题、图标、URL 变化接到本容器
     WebView *webView = new WebView;
     urlLineEdit->setWebView(webView);
     connect(webView, &QWebEngineView::loadStarted, this, &TabWidget::webViewLoadStarted);
@@ -335,7 +337,7 @@ WebView *TabWidget::newTab(bool makeCurrent) {
     if (makeCurrent)
         setCurrentWidget(webView);
 
-    // webview actions
+    // 登记工具栏动作对应的页面动作，切页时由 WebActionMapper 重新绑定
     for (int i = 0; i < mWebActions.count(); ++i) {
         WebActionMapper *mapper = mWebActions[i];
         mapper->addChild(webView->page()->action(mapper->webAction()));
@@ -385,7 +387,7 @@ void TabWidget::closeOtherTabs(int index) {
         closeTab(i);
 }
 
-// When index is -1 index chooses the current tab
+// index 为 -1 时表示当前标签页
 void TabWidget::cloneTab(int index) {
     if (index < 0)
         index = currentIndex();
@@ -395,7 +397,7 @@ void TabWidget::cloneTab(int index) {
     tab->setUrl(webView(index)->url());
 }
 
-// When index is -1 index chooses the current tab
+// index 为 -1 时表示当前标签页
 void TabWidget::closeTab(int index) {
     if (index < 0)
         index = currentIndex();
@@ -417,12 +419,15 @@ void TabWidget::closeTab(int index) {
     lineEdit->deleteLater();
     QWidget *webView = widget(index);
     removeTab(index);
+    // 用 deleteLater 延迟销毁：关闭动作可能来自页面自身的信号回调，
+    // 在回调栈里直接删除 WebEngine 视图不安全。
     webView->deleteLater();
 
     if (hasFocus && count() > 0)
         currentWebView()->setFocus();
 
     if (count() == 0) {
+        // 始终保留至少一个标签页，否则窗口会变成空白且没有地址栏可用。
         newTab();
         emit currentChanged(0);
     }
@@ -464,7 +469,6 @@ void TabWidget::webViewTitleChanged(const QString &title) {
     }
     if (currentIndex() == index)
         emit setCurrentTitle(title);
-    //BrowserWindow::historyManager()->updateHistoryItem(webView->url(), title);
 }
 
 void TabWidget::webViewUrlChanged(const QUrl &url) {
@@ -474,7 +478,7 @@ void TabWidget::webViewUrlChanged(const QUrl &url) {
         mTabBar->setTabData(index, url);
     }
 
-    //  web view does not reload sometime on OSX ... force it
+    // 个别平台/时序下 URL 变化后视图不会自动重绘，显式 show() 促成一次刷新。
     webView->show();
 }
 
@@ -496,7 +500,7 @@ void TabWidget::aboutToShowRecentTriggeredAction(QAction *action) {
 
 void TabWidget::mouseDoubleClickEvent(QMouseEvent *event) {
     if (!childAt(event->pos())
-        // Remove the line below when QTabWidget does not have a one pixel frame
+        // QTabWidget 自带 1 像素边框，这里把可双击区域限定在标签栏高度之内
         && event->pos().y() < (tabBar()->y() + tabBar()->height())) {
         newTab();
         return;
@@ -519,7 +523,7 @@ void TabWidget::mouseReleaseEvent(QMouseEvent *event) {
         newTab();
     } else if (event->button() == Qt::MiddleButton &&
                !childAt(event->pos())
-               // Remove the line below when QTabWidget does not have a one pixel frame
+               // QTabWidget 自带 1 像素边框，这里把中键粘贴区域限定在标签栏高度之内
                && event->pos().y() < (tabBar()->y() + tabBar()->height())) {
         QUrl url(QApplication::clipboard()->text(QClipboard::Selection));
         if (!url.isEmpty() && url.isValid() && !url.scheme().isEmpty()) {
@@ -678,7 +682,7 @@ QRect TabWidget::addTabButtonRect() {
     else
         qDebug() << "TabWidget::addTabButtonRect() - unsupported tab posion";
 
-    // all this is in synch with CSS QTabBar ...
+    // 下面的偏移与宽高和样式表中 QTabBar 的规则保持一致，改样式时需同步修改。
     QRect r(x + 3, y + 6, 25, lastTabRect.height() - 8);
 
     return r;
@@ -688,7 +692,7 @@ QRect TabWidget::addTabButtonRect() {
 void TabWidget::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
 
-    // all this is in synch with CSS QTabBar ...
+    // 渐变与描边参数同样对应样式表中的 QTabBar 规则，保证“+”按钮和标签页外观一致。
     QLinearGradient linearGrad(QPointF(0, 0), QPointF(0, 1));
     linearGrad.setColorAt(0, QColor("#d3d3d3"));
     linearGrad.setColorAt(1, QColor("#dddddd"));

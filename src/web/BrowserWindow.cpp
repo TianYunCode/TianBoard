@@ -42,6 +42,7 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(
     d->mTabWidget = new TabWidget(this);
     d->mMainWindow = mainWindow;
 
+    // 所有标签页共用默认 profile，属性只需设置一次，之后新建的页面都会继承。
     QWebEngineSettings *defaultSettings = QWebEngineProfile::defaultProfile()->settings();
     defaultSettings->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
     defaultSettings->setAttribute(QWebEngineSettings::PluginsEnabled, true);
@@ -73,7 +74,8 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(
 
     slotUpdateWindowTitle();
 
-
+    // 先创建首个标签页，再连接 currentChanged：初始化期间切换标签不需要刷新
+    // 尚未完成布局的工具栏与状态栏。
     d->mTabWidget->newTab();
 
     connect(d->mTabWidget, &QTabWidget::currentChanged, this, &BrowserWindow::tabCurrentChanged);
@@ -158,7 +160,7 @@ QUrl BrowserWindow::guessUrlFromString(const QString &string) {
     QString urlStr = string.trimmed();
     QRegExp test(QLatin1String("^[a-zA-Z]+\\:.*"));
 
-    // Check if it looks like a qualified URL. Try parsing it and see.
+    // 先看是否已经带协议头；带协议但没写域名后缀时补 .com，再由 QUrl 宽容解析。
     bool hasSchema = test.exactMatch(urlStr);
     if (hasSchema) {
         int dotCount = urlStr.count(".");
@@ -173,13 +175,13 @@ QUrl BrowserWindow::guessUrlFromString(const QString &string) {
         }
     }
 
-    // Might be a file.
+    // 也可能是本地文件路径，存在就转成本地文件 URL。
     if (QFile::exists(urlStr)) {
         QFileInfo info(urlStr);
         return QUrl::fromLocalFile(info.absoluteFilePath());
     }
 
-    // Might be a shorturl - try to detect the schema.
+    // 没有协议头时按“主机名”猜测，默认补 http://。
     if (!hasSchema) {
         QString schema = "http";
 
@@ -197,10 +199,9 @@ QUrl BrowserWindow::guessUrlFromString(const QString &string) {
             return url;
     }
 
-    // Fall back to QUrl's own tolerant parser.
+    // 最后退回 QUrl 自己的宽容解析；仍没有协议时补 http://，避免地址栏输入被当成相对路径。
     QUrl url = QUrl::fromEncoded(string.toUtf8(), QUrl::TolerantMode);
 
-    // finally for cases where the user just types in a hostname add http
     if (url.scheme().isEmpty())
         url = QUrl::fromEncoded("http://" + string.toUtf8(), QUrl::TolerantMode);
 
@@ -240,6 +241,7 @@ void BrowserWindow::slotUpdateWindowTitle(const QString &title) {
 }
 
 void BrowserWindow::closeEvent(QCloseEvent *event) {
+    // 关闭只做延迟销毁：WebEngine 页面还在处理事件，立即 delete 容易在回调里重入。
     event->accept();
     deleteLater();
 }
@@ -272,7 +274,7 @@ void BrowserWindow::slotViewZoomTextOnly(bool enable) {
     if (!currentTabWebView())
         return;
     currentTabWebView()->page()->profile()->settings()->setAttribute(QWebEngineSettings::AutoLoadIconsForPage,
-                                                                     enable); //QWebSettings::ZoomTextOnly
+                                                                     enable);
 }
 
 void BrowserWindow::slotHome() {
@@ -342,10 +344,9 @@ void BrowserWindow::aboutToShowBackMenu() {
         QWebEngineHistoryItem item = history->backItems(historyCount).at(i);
 
         QAction *action = new QAction(this);
+        // 用负偏移表示后退几步，openActionUrl 据此调用 backItems(-offset)。
         action->setData(-1 * (historyCount - i - 1));
 
-        /*if (!QWebEngineSettings::iconForUrl(item.originalUrl()).isNull())
-			action->setIcon(item.icon());*/
         action->setText(item.title().isEmpty() ? item.url().toString() : item.title());
         d->mHistoryBackMenu->addAction(action);
     }
@@ -373,10 +374,9 @@ void BrowserWindow::aboutToShowForwardMenu() {
         QWebEngineHistoryItem item = history->forwardItems(historyCount).at(i);
 
         QAction *action = new QAction(this);
+        // 用正偏移表示前进几步，openActionUrl 据此调用 forwardItems(count - offset + 1)。
         action->setData(historyCount - i);
 
-        /*if (!QWebEngineSettings::iconForUrl(item.originalUrl()).isNull())
-				 action->setIcon(item.icon());*/
         action->setText(item.title().isEmpty() ? item.url().toString() : item.title());
         d->mHistoryForwardMenu->addAction(action);
     }

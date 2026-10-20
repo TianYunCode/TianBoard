@@ -37,7 +37,7 @@ WebController::WebController(MainWindow *mainWindow)
 
 
 WebController::~WebController() {
-    // NOOP
+    // 浏览器窗口与工具面板都由主窗口的控件树持有，随父对象销毁，这里无需手动释放。
 }
 
 void WebController::webBrowserInstance() {
@@ -47,6 +47,7 @@ void WebController::webBrowserInstance() {
     if (Settings::settings()->webUseExternalBrowser->get().toBool()) {
         QDesktopServices::openUrl(currentUrl);
     } else {
+        // 浏览器窗口懒创建：首次进入网页模式才构建，之后复用同一个实例。
         if (!mCurrentWebBrowser) {
             mCurrentWebBrowser = new BrowserWindow(mMainWindow->centralWidget(), mMainWindow);
 
@@ -120,8 +121,8 @@ void WebController::setupPalettes() {
 
         connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this,
                 &WebController::toogleMirroring);
-        // 网页捕获在 Qt6 下是空的（trapElementAtPos 整个函数体还在注释里），先灰掉，
-        // 别让用户点亮一个只会改变光标、什么都不捕获的按钮。恢复要重新实现命中测试。
+        // 网页元素捕获在 Qt6 移植中尚未恢复（命中测试依赖旧 WebKit 的 DOM 接口），
+        // 先禁用，避免用户点亮一个只会改变光标、什么都不捕获的按钮。
         mMainWindow->ui().actionWebTrap->setEnabled(false);
         connect(mMainWindow->ui().actionWebTrap, &QAction::toggled, this, &WebController::toggleWebTrap);
 
@@ -171,7 +172,7 @@ void WebController::toogleMirroring(bool checked) {
 
 QPixmap WebController::getScreenPixmap() {
     VirtualDesktop *desktop = VirtualDesktop::instance();
-    // we capture the screen in which the mouse is.
+    // 抓取鼠标当前所在的那块屏幕，而不是固定抓主屏。
     const QPoint cursorPos = QCursor::pos();
     const QRect primaryScreenRect = desktop->screenGeometry(cursorPos);
 
@@ -189,7 +190,7 @@ void WebController::screenLayoutChanged() {
 
 
 void WebController::closing() {
-    //NOOP
+    // 浏览器窗口由主窗口统一销毁，关闭流程里没有需要额外释放的资源。
 }
 
 

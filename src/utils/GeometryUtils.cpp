@@ -10,11 +10,11 @@ const int GeometryUtils::millimetersPerHalfCentimeter = 5;
 const float GeometryUtils::inchSize = 25.4f;
 
 GeometryUtils::GeometryUtils() {
-    // NOOP
+    // 刻意留空
 }
 
 GeometryUtils::~GeometryUtils() {
-    // NOOP
+    // 刻意留空
 }
 
 QPolygonF GeometryUtils::lineToPolygon(const QLineF &pLine, const qreal &pWidth) {
@@ -24,6 +24,7 @@ QPolygonF GeometryUtils::lineToPolygon(const QLineF &pLine, const qreal &pWidth)
     qreal x2 = pLine.x2();
     qreal y2 = pLine.y2();
 
+    // 法线方向：把线段角度旋转 90 度，再按半笔宽求偏移量
     qreal alpha = (90.0 - pLine.angle()) * PI / 180.0;
     qreal hypothenuse = pWidth / 2;
 
@@ -38,12 +39,12 @@ QPolygonF GeometryUtils::lineToPolygon(const QLineF &pLine, const qreal &pWidth)
 
     QPainterPath painterPath;
 
+    // 先沿一侧走到底，用半圆封口，再沿另一侧返回，最后封住起点
     painterPath.moveTo(p1a);
     painterPath.lineTo(p2a);
 
     painterPath.arcTo(x2 - hypothenuse, y2 - hypothenuse, pWidth, pWidth, (90.0 + pLine.angle()), -180.0);
 
-    //painterPath.lineTo(p2b);
     painterPath.lineTo(p1b);
 
     painterPath.arcTo(x1 - hypothenuse, y1 - hypothenuse, pWidth, pWidth, -1 * (90.0 - pLine.angle()),
@@ -86,7 +87,6 @@ QPolygonF GeometryUtils::lineToPolygon(const QLineF &pLine, const qreal &pStartW
     painterPath.arcTo(x2 - endHypothenuse, y2 - endHypothenuse, pEndWidth, pEndWidth, (90.0 + pLine.angle()),
                       -180.0);
 
-    //painterPath.lineTo(p2b);
     painterPath.lineTo(p1b);
 
     painterPath.arcTo(x1 - startHypothenuse, y1 - startHypothenuse, pStartWidth, pStartWidth,
@@ -188,13 +188,10 @@ QPolygonF GeometryUtils::arcToPolygon(const QLineF &startRadius, qreal spanAngle
 }
 
 /**
- * @brief Build and return a polygon from a list of points (at least 2), and start and end widths.
+ * @brief 由点列（至少 2 个）与起止笔画宽度构造描边多边形。
  *
- * The resulting polygon will pass by all points in the curve; its thickness is calculated at each point
- * of the curve (linearly interpolated between start and end widths) and the segments are joined by
- * (approximately) curved joints.
- *
- * Like with lineToPolygon, the ends are semi-circular.
+ * 多边形经过所有给定点；每个点处的粗细按起止宽度线性插值，段与段之间用近似的圆弧接头。
+ * 与 lineToPolygon 一致，两端为半圆封口。
  */
 QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF> &points, qreal startWidth, qreal endWidth) {
     int n_points = points.size();
@@ -202,6 +199,7 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF> &points, qreal star
     if (n_points < 2)
         return QPolygonF();
 
+    // 只有两个点时退化为普通线段，避免走逐点插值的分支
     if (n_points == 2)
         return lineToPolygon(points[0], points[1], startWidth, endWidth);
 
@@ -216,12 +214,9 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPointF> &points, qreal star
 }
 
 /**
- * @brief Build and return a polygon from a list of points and thicknesses (at least 2)
+ * @brief 由逐点粗细的点列（至少 2 个）构造描边多边形。
  *
- * The resulting polygon will pass by all points in the curve; the segments are joined by
- * (approximately) curved joints. The ends of the polygon can be terminated by arcs by passing
- * `true` as the `roundStart` and/or `roundEnd` parameters.
- *
+ * 多边形经过所有点，段间为近似圆弧接头；roundStart/roundEnd 控制两端是否用圆弧封口。
  */
 QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &points, bool roundStart,
                                         bool roundEnd) {
@@ -229,6 +224,7 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
 
     if (n_points == 0)
         return QPolygonF();
+    // 单点没有方向，只能按该点宽度画一个圆头，交给线段重载处理
     if (n_points == 1)
         return lineToPolygon(points.first().first, points.first().first, points.first().second,
                              points.first().second);
@@ -236,8 +232,7 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
     qreal startWidth = points.first().second;
     qreal endWidth = points.last().second;
 
-    /* The vertices (x's) are calculated based on the stroke's width and angle, and the position of the
-       supplied points (o's):
+    /* 顶点（x）按笔画宽度与角度、以及给定点（o）的位置计算：
 
           x----------x--------x
 
@@ -245,22 +240,21 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
 
           x----------x -------x
 
-       The vertices above and below each 'o' point are temporarily stored together, 
-       as a pair of points.
+       每个 o 点上下对应的两个 x 暂时成对保存。
      */
 
     typedef QPair<QPointF, QPointF> pointPair;
     QList<pointPair> newPoints;
 
 
+    // 起点法线决定第一对顶点
     QLineF firstSegment = QLineF(points[0].first, points[1].first);
     QLineF normal = firstSegment.normalVector();
     normal.setLength(startWidth / 2.0);
     newPoints << pointPair(normal.p2(), points[0].first - QPointF(normal.dx(), normal.dy()));
 
     /*
-    Calculating the vertices (d1 and d2, below) is a little less trivial for the
-    next points: their positions depend on the angle between one segment and the next.
+    中间点的顶点（下图的 d1、d2）取决于前后两段的夹角，计算稍复杂：
 
                       d1
          ------------x
@@ -271,15 +265,14 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
                d2 \       \
                    \   .c  \
 
-    Here, points a, b and c are supplied in the `points` list.
+    其中 a、b、c 是 points 里依次给出的点。
 
-    N.B: The drawing isn't quite accurate; we don't do a miter joint but a kind
-    of rounded-off joint (the distance between b and d1 is half the width of the stroke)
+    注意：示意图并不精确——这里不做尖角接头，而是近似圆角接头
+    （b 到 d1 的距离等于笔画宽度的一半）。
     */
 
     for (int i(1); i < n_points - 1; ++i) {
-        //qreal width = startWidth + (qreal(i)/qreal(n_points-1)) * (endWidth - startWidth);
-
+        // 用前后点的连线求法线，使接头在拐角处平滑过渡
         QLineF normal = (QLineF(points[i - 1].first, points[i + 1].first)).normalVector();
         normal.setLength(points[i].second / 2.0);
         QPointF d1 = points[i].first + QPointF(normal.dx(), normal.dy());
@@ -288,7 +281,7 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
         newPoints << pointPair(d1, d2);
     }
 
-    // The last point is similar to the first
+    // 末点与首点处理方式相同
     QLineF lastSegment = QLineF(points[n_points - 2].first, points[n_points - 1].first);
     normal = lastSegment.normalVector();
     normal.setLength(endWidth / 2.0);
@@ -323,8 +316,6 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
         path.lineTo(newPoints[0].first);
 
 
-    //path.closeSubpath();
-
     return path.toFillPolygon();
 }
 
@@ -344,7 +335,7 @@ QRectF GeometryUtils::lineToInnerRect(const QLineF &pLine, const qreal &pWidth) 
     qreal centerX = (pLine.x1() + pLine.x2()) / 2;
     qreal centerY = (pLine.y1() + pLine.y2()) / 2;
 
-    // Please put a fucking comment here
+    // 以 pWidth 为对角线求正方形边长，得到一个与线宽同尺度的中心方框
     qreal side = sqrt((pWidth * pWidth) / 2);
     qreal halfSide = side / 2;
 
@@ -353,7 +344,7 @@ QRectF GeometryUtils::lineToInnerRect(const QLineF &pLine, const qreal &pWidth) 
 
 
 void GeometryUtils::crashPointList(QVector<QPointF> &points) {
-    // QVector<QPointF> result(points);
+    // 原地去掉连续重复点：重复点会让法线计算退化，导致描边出现尖刺
     int position = 1;
 
     while (position < points.size()) {
@@ -366,18 +357,17 @@ void GeometryUtils::crashPointList(QVector<QPointF> &points) {
 }
 
 /**
- * @brief Return the angle in degrees between three points
+ * @brief 返回三点之间以 p2 为顶点的夹角（角度制）。
  */
 qreal GeometryUtils::angle(const QPointF &p1, const QPointF &p2, const QPointF &p3) {
-    // Angle between three points, using the law of cosines:
-    // The angle at B equals arccos((a^2-b^2+c^2)/(2*a*c)), where a, b and c are the sides of the triangle
-    // opposite A, B and C, respectively
+    // 用余弦定理：B 处的角 = arccos((a^2-b^2+c^2)/(2ac))，a、b、c 分别为 A、B、C 的对边
 
     qreal a, b, c, beta;
     a = qSqrt(qPow(p2.x() - p3.x(), 2) + qPow(p2.y() - p3.y(), 2));
     b = qSqrt(qPow(p1.x() - p3.x(), 2) + qPow(p1.y() - p3.y(), 2));
     c = qSqrt(qPow(p1.x() - p2.x(), 2) + qPow(p1.y() - p2.y(), 2));
 
+    // 退化（顶点与端点重合）时直接返回 180 度，避免除零产生 NaN
     if (a == 0 || c == 0)
         beta = M_PI;
     else
@@ -389,12 +379,12 @@ qreal GeometryUtils::angle(const QPointF &p1, const QPointF &p2, const QPointF &
 
 
 /**
- * @brief Calculate a quadratic Bézier curve and return it in the form of a list of points
- * @param p0 The start point of the curve
- * @param p1 The control point of the curve
- * @param p2 The end point of the curve
- * @param nPoints The number of points by which to approximate the curve, i.e. the length of the returned list
- * @return A list of points that can be used to draw the curve.
+ * @brief 采样二次贝塞尔曲线并返回点列。
+ * @param p0 曲线起点。
+ * @param p1 控制点。
+ * @param p2 曲线终点。
+ * @param nPoints 采样段数；返回 nPoints + 1 个点（含首尾）。
+ * @return 可用于绘制的点列；nPoints <= 1 时返回空列表。
  */
 QList<QPointF> GeometryUtils::quadraticBezier(const QPointF &p0, const QPointF &p1, const QPointF &p2,
                                               unsigned int nPoints) {

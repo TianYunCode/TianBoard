@@ -7,7 +7,7 @@
 Version::Version(const QString &string) : mString(string) {}
 
 Version::~Version() {
-    // NOOP
+    // 刻意留空
 }
 
 uint Version::toUInt() const {

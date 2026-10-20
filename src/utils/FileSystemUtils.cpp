@@ -14,12 +14,12 @@ QStringList FileSystemUtils::sTempDirToCleanUp;
 
 
 FileSystemUtils::FileSystemUtils() {
-    // NOOP
+    // 刻意留空
 }
 
 
 FileSystemUtils::~FileSystemUtils() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -443,12 +443,12 @@ QString FileSystemUtils::mimeTypeFromFileName(const QString &fileName) {
         return "video/x-flv";
     if (ext == "m4v")
         return "video/x-m4v";
-    // W3C widget
+    // W3C 小部件
     if (ext == "wgt")
         return "application/widget";
     if (ext == "wgs")
         return "application/search";
-    // Apple widget
+    // Apple 小部件
     if (ext == "wdgt")
         return "application/vnd.apple-widget";
     if (ext == "swf")
@@ -665,7 +665,7 @@ bool FileSystemUtils::compressDirInZip(const QDir &pDir, const QString &pDestPat
                 if (progressListener)
                     progressListener->processing(objectType, files.indexOf(file), files.size());
             }
-            // we ignore thumbnails message because it is very fast.
+            // 缩略图处理极快，不报告进度
             else if (progressListener && file.suffix() == "svg") {
                 progressListener->processing(objectType, pageFiles.indexOf(file), pageFiles.size());
             }
@@ -756,13 +756,11 @@ bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetD
         out.setFileName(newFileName);
         out.open(QIODevice::WriteOnly);
 
-        // Slow like hell (on GNU/Linux at least), but it is not my fault.
-        // Not ZIP/UNZIP package's fault either.
-        // The slowest thing here is out.putChar(c).
+        // 逐字符写入极慢（至少在 GNU/Linux 上），但这不是 ZIP/UNZIP 库的问题。
+        // 最慢的是 out.putChar(c)。
         QByteArray outFileContent = file.readAll();
         if (out.write(outFileContent) == -1) {
-            // qWarning() << "ZIP expand failed. Cause: Unable to write file";
-            // this may happen if we are decompressing a directory
+            // 解压目录时可能出现此情况
         }
 
         while (file.getChar(&c))

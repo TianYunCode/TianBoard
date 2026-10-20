@@ -35,7 +35,7 @@ ExLineEdit::ExLineEdit(QWidget *parent) : QWidget(parent), d(new Private) {
     QPalette p = d->mLineEdit->palette();
     setPalette(p);
 
-    // line edit
+    // 行编辑框自身不画边框，由外层的 ExLineEdit 统一绘制外观
     d->mLineEdit->setFrame(false);
     d->mLineEdit->setObjectName("webBrowserLineEdit");
     d->mLineEdit->setFocusProxy(this);
@@ -44,7 +44,7 @@ ExLineEdit::ExLineEdit(QWidget *parent) : QWidget(parent), d(new Private) {
     clearPalette.setBrush(QPalette::Base, QBrush(Qt::transparent));
     d->mLineEdit->setPalette(clearPalette);
 
-    // clearButton
+    // 右侧清除按钮：点击清空文本，文本变化时由 ClearButton 自己控制显隐
     d->mClearButton = new ClearButton(this);
     connect(d->mClearButton, &QAbstractButton::clicked, d->mLineEdit, [this] { d->mLineEdit->clear(); });
     connect(d->mLineEdit, &QLineEdit::textChanged, d->mClearButton, &ClearButton::textChanged);
@@ -83,6 +83,7 @@ void ExLineEdit::updateGeometries() {
 
     int width = rect.width();
 
+    // 左侧图标固定 32x32，行编辑框从图标右侧开始，清除按钮贴右边缘。
     d->mLeftWidget->setGeometry(0, -4, 32, 32);
 
     d->mLineEdit->setGeometry(32, 0, width - this->height() - 32, this->height());
@@ -143,7 +144,7 @@ bool ExLineEdit::event(QEvent *event) {
 
 
 void ExLineEdit::paintEvent(QPaintEvent *) {
-    // No default painting
+    // 不绘制自身背景，完全依赖样式表与内嵌行编辑框，避免出现双边框。
 }
 
 
@@ -227,6 +228,7 @@ void UrlLineEdit::webViewUrlChanged(const QUrl &url) {
 
 
 void UrlLineEdit::focusOutEvent(QFocusEvent *event) {
+    // 用户清空地址后离开时，把当前页面 URL 填回去，避免地址栏空着失去参考。
     if (lineEdit()->text().isEmpty() && d->mWebView)
         lineEdit()->setText(QString::fromUtf8(d->mWebView->url().toEncoded()));
     ExLineEdit::focusOutEvent(event);

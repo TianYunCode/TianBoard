@@ -4,11 +4,11 @@
 
 
 WebKitUtils::WebKitUtils() {
-    // NOOP
+    // 刻意留空
 }
 
 WebKitUtils::~WebKitUtils() {
-    // NOOP
+    // 刻意留空
 }
 
 QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage *frame) {

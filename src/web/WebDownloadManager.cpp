@@ -118,7 +118,7 @@ void DownloadItem::init() {
     if (!m_reply)
         return;
 
-    // attach to the m_reply
+    // 绑定（或重试后重新绑定）网络回复：下载项的整个状态机都由这些信号驱动。
     m_url = m_reply->url();
 
     qDebug() << "DownloadItem::init() with url:" << m_url;
@@ -130,12 +130,12 @@ void DownloadItem::init() {
     connect(m_reply, &QNetworkReply::metaDataChanged, this, &DownloadItem::metaDataChanged);
     connect(m_reply, &QNetworkReply::finished, this, &DownloadItem::finished);
 
-    // reset info
+    // 重试复用时要把上一轮的进度与提示清干净。
     d->downloadInfoLabel->clear();
     d->progressBar->setValue(0);
     getFileName();
 
-    // start timer for the download estimation
+    // 计时从请求绑定开始，用于估算平均速度与剩余时间。
     mDownloadTime.start();
 
     if (m_reply->error() != QNetworkReply::NoError) {
@@ -176,7 +176,7 @@ void DownloadItem::getFileName() {
 
 
 QString DownloadItem::saveFileName(const QString &directory) const {
-    // Move this function into QNetworkReply to also get file name sent from the server
+    // 文件名直接取自 URL 的最后一段；服务器在 Content-Disposition 中给出的名字没有解析。
     QString path = m_url.path();
     QFileInfo info(path);
     QString baseName = info.completeBaseName();
@@ -188,7 +188,7 @@ QString DownloadItem::saveFileName(const QString &directory) const {
     }
     QString name = directory + baseName + QLatin1Char('.') + endName;
     if (QFile::exists(name)) {
-        // already exists, don't overwrite
+        // 已存在同名文件时不覆盖，追加 -1、-2 … 直到找到空位。
         int i = 1;
         do {
             name =
@@ -200,6 +200,8 @@ QString DownloadItem::saveFileName(const QString &directory) const {
 
 
 void DownloadItem::stop() {
+    // 状态机：先切到“已停止/可重试”的界面，再中止网络回复；
+    // 中止会触发 finished，后者只负责收尾，不改变可重试状态。
     setUpdatesEnabled(false);
     d->stopButton->setEnabled(false);
     d->stopButton->hide();
@@ -220,6 +222,8 @@ void DownloadItem::tryAgain() {
     if (!d->tryAgainButton->isEnabled())
         return;
 
+    // 重试即重新开一次请求：先恢复“下载中”的按钮状态，再丢弃旧回复与残留文件，
+    // 否则第二次写入会拼接到上次的半截数据后面。
     d->tryAgainButton->setEnabled(false);
     d->tryAgainButton->setVisible(false);
     d->stopButton->setEnabled(true);
@@ -242,7 +246,8 @@ void DownloadItem::downloadReadyRead() {
         return;
 
     if (!m_output.isOpen()) {
-        // in case someone else has already put a file there
+        // 输出文件延迟到第一块数据到达时才打开；非“另存为”模式在这里补一次文件名解析，
+        // 防止同名文件在等待期间被别人创建。
         if (!mRequestFileName) {
             getFileName();
         }
@@ -298,7 +303,7 @@ void DownloadItem::updateInfoLabel() {
     qint64 bytesTotal = d->progressBar->maximum();
     bool running = !downloadedSuccessfully();
 
-    // update info label
+    // 重算速度、剩余时间与标签文案
     const qint64 elapsedMs = mDownloadTime.elapsed();
     double speed = elapsedMs > 0 ? mBytesReceived * 1000.0 / elapsedMs : 0.0;
     double timeRemaining = ((double)(bytesTotal - mBytesReceived)) / speed;
@@ -309,7 +314,7 @@ void DownloadItem::updateInfoLabel() {
     }
     timeRemaining = floor(timeRemaining);
 
-    // When downloading the eta should never be 0
+    // 仍在下载时剩余时间不许显示 0，否则看着像已经卡死
     if (timeRemaining == 0)
         timeRemaining = 1;
 
@@ -378,8 +383,7 @@ void DownloadItem::setFileIconPixmap(const QPixmap &pixmap) {
 }
 
 
-// Bring the item to the state of a download which is over (done) or was
-// interrupted by closing the application (!done).
+// 把条目收进“下载结束”的样子：成功就什么都不留，被关程序打断则留下重试按钮和进度条。
 void DownloadItem::setDownloadCompleted(bool completed) {
     d->stopButton->setVisible(false);
     d->stopButton->setEnabled(false);
@@ -421,12 +425,8 @@ struct WebDownloadManager::Private {
 };
 
 
-/*!
-    DownloadManager is a Dialog that contains a list of DownloadItems
-
-    It is a basic download manager.  It only downloads the file, doesn't do BitTorrent,
-    extract zipped files or anything fancy.
-  */
+// 下载管理器就是一个装着若干下载条目的对话框，只负责把文件落到磁盘上：
+// 不做种子、不自动解包、不识别断点续传之外的任何花样。
 WebDownloadManager::WebDownloadManager(QWidget *parent)
     : QDialog(parent),
       mAutoSaver(new AutoSaver(this)),
@@ -531,7 +531,7 @@ void WebDownloadManager::processDownloadedContent(QNetworkReply *reply, bool req
     if (ok && size == 0)
         return;
 
-    //redirect ?
+    // 到这里内容类型不认识，先看看是不是个重定向
 
     qDebug() << "redirect" << reply->header(QNetworkRequest::LocationHeader);
     qDebug() << "ContentTypeHeader" << reply->header(QNetworkRequest::ContentTypeHeader);
@@ -703,7 +703,7 @@ void WebDownloadManager::updateItemCount() {
 
 DownloadModel::DownloadModel(WebDownloadManager *downloadManager, QObject *parent)
     : QAbstractListModel(parent), mDownloadManager(downloadManager) {
-    // NOOP
+    // 刻意留空
 }
 
 QVariant DownloadModel::data(const QModelIndex &index, int role) const {

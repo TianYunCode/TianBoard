@@ -29,6 +29,7 @@ ChaseWidget::~ChaseWidget() = default;
 void ChaseWidget::setAnimated(bool value) {
     if (d->mAnimated == value)
         return;
+    // 状态切换时先停掉旧定时器，再按需要重新启动，避免重复的定时器叠加。
     d->mAnimated = value;
     if (d->mTimerID != -1) {
         killTimer(d->mTimerID);
@@ -61,7 +62,8 @@ void ChaseWidget::paintEvent(QPaintEvent *event) {
     else
         p.setPen(QPen(palette().dark().color()));
 
-    p.translate(width() / 2, height() / 2); // center
+    // 把坐标原点移到控件中心，下面绕中心逐段旋转并画小圆点，形成追逐动画。
+    p.translate(width() / 2, height() / 2);
 
     for (int segment = 0; segment < segmentCount(); ++segment) {
         p.rotate(QApplication::isRightToLeft() ? d->mStep : -d->mStep);

@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @brief 程序入口：安装消息处理与拖放实现，创建 Application 并处理命令行文件。
+ */
+
 #include <QtWidgets>
 #include <QTextCodec>
 
@@ -10,19 +15,25 @@
 #include "whiteboard/IBoardDropHandler.h"
 
 
+/**
+ * @brief 全局 Qt 消息处理：控制台输出、重复处理保护与日志文件写入。
+ *
+ * 先摘掉自身再转发，避免 handler 递归调用 qt_message_output 造成无限递归；
+ * verbose 模式下把日志追加到用户数据目录的 log/ 下，超过阈值时先删除旧文件。
+ */
 void messageOutputHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
-    // We must temporarily remove the handler to avoid the infinite recursion of
-    // messageOutputHandler -> qt_message_output -> messageOutputHandler -> qt_message_output ...
+    // 必须先暂时摘掉 handler，否则会形成
+    // messageOutputHandler -> qt_message_output -> messageOutputHandler 的无限递归
     QtMessageHandler previousHandler = qInstallMessageHandler(0);
 
 #if defined(QT_NO_DEBUG)
-    // Suppress qDebug output in release builds
+    // release 构建下抑制 qDebug 输出
     if (type != QtDebugMsg) {
         qt_message_output(type, context, msg);
     }
 
 #else
-    // Default output in debug builds
+    // debug 构建下原样输出
     qt_message_output(type, context, msg);
 #endif
 
@@ -30,6 +41,7 @@ void messageOutputHandler(QtMsgType type, const QMessageLogContext &context, con
         QString logFileNamePath = Settings::userDataDirectory() + "/log/" + qApp->applicationName() + ".log";
         QFile logFile(logFileNamePath);
 
+        // 日志超过约 10 MB 时先删除，避免无限增长
         if (logFile.exists() && logFile.size() > 10000000)
             logFile.remove();
 
@@ -44,15 +56,7 @@ void messageOutputHandler(QtMsgType type, const QMessageLogContext &context, con
 }
 
 int main(int argc, char *argv[]) {
-    // Uncomment next section to have memory leaks information
-    // tracing in VC++ debug mode under Windows
-    /*
-#if defined(_MSC_VER) && defined(_DEBUG)
-    _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-#endif
-*/
-
-    // QT_NO_GLIB=1 is set by default on Linux, and prevents media playback
+    // QT_NO_GLIB=1 在 Linux 上会阻止媒体播放，这里主动清掉
     if (qEnvironmentVariableIsSet("QT_NO_GLIB"))
         qunsetenv("QT_NO_GLIB");
 
@@ -61,7 +65,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(messageOutputHandler);
 
     // 装配点认识所有模块：画板只声明了 IBoardDropHandler 接口，实现是 api 的门面
-    // （它要 DownloadManager 和文档的对象目录）。装上之前画板不会崩，只是不接拖放。
+    // （它需要 DownloadManager 和文档的对象目录）。装上之前画板不会崩，只是不接拖放。
     // 见 docs/architecture.md 拆环顺序第 3 步。
     installBoardDropHandlerFactory(
         [](GraphicsScene *scene, GraphicsWidgetItem *widget) -> IBoardDropHandler * {
@@ -72,6 +76,7 @@ int main(int argc, char *argv[]) {
 
     QStringList args = app.arguments();
 
+    // 日志目录可能尚未建立，先确保存在
     QString dumpPath = Settings::userDataDirectory() + "/log";
     QDir logDir(dumpPath);
     if (!logDir.exists())
@@ -80,15 +85,15 @@ int main(int argc, char *argv[]) {
     QString fileToOpen;
 
     if (args.size() > 1) {
-        // On Windows/Linux first argument is the file that has been double clicked.
-        // On Mac OSX we use FileOpen QEvent to manage opening file in current instance. So we will never
-        // have file to open as a parameter on OSX.
+        // Windows/Linux 下第一个参数是双击打开的文件；
+        // macOS 通过 FileOpen 事件在现有实例中处理，因此这里不会收到文件参数。
 
         QFile f(args[1]);
 
         if (f.exists()) {
             fileToOpen += args[1];
 
+            // 已有实例在运行时把文件路径转发过去，本次进程直接退出
             if (app.sendMessage(Settings::appPingMessage, 20000)) {
                 app.sendMessage(fileToOpen, 1000000);
                 return 0;

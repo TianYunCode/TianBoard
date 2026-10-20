@@ -45,29 +45,8 @@ void WebTrapWebView::setIsTrapping(bool pIsTrapping) {
 
     d->mDomElementRect = QRect();
     d->mCurrentContentType = Unknown;
-    /*
-    if(mIsTrapping)
-    {
-        if (!mTrapingWidget)
-        {
-            mTrapingWidget = new WebTrapMouseEventMask(this);
-            mTrapingWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-            mTrapingWidget->setAttribute(Qt::WA_TranslucentBackground, true);
-        }
-
-        QPoint topLeft = mapToGlobal (geometry().topLeft());
-        QRect geom(topLeft.x(), topLeft.y(), geometry().width(), geometry().height());
-
-        mTrapingWidget->setGeometry(geom);
-        mTrapingWidget->setVisible(true);
-
-    }
-    else if (mTrapingWidget)
-    {
-         mTrapingWidget->setVisible(false);
-    }
-
-*/
+    // 抓取状态只体现在本控件自身的重绘上，不再额外创建置顶的鼠标遮罩窗口，
+    // 因为 QWebEngineView 的合成窗口会盖在普通 QWidget 之上，遮罩拿不到鼠标事件。
 
     update();
 }
@@ -82,115 +61,10 @@ void WebTrapWebView::highliteElementAtPos(const QPoint &pos) {
     d->mCurrentContentType = Unknown;
 
     if (page() && page()->webChannel()) {
-        //QWebHitTestResult htr = page()->currentFrame()->hitTestContent (pos);
-        //QRect pageHtr = htr.boundingRect().translated(htr.frame()->pos());
-
-        //QRect updateRect = mWebViewElementRect.united(pageHtr);
-        //updateRect = updateRect.adjusted(-8, -8, 8, 8);
-
-        //    mDomElementRect = htr.boundingRect();
-
-        //    if (!htr.pixmap().isNull())
-        //    {
-        //        mCurrentContentType = Image;
-        //        qDebug() << "found pixmap at " << htr.boundingRect();
-        //    }
-        //    else
-        //    {
-        //        QWebElement element = htr.element();
-        //        QString tagName = element.tagName().toLower();
-
-        //        if (tagName == "object"
-        //            || tagName == "embed")
-        //        {
-        //            mCurrentContentType = ObjectOrEmbed;
-        //        }
-        //        else if ((tagName == "input") || (tagName == "textarea"))
-        //        {
-        //            QString ec = potentialEmbedCodeAtPos(pos);
-
-        //            if (ec.length() > 0)
-        //            {
-        //                qDebug() << "found input data \n\n" << ec;
-        //                mCurrentContentType = Input;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            QString tagName = htr.element().tagName();
-        //            QString id =  htr.element().attribute("id", "");
-        //            QWebElement el = htr.element();
-
-        //            QString idSelector = tagName + "#" + id;
-        //            bool idSuccess = (el == el.document().findFirst(idSelector));
-
-        //            if (idSuccess)
-        //            {
-        //                mElementQuery = idSelector;
-        //                mCurrentContentType = ElementByQuery;
-        //            }
-        //            else
-        //            {
-        //                //bool isValid = true;
-
-        //                QWebElement elParent = el.parent();
-        //                QWebElement currentEl = el;
-        //                QString path = tagName;
-        //                QStringList pathElements;
-
-        //                do
-        //                {
-        //                    QWebElement someSibling = elParent.firstChild();
-
-        //                    int index = 0;
-        //                    bool foundIndex = false;
-
-        //                    do
-        //                    {
-        //                        if (someSibling.tagName() == currentEl.tagName())
-        //                        {
-        //                            if (someSibling == currentEl)
-        //                            {
-        //                                foundIndex = true;
-        //                            }
-        //                            else
-        //                                index++;
-        //                        }
-
-        //                        someSibling = someSibling.nextSibling();
-        //                    }
-        //                    while(!someSibling.isNull() && !foundIndex);
-
-        //                    QString part;
-
-        //                    if (index > 0)
-        //                        part = QString("%1:nth-child(%2)").arg(currentEl.tagName()).arg(index);
-        //                    else
-        //                        part = currentEl.tagName();
-
-        //                    pathElements.insert(0, part);
-
-        //                    currentEl = elParent;
-        //                    elParent = elParent.parent();
-
-        //                } while(!elParent.isNull());
-
-        //                //QString idSelector = tagName + "#" + id;
-        //                QString treeSelector =  pathElements.join(" > ");
-
-        //                mElementQuery = treeSelector;
-        //                mCurrentContentType = ElementByQuery;
-
-        //                //bool treeSuccess = (el == el.document().findFirst(treeSelector));
-
-        //                //qDebug() << "----------------------------";
-        //                //qDebug() << idSuccess << idSelector;
-        //                //qDebug() << treeSuccess << treeSelector;
-        //            }
-        //        }
-        //    }
-
-        //    update(updateRect);
+        // 这里原本依赖 QWebFrame 的同步命中测试（hitTestContent）拿到元素包围盒，
+        // 再据此生成 id 选择器或 nth-child 路径选择器。QWebEngine 已删除 QWebFrame，
+        // 命中测试只能异步走 JavaScript，故本函数暂只把内容类型复位为 Unknown：
+        // mDomElementRect 保持无效，paintEvent 的高亮分支因此不会绘制。
     }
 }
 
@@ -198,8 +72,10 @@ void WebTrapWebView::highliteElementAtPos(const QPoint &pos) {
 QString WebTrapWebView::potentialEmbedCodeAtPos(const QPoint &pos) {
     QString scr = QString("document.elementFromPoint(%1, %2).tagName").arg(pos.x()).arg(pos.y());
 
-    //QVariant tagNameVar = page()->runJavaScript(scr);
-    QString tagName = ""; // tagNameVar.toString().toLower();
+    // QWebEngine 的 runJavaScript 是异步回调，拿不到同步返回值，tagName 只能留空，
+    // 于是下面的分支恒不成立、函数恒返回空串。scr 与 valueScript 是原本要执行的脚本，
+    // 保留在此便于日后改成异步回调实现。
+    QString tagName = "";
 
     if ((tagName == "input") || (tagName == "textarea")) {
         QString valueScript;
@@ -210,8 +86,7 @@ QString WebTrapWebView::potentialEmbedCodeAtPos(const QPoint &pos) {
             valueScript = QString("document.elementFromPoint(%1, %2).innerHTML").arg(pos.x()).arg(pos.y());
         }
 
-        //QVariant valueVar = page()->runJavaScript(valueScript);
-        QString value = ""; //valueVar.toString();
+        QString value = "";
 
         if (value.length() > 0 && value.contains("width") && value.contains("height")) {
             return value;
@@ -223,58 +98,10 @@ QString WebTrapWebView::potentialEmbedCodeAtPos(const QPoint &pos) {
 
 
 void WebTrapWebView::trapElementAtPos(const QPoint &pos) {
-    /*QWebHitTestResult htr = page()->currentFrame()->hitTestContent(pos);
-
-    if (!htr.pixmap().isNull())
-    {
-        emit pixmapCaptured(htr.pixmap(), false);
-    }
-    else if (mCurrentContentType == ObjectOrEmbed)
-    {
-        QString embedSelector = QString("document.elementFromPoint(%1, %2)").arg(pos.x()).arg(pos.y());
-        QVariant tagName = page()->currentFrame()->evaluateJavaScript(embedSelector + ".tagName");
-
-        QVariant innerHTML = page()->currentFrame()->evaluateJavaScript(embedSelector + ".innerHTML");
-        qDebug() << "innerHTML" << innerHTML;
-
-        if (tagName.toString().toLower() == "object")
-        {
-            embedSelector = QString("document.elementFromPoint(%1, %2).getElementsByTagName('object')[0]")
-                .arg(pos.x()).arg(pos.y());
-        }
-
-        QString querySource = embedSelector + ".src";
-        QVariant resSource = page()->currentFrame()->evaluateJavaScript(querySource);
-        qDebug() << "resSource" << resSource;
-        QString source = resSource.toString();
-
-        QString queryType = embedSelector + ".type";
-        QVariant resType = page()->currentFrame()->evaluateJavaScript(queryType);
-        QString type = resType.toString();
-        qDebug() << "resType" << resType;
-
-        if (source.trimmed().length() > 0)
-        {
-            emit objectCaptured(QUrl(page()->currentFrame()->url().toString() + "/" + source), type,
-                    htr.boundingRect().width(), htr.boundingRect().height());
-
-            Application::boardController->downloadURL(QUrl(source));
-            Application::applicationController->showBoard();
-        }
-    }
-    else if (mCurrentContentType == Input)
-    {
-        QString embedCode = potentialEmbedCodeAtPos(pos);
-
-        if (embedCode.length() > 0)
-        {
-            emit embedCodeCaptured(embedCode);
-        }
-    }
-    else if (mCurrentContentType == ElementByQuery)
-    {
-        webElementCaptured(page()->currentFrame()->url(), mElementQuery);
-    }*/
+    // 抓取逻辑整体依赖 QWebFrame 的同步命中测试与 evaluateJavaScript 同步取值，
+    // 迁到 QWebEngine 后已无对应 API：本函数现为空实现，pos 不再被使用，鼠标释放时
+    // 不再产生任何 pixmapCaptured / objectCaptured / embedCodeCaptured /
+    // webElementCaptured 信号。
 }
 
 
@@ -288,72 +115,19 @@ void WebTrapWebView::mouseMoveEvent(QMouseEvent *event) {
 
 void WebTrapWebView::mousePressEvent(QMouseEvent *event) {
     if (d->mIsTrapping) {
-        // NOOP - avoid event routing to web kit (accept is not enough)
+        // 空实现：抓取态下按下事件必须就地吞掉，只调 accept() 不足以阻止它被转发给网页。
     } else {
-        //QWebEngineView::mousePressEvent(event);
+        // 空实现：非抓取态同样不向基类转发，两个分支都为空，按下事件在本层被全部吞掉。
     }
 }
 
 
 void WebTrapWebView::mouseReleaseEvent(QMouseEvent *event) {
-    //bool eventConsumed = false;
-
-    //qDebug() << "mouse release" << event->pos();
-
     if (d->mIsTrapping) {
         trapElementAtPos(event->pos());
     } else {
         QWebEngineView::mouseReleaseEvent(event);
     }
-
-    //if (!eventConsumed)
-
-
-    /*
-        QString script;
-        script += QString("var element = document.elementFromPoint(%1, %2);").arg(event->pos().x()).arg(event->pos().y());
-
-        script += "var path = '';";
-        script += "var currentNode = element;";
-        script += "while(currentNode){";
-
-        script += "    if (currentNode.nodeType == Node.ELEMENT_NODE){";
-        script += "        var tn = currentNode.tagName;";
-
-        script += "        var elp = currentNode.parentNode;";
-        script += "        var index = -1;";
-        script += "        if(elp){";
-
-        script += "            for(i = 0; i < elp.childNodes.length; i++){";
-        script += "                var node = elp.childNodes[i];";
-        script += "                if(node.nodeType == Node.ELEMENT_NODE && node.tagName == tn){";
-        script += "                    index++;";
-        script += "                }";
-        script += "                if(node == currentNode){";
-        script += "                    break;";
-        script += "                }";
-
-        script += "            }";
-        script += "        }";
-
-        script += "        path = tn + '[' + index + '] > ' + path;";
-        script += "    }";
-
-        script += "    currentNode = currentNode.parentNode;";
-        script += "}";
-
-        script += "'id: ' + element.id + ', TagName: ' + element.tagName + ', at: ' + path;";
-
-        QVariant result = page()->currentFrame()->evaluateJavaScript(script);
-
-        qDebug() << result.isValid() << result.toString();
-        */
-
-
-    //if (result.isValid())
-    //{
-    //emit trapped(url(), result.toString());
-    //}
 }
 
 
@@ -367,10 +141,6 @@ void WebTrapWebView::paintEvent(QPaintEvent *event) {
 
         if (d->mCurrentContentType != Unknown)
             pen = QPen(QColor(0, 255, 0, 127));
-        //else if (mCurrentContentType == ObjectOrEmbed)
-        //    pen = QPen(QColor(0, 0, 255, 127));
-        //else if (mCurrentContentType == Input)
-        //    pen = QPen(QColor(0, 0, 255, 127));
         else
             pen = QPen(QColor(255, 0, 0, 127));
 
@@ -378,17 +148,15 @@ void WebTrapWebView::paintEvent(QPaintEvent *event) {
         pen.setWidth(8);
         p.setPen(pen);
 
-        QPoint scrollPosition; //= page()->currentFrame()->scrollPosition();
+        // QWebEngine 没有帧滚动位置可查，只能按未滚动处理；命中框因此只在页面顶部
+        // 滚动位置为 0 时才与元素真正对齐。
+        QPoint scrollPosition;
         QRect webViewPosition = d->mDomElementRect;
         webViewPosition.translate(-scrollPosition);
 
         d->mWebViewElementRect = webViewPosition.adjusted(-4, -4, 4, 4);
 
         p.drawRect(d->mWebViewElementRect);
-
-        //pen.setColor(Qt::black);
-        //p.setPen(pen);
-        //p.drawText(mDomElementRect.adjusted(8, 8, -8, -8), mElementID);
     }
 }
 
@@ -404,12 +172,12 @@ WebTrapMouseEventMask::WebTrapMouseEventMask(WebTrapWebView *pWebView) : d(new P
 }
 
 WebTrapMouseEventMask::~WebTrapMouseEventMask() {
-    // NOOP
+    // 空实现：本控件没有自持资源，子对象由 Qt 父子关系回收。
 }
 
 void WebTrapMouseEventMask::mousePressEvent(QMouseEvent *event) {
     if (d->mTrappedWebView && d->mTrappedWebView->isTrapping()) {
-        // NOOP
+        // 空实现：抓取态下按下事件就地吞掉，不让它落到被盖住的网页上。
     } else {
         QWidget::mousePressEvent(event);
     }
@@ -436,7 +204,6 @@ void WebTrapMouseEventMask::mouseReleaseEvent(QMouseEvent *event) {
 
 void WebTrapMouseEventMask::paintEvent(QPaintEvent *) {
     QPainter painter(this);
-    //painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(127, 127, 127, 15));
 

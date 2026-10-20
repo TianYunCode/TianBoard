@@ -22,7 +22,8 @@ WebPage::WebPage(QObject *parent)
       mKeyboardModifiers(Qt::NoModifier),
       mPressedButtons(Qt::NoButton),
       mOpenInNewTab(false) {
-    //setNetworkAccessManager(NetworkAccessManager::defaultAccessManager());
+    // 空实现：QWebEnginePage 不再允许替换网络访问管理器，请求统一走所属 profile，
+    // 原先注入自研 NetworkAccessManager 的做法在 Qt6 下已无处可挂。
 }
 
 void WebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level,
@@ -80,8 +81,6 @@ QWebEnginePage *WebPage::createWindow(QWebEnginePage::WebWindowType type) {
 WebView::WebView(QWidget *parent) : WebTrapWebView(parent), mProgress(0), mPage(new WebPage(this)) {
     setPage(mPage);
 
-    //QWebEngineView::setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
-
     connect(this, &QWebEngineView::loadProgress, this, &WebView::setProgress);
 
     connect(this, &QWebEngineView::loadFinished, this, &WebView::loadFinished);
@@ -99,23 +98,9 @@ WebView::WebView(QWidget *parent) : WebTrapWebView(parent), mProgress(0), mPage(
 
 
 void WebView::contextMenuEvent(QContextMenuEvent *event) {
-    //QWebHitTestResult r = page()->mainFrame()->hitTestContent(event->pos());
-
-    //if (!r.linkUrl().isEmpty())
-    //{
-    //    QMenu menu(this);
-    //    menu.addAction(pageAction(QWebEnginePage::OpenLinkInNewWindow));
-    //    menu.addAction(tr("Open in New Tab"), this, SLOT(openLinkInNewTab()));
-    //    menu.addSeparator();
-    //    menu.addAction(pageAction(QWebEnginePage::DownloadLinkToDisk));
-    //    // Add link to bookmarks...
-    //    menu.addSeparator();
-    //    menu.addAction(pageAction(QWebEnginePage::CopyLinkToClipboard));
-    //    if (page()->settings()->testAttribute(QWebEngineSettings::DeveloperExtrasEnabled))
-    //        menu.addAction(pageAction(QWebEnginePage::InspectElement));
-    //    menu.exec(mapToGlobal(event->pos()));
-    //    return;
-    //}
+    // 原先这里用 QWebFrame 的同步命中测试判断“右键是否落在链接上”，是则弹自建的
+    // 链接菜单（新窗口/新标签打开、下载、复制链接、检查元素）。Qt6 没有 QWebFrame，
+    // 命中测试只能异步进行，右键菜单统一交给 QWebEngineView 的默认实现处理。
     WebTrapWebView::contextMenuEvent(event);
 }
 
@@ -124,7 +109,9 @@ void WebView::wheelEvent(QWheelEvent *event) {
     if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
         int numDegrees = event->angleDelta().y() / 8;
         int numSteps = numDegrees / 15;
-        //setTextSizeMultiplier(textSizeMultiplier() + numSteps * 0.1);
+        // Ctrl+滚轮原本调 setTextSizeMultiplier() 调字号，该 API 随 QWebView 一起消失，
+        // 缩放尚未改用 zoomFactor() 重新实现，所以这里只保留步数计算；事件仍被 accept()
+        // 吃掉，避免 Ctrl+滚轮顺带把页面滚动。
         event->accept();
         return;
     }
@@ -139,8 +126,6 @@ void WebView::openLinkInNewTab() {
 
 
 void WebView::setProgress(int progress) {
-    //qDebug() << "loading progress" << progress << "% in" << mLoadStartTime.elapsed() << "ms";
-
     mProgress = progress;
 }
 

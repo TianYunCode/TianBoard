@@ -35,8 +35,8 @@ void ClearButton::textChanged(const QString &text) {
 }
 
 /*
-    Search icon on the left hand side of the search widget
-    When a menu is set a down arrow appears
+    搜索框左侧的搜索按钮：点击图标可弹出菜单（若设置了菜单）。
+    这里只在本文件内部使用，随 SearchLineEdit 一起创建。
  */
 class SearchButton : public QAbstractButton {
 public:
@@ -102,10 +102,10 @@ void SearchButton::paintEvent(QPaintEvent *event) {
 }
 
 /*
-    SearchLineEdit is an enhanced QLineEdit
-    - A Search icon on the left with optional menu
-    - When there is no text and doesn't have focus an "inactive text" is displayed
-    - When there is text a clear button is displayed on the right hand side
+    SearchLineEdit 是增强版行编辑框：
+    - 左侧有搜索图标，可挂下拉菜单；
+    - 无文本且未获得焦点时显示“占位提示”；
+    - 有文本时右侧显示清除按钮。
  */
 SearchLineEdit::SearchLineEdit(QWidget *parent) : ExLineEdit(parent), mSearchButton(new SearchButton(this)) {
     connect(lineEdit(), &QLineEdit::textChanged, this, &SearchLineEdit::textChanged);
