@@ -26,6 +26,8 @@ private slots:
     void ignoresNonPositiveGridSize();
     /// @brief 多角点取吸得力最强的那个，并报告是第几个角。
     void picksTheStrongestCorner();
+    /// @brief 旋转角在容差内吸到 45°／30° 的整数倍，离得远就完全不吸。
+    void snapsRotationToCommonAngles();
 };
 
 void TestSnapping::snapsToTheNearestGridLine()
@@ -99,6 +101,27 @@ void TestSnapping::picksTheStrongestCorner()
     const Snapping::Result none = Snapping::bestOfCorners(QList<QPointF>(), 100, true);
     QCOMPARE(none.corner, -1);
     QCOMPARE(none.offset, QPointF(0, 0));
+}
+
+void TestSnapping::snapsRotationToCommonAngles()
+{
+    const QList<qreal> steps{45, 30};
+
+    QCOMPARE(Snapping::toNearestAngle(46, steps, 2), 45.0);
+    QCOMPARE(Snapping::toNearestAngle(28, steps, 2), 30.0);
+
+    // 358° 离 360° 只差 2°，折回后就是 0°。
+    QCOMPARE(Snapping::toNearestAngle(358, steps, 2), 0.0);
+    QCOMPARE(Snapping::toNearestAngle(-46, steps, 2), 315.0);
+
+    // 哪个整数倍都不够近时保持原角度（只折回 0..360）。
+    QCOMPARE(Snapping::toNearestAngle(20, steps, 2), 20.0);
+
+    // 45° 一档优先于 30° 一档：容差放宽到 16° 时 15° 会先命中 45° 的 0 倍。
+    QCOMPARE(Snapping::toNearestAngle(15, steps, 16), 0.0);
+
+    // 步长列表里的非正值直接跳过（既不除零，也不把角度吸到 0）。
+    QCOMPARE(Snapping::toNearestAngle(20, {0, 45}, 2), 20.0);
 }
 
 QTEST_GUILESS_MAIN(TestSnapping)

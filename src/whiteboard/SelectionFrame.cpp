@@ -8,6 +8,7 @@
 #include "whiteboard/GraphicsGroupContainerItem.h"
 #include "whiteboard/BoardController.h"
 #include "settings/Settings.h"
+#include "utils/Snapping.h"
 #include "core/Application.h"
 #include "ui/Resources.h"
 #include "ui/MainWindow.h"
@@ -16,8 +17,8 @@
 #include "whiteboard/DrawingController.h"
 
 SelectionFrame::SelectionFrame()
-    : mThickness(Settings::settings()->objectFrameWidth), mAntiscaleRatio(1.0), mRotationAngle(0), mDeleteButton(0), mDuplicateButton(0),
-      mZOrderUpButton(0), mZOrderDownButton(0), mGroupButton(0), mRotateButton(0)
+    : mThickness(Settings::settings()->objectFrameWidth), mAntiscaleRatio(1.0), mCursorRotationAngle(0), mAppliedRotationAngle(0), mDeleteButton(0),
+      mDuplicateButton(0), mZOrderUpButton(0), mZOrderDownButton(0), mGroupButton(0), mRotateButton(0)
 {
     setLocalBrush(QBrush(Settings::paletteColor));
     setPen(Qt::NoPen);
@@ -76,7 +77,8 @@ void SelectionFrame::setEnclosedItems(const QList<QGraphicsItem *> pGraphicsItem
 {
     mButtons.clear();
     mButtons.append(mDeleteButton);
-    mRotationAngle = 0;
+    mCursorRotationAngle  = 0;
+    mAppliedRotationAngle = 0;
 
     QRegion       resultRegion;
     GraphicsFlags resultFlags;
@@ -149,7 +151,8 @@ void SelectionFrame::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     mPressedPos = mLastMovedPos = event->pos();
     mLastTranslateOffset        = QPointF();
-    mRotationAngle              = 0;
+    mCursorRotationAngle        = 0;
+    mAppliedRotationAngle       = 0;
     mStartingBounds             = sceneBoundingRect();
 
     if (scene()->itemAt(event->scenePos(), transform()) == mRotateButton)
@@ -169,14 +172,39 @@ void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    QPointF dp        = event->pos() - mPressedPos;
-    QPointF rotCenter = mapToScene(rect().center());
+    QPointF dp                = event->pos() - mPressedPos;
+    QPointF rotCenter         = mapToScene(rect().center());
 
-    // 整组拖动也要吸到网格：拿“按下时的选区 + 这次的总位移”去吸附，
-    // 同一次拖动里反复算也不会把误差累积进位移。
-    if (GraphicsScene *boardScene = dynamic_cast<GraphicsScene *>(scene()); boardScene && boardScene->isSnapping())
+    GraphicsScene *boardScene = dynamic_cast<GraphicsScene *>(scene());
+    const bool     snapping   = boardScene && boardScene->isSnapping();
+
+    // 整组平移吸网格：拿“按下时的选区 + 这次的总位移”去算，同一次拖动里反复算
+    // 也不会把误差累积进位移。
+    if (snapping && static_cast<int>(mOperationMode) == om_moving)
     {
         dp += boardScene->snapToGrid(mStartingBounds.translated(dp));
+    }
+
+    // 整组旋转：先把累计角算出来，再决定这一次真正要转多少。旋转量对每个被选图元都一样，
+    // 所以必须在循环外算一次，不能放进 foreach 里逐个改。
+    qreal rotationDelta = 0;
+    if (static_cast<int>(mOperationMode) == om_rotating)
+    {
+        const QLineF startLine(sceneBoundingRect().center(), event->lastScenePos());
+        const QLineF currentLine(sceneBoundingRect().center(), event->scenePos());
+
+        mCursorRotationAngle = std::fmod(mCursorRotationAngle - startLine.angleTo(currentLine) + 360.0, 360.0);
+
+        qreal target         = mCursorRotationAngle;
+        if (snapping)
+        {
+            // 与单图元旋转框同一套规则：先试 45° 的整数倍，再试 30°，容差共用一个设置项。
+            target = Snapping::toNearestAngle(mCursorRotationAngle, {45, 30}, Settings::settings()->angleTolerance->get().toReal());
+        }
+
+        // 只补“目标角与已施加之差”：吸住时增量为 0，拖出容差范围后又能跟上光标。
+        rotationDelta         = target - mAppliedRotationAngle;
+        mAppliedRotationAngle = target;
     }
 
     foreach (GraphicsItemDelegate *curDelegate, mEnclosedtems)
@@ -201,27 +229,17 @@ void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
             case om_rotating:
             {
-                QLineF startLine(sceneBoundingRect().center(), event->lastScenePos());
-                QLineF currentLine(sceneBoundingRect().center(), event->scenePos());
-                qreal  dAngle               = startLine.angleTo(currentLine);
-
                 QGraphicsItem *item         = curDelegate->delegated();
                 QTransform     ownTransform = item->transform();
 
                 QPointF nextRotCenter       = item->mapFromScene(rotCenter);
 
-                qreal cntrX                 = nextRotCenter.x();
-                qreal cntrY                 = nextRotCenter.y();
-
-                ownTransform.translate(cntrX, cntrY);
-                mRotationAngle -= dAngle;
-                ownTransform.rotate(-dAngle);
-                ownTransform.translate(-cntrX, -cntrY);
+                ownTransform.translate(nextRotCenter.x(), nextRotCenter.y());
+                ownTransform.rotate(rotationDelta);
+                ownTransform.translate(-nextRotCenter.x(), -nextRotCenter.y());
 
                 item->update();
                 item->setTransform(ownTransform, false);
-
-                qDebug() << "curAngle" << mRotationAngle;
             }
             break;
         }

@@ -65,4 +65,30 @@ namespace Snapping
 
         return best;
     }
+    qreal toNearestAngle(qreal angle, const QList<qreal> &steps, qreal tolerance)
+    {
+        qreal folded = std::fmod(angle, 360.0);
+        if (folded < 0.0)
+        {
+            folded += 360.0;
+        }
+
+        for (const qreal step : steps)
+        {
+            if (step <= 0.0)
+            {
+                continue;
+            }
+
+            const qreal remainder = std::fmod(folded, step);
+            if (remainder <= tolerance || step - remainder <= tolerance)
+            {
+                qreal snapped = qRound(folded / step) * step;
+                snapped       = std::fmod(snapped, 360.0);
+                return snapped < 0.0 ? snapped + 360.0 : snapped;
+            }
+        }
+
+        return folded;
+    }
 } // namespace Snapping

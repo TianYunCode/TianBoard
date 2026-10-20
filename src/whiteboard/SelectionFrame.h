@@ -149,7 +149,8 @@ private:
     QRectF  mStartingBounds;                       ///< 按下时选区的场景包围盒；吸附按它算，避免误差累积
     QPointF mLastMovedPos;                         ///< 上一次移动位置
     QPointF mLastTranslateOffset;                  ///< 上一次累计平移量，避免重复位移
-    qreal   mRotationAngle;                        ///< 当前累计旋转角度（调试用）
+    qreal   mCursorRotationAngle;                  ///< 本次旋转累计到的目标角度
+    qreal   mAppliedRotationAngle;                 ///< 已经真正施加到图元上的角度
 
     bool mIsLocked;                                ///< 选中集合中是否有锁定图元
 

@@ -46,4 +46,13 @@ namespace Snapping
      * @param snapX 是否也吸 X。
      */
     Result bestOfCorners(const QList<QPointF> &corners, qreal gridSize, bool snapX);
+
+    /**
+     * @brief 把旋转角吸到最接近的常用角度。
+     * @param angle 累计角度（度，任意范围）。
+     * @param steps 候选步长，按优先级排列（例如 45 在前、30 在后）。
+     * @param tolerance 容差：离某个整数倍不超过它才吸。
+     * @return 吸完并折回 0..360 的角度；没有一个步长够近时原样返回（同样折回 0..360）。
+     */
+    qreal toNearestAngle(qreal angle, const QList<qreal> &steps, qreal tolerance);
 } // namespace Snapping

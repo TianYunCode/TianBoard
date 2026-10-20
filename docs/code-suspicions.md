@@ -231,6 +231,12 @@
   而且**替换串里不能出现 `\r?\n` 这种写法**——`\r` 会被当成字节的 CR 插进文件，把一次
   改名变成整行损坏（本轮踩过：多余 CR 加上 `$1` 没展开，编译器只报“未声明的标识符”）。
   同理，`s{...}{...}` 的定界符会和替换串里的花括号打架，替换里带 lambda 时要换定界符。
+- **角度磁吸有两份实现**：`GraphicsDelegateFrame::mouseMoveEvent` 里是老的 45°/30° 容差判断，
+  还带一个 `mAngleOffset` 借位机制（吸住之后把多拖的部分留着，拖回来时不丢角度）；整组旋转的
+  `SelectionFrame` 现在走 `Snapping::toNearestAngle`（同一组步长与同一个 `angleTolerance`，但没有
+  借位）。规则一致、实现重复。合并时注意：借位不是可有可无的修饰，去掉它会让"绕过 45° 继续拖"
+  手感变粘，所以要么两边都带借位，要么两边都不带，别只改一边。
+
 - **Qt 对象名与样式表是一对**：`res/etc/TianBoard.css` 用 `QToolButton#buttonGroupLeft`
   这类 `#id` 选择器，改 `setObjectName()` 必须同步改 CSS，否则样式静默脱落，
   `tst_assets` 管不到这一层。
