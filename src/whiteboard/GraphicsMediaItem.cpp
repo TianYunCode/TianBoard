@@ -12,7 +12,7 @@
 bool GraphicsMediaItem::sIsMutedByDefault = false;
 
 GraphicsMediaItem *GraphicsMediaItem::createMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent) {
-    GraphicsMediaItem *mediaItem;
+    GraphicsMediaItem *mediaItem = nullptr;
 
     QString mediaPath = pMediaFileUrl.toString();
     if ("" == mediaPath)

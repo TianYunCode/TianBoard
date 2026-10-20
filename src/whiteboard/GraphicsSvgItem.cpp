@@ -74,7 +74,9 @@ QVariant GraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant &
 
 void GraphicsSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     QMimeData *pMime = new QMimeData();
-    QPixmap pixmap = toPixmapItem()->pixmap();
+    // 直接渲染成 QPixmap；toPixmapItem() 会 new 一个带 delegate 的 GraphicsPixmapItem，
+    // 只为取它的 pixmap 就扔掉了，每按一次泄漏一个。
+    QPixmap pixmap = renderToPixmap();
     pMime->setImageData(pixmap.toImage());
     Delegate()->setMimeData(pMime);
     qreal k = (qreal)pixmap.width() / 100.0;
@@ -152,13 +154,17 @@ GraphicsScene *GraphicsSvgItem::scene() {
 }
 
 
-GraphicsPixmapItem *GraphicsSvgItem::toPixmapItem() const {
+QPixmap GraphicsSvgItem::renderToPixmap() const {
     QImage image(renderer()->viewBox().size(), QImage::Format_ARGB32);
     QPainter painter(&image);
     renderer()->render(&painter);
 
+    return QPixmap::fromImage(image);
+}
+
+GraphicsPixmapItem *GraphicsSvgItem::toPixmapItem() const {
     GraphicsPixmapItem *pixmapItem = new GraphicsPixmapItem();
-    pixmapItem->setPixmap(QPixmap::fromImage(image));
+    pixmapItem->setPixmap(renderToPixmap());
 
     pixmapItem->setPos(this->pos());
     pixmapItem->setTransform(this->transform());

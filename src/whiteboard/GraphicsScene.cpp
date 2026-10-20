@@ -1198,10 +1198,13 @@ void GraphicsScene::updateSelectionFrame() {
             mSelectionFrame->setVisible(false);
             mSelectionFrame->setEnclosedItems(QList<QGraphicsItem *>());
 
-            GraphicsItemDelegate *itemDelegate = GraphicsItem::Delegate(selItems.first());
-            itemDelegate->createControls();
-            selItems.first()->setVisible(true);
-            itemDelegate->showControls();
+            // 选择框（SelectionFrame）本身也能被选中，但它没有 Delegate；
+            // 不判空的话单选到它时这里直接崩。
+            if (GraphicsItemDelegate *itemDelegate = GraphicsItem::Delegate(selItems.first())) {
+                itemDelegate->createControls();
+                selItems.first()->setVisible(true);
+                itemDelegate->showControls();
+            }
 
         } break;
         default: {
@@ -1642,15 +1645,8 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
     svgItem->setPos(pPos - half);
     svgItem->show();
 
-    addItem(svgItem);
-
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
-        GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, svgItem);
-        Application::undoStack->push(uc);
-    }
-
-    setDocumentUpdated();
-
+    // 先把内嵌 svg 落盘再入场景：写失败时若已经 addItem 并压了 undo 命令，
+    // 场景里会留下一条永远不会被持久化的条目，调用方拿到的却还是 NULL。
     QString documentPath = Application::boardController->selectedDocument()->persistencePath();
 
     QString fileName = PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
@@ -1664,12 +1660,22 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
         QFile file(completePath);
         if (!file.open(QIODevice::WriteOnly)) {
             qWarning() << "cannot open file for writing embeded svg content " << completePath;
-            return NULL;
+            delete svgItem;
+            return nullptr;
         }
 
         file.write(svgItem->fileData());
         file.close();
     }
+
+    addItem(svgItem);
+
+    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+        GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, svgItem);
+        Application::undoStack->push(uc);
+    }
+
+    setDocumentUpdated();
 
     return svgItem;
 }

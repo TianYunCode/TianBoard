@@ -308,6 +308,9 @@ bool GraphicsItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void GraphicsItemDelegate::setMimeData(QMimeData *mimeData) {
+    if (mMimeData != mimeData) {
+        delete mMimeData; // 上一次按下后没真正拖起来的那份
+    }
     mMimeData = mimeData;
 }
 
@@ -320,6 +323,9 @@ bool GraphicsItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
             mDrag->setHotSpot(mDragPixmap.rect().center());
         }
         mDrag->exec();
+        // QDrag 已经接管 mMimeData（它挂在 event->widget() 下，随控件回收）；
+        // 这里必须断开，否则下次 setMimeData 会把 QDrag 拥有的对象再 delete 一次。
+        mMimeData = nullptr;
         mDragPixmap = QPixmap();
         return true;
     }

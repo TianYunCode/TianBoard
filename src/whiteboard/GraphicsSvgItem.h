@@ -38,6 +38,9 @@ public:
 
     virtual GraphicsPixmapItem *toPixmapItem() const;
 
+    // 只渲染出像素，不创建图形项（拖拽预览等场景用）。
+    QPixmap renderToPixmap() const;
+
     virtual void setUuid(const QUuid &pUuid);
 
     virtual void clearSource();

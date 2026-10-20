@@ -434,7 +434,7 @@ QList<DelegateButton *> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
     }
     result << mDeleteButton;
 
-    if (fls | GF_DUPLICATION_ENABLED) {
+    if (fls.testFlag(GF_DUPLICATION_ENABLED)) {
         if (!mDuplicateButton) {
             mDuplicateButton = new DelegateButton(":/images/duplicate.svg", this, 0, Qt::TopLeftSection);
             connect(mDuplicateButton, &DelegateButton::clicked, this, &SelectionFrame::duplicate);
@@ -451,7 +451,7 @@ QList<DelegateButton *> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
         result << mGroupButton;
     }
 
-    if (fls | GF_ZORDER_MANIPULATIONS_ALLOWED) {
+    if (fls.testFlag(GF_ZORDER_MANIPULATIONS_ALLOWED)) {
         if (!mZOrderUpButton) {
             mZOrderUpButton = new DelegateButton(":/images/z_layer_up.svg", this, 0, Qt::BottomLeftSection);
             mZOrderUpButton->setShowProgressIndicator(true);
@@ -472,7 +472,7 @@ QList<DelegateButton *> SelectionFrame::buttonsForFlags(GraphicsFlags fls) {
         result << mZOrderDownButton;
     }
 
-    if (fls | GF_REVOLVABLE) {
+    if (fls.testFlag(GF_REVOLVABLE)) {
         if (!mRotateButton) {
             mRotateButton = new DelegateButton(":/images/rotate.svg", this, 0, Qt::NoSection);
             mRotateButton->setCursor(Resources::resources()->rotateCursor);

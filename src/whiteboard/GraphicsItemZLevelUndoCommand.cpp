@@ -39,8 +39,9 @@ void GraphicsItemZLevelUndoCommand::undo() {
 
     if (mDest == ZLayerController::down || mDest == ZLayerController::bottom) {
         // Move up
-        QList<QGraphicsItem *>::iterator downIt = mItems.end();
-        for (; downIt >= mItems.begin(); downIt--) {
+        // end() 是 one-past-last，不能先解引用；倒序处理用前置自减。
+        for (auto downIt = mItems.end(); downIt != mItems.begin();) {
+            --downIt;
             for (int i = 0; i < zDiff; i++)
                 mpScene->changeZLevelTo(*downIt, ZLayerController::up);
         }

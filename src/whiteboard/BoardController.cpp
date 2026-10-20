@@ -372,7 +372,7 @@ void BoardController::stopScript() {
 }
 
 void BoardController::saveData(SaveFlags fls) {
-    bool verbose = fls | sf_showProgress;
+    bool verbose = fls.testFlag(sf_showProgress);
     if (verbose) {
         Application::showMessage(tr("Saving document..."));
     }
@@ -621,10 +621,10 @@ GraphicsItem *BoardController::duplicateItem(Item *item) {
 
             retItem = dynamic_cast<GraphicsItem *>(duplicatedGroup);
 
-            QGraphicsItem *itemToAdd = dynamic_cast<QGraphicsItem *>(retItem);
-            if (itemToAdd) {
-                mActiveScene->addItem(itemToAdd);
-                itemToAdd->setSelected(true);
+            // createGroup() 内部已经 addItem 并处理了 z/undo；再 add 一次会让同一个组
+            // 在 mFastAccessItems 里出现两次（复制页面时被克隆两遍），z 值也会被重排。
+            if (QGraphicsItem *itemToSelect = dynamic_cast<QGraphicsItem *>(retItem)) {
+                itemToSelect->setSelected(true);
             }
             mActiveScene->setURStackEnable(true);
         } break;
@@ -1031,6 +1031,10 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
         qDebug() << "accepting mime type" << mimeType << "as vecto image";
 
         GraphicsSvgItem *svgItem = mActiveScene->addSvg(sourceUrl, pPos, pData);
+        if (!svgItem) {
+            qWarning() << "cannot store embedded svg content, dropping it";
+            return nullptr;
+        }
         svgItem->setSourceUrl(sourceUrl);
 
         if (isBackground) {
@@ -1975,8 +1979,10 @@ void BoardController::copy() {
     foreach (QGraphicsItem *gi, mActiveScene->selectedItems()) {
         Item *boardItem = dynamic_cast<Item *>(gi);
 
+        // 与 cut() 一致：剪贴板存副本而不是场景里的活对象。存活指针时，源文档一关，
+        // 剪贴板里就是悬空指针（QWindowsClipboard 返回的仍是这个对象），之后粘贴会崩。
         if (boardItem && !mActiveScene->tools().contains(gi))
-            selected << boardItem;
+            selected << boardItem->deepCopy();
     }
 
     if (selected.size() > 0) {

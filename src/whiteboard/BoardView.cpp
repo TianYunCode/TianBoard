@@ -1163,7 +1163,9 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
             return;
         }
 
-        if (d->mWidgetMoved) {
+        // mWidgetMoved 可能在没有 movingItem 的情况下被置真（Play 工具点空白后
+        // 收到 isAbsurdPoint 的移动事件时会提前 return），这里必须判空。
+        if (d->mWidgetMoved && d->movingItem) {
             d->movingItem->setSelected(false);
             d->movingItem = NULL;
             d->mWidgetMoved = false;
