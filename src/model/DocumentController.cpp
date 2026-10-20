@@ -67,8 +67,6 @@ static bool lessThan(DocumentTreeNode *lValue, DocumentTreeNode *rValue)
             return lTime > rTime;
         }
     }
-
-    return false;
 }
 
 DocumentReplaceDialog::DocumentReplaceDialog(const QString &pIncommingName, const QStringList &pFileList, QWidget *parent, Qt::WindowFlags pFlags)
@@ -246,7 +244,7 @@ QString DocumentTreeNode::dirPathInHierarchy()
 
     if (result.endsWith("/"))
     {
-        result.truncate(result.count() - 1);
+        result.truncate(result.size() - 1);
     }
 
     return result;
@@ -1059,7 +1057,7 @@ QString DocumentTreeModel::virtualDirForIndex(const QModelIndex &pIndex) const
 
     if (result.endsWith("/"))
     {
-        result.truncate(result.count() - 1);
+        result.truncate(result.size() - 1);
     }
 
     return result;
@@ -1477,7 +1475,7 @@ void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event)
         index = selectedIndexes().first();
     }
 
-    bool acceptIt = isAcceptable(index, indexAt(event->pos()));
+    bool acceptIt = isAcceptable(index, indexAt(event->position().toPoint()));
 
     if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
     {
@@ -1494,7 +1492,7 @@ void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event)
             docModel = dynamic_cast<DocumentTreeModel *>(model());
         }
 
-        QModelIndex targetIndex = mapIndexToSource(indexAt(event->pos()));
+        QModelIndex targetIndex = mapIndexToSource(indexAt(event->position().toPoint()));
 
         if (!docModel || !docModel->isDocument(targetIndex) || docModel->inTrash(targetIndex))
         {
@@ -1508,7 +1506,7 @@ void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event)
             docModel->setHighLighted(targetIndex);
             acceptIt = true;
         }
-        updateIndexEnvirons(indexAt(event->pos()));
+        updateIndexEnvirons(indexAt(event->position().toPoint()));
     }
     QTreeView::dragMoveEvent(event);
 
@@ -1527,7 +1525,7 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
         docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
     }
 
-    QModelIndex     targetIndex = mapIndexToSource(indexAt(event->pos()));
+    QModelIndex     targetIndex = mapIndexToSource(indexAt(event->position().toPoint()));
     QModelIndexList dropIndex   = mapIndexesToSource(selectedIndexes());
 
     bool isBoardPage            = event->mimeData()->hasFormat(Application::mimeTypeBoardPage);
@@ -1571,19 +1569,21 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
             GraphicsScene *scene = PersistenceManager::persistenceManager()->loadDocumentScene(sourceItem.documentProxy(), sourceItem.sceneIndex());
             if (scene)
             {
-                GraphicsScene *sceneClone     = scene->sceneDeepCopy();
+                GraphicsScene *sceneClone       = scene->sceneDeepCopy();
 
-                DocumentProxy *targetDocProxy = docModel->proxyForIndex(targetIndex);
+                // 与上面那个 targetDocProxy（proxyData 拿到的）不同，这里要的是索引重新解析出来的代理；
+                // 换个名字，免得后面的相对路径搬运看不出用的是哪一个。
+                DocumentProxy *targetSceneProxy = docModel->proxyForIndex(targetIndex);
 
                 // 场景里的图片/音视频是相对路径，必须随场景一起搬到目标文档目录，
                 // 否则复制出的页会丢资源。
                 foreach (QUrl relativeFile, scene->relativeDependencies())
                 {
                     QString source        = scene->document()->persistencePath() + "/" + relativeFile.toString();
-                    QString target        = targetDocProxy->persistencePath() + "/" + relativeFile.toString();
+                    QString target        = targetSceneProxy->persistencePath() + "/" + relativeFile.toString();
 
                     QString sourceDecoded = scene->document()->persistencePath() + "/" + relativeFile.toString(QUrl::DecodeReserved);
-                    QString targetDecoded = targetDocProxy->persistencePath() + "/" + relativeFile.toString(QUrl::DecodeReserved);
+                    QString targetDecoded = targetSceneProxy->persistencePath() + "/" + relativeFile.toString(QUrl::DecodeReserved);
 
                     if (QFileInfo(source).isDir())
                     {
@@ -2067,9 +2067,9 @@ void DocumentController::setupViews()
         connect(mAddFileToDocumentAction, &QAction::triggered, this, qOverload<>(&DocumentController::addFileToDocument));
         connect(mAddImagesAction, &QAction::triggered, this, &DocumentController::addImages);
 
-        foreach (QWidget *menuWidget, mMainWindow->ui().actionDocumentAdd->associatedWidgets())
+        foreach (QObject *associated, mMainWindow->ui().actionDocumentAdd->associatedObjects())
         {
-            QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
+            QToolButton *tb = qobject_cast<QToolButton *>(associated);
 
             if (tb && !tb->menu())
             {
@@ -2099,9 +2099,9 @@ void DocumentController::setupViews()
             adaptor->setAssociatedAction(currentExportAction);
         }
 
-        foreach (QWidget *menuWidget, mMainWindow->ui().actionExport->associatedWidgets())
+        foreach (QObject *associated, mMainWindow->ui().actionExport->associatedObjects())
         {
-            QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
+            QToolButton *tb = qobject_cast<QToolButton *>(associated);
 
             if (tb && !tb->menu())
             {
@@ -2560,8 +2560,9 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
         }
         case CompleteDelete:
         {
-            DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-            DocumentProxy     *newProxy = docModel->proxyData(currentIndex);
+            // 用形参传进来的模型，与上面 MoveToTrash 分支保持一致；
+            // 原先在这里又去取全局模型，同名遮蔽了形参，换个调用方就会各算各的。
+            DocumentProxy *newProxy = docModel->proxyData(currentIndex);
             if (newProxy)
             {
                 pureSetDocument(newProxy);

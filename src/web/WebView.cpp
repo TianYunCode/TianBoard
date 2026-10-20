@@ -116,11 +116,16 @@ void WebView::wheelEvent(QWheelEvent *event)
 {
     if (QApplication::keyboardModifiers() & Qt::ControlModifier)
     {
-        int numDegrees = event->angleDelta().y() / 8;
-        int numSteps   = numDegrees / 15;
-        // Ctrl+滚轮原本调 setTextSizeMultiplier() 调字号，该 API 随 QWebView 一起消失，
-        // 缩放尚未改用 zoomFactor() 重新实现，所以这里只保留步数计算；事件仍被 accept()
-        // 吃掉，避免 Ctrl+滚轮顺带把页面滚动。
+        // Qt5 的 QWebView 用 setTextSizeMultiplier() 做 Ctrl+滚轮缩放，该 API 随 QWebView
+        // 一起消失；Qt6 WebEngine 的对应物是 zoomFactor()，整页一起缩放。
+        // 一格滚轮是 120 个 angleDelta 单位，每格 10%，夹在 Chromium 认可的区间内。
+        const int steps = event->angleDelta().y() / 120;
+        if (steps != 0)
+        {
+            setZoomFactor(qBound(0.25, zoomFactor() * (1.0 + 0.1 * steps), 5.0));
+        }
+
+        // 事件必须吃掉：否则 Ctrl+滚轮会顺带把页面滚动。
         event->accept();
         return;
     }

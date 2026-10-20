@@ -2341,7 +2341,9 @@ void BoardController::moveGraphicsWidgetToControlView(GraphicsWidgetItem *graphi
             copyedGraphicsWidget = static_cast<GraphicsWidgetItem *>(toolWidget);
         }
 
-        ToolWidget *toolWidget = new ToolWidget(copyedGraphicsWidget, mControlView);
+        // 内层不叫 toolWidget：外层那个是场景里被复制出来的图元，同名会让人以为
+        // 下面的 centerOn/show 操作的是同一个对象。
+        ToolWidget *pinnedToolWidget = new ToolWidget(copyedGraphicsWidget, mControlView);
 
         graphicsWidget->remove(false);
         mActiveScene->addItemToDeletion(graphicsWidget);
@@ -2349,8 +2351,8 @@ void BoardController::moveGraphicsWidgetToControlView(GraphicsWidgetItem *graphi
         mActiveScene->setURStackEnable(true);
 
         QPoint controlViewPos = mControlView->mapFromScene(graphicsWidget->sceneBoundingRect().center());
-        toolWidget->centerOn(mControlView->mapTo(mControlContainer, controlViewPos));
-        toolWidget->show();
+        pinnedToolWidget->centerOn(mControlView->mapTo(mControlContainer, controlViewPos));
+        pinnedToolWidget->show();
     }
 }
 

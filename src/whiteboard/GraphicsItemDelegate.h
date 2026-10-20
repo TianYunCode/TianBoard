@@ -148,10 +148,12 @@ public:
 private:
     static const char *getSegments(char);
     void               drawString(const QString &s, QPainter &, QBitArray * = 0, bool = true);
-    void               drawDigit(const QPoint &, QPainter &, int, char, char = ' ');
-    void               drawSegment(const QPoint &, char, QPainter &, int, bool = false);
-    void               addPoint(QPolygon &, const QPoint &);
-    void               internalSetString(const QString &s);
+    // 段长取成员 segLen：两个绘制函数都是本类的私有辅助，以前把成员当参数再传一遍，
+    // 形参与成员同名反而容易改漏。
+    void drawDigit(const QPoint &, QPainter &, char, char = ' ');
+    void drawSegment(const QPoint &, char, QPainter &, bool = false);
+    void addPoint(QPolygon &, const QPoint &);
+    void internalSetString(const QString &s);
 
     static char segments[][8];
 

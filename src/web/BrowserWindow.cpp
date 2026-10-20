@@ -166,10 +166,10 @@ void BrowserWindow::setupToolBar()
 // 历史菜单挂在后退/前进按钮上：按钮本体仍是"后退一步"，旁边的小箭头展开历史列表。
 void BrowserWindow::attachHistoryMenu(QAction *action, QMenu *menu)
 {
-    const QList<QWidget *> widgets = action->associatedWidgets();
-    for (QWidget *widget : widgets)
+    const QList<QObject *> associated = action->associatedObjects();
+    for (QObject *object : associated)
     {
-        QToolButton *button = qobject_cast<QToolButton *>(widget);
+        QToolButton *button = qobject_cast<QToolButton *>(object);
         if (button && !button->menu())
         {
             button->setMenu(menu);

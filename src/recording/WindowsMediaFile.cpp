@@ -4,7 +4,7 @@
 
 WindowsMediaFile::WindowsMediaFile(QObject *pParent)
     : QObject(pParent), mWMhDC(0), mWMWriter(0), mPushSink(0), mVideoInputIndex(0), mWMProfile(0), mWMInputVideoProps(0), mWMInputAudioProps(0),
-      mWMProfileManager(0), mFramesPerSecond(-1)
+      mWMProfileManager(0), mFramesPerSecond(10) // 与 AbstractVideoEncoder 的默认帧率一致；它是 DWORD，写 -1 会变成 0xFFFFFFFF 还被当除数用
 {
     // 刻意留空
 }
@@ -52,7 +52,7 @@ bool WindowsMediaFile::init(
         return false;
     }
 
-    DWORD streamCount = -1;
+    DWORD streamCount = 0; // 纯输出参数，GetStreamCount 会覆盖它；-1 是无符号下的巨大值，没有意义
 
     if (FAILED(mWMProfile->GetStreamCount(&streamCount)))
     {

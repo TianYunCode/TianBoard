@@ -1470,16 +1470,17 @@ GraphicsScene *GraphicsScene::sceneDeepCopy() const
 
             if (polygon)
             {
-                GraphicsStroke *stroke = dynamic_cast<GraphicsStroke *>(item->parentItem());
+                // 多边形挂在哪一笔上要看父图元，与循环开头那个 stroke 不是一回事，故另起一名。
+                GraphicsStroke *parentStroke = dynamic_cast<GraphicsStroke *>(item->parentItem());
 
-                if (stroke)
+                if (parentStroke)
                 {
-                    GraphicsStroke *cloneStroke = groupClone.value(stroke);
+                    GraphicsStroke *cloneStroke = groupClone.value(parentStroke);
 
                     if (!cloneStroke)
                     {
-                        cloneStroke = stroke->deepCopy();
-                        groupClone.insert(stroke, cloneStroke);
+                        cloneStroke = parentStroke->deepCopy();
+                        groupClone.insert(parentStroke, cloneStroke);
                     }
 
                     polygon->setStroke(cloneStroke);

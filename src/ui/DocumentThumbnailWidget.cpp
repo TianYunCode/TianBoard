@@ -42,7 +42,7 @@ void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    if ((event->pos() - mousePressPos()).manhattanLength() < QApplication::startDragDistance())
+    if ((event->position().toPoint() - mousePressPos()).manhattanLength() < QApplication::startDragDistance())
     {
         return;
     }
@@ -111,7 +111,7 @@ void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
     QRect boundingFrame       = frameRect();
     // 靠近可视区上下边缘时启动定时滚动，幅度随距离增大。
     const int SCROLL_DISTANCE = 16;
-    int       bottomDist = boundingFrame.bottom() - event->pos().y(), topDist = boundingFrame.top() - event->pos().y();
+    int       bottomDist = boundingFrame.bottom() - event->position().toPoint().y(), topDist = boundingFrame.top() - event->position().toPoint().y();
     if (qAbs(bottomDist) <= SCROLL_DISTANCE)
     {
         d->mScrollMagnitude = (SCROLL_DISTANCE - bottomDist) * 4;
@@ -145,7 +145,7 @@ void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
     }
 
     int            minDistance    = 0;
-    QGraphicsItem *underlyingItem = itemAt(event->pos());
+    QGraphicsItem *underlyingItem = itemAt(event->position().toPoint());
     d->mClosestDropItem           = dynamic_cast<ThumbnailPixmap *>(underlyingItem);
 
     if (!d->mClosestDropItem)
@@ -156,7 +156,7 @@ void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
             QPointF itemCenter(
                 item->pos().x() + item->boundingRect().width() * scale / 2, item->pos().y() + item->boundingRect().height() * scale / 2);
 
-            int distance = (itemCenter.toPoint() - mapToScene(event->pos()).toPoint()).manhattanLength();
+            int distance = (itemCenter.toPoint() - mapToScene(event->position().toPoint()).toPoint()).manhattanLength();
             if (!d->mClosestDropItem || distance < minDistance)
             {
                 d->mClosestDropItem = item;
@@ -172,7 +172,7 @@ void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event)
         QPointF itemCenter(d->mClosestDropItem->pos().x() + d->mClosestDropItem->boundingRect().width() * scale / 2,
             d->mClosestDropItem->pos().y() + d->mClosestDropItem->boundingRect().height() * scale / 2);
 
-        d->mDropIsRight = mapToScene(event->pos()).x() > itemCenter.x();
+        d->mDropIsRight = mapToScene(event->position().toPoint()).x() > itemCenter.x();
 
         if (!d->mDropCaretRectItem && selectedItems().count() < graphicItems().count())
         {

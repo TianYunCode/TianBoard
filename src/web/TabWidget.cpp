@@ -698,8 +698,8 @@ static const qint32 TabWidgetMagic = 0xaa;
 QByteArray TabWidget::saveState() const
 {
     int         version = 1;
-    QByteArray  data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
+    QByteArray  serialized;
+    QDataStream stream(&serialized, QIODevice::WriteOnly);
 
     stream << qint32(TabWidgetMagic);
     stream << qint32(version);
@@ -718,7 +718,7 @@ QByteArray TabWidget::saveState() const
     }
     stream << tabs;
     stream << currentIndex();
-    return data;
+    return serialized;
 }
 
 bool TabWidget::restoreState(const QByteArray &state)

@@ -134,7 +134,7 @@ void WebWidgetBoardAPI::setPenColor(const QString &penColor)
     else
     {
         QColor svgColor;
-        svgColor.setNamedColor(penColor);
+        svgColor = QColor::fromString(penColor);
         if (svgColor.isValid())
         {
             Application::boardController->setPenColorOnDarkBackground(svgColor);
@@ -164,7 +164,7 @@ void WebWidgetBoardAPI::setMarkerColor(const QString &penColor)
     else
     {
         QColor svgColor;
-        svgColor.setNamedColor(penColor);
+        svgColor = QColor::fromString(penColor);
         if (svgColor.isValid())
         {
             Application::boardController->setMarkerColorOnDarkBackground(svgColor);

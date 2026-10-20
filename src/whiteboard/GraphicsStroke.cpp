@@ -115,8 +115,6 @@ QList<QPair<QPointF, qreal>> GraphicsStroke::addPoint(const QPointF &point, qrea
         mReceivedPoints << strokePoint(point, width);
         return newPoints;
     }
-
-    return QList<strokePoint>();
 }
 
 bool GraphicsStroke::hasPressure()

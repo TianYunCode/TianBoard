@@ -406,9 +406,9 @@ void Application::setDisabled(bool disable)
 
 void Application::decorateActionMenu(QAction *action)
 {
-    foreach (QWidget *menuWidget, action->associatedWidgets())
+    foreach (QObject *associated, action->associatedObjects())
     {
-        QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
+        QToolButton *tb = qobject_cast<QToolButton *>(associated);
 
         if (tb && !tb->menu())
         {

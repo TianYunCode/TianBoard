@@ -51,14 +51,15 @@ void GraphicsTriangle::updateResizeCursor()
     QLineF topLine(topLeft, topRight);
     QLineF leftLine(topLeft, bottomLeft);
 
-    qreal      angle = topLine.angle();
+    // 局部量不叫 angle：它与成员 angle 同名，读代码时分不清旋转光标用的是哪个。
+    qreal      lineAngle = topLine.angle();
     QTransform tr1;
-    tr1.rotate(-angle);
+    tr1.rotate(-lineAngle);
     mResizeCursor1 = QCursor(pix.transformed(tr1, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
 
-    angle          = leftLine.angle();
+    lineAngle      = leftLine.angle();
     QTransform tr2;
-    tr2.rotate(-angle);
+    tr2.rotate(-lineAngle);
     mResizeCursor2 = QCursor(pix.transformed(tr2, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
 }
 
@@ -410,7 +411,9 @@ void GraphicsTriangle::paintGraduations(QPainter *painter)
                 A
         */
 
-        qreal AD;
+        // 给初值 0：朝向值若不在四个枚举之内（旧文档被改坏时可能），下面算出的可用空间就是 0，
+        // 直接跳过刻度数字的绘制，而不是拿未初始化的栈值去排布。
+        qreal AD            = 0;
         switch (mOrientation)
         {
             case BottomLeft:
@@ -461,14 +464,15 @@ void GraphicsTriangle::paintGraduations(QPainter *painter)
     painter->restore();
 }
 
-void GraphicsTriangle::rotateAroundCenter(qreal angle)
+void GraphicsTriangle::rotateAroundCenter(qreal requestedAngle)
 {
-    qreal oldAngle = this->angle;
-    this->angle    = angle;
+    // 绕中心旋转要按成员 angle 取角度，所以先把请求值暂存进成员，算完再累加回去。
+    qreal oldAngle = angle;
+    angle          = requestedAngle;
     QTransform transform;
     rotateAroundCenter(transform, rotationCenter());
     setTransform(transform, true);
-    this->angle = oldAngle + angle; // 存的是累加后的绝对角度：三角板在翻转状态下要靠它算回真实朝向
+    angle = oldAngle + requestedAngle; // 存的是累加后的绝对角度：三角板在翻转状态下要靠它算回真实朝向
 }
 
 void GraphicsTriangle::rotateAroundCenter(QTransform &transform, QPointF center)
@@ -513,7 +517,7 @@ QRectF GraphicsTriangle::closeButtonRect() const
 
 QPolygonF GraphicsTriangle::resize1Polygon() const
 {
-    qreal x1, y1;
+    qreal x1 = 1, y1 = 1; // 兜底方向与 BottomLeft 一致，未知朝向时不会拿未初始化值画箭头
     switch (mOrientation)
     {
         case BottomLeft:
@@ -542,7 +546,7 @@ QPolygonF GraphicsTriangle::resize1Polygon() const
 
 QPolygonF GraphicsTriangle::resize2Polygon() const
 {
-    qreal x1, y1;
+    qreal x1 = 1, y1 = 1; // 兜底方向与 BottomLeft 一致，未知朝向时不会拿未初始化值画箭头
     switch (mOrientation)
     {
         case BottomLeft:
@@ -929,7 +933,7 @@ void GraphicsTriangle::StartLine(const QPointF &scenePos, qreal width)
     QPointF itemPos = mapFromScene(scenePos);
     mStrokeWidth    = DrawingController::drawingController()->currentToolWidth();
 
-    qreal y;
+    qreal y         = rect().y() + rect().height() + mStrokeWidth / 2; // 兜底：按直角在下的两种朝向处理
 
     if (mOrientation == 0 || mOrientation == 1)
     {
@@ -961,7 +965,7 @@ void GraphicsTriangle::DrawLine(const QPointF &scenePos, qreal width)
     Q_UNUSED(width);
     QPointF itemPos = mapFromScene(scenePos);
 
-    qreal y;
+    qreal y         = rect().y() + rect().height() + mStrokeWidth / 2; // 兜底：按直角在下的两种朝向处理
 
     if (mOrientation == 0 || mOrientation == 1)
     {

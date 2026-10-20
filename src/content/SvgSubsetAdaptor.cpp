@@ -130,7 +130,7 @@ QDomDocument SvgSubsetAdaptor::loadSceneDocument(DocumentProxy *proxy, const int
             return doc;
         }
 
-        doc.setContent(&file, true);
+        doc.setContent(&file, QDomDocument::ParseOption::UseNamespaceProcessing);
         file.close();
     }
 
@@ -491,14 +491,14 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
 
                 if (!fillOnDarkBackgroundValue.isNull())
                 {
-                    mGroupDarkBackgroundColor.setNamedColor(fillOnDarkBackgroundValue.toString());
+                    mGroupDarkBackgroundColor = QColor::fromString(fillOnDarkBackgroundValue.toString());
                 }
 
                 QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
 
                 if (!fillOnLightBackgroundValue.isNull())
                 {
-                    mGroupLightBackgroundColor.setNamedColor(fillOnLightBackgroundValue.toString());
+                    mGroupLightBackgroundColor = QColor::fromString(fillOnLightBackgroundValue.toString());
                 }
 
                 QStringView uuidValue = mXmlReader.attributes().value(mNamespaceUri, "uuid");
@@ -994,12 +994,14 @@ GraphicsGroupContainerItem *SvgSubsetAdaptor::SvgSubsetReader::readGroup()
             }
             else if (mXmlReader.name() == tElement && !shouldSkipSubElements)
             {
-                QString        id      = mXmlReader.attributes().value(aId).toString();
-                QGraphicsItem *curItem = readElementFromGroup();
+                // 内层不叫 id：外层同一个函数里已经有一个 id（元素的 aId 属性），
+                // 同名会让下面的 UUID 格式判断看着像在判外层那个。
+                QString        elementId = mXmlReader.attributes().value(aId).toString();
+                QGraphicsItem *curItem   = readElementFromGroup();
 
                 // 第二个条件是过滤旧版存储格式的：那种 UUID 里带两对花括号，
                 // 现在的格式不会再解释它，读进来只会得到一堆对不上号的图元。
-                if (curItem && id.count("{") < 2)
+                if (curItem && elementId.count("{") < 2)
                 {
                     groupContainer.append(curItem);
                 }
@@ -1712,7 +1714,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
 
     if (!svgFill.isNull())
     {
-        brushColor.setNamedColor(svgFill.toString());
+        brushColor = QColor::fromString(svgFill.toString());
     }
 
     QStringView svgFillOpacity = mXmlReader.attributes().value("fill-opacity");
@@ -1731,7 +1733,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
     if (!fillOnDarkBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(fillOnDarkBackgroundValue.toString());
+        color = QColor::fromString(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
         {
             color = Qt::white;
@@ -1752,7 +1754,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
     if (!fillOnLightBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(fillOnLightBackgroundValue.toString());
+        color = QColor::fromString(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
         {
             color = Qt::black;
@@ -1826,7 +1828,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
 
     if (!svgStroke.isNull())
     {
-        brushColor.setNamedColor(svgStroke.toString());
+        brushColor = QColor::fromString(svgStroke.toString());
     }
 
     QStringView svgStrokeOpacity = mXmlReader.attributes().value("stroke-opacity");
@@ -1845,7 +1847,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
     if (!fillOnDarkBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(fillOnDarkBackgroundValue.toString());
+        color = QColor::fromString(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
         {
             color = Qt::white;
@@ -1866,7 +1868,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
     if (!fillOnLightBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(fillOnLightBackgroundValue.toString());
+        color = QColor::fromString(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
         {
             color = Qt::black;
@@ -1900,7 +1902,7 @@ QList<GraphicsPolygonItem *> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFrom
     QStringView svgStroke = mXmlReader.attributes().value("stroke");
     if (!svgStroke.isNull())
     {
-        brushColor.setNamedColor(svgStroke.toString());
+        brushColor = QColor::fromString(svgStroke.toString());
     }
 
     qreal opacity                = 1.0;
@@ -1925,7 +1927,7 @@ QList<GraphicsPolygonItem *> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFrom
     QStringView fillOnDarkBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-dark-background");
     if (!fillOnDarkBackgroundValue.isNull())
     {
-        colorOnDarkBackground.setNamedColor(fillOnDarkBackgroundValue.toString());
+        colorOnDarkBackground = QColor::fromString(fillOnDarkBackgroundValue.toString());
     }
 
     if (!colorOnDarkBackground.isValid())
@@ -1940,8 +1942,9 @@ QList<GraphicsPolygonItem *> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFrom
     QStringView fillOnLightBackgroundValue = mXmlReader.attributes().value(mNamespaceUri, "fill-on-light-background");
     if (!fillOnLightBackgroundValue.isNull())
     {
-        QColor colorOnLightBackground;
-        colorOnLightBackground.setNamedColor(fillOnLightBackgroundValue.toString());
+        // 这里原先多声明了一个同名的局部 QColor，赋完值就随作用域销毁，
+        // 文档里存的浅色背景色被整个丢掉、退回组默认色（深色那一支是直接赋值给外层，没有这个问题）。
+        colorOnLightBackground = QColor::fromString(fillOnLightBackgroundValue.toString());
     }
 
     if (!colorOnLightBackground.isValid())
@@ -2453,9 +2456,10 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem *
         QString path            = mDocumentPath + "/" + widgetTargetDir;
         QDir    dir(path);
 
-        if (!dir.exists(path))
+        // exists() 判的就是上面这个 dir 自己的路径。原先写成 exists(path)：path 一旦是
+        // 相对路径就按进程当前目录解析，而且块里又声明了同名的局部 QDir，读起来分不清谁是谁。
+        if (!dir.exists())
         {
-            QDir dir;
             dir.mkpath(path);
             FileSystemUtils::copyDir(widgetRootDir, path);
         }
@@ -2653,7 +2657,7 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
     if (!fillOnDarkBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(fillOnDarkBackgroundValue.toString());
+        color = QColor::fromString(fillOnDarkBackgroundValue.toString());
         if (!color.isValid())
         {
             color = Qt::white;
@@ -2664,7 +2668,7 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
     if (!fillOnLightBackgroundValue.isNull())
     {
         QColor color;
-        color.setNamedColor(fillOnLightBackgroundValue.toString());
+        color = QColor::fromString(fillOnLightBackgroundValue.toString());
         if (!color.isValid())
         {
             color = Qt::black;
@@ -2740,10 +2744,10 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                 {
                     font.setFamily(fontFamily.toString());
                 }
-                QStringView fontStyle = mXmlReader.attributes().value("style");
-                if (!fontStyle.isNull())
+                QStringView styleAttribute = mXmlReader.attributes().value("style");
+                if (!styleAttribute.isNull())
                 {
-                    foreach (QString styleToken, fontStyle.toString().split(";"))
+                    foreach (QString styleToken, styleAttribute.toString().split(";"))
                     {
                         styleToken = styleToken.trimmed();
                         if (styleToken.startsWith(sFontSizePrefix) && styleToken.endsWith(sPixelUnit))
@@ -2760,8 +2764,8 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                         }
                         else if (styleToken.startsWith(sFontStylePrefix))
                         {
-                            QString fontStyle = styleToken.mid(sFontStylePrefix.length(), styleToken.length() - sFontStylePrefix.length());
-                            font.setItalic(fontStyle.contains("italic"));
+                            QString styleValue = styleToken.mid(sFontStylePrefix.length(), styleToken.length() - sFontStylePrefix.length());
+                            font.setItalic(styleValue.contains("italic"));
                         }
                     }
                 }
@@ -2778,7 +2782,7 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                 if (!fill.isNull())
                 {
                     QColor textColor;
-                    textColor.setNamedColor(fill.toString());
+                    textColor = QColor::fromString(fill.toString());
                     textItem->setDefaultTextColor(textColor);
                 }
 

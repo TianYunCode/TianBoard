@@ -281,10 +281,10 @@ QPolygonF GeometryUtils::curveToPolygon(const QList<QPair<QPointF, qreal>> &poin
     for (int i(1); i < n_points - 1; ++i)
     {
         // 用前后点的连线求法线，使接头在拐角处平滑过渡
-        QLineF normal = (QLineF(points[i - 1].first, points[i + 1].first)).normalVector();
-        normal.setLength(points[i].second / 2.0);
-        QPointF d1 = points[i].first + QPointF(normal.dx(), normal.dy());
-        QPointF d2 = points[i].first - QPointF(normal.dx(), normal.dy());
+        QLineF cornerNormal = (QLineF(points[i - 1].first, points[i + 1].first)).normalVector();
+        cornerNormal.setLength(points[i].second / 2.0);
+        QPointF d1 = points[i].first + QPointF(cornerNormal.dx(), cornerNormal.dy());
+        QPointF d2 = points[i].first - QPointF(cornerNormal.dx(), cornerNormal.dy());
 
         newPoints << pointPair(d1, d2);
     }

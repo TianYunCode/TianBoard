@@ -320,9 +320,9 @@ void BoardPaletteManager::connectPalettes()
 {
     connect(Application::mainWindow->ui().actionStylus, &QAction::toggled, this, &BoardPaletteManager::toggleStylusPalette);
 
-    foreach (QWidget *widget, Application::mainWindow->ui().actionZoomIn->associatedWidgets())
+    foreach (QObject *associated, Application::mainWindow->ui().actionZoomIn->associatedObjects())
     {
-        QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(associated);
         if (button)
         {
             connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::zoomButtonPressed);
@@ -330,9 +330,9 @@ void BoardPaletteManager::connectPalettes()
         }
     }
 
-    foreach (QWidget *widget, Application::mainWindow->ui().actionZoomOut->associatedWidgets())
+    foreach (QObject *associated, Application::mainWindow->ui().actionZoomOut->associatedObjects())
     {
-        QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(associated);
         if (button)
         {
             connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::zoomButtonPressed);
@@ -340,9 +340,9 @@ void BoardPaletteManager::connectPalettes()
         }
     }
 
-    foreach (QWidget *widget, Application::mainWindow->ui().actionHand->associatedWidgets())
+    foreach (QObject *associated, Application::mainWindow->ui().actionHand->associatedObjects())
     {
-        QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(associated);
         if (button)
         {
             connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::panButtonPressed);
@@ -370,9 +370,9 @@ void BoardPaletteManager::connectPalettes()
     connect(Application::mainWindow->ui().actionEraseBackground, &QAction::triggered, mErasePalette, &ActionPalette::close);
     connect(mErasePalette, &ActionPalette::closed, this, &BoardPaletteManager::erasePaletteClosed);
 
-    foreach (QWidget *widget, Application::mainWindow->ui().actionErase->associatedWidgets())
+    foreach (QObject *associated, Application::mainWindow->ui().actionErase->associatedObjects())
     {
-        QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(associated);
         if (button)
         {
             connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::erasePaletteButtonPressed);
@@ -385,9 +385,9 @@ void BoardPaletteManager::connectPalettes()
     connect(Application::mainWindow->ui().actionImportPage, &QAction::triggered, mPagePalette, &ActionPalette::close);
     connect(mPagePalette, &ActionPalette::closed, this, &BoardPaletteManager::pagePaletteClosed);
 
-    foreach (QWidget *widget, Application::mainWindow->ui().actionPages->associatedWidgets())
+    foreach (QObject *associated, Application::mainWindow->ui().actionPages->associatedObjects())
     {
-        QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(associated);
         if (button)
         {
             connect(button, &QAbstractButton::pressed, this, &BoardPaletteManager::pagePaletteButtonPressed);

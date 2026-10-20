@@ -310,15 +310,13 @@ void KeyboardPalette::paintEvent(QPaintEvent *event)
 {
     ActionPalette::paintEvent(event);
 
-    QRect r                       = this->geometry();
+    QRect r           = this->geometry();
 
-    const QMargins paletteMargins = contentsMargins();
-    int            lleft = paletteMargins.left(), ltop = paletteMargins.top(), lright = paletteMargins.right(), lbottom = paletteMargins.bottom();
-
-    // 计算 15x5 键区在面板内的居中起点
+    // 计算 15x5 键区在面板内的居中起点。起点完全由键位尺寸推出来，面板边距不参与
+    // （原先读了 contentsMargins() 却立刻被覆盖，右侧与下侧两个值更是从头到尾没人用）。
     int ctrlButtonsId = 0;
-    lleft             = (r.width() - d->btnWidth * 15) / 2;
-    ltop              = (r.height() - d->btnHeight * 5) / 2;
+    int lleft         = (r.width() - d->btnWidth * 15) / 2;
+    int ltop          = (r.height() - d->btnHeight * 5) / 2;
 
     // 第 1 行：13 个字符键加退格
     int offX          = lleft;

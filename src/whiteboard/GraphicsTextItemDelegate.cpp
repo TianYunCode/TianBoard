@@ -129,7 +129,7 @@ QFont GraphicsTextItemDelegate::createDefaultFont()
     QString fFamily = Settings::settings()->fontFamily();
     if (!fFamily.isEmpty())
     {
-        textFormat.setFontFamily(fFamily);
+        textFormat.setFontFamilies(QStringList() << fFamily);
     }
 
     bool bold = Settings::settings()->isBoldFont();
@@ -213,7 +213,6 @@ qreal GraphicsTextItemDelegate::titleBarWidth()
     // 先重排边框与按钮，下面取的极值才是刚摆好的那组位置
     positionHandles();
 
-    qreal titleBarWidth(0);
     qreal frameLeftCoordinate  = mFontButton->pos().x();
     qreal frameRightCoordinate = frameLeftCoordinate;
 
@@ -604,16 +603,18 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
     }
 
     // 到这里才拿到选区真正的起止位置（anchor 与 position 谁前谁后不定）
-    int startPos = qMin(cursor.anchor(), cursor.position());
-    int endPos   = qMax(cursor.anchor(), cursor.position());
+    int startPos   = qMin(cursor.anchor(), cursor.position());
+    int endPos     = qMax(cursor.anchor(), cursor.position());
 
-    QFont  curFont;
+    // 下面这些都要给初值：选区为空（比如空文本项被整篇选中）时 while 一次都不进，
+    // 收尾的 setFont/setFontPointSize 就会拿未初始化值写进全局设置。
+    QFont  curFont = cursor.charFormat().font();
     QFont  nextCharFont;
-    bool   bEndofTheSameBlock;
-    int    iBlockLen;
-    int    iPointSize;
-    int    iNextPointSize;
-    int    iCursorPos = startPos;
+    bool   bEndofTheSameBlock = false;
+    int    iBlockLen          = 0;
+    int    iPointSize         = curFont.pointSize();
+    int    iNextPointSize     = iPointSize;
+    int    iCursorPos         = startPos;
     QBrush curBrush;
     QBrush nextCharBrush;
 
@@ -692,14 +693,15 @@ void GraphicsTextItemDelegate::recolor()
         cursor.setPosition(cursor.document()->characterCount() - 1, QTextCursor::KeepAnchor);
     }
 
-    int startPos = qMin(cursor.anchor(), cursor.position());
-    int endPos   = qMax(cursor.anchor(), cursor.position());
+    int startPos              = qMin(cursor.anchor(), cursor.position());
+    int endPos                = qMax(cursor.anchor(), cursor.position());
 
-    QFont  curFont;
-    QFont  nextCharFont;
-    bool   bEndofTheSameBlock;
-    int    iBlockLen;
-    int    iCursorPos = startPos;
+    // recolor() 只换前景色，不动字体：本函数内一个字符的字体都没读过，
+    // 原先却把从未赋值的 nextCharFont 抄进 curFont 并在循环后 setFont()，
+    // 于是每次切换页面背景都会把整项文字的字体打回 QFont 默认值。
+    bool   bEndofTheSameBlock = false;
+    int    iBlockLen          = 0;
+    int    iCursorPos         = startPos;
     QBrush curBrush;
     QBrush nextCharBrush;
 
@@ -753,11 +755,8 @@ void GraphicsTextItemDelegate::recolor()
 
         iCursorPos += iBlockLen;
         cursor.setPosition(iCursorPos, QTextCursor::MoveAnchor);
-
-        curFont = nextCharFont;
     }
 
-    delegated()->setFont(curFont);
     // 恢复原来的选区
     cursor.setPosition(anchorPos, QTextCursor::MoveAnchor);
     cursor.setPosition(cursorPos, QTextCursor::KeepAnchor);

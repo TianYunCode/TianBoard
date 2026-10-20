@@ -338,17 +338,24 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
             bool rotatableNow = true;
             bool lockedNow    = false;
 
-            foreach (QGraphicsItem *item, childItems())
+            foreach (QGraphicsItem *child, childItems())
             {
-                if (!GraphicsItem::isFlippable(item))
+                // 此刻 setParentItem 还没发生，childItems() 里仍含被移出的那个 item；
+                // 这里算的是"剩余子项"的公共能力，不排掉它就永远把离开的子项算在内，
+                // 结果能力只会越算越紧、再也不会恢复。
+                if (child == item)
+                {
+                    continue;
+                }
+                if (!GraphicsItem::isFlippable(child))
                 {
                     flippableNow = false;
                 }
-                if (!GraphicsItem::isRotatable(item))
+                if (!GraphicsItem::isRotatable(child))
                 {
                     rotatableNow = false;
                 }
-                if (GraphicsItem::isLocked(item))
+                if (GraphicsItem::isLocked(child))
                 {
                     lockedNow = true;
                 }

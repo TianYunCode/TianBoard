@@ -172,18 +172,16 @@ static QDomDocument createDomFromSvg(const QString &svgUrl)
         {
             QString domString(inFile.readAll());
 
-            int     errorLine   = 0;
-            int     errorColumn = 0;
-            QString errorStr;
-
-            if (xmlDom.setContent(domString, &errorStr, &errorLine, &errorColumn))
+            QDomDocument::ParseResult parseResult = xmlDom.setContent(domString);
+            if (parseResult)
             {
                 return xmlDom;
             }
             else
             {
                 qDebug() << "Error reading content of " << mFoldersXmlStorageName << Qt::endl
-                         << "Error:" << inFile.errorString() << "Line:" << errorLine << "Column:" << errorColumn;
+                         << "Error:" << inFile.errorString() << "Line:" << parseResult.errorLine << "Column:" << parseResult.errorColumn
+                         << parseResult.errorMessage;
             }
             inFile.close();
         }
@@ -232,12 +230,14 @@ public:
                 }
             }
             rm_r(delPath);
-            // 删除后若父目录已空，则一并移除。
-            QDir dir(delPath);
-            dir.cdUp();
-            if (dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty())
+            // 删除后若父目录已空，则一并移除。局部量不叫 dir：与本函数的参数同名，
+            // 读起来分不清哪个是待清理目录、哪个是它的父目录。
+            QDir parentDir(delPath);
+            parentDir.cdUp();
+            if (parentDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty())
             {
-                dir.rmdir(dir.absolutePath());
+                // QDir::rmdir 收到绝对路径时按绝对路径处理，这里删的就是 cdUp 后的父目录本身。
+                parentDir.rmdir(parentDir.absolutePath());
             }
         }
 

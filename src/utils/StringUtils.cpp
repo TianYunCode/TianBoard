@@ -103,6 +103,6 @@ QDateTime StringUtils::fromUtcIsoDate(const QString &dateString)
 {
     QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
     // 文档存的是 UTC 文本，先按 UTC 解释再转本地时间
-    date.setTimeSpec(Qt::UTC);
+    date.setTimeZone(QTimeZone::UTC);
     return date.toLocalTime();
 }

@@ -130,7 +130,12 @@ public:
     /** @brief 以“命名空间 URI/规范化 UUID”的形式写入文档标识元数据。 */
     void setUuid(const QUuid &uuid);
 
-    /** @brief 返回代理自创建或上次保存后是否被修改过。 */
+    /**
+     * @brief 元数据是否被改动过，供保存时决定要不要重写 metadata.rdf。
+     * @note 旗标只置真、没有清零路径：一旦改过元数据，之后每次保存都会重写元数据并
+     *       刷新 updated-at。这是"updated-at 表示最后一次保存时间"这一语义所要求的，
+     *       不能当成"还有未保存的改动"来用（真要那样必须先给保存成功加一条清零）。
+     */
     bool isModified() const;
 
     /** @brief 返回文档的页数。 */
@@ -162,7 +167,7 @@ private:
     /** @brief 文档元数据表，键由 Settings 定义。 */
     QMap<QString, QVariant> mMetaDatas;
 
-    /** @brief 自上次保存后是否有改动。 */
+    /** @brief 元数据改动旗标；置真后没有清零路径，见 isModified() 的说明。 */
     bool mIsModified;
 
     /** @brief 页数。 */

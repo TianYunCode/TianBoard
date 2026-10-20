@@ -96,11 +96,11 @@ void SearchButton::paintEvent(QPaintEvent *event)
     {
         QPainterPath dropPath;
         dropPath.arcMoveTo(circle, 320);
-        QPointF c = dropPath.currentPosition();
-        c         = QPointF(c.x() + 3.5, c.y() + 0.5);
-        dropPath.moveTo(c);
-        dropPath.lineTo(c.x() + 4, c.y());
-        dropPath.lineTo(c.x() + 2, c.y() + 2);
+        QPointF dropCorner = dropPath.currentPosition();
+        dropCorner         = QPointF(dropCorner.x() + 3.5, dropCorner.y() + 0.5);
+        dropPath.moveTo(dropCorner);
+        dropPath.lineTo(dropCorner.x() + 4, dropCorner.y());
+        dropPath.lineTo(dropCorner.x() + 2, dropCorner.y() + 2);
         dropPath.closeSubpath();
         painter.setPen(Qt::darkGray);
         painter.setBrush(Qt::darkGray);

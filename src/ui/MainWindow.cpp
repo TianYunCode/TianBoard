@@ -1081,9 +1081,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(par
     d->stackedLayout = new QStackedLayout(central);
     setCentralWidget(central);
 
-    d->ui.actionPreferences->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Return));
+    d->ui.actionPreferences->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Return));
     // Alt+F4 是系统保留组合键，动作上设置的快捷键不会生效，只能在这里显式登记一次。
-    d->ui.actionQuit->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F4));
+    d->ui.actionQuit->setShortcut(QKeySequence(Qt::ALT | Qt::Key_F4));
 }
 
 MainWindow::~MainWindow() = default;

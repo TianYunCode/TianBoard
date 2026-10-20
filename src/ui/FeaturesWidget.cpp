@@ -543,7 +543,7 @@ void FeaturesListView::dragEnterEvent(QDragEnterEvent *event)
 void FeaturesListView::dragMoveEvent(QDragMoveEvent *event)
 {
     const FeaturesMimeData *fMimeData = qobject_cast<const FeaturesMimeData *>(event->mimeData());
-    QModelIndex             index     = indexAt(event->pos());
+    QModelIndex             index     = indexAt(event->position().toPoint());
     Feature                 onFeature = model()->data(index, Qt::UserRole + 1).value<Feature>();
     if (fMimeData)
     {

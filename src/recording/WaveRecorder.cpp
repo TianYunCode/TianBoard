@@ -215,9 +215,9 @@ QStringList WaveRecorder::waveInDevices()
 
     for (int i = 0; i < mixersCount; i++)
     {
-        MIXERCAPS caps;
+        MIXERCAPS mixerCaps;
 
-        if (mixerGetDevCaps(i, &caps, sizeof(caps)) == MMSYSERR_NOERROR)
+        if (mixerGetDevCaps(i, &mixerCaps, sizeof(mixerCaps)) == MMSYSERR_NOERROR)
         {
             qDebug() << "Mixer: " << QString::fromWCharArray(caps.szPname);
         }

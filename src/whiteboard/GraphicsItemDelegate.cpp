@@ -544,10 +544,6 @@ void GraphicsItemDelegate::remove(bool canUndo)
             scene->removeItem(mFrame);
         }
 
-        // 含内嵌窗口内容的项必须先移出场景再销毁，否则 removeItem 过程中可能崩溃；
-        // 这里仅做类型转换，实际清理在场景删除项时完成
-        GraphicsWidgetItem *mDelegated_casted = dynamic_cast<GraphicsWidgetItem *>(mDelegated);
-
         scene->removeItem(mDelegated);
 
         if (canUndo)
@@ -1025,11 +1021,11 @@ void MediaTimer::drawString(const QString &s, QPainter &p, QBitArray *newPoints,
         pos = QPoint(xOffset + xAdvance * i, yOffset);
         if (newString)
         {
-            drawDigit(pos, p, segLen, s[i].toLatin1(), digitStr[i].toLatin1());
+            drawDigit(pos, p, s[i].toLatin1(), digitStr[i].toLatin1());
         }
         else
         {
-            drawDigit(pos, p, segLen, s[i].toLatin1());
+            drawDigit(pos, p, s[i].toLatin1());
         }
         if (newPoints)
         {
@@ -1037,11 +1033,11 @@ void MediaTimer::drawString(const QString &s, QPainter &p, QBitArray *newPoints,
             if (newString)
             {
                 char oldPoint = points.testBit(i) ? '.' : ' ';
-                drawDigit(pos, p, segLen, newPoint, oldPoint);
+                drawDigit(pos, p, newPoint, oldPoint);
             }
             else
             {
-                drawDigit(pos, p, segLen, newPoint);
+                drawDigit(pos, p, newPoint);
             }
         }
     }
@@ -1056,7 +1052,7 @@ void MediaTimer::drawString(const QString &s, QPainter &p, QBitArray *newPoints,
     }
 }
 
-void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, int segLen, char newCh, char oldCh)
+void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, char newCh, char oldCh)
 {
     char        updates[18][2]; // 容量为段数的两倍；段表正确时实际只会用到前 9 个
     int         nErases;
@@ -1098,11 +1094,11 @@ void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, int segLen, char newC
     {
         if (updates[i][0] == draw)
         {
-            drawSegment(pos, updates[i][1], p, segLen);
+            drawSegment(pos, updates[i][1], p);
         }
         if (updates[i][0] == erase)
         {
-            drawSegment(pos, updates[i][1], p, segLen, true);
+            drawSegment(pos, updates[i][1], p, true);
         }
     }
 }
@@ -1141,7 +1137,7 @@ const char *MediaTimer::getSegments(char ch) // 返回字符 ch 对应的段号�
     return NULL;
 }
 
-void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p, int segLen, bool erase)
+void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p, bool erase)
 {
     Q_UNUSED(erase);
 

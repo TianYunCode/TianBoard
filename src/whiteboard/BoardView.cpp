@@ -350,7 +350,7 @@ void BoardView::tabletEvent(QTabletEvent *event)
 
     DrawingController *dc        = DrawingController::drawingController();
 
-    QPointF          tabletPos   = event->pos();
+    QPointF          tabletPos   = event->position();
     StylusTool::Enum currentTool = (StylusTool::Enum)dc->stylusTool();
 
     if (event->type() == QEvent::TabletPress || event->type() == QEvent::TabletEnterProximity)
@@ -409,9 +409,10 @@ void BoardView::tabletEvent(QTabletEvent *event)
         }
         case QEvent::TabletRelease:
         {
-            StylusTool::Enum currentTool = (StylusTool::Enum)dc->stylusTool();
-            scene()->setToolCursor(currentTool);
-            setToolCursor(currentTool);
+            // 松手时工具可能已经被切换过，这里重新读一次；变量不与函数开头那个 currentTool 同名。
+            StylusTool::Enum releasedTool = (StylusTool::Enum)dc->stylusTool();
+            scene()->setToolCursor(releasedTool);
+            setToolCursor(releasedTool);
 
             scene()->inputDeviceRelease();
 
@@ -791,7 +792,7 @@ QGraphicsItem *BoardView::determineItemToMove(QGraphicsItem *item)
 
 void BoardView::handleItemMousePress(QMouseEvent *event)
 {
-    d->mLastPressedMousePos = mapToScene(event->pos());
+    d->mLastPressedMousePos = mapToScene(event->position().toPoint());
 
     d->movingItem           = determineItemToPress(d->movingItem);
     handleItemsSelection(d->movingItem);
@@ -805,7 +806,7 @@ void BoardView::handleItemMousePress(QMouseEvent *event)
     {
         QGraphicsView::mousePressEvent(event);
 
-        QGraphicsItem *item = determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), transform()));
+        QGraphicsItem *item = determineItemToPress(scene()->itemAt(this->mapToScene(event->position().toPoint()), transform()));
 
         if (item && (item->type() == QGraphicsProxyWidget::Type) && item->parentObject() &&
             item->parentObject()->type() != QGraphicsProxyWidget::Type)
@@ -842,7 +843,8 @@ void BoardView::handleItemMousePress(QMouseEvent *event)
 
         if (itemShouldReceiveSuspendedMousePressEvent(d->movingItem))
         {
-            d->suspendedMousePressEvent = new QMouseEvent(event->type(), event->pos(), event->button(), event->buttons(), event->modifiers());
+            d->suspendedMousePressEvent =
+                new QMouseEvent(event->type(), event->position(), event->globalPosition(), event->button(), event->buttons(), event->modifiers());
         }
     }
 }
@@ -853,7 +855,7 @@ void BoardView::handleItemMouseMove(QMouseEvent *event)
 
     if (d->movingItem && itemShouldBeMoved(d->movingItem) && (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed))
     {
-        QPointF scenePos = mapToScene(event->pos());
+        QPointF scenePos = mapToScene(event->position().toPoint());
         QPointF newPos   = d->movingItem->pos() + scenePos - d->mLastPressedMousePos;
         d->movingItem->setPos(newPos);
         d->mLastPressedMousePos = scenePos;
@@ -967,7 +969,7 @@ void BoardView::mousePressEvent(QMouseEvent *event)
     }
 
     d->mMouseDownPos = event->pos();
-    d->movingItem    = scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform());
+    d->movingItem    = scene()->itemAt(this->mapToScene(event->position().toPoint()), QTransform());
 
     if (event->button() == Qt::LeftButton && isInteractive())
     {
@@ -980,18 +982,18 @@ void BoardView::mousePressEvent(QMouseEvent *event)
         switch (currentTool)
         {
             case StylusTool::ZoomIn:
-                d->mController->zoomIn(mapToScene(event->pos()));
+                d->mController->zoomIn(mapToScene(event->position().toPoint()));
                 event->accept();
                 break;
 
             case StylusTool::ZoomOut:
-                d->mController->zoomOut(mapToScene(event->pos()));
+                d->mController->zoomOut(mapToScene(event->position().toPoint()));
                 event->accept();
                 break;
 
             case StylusTool::Hand:
                 viewport()->setCursor(QCursor(Qt::ClosedHandCursor));
-                d->mPreviousPoint = event->localPos();
+                d->mPreviousPoint = event->position();
                 event->accept();
                 break;
 
@@ -1091,7 +1093,8 @@ void BoardView::mousePressEvent(QMouseEvent *event)
 void BoardView::mouseMoveEvent(QMouseEvent *event)
 {
     // 位移未超过系统拖拽阈值时忽略，避免手抖被误判成拖动。
-    if (!d->mIsDragInProgress && ((mapToScene(event->pos()) - d->mLastPressedMousePos).manhattanLength() < QApplication::startDragDistance()))
+    if (!d->mIsDragInProgress &&
+        ((mapToScene(event->position().toPoint()) - d->mLastPressedMousePos).manhattanLength() < QApplication::startDragDistance()))
     {
         return;
     }
@@ -1120,7 +1123,7 @@ void BoardView::mouseMoveEvent(QMouseEvent *event)
             {
                 break;
             }
-            QPointF eventPosition = event->localPos();
+            QPointF eventPosition = event->position();
             qreal   dx            = eventPosition.x() - d->mPreviousPoint.x();
             qreal   dy            = eventPosition.y() - d->mPreviousPoint.y();
             d->mController->handScroll(dx, dy);
@@ -1243,7 +1246,7 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event)
         }
 
         bool bReleaseIsNeed = true;
-        if (d->movingItem != determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform())))
+        if (d->movingItem != determineItemToPress(scene()->itemAt(this->mapToScene(event->position().toPoint()), QTransform())))
         {
             d->movingItem  = NULL;
             bReleaseIsNeed = false;
@@ -1317,7 +1320,7 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event)
     else if (currentTool == StylusTool::Text)
     {
         bool bReleaseIsNeed = true;
-        if (d->movingItem != determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform())))
+        if (d->movingItem != determineItemToPress(scene()->itemAt(this->mapToScene(event->position().toPoint()), QTransform())))
         {
             d->movingItem  = NULL;
             bReleaseIsNeed = false;
@@ -1571,7 +1574,7 @@ void BoardView::dragMoveEvent(QDragMoveEvent *event)
 
 void BoardView::dropEvent(QDropEvent *event)
 {
-    QGraphicsItem *onItem = itemAt(event->pos().x(), event->pos().y());
+    QGraphicsItem *onItem = itemAt(event->position().toPoint());
     if (onItem && onItem->type() == GraphicsWidgetItem::Type)
     {
         QGraphicsView::dropEvent(event);
@@ -1581,7 +1584,7 @@ void BoardView::dropEvent(QDropEvent *event)
         if (!event->source() || qobject_cast<ThumbnailWidget *>(event->source()) || qobject_cast<QWebEngineView *>(event->source()) ||
             qobject_cast<QListView *>(event->source()))
         {
-            d->mController->processMimeData(event->mimeData(), mapToScene(event->pos()));
+            d->mController->processMimeData(event->mimeData(), mapToScene(event->position().toPoint()));
             event->acceptProposedAction();
         }
     }

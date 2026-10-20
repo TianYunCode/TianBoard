@@ -275,7 +275,7 @@ void Magnifier::mousePressEvent(QMouseEvent *event)
         }
 
         d->mMousePressPos   = event->pos();
-        d->mMousePressDelta = (qreal)d->updPointGrab.x() + (qreal)size().width() / 2 - (qreal)event->globalPos().x();
+        d->mMousePressDelta = (qreal)d->updPointGrab.x() + (qreal)size().width() / 2 - (qreal)event->globalPosition().toPoint().x();
 
         event->accept();
 
@@ -303,7 +303,7 @@ void Magnifier::mouseMoveEvent(QMouseEvent *event)
 
         if (d->mShouldResizeWidget && (event->buttons() & Qt::LeftButton))
         {
-            QPoint currGlobalPos = event->globalPos();
+            QPoint currGlobalPos = event->globalPosition().toPoint();
             qreal  cvW           = d->mView->width();
 
             qreal newXSize       = (currGlobalPos.x() + d->mMousePressDelta - d->updPointGrab.x()) * 2;

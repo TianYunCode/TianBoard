@@ -116,12 +116,11 @@ bool IwbSubsetAdaptor::convertIwbFileToDocumentPackage(QString &iwbSourceFile, D
 }
 IwbSubsetAdaptor::IwbSubsetReader::IwbSubsetReader(DocumentProxy *proxy, QFile *content) : mProxy(proxy), mGSectionContainer(NULL)
 {
-    int     errorLine, errorColumn;
-    QString errorStr;
-    if (!mDOMdoc.setContent(content, true, &errorStr, &errorLine, &errorColumn))
+    QDomDocument::ParseResult parseResult = mDOMdoc.setContent(content, QDomDocument::ParseOption::UseNamespaceProcessing);
+    if (!parseResult)
     {
-        qWarning() << "Error:Parseerroratline" << errorLine << ","
-                   << "column" << errorColumn << ":" << errorStr;
+        qWarning() << "Error:Parseerroratline" << parseResult.errorLine << ","
+                   << "column" << parseResult.errorColumn << ":" << parseResult.errorMessage;
     }
     else
     {
@@ -708,7 +707,7 @@ void IwbSubsetAdaptor::IwbSubsetReader::readTextCharAttr(const QDomElement &elem
     QString fontFamilyText = element.attribute(aFontfamily);
     if (!fontFamilyText.isNull())
     {
-        format.setFontFamily(fontFamilyText);
+        format.setFontFamilies(QStringList() << fontFamilyText);
     }
     if (!element.attribute(aFontstyle).isNull())
     {
@@ -881,7 +880,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgTextarea(const QDomElement &elem
     // 文本框默认只读：IWB 的 textarea 是静态标注，用户要改的是可编辑文本图元。
     textFormat.setFontPointSize(12);
     textFormat.setForeground(qApp->palette().color(QPalette::WindowText));
-    textFormat.setFontFamily("Arial");
+    textFormat.setFontFamilies(QStringList() << QStringLiteral("Arial"));
     textFormat.setFontItalic(false);
     textFormat.setFontWeight(QFont::Normal);
 

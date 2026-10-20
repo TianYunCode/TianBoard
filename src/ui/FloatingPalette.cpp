@@ -114,7 +114,7 @@ void FloatingPalette::mousePressEvent(QMouseEvent *event)
     {
         d->mIsMoving     = true;
         // 记录光标相对窗口左上角的偏移，拖动时用它保持抓取点不跳。
-        d->mDragPosition = event->globalPos() - frameGeometry().topLeft();
+        d->mDragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
         event->accept();
     }
     else
@@ -127,7 +127,7 @@ void FloatingPalette::mouseMoveEvent(QMouseEvent *event)
 {
     if (d->mIsMoving)
     {
-        moveInsideParent(event->globalPos() - d->mDragPosition);
+        moveInsideParent(event->globalPosition().toPoint() - d->mDragPosition);
         event->accept();
         emit moving();
     }

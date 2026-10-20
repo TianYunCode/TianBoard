@@ -109,18 +109,16 @@ void PersistenceManager::createDocumentProxiesStructure(bool interactive)
         {
             QString domString(inFile.readAll());
 
-            int     errorLine   = 0;
-            int     errorColumn = 0;
-            QString errorStr;
-
-            if (xmlDom.setContent(domString, &errorStr, &errorLine, &errorColumn))
+            QDomDocument::ParseResult parseResult = xmlDom.setContent(domString);
+            if (parseResult)
             {
                 loadFolderTreeFromXml("", xmlDom.firstChildElement());
             }
             else
             {
                 qDebug() << "Error reading content of " << mFoldersXmlStorageName << Qt::endl
-                         << "Error:" << inFile.errorString() << "Line:" << errorLine << "Column:" << errorColumn;
+                         << "Error:" << inFile.errorString() << "Line:" << parseResult.errorLine << "Column:" << parseResult.errorColumn
+                         << parseResult.errorMessage;
             }
             inFile.close();
         }

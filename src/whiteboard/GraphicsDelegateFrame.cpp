@@ -1026,7 +1026,6 @@ GraphicsDelegateFrame::FrameTool GraphicsDelegateFrame::toolFromPos(QPointF pos)
         {
             return ResizeLeft;
         }
-        return ResizeLeft;
     }
     else if (rightResizeGripRect().contains(pos))
     {

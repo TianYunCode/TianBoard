@@ -36,9 +36,9 @@ RecordingPalette::RecordingPalette(QWidget *parent) : ActionPalette(Qt::Horizont
 
     // 配置入口复用主工具栏的 QAction，菜单挂在它关联的 QToolButton 上。
     // 设备/尺寸/发布动作都由 RecordingController 懒加载创建，调色板只负责把它们拼进菜单。
-    foreach (QWidget *menuWidget, Application::mainWindow->ui().actionRecordingConfig->associatedWidgets())
+    foreach (QObject *associated, Application::mainWindow->ui().actionRecordingConfig->associatedObjects())
     {
-        QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
+        QToolButton *tb = qobject_cast<QToolButton *>(associated);
 
         tb->setIconSize(QSize(16, 16));
 

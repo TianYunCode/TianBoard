@@ -128,7 +128,9 @@ QString DocumentManager::importFileFilter(bool notUbx)
 
 QFileInfoList DocumentManager::importUbx(const QString &Incomingfile, const QString &destination)
 {
-    ImportDocumentSetAdaptor *docSetAdaptor;
+    // 必须显式初始化：适配器列表为空时循环体一次都不执行，下面的 !docSetAdaptor 判断
+    // 读的就是未初始化值，会拿一个随机指针去调 importData。
+    ImportDocumentSetAdaptor *docSetAdaptor = nullptr;
     foreach (ImportAdaptor *curAdaptor, mImportAdaptors)
     {
         docSetAdaptor = qobject_cast<ImportDocumentSetAdaptor *>(curAdaptor);

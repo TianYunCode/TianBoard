@@ -70,10 +70,14 @@ public:
     /** @brief 在指定时间戳写入章节标记；默认实现忽略。 */
     virtual void newChapter(const QString &pLabel, long timestamp);
 
-    /** @brief 设置录制帧率，须在 start() 前调用。 */
+    /**
+     * @brief 设置录制帧率，须在 start() 前调用。
+     * @param pFps 每秒帧数；小于 1 会被抬到 1——帧率被多处当除数用（帧间隔、
+     *             编码器 profile 的 nanoSecondsPerFrame），0 会崩。
+     */
     void setFramesPerSecond(int pFps)
     {
-        mFramesPerSecond = pFps;
+        mFramesPerSecond = qMax(1, pFps);
     }
 
     /** @brief 当前录制帧率。 */

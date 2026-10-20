@@ -132,9 +132,6 @@ QString ExportDocumentSetAdaptor::exportName()
 
 bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, DocumentTreeModel *model, QuaZip &zip)
 {
-    static int i = 0;
-    i++;
-
     QModelIndex parentIndex = pIndex;
     if (!parentIndex.isValid())
     {

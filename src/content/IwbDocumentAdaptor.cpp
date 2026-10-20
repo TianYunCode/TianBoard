@@ -476,7 +476,6 @@ bool IwbDocumentAdaptor::ToIwbConverter::parse()
 }
 bool IwbDocumentAdaptor::ToIwbConverter::parseMetadata()
 {
-    int   errorLine, errorColumn;
     QFile metaDataFile(sourcePath + "/" + fMetadata);
 
     if (!metaDataFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -485,10 +484,12 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseMetadata()
         qDebug() << errorStr;
         return false;
     }
-    else if (!mDataModel->setContent(metaDataFile.readAll(), true, &errorStr, &errorLine, &errorColumn))
+    else if (QDomDocument::ParseResult parseResult =
+                 mDataModel->setContent(metaDataFile.readAll(), QDomDocument::ParseOption::UseNamespaceProcessing);
+        !parseResult)
     {
-        qWarning() << "Error:Parseerroratline" << errorLine << ","
-                   << "column" << errorColumn << ":" << errorStr;
+        qWarning() << "Error:Parseerroratline" << parseResult.errorLine << ","
+                   << "column" << parseResult.errorColumn << ":" << parseResult.errorMessage;
         return false;
     }
 
@@ -608,18 +609,17 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parsePage(const QString &pageFil
     qDebug() << "begin parsing page" + pageFileName;
     mSvgElements.clear();
 
-    int errorLine, errorColumn;
-
     QFile pageFile(sourcePath + "/" + pageFileName);
     if (!pageFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "can't open file" << pageFileName << "for reading";
         return QDomElement();
     }
-    else if (!mDataModel->setContent(pageFile.readAll(), true, &errorStr, &errorLine, &errorColumn))
+    else if (QDomDocument::ParseResult parseResult = mDataModel->setContent(pageFile.readAll(), QDomDocument::ParseOption::UseNamespaceProcessing);
+        !parseResult)
     {
-        qWarning() << "Error:Parseerroratline" << errorLine << ","
-                   << "column" << errorColumn << ":" << errorStr;
+        qWarning() << "Error:Parseerroratline" << parseResult.errorLine << ","
+                   << "column" << parseResult.errorColumn << ":" << parseResult.errorMessage;
         pageFile.close();
         return QDomElement();
     }
@@ -1354,18 +1354,16 @@ void IwbDocumentAdaptor::ToIwbConverter::setIwbTextFromHTMLTextNode(const QDomEl
                         for (int i = 0; i < attrCount; i++)
                         {
                             QStringList iwbAttributes = spanNode.attributes().item(i).nodeValue().split(";", Qt::SkipEmptyParts);
+                            for (int k = 0; k < iwbAttributes.count(); k++)
                             {
-                                for (int i = 0; i < iwbAttributes.count(); i++)
+                                QString     attr    = iwbAttributes.at(k).trimmed();
+                                QStringList AttrVal = attr.split(":", Qt::SkipEmptyParts);
+                                if (1 < AttrVal.count())
                                 {
-                                    QString     attr    = iwbAttributes.at(i).trimmed();
-                                    QStringList AttrVal = attr.split(":", Qt::SkipEmptyParts);
-                                    if (1 < AttrVal.count())
+                                    QString sAttr = packageAttrNameToIwbAttrName(AttrVal.at(0));
+                                    if (itIsSVGElementAttribute(spanElement.tagName(), sAttr))
                                     {
-                                        QString sAttr = packageAttrNameToIwbAttrName(AttrVal.at(0));
-                                        if (itIsSVGElementAttribute(spanElement.tagName(), sAttr))
-                                        {
-                                            spanElement.setAttribute(sAttr, packageAttrValueToIwbAttrName(AttrVal.at(1)));
-                                        }
+                                        spanElement.setAttribute(sAttr, packageAttrValueToIwbAttrName(AttrVal.at(1)));
                                     }
                                 }
                             }

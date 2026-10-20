@@ -360,7 +360,7 @@ void DocumentNavigator::dragEnterEvent(QDragEnterEvent *event)
 
 void DocumentNavigator::dragMoveEvent(QDragMoveEvent *event)
 {
-    QPointF position        = event->pos();
+    QPointF position        = event->position();
 
     // 拖到上下边缘附近时自动滚动视图。
     QPointF scenePos        = mapToScene(position.toPoint());

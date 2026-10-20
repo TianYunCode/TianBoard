@@ -72,9 +72,9 @@ void ToolbarButtonGroup::setIcon(const QIcon &icon, int index)
 {
     Q_ASSERT(index < mActions.size());
 
-    foreach (QWidget *widget, mActions.at(index)->associatedWidgets())
+    foreach (QObject *associated, mActions.at(index)->associatedObjects())
     {
-        QToolButton *button = qobject_cast<QToolButton *>(widget);
+        QToolButton *button = qobject_cast<QToolButton *>(associated);
         if (button)
         {
             button->setIcon(icon);
@@ -92,9 +92,9 @@ void ToolbarButtonGroup::setColor(const QColor &color, int index)
 
 void ToolbarButtonGroup::selected(QAction *action)
 {
-    foreach (QWidget *widget, action->associatedWidgets())
+    foreach (QObject *associated, action->associatedObjects())
     {
-        QToolButton *button = qobject_cast<QToolButton *>(widget);
+        QToolButton *button = qobject_cast<QToolButton *>(associated);
         if (button)
         {
             int i = 0;

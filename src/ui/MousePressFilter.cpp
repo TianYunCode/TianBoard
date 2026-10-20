@@ -30,7 +30,7 @@ bool MousePressFilter::eventFilter(QObject *obj, QEvent *event)
             }
 
             // 先构造一个双击事件暂存；若 1 秒内没有松开或移动，就把它投递出去。
-            mPendingEvent = new QMouseEvent(QEvent::MouseButtonDblClick, mouseEvent->pos(), mouseEvent->globalPos(), mouseEvent->button(),
+            mPendingEvent = new QMouseEvent(QEvent::MouseButtonDblClick, mouseEvent->position(), mouseEvent->globalPosition(), mouseEvent->button(),
                 mouseEvent->buttons(), mouseEvent->modifiers());
 
             mObject       = obj;
@@ -43,7 +43,7 @@ bool MousePressFilter::eventFilter(QObject *obj, QEvent *event)
         if (mPendingEvent)
         {
             QTabletEvent *tabletEvent = static_cast<QTabletEvent *>(event);
-            QPoint        point       = tabletEvent->globalPos() - mPendingEvent->globalPos();
+            QPoint        point       = tabletEvent->globalPosition().toPoint() - mPendingEvent->globalPosition().toPoint();
             // 松开或移动超过拖拽阈值都说明不是长按，丢弃暂存的双击事件。
             if (isMouseRelease || point.manhattanLength() > QApplication::startDragDistance())
             {

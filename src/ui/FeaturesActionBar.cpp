@@ -238,7 +238,7 @@ void FeaturesActionBar::dropEvent(QDropEvent *event)
         return;
     }
 
-    QWidget *dest = childAt(event->pos());
+    QWidget *dest = childAt(event->position().toPoint());
     if (dest == d->mpDeleteBtn)
     {
         // 删除前先整体校验：只要有一个条目不可删除就放弃整个操作，避免半完成状态。

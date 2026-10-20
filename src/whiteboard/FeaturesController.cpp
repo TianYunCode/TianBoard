@@ -216,7 +216,7 @@ QString Feature::getNameFromVirtualPath(const QString &pVirtPath)
     int     slashPos = pVirtPath.lastIndexOf("/");
     if (slashPos != -1)
     {
-        result = pVirtPath.right(pVirtPath.count() - slashPos - 1);
+        result = pVirtPath.right(pVirtPath.size() - slashPos - 1);
     }
     else
     {
@@ -501,7 +501,7 @@ QString FeaturesController::uniqNameForFeature(const Feature &feature, const QSt
             int i = curResultName.indexOf(feature.getFullVirtualPath());
             if (i != -1)
             {
-                curResultName = curResultName.right(curFeature.getFullVirtualPath().count() - i - parentVirtualPath.count());
+                curResultName = curResultName.right(curFeature.getFullVirtualPath().size() - i - parentVirtualPath.size());
             }
             // 仍含分隔符说明是目录，不作为文件名参与重名判断。
             i = curResultName.indexOf("/");
@@ -708,7 +708,7 @@ QString FeaturesController::categoryNameForVirtualPath(const QString &str)
     int     ind = str.lastIndexOf("/");
     if (ind != -1)
     {
-        result = str.right(str.count() - ind - 1);
+        result = str.right(str.size() - ind - 1);
     }
     return result;
 }

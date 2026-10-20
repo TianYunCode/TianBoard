@@ -64,8 +64,7 @@ ColorListSetting::ColorListSetting(Settings *owner, const QString &pDomain, cons
 {
     foreach (QString s, get().toStringList())
     {
-        QColor color;
-        color.setNamedColor(s);
+        QColor color = QColor::fromString(s);
         if (mAlpha >= 0)
         {
             color.setAlphaF(mAlpha);
@@ -87,8 +86,7 @@ QVariant ColorListSetting::reset()
 
     foreach (QString s, get().toStringList())
     {
-        QColor color;
-        color.setNamedColor(s);
+        QColor color = QColor::fromString(s);
         if (mAlpha >= 0)
         {
             color.setAlphaF(mAlpha);

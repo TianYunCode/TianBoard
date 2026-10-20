@@ -216,7 +216,12 @@ void RecordingController::start()
 
         QSize recommendedSize(1024, 768);
 
-        int fullBitRate = Settings::settings()->recordingWindowsMediaBitsPerSecond->get().toInt();
+        // 帧率归用户设置管（此前一直用构造函数里的固定 10，设置项形同虚设）。
+        // 下限必须是 1：抓屏定时器用 1000/fps、编码器 profile 用 10000000/fps 取倒数，
+        // 0 会直接整数除零崩掉录制；上限 60 是编码器实测有意义的档位。
+        mVideoFramesPerSecondAtStart = qBound(1, Settings::settings()->recordingFramesPerSecond->get().toInt(), 60);
+
+        int fullBitRate              = Settings::settings()->recordingWindowsMediaBitsPerSecond->get().toInt();
 
         if (mSmallVideoSizeAction && mSmallVideoSizeAction->isChecked())
         {
