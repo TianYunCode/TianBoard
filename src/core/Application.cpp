@@ -33,6 +33,7 @@
 
 #include "whiteboard/ToolsManager.h"
 #include "core/DisplayManager.h"
+#include "core/FormatSelfTest.h"
 
 QPointer<QUndoStack> Application::undoStack;
 
@@ -278,6 +279,31 @@ int Application::exec(const QString &pFileToImport)
         QTimer::singleShot(4000, applicationController, &ApplicationController::showInternet);
         QTimer::singleShot(6000, applicationController, &ApplicationController::showBoard);
         QTimer::singleShot(8000, qApp, &QCoreApplication::quit);
+    }
+
+    // 文档格式往返自检（tst_format 用 `--format-selftest` 拉起）：真存一页再真读回来逐项比对。
+    // 这条链路在界面上是看不见的——属性名、命名空间或取整精度任何一侧动一下，都要等“存下去
+    // 再打开”才露出来。75 是“已有实例在跑，让路”的约定退出码，测试据此判跳过而不是判失败：
+    // 自检会往临时目录写文档并动场景缓存，两个进程并行没有意义。
+    if (arguments().contains("--format-selftest"))
+    {
+        if (isRunning())
+        {
+            qWarning() << "format-selftest: 已有实例在运行，让路";
+            QTimer::singleShot(0, qApp,
+                []
+                {
+                    qApp->exit(75);
+                });
+        }
+        else
+        {
+            QTimer::singleShot(1500, qApp,
+                []
+                {
+                    qApp->exit(FormatSelfTest::run());
+                });
+        }
     }
 
     return QApplication::exec();

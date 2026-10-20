@@ -27,6 +27,8 @@ add_library(tb_core OBJECT
     DownloadManager.h
     ForeignObjectsHandler.cpp
     ForeignObjectsHandler.h
+    FormatSelfTest.cpp
+    FormatSelfTest.h
     HttpGet.cpp
     HttpGet.h
     IdleTimer.cpp

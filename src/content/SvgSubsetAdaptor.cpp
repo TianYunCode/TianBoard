@@ -2885,10 +2885,12 @@ void SvgSubsetAdaptor::SvgSubsetWriter::rulerToSvg(GraphicsRuler *item)
      */
 
     mXmlWriter.writeStartElement(Settings::documentNamespaceUri, "ruler");
-    mXmlWriter.writeAttribute("x", QString("%1").arg(item->boundingRect().x()));
-    mXmlWriter.writeAttribute("y", QString("%1").arg(item->boundingRect().y()));
-    mXmlWriter.writeAttribute("width", QString("%1").arg(item->boundingRect().width()));
-    mXmlWriter.writeAttribute("height", QString("%1").arg(item->boundingRect().height()));
+    // 必须写 rect()：读回来是 setRect() 还原的。写 boundingRect() 会把画笔外扩的那一圈
+    // 也当尺寸存，于是每次“存盘—打开”尺子都涨一个笔宽，刻度跟着变形。
+    mXmlWriter.writeAttribute("x", QString("%1").arg(item->rect().x()));
+    mXmlWriter.writeAttribute("y", QString("%1").arg(item->rect().y()));
+    mXmlWriter.writeAttribute("width", QString("%1").arg(item->rect().width()));
+    mXmlWriter.writeAttribute("height", QString("%1").arg(item->rect().height()));
     mXmlWriter.writeAttribute("transform", toSvgTransform(item->sceneTransform()));
 
     QString zs;
@@ -2938,10 +2940,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::compassToSvg(GraphicsCompass *item)
      */
 
     mXmlWriter.writeStartElement(Settings::documentNamespaceUri, "compass");
-    mXmlWriter.writeAttribute("x", QString("%1").arg(item->boundingRect().x()));
-    mXmlWriter.writeAttribute("y", QString("%1").arg(item->boundingRect().y()));
-    mXmlWriter.writeAttribute("width", QString("%1").arg(item->boundingRect().width()));
-    mXmlWriter.writeAttribute("height", QString("%1").arg(item->boundingRect().height()));
+    // 同 rulerToSvg：写的必须是读回时 setRect() 用的那个量，否则每存一次就胖一个笔宽。
+    mXmlWriter.writeAttribute("x", QString("%1").arg(item->rect().x()));
+    mXmlWriter.writeAttribute("y", QString("%1").arg(item->rect().y()));
+    mXmlWriter.writeAttribute("width", QString("%1").arg(item->rect().width()));
+    mXmlWriter.writeAttribute("height", QString("%1").arg(item->rect().height()));
     mXmlWriter.writeAttribute("transform", toSvgTransform(item->sceneTransform()));
 
     QString zs;

@@ -70,6 +70,17 @@ set_tests_properties(tst_ui_modes PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 文档格式往返自检：应用带 --format-selftest 真存一页再绕开缓存读回来逐项比对。
+# 判据是退出码（非 0 = 不一致的条数，75 = 已有实例在跑让路，测试据此跳过）。
+add_executable(tst_format tst_format.cpp)
+target_compile_options(tst_format PRIVATE /MP /utf-8)
+target_link_libraries(tst_format PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_format TianBoard)
+add_test(NAME tst_format COMMAND tst_format)
+set_tests_properties(tst_format PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

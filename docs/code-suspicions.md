@@ -290,6 +290,13 @@
   无反应）；`SceneCache` 从不淘汰（`pageCacheSize` 失效）；HTTP 重定向后完成信号被吞；
   退出时工具栏位置写在落盘之后；`MimeDataGraphicsItem` 不回收剪贴板副本。
 
+- **格式往返（`tst_format` 抓到的）**：`rulerToSvg`/`compassToSvg` 写的是
+  `boundingRect()`，而 `rulerFromSvg`/`compassFromSvg` 用 `setRect()` 还原——差的那一圈正是
+  画笔外扩，于是尺子和圆规每“存一次再开一次”就胖一个笔宽，刻度跟着变形；量角器本来就写
+  `rect()`，所以只有它两端一致。两处改成写 `rect()`（`SvgSubsetAdaptor.cpp:2888`、`:2943`）。
+  这条是本轮新写的 `--format-selftest` 第一次跑就报出来的，也是它存在的理由：界面上完全看不出
+  来，只有把同一页存了再冷读回来才会露。
+
 仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
 `PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。
