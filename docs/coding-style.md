@@ -97,8 +97,8 @@ private:
 // .cpp —— 定义放在使用之前，构造用 std::make_unique
 struct BlackoutWidget::Private
 {
-    QGridLayout* gridLayout{nullptr};
-    QToolButton* iconButton{nullptr};
+    QGridLayout *gridLayout{nullptr};
+    QToolButton *iconButton{nullptr};
 };
 ```
 
@@ -127,10 +127,14 @@ struct BlackoutWidget::Private
   否则语言切换功能覆盖不到新界面。
 * 换行混用 CRLF/LF：`.gitattributes` 里 `* -text` 禁止任何自动转换，提交前不要跑
   全局换行符“整理”。`scripts/format.ps1` 只按 `.clang-format` 排空白，不动行尾。
-* **排版以 `.clang-format` 为唯一权威**（Qt 基线：4 空格缩进、无制表符、110 列、
-  `char *p`、函数/结构的左花括号跟在同一行即 `BreakBeforeBraces: Attach`、include
-  不自动排序）。全仓已在 2026-10-20 用它排过一遍，所以不要再手写“看起来更顺”的
-  排版；提交前跑 `.\scripts\format.ps1 -Check`，它只认 0。`third/` 永久排除。
+* **排版以 `.clang-format` 为唯一权威**：4 空格缩进、无制表符、150 列、左花括号**单独占一行**
+  （`BreakBeforeBraces: Allman`，函数/类/`enum`/`struct` 一律如此）、`QWidget *parent` 这种
+  星号贴变量名且连续的声明按列对齐、短函数不省行（`AllowShortFunctionsOnASingleLine: None`，
+  内联访问器也要写成一整块）、空行最多留一行、开括号后不跟着逐项对齐（续行统一缩进 4 格）、
+  include 不自动排序（顺序承载模块信息：Qt/系统尖括号在前、`”模块/文件.h”` 在后）。
+  注释也会被工具重排（`ReflowComments`），所以别手工对齐注释。全仓已在 2026-10-20 用这套
+  规则排过一遍，不要再手写”看起来更顺”的排版；提交前跑 `.\scripts\format.ps1 -Check`，
+  它只认 0。`third/` 与 `src/app/resource.h` 永久排除。
 * 信号槽：**一律用函数指针形式** `connect(a, &A::sig, b, &B::slot)`，禁止
   `SIGNAL()`/`SLOT()` 字符串。字符串写错签名不会报错，只在运行时静默不连——本仓
   清掉 613 处时就是这样挖出一批“看着连了其实没连”的旧连接（favicon、麦克风列表、
