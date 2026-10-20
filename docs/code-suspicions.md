@@ -127,6 +127,13 @@
 
 ## 二、需要产品决策，不该由重构顺手改掉
 
+- **每次保存都重写一遍 `metadata.rdf`**：`DocumentProxy::mIsModified` 只置真、没有清零路径
+  （见 `model/DocumentProxy.h` 的 `isModified()` 注释），于是 `persistDocumentScene()` 里
+  `if (pDocumentProxy->isModified())` 恒真——切一次主模式、自动备份一次、退出一次，元数据就
+  各写一遍。日志里能直接看到同一份 `metadata.rdf` 连着写两次。
+  别顺手"修"成保存后清零：`updated-at` 现在被写成"最后一次保存的时刻"，清零后它就变成
+  "最后一次改元数据的时刻"，文档库里的"更新时间"列会跟着冻在创建时间上。
+  要动它先定清楚产品要哪个语义，再决定是加清零、还是把 `updated-at` 改成只在内容真变时刷新。
 - **导出用的 DPI 已经收敛成一个入口，但“取哪个屏”仍未定**：原来 11 处各自写
   `(physicalDpiX()+physicalDpiY())/2` 或只取 `Y`，同一份文档的导出与导入可能按两套比例折算；
   现在全部走 `VirtualDesktop::physicalDpi()`（固定取主屏）。要改成“画板所在屏”并不安全：
@@ -148,9 +155,10 @@
   版本信息静默丢失。另外 `TianBoard.rc` 是 UTF-16，改这两个文件必须用字节级工具，
   别用文本编辑器——编码一变整个文件就是二进制乱码，而 `rc.exe` 仍可能返回 0，
   只在产出的 `.res` 体积上露馅。
-- `src/recording/WindowsMediaFile.h:10` 的 `#ifndef inteface` **不是** include guard
-  （守卫已经是 `#pragma once`），它包住的是 `#define interface struct` 这个 Windows SDK
-  老写法。拼错的 `inteface` 目前无害，但别把它当残留守卫删掉。
+- `src/recording/WindowsMediaFile.h:10` 包住 `#define interface struct`（Windows SDK 的
+  老写法）的那个 `#ifndef` **不是** include guard——守卫已经是 `#pragma once`。原先它拼成了
+  `inteface`，等于永远不生效，于是每个含此头文件的编译单元都报一次 `C4005 “interface” 宏重定义`；
+  `/W4` 扫描时已把拼写改对，现在是真正的"SDK 已定义就不重复定义"。别再改回 `inteface`。
 - **`IwbConstants.h` 里还有 C 风格遗产**：第 12 行 `#define PI 3.1415926535`（污染宏命名
   空间，且与 `M_PI` 重复）、`FEATURE_*` 一组常量、`eAncestors`/`eCopyMode`/`eAddItemMode`
   这类 `e` 前缀 + 值前缀不一致的枚举。改成 `constexpr` 与 `enum class` 是纯改名，
