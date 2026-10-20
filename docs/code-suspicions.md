@@ -209,6 +209,18 @@
   现在由 `tst_assets::svgAssetsPaintWithoutTruncation` 兜住：接管消息处理器，把
   `library/` 与 `images/` 下每个 SVG 真渲染一遍，既查告警也查“有没有画出像素”。
   注意告警是在 `QSvgRenderer` **构造期**发出的，handler 只包住 `render()` 会全部漏掉。
+- **判一个素材是不是“没人用”，先看路径是怎么拼出来的**。全仓 grep `:/images/moveUp.svg`
+  一定查不到引用，因为 `ThumbnailWidget` 是 `addIcon("moveUp")` 拼的
+  （`:images/` + 名字 + `.svg`），`KeyboardPalette` 拼得更深
+  （`:/images/virtual.keyboard/` + 行高 + `/` + `capslock` + `.png`）。这一轮按“文件名有没有
+  出现在任何非 res 文件里”扫，20 个“死资源”里 17 个是这种拼接误报，真死的只有
+  `InteractivesCategory.svg`、`tab_mask.png`、`toolbar/updates.png` 三个。
+- **QtSvg 认渐变的 `xlink:href` 借色**：素材库里 6 个 `white_*` 形状用的是
+  `<linearGradient xlink:href="#SVGID_2_">` 这种 Inkscape 别名写法，实测能正常画出白色主体。
+  别按“Qt 只支持 SVG Tiny 1.2，遇到借色一定画成透明”去改素材。
+  反过来也别加“渐变色标必须在渲染结果里出现”的像素门禁：星形、菱形这类窄形状在色标端点
+  附近本来就凑不出几个像素，而 `white_rectangle.svg` 里两条空 path（`d="M77.242,54.635"`）
+  引用着退化渐变（x1=x2 且 y1=y2）却不影响可见图形——实测 7 个误报，全都不是缺陷。
 - **模块 CMakeLists 是显式文件清单**（没有 `file(GLOB_RECURSE)`）：新文件不登记就完全不进
   构建，这是刻意的（资源确定性），但也意味着“加了文件没加 CMake”不会再有隐蔽的
   静默失败——配置期或链接期就会报，别为了省事把 GLOB 加回来。
