@@ -1096,6 +1096,10 @@ void FeatureProperties::onAddToLib() {
 void FeatureProperties::onSetAsBackground() {
     QWidget *w = parentWidget()->parentWidget()->parentWidget();
     FeaturesWidget *featuresWidget = qobject_cast<FeaturesWidget *>(w);
+    if (!featuresWidget) {
+        qWarning() << "FeatureProperties is not nested under FeaturesWidget; ignoring background request";
+        return;
+    }
     featuresWidget->getFeaturesController()->addItemAsBackground(*d->mpElement);
 }
 

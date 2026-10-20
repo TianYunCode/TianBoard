@@ -267,7 +267,11 @@ void CachePropertiesWidget::updateCurrentCache() {
                 setEnabled(true);
                 emit showTab(this);
                 mpCurrentCache = dynamic_cast<GraphicsCache *>(it);
-                if ((NULL != mpCurrentCache) && (!mCaches.contains(mpCurrentCache))) {
+                if (!mpCurrentCache) {
+                    // 带了 "Cache" 标记但不是 GraphicsCache 的条目：不能继续往下解引用。
+                    continue;
+                }
+                if (!mCaches.contains(mpCurrentCache)) {
                     mCaches.append(mpCurrentCache);
                 }
 
