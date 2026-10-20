@@ -9,7 +9,7 @@
 # 永远排除：build*/ 构建产物、third/ 内联第三方（quazip/zlib/openssl/qtsingleapplication
 # 自带风格，动了它们就把 vendor 代码和自家代码混在一个 diff 里，回滚都分不开）。
 #
-# 注意：全仓（src/ + tests/，344 个文件）已在 2026-10-20 用 clang-format 22.1.8 跑过
+# 注意：全仓（src/ + tests/，345 个文件）已在 2026-10-20 用 clang-format 22.1.8 跑过
 # 一次，此后日常约定是提交前 `-Check` 自检。格式化结果由 clang-format 版本决定，
 # 升版本可能把整棵树重排，所以升版本要单独一次全量提交，不与功能改动混批。
 #
