@@ -13,6 +13,8 @@
 
 #include "ui/MainWindowUi.h"
 
+// 这一大段 setupUi/retranslateUi 由原生 Designer 表单逐条移植而来，动作名与资源
+// 路径沿用 .ui 中的命名，方便和翻译文件、样式表对应。
 void MainWindowUi::setupUi(QMainWindow *mw) {
     if (mw->objectName().isEmpty())
         mw->setObjectName("MainWindow");
@@ -639,6 +641,8 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     centralwidget = new QWidget(mw);
     centralwidget->setObjectName("centralwidget");
     mw->setCentralWidget(centralwidget);
+    // 三条工具栏都停在顶部，并用 toolbar break 强制各占一行；
+    // 每行末尾重复放入 Board/Web/Document/Desktop/Menu，保证任何模式下都能切换。
     boardToolBar = new QToolBar(mw);
     boardToolBar->setObjectName("boardToolBar");
     boardToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -1203,7 +1207,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(par
     d->downloadWidget = new DownloadWidget();
     d->downloadWidget->setWindowModality(Qt::ApplicationModal);
 
-    //Setting tooltip colors staticly, since they look not quite well on different color themes
+    // 提示框颜色固定成浅黄底黑字，避免跟随系统主题后与白色板面混在一起看不清。
     QPalette toolTipPalette;
     toolTipPalette.setColor(QPalette::ToolTipBase, QColor("#FFFFDC"));
     toolTipPalette.setColor(QPalette::ToolTipText, Qt::black);
@@ -1215,7 +1219,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(par
     setCentralWidget(central);
 
     d->ui.actionPreferences->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Return));
-    // this code, because it unusable, system key combination can`t be triggered, even we add it manually
+    // Alt+F4 是系统保留组合键，动作上设置的快捷键不会生效，只能在这里显式登记一次。
     d->ui.actionQuit->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F4));
 }
 
@@ -1278,9 +1282,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::onExportDone() {
-    // HACK :  When opening the file save dialog during the document exportation,
-    //         some buttons of the toolbar become disabled without any reason. We
-    //         re-enable them here.
+    // HACK：导出时打开文件保存对话框会让部分工具栏按钮被禁用，
+    //       这里统一恢复，避免导出结束后界面停留在半禁用状态。
     d->ui.actionExport->setEnabled(true);
     d->ui.actionNewDocument->setEnabled(true);
     d->ui.actionRename->setEnabled(true);

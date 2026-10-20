@@ -5,11 +5,6 @@
 #include "utils/Globals.h"
 
 
-/**
- * \brief Constructor
- * @param parent as the parent widget
- * @param name as the object name
- */
 PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
     : DockPaletteWidget(parent),
       mNavigator(NULL),
@@ -26,7 +21,7 @@ PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
     setIconToRight(QPixmap(":images/general_open.png"));
     setIconToLeft(QPixmap(":images/general_close.png"));
 
-    // Build the gui
+    // 垂直布局：缩略图导航占满剩余空间，页码与时钟固定在底部一行。
     mLayout = new QVBoxLayout(this);
     setLayout(mLayout);
 
@@ -41,27 +36,22 @@ PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
     mHLayout->addWidget(mPageNbr);
     mHLayout->addWidget(mClock);
 
-    // Configure the page number indicator
     mPageNbr->setStyleSheet(QString("QLabel { color: #1296DB; background-color: transparent; border: none; "
                                     "font-family: Arial; font-weight: bold; font-size: 20px }"));
     setPageNumber(0, 0);
     mPageNbr->setAlignment(Qt::AlignHCenter);
 
-    // Configure the clock
     mClock->setStyleSheet(QString("QLabel {color: #1296DB; background-color: transparent; text-align: "
                                   "center; font-family: Arial; font-weight: bold; font-size: 20px}"));
     mTimeFormat = QLocale::system().timeFormat(QLocale::ShortFormat);
     mClock->setAlignment(Qt::AlignHCenter);
 
-    //strip seconds
+    // 秒级刷新但只显示时分，去掉格式里的秒字段以免每秒跳动。
     mTimeFormat = mTimeFormat.remove(":ss");
     mTimeFormat = mTimeFormat.remove(":s");
     mTimerID = startTimer(1000);
 }
 
-/**
- * \brief Destructor
- */
 PageNavigationWidget::~PageNavigationWidget() {
     killTimer(mTimerID);
 
@@ -87,44 +77,24 @@ PageNavigationWidget::~PageNavigationWidget() {
     }
 }
 
-/**
- * \brief Notify a timer event
- * @param event as the timer event
- */
 void PageNavigationWidget::timerEvent(QTimerEvent *event) {
     Q_UNUSED(event);
     updateTime();
 }
 
-/**
- * \brief Update the current time
- */
 void PageNavigationWidget::updateTime() {
     if (mClock)
         mClock->setText(QLocale::system().toString(QTime::currentTime(), mTimeFormat));
 }
 
-/**
- * \brief Set the page number
- * @param current as the current page
- * @param total as the total number of pages
- */
 void PageNavigationWidget::setPageNumber(int current, int total) {
     mPageNbr->setText(QString("%1 / %2").arg(current).arg(total));
 }
 
-/**
- * \brief Get the custom margin value
- * @return the custom margin value
- */
 int PageNavigationWidget::customMargin() {
     return 5;
 }
 
-/**
- * \brief Get the border value
- * @return the border value
- */
 int PageNavigationWidget::border() {
     return 5;
 }

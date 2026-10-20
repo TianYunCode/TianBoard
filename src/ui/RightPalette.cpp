@@ -11,6 +11,7 @@ RightPalette::RightPalette(QWidget *parent, const char *name)
     setObjectName(name);
     setOrientation(DockOrientation::Right);
     setCollapseWidth(120);
+    // 宽度与折叠状态按 Board / Desktop 两种模式分别保存，切换模式时各自恢复。
     bool isCollapsed = false;
     if (currentMode() == DockWidgetMode::Board) {
         setLastWidth(Settings::settings()->rightLibPaletteBoardModeWidth->get().toInt());
@@ -34,6 +35,7 @@ void RightPalette::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void RightPalette::resizeEvent(QResizeEvent *event) {
+    // 折叠到 0 时不能把 0 当成新的“上次宽度”存下来，否则下次展开就没有宽度可恢复。
     int newWidth = width();
     if (currentMode() == DockWidgetMode::Board) {
         if (newWidth > collapseWidth())
@@ -55,6 +57,7 @@ void RightPalette::updateMaxWidth() {
 }
 
 bool RightPalette::switchMode(DockWidgetMode mode) {
+    // 先按目标模式取回宽度（折叠则记为 0），再交给基类完成模式切换。
     int newModeWidth;
     if (mode == DockWidgetMode::Board) {
         setLastWidth(Settings::settings()->rightLibPaletteBoardModeWidth->get().toInt());

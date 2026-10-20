@@ -42,11 +42,11 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
     setActions(actions);
     setButtonIconSize(QSize(42, 42));
 
+    // 绘图工具必须互斥，只有一个处于选中态。
     if (!PlatformUtils::hasVirtualKeyboard()) {
         groupActions();
     } else {
-        // VirtualKeyboard action is not in group
-        // So, groupping all buttons, except last
+        // 虚拟键盘不是绘图工具，不能参与互斥，所以只把最后一个按钮排除在组外。
         setButtonGroup(new QButtonGroup(this));
         for (int i = 0; i < buttons().size() - 1; i++) {
             buttonGroup()->addButton(buttons()[i], i);
@@ -72,6 +72,7 @@ void StylusPalette::initPosition() {
 
     setCustomPositionFlag(true);
 
+    // 竖向工具栏贴左侧中部，横向工具栏贴底部水平居中，具体位置每帧按父容器尺寸算。
     QPoint pos;
     int parentWidth = pParentW->width();
     int parentHeight = pParentW->height();

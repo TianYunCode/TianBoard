@@ -165,7 +165,7 @@ DocumentsWidget::DocumentsWidget(QWidget *parent) : QWidget(parent), d(new Priva
     d->horizontalLayout_2->setSpacing(0);
     d->horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
     d->horizontalLayout_2->setObjectName("horizontalLayout_2");
-    // Set twice by the form itself; kept so the generated geometry stays identical.
+    // 表单本身就重复设置过一次；保留第二次，使生成后的几何行为与旧界面完全一致。
     d->horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
 
     d->horizontalSpacer2 =
@@ -174,7 +174,7 @@ DocumentsWidget::DocumentsWidget(QWidget *parent) : QWidget(parent), d(new Priva
 
     d->documentZoomSlider = new QSlider(d->bottomRightFrame);
     d->documentZoomSlider->setObjectName("documentZoomSlider");
-    // uic reuses the size policy of sortOrder here, only refreshing its heightForWidth flag.
+    // 这里复用 sortOrder 的尺寸策略对象，只刷新 heightForWidth 标志，与 uic 生成代码一致。
     sizePolicy3.setHeightForWidth(d->documentZoomSlider->sizePolicy().hasHeightForWidth());
     d->documentZoomSlider->setSizePolicy(sizePolicy3);
     d->documentZoomSlider->setMinimumSize(QSize(150, 0));

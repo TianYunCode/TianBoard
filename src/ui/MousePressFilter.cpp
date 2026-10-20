@@ -4,12 +4,12 @@
 
 
 MousePressFilter::MousePressFilter(QObject *parent) : QObject(parent), mPendingEvent(0) {
-    // NOOP
+    // 刻意留空
 }
 
 
 MousePressFilter::~MousePressFilter() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -26,6 +26,7 @@ bool MousePressFilter::eventFilter(QObject *obj, QEvent *event) {
                 delete mPendingEvent;
             }
 
+            // 先构造一个双击事件暂存；若 1 秒内没有松开或移动，就把它投递出去。
             mPendingEvent =
                 new QMouseEvent(QEvent::MouseButtonDblClick, mouseEvent->pos(), mouseEvent->globalPos(),
                                 mouseEvent->button(), mouseEvent->buttons(), mouseEvent->modifiers());
@@ -38,6 +39,7 @@ bool MousePressFilter::eventFilter(QObject *obj, QEvent *event) {
         if (mPendingEvent) {
             QTabletEvent *tabletEvent = static_cast<QTabletEvent *>(event);
             QPoint point = tabletEvent->globalPos() - mPendingEvent->globalPos();
+            // 松开或移动超过拖拽阈值都说明不是长按，丢弃暂存的双击事件。
             if (isMouseRelease || point.manhattanLength() > QApplication::startDragDistance()) {
                 delete mPendingEvent;
                 mPendingEvent = 0;

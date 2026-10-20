@@ -14,6 +14,7 @@ DocumentToolsPalette::DocumentToolsPalette(QWidget *parent)
     : ActionPalette(Qt::TopRightCorner, parent), d(new Private) {
     QList<QAction *> actions;
 
+    // 没有系统虚拟键盘的平台不提供该动作，避免出现无效按钮。
     if (PlatformUtils::hasVirtualKeyboard())
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
 
@@ -24,6 +25,4 @@ DocumentToolsPalette::DocumentToolsPalette(QWidget *parent)
 }
 
 
-DocumentToolsPalette::~DocumentToolsPalette() {
-    // NOOP
-}
+DocumentToolsPalette::~DocumentToolsPalette() = default;

@@ -22,6 +22,8 @@ void DocumentContainer::setDocument(DocumentProxy *document, bool forceReload) {
 }
 
 void DocumentContainer::duplicatePages(QList<int> &pageIndexes) {
+    // 每复制一页都会在源页之后插入一页，后续源页的索引因此整体后移；
+    // 这里用 offset 把原始页号换算成插入后的真实索引。
     int offset = 0;
     foreach (int sceneIndex, pageIndexes) {
         PersistenceManager::persistenceManager()->duplicateDocumentScene(mCurrentDocument,
@@ -31,7 +33,8 @@ void DocumentContainer::duplicatePages(QList<int> &pageIndexes) {
 }
 
 bool DocumentContainer::movePageToIndex(int source, int target) {
-    //on document view
+    // 持久化层完成场景移动后，本地缩略图缓存用“删源、插目标”同步即可，
+    // 不必整份重新加载，避免大文档移动一页就重建全部缩略图。
     PersistenceManager::persistenceManager()->moveSceneToIndex(mCurrentDocument, source, target);
     deleteThumbPage(source);
     insertThumbPage(target);
@@ -40,6 +43,8 @@ bool DocumentContainer::movePageToIndex(int source, int target) {
 }
 
 void DocumentContainer::deletePages(QList<int> &pageIndexes) {
+    // 先让持久化层批量删除，再按删除顺序逐页清理缓存：
+    // 每删一页，后面页的索引就前移一位，用 offset 抵消即可。
     PersistenceManager::persistenceManager()->deleteDocumentScenes(mCurrentDocument, pageIndexes);
     int offset = 0;
     foreach (int index, pageIndexes) {
@@ -85,6 +90,8 @@ void DocumentContainer::deleteThumbPage(int index) {
 }
 
 void DocumentContainer::updateThumbPage(int index) {
+    // ThumbnailAdaptor::get 每次返回新分配的 QPixmap，替换前必须先释放旧图，
+    // 否则频繁编辑页面会持续泄漏缩略图内存。
     if (mDocumentThumbs.size() > index) {
         delete mDocumentThumbs.at(index);
         mDocumentThumbs[index] = ThumbnailAdaptor::get(mCurrentDocument, index);
@@ -105,6 +112,7 @@ void DocumentContainer::reloadThumbnails() {
     emit documentThumbnailsUpdated(this);
 }
 
+// 场景索引从 0 开始，而界面页号从 1 开始（第 0 页显示为“标题页”），二者只差 1。
 int DocumentContainer::pageFromSceneIndex(int sceneIndex) {
     return sceneIndex + 1;
 }

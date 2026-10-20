@@ -14,6 +14,7 @@ ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction *>
     : QWidget(toolBar), mActions(actions), mCurrentIndex(-1), mDisplayLabel(true), mActionGroup(0) {
     Q_ASSERT(actions.size() > 0);
 
+    // 工具栏原有的第一个按钮只作为尺寸与字体模板，之后由本组按钮取代。
     mToolButton = qobject_cast<QToolButton *>(toolBar->layout()->itemAt(0)->widget());
     Q_ASSERT(mToolButton);
 
@@ -57,7 +58,7 @@ ToolbarButtonGroup::ToolbarButtonGroup(QToolBar *toolBar, const QList<QAction *>
 }
 
 ToolbarButtonGroup::~ToolbarButtonGroup() {
-    // NOOP
+    // 刻意留空
 }
 
 void ToolbarButtonGroup::setIcon(const QIcon &icon, int index) {
@@ -133,8 +134,8 @@ void ToolbarButtonGroup::paintEvent(QPaintEvent *) {
     }
 
     option.rect = rect();
-    option.icon =
-        emptyIcon; // non null icon is required for style()->drawControl(QStyle::CE_ToolButtonLabel, ...) to work correctly
+    // 空图标是必需的占位：样式绘制 CE_ToolButtonLabel 时若无图标会改变文字布局。
+    option.icon = emptyIcon;
     option.iconSize = emptyPixmap.size();
     option.toolButtonStyle = mDisplayLabel ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly;
 
@@ -161,6 +162,7 @@ void ToolbarButtonGroup::colorPaletteChanged() {
 
 void ToolbarButtonGroup::displayText(QVariant display) {
     mDisplayLabel = display.toBool();
+    // 索引 2 是底部弹簧：显示文字时保留伸展，为按钮下方的文字留出空间。
     QVBoxLayout *verticalLayout = (QVBoxLayout *)layout();
     verticalLayout->setStretch(2, mDisplayLabel ? 1 : 0);
     update();

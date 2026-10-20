@@ -28,9 +28,7 @@ DocumentThumbnailWidget::DocumentThumbnailWidget(QWidget *parent) : ThumbnailWid
 }
 
 
-DocumentThumbnailWidget::~DocumentThumbnailWidget() {
-    // NOOP
-}
+DocumentThumbnailWidget::~DocumentThumbnailWidget() = default;
 
 
 void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event) {
@@ -96,7 +94,7 @@ void DocumentThumbnailWidget::autoScroll() {
 
 void DocumentThumbnailWidget::dragMoveEvent(QDragMoveEvent *event) {
     QRect boundingFrame = frameRect();
-    //setting up automatic scrolling
+    // 靠近可视区上下边缘时启动定时滚动，幅度随距离增大。
     const int SCROLL_DISTANCE = 16;
     int bottomDist = boundingFrame.bottom() - event->pos().y(),
         topDist = boundingFrame.top() - event->pos().y();
@@ -195,13 +193,13 @@ void DocumentThumbnailWidget::dropEvent(QDropEvent *event) {
 
         int sourceIndexOffset = 0;
         int actualTargetIndex = targetIndex;
+        // 从后往前处理多选拖放：每移动一页，后方元素的目标下标就要相应前移。
         for (int i = mimeDataItems.count() - 1; i >= 0; i--) {
             MimeDataItem sourceItem = mimeDataItems.at(i);
             int actualSourceIndex = sourceItem.sceneIndex();
             if (sourceItem.sceneIndex() >= targetIndex)
                 actualSourceIndex += sourceIndexOffset;
 
-            //event->acceptProposedAction();
             if (sourceItem.sceneIndex() < targetIndex) {
                 if (actualSourceIndex != actualTargetIndex - 1)
                     emit sceneDropped(sourceItem.documentProxy(), actualSourceIndex, actualTargetIndex - 1);

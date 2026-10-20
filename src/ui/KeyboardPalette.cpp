@@ -11,12 +11,6 @@
 #include "ui/MainWindow.h"
 
 
-/*
-
-            KeyboardPalette
-
-*/
-
 struct KeyboardPalette::Private {
     BTNImages *currBtnImages{nullptr};
 
@@ -44,9 +38,9 @@ struct KeyboardPalette::Private {
     KeyButton **buttons{nullptr};
     KeyboardButton **ctrlButtons{nullptr};
 
-    // Storage for platform-dependent objects (linux)
+    // 平台相关对象的存储位置（Linux 等平台会用到）
     void *storage{nullptr};
-    // Linux-related parameters
+    // 平台按键码范围与编码宽度
     int min_keycodes{0};
     int max_keycodes{0};
     int byte_per_code{0};
@@ -76,8 +70,7 @@ struct LocaleButton::Private {
 
 KeyboardPalette::KeyboardPalette(QWidget *parent)
     : ActionPalette(Qt::TopRightCorner, parent), d(new Private) {
-    //  setWindowFlags(/*Qt::CustomizeWindowHint|*/Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint);
-
+    // 关闭动作交给外部：显隐始终跟随“虚拟键盘”QAction 的勾选状态。
     setCustomCloseProcessing(true);
     setCustomPosition(true);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -97,6 +90,7 @@ KeyboardPalette::KeyboardPalette(QWidget *parent)
     d->storage = NULL;
     d->nLocalesCount = 0;
 
+    // 标准 101 键盘的主键区固定为 47 个字符键，先全部创建，布局数据稍后绑定。
     d->buttons = new KeyButton *[47];
     for (int i = 0; i < 47; i++) {
         d->buttons[i] = new KeyButton(this);
@@ -106,6 +100,7 @@ KeyboardPalette::KeyboardPalette(QWidget *parent)
 
     createCtrlButtons();
 
+    // 恢复上次使用的输入法；越界时退回第一个布局。
     d->nCurrentLocale = Settings::settings()->KeyboardLocale->get().toInt();
     if (d->nCurrentLocale < 0 || d->nCurrentLocale >= d->nLocalesCount)
         d->nCurrentLocale = 0;
@@ -120,6 +115,7 @@ KeyboardPalette::KeyboardPalette(QWidget *parent)
 void KeyboardPalette::createCtrlButtons() {
     d->ctrlButtons = new KeyboardButton *[9];
 
+    // 顺序必须与 paintEvent() 中的布局序号严格一致。
     int ctrlID = 0;
     d->ctrlButtons[ctrlID++] = new CntrlButton(this, KeyboardSender::Backspace, "backspace");
     d->ctrlButtons[ctrlID++] = new CntrlButton(this, KeyboardSender::Tab, "tab");
@@ -132,7 +128,6 @@ void KeyboardPalette::createCtrlButtons() {
     d->ctrlButtons[ctrlID++] = new LocaleButton(this);
 }
 
-//QList<KeyboardPalette*> KeyboardPalette::instances;
 void KeyboardPalette::init() {
     d->m_isVisible = false;
     setVisible(false);
@@ -145,8 +140,7 @@ void KeyboardPalette::init() {
             &KeyboardPalette::showKeyboard);
     connect(this, &ActionPalette::closed, this, &KeyboardPalette::hideKeyboard);
 
-    //------------------------------//
-
+    // 键盘不能抢走前台应用的焦点，否则发送的按键会落回键盘自身。
     PlatformUtils::setWindowNonActivableFlag(this, true);
 }
 
@@ -178,20 +172,10 @@ void KeyboardPalette::setInput(const KeyboardLocale *locale) {
 }
 
 KeyboardPalette::~KeyboardPalette() {
-    //for (int i=0; i<47; i++)
-    //    delete buttons[i];
+    // 各按键控件由 Qt 父控件机制销毁，这里只释放裸指针数组本身。
     delete[] d->buttons;
 
-    //for (int i=0; i<8; i++)
-    //    delete ctrlButtons[i];
     delete[] d->ctrlButtons;
-
-    //if (locales!=NULL)
-    //{
-    //    for (int i=0; i<nLocalesCount; i++)
-    //        delete locales[i];
-    //    delete [] locales;
-    //}
 
     if (d->currBtnImages != NULL) {
         delete d->currBtnImages;
@@ -293,87 +277,63 @@ void KeyboardPalette::paintEvent(QPaintEvent *event) {
     int lleft = paletteMargins.left(), ltop = paletteMargins.top(), lright = paletteMargins.right(),
         lbottom = paletteMargins.bottom();
 
-    //------------------------------------------------
-    // calculate start offset from left, and from top
-
+    // 计算 15x5 键区在面板内的居中起点
     int ctrlButtonsId = 0;
     lleft = (r.width() - d->btnWidth * 15) / 2;
     ltop = (r.height() - d->btnHeight * 5) / 2;
 
-    //------------------------------------------------
-    // set geometry (position) for row 1
-
+    // 第 1 行：13 个字符键加退格
     int offX = lleft;
     int offY = ltop;
 
-    //-------------------
-
-    // buttons [`]..[+]
+    // 字符键 [`]..[+]
     for (int i = 0; i < 13; i++) {
         d->buttons[i]->setGeometry(offX, offY, d->btnWidth, d->btnHeight);
         offX += d->btnWidth;
     }
 
-    // button Backspace
+    // 退格键占两格宽
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, d->btnWidth * 2, d->btnHeight);
     offX += d->btnWidth * 2;
 
-    //------------------------------------------------
-    // set geometry (position) for row 2
-
+    // 第 2 行：Tab 后接 12 个字符键
     offX = lleft;
     offY += d->btnHeight;
     offX += d->btnWidth / 2;
 
-    //-------------------
-
-    // button Tab
+    // Tab 键占两格宽
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, d->btnWidth * 2, d->btnHeight);
     offX += d->btnWidth * 2;
 
-    // buttons [q]..[]]
+    // 字符键 [q]..[]]
     for (int i = 0; i < 12; i++) {
         d->buttons[i + 13]->setGeometry(offX, offY, d->btnWidth, d->btnHeight);
         offX += d->btnWidth;
     }
 
-    //     // Row 2 Stub
-    //     ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, btnWidth * 1.5, btnHeight);
-    //     offX += btnWidth * 1.5;
-
-    //------------------------------------------------
-    // set geometry (position) for row 3
-
+    // 第 3 行：CapsLock 风格的左 Enter（一格宽）后接 12 个字符键，再接右 Enter（两格宽）
     offX = lleft;
     offY += d->btnHeight;
 
-    //-------------------
-
-    //     // Row 3 Stub
-
-    // button Enter
+    // 左 Enter
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, d->btnWidth * 1, d->btnHeight);
     offX += d->btnWidth * 1;
 
-    // buttons [a]..[\]
+    // 字符键 [a]..[\]
     for (int i = 0; i < 12; i++) {
         d->buttons[i + 12 + 13]->setGeometry(offX, offY, d->btnWidth, d->btnHeight);
         offX += d->btnWidth;
     }
 
-    // button Enter
+    // 右 Enter
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, d->btnWidth * 2, d->btnHeight);
     offX += d->btnWidth * 2;
 
-    //------------------------------------------------
-    // set geometry (position) for row 4
-
+    // 第 4 行：左右两个 CapsLock 夹住 10 个字符键
     offX = lleft;
     offY += d->btnHeight;
 
-    //-------------------
-
-    // button LCapsLock
+    // 左 CapsLock
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, d->btnWidth * 2.5, d->btnHeight);
     offX += d->btnWidth * 2.5;
 
@@ -382,29 +342,19 @@ void KeyboardPalette::paintEvent(QPaintEvent *event) {
         offX += d->btnWidth;
     }
 
-    // button RCapsLock
+    // 右 CapsLock
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX, offY, d->btnWidth * 2.5, d->btnHeight);
     offX += d->btnWidth * 2.5;
 
-    //------------------------------------------------
-    // set geometry (position) for row 5
-
+    // 第 5 行：左 Shift、空格、右 Shift
     offX = lleft;
     offY += d->btnHeight;
-
-    //-------------------
 
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX + d->btnWidth * 1, offY, d->btnWidth * 2, d->btnHeight);
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX + d->btnWidth * 3, offY, d->btnWidth * 9, d->btnHeight);
     d->ctrlButtons[ctrlButtonsId++]->setGeometry(offX + d->btnWidth * 12, offY, d->btnWidth * 2,
                                                  d->btnHeight);
-
-    //------------------------------------------------
 }
-
-//-----------------------------------------------------------------------//
-// BTNImages Class
-//-----------------------------------------------------------------------//
 
 BTNImages::BTNImages(QString strHeight, int width, int height) {
     m_strHeight = strHeight;
@@ -430,13 +380,10 @@ ContentImage::ContentImage(QString strHeight, int height, QString strContentName
     m_strHeight = strHeight;
     m_height = height;
 
+    // 内容图标与按键贴图放在同一尺寸目录下。
     m_strContent = ":/images/virtual.keyboard/" + strHeight + "/" + strContentName + ".png";
     m_btnContent = QImage(m_strContent);
 }
-
-//-----------------------------------------------------------------------//
-// KeyboardButton Class
-//-----------------------------------------------------------------------//
 
 KeyboardButton::KeyboardButton(KeyboardPalette *parent, QString contentImagePath = "")
     : QWidget(parent), d(new Private) {
@@ -474,8 +421,7 @@ ContentImage *KeyboardButton::contentImage() const {
 void KeyboardButton::paintEvent(QPaintEvent *) {
     QPainter painter(this);
 
-    //--------------------------
-
+    // 键帽尺寸变化后，内容图标要按新尺寸目录重新加载。
     if (d->imgContent != NULL) {
         if (d->imgContent->m_height != d->m_parent->d->currBtnImages->m_height) {
             delete d->imgContent;
@@ -488,8 +434,7 @@ void KeyboardButton::paintEvent(QPaintEvent *) {
         d->imgContent = new ContentImage(d->m_parent->d->currBtnImages->m_strHeight,
                                          d->m_parent->d->currBtnImages->m_height, d->m_contentImagePath);
 
-    //--------------------------
-
+    // 左右端图保持原宽，中间部分拉伸填满，拼出完整键帽。
     if (isPressed()) {
         painter.drawImage(0, 0, d->m_parent->d->currBtnImages->m_btnLeftActive, 0, 0,
                           d->m_parent->d->currBtnImages->m_btnLeftActive.width(),
@@ -518,11 +463,8 @@ void KeyboardButton::paintEvent(QPaintEvent *) {
                           d->m_parent->d->currBtnImages->m_btnRightPassive.height());
     }
 
-    //--------------------------
-
+    // 最后叠加键面文字或图标。
     this->paintContent(painter);
-
-    //--------------------------
 }
 
 void KeyboardButton::enterEvent(QEvent *) {
@@ -563,9 +505,11 @@ bool KeyButton::shifted() {
 
 void KeyButton::onPress() {
     if (d->keybt != NULL) {
+        // 普通字符用 0/1 区分下档/上档；带特殊修饰符的键按修饰符序号取更高一组。
         int codeIndex = keyboardPalette()->d->nSpecialModifierIndex * 2 + shifted();
 
         if (keyboardPalette()->d->nSpecialModifierIndex) {
+            // 上一个键留下了修饰符：先发修饰符本身，再发当前字符。
             if (d->keybt->codes[codeIndex].empty()) {
                 KeyboardSender::sendUnicodeKey(keyboardPalette()->d->specialModifier);
                 KeyboardSender::sendUnicodeKey(d->keybt->codes[shifted()]);
@@ -575,6 +519,7 @@ void KeyButton::onPress() {
 
             keyboardPalette()->d->nSpecialModifierIndex = 0;
         } else {
+            // 当前键若声明了修饰符，先记住它，等下一个键一起发送。
             int nSpecialModifierIndex = shifted() ? d->keybt->modifier2 : d->keybt->modifier1;
 
             if (nSpecialModifierIndex) {
@@ -586,6 +531,7 @@ void KeyButton::onPress() {
         }
     }
 
+    // Shift 是一次性上档，输入一个字符后自动释放。
     if (keyboardPalette()->d->shift) {
         keyboardPalette()->d->shift = false;
         keyboardPalette()->update();
@@ -711,6 +657,7 @@ LocaleButton::~LocaleButton() {
 void LocaleButton::onPress() {}
 
 void LocaleButton::onRelease() {
+    // 菜单以阻塞方式弹出；期间标记语言菜单激活，避免 leaveEvent 把键盘隐藏掉。
     keyboardPalette()->d->languagePopupActive = true;
     QAction *action = d->localeMenu->exec(mapToGlobal(QPoint(0, 0)));
     keyboardPalette()->d->languagePopupActive = false;

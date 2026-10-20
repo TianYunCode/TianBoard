@@ -108,7 +108,7 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent)
     d->mPrevLassoRect = QRect();
     d->mLassoRectItem = 0;
 
-    // By default, the drag is possible
+    // 默认允许拖拽
     d->bCanDrag = true;
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
@@ -189,7 +189,7 @@ void ThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsIt
         d->mThumbnailsScene.removeItem(it, true);
     }
 
-    // set lasso to 0 as it has been cleared as well
+    // 框选矩形也随场景项一起被清掉了，这里同步置空避免悬空指针。
     d->mLassoRectItem = 0;
 
     foreach (QGraphicsItem *item, pGraphicsItems) {
@@ -202,8 +202,8 @@ void ThumbnailWidget::setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsIt
 
     foreach (const QString label, pLabels) {
         QFontMetrics fm(font());
-        ThumbnailTextItem *labelItem =
-            new ThumbnailTextItem(label); // deleted while replace or by the scene destruction
+        // 标题项由场景持有：替换列表时随旧场景项一起删除，或随场景析构。
+        ThumbnailTextItem *labelItem = new ThumbnailTextItem(label);
 
         d->mThumbnailsScene.addItem(labelItem);
         d->mLabelsItems << labelItem;
@@ -236,7 +236,7 @@ void ThumbnailWidget::refreshScene() {
 
         qreal scaleFactor = qMin(scaleWidth, scaleHeight);
 
-        //bitmap should not be stretched
+        // 位图缩略图不允许放大，否则显示会糊掉；只按需缩小。
         Thumbnail *pix = dynamic_cast<Thumbnail *>(item);
         if (pix)
             scaleFactor = qMin(scaleFactor, 1.0);
@@ -324,7 +324,7 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event) {
         d->mLassoRectItem = new QGraphicsRectItem(0);
         scene()->addItem(d->mLassoRectItem);
 
-        // The following code must stay in synch with <Qt installation folder>\src\gui\styles\qwindowsxpstyle.cpp
+        // 下面这套取色要跟 Qt 的 qwindowsxpstyle.cpp 保持一致，否则框选矩形和系统高亮色对不上。
         QColor highlight = option.palette.color(QPalette::Active, QPalette::Highlight);
         d->mLassoRectItem->setPen(highlight.darker(120));
         QColor dimHighlight(qMin(highlight.red() / 2 + 110, 255), qMin(highlight.green() / 2 + 110, 255),
@@ -335,7 +335,6 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event) {
         d->mLassoRectItem->setRect(QRectF(d->mMousePressScenePos, QSizeF()));
 
         if (Qt::ControlModifier & event->modifiers() || Qt::ShiftModifier & event->modifiers()) {
-            // mSelectedThumbnailItems = QSet<QGraphicsItem*>(selectedItems().begin(), selectedItems().end());
             return;
         }
 
@@ -411,7 +410,7 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event) {
         QSet<QGraphicsItem *> toUnset;
         QSet<QGraphicsItem *> toSet;
 
-        // for horizontal moving
+        // 横向增量框选：只看这次多出来/少掉的那一条竖带
         QSet<QGraphicsItem *> incSelectedItemsX =
             QSet<QGraphicsItem *>(scene()->items(incrementXSelection, Qt::IntersectsItemBoundingRect).begin(),
                                   scene()->items(incrementXSelection, Qt::IntersectsItemBoundingRect).end());
@@ -434,7 +433,7 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event) {
 
         lassoSelectedThumbnailItems.clear();
 
-        // for vertical moving
+        // 纵向增量框选：同理，只看横带部分
 
         QSet<QGraphicsItem *> incSelectedItemsY =
             QSet<QGraphicsItem *>(scene()->items(incrementYSelection, Qt::IntersectsItemBoundingRect).begin(),
@@ -487,7 +486,7 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event) {
 
             if (d->mMimeType.length() > 0)
                 mime->setData(d->mMimeType,
-                              QByteArray()); // trick the d&d system to register our own mime type
+                              QByteArray()); // 拖放系统只认内置类型，这里让它把我们的自定义 MIME 也登记进来
 
             drag->setMimeData(mime);
 
@@ -1043,9 +1042,6 @@ void ImgTextThumbnailElement::Place(int row, int col, qreal width, qreal height)
         QPointF pos((width - w * scaleFactor) / 2,
                     row * (height + labelSpacing) + (height - h * scaleFactor) / 2);
 
-        /*QPointF pos(border + (width - w * scaleFactor) / 2 + col * (width + border),
-                    border + row * (height + border + labelSpacing) + (height - h * scaleFactor) / 2);*/
-
         this->thumbnail->setPos(pos);
 
         if (this->caption) {
@@ -1314,8 +1310,7 @@ DraggableThumbnailView::DraggableThumbnailView(ThumbnailView *thumbnailView, Doc
 }
 
 DraggableThumbnailView::~DraggableThumbnailView() {
-    // mPageNumber is owned by ~DraggableThumbnail; deleting it here was a
-    // double free on every DraggableThumbnailView.
+    // mPageNumber 由 ~DraggableThumbnail 释放；在这里再 delete 就是每个视图都双删一次。
 }
 
 ThumbnailView *DraggableThumbnailView::thumbnailView() {

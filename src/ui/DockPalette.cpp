@@ -26,54 +26,51 @@ struct TabDockPalette::Private {
 };
 
 struct DockPalette::Private {
-    /** The current mode */
+    /** 当前界面模式 */
     DockWidgetMode mCurrentMode{DockWidgetMode::Board};
-    /** The current dock orientation */
+    /** 当前停靠方向 */
     DockOrientation mOrientation{DockOrientation::Left};
-    /** The current background brush */
+    /** 当前背景画刷 */
     QBrush mBackgroundBrush;
-    /** The preferred width */
+    /** 首选宽度 */
     int mPreferredWidth{1000};
-    /** The preferred height */
+    /** 首选高度 */
     int mPreferredHeight{1000};
-    /** A flag used to allow the resize */
+    /** 是否允许拖拽改宽 */
     bool mCanResize{false};
-    /** A flag indicating if the palette has been resized between a click and a release */
+    /** 一次按下到松开之间是否发生过改宽，用于区分点击与拖拽 */
     bool mResized{false};
-    /** The width that trig the collapse */
+    /** 触发折叠的宽度阈值 */
     int mCollapseWidth{1500};
-    /** The last width of the palette */
+    /** 最近一次非折叠宽度 */
     int mLastWidth{-1};
-    /** The click time*/
+    /** 按下时刻，用于点击时长判断 */
     QElapsedTimer mClickTime;
-    /** The mouse pressed position */
+    /** 按下位置 */
     QPoint mMousePressPos;
-    /** The tab orientation */
+    /** 标签条上下朝向 */
     DockTabOrientation mTabsOrientation{DockTabOrientation::Up};
-    /** The h position of the tab */
+    /** 标签条的水平位置 */
     int mHTab{0};
-    /** The stacked widget */
+    /** 承载页面的堆叠控件 */
     QStackedWidget *mpStackWidget{nullptr};
-    /** The layout */
+    /** 主布局 */
     QVBoxLayout *mpLayout{nullptr};
-    /** The current tab index */
+    /** 当前标签下标 */
     int mCurrentTab{0};
-    /** The visible tab widgets */
+    /** 当前已加入标签的页面 */
     QVector<DockPaletteWidget *> mTabWidgets;
-    /** The current widget */
+    /** 所有已注册页面，含当前隐藏的 */
     QVector<DockPaletteWidget *> mRegisteredWidgets;
-    /** The current tab widget */
+    /** 当前标签页名称，下载结束后据此恢复页面 */
     QString mCrntTabWidget;
-    /** Last opened tab index depending on mode */
+    /** 各模式下最后打开的标签下标 */
     QMap<DockWidgetMode, int> mLastOpenedTabForMode;
 
     DockPaletteType mPaletteType{DockPaletteType::Left};
     TabDockPalette *mTabPalette{nullptr};
 };
 
-/**
- * \brief The constructor
- */
 DockPalette::DockPalette(DockPaletteType paletteType, QWidget *parent, const char *name)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint), d(new Private) {
     d->mPaletteType = paletteType;
@@ -87,26 +84,27 @@ DockPalette::DockPalette(DockPaletteType paletteType, QWidget *parent, const cha
     d->mpStackWidget = new QStackedWidget(this);
     d->mpLayout->addWidget(d->mpStackWidget);
 
-    // clear the tab widgets
+    // 标签列表从空开始，由 addTab()/switchMode() 逐步填充。
     d->mTabWidgets.clear();
 
-    // We let 2 pixels in order to keep a small border for the resizing
+    // 最小宽度设为 0，折叠时可以完全收进边缘。
     setMinimumWidth(0);
 
     if (parent) {
+        // 作为容器子控件时不把鼠标事件继续传给白板，否则拖动标签会误触画布。
         setAttribute(Qt::WA_NoMousePropagation);
         setAttribute(Qt::WA_TranslucentBackground);
     } else {
-        // standalone window
+        // 无父控件时作为独立窗口，同样需要透明背景来画出圆角。
         setAttribute(Qt::WA_TranslucentBackground);
     }
 
     d->mBackgroundBrush = QBrush(Settings::paletteColor);
 
-    // This is the only way to set the background as transparent!
+    // 只能通过样式表把顶层控件背景设为透明，否则会盖住圆角外的区域。
     setStyleSheet("QWidget {background-color: transparent}");
 
-    // Set the position of the tab
+    // 先按工具栏当前位置确定标签朝上还是朝下。
     onToolbarPosUpdated();
     connect(Settings::settings()->appToolBarPositionedAtTop, &Setting::changed, this,
             &DockPalette::onToolbarPosUpdated);
@@ -118,9 +116,6 @@ DockPalette::DockPalette(DockPaletteType paletteType, QWidget *parent, const cha
             &BoardController::selectionChanged);
 }
 
-/**
- * \brief The destructor
- */
 DockPalette::~DockPalette() {
     if (NULL != d->mpStackWidget) {
         delete d->mpStackWidget;
@@ -184,22 +179,14 @@ void DockPalette::onDocumentSet(DocumentProxy *documentProxy) {
     Q_UNUSED(documentProxy);
 }
 
-/**
- * \brief Get the current orientation
- * @return the current orientation
- */
 DockOrientation DockPalette::orientation() {
     return d->mOrientation;
 }
 
-/**
- * \brief Set the current orientation
- * @param orientation as the given orientation
- */
 void DockPalette::setOrientation(DockOrientation orientation) {
-    // Set the size
     d->mOrientation = orientation;
 
+    // 左右停靠时高度跟随容器，上下停靠时宽度跟随容器。
     if (orientation == DockOrientation::Left || orientation == DockOrientation::Right) {
         setMaximumHeight(parentWidget()->height());
         setMinimumHeight(maximumHeight());
@@ -209,17 +196,13 @@ void DockPalette::setOrientation(DockOrientation orientation) {
     }
 }
 
-/**
- * \brief Handle the resize event
- * @param event as the resize event
- */
 void DockPalette::resizeEvent(QResizeEvent *event) {
     Q_UNUSED(event);
     updateMaxWidth();
     if (parentWidget()) {
         setMinimumHeight(parentWidget()->height());
     }
-    // Set the position
+    // 左右停靠的面板始终贴在容器对应的边缘。
     QPoint origin;
     switch (d->mOrientation) {
         case DockOrientation::Right:
@@ -227,9 +210,7 @@ void DockPalette::resizeEvent(QResizeEvent *event) {
             origin.setY(0);
             break;
         case DockOrientation::Bottom:
-            // Not supported yet
         case DockOrientation::Top:
-            // Not supported yet
         case DockOrientation::Left:
         default:
             origin.setX(0);
@@ -240,31 +221,19 @@ void DockPalette::resizeEvent(QResizeEvent *event) {
     moveTabs();
 }
 
-/**
- * \brief Handle the mouse enter event
- * @param event as the mouse event
- */
 void DockPalette::enterEvent(QEvent *event) {
     Q_UNUSED(event);
-    // We want to set the cursor as an arrow everytime it enters the palette
+    // 进入面板时强制恢复箭头光标，可能刚从画布的十字光标移入。
     setCursor(Qt::ArrowCursor);
     emit mouseEntered();
 }
 
-/**
- * \brief Handle the mouse leave event
- * @param event as the mouse event
- */
 void DockPalette::leaveEvent(QEvent *event) {
     Q_UNUSED(event);
-    // Restore the cursor to its previous shape
+    // 离开后取消光标覆盖，让画布重新决定光标形状。
     unsetCursor();
 }
 
-/**
- * \brief Draw the palette
- * @param event as the paint event
- */
 void DockPalette::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
     QPainter painter(this);
@@ -276,7 +245,7 @@ void DockPalette::paintEvent(QPaintEvent *event) {
 
     int nbTabs = d->mTabWidgets.size();
     if (0 < nbTabs) {
-        // First draw the BIG RECTANGLE (I write it big because the rectangle is big...)
+        // 没有标签时不画背景，避免折叠后残留一条色带。
         if (d->mOrientation == DockOrientation::Left) {
             path.addRect(0.0, 0.0, width(), height());
         } else if (d->mOrientation == DockOrientation::Right) {
@@ -287,10 +256,6 @@ void DockPalette::paintEvent(QPaintEvent *event) {
     }
 }
 
-/**
- * \brief Set the background brush
- * @param brush as the given brush
- */
 void DockPalette::setBackgroundBrush(const QBrush &brush) {
     if (d->mBackgroundBrush != brush) {
         d->mBackgroundBrush = brush;
@@ -298,71 +263,45 @@ void DockPalette::setBackgroundBrush(const QBrush &brush) {
     }
 }
 
-/**
- * Get the border size
- * @return the border size
- */
 int DockPalette::border() {
     return 10;
 }
 
-/**
- * \brief Get the radius size
- * @return the radius size
- */
 int DockPalette::radius() {
     return 5;
 }
 
-/**
- * \brief Set the maximum width
- */
 void DockPalette::updateMaxWidth() {
-    // Only the inherited class will overload this method
+    // 只有子类需要限制最大宽度时才覆盖这个方法。
 }
 
-/**
- * \brief Get the collapse width value
- * @return the collapse widht value
- */
 int DockPalette::collapseWidth() {
     return d->mCollapseWidth;
 }
 
-/**
- * \brief collapse/expand automatically the palette after a click on its tab
- */
 void DockPalette::tabClicked(int tabIndex) {
-    // If the current tab is not the clicked one, show its content
+    // 点击非当前标签则切换页面；再次点击当前标签则折叠或展开。
     if (d->mCurrentTab != tabIndex) {
         showTabWidget(tabIndex);
-    }
-    // else collapse the palette
-    else {
+    } else {
         toggleCollapseExpand();
     }
     d->mTabPalette->update();
     emit pageSelectionChangedRequired();
 }
 
-/**
- * \brief Show the tab widget related to the given index
- * @param tabIndex as the given index
- */
 void DockPalette::showTabWidget(int tabIndex) {
     d->mpStackWidget->setCurrentIndex(tabIndex);
     d->mCurrentTab = tabIndex;
 
-    // Update the current tab index
+    // 记住当前页面名称，下载结束后用它判断是否恢复同一页。
     if (NULL != (dynamic_cast<DockPaletteWidget *>(d->mpStackWidget->widget(tabIndex)))) {
         d->mCrntTabWidget = dynamic_cast<DockPaletteWidget *>(d->mpStackWidget->widget(tabIndex))->name();
     }
 }
 
-/**
- * \brief Toggle the collapse / expand state
- */
 void DockPalette::toggleCollapseExpand() {
+    // 当前宽度小于阈值视为折叠状态，恢复上次宽度；否则记住宽度并收起到 0。
     if (width() < d->mCollapseWidth)
         resize(d->mLastWidth, height());
     else {
@@ -372,19 +311,12 @@ void DockPalette::toggleCollapseExpand() {
     }
 }
 
-/**
- * \brief Set the tabs orientation
- * @param orientation as the given tabs orientation
- */
 void DockPalette::setTabsOrientation(DockTabOrientation orientation) {
     d->mTabsOrientation = orientation;
 }
 
-/**
- * \brief Update the tab position regarding the toolbar position (up or down)
- */
 void DockPalette::onToolbarPosUpdated() {
-    // Get the position of the tab
+    // 工具栏在顶部时标签从上方排列，在底部时从下方排列，避免被工具栏遮住。
     if (Settings::settings()->appToolBarPositionedAtTop->get().toBool()) {
         setTabsOrientation(DockTabOrientation::Up);
     } else {
@@ -394,19 +326,12 @@ void DockPalette::onToolbarPosUpdated() {
     update();
 }
 
-/**
- * \brief Get the custom margin
- * @return the custom margin value
- */
 int DockPalette::customMargin() {
     return 5;
 }
 
-/**
- * \brief Add the given tab widget
- * @param widget as the given widget
- */
 void DockPalette::addTab(DockPaletteWidget *widget) {
+    // 只接收已注册且逻辑可见的页面，避免重复加入或误显示。
     if (!d->mTabWidgets.contains(widget) && widget->visibleState()) {
         widget->setVisible(true);
         d->mTabWidgets.append(widget);
@@ -416,10 +341,7 @@ void DockPalette::addTab(DockPaletteWidget *widget) {
         update();
     }
 }
-/**
- * \brief Remove the given tab
- * @param widgetName as the tab widget name
- */
+
 void DockPalette::removeTab(DockPaletteWidget *widget) {
     int nWidget = d->mTabWidgets.indexOf(widget);
     if (nWidget >= 0) {
@@ -429,29 +351,18 @@ void DockPalette::removeTab(DockPaletteWidget *widget) {
         update();
     }
     resizeTabs();
+    // 移除的页面可能位于当前页之前，下标至少回退一格且不能为负。
     d->mCurrentTab = qMax(d->mCurrentTab - 1, 0);
 }
 
-/**
- * \brief Handle the resize request
- * @param event as the given resize request
- */
 void DockPalette::onResizeRequest(QResizeEvent *event) {
     resizeEvent(event);
 }
 
-/**
- * \brief Get the tab spacing
- * @return the tab spacing
- */
 int DockPalette::tabSpacing() {
     return 2;
 }
 
-/**
- * \brief Show the given widget
- * @param widgetName as the given widget name
- */
 void DockPalette::onShowTabWidget(DockPaletteWidget *widget) {
     if (d->mRegisteredWidgets.contains(widget)) {
         widget->setVisibleState(true);
@@ -460,10 +371,6 @@ void DockPalette::onShowTabWidget(DockPaletteWidget *widget) {
     }
 }
 
-/**
- * \brief Hide the given widget
- * @param widgetName as the given widget name
- */
 void DockPalette::onHideTabWidget(DockPaletteWidget *widget) {
     if (d->mRegisteredWidgets.contains(widget)) {
         widget->setVisibleState(false);
@@ -472,9 +379,6 @@ void DockPalette::onHideTabWidget(DockPaletteWidget *widget) {
     }
 }
 
-/**
- * \brief Connect the show / hide signals of the widget related to this dock palette
- */
 void DockPalette::connectSignals() {
     for (int i = 0; i < d->mRegisteredWidgets.size(); i++) {
         connect(d->mRegisteredWidgets.at(i), &DockPaletteWidget::showTab, this,
@@ -484,24 +388,17 @@ void DockPalette::connectSignals() {
     }
 }
 
-/**
- * \brief Register the given widget
- * @param widget as the given widget
- */
 void DockPalette::registerWidget(DockPaletteWidget *widget) {
     if (!d->mRegisteredWidgets.contains(widget)) {
-        // Update the parent of this widget
+        // 页面必须挂到面板下，才能被堆叠控件接管显示。
         widget->setParent(this);
         d->mRegisteredWidgets.append(widget);
 
-        // By default, the widget is hidden
+        // 注册后默认隐藏，真正显示要等 addTab() 或 showTab()。
         widget->hide();
     }
 }
 
-/**
- * \brief Handles the 'all download finished' notification
- */
 void DockPalette::onAllDownloadsFinished() {
     for (int i = 0; i < d->mTabWidgets.size(); i++) {
         DockPaletteWidget *pW = d->mTabWidgets.at(i);
@@ -512,6 +409,7 @@ void DockPalette::onAllDownloadsFinished() {
 }
 
 void DockPalette::moveTabs() {
+    // 左面板的标签条贴在面板右缘之外；右面板则贴在面板左缘之外。
     int x = width();
     if (d->mOrientation == DockOrientation::Right) {
         if (parentWidget())
@@ -534,6 +432,7 @@ void DockPalette::moveTabs() {
 
 void DockPalette::resizeTabs() {
     int numTabs = d->mTabWidgets.size();
+    // 标签条宽度固定为两倍 border，高度按标签数与间距累加。
     d->mTabPalette->setFixedSize(2 * border(), (numTabs * kTabSize) + qMax(numTabs - 1, 0) * tabSpacing());
 }
 
@@ -547,20 +446,22 @@ QRect DockPalette::getTabPaletteRect() {
 
 void DockPalette::assignParent(QWidget *widget) {
     setParent(widget);
+    // 标签条是独立同级控件，换父控件时必须一起迁移。
     d->mTabPalette->setParent(widget);
 }
 
 void DockPalette::setVisible(bool visible) {
     QWidget::setVisible(visible);
+    // 标签条不在面板的子控件树里，需要单独同步显隐。
     d->mTabPalette->setVisible(visible);
 }
 
 bool DockPalette::switchMode(DockWidgetMode mode) {
+    // 先记住旧模式下打开的标签，供下次切回时恢复。
     d->mLastOpenedTabForMode.insert(d->mCurrentMode, d->mpStackWidget->currentIndex());
     d->mCurrentMode = mode;
     bool hasVisibleElements = false;
-    //-------------------------------//
-    // get full palette widgets list, parse it, show all widgets for BOARD mode, and hide all other
+    // 遍历全部已注册页面：当前模式可见的加入标签，其余移除。
     for (int i = 0; i < d->mRegisteredWidgets.size(); i++) {
         DockPaletteWidget *pNextWidget = d->mRegisteredWidgets.at(i);
         if (pNextWidget != NULL) {
@@ -572,8 +473,8 @@ bool DockPalette::switchMode(DockWidgetMode mode) {
             }
         }
     }
-    //-------------------------------//
 
+    // 恢复该模式上次打开的标签；没有记录时 value() 返回 0。
     if (d->mRegisteredWidgets.size() > 0)
         showTabWidget(d->mLastOpenedTabForMode.value(d->mCurrentMode));
 
@@ -618,10 +519,10 @@ void TabDockPalette::paintEvent(QPaintEvent *) {
                 path.addRoundedRect(0, yFrom, width(), kTabSize, d->dock->radius(), d->dock->radius());
                 if (pCrntWidget) {
                     if (d->dock->d->mCollapseWidth >= d->dock->width()) {
-                        // Get the collapsed icon
+                        // 收起态的箭头图标：朝外，提示可以展开
                         iconPixmap = pCrntWidget->iconToRight();
                     } else {
-                        // Get the expanded icon
+                        // 展开态的箭头图标：朝内，提示可以收起
                         iconPixmap = pCrntWidget->iconToLeft();
                     }
                 }
@@ -632,10 +533,10 @@ void TabDockPalette::paintEvent(QPaintEvent *) {
                 path.addRoundedRect(0, yFrom, width(), kTabSize, d->dock->radius(), d->dock->radius());
                 if (pCrntWidget) {
                     if (d->dock->d->mCollapseWidth >= d->dock->width()) {
-                        // Get the collapsed icon
+                        // 收起态的箭头图标：朝外，提示可以展开
                         iconPixmap = pCrntWidget->iconToLeft();
                     } else {
-                        // Get the expanded icon
+                        // 展开态的箭头图标：朝内，提示可以收起
                         iconPixmap = pCrntWidget->iconToRight();
                     }
                 }
@@ -648,9 +549,8 @@ void TabDockPalette::paintEvent(QPaintEvent *) {
         }
 
         painter.save();
-        //QPixmap transparencyPix(":/images/tab_mask.png");
+        // 非当前标签用半透明画刷压暗，形成前后层次。
         if (d->dock->d->mCurrentTab != i) {
-            //iconPixmap.setAlphaChannel(transparencyPix); // deprecated; removed for now, to be re-implemented
             QColor color(0x7F, 0x7F, 0x7F, 0x3F);
             painter.setBrush(QBrush(color));
         }
@@ -665,8 +565,7 @@ TabDockPalette::~TabDockPalette() {}
 
 void TabDockPalette::mousePressEvent(QMouseEvent *event) {
     d->dock->d->mClickTime.start();
-    // The goal here is to verify if the user can resize the widget.
-    // It is only possible to resize it if the border is selected
+    // 记下按下位置并先按“未改宽”处理：只有移动超过拖拽阈值才转为改宽。
     QPoint p = event->pos();
     d->dock->d->mMousePressPos = p;
     d->dock->d->mResized = false;
@@ -679,10 +578,10 @@ void TabDockPalette::mousePressEvent(QMouseEvent *event) {
             d->dock->d->mCanResize = true;
             break;
         case DockOrientation::Top:
-            // Not supported yet
+            // 上下停靠暂不支持改尺寸
             break;
         case DockOrientation::Bottom:
-            // Not supported yet
+            // 上下停靠暂不支持改尺寸
             break;
         default:
             break;
@@ -691,8 +590,10 @@ void TabDockPalette::mousePressEvent(QMouseEvent *event) {
 void TabDockPalette::mouseMoveEvent(QMouseEvent *event) {
     QPoint p = event->pos();
 
+    // 超过系统拖拽阈值才算拖动，避免点击时手抖导致面板宽度跳变。
     if (d->dock->d->mCanResize &&
         ((d->dock->d->mMousePressPos - p).manhattanLength() > QApplication::startDragDistance())) {
+        // 标签条可浮动时，纵向大幅移动按平移标签处理。
         if (qAbs(d->dock->d->mMousePressPos.y() - p.y()) > 10 && d->mFlotable) {
             qDebug() << "y differences" << d->dock->d->mMousePressPos.y() << p.y();
             d->mVerticalOffset += p.y() - d->dock->d->mMousePressPos.y();
@@ -701,11 +602,11 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event) {
 
         switch (d->dock->d->mOrientation) {
             case DockOrientation::Left:
+                // 左面板：鼠标 x 加上当前宽度即新的右边界。
                 p.setX(p.x() + d->dock->width());
                 if (p.x() < d->dock->collapseWidth() && p.x() >= d->dock->minimumWidth()) {
                     d->dock->update();
                     d->dock->resize(0, d->dock->height());
-                    //dock->mLastWidth = dock->collapseWidth() + 1;
                     d->dock->d->mResized = true;
                 } else if (p.x() <= d->dock->maximumWidth() && p.x() >= d->dock->minimumWidth()) {
                     d->dock->resize(p.x(), d->dock->height());
@@ -714,12 +615,12 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event) {
                 break;
 
             case DockOrientation::Right:
+                // 右面板：用容器宽度减去鼠标位置换算成面板宽度。
                 p.setX(p.x() - 2 * d->dock->border());
                 if ((d->dock->x() + p.x() > d->dock->parentWidget()->width() - d->dock->collapseWidth()) &&
                     (d->dock->x() + p.x() < d->dock->parentWidget()->width())) {
                     d->dock->update();
                     d->dock->resize(0, d->dock->height());
-                    //dock->mLastWidth = dock->collapseWidth() + 1;
                     d->dock->d->mResized = true;
                 } else if ((d->dock->x() + p.x() >=
                             d->dock->parentWidget()->width() - d->dock->maximumWidth()) &&
@@ -747,11 +648,11 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event) {
 
 void TabDockPalette::mouseReleaseEvent(QMouseEvent *event) {
     Q_UNUSED(event);
+    // 没有改宽且按下时间足够短，才按点击处理。
     if (!d->dock->d->mResized && d->dock->d->mClickTime.elapsed() < kMaxClickDurationMs) {
         int nbTabs = d->dock->d->mTabWidgets.size();
         int clickedTab = 0;
-        // If the clicked position is in the tab, perform the related action
-
+        // 只有按下位置落在标签区域内才计算被点的标签。
         if (d->dock->d->mMousePressPos.x() >= 0 && d->dock->d->mMousePressPos.x() <= width() &&
             d->dock->d->mMousePressPos.y() >= 0 &&
             d->dock->d->mMousePressPos.y() <= nbTabs * kTabSize + (nbTabs - 1) * d->dock->tabSpacing()) {

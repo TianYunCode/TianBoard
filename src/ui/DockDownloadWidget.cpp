@@ -6,6 +6,7 @@
 
 DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name)
     : DockPaletteWidget(parent, name), mpLayout(NULL), mpDLWidget(NULL) {
+    // 标签名与逻辑可见状态；初始不可见，首次开始下载时由调色板管理器显示。
     setName("DownloadWidget");
     setVisibleState(false);
 

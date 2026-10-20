@@ -19,6 +19,7 @@ struct CustomCaptureWindow::Private {
 CustomCaptureWindow::CustomCaptureWindow(QWidget *parent)
     : QDialog(parent, Qt::FramelessWindowHint | Qt::Window), d(new Private) {
     setCursor(Qt::CrossCursor);
+    // 先保持透明，待 execute() 定位并 show() 之后再恢复不透明，避免窗口闪现。
     setWindowOpacity(0.0);
 }
 
@@ -41,6 +42,7 @@ QPixmap CustomCaptureWindow::getSelectedPixmap() {
 int CustomCaptureWindow::execute(const QPixmap &pScreenPixmap) {
     d->mWholeScreenPixmap = pScreenPixmap;
 
+    // 覆盖鼠标所在的那块屏幕，保证多屏环境下截图与坐标一致。
     VirtualDesktop *desktop = VirtualDesktop::instance();
     int currentScreen = desktop->screenNumber(QCursor::pos());
     setGeometry(desktop->screenGeometry(currentScreen));
@@ -84,7 +86,7 @@ void CustomCaptureWindow::mouseReleaseEvent(QMouseEvent *event) {
 
         event->accept();
 
-        // do not accept very small selection
+        // 太小的选择多半是误触，不当作有效截图。
         if (!(d->mSelectionBand->geometry().width() < 6 && d->mSelectionBand->geometry().height() < 6)) {
             accept();
         }

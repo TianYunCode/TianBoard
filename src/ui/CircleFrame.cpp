@@ -5,13 +5,9 @@ struct CircleFrame::Private {
     qreal maxPenWidth{0};
 };
 
-CircleFrame::CircleFrame(QWidget *parent) : QFrame(parent), d(new Private) {
-    // NOOP
-}
+CircleFrame::CircleFrame(QWidget *parent) : QFrame(parent), d(new Private) {}
 
-CircleFrame::~CircleFrame() {
-    // NOOP
-}
+CircleFrame::~CircleFrame() = default;
 
 qreal CircleFrame::currentPenWidth() const {
     return d->currentPenWidth;
@@ -37,6 +33,7 @@ void CircleFrame::paintEvent(QPaintEvent *event) {
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(QBrush(Qt::black));
 
+    // 直径按“当前笔宽 / 最大笔宽”归一化；下限 2 像素保证最细的笔也能看见。
     qreal diameter = (width() - 2) / d->maxPenWidth * d->currentPenWidth;
     diameter = qMax(2.0, diameter);
     qreal x = (width() - diameter) / 2;

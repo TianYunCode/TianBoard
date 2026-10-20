@@ -119,6 +119,7 @@ ActionPaletteButton *ActionPalette::createPaletteButton(QAction *action, QWidget
     button->setIconSize(d->mButtonSize);
     button->setToolButtonStyle(d->mToolButtonStyle);
 
+    // 先取当前长度作为组内 id，再追加按钮，保证 id 与按钮在列表中的下标一致。
     if (d->mButtonGroup)
         d->mButtonGroup->addButton(button, d->mButtons.length());
 
@@ -141,6 +142,7 @@ void ActionPalette::addAction(QAction *action) {
 }
 
 void ActionPalette::buttonClicked() {
+    // 自动关闭只影响调色板自身，动作是否可触发仍由 QAction 决定。
     if (d->mAutoClose) {
         close();
     }
@@ -244,6 +246,7 @@ void ActionPalette::mouseReleaseEvent(QMouseEvent *event) {
 
 
 void ActionPalette::actionChanged() {
+    // 动作与按钮按添加顺序一一对应；任何一方被外部增删后，多出的部分不再同步。
     for (int i = 0; i < d->mActions.length() && i < d->mButtons.length(); i++) {
         d->mButtons.at(i)->setVisible(d->mActions.at(i)->isVisible());
     }
@@ -252,6 +255,7 @@ void ActionPalette::actionChanged() {
 void ActionPalette::clearLayout() {
     QLayout *pLayout = layout();
     if (NULL != pLayout) {
+        // 先摘除布局项再删除控件，避免布局在控件析构期间继续引用已失效的项。
         while (!pLayout->isEmpty()) {
             QLayoutItem *pItem = pLayout->itemAt(0);
             QWidget *pW = pItem->widget();
@@ -291,10 +295,6 @@ QSize ActionPalette::buttonSize() {
     return d->mButtonSize;
 }
 
-/**
- * \brief Returns the button related to the given action
- * @param action as the given action
- */
 ActionPaletteButton *ActionPalette::getButtonFromAction(QAction *action) {
     ActionPaletteButton *pButton = NULL;
 
@@ -304,6 +304,7 @@ ActionPaletteButton *ActionPalette::getButtonFromAction(QAction *action) {
 }
 
 bool ActionPaletteButton::hitButton(const QPoint &pos) const {
+    // 图标可能小于按钮，整块矩形都算命中，避免点击边缘时无响应。
     Q_UNUSED(pos);
     return true;
 }

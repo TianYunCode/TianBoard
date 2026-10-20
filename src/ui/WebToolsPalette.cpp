@@ -24,6 +24,7 @@ WebToolsPalette::WebToolsPalette(QWidget *parent)
 
     actions << Application::mainWindow->ui().actionWebShowHideOnDisplay;
 
+    // 虚拟键盘只在支持软键盘的平台出现，避免桌面端多出一个无效按钮。
     if (PlatformUtils::hasVirtualKeyboard())
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
 
@@ -34,5 +35,5 @@ WebToolsPalette::WebToolsPalette(QWidget *parent)
 
 
 WebToolsPalette::~WebToolsPalette() {
-    // NOOP
+    // 刻意留空
 }

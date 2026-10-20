@@ -83,6 +83,7 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
 
     int i = 0;
 
+    // 固定四列排布，行列位置由动作序号推算。
     foreach (QAction *action, toolsActions) {
         ActionPaletteButton *button = createPaletteButton(action, container);
         gridLayout->addWidget(button, i / 4, i % 4);
@@ -99,7 +100,7 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
 
 
 void FavoriteToolPalette::addFavorite() {
-    // we need the sender :-( hugly ...
+    // 多个动作共用同一个槽，只能通过 sender() 反查是哪个工具被点击。
     QAction *action = qobject_cast<QAction *>(sender());
 
     if (action) {
@@ -110,6 +111,4 @@ void FavoriteToolPalette::addFavorite() {
     }
 }
 
-FavoriteToolPalette::~FavoriteToolPalette() {
-    // NOOP
-}
+FavoriteToolPalette::~FavoriteToolPalette() = default;

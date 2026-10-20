@@ -12,6 +12,7 @@
 #include "whiteboard/GraphicsScene.h"
 
 
+// 本面板见过的缓存对象；关闭缓存时从这里同步移除，避免留下悬空指针。
 static QVector<GraphicsCache *> mCaches;
 
 CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
@@ -43,16 +44,16 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
     setIconToRight(QPixmap(":images/general_close.png"));
     setContentsMargins(10, 10, 10, 10);
 
-    // Build the UI
+    // 搭建界面
     mpLayout = new QVBoxLayout();
     setLayout(mpLayout);
 
-    // Title
+    // 标题
     mpCachePropertiesLabel = new QLabel(tr("Cache Properties"), this);
     mpCachePropertiesLabel->setObjectName("DockPaletteWidgetTitle");
     mpLayout->addWidget(mpCachePropertiesLabel, 0);
 
-    // Properties Box
+    // 属性区容器
     mpProperties = new QWidget(this);
     mpProperties->setObjectName("DockPaletteWidgetBox");
     mpLayout->addWidget(mpProperties, 1);
@@ -60,7 +61,7 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
     mpProperties->setLayout(mpPropertiesLayout);
 
 
-    // Color
+    // 颜色
     mpColorLayout = new QHBoxLayout();
     mpColorLabel = new QLabel(tr("Color:"), mpProperties);
     mpColor = new QPushButton(mpProperties);
@@ -71,7 +72,7 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
     mpColorLayout->addStretch(1);
     mpPropertiesLayout->addLayout(mpColorLayout, 0);
 
-    // Shape
+    // 形状
     mpShapeLayout = new QHBoxLayout();
     mpShapeLabel = new QLabel(tr("Shape:"), mpProperties);
     mpSquareButton = new QPushButton(mpProperties);
@@ -90,7 +91,7 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
 
     mpCircleButton->setChecked(true);
 
-    // Shape Size
+    // 形状尺寸
     mpSizeLayout = new QHBoxLayout();
     mpSizeLabel = new QLabel(tr("Size:"), mpProperties);
     mpSizeSlider = new QSlider(Qt::Horizontal, mpProperties);
@@ -101,7 +102,7 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
     mpSizeLayout->addWidget(mpSizeSlider, 1);
     mpPropertiesLayout->addLayout(mpSizeLayout, 0);
 
-    // Close
+    // 关闭
     mpCloseLayout = new QHBoxLayout();
     mpCloseButton = new QPushButton(tr("Close"), mpProperties);
     mpCloseButton->setObjectName("DockPaletteWidgetButton");
@@ -109,10 +110,10 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
     mpCloseLayout->addStretch(1);
     mpPropertiesLayout->addLayout(mpCloseLayout, 0);
 
-    // Fill the empty space
+    // 把剩余空间撑到底部
     mpPropertiesLayout->addStretch(1);
 
-    // Connect signals / slots
+    // 信号与槽
     connect(mpCloseButton, &QPushButton::clicked, this, &CachePropertiesWidget::onCloseClicked);
     connect(mpColor, &QPushButton::clicked, this, &CachePropertiesWidget::onColorClicked);
     connect(mpCircleButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
@@ -193,10 +194,10 @@ CachePropertiesWidget::~CachePropertiesWidget() {
 
 void CachePropertiesWidget::onCloseClicked() {
     if (!mCaches.empty()) {
-        // Remove the current cache from the list
+        // 先把缓存从跟踪列表移除，再从场景删除，避免列表残留失效指针。
         mCaches.remove(mCaches.indexOf(mpCurrentCache));
 
-        // Remove the cache from the board
+        // 从白板页面移除遮罩
         Application::boardController->activeScene()->removeItem(mpCurrentCache);
         mpCurrentCache = NULL;
 
@@ -207,14 +208,14 @@ void CachePropertiesWidget::onCloseClicked() {
 void CachePropertiesWidget::updateCacheColor(QColor color) {
     mActualColor = color;
 
-    //  Update the color on the color button
+    // 用纯色方块作为按钮图标，直观显示当前颜色
     QPixmap pix(32, 32);
     QPainter p;
 
     p.begin(&pix);
 
     p.setBackground(Qt::transparent);
-    p.setBrush(color); // The current color
+    p.setBrush(color); // 画当前颜色
     p.drawRect(0, 0, 32, 32);
 
     p.end();
@@ -227,7 +228,7 @@ void CachePropertiesWidget::updateCacheColor(QColor color) {
 }
 
 void CachePropertiesWidget::onColorClicked() {
-    // Show the color picker
+    // 打开系统取色对话框，取消时返回无效颜色；updateCacheColor 仍会应用它。
     QColor newColor = QColorDialog::getColor(mActualColor, this);
     updateCacheColor(newColor);
 }
@@ -248,19 +249,19 @@ void CachePropertiesWidget::updateShapeButtons() {
 
 void CachePropertiesWidget::updateCurrentCache() {
     bool isBoardMode = false;
-    // this widget can work only on Board mode
+    // 本面板只在 Board 模式有意义
     if (Application::applicationController != NULL) {
-        // if app controller is available, and current mode is Board, and no show desktop, than all ok, just process
+        // 有应用控制器时，只有处于 Board 模式且没有进入“显示桌面”才继续处理
         if (Application::applicationController->displayMode() == ApplicationController::Board &&
             !Application::applicationController->isShowingDesktop())
             isBoardMode = true;
     }
-    // if app controller == null, than we do not know what mode now, so just process
+    // 没有应用控制器时无法判断当前模式，按 Board 处理，保持旧行为
     else
         isBoardMode = true;
 
     if (isBoardMode) {
-        // Get the current page cache
+        // 取当前页上的缓存条目
         QList<QGraphicsItem *> items = Application::boardController->activeScene()->items();
         foreach (QGraphicsItem *it, items) {
             if ("Cache" == it->data(Qt::UserRole).toString()) {
@@ -275,7 +276,7 @@ void CachePropertiesWidget::updateCurrentCache() {
                     mCaches.append(mpCurrentCache);
                 }
 
-                // Update the values of the cache properties
+                // 回填缓存的当前属性
                 mpSizeSlider->setValue(mpCurrentCache->shapeWidth());
                 updateCacheColor(mpCurrentCache->maskColor());
                 switch (mpCurrentCache->maskshape()) {
@@ -294,10 +295,7 @@ void CachePropertiesWidget::updateCurrentCache() {
         }
     }
 
-    // If we fall here, that means:
-    // 1 - that this page has no cache
-    // 2 - we are not in Board mode
-    // 3 - we are in Board mode, but show desktop (as really - Desktop mode)
+    // 走到这里说明：本页没有缓存、当前不是 Board 模式，或处于“显示桌面”状态。
     emit hideTab(this);
     mpCurrentCache = NULL;
     setDisabled(true);

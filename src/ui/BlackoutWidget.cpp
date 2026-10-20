@@ -10,12 +10,14 @@ struct BlackoutWidget::Private {
 };
 
 BlackoutWidget::BlackoutWidget(QWidget *parent) : QWidget(parent), d(new Private) {
+    // 关闭即销毁：DisplayManager::unBlackout() 只调用 close()，不再手动 delete。
     setAttribute(Qt::WA_DeleteOnClose);
 
     if (objectName().isEmpty())
         setObjectName("BlackoutWidget");
     resize(723, 838);
 
+    // 用调色板而不是样式表涂黑，避免与全局样式表冲突。
     QPalette palette;
     palette.setBrush(QPalette::Window, QBrush(QColor(0, 0, 0, 255), Qt::SolidPattern));
     setPalette(palette);
@@ -72,6 +74,7 @@ void BlackoutWidget::mousePressEvent(QMouseEvent *event) {
 
 
 void BlackoutWidget::keyPressEvent(QKeyEvent *event) {
+    // 已被上层处理（例如全局快捷键）的按键不再重复响应。
     if (!event->isAccepted()) {
         if (event->key() == Qt::Key_B) {
             doActivity();

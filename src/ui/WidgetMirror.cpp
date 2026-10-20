@@ -18,6 +18,7 @@ WidgetMirror::~WidgetMirror() = default;
 bool WidgetMirror::eventFilter(QObject *obj, QEvent *event) {
     bool result = QObject::eventFilter(obj, event);
 
+    // 源部件每次重绘后把同一矩形区域标记为脏区，自身随后重绘并重新渲染。
     if (event->type() == QEvent::Paint && obj == d->sourceWidget.data()) {
         QPaintEvent *paintEvent = static_cast<QPaintEvent *>(event);
         update(paintEvent->rect());
@@ -40,6 +41,7 @@ void WidgetMirror::paintEvent(QPaintEvent *event) {
 
 
 void WidgetMirror::setSourceWidget(QWidget *sourceWidget) {
+    // 先解除对旧源的监听，否则旧源继续绘制时会刷新一个已经无关的镜像。
     if (d->sourceWidget) {
         d->sourceWidget->removeEventFilter(this);
     }

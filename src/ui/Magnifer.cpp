@@ -57,6 +57,7 @@ Magnifier::Magnifier(QWidget *parent, bool isInteractive)
 
     //--------------------------------------------------//
 
+    // 用旋转过的 resize 图标拼出斜向缩放手柄光标，热点放在图片中心。
     QPixmap pix(":/images/cursors/resize.png");
     QTransform tr;
     tr.rotate(45);
@@ -114,7 +115,7 @@ void Magnifier::setSize(qreal percentFromScene) {
     if (d->gView == NULL || d->mView == NULL)
         return;
 
-    // calculate object size
+    // 百分比是相对画布宽度定义的，换算出镜面在当前视图下的像素尺寸。
     d->params.sizePercentFromScene = percentFromScene;
     QSize sceneSize = d->mView->size();
     qreal size = d->params.sizePercentFromScene * sceneSize.width() / 100;
@@ -139,7 +140,7 @@ void Magnifier::createMask() {
     if (d->gView == NULL || d->mView == NULL)
         return;
 
-    // calculate object size
+    // 掩码按画布百分比换算出的尺寸绘制，边缘留出一个按钮图标的宽度。
     QSize sceneSize = d->mView->size();
     qreal isize = d->params.sizePercentFromScene * sceneSize.width() / 100;
 
@@ -321,8 +322,8 @@ void Magnifier::mouseReleaseEvent(QMouseEvent *event) {
             event->accept();
             emit magnifierDrawingModeChange_Signal(static_cast<int>(d->mDrawingMode + 1) % modesCount);
         } else
-            QWidget::mouseReleaseEvent(
-                event); // don't propgate to parent, the widget is deleted in Application::boardController->removeTool
+            // 不要向上冒泡：松开事件之后场景会通过 removeTool 删掉这个部件。
+            QWidget::mouseReleaseEvent(event);
     } else
         event->ignore();
 }
@@ -382,12 +383,14 @@ void Magnifier::grabPoint(const QPoint &pGrab) {
     d->updPointGrab = pGrab;
     QPointF itemPos = d->gView->mapFromGlobal(pGrab);
 
+    // 视图缩放会同时影响取景范围，所以源矩形要除以“倍率 × 视图缩放”。
     qreal zWidth = width() / (d->params.zoom * transM.m11());
     qreal zWidthHalf = zWidth / 2;
     qreal zHeight = height() / (d->params.zoom * transM.m22());
     qreal zHeightHalf = zHeight / 2;
 
 
+    // 把镜面中心映射到场景坐标，再向四周扩出源矩形。
     QPointF pfScLtF(
         Application::boardController->controlView()->mapToScene(QPoint(itemPos.x(), itemPos.y())));
 
@@ -401,10 +404,10 @@ void Magnifier::grabPoint(const QPoint &pGrab) {
     QPixmap newPixMap(QSize(width(), height()));
     QPainter painter(&newPixMap);
 
+    // 只渲染源矩形，并把它铺满整块镜面画布，得到放大的效果。
     Application::boardController->activeScene()->render(&painter, QRectF(0, 0, width(), height()), srcRect);
     painter.end();
 
-    // pMap.fill(Qt::transparent);
     d->pMap = newPixMap;
     d->pMap.setMask(d->bmpMask);
 
@@ -412,7 +415,7 @@ void Magnifier::grabPoint(const QPoint &pGrab) {
 }
 
 
-// from global
+// 参数均为全局坐标：先抓图，再把镜面移到目标点。
 void Magnifier::grabNMove(const QPoint &pGrab, const QPoint &pMove, bool needGrab, bool needMove) {
     QPoint pointToGrab = pGrab;
     d->updPointGrab = pointToGrab;
@@ -424,7 +427,6 @@ void Magnifier::grabNMove(const QPoint &pGrab, const QPoint &pMove, bool needGra
     if (needMove) {
         QPoint movePos = d->mView->mapFromGlobal(pMove);
         move(movePos.x() - width() / 2, movePos.y() - height() / 2);
-        //    move(itemPos.x(), itemPos.y());
     }
 }
 
@@ -441,6 +443,7 @@ void Magnifier::setMoveView(QWidget *view) {
 void Magnifier::setDrawingMode(int mode) {
     d->mDrawingMode = static_cast<DrawingMode>(mode);
 
+    // 切换按钮显示的是“将要切换到的形状”，因此图标名与当前形状正好相反。
     QString sMode;
 
     if (circular == d->mDrawingMode) {

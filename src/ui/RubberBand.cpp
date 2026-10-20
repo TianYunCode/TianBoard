@@ -17,6 +17,7 @@ RubberBand::RubberBand(Shape s, QWidget *p)
       mLastPressedPoint(QPoint()) {
     customStyle = NULL;
 
+    // 固定使用 windows 风格绘制选框边框，避免不同系统主题下边框外观不一致。
     customStyle = QStyleFactory::create("windows");
 
     if (customStyle)
@@ -32,9 +33,11 @@ RubberBand::~RubberBand() {
 }
 
 RubberBand::enm_resizingMode RubberBand::determineResizingMode(QPoint pos) {
+    // 拖动过程中锁定按下时判定的方向，鼠标移出边框也不会丢失缩放模式。
     if (mMouseIsPressed)
         return mResizingMode;
 
+    // 四边各留 20 像素的命中带，四角再单独覆盖成对角缩放。
     QRect resizerTop(mResizingBorderHeight, 0, rect().width() - 2 * mResizingBorderHeight,
                      mResizingBorderHeight);
     QRect resizerBottom(mResizingBorderHeight, rect().height() - mResizingBorderHeight,
@@ -100,6 +103,7 @@ void RubberBand::mousePressEvent(QMouseEvent *event) {
     mLastMousePos = event->pos();
 
     if (None == mResizingMode) {
+        // 在选区内部按下：让视图把落在框内的对象加入选择集。
         Application::boardController->controlView()->rubberItems();
         setCursor(QCursor(Qt::SizeAllCursor));
     }
@@ -120,6 +124,7 @@ void RubberBand::mouseMoveEvent(QMouseEvent *event) {
         QPoint topLeftResizeVector(pressPointGlobal - prevPressPointGlobal);
         QPoint rightBottomResizeVector(pressPointGlobal - movePointGlogal);
 
+        // 左上方向以按下点为基准，右/下方向以最后一次移动点为基准计算增量。
         bool bGeometryChange = true;
 
         switch (mResizingMode) {

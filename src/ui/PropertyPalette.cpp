@@ -16,21 +16,4 @@ PropertyPalette::PropertyPalette(Qt::Orientation orientation, QWidget *parent)
 
 PropertyPalette::~PropertyPalette() {}
 
-void PropertyPalette::onMouseRelease() {
-    //    qDebug() << "PropertyPalette::onMouseRelease() called (" << mMousePos.x() << "," << mMousePos.y();
-    //    QWidget* pW = NULL;
-    //    pW = childAt(mMousePos);
-
-    //    if(NULL != pW)
-    //    {
-    //        // A widget has been found under the mouse!
-    //        ActionPaletteButton* pButton = dynamic_cast<ActionPaletteButton*>(pW);
-    //        if(NULL != pButton)
-    //        {
-    //            pButton->click();
-    //        }
-    //    }
-
-    //    // Close the palette
-    //    close();
-}
+void PropertyPalette::onMouseRelease() {}

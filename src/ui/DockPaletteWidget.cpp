@@ -49,14 +49,13 @@ void DockPaletteWidget::setVisibleState(bool state) {
     d->mVisibleState = state;
 }
 
-/**
-  * When a widget registers a mode it means that it would be displayed on that mode
-  */
 void DockPaletteWidget::registerMode(DockWidgetMode mode) {
+    // 页面可能被多次注册同一模式，这里去重，避免模式列表膨胀。
     if (!d->mRegisteredModes.contains(mode))
         d->mRegisteredModes.append(mode);
 }
 
 void DockPaletteWidget::slot_changeMode(DockWidgetMode newMode) {
+    // 直接按模式设置可见性；停靠面板仍以 visibleState() 决定是否生成标签。
     this->setVisible(this->visibleInMode(newMode));
 }

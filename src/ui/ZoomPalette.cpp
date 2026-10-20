@@ -70,6 +70,7 @@ void ZoomPalette::goHundred() {
 void ZoomPalette::hide() {
     qreal currentZoomFactor = d->mBoardController->currentZoom();
 
+    // 这个槽也挂在“无缩放后延时隐藏”上，用户此时若已重新缩放就不该隐藏。
     bool showAsNoZoom = (currentZoomFactor > 0.9 && currentZoomFactor < 1.1);
     if (showAsNoZoom) {
         FloatingPalette::hide();
@@ -78,6 +79,7 @@ void ZoomPalette::hide() {
 
 void ZoomPalette::refreshPalette() {
     qreal currentZoomFactor = d->mBoardController->currentZoom();
+    // 与 hide() 使用同一判定：0.9~1.1 视为“没有缩放”，显示成整数 1x。
     bool showAsNoZoom = (currentZoomFactor > 0.9 && currentZoomFactor < 1.1);
     if (showAsNoZoom) {
         currentZoomFactor = 1;
@@ -86,6 +88,7 @@ void ZoomPalette::refreshPalette() {
 
     d->mCurrentZoomButton->setText(stringFactor);
     adjustSizeAndPosition();
+    // 无缩放时先显示 500ms 告知用户，再自动隐藏，避免长期占用画面角落。
     if (showAsNoZoom) {
         QTimer::singleShot(500, this, &ZoomPalette::hide);
     } else {

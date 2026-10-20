@@ -8,9 +8,7 @@ struct ColorPicker::Private {
     int mSelectedColorIndex{0};
 };
 
-ColorPicker::ColorPicker(QWidget *parent) : QFrame(parent), d(new Private) {
-    // NOOP
-}
+ColorPicker::ColorPicker(QWidget *parent) : QFrame(parent), d(new Private) {}
 
 ColorPicker::ColorPicker(QWidget *parent, const QList<QColor> &colors, int pSelectedColorIndex)
     : QFrame(parent), d(new Private) {
@@ -19,9 +17,7 @@ ColorPicker::ColorPicker(QWidget *parent, const QList<QColor> &colors, int pSele
 }
 
 
-ColorPicker::~ColorPicker() {
-    // NOOP
-}
+ColorPicker::~ColorPicker() = default;
 
 QList<QColor> ColorPicker::getColors() const {
     return d->mColors;
@@ -58,9 +54,11 @@ void ColorPicker::paintEvent(QPaintEvent *event) {
 
 void ColorPicker::mousePressEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton) {
+        // 没有颜色可选时直接返回，避免下面的取模/下标访问越界。
         if (d->mColors.isEmpty())
             return;
 
+        // 左键点击按列表顺序循环切换颜色
         d->mSelectedColorIndex++;
 
         if (d->mSelectedColorIndex >= d->mColors.size())

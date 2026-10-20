@@ -12,6 +12,7 @@
 #include "utils/FileSystemUtils.h"
 
 
+// 关闭/解除固定图标被所有浮动窗口共用，只加载一次。
 static QPixmap *sClosePixmap = 0;
 static QPixmap *sUnpinPixmap = 0;
 
@@ -47,7 +48,7 @@ ToolWidget::ToolWidget(GraphicsWidgetItem *pWidget, QWidget *pParent)
 }
 
 ToolWidget::~ToolWidget() {
-    // NOOP
+    // 网页视图与按钮都是本窗口的子对象，由 Qt 的对象树回收。
 }
 
 void ToolWidget::initialize() {
@@ -59,6 +60,7 @@ void ToolWidget::initialize() {
 
     GraphicsScene *wscene = dynamic_cast<GraphicsScene *>(d->mToolWidget->scene());
     if (wscene) {
+        // 对象从场景移交给了这个窗口，先取消删除标记再摘出场景，避免场景析构时误删它。
         wscene->removeItemFromDeletion(d->mToolWidget);
         wscene->removeItem(d->mToolWidget);
     }
@@ -66,14 +68,11 @@ void ToolWidget::initialize() {
 
     d->mWebView = new QWebEngineView(this);
 
-    //QPalette palette = mWebView->page()->palette();
-    //palette.setBrush(QPalette::Base, QBrush(Qt::transparent));
-    //mWebView->page()->setPalette(palette);
-
 
     d->mWebView->installEventFilter(this);
 
     d->mFrameWidth = Settings::settings()->objectFrameWidth;
+    // 边距取半个图标宽加上边框宽度，让标题条上的按钮完整落在灰色区域内。
     d->mContentMargin = sClosePixmap->width() / 2 + d->mFrameWidth;
     setLayout(new QVBoxLayout());
     layout()->setContentsMargins(d->mContentMargin, d->mContentMargin, d->mContentMargin, d->mContentMargin);
@@ -103,14 +102,14 @@ bool ToolWidget::eventFilter(QObject *obj, QEvent *event) {
         }
     }
 
-    // standard event processing
+    // 其余事件交回默认处理
     return QObject::eventFilter(obj, event);
 }
 
 void ToolWidget::mousePressEvent(QMouseEvent *event) {
     QWidget::mousePressEvent(event);
 
-    /* did webkit consume the mouse press ? */
+    // 浏览器若已消费按下事件就不能拖动窗口，否则会把网页里的点击变成拖窗。
     d->mShouldMoveWidget = !event->isAccepted() && (event->buttons() & Qt::LeftButton);
     d->mMousePressPos = event->pos();
     event->accept();
@@ -138,14 +137,14 @@ void ToolWidget::mouseReleaseEvent(QMouseEvent *event) {
         Application::boardController->moveToolWidgetToScene(this);
         event->accept();
     } else
-        QWidget::mouseReleaseEvent(
-            event); /* don't propgate to parent, the widget is deleted in Application */
+        // 不要向上冒泡：松开后对象可能已被移除，父部件不再处理该事件。
+        QWidget::mouseReleaseEvent(event);
 }
 
 void ToolWidget::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
 
-    //if (isActiveWindow())
+    // 无论窗口是否处于激活状态都绘制标题条，保证按钮在网页上方始终可见。
     {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);

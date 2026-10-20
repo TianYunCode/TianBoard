@@ -47,7 +47,7 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
 
     setMaximumHeight(ACTIONBAR_HEIGHT);
 
-    // Create the actions
+    // 创建动作
     d->mpFavoriteAction =
         new QAction(QIcon(":/images/libpalette/miniFavorite.png"), tr("Add to favorites"), this);
     d->mpSocialAction = new QAction(QIcon(":/images/libpalette/social.png"), tr("Share"), this);
@@ -61,12 +61,12 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     d->mpNewFolderAction =
         new QAction(QIcon(":/images/libpalette/miniNewFolder.png"), tr("Create new folder"), this);
 
-    // Create the buttons
+    // 创建按钮
     d->mpFavoriteBtn = new ActionButton(this, d->mpFavoriteAction);
     d->mpSocialBtn = new ActionButton(this, d->mpSocialAction);
 
-    //mpSearchBtn = new ActionButton(this, mpSearchAction);
     d->mpRescanModelBtn = new ActionButton(this, d->mpRescanModelAction);
+    // 重新扫描入口暂不展示，仅保留对象。
     d->mpRescanModelBtn->hide();
 
     d->mpDeleteBtn = new ActionButton(this, d->mpDeleteAction);
@@ -74,14 +74,12 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     d->mpRemoveFavoriteBtn = new ActionButton(this, d->mpRemoveFavorite);
     d->mpNewFolderBtn = new ActionButton(this, d->mpNewFolderAction);
 
-    // Initialize the buttons
-    //mpSearchBtn->setEnabled(false);
+    // 初始状态下不允许新建文件夹，进入文件夹后由 setButtons() 打开。
     d->mpNewFolderBtn->setEnabled(false);
 
-    // Add the buttons to the button group
+    // 加入按钮组，便于统一管理按钮状态
     d->mButtonGroup->addButton(d->mpFavoriteBtn);
     d->mButtonGroup->addButton(d->mpSocialBtn);
-    //mButtonGroup->addButton(mpSearchBtn);
     d->mButtonGroup->addButton(d->mpDeleteBtn);
     d->mButtonGroup->addButton(d->mpCloseBtn);
     d->mButtonGroup->addButton(d->mpRemoveFavoriteBtn);
@@ -95,12 +93,11 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     connect(d->mpDeleteAction, &QAction::triggered, this, &FeaturesActionBar::onActionTrash);
 
 
-    // Build the default toolbar
+    // 组装默认动作条；搜索框代替了独立的搜索按钮。
     d->mLayout->addWidget(d->mpFavoriteBtn);
     d->mLayout->addWidget(d->mpSocialBtn);
     d->mLayout->addWidget(d->mpNewFolderBtn);
     d->mLayout->addWidget(d->mSearchBar);
-    //mLayout->addWidget(mpSearchBtn);
     d->mLayout->addWidget(d->mpRescanModelBtn);
     d->mLayout->addWidget(d->mpDeleteBtn);
     d->mLayout->addWidget(d->mpCloseBtn);
@@ -120,6 +117,7 @@ void FeaturesActionBar::cleanText() {
 }
 
 void FeaturesActionBar::setButtons() {
+    // 各状态下按钮的显隐与可用性差异集中在这里维护。
     switch (d->currentState) {
         case IN_FOLDER:
             d->mpFavoriteBtn->show();
@@ -131,7 +129,6 @@ void FeaturesActionBar::setButtons() {
             d->mpNewFolderBtn->show();
             d->mpNewFolderBtn->setEnabled(true);
             d->mpDeleteBtn->setEnabled(true);
-            //        mpRescanModelBtn->show();
             break;
         case IN_ROOT:
             d->mpFavoriteBtn->show();
@@ -143,29 +140,24 @@ void FeaturesActionBar::setButtons() {
             d->mpNewFolderBtn->show();
             d->mpNewFolderBtn->setEnabled(false);
             d->mpDeleteBtn->setEnabled(false);
-            //        mpRescanModelBtn->show();
             break;
         case IN_PROPERTIES:
             d->mpFavoriteBtn->show();
             d->mpSocialBtn->hide();
             d->mSearchBar->show();
-            //mpSearchBtn->show();
             d->mpDeleteBtn->hide();
             d->mpCloseBtn->hide();
             d->mpRemoveFavoriteBtn->hide();
             d->mpNewFolderBtn->hide();
-            //        mpRescanModelBtn->hide();
             break;
         case IN_FAVORITE:
             d->mpFavoriteBtn->hide();
             d->mpSocialBtn->hide();
             d->mSearchBar->show();
-            //mpSearchBtn->show();
             d->mpDeleteBtn->hide();
             d->mpCloseBtn->hide();
             d->mpRemoveFavoriteBtn->show();
             d->mpNewFolderBtn->hide();
-            //        mpRescanModelBtn->hide();
             break;
         case IN_TRASH:
             d->mpFavoriteBtn->hide();
@@ -173,12 +165,8 @@ void FeaturesActionBar::setButtons() {
             d->mSearchBar->show();
             d->mpDeleteBtn->show();
             d->mpDeleteBtn->setEnabled(true);
-            //mpSearchBtn->show();
-            //mpDeleteBtn->hide();
             d->mpCloseBtn->hide();
-            //mpRemoveFavoriteBtn->show();
             d->mpNewFolderBtn->hide();
-            //        mpRescanModelBtn->hide();
             break;
         default:
             break;
@@ -218,6 +206,7 @@ void FeaturesActionBar::unlockIt() {
 }
 
 void FeaturesActionBar::dragEnterEvent(QDragEnterEvent *event) {
+    // 只接受资源库自己的拖放数据，外部文件交给其他控件处理。
     const FeaturesMimeData *fMimeData = qobject_cast<const FeaturesMimeData *>(event->mimeData());
     if (fMimeData) {
         event->acceptProposedAction();
@@ -237,6 +226,7 @@ void FeaturesActionBar::dropEvent(QDropEvent *event) {
 
     QWidget *dest = childAt(event->pos());
     if (dest == d->mpDeleteBtn) {
+        // 删除前先整体校验：只要有一个条目不可删除就放弃整个操作，避免半完成状态。
         QList<Feature> featuresList = fMimeData->features();
         foreach (Feature curFeature, featuresList) {
             if (!curFeature.isDeletable()) {
@@ -266,12 +256,6 @@ void FeaturesActionBar::dropEvent(QDropEvent *event) {
 
 FeaturesActionBar::~FeaturesActionBar() {}
 
-/**
- * \brief Construtor
- * @param parent as the parent widget
- * @param action as the related action
- * @param name as the related object name
- */
 ActionButton::ActionButton(QWidget *parent, QAction *action, const char *name) : QToolButton(parent) {
     setObjectName(name);
     addAction(action);
@@ -283,7 +267,4 @@ ActionButton::ActionButton(QWidget *parent, QAction *action, const char *name) :
     setFocusPolicy(Qt::NoFocus);
 }
 
-/**
- * \brief Destructor
- */
 ActionButton::~ActionButton() {}

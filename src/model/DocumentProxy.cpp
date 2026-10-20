@@ -39,6 +39,8 @@ DocumentProxy::DocumentProxy(const QString &pPersistancePath, QMap<QString, QVar
 
 
 void DocumentProxy::init() {
+    // 新文档必须有分组名和显示名，否则树模型无法按元数据挂载；
+    // 默认名称用本地化的当前时间，避免多份新文档同名。
     setMetaData(Settings::documentGroupName, "");
 
     QDateTime now = QDateTime::currentDateTime();
@@ -54,7 +56,7 @@ bool DocumentProxy::theSameDocument(DocumentProxy *proxy) {
 }
 
 DocumentProxy::~DocumentProxy() {
-    // NOOP
+    // 代理只保存元数据，页面内容由 PersistenceManager 管理，析构时无需额外清理。
 }
 
 DocumentProxy *DocumentProxy::deepCopy() const {
@@ -124,6 +126,8 @@ void DocumentProxy::setMetaData(const QString &pKey, const QVariant &pValue) {
     else {
         mIsModified = true;
         mMetaDatas.insert(pKey, pValue);
+        // updatedAt 是树模型排序与“最近修改”列的依据，单独通知文档管理器，
+        // 让文档集合视图能在不重扫磁盘的情况下刷新。
         if (pKey == Settings::documentUpdatedAt) {
             DocumentManager *documentManager = DocumentManager::documentManager();
             if (documentManager)
@@ -137,7 +141,9 @@ QVariant DocumentProxy::metaData(const QString &pKey) const {
         return mMetaDatas.value(pKey);
     } else {
         qDebug() << "Unknown metadata key" << pKey;
-        return QString(""); // failsafe
+        // 返回空字符串而不是无效 QVariant：调用方大量直接 .toString()，
+        // 这样至少能拿到空文本而不会解出意外类型。
+        return QString("");
     }
 }
 
@@ -173,6 +179,7 @@ void DocumentProxy::setDefaultDocumentSize(int pWidth, int pHeight) {
 
 
 QUuid DocumentProxy::uuid() const {
+    // 元数据里存的是“命名空间 URI/规范化 UUID”，去掉前缀后才是 QUuid 能解析的形式。
     QString id = metaData(Settings::documentIdentifer).toString();
     QString sUuid = id.replace(Settings::documentNamespaceUri + "/", "");
 

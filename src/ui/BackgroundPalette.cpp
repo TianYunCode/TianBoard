@@ -28,6 +28,7 @@ BackgroundPalette::~BackgroundPalette() = default;
 
 
 void BackgroundPalette::init() {
+    // 基类构造时已经建立了通用按钮布局，这里整套换掉，改用上下两行的专用布局。
     ActionPalette::clearLayout();
     delete layout();
 
@@ -45,8 +46,8 @@ void BackgroundPalette::init() {
     d->mSlider->setMinimum(Settings::settings()->minCrossSize);
     d->mSlider->setMaximum(Settings::settings()->maxCrossSize);
     d->mSlider->setSingleStep(2);
-    d->mSlider->setTracking(
-        true); // valueChanged() is emitted during movement and not just upon releasing the slider
+    // 开启跟踪，拖动过程中就持续发出 valueChanged()，而不是等松开滑块才发。
+    d->mSlider->setTracking(true);
 
     d->mSliderLabel = new QLabel(tr("Grid size"));
 
@@ -129,6 +130,7 @@ void BackgroundPalette::showEvent(QShowEvent *event) {
     backgroundChanged();
 
     d->mSlider->setValue(Application::boardController->activeScene()->backgroundGridSize());
+    // 每次显示都重新连接；Qt 会忽略同一对信号的重复连接，不会造成多次回调。
     connect(d->mSlider, &QSlider::valueChanged, this, &BackgroundPalette::sliderValueChanged);
 
     QWidget::showEvent(event);
@@ -136,8 +138,8 @@ void BackgroundPalette::showEvent(QShowEvent *event) {
 
 void BackgroundPalette::sliderValueChanged(int value) {
     Application::boardController->activeScene()->setBackgroundGridSize(value);
-    Settings::settings()->crossSize =
-        value; // since this function is called (indirectly, by refresh) when we switch scenes, the settings will always have the current scene's cross size.
+    // 切换场景时会经由 refresh() 间接回到这里，所以设置里保存的始终是当前场景的值。
+    Settings::settings()->crossSize = value;
 }
 
 void BackgroundPalette::defaultBackgroundGridSize() {

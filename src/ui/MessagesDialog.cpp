@@ -13,6 +13,7 @@ MessagesDialog::MessagesDialog(QString windowTitle, QWidget *parent) : QWidget(p
     resize(400, 0);
 
     setWindowTitle(windowTitle);
+    // 用工具窗口而不是独立主窗口：不进任务栏，且始终压在其它窗口之上。
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
 }
 
@@ -41,5 +42,6 @@ void MessagesDialog::setMessages(const QList<QString> messages) {
 }
 
 void MessagesDialog::dispose() {
+    // 调用方创建后不再持有指针，因此关闭时由自己销毁。
     delete this;
 }

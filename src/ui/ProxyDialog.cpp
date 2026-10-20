@@ -64,8 +64,8 @@ ProxyDialog::ProxyDialog(QWidget *parent) : QDialog(parent), d(new Private) {
     d->saveCredentials->setText(tr("Save username and password for future use"));
     d->gridLayout->addWidget(d->saveCredentials, 3, 2, 1, 1);
 
-    // The designer form left "ICON" as a placeholder text, the dialog asks a
-    // question, so show the standard question icon instead of that text.
+    // 移植自 Designer 表单的占位文字 "ICON" 不适合作为提示图形，
+    // 这里换成主题提供的标准问号图标。
     d->iconLabel->setText(QString());
     d->iconLabel->setPixmap(
         style()->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this).pixmap(32, 32));

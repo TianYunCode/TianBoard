@@ -17,17 +17,17 @@
 
 
 struct DocumentNavigator::Private {
-    /** The scene */
+    /// @brief 承载缩略图的场景
     QGraphicsScene *mScene{nullptr};
-    /** The list of current thumbnails with labels*/
+    /// @brief 当前这批带标题的缩略图元素
     QList<ImgTextThumbnailElement> mThumbsWithLabels;
-    /** The current number of columns */
+    /// @brief 本次排版算出的列数
     int mNbColumns{0};
-    /** The current thumbnails width */
+    /// @brief 缩略图当前宽度
     int mThumbnailWidth{0};
-    /** The current thumbnails minimum width */
+    /// @brief 缩略图允许的最小宽度
     int mThumbnailMinWidth{0};
-    /** The selected thumbnail */
+    /// @brief 当前选中的那一张
     SceneThumbnailNavigPixmap *mSelectedThumbnail{nullptr};
     SceneThumbnailNavigPixmap *mLastClickedThumbnail{nullptr};
     SceneThumbnailNavigPixmap *mDropSource{nullptr};
@@ -39,11 +39,6 @@ struct DocumentNavigator::Private {
     QPoint mLastPressedMousePos;
 };
 
-/**
- * \brief Constructor
- * @param parent as the parent widget
- * @param name as the object name
- */
 DocumentNavigator::DocumentNavigator(QWidget *parent, const char *name)
     : QGraphicsView(parent), d(new Private) {
     d->mNbColumns = 1;
@@ -53,11 +48,13 @@ DocumentNavigator::DocumentNavigator(QWidget *parent, const char *name)
 
     setObjectName(name);
     d->mScene = new QGraphicsScene(this);
+    // 缩略图按列排布，横向滚动没有意义，只保留纵向滚动。
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setScene(d->mScene);
 
     d->mThumbnailWidth = width() - 2 * border();
 
+    // 拖拽换序时的插入指示条，平时隐藏。
     d->mDropBar->setPen(QPen(Qt::darkGray));
     d->mDropBar->setBrush(QBrush(Qt::lightGray));
     scene()->addItem(d->mDropBar);
@@ -82,9 +79,6 @@ DocumentNavigator::DocumentNavigator(QWidget *parent, const char *name)
             &DocumentNavigator::mousePressAndHoldEvent, Qt::UniqueConnection);
 }
 
-/**
- * \brief Destructor
- */
 DocumentNavigator::~DocumentNavigator() {
     if (NULL != d->mScene) {
         delete d->mScene;
@@ -92,9 +86,6 @@ DocumentNavigator::~DocumentNavigator() {
     }
 }
 
-/**
- * \brief Generate the thumbnails
- */
 void DocumentNavigator::generateThumbnails(DocumentContainer *source) {
     d->mThumbsWithLabels.clear();
     int selectedIndex = -1;
@@ -103,6 +94,7 @@ void DocumentNavigator::generateThumbnails(DocumentContainer *source) {
         lastClickedIndex = d->mLastClickedThumbnail->sceneIndex();
     }
 
+    // 重建前清空场景：保留拖拽指示条，其余条目连同标签一起删除。
     QList<QGraphicsItem *> graphicsItemList = d->mScene->items();
     for (int i = 0; i < graphicsItemList.size(); i += 1) {
         QGraphicsItem *item = graphicsItemList.at(i);
@@ -117,8 +109,8 @@ void DocumentNavigator::generateThumbnails(DocumentContainer *source) {
     }
 
     for (int i = 0; i < source->selectedDocument()->pageCount(); i++) {
-        // TODO: 这里的临时绕法暴露了结构问题
-        // source->selectedDocument()->pageCount()  !=   source->pageCount()
+        // TODO: 这里的临时绕法暴露了结构问题：文档的页数与容器里的页数本应一致，
+        // 现在却要各自数一遍，缺页只能就地补。
         if (i >= source->pageCount() || !source->pageAt(i))
             source->insertThumbPage(i);
 
@@ -148,7 +140,7 @@ void DocumentNavigator::generateThumbnails(DocumentContainer *source) {
     else
         d->mSelectedThumbnail = NULL;
 
-    // Draw the items
+    // 这里按场景条目位置重排，确保页码标签与缩略图保持配对。
     refreshScene();
 }
 
@@ -167,16 +159,12 @@ void DocumentNavigator::onScrollToSelectedPage(int index) {
         ensureVisible(d->mSelectedThumbnail);
 }
 
-/**
- * \brief Refresh the given thumbnail
- * @param iPage as the given page related thumbnail
- */
 void DocumentNavigator::updateSpecificThumbnail(int iPage) {
     const QPixmap *pix = Application::boardController->pageAt(iPage);
     SceneThumbnailNavigPixmap *newItem =
         new SceneThumbnailNavigPixmap(*pix, Application::boardController->selectedDocument(), iPage);
 
-    // Get the old thumbnail
+    // 用新条目原位替换旧缩略图，避免整页重建。
     SceneThumbnailNavigPixmap *oldItem = d->mThumbsWithLabels.at(iPage).getThumbnail();
     if (NULL != oldItem) {
         d->mScene->removeItem(oldItem);
@@ -189,14 +177,11 @@ void DocumentNavigator::updateSpecificThumbnail(int iPage) {
     }
 }
 
-/**
- * \brief Put the element in the right place in the scene.
- */
 void DocumentNavigator::refreshScene() {
+    // 缩略图高度按屏幕宽高比换算，保证页面比例一致。
     qreal thumbnailHeight = d->mThumbnailWidth / Settings::minScreenRatio;
 
     for (int i = 0; i < d->mThumbsWithLabels.size(); i++) {
-        // Get the item
         ImgTextThumbnailElement &item = d->mThumbsWithLabels[i];
         int columnIndex = i % d->mNbColumns;
         int rowIndex = i / d->mNbColumns;
@@ -205,70 +190,42 @@ void DocumentNavigator::refreshScene() {
     scene()->setSceneRect(scene()->itemsBoundingRect());
 }
 
-/**
- * \brief  Set the number of thumbnails columns
- * @param nbColumns as the number of columns
- */
 void DocumentNavigator::setNbColumns(int nbColumns) {
     d->mNbColumns = nbColumns;
 }
 
-/**
- * \brief Get the number of columns
- * @return the number of thumbnails columns
- */
 int DocumentNavigator::nbColumns() {
     return d->mNbColumns;
 }
 
-/**
- * \brief Set the thumbnails minimum width
- * @param width as the minimum width
- */
 void DocumentNavigator::setThumbnailMinWidth(int width) {
     d->mThumbnailMinWidth = width;
 }
 
-/**
- * \brief Get the thumbnails minimum width
- * @return the minimum thumbnails width
- */
 int DocumentNavigator::thumbnailMinWidth() {
     return d->mThumbnailMinWidth;
 }
 
-/**
- * \brief Get the border size
- * @return the border size in pixels
- */
 int DocumentNavigator::border() {
     return 10;
 }
 
-/**
- * \brief Handle the resize event
- * @param event as the resize event
- */
 void DocumentNavigator::resizeEvent(QResizeEvent *event) {
     Q_UNUSED(event);
 
-    // Update the thumbnails width
+    // 视图变窄时不低于最小宽度，避免缩略图小到无法点击。
     d->mThumbnailWidth = (width() > d->mThumbnailMinWidth) ? width() - 2 * border() : d->mThumbnailMinWidth;
 
     if (d->mSelectedThumbnail)
         ensureVisible(d->mSelectedThumbnail);
 
-    // Refresh the scene
     refreshScene();
 }
 
-/**
- * \brief Handle the mouse press event
- * @param event as the mouse event
- */
 void DocumentNavigator::mousePressEvent(QMouseEvent *event) {
     QGraphicsView::mousePressEvent(event);
 
+    // 视图自身没有消费该事件（即点在空白或缩略图上）时才启动长按与切页逻辑。
     if (!event->isAccepted()) {
         d->mLongPressTimer.start();
         d->mLastPressedMousePos = event->pos();
@@ -276,6 +233,7 @@ void DocumentNavigator::mousePressEvent(QMouseEvent *event) {
         d->mLastClickedThumbnail = clickedThumbnail(d->mLastPressedMousePos);
 
         if (d->mLastClickedThumbnail) {
+            // 先保存当前页的视图位置与场景状态，再切到目标页并恢复其中心点。
             Application::boardController->persistViewPositionOnCurrentScene();
             Application::boardController->persistCurrentScene();
             Application::boardController->setActiveDocumentScene(d->mLastClickedThumbnail->sceneIndex());
@@ -293,7 +251,7 @@ SceneThumbnailNavigPixmap *DocumentNavigator::clickedThumbnail(const QPoint pos)
         clickedThumbnail = dynamic_cast<SceneThumbnailNavigPixmap *>(clickedItem);
 
         if (!clickedThumbnail) {
-            // If we fall here we may have clicked on the label instead of the thumbnail
+            // 点中的可能是页码标签，需要反查它所属的缩略图。
             ThumbnailTextItem *clickedTextItem = dynamic_cast<ThumbnailTextItem *>(clickedItem);
             if (clickedTextItem) {
                 for (int i = 0; i < d->mThumbsWithLabels.size(); i++) {
@@ -311,6 +269,7 @@ SceneThumbnailNavigPixmap *DocumentNavigator::clickedThumbnail(const QPoint pos)
 }
 
 void DocumentNavigator::mouseReleaseEvent(QMouseEvent *event) {
+    // 松开即取消长按计时，避免拖拽与点击叠加。
     event->accept();
     d->mLongPressTimer.stop();
 }
@@ -352,7 +311,7 @@ void DocumentNavigator::dragEnterEvent(QDragEnterEvent *event) {
 void DocumentNavigator::dragMoveEvent(QDragMoveEvent *event) {
     QPointF position = event->pos();
 
-    //autoscroll during drag'n'drop
+    // 拖到上下边缘附近时自动滚动视图。
     QPointF scenePos = mapToScene(position.toPoint());
     int thumbnailHeight = d->mThumbnailWidth / Settings::minScreenRatio;
     QRectF thumbnailArea(0, scenePos.y() - thumbnailHeight / 2, d->mThumbnailWidth, thumbnailHeight);

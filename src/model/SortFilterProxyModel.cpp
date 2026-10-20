@@ -10,8 +10,8 @@ bool SortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &
     DocumentTreeModel *model = dynamic_cast<DocumentTreeModel *>(sourceModel());
 
     if (model) {
-        //if it's a top level folder
-        //in other words : myDocuments, models and trash folder
+        // 顶层是“我的文档/回收站”这类固定入口，顺序不能随排序变化；
+        // 任一侧是顶层时直接视为相等，保持原有相对位置。
         if (model->isToplevel(left) || model->isToplevel(right)) {
             return false;
         }

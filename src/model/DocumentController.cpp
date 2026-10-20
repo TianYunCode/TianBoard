@@ -37,6 +37,7 @@
 
 
 static bool lessThan(DocumentTreeNode *lValue, DocumentTreeNode *rValue) {
+    // 目录永远排在文档之前；目录之间按名称升序。
     if (lValue->nodeType() == DocumentTreeNode::Catalog) {
         if (rValue->nodeType() == DocumentTreeNode::Catalog) {
             return lValue->nodeName() < rValue->nodeName();
@@ -50,8 +51,7 @@ static bool lessThan(DocumentTreeNode *lValue, DocumentTreeNode *rValue) {
             Q_ASSERT(lValue->proxyData());
             Q_ASSERT(rValue->proxyData());
 
-            //return lValue->nodeName() < rValue->nodeName();
-
+            // 文档之间按创建时间倒序，最近创建的排在最上面。
             QDateTime lTime = lValue->proxyData()->documentDate();
             QDateTime rTime = rValue->proxyData()->documentDate();
 
@@ -139,14 +139,13 @@ void DocumentReplaceDialog::reject() {
 }
 
 void DocumentReplaceDialog::reactOnTextChanged(const QString &pStr) {
-    //     if !mFileNameList.contains(pStr.trimmed(), Qt::CaseSensitive)
-
     if (!validString(pStr)) {
         acceptButton->setEnabled(false);
         mLineEdit->setStyleSheet("background:#FFB3C8;");
         acceptButton->setEnabled(false);
 
     } else if (mFileNameList.contains(pStr.trimmed(), Qt::CaseSensitive)) {
+        // 同级已有同名文档：允许确认，但语义改为“替换”，用红底提示风险。
         acceptButton->setEnabled(true);
         mLineEdit->setStyleSheet("background:#FFB3C8;");
         acceptButton->setText(replaceText);
@@ -213,7 +212,8 @@ DocumentTreeNode *DocumentTreeNode::clone() {
 QString DocumentTreeNode::dirPathInHierarchy() {
     QString result;
     DocumentTreeNode *curNode = this;
-    //protect the 2nd level items
+    // 只拼接第二层以下的目录名：顶层是“我的文档/回收站”这类固定入口，
+    // 它们不参与文档的分组路径，否则虚拟路径会多出一段。
     while (curNode->parentNode() && !curNode->isTopLevel()) {
         result.prepend(curNode->parentNode()->nodeName() + "/");
         curNode = curNode->parentNode();
@@ -289,8 +289,6 @@ DocumentTreeModel::DocumentTreeModel(QObject *parent) : QAbstractItemModel(paren
     DocumentTreeNode *myDocsNode = new DocumentTreeNode(
         DocumentTreeNode::Catalog, PersistenceManager::myDocumentsName, tr("My documents"));
     rootNode->addChild(myDocsNode);
-    //DocumentTreeNode *modelsNode = new DocumentTreeNode(DocumentTreeNode::Catalog, PersistenceManager::modelsName, tr("Models"));
-    //rootNode->addChild(modelsNode);
     DocumentTreeNode *trashNode = new DocumentTreeNode(DocumentTreeNode::Catalog, trashName, tr("Trash"));
     rootNode->addChild(trashNode);
 
@@ -307,6 +305,7 @@ QModelIndex DocumentTreeModel::index(int row, int column, const QModelIndex &par
         return QModelIndex();
     }
 
+    // 无效父索引代表根节点；据此定位第 row 个子节点，并把节点指针作为 internalPointer。
     DocumentTreeNode *nodeParent = nodeFromIndex(parent);
     if (!nodeParent || row > nodeParent->children().count() - 1) {
         return QModelIndex();
@@ -333,6 +332,7 @@ QModelIndex DocumentTreeModel::parent(const QModelIndex &child) const {
         return QModelIndex();
     }
 
+    // 根节点本身不暴露给视图：父节点是根时返回无效索引，使两个固定入口成为顶层。
     DocumentTreeNode *nodePreParent = nodeParent->parentNode();
     if (!nodePreParent) {
         return QModelIndex();
@@ -590,7 +590,6 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
             return false;
         }
 
-        //        int count = 0;
         int total = mimeValue->items().size();
 
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -659,6 +658,8 @@ bool DocumentTreeModel::removeRows(int row, int count, const QModelIndex &parent
         DocumentTreeNode *curChildNode = parentNode->children().at(i);
         QModelIndex curChildIndex = parent.sibling(i, 0);
         if (curChildNode) {
+            // 先自底向上清空子树，保证每个被删节点都在模型的 begin/endRemoveRows 范围内；
+            // 注意每删一个子节点，剩余兄弟的行号会前移。
             if (rowCount(curChildIndex)) {
                 while (rowCount(curChildIndex)) {
                     removeRows(0, 1, curChildIndex);
@@ -750,13 +751,12 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
         return QModelIndex();
     }
 
-    //beginInsertRows(newParent, rowCount(newParent), rowCount(newParent));
-
     DocumentTreeNode *clonedNodeSource = 0;
     switch (static_cast<int>(pMode)) {
         case aReference:
+            // 按引用复制：只克隆节点与代理的元数据，底层页面数据仍指向同一目录。
             clonedNodeSource = nodeSource->clone();
-            if (mNewDocuments.contains(nodeSource->proxyData())) { //update references for session documents
+            if (mNewDocuments.contains(nodeSource->proxyData())) { // 新文档的引用关系也要一并迁移
                 mNewDocuments << clonedNodeSource->proxyData();
 
                 PersistenceManager::persistenceManager()->reassignDocProxy(clonedNodeSource->proxyData(),
@@ -765,6 +765,7 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
             break;
 
         case aContentCopy:
+            // 按内容复制：让持久化层真正复制一份文档目录，再给新代理盖新的更新时间。
             DocumentProxy *duplicatedProxy = 0;
             if (nodeSource->nodeType() == DocumentTreeNode::Document && nodeSource->proxyData()) {
                 duplicatedProxy =
@@ -778,7 +779,8 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
             break;
     }
 
-    // Determine whether to provide a name with postfix if the name in current level already exists
+    // 复制到同一层级或按内容复制时，同级可能出现重名，需要补数字后缀；
+    // 移入回收站则保留原名，避免用户在回收站里看到一堆“副本”。
     QString newName = clonedNodeSource->nodeName();
     if ((source.parent() != newParent || pMode != aReference) &&
         (newParent != trashIndex() || !inTrash(newParent))) {
@@ -794,10 +796,10 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
     }
 
     addNode(clonedNodeSource, newParent);
-    //endInsertRows();
 
     QPersistentModelIndex newParentIndex = createIndex(rowCount(newParent), 0, clonedNodeSource);
 
+    // 目录复制要递归处理整棵子树，让每个后代都按同一模式重新挂载。
     if (rowCount(source)) {
         for (int i = 0; i < rowCount(source); i++) {
             QModelIndex curNewParentIndexChild = source.sibling(i, 0);
@@ -862,8 +864,8 @@ QModelIndex DocumentTreeModel::indexForProxy(DocumentProxy *pSearch) const {
 }
 
 void DocumentTreeModel::setRootNode(DocumentTreeNode *pRoot) {
+    // 所有权随指针转移；这里不调用 reset()，因为构造期视图尚未挂到模型上。
     mRootNode = pRoot;
-    //reset();
 }
 
 DocumentProxy *DocumentTreeModel::proxyForIndex(const QModelIndex &pIndex) const {
@@ -878,7 +880,7 @@ DocumentProxy *DocumentTreeModel::proxyForIndex(const QModelIndex &pIndex) const
 QString DocumentTreeModel::virtualDirForIndex(const QModelIndex &pIndex) const {
     QString result;
     DocumentTreeNode *curNode = nodeFromIndex(pIndex);
-    //protect the 2nd level items
+    // 与 DocumentTreeNode::dirPathInHierarchy 一样，跳过顶层固定入口，只保留用户目录层级。
     while (curNode->parentNode() && !curNode->isTopLevel()) {
         result.prepend(curNode->parentNode()->nodeName() + "/");
         curNode = curNode->parentNode();
@@ -1014,6 +1016,9 @@ void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newN
 
     DocumentTreeNode *indexNode = nodeFromIndex(index);
 
+    // 目录重命名时，需要把新的虚拟路径同步给所有子孙。这里借用内部分隔符
+    // “+!##s”把“目录路径 + 子项名”拼成一个字符串传给递归调用，避免为此增加额外参数；
+    // 用户输入中的 '/' 会先被替换成 '-'，防止目录名破坏层级。
     QString magicSeparator = "+!##s";
     if (isCatalog(index)) {
         QString fullNewName = newName;
@@ -1033,6 +1038,8 @@ void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newN
 
         int prefixIndex = newName.lastIndexOf(magicSeparator);
         if (prefixIndex != -1) {
+            // 带分隔符说明这是目录重命名递归下来的结果：只更新文档的分组路径，
+            // 文档自身名称由分隔符后的最后一段保持不变。
             QString newDocumentGroupName = newName.left(prefixIndex).replace(magicSeparator, "/");
             indexNode->proxyData()->setMetaData(Settings::documentGroupName, newDocumentGroupName);
         } else {
@@ -1056,7 +1063,7 @@ QString DocumentTreeModel::adjustNameForParentIndex(const QString &pName, const 
 }
 
 void DocumentTreeModel::fixNodeName(const QModelIndex &source, const QModelIndex &dest) {
-    // Determine whether to provide a name with postfix if the name in current level allready exists
+    // 跨层移动后目标层可能已有同名条目，需要补后缀；移入回收站时保留原名。
     DocumentTreeNode *srcNode = nodeFromIndex(source);
     Q_ASSERT(srcNode);
 
@@ -1111,6 +1118,8 @@ QModelIndex DocumentTreeModel::addNode(DocumentTreeNode *pFreeNode, const QModel
     }
     int newIndex =
         pMode == aDetectPosition ? positionForParent(pFreeNode, tstParent) : tstParent->children().size();
+    // 视图正在监听模型，插入必须包在 begin/endInsertRows 之间，
+    // 否则代理模型无法维护行映射，后续索引会全部错位。
     beginInsertRows(pParent, newIndex, newIndex);
     tstParent->insertChild(newIndex, pFreeNode);
     endInsertRows();
@@ -1125,6 +1134,7 @@ int DocumentTreeModel::positionForParent(DocumentTreeNode *pFreeNode, DocumentTr
 
     int c = -1;
     int childCount = pParentNode->children().count();
+    // 找到第一个“比新节点大”的现有子节点位置；都不大于则追加到末尾。
     while (c <= childCount) {
         if (++c == childCount || lessThan(pFreeNode, pParentNode->children().at(c))) {
             break;
@@ -1147,6 +1157,7 @@ bool DocumentTreeModel::nodeLessThan(const DocumentTreeNode *firstIndex,
 }
 
 DocumentTreeModel::~DocumentTreeModel() {
+    // 整棵树（含各节点的 DocumentProxy）由根节点递归释放。
     delete mRootNode;
 }
 
@@ -1274,9 +1285,6 @@ void DocumentTreeView::dropEvent(QDropEvent *event) {
     QModelIndex targetIndex = mapIndexToSource(indexAt(event->pos()));
     QModelIndexList dropIndex = mapIndexesToSource(selectedIndexes());
 
-    //clear the selection right after
-    //selectionModel()->clearSelection();
-
     bool isBoardPage = event->mimeData()->hasFormat(Application::mimeTypeBoardPage);
 
     bool targetIsInTrash = docModel->inTrash(targetIndex) || docModel->trashIndex() == targetIndex;
@@ -1300,6 +1308,8 @@ void DocumentTreeView::dropEvent(QDropEvent *event) {
         int total = mimeValue->items().size();
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
+        // 页面拖到某份文档上：逐页深拷贝场景，并把场景引用的相对文件一并复制过去，
+        // 然后按当前页数追加到目标文档末尾。
         foreach (MimeDataItem sourceItem, mimeValue->items()) {
             DocumentProxy *fromProxy = sourceItem.documentProxy();
             int fromIndex = sourceItem.sceneIndex();
@@ -1317,6 +1327,8 @@ void DocumentTreeView::dropEvent(QDropEvent *event) {
 
                 DocumentProxy *targetDocProxy = docModel->proxyForIndex(targetIndex);
 
+                // 场景里的图片/音视频是相对路径，必须随场景一起搬到目标文档目录，
+                // 否则复制出的页会丢资源。
                 foreach (QUrl relativeFile, scene->relativeDependencies()) {
                     QString source = scene->document()->persistencePath() + "/" + relativeFile.toString();
                     QString target = targetDocProxy->persistencePath() + "/" + relativeFile.toString();
@@ -1364,6 +1376,7 @@ void DocumentTreeView::dropEvent(QDropEvent *event) {
 
     } else {
         if (targetIsInTrash) {
+            // 拖到回收站等同删除，先确认；确认后走与删除命令相同的移入回收站流程。
             if (!Application::mainWindow->yesNoQuestion(
                     tr("Remove Item"), tr("Are you sure you want to remove the selected item(s) ?")))
                 return;
@@ -1442,8 +1455,9 @@ DocumentTreeItemDelegate::DocumentTreeItemDelegate(QObject *parent) : QStyledIte
 void DocumentTreeItemDelegate::commitAndCloseEditor() {
     QLineEdit *lineEditor = qobject_cast<QLineEdit *>(sender());
     if (lineEditor) {
+        // 重命名后文档可能改变排序位置，提交数据后请求控制器重新排序；
+        // 编辑器本身由视图在 commitData 后关闭，这里不重复发 closeEditor。
         emit commitData(lineEditor);
-        //emit closeEditor(lineEditor);
         emit Application::documentController->reorderDocumentsRequested();
     }
 }
@@ -1484,7 +1498,7 @@ QWidget *DocumentTreeItemDelegate::createEditor(QWidget *parent, const QStyleOpt
         return nameEditor;
     }
 
-    //N/C - NNe - 20140407 : the other column are not editable.
+    // 只有名称列可编辑，日期列不提供编辑器。
     return 0;
 }
 
@@ -1533,8 +1547,8 @@ DocumentController::DocumentController(MainWindow *mainWindow)
 }
 
 DocumentController::~DocumentController() {
-    // mDocumentsView belongs to the widget tree rooted at mDocumentWidget;
-    // Qt destroys it together with that container.
+    // mDocumentsView 挂在 mDocumentWidget 的控件树里，随该容器一起由 Qt 销毁，
+    // 这里不能再次 delete。
 }
 
 void DocumentController::createNewDocument() {
@@ -1570,7 +1584,7 @@ void DocumentController::selectDocument(DocumentProxy *proxy, bool setAsCurrentD
 
         if (proxy !=
             mBoardController
-                ->selectedDocument()) // only if wanted Document is different from document actually on Board,
+                ->selectedDocument()) // 只有目标文档与画板上那份不同才重新装载，避免把当前文档再读一遍
         {
             mBoardController->setActiveDocumentScene(proxy, 0, true, onImport);
         }
@@ -1628,8 +1642,8 @@ void DocumentController::TreeViewSelectionChanged(const QModelIndex &current, co
 
     QModelIndex current_index = mapIndexToSource(current);
 
-    //if the selection contains more than one object, don't show the thumbnail.
-    //We have just to pass a null proxy to disable the display of thumbnail
+    // 多选时不显示任何页面的缩略图：把代理留空即可让缩略图区清空，
+    // 避免用户误以为当前显示的页面属于整个选择。
     DocumentProxy *currentDocumentProxy = 0;
 
     if (current_index.isValid() &&
@@ -1687,7 +1701,8 @@ void DocumentController::TreeViewSelectionChanged(const QItemSelection &selected
     if (nbIndexes) {
         QModelIndexList list = mDocumentsView->documentTreeView()->selectionModel()->selectedRows();
 
-        //if multi-selection
+        // 多选时逐项处理；若某项的祖先也在选择中则跳过，
+        // 因为祖先项的处理已经覆盖整棵子树。
         if (list.count() > 1) {
             for (int i = 0; i < list.count(); i++) {
                 QModelIndex newSelectedRow = list.at(i);
@@ -1725,10 +1740,8 @@ void DocumentController::setupViews() {
         mDocumentWidget = new QWidget(mMainWindow->centralWidget());
         mMainWindow->addDocumentsWidget(mDocumentWidget);
 
-        // documents.ui used to be replayed onto mDocumentWidget itself by
-        // Ui::documents::setupUi(). The hand written form is now a widget of its own
-        // living inside that container, so a margin-less layout makes it fill the
-        // container exactly like the generated grid layout did.
+        // documents.ui 曾由 Ui::documents::setupUi() 直接铺在 mDocumentWidget 上；
+        // 现在手写表单是独立控件，套一层无边距布局让它像原来的网格布局一样填满容器。
         QVBoxLayout *documentWidgetLayout = new QVBoxLayout(mDocumentWidget);
         documentWidgetLayout->setSpacing(0);
         documentWidgetLayout->setContentsMargins(0, 0, 0, 0);
@@ -1820,11 +1833,11 @@ void DocumentController::setupViews() {
 
         mSortFilterProxyModel->setSourceModel(model);
 
-        // sort documents according to preferences
+        // 排序依据与方向来自用户设置，界面控件也要回填成同样的状态。
         int sortKind = Settings::settings()->documentSortKind->get().toInt();
         int sortOrder = Settings::settings()->documentSortOrder->get().toInt();
 
-        // update icon and button
+        // 下拉框与排序按钮反映当前设置，避免首次打开时界面与真实排序不一致。
         mDocumentsView->sortKind()->setCurrentIndex(sortKind);
         if (sortOrder == DocumentController::DESC)
             mDocumentsView->sortOrder()->setChecked(true);
@@ -1848,7 +1861,7 @@ void DocumentController::setupViews() {
         splitterSizes.append(splitterRightSize);
         mDocumentsView->splitter()->setSizes(splitterSizes);
 
-        //mDocumentsView->documentTreeView()->hideColumn(1);
+        // 日期列按排序方式只显示其中一列；第 1 列创建日期、第 2 列更新日期。
         mDocumentsView->documentTreeView()->hideColumn(2);
 
         sortDocuments(sortKind, sortOrder);
@@ -1992,7 +2005,7 @@ void DocumentController::setupPalettes() {
 void DocumentController::show() {
     selectDocument(mBoardController->selectedDocument());
 
-    //to be sure thumbnails will be up-to-date
+    // 看板可能在文档模式不可见期间改过页面，重新加载一次保证缩略图与磁盘一致。
     reloadThumbnails();
 
     updateActions();
@@ -2003,7 +2016,7 @@ void DocumentController::show() {
 
 
 void DocumentController::hide() {
-    // NOOP
+    // 离开文档模式不需要额外处理：缩略图与选择状态保留，下次 show() 会刷新。
 }
 
 
@@ -2218,6 +2231,7 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
             if (currentIndex ==
                 docModel->myDocumentsIndex()) { //清空“我的文档”：所有条目移入回收站，随后补一个空白文档
                 int startInd = 0;
+                // 每次总删第 0 行：移走一项后后面的行号自动前移，直到目录为空。
                 while (docModel->rowCount(currentIndex)) {
                     QModelIndex testSubINdecurrentIndex = docModel->index(startInd, 0, currentIndex);
                     if (!testSubINdecurrentIndex.isValid()) {
@@ -2225,15 +2239,15 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
                     }
                     docModel->moveIndex(testSubINdecurrentIndex, docModel->trashIndex());
                 }
-                //Here, we are sure that the current scene has been deleted
+                // 走到这里说明当前场景已被移走，补一份空白文档让看板有内容可显示。
                 createEmptyDocument();
             } else {
-                //Check if we will delete the current scene
+                // 先判断当前场景是否位于将被清空的目录里，清空后需要新建空白文档顶替。
                 DocumentTreeNode *currentNode = docModel->nodeFromIndex(currentIndex);
                 bool deleteCurrentScene =
                     currentNode->findNode(docModel->nodeFromIndex(docModel->currentIndex()));
 
-                emptyFolder(currentIndex, MoveToTrash); //Empty constant folder
+                emptyFolder(currentIndex, MoveToTrash); //清空普通目录：内容移入回收站
 
                 if (deleteCurrentScene)
                     createEmptyDocument();
@@ -2251,11 +2265,11 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
 void DocumentController::moveIndexesToTrash(const QModelIndexList &list, DocumentTreeModel *docModel) {
     QModelIndex currentScene = docModel->indexForNode(docModel->currentNode());
 
-    //check if the current scene is selected
+    // 判断当前文档是否在待移走的集合里：先看它自身是否被选中，
+    // 再看它是否位于某个被选中的目录之下。
     QItemSelectionModel *selectionModel = mDocumentsView->documentTreeView()->selectionModel();
     bool deleteCurrentScene = selectionModel->isSelected(mSortFilterProxyModel->mapFromSource(currentScene));
 
-    //check if the current scene is in the hierarchy
     if (!deleteCurrentScene) {
         for (int i = 0; i < list.size(); i++) {
             deleteCurrentScene = docModel->isDescendantOf(currentScene, list.at(i));
@@ -2304,10 +2318,9 @@ void DocumentController::moveIndexesToTrash(const QModelIndexList &list, Documen
     docModel->moveIndexes(list, docModel->trashIndex());
 
     if (deleteCurrentScene) {
+        // 当前文档已被移入回收站且没有可回落的兄弟项，补一份空白文档。
         createEmptyDocument();
     }
-
-    //selectionModel->clearSelection();
 }
 
 QModelIndex DocumentController::findPreviousSiblingNotSelected(const QModelIndex &index,
@@ -2327,7 +2340,7 @@ QModelIndex DocumentController::findPreviousSiblingNotSelected(const QModelIndex
             return findPreviousSiblingNotSelected(sibling, selectionModel);
         }
     } else {
-        //if the parent exist keep searching, else stop the search
+        // 没有上一个兄弟项时退到父级继续查找，直到顶层；父级无效说明已经找遍。
         QModelIndex parent = index.model()->parent(index);
 
         if (parent.isValid()) {
@@ -2355,7 +2368,7 @@ QModelIndex DocumentController::findNextSiblingNotSelected(const QModelIndex &in
             return findNextSiblingNotSelected(sibling, selectionModel);
         }
     } else {
-        //if the parent exist keep searching, else stop the search
+        // 没有下一个兄弟项时退到父级继续查找，直到顶层；父级无效说明已经找遍。
         QModelIndex parent = index.parent();
 
         if (parent.isValid()) {
@@ -2433,16 +2446,13 @@ void DocumentController::deleteEmptyFolders(const QModelIndex &index) {
 }
 
 void DocumentController::emptyFolder(const QModelIndex &index, DeletionType pDeletionType) {
-    // Issue NC - CFA - 20131029 : ajout d'une popup de confirmation pour la suppression definitive
-    //    if(pDeletionType == CompleteDelete && !Application::mainWindow->yesNoQuestion(tr("Empty the trash"),tr("You're about to empty the trash.") +"\n\n" + tr("Are you sure ?")))
-    //        return;
-
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
     if (!docModel->isCatalog(index)) {
         return;
     }
+    // 始终删除第 0 行：每移走/删掉一项，剩余条目的行号都会前移，直到目录清空。
     while (docModel->rowCount(index)) {
         QModelIndex subIndex = docModel->index(0, 0, index);
         switch (pDeletionType) {
@@ -2459,11 +2469,11 @@ void DocumentController::emptyFolder(const QModelIndex &index, DeletionType pDel
     }
 
     QApplication::restoreOverrideCursor();
-    // Fin issue NC - CFA - 20131029
 }
 
 void DocumentController::deleteIndexAndAssociatedData(const QModelIndex &pIndex) {
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+    // 自底向上删除：先清空子树，保证删除目录时其下每份文档都走到 deleteDocument。
     while (docModel->rowCount(pIndex)) {
         QModelIndex subIndex = docModel->index(0, 0, pIndex);
         deleteIndexAndAssociatedData(subIndex);
@@ -2596,8 +2606,8 @@ void DocumentController::addFileToDocument() {
 }
 
 DocumentProxyTreeItem *DocumentController::findDocument(DocumentProxy *proxy) {
+    // 旧树条目类型已不在文档视图中使用，这里保留选中行为并返回空。
     selectDocument(proxy);
-    //DocumentProxyTreeItem* ppp = dynamic_cast<DocumentProxyTreeItem*>(proxy);
     return NULL;
 }
 
@@ -2617,7 +2627,7 @@ bool DocumentController::addFileToDocument(DocumentProxy *document) {
 
     if (filePath.length() > 0) {
         QApplication::
-            processEvents(); // NOTE: We performed this just a few lines before. Is it really necessary to do it again here??
+            processEvents(); // 前面几行刚 processEvents 过一次，这里是否真有必要再来一次没把握；先保持原样?
         QFile selectedFile(filePath);
 
         showMessage(tr("Importing file %1...").arg(fileInfo.baseName()), true);
@@ -2783,7 +2793,6 @@ void DocumentController::renameSelectedItem() {
 }
 
 bool DocumentController::isOKToOpenDocument(DocumentProxy *proxy) {
-    //check version
     QString docVersion = proxy->metaData(Settings::documentVersion).toString();
 
     // 这里曾经写死一份 "1.1"/"1.2" 白名单，而读写器早就在往每个文档盖 4.8.0，
@@ -2918,7 +2927,7 @@ void DocumentController::updateActions() {
 
     QModelIndexList list = mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0);
 
-    //if in multi selection, juste activate the actionDelete
+    // 多选时只保留“删除”可用：重命名、复制、导出等操作都需要唯一目标。
     if (list.count() > 1) {
         mMainWindow->ui().actionNewDocument->setEnabled(false);
         mMainWindow->ui().actionNewFolder->setEnabled(false);
@@ -3047,8 +3056,7 @@ void DocumentController::currentIndexMoved(const QModelIndex &newIndex, const QM
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
     DocumentProxy *newProxy = docModel->proxyData(newIndex);
     if (newProxy) {
-        DocumentProxy *cp =
-            new DocumentProxy(*newProxy); // we cannot use newProxy because it will be destroyed later
+        DocumentProxy *cp = new DocumentProxy(*newProxy); // 不能直接交 newProxy：模型随后销毁它，必须先拷一份
         pureSetDocument(cp);
         mBoardController->pureSetDocument(cp);
         mBoardController->pureSetDocument(newProxy);
@@ -3165,12 +3173,12 @@ bool DocumentController::firstAndOnlySceneSelected() const {
         SceneThumbnailPixmap *p = dynamic_cast<SceneThumbnailPixmap *>(selection.at(i));
         if (p) {
             int pageCount = p->proxy()->pageCount();
-            if (pageCount > 1) //not the only scene
+            if (pageCount > 1) // 页数大于 1 就不算“唯一的一页”
             {
                 return false;
             } else {
                 if (p->sceneIndex() == 0) {
-                    return true; //the first and only scene
+                    return true; // 只有一页且就是第 0 页
                 }
             }
         }
@@ -3210,7 +3218,7 @@ void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *) {
         for (int i = 0; i < currentDocumentProxy->pageCount(); i++) {
             const QPixmap *pix = thumbs.at(i);
             QGraphicsPixmapItem *pixmapItem =
-                new SceneThumbnailPixmap(*pix, currentDocumentProxy, i); // deleted by the tree widget
+                new SceneThumbnailPixmap(*pix, currentDocumentProxy, i); // 归场景（缩略图视图）所有，由它销毁
 
             if (currentDocumentProxy == mBoardController->selectedDocument() &&
                 mBoardController->activeSceneIndex() == i) {
@@ -3273,7 +3281,7 @@ void DocumentController::createEmptyDocument() {
 }
 
 void DocumentController::collapseAll() {
-    //disable the animations because the view port will be in a invalid state
+    // 折叠期间关闭动画：动画会访问即将失效的 viewport 状态，在大量条目上容易出问题。
     mDocumentsView->documentTreeView()->setAnimated(false);
 
     mDocumentsView->documentTreeView()->collapseAll();

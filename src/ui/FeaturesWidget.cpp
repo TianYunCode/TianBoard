@@ -116,13 +116,13 @@ FeaturesWidget::FeaturesWidget(QWidget *parent, const char *name)
     setIconToRight(QPixmap(":images/general_close.png"));
     setAcceptDrops(true);
 
-    //Main Feature functionality
+    // 资源库主控制器，随面板一起创建
     d->controller = new FeaturesController(this);
 
-    //Main layout including all the widgets in palette
+    // 面板总布局
     d->layout = new QVBoxLayout(this);
 
-    //Path icon view on the top of the palette
+    // 顶部路径面包屑
     d->pathListView = new FeaturesListView(this, objNamePathList);
     d->controller->assignPathListView(d->pathListView);
 
@@ -130,10 +130,9 @@ FeaturesWidget::FeaturesWidget(QWidget *parent, const char *name)
     d->controller->assignFeaturesListView(d->centralWidget->listView());
     d->centralWidget->setSliderPosition(Settings::settings()->featureSliderPosition->get().toInt());
 
-    //Bottom actionbar for DnD, quick search etc
+    // 底部动作条，负责拖放与快速搜索
     d->mActionBar = new FeaturesActionBar(d->controller, this);
 
-    //Filling main layout
     d->layout->addWidget(d->pathListView);
     d->layout->addWidget(d->centralWidget);
     d->layout->addWidget(d->mActionBar);
@@ -201,7 +200,7 @@ void FeaturesWidget::currentSelected(const QModelIndex &current) {
     if (objName.isEmpty()) {
         qWarning() << "incorrect sender";
     } else if (objName == objNamePathList) {
-        //Calling to reset the model for listView. Maybe separate function needed
+        // 点击路径面包屑相当于清空搜索并切回该位置。
         d->controller->searchStarted("", d->centralWidget->listView());
     }
 
@@ -225,8 +224,8 @@ void FeaturesWidget::currentSelected(const QModelIndex &current) {
             d->mActionBar->setCurrentState(IN_TRASH);
 
         } else if (feature.getType() == FEATURE_SEARCH) {
-            //The search feature behavior is not standard. If features list clicked - show empty element
-            //else show existing saved features search QWebEngineView
+            // 搜索条目的行为与其他条目不同：点击列表里的搜索条目显示空白元素，
+            // 点击路径列表里的搜索条目则切到已保存的搜索网页视图。
             if (sender()->objectName() == objNameFeatureList) {
                 d->centralWidget->showElement(feature, FeaturesCentralWidget::FeaturesWebView);
             } else if (sender()->objectName() == objNamePathList) {
@@ -236,10 +235,6 @@ void FeaturesWidget::currentSelected(const QModelIndex &current) {
         } else {
             d->mActionBar->setCurrentState(IN_FOLDER);
         }
-
-        //    } else if (feature.getType() == FEATURE_SEARCH) {
-        //        centralWidget->showElement(feature, FeaturesCentralWidget::FeaturesWebView);
-
     }
 
     else if (Settings::settings()->libraryShowDetailsForLocalItems->get().toBool() == true) {
@@ -330,8 +325,7 @@ void FeaturesWidget::removeFromFavorite(const FeaturesMimeData *mimeData) {
 void FeaturesWidget::onDisplayMetadata(QMap<QString, QString> metadata) {
     QString previewImageUrl = ":images/libpalette/notFound.png";
 
-    QString widgetsUrl =
-        QUrl::fromEncoded(metadata["Url"].toLatin1()).toString() /*metadata.value("Url", QString())*/;
+    QString widgetsUrl = QUrl::fromEncoded(metadata["Url"].toLatin1()).toString();
     QString widgetsThumbsUrl = QUrl::fromEncoded(metadata["thumbnailUrl"].toLatin1()).toString();
 
     QString strType = FileSystemUtils::mimeTypeFromFileName(widgetsUrl);
@@ -339,6 +333,7 @@ void FeaturesWidget::onDisplayMetadata(QMap<QString, QString> metadata) {
 
     switch (static_cast<int>(thumbType)) {
         case MimeType::Audio:
+            // 音视频没有缩略图时用固定图标占位。
             previewImageUrl = ":images/libpalette/soundIcon.svg";
             break;
 
@@ -362,7 +357,7 @@ void FeaturesWidget::onDisplayMetadata(QMap<QString, QString> metadata) {
                     &FeaturesWidget::onPreviewLoaded);
         }
 
-        // We send here the request and store its reply in order to be able to cancel it if needed
+        // 抓取期间先显示加载占位图，下载完成后由 onPreviewLoaded() 替换。
         d->imageGatherer->get(QUrl(widgetsThumbsUrl), QPoint(0, 0), QSize(), false);
     }
 
@@ -436,22 +431,19 @@ void FeaturesWidget::removeElementsFromFavorite() {
 }
 
 void FeaturesWidget::switchToListView() {
-    //    stackedWidget->setCurrentIndex(ID_LISTVIEW);
-    //    currentStackedWidget = ID_LISTVIEW;
+    // 视图切换已由 FeaturesCentralWidget 负责，这里保留空实现以兼容旧调用点。
 }
 
 void FeaturesWidget::switchToProperties() {
-    //    stackedWidget->setCurrentIndex(ID_PROPERTIES);
-    //    currentStackedWidget = ID_PROPERTIES;
+    // 同上：保留空实现，避免旧调用点失效。
 }
 
 void FeaturesWidget::switchToWebView() {
-    //    stackedWidget->setCurrentIndex(ID_WEBVIEW);
-    //    currentStackedWidget = ID_WEBVIEW;
+    // 同上：保留空实现，避免旧调用点失效。
 }
 
 FeaturesMimeData::FeaturesMimeData() : d(new Private) {
-    // NOOP
+    // 空实现：条目列表由调用方通过 setUrls()/setFeatures() 填充。
 }
 
 FeaturesMimeData::~FeaturesMimeData() = default;
@@ -529,10 +521,10 @@ FeaturesNavigatorWidget::FeaturesNavigatorWidget(QWidget *parent, const char *na
     d->mListView = 0;
     d->mListSlider = 0;
 
+    // 传入的 name 被忽略，固定对象名，方便按名称查找列表。
     name = "FeaturesNavigatorWidget";
 
     setObjectName(name);
-    //    SET_STYLE_SHEET()
 
     d->mListView = new FeaturesListView(this, FeaturesWidget::objNameFeatureList);
 
@@ -568,22 +560,18 @@ FeaturesCentralWidget::FeaturesCentralWidget(QWidget *parent) : QWidget(parent),
     QVBoxLayout *mLayout = new QVBoxLayout(this);
     setLayout(mLayout);
 
-    //Maintains the view of the main part of the palette. Consists of
-    //mNavigator
-    //featureProperties
-    //webVeiw
+    // 中央区域按页面切换：主列表、属性页、网页视图
     d->mStackedWidget = new QStackedWidget(this);
 
-    //Main features icon view with QSlider on the bottom
+    // 主列表，底部带缩略图尺寸滑块
     d->mNavigator = new FeaturesNavigatorWidget(this);
 
-    //Specifies the properties of a standalone element
+    // 单个条目的属性页
     d->mFeatureProperties = new FeatureProperties(this);
 
-    //Used to show search bar on the search widget
+    // 搜索等网页内容
     d->webView = new FeaturesWebWidget(this);
 
-    //filling stackwidget
     d->mStackedWidget->addWidget(d->mNavigator);
     d->mStackedWidget->addWidget(d->mFeatureProperties);
     d->mStackedWidget->addWidget(d->webView);
@@ -594,7 +582,7 @@ FeaturesCentralWidget::FeaturesCentralWidget(QWidget *parent) : QWidget(parent),
     d->mAdditionalDataContainer = new QStackedWidget(this);
     d->mAdditionalDataContainer->setObjectName("mAdditionalDataContainer");
 
-    //New folder dialog
+    // 新建文件夹输入区
     FeaturesNewFolderDialog *dlg = new FeaturesNewFolderDialog(d->mAdditionalDataContainer);
     d->mAdditionalDataContainer->addWidget(dlg);
     d->mAdditionalDataContainer->setCurrentIndex(NewFolderDialog);
@@ -604,7 +592,7 @@ FeaturesCentralWidget::FeaturesCentralWidget(QWidget *parent) : QWidget(parent),
     connect(dlg, &FeaturesNewFolderDialog::closeDialog, this, &FeaturesCentralWidget::hideAdditionalData);
     connect(this, &FeaturesCentralWidget::sendFileNameList, dlg, &FeaturesNewFolderDialog::setFileNameList);
 
-    //Progress bar to show scanning progress
+    // 扫描进度区
     FeaturesProgressInfo *progressBar = new FeaturesProgressInfo();
     d->mAdditionalDataContainer->addWidget(progressBar);
     d->mAdditionalDataContainer->setCurrentIndex(ProgressBarWidget);
@@ -677,7 +665,7 @@ void FeaturesCentralWidget::showAdditionalData(AddWidget pWidgetType, AddWidgetS
 }
 
 void FeaturesCentralWidget::setLockedExcludingAdditional(bool pLock) {
-    //    Lock all the members excluding mAdditionalDataContainer
+    // 只锁主视图，附加信息区（对话框/进度条）仍需可交互。
     d->mStackedWidget->setEnabled(!pLock);
 }
 
@@ -750,7 +738,8 @@ bool FeaturesNewFolderDialog::validString(const QString &pStr) {
 }
 
 void FeaturesNewFolderDialog::accept() {
-    //     Setting all the constraints we need
+    // 名称合法性已由行编辑上的校验器与 reactOnTextChanged() 把关，
+    // 这里只负责把结果发给控制器并清空输入框。
     emit createNewFolder(d->mLineEdit->text());
     d->mLineEdit->clear();
 }
@@ -779,7 +768,7 @@ FeaturesProgressInfo::FeaturesProgressInfo(QWidget *parent) : QWidget(parent), d
     QVBoxLayout *mainLayer = new QVBoxLayout(this);
 
     d->mProgressBar = new QProgressBar(this);
-    //    setting defaults
+    // 进度条的初始区间只是占位，真实总量由扫描信号驱动 setProgressMax() 覆盖。
     d->mProgressBar->setMinimum(0);
     d->mProgressBar->setMaximum(100000);
     d->mProgressBar->setValue(0);
@@ -840,10 +829,7 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget *parent, const char *name) : QWidge
     d->mpWebSettings->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
     d->mpWebSettings->setAttribute(QWebEngineSettings::PluginsEnabled, true);
     d->mpWebSettings->setAttribute(QWebEngineSettings::LocalStorageEnabled, true);
-    //mpWebSettings->setAttribute(QWebEngineSettings::OfflineWebApplicationCacheEnabled, true);
-    //mpWebSettings->setAttribute(QWebEngineSettings::OfflineStorageDatabaseEnabled, true);
     d->mpWebSettings->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
-    //mpWebSettings->setAttribute(QWebEngineSettings::DnsPrefetchEnabled, true);
     d->mpWebSettings->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
 
     d->mpLayout->addWidget(d->mpView);
@@ -903,7 +889,7 @@ FeatureProperties::FeatureProperties(QWidget *parent, const char *name) : QWidge
 
     setObjectName(name);
 
-    // Create the GUI
+    // 属性页控件树：缩略图、操作按钮条、信息标题与两列信息表。
     d->mpLayout = new QVBoxLayout(this);
     setLayout(d->mpLayout);
 
@@ -1134,7 +1120,8 @@ QVariant FeaturesModel::data(const QModelIndex &index, int role) const {
         return d->featuresList->at(index.row()).getVirtualPath();
 
     } else if (role == Qt::UserRole + 1) {
-        //return featuresList->at(index.row()).getType();
+        // 该角色按值交出整个 Feature：mimeData、收藏操作与代理模型都要拿完整条目，
+        // 只回传 getType() 不够用。
         Feature f = d->featuresList->at(index.row());
         return QVariant::fromValue(f);
     }
@@ -1251,7 +1238,6 @@ bool FeaturesModel::removeRows(int row, int count, const QModelIndex &parent) {
     if (row + count > d->featuresList->size())
         return false;
     beginRemoveRows(parent, row, row + count - 1);
-    //featuresList->remove( row, count );
     d->featuresList->erase(d->featuresList->begin() + row, d->featuresList->begin() + row + count);
     endRemoveRows();
     return true;
@@ -1263,7 +1249,6 @@ bool FeaturesModel::removeRow(int row, const QModelIndex &parent) {
     if (row >= d->featuresList->size())
         return false;
     beginRemoveRows(parent, row, row);
-    //featuresList->remove( row );
     d->featuresList->erase(d->featuresList->begin() + row);
     endRemoveRows();
     return true;
@@ -1301,7 +1286,8 @@ void FeaturesModel::moveData(const Feature &source, const Feature &destination,
         }
     }
 
-    //Passing all the source container ubdating dependancy pathes
+    // 源是文件夹时，模型里所有落在它下面的子条目都要跟着改写路径，否则拖完之后
+    // 这些子条目仍指向旧位置。
     if (sourceType == FEATURE_FOLDER) {
         for (int i = 0; i < d->featuresList->count(); i++) {
             Feature &curFeature = (*d->featuresList)[i];
@@ -1313,16 +1299,16 @@ void FeaturesModel::moveData(const Feature &source, const Feature &destination,
                 Feature copyFeature = curFeature;
                 QUrl newPath = QUrl::fromLocalFile(curFeatureFullPath.replace(sourcePath, destFullPath));
                 QString newVirtualPath = curFeatureVirtualPath.replace(sourceVirtualPath, destVirtualPath);
-                //when copying to trash don't change the real path
+                // 移入回收站只改虚拟路径：文件本体仍留在磁盘原处。
                 if (destination.getType() != FEATURE_TRASH) {
-                    // processing copy or move action for real FS
+                    // 真实文件系统路径：复制改副本，移动改原条目。
                     if (action == Qt::CopyAction) {
                         copyFeature.setFullPath(newPath);
                     } else {
                         curFeature.setFullPath(newPath);
                     }
                 }
-                // processing copy or move action for virtual FS
+                // 虚拟路径同理：复制走新条目，移动就地改。
                 if (action == Qt::CopyAction) {
                     copyFeature.setFullVirtualPath(newVirtualPath);
                 } else {
@@ -1344,9 +1330,9 @@ void FeaturesModel::moveData(const Feature &source, const Feature &destination,
         deleteItem(source);
     }
 
-    // Commented because of crashes on mac. But works fine. It is not predictable behavior.
-    // Please uncomment it if model will not refreshes
-    //   emit dataRestructured();.
+    // 此处刻意不发 dataRestructured()：它曾让视图刷新时序变得不可预期（历史上还引发过
+    // 崩溃），而 addItem()/deleteItem() 已经逐行通知过模型。若日后出现列表不刷新，
+    // 再考虑补发。
 }
 
 Qt::ItemFlags FeaturesModel::flags(const QModelIndex &index) const {
@@ -1397,7 +1383,7 @@ bool FeaturesProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
 
 FeaturesSearchProxyModel::FeaturesSearchProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent), d(new Private) {
-    // NOOP
+    // 空实现：过滤前缀由 setFilterPrefix() 在搜索时下发，空前缀相当于不限定目录。
 }
 
 FeaturesSearchProxyModel::~FeaturesSearchProxyModel() = default;
@@ -1420,7 +1406,7 @@ bool FeaturesSearchProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex
 
 FeaturesPathProxyModel::FeaturesPathProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent), d(new Private) {
-    // NOOP
+    // 空实现：待过滤的虚拟路径由 setPath() 在面包屑点击时下发。
 }
 
 FeaturesPathProxyModel::~FeaturesPathProxyModel() = default;
@@ -1433,7 +1419,7 @@ bool FeaturesPathProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
     Feature feature = sourceModel()->data(index, Qt::UserRole + 1).value<Feature>();
 
-    // We want to display parent folders up to and including the current one
+    // 只显示“当前路径的各级父目录 + 当前这一级”，进了子目录就不该再把兄弟目录列出来
     return (feature.isFolder() && (d->path.startsWith(feature.getFullVirtualPath() + "/") ||
                                    d->path == feature.getFullVirtualPath()));
 }
