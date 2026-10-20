@@ -341,6 +341,51 @@ namespace FormatSelfTest
             {
                 failures << QStringLiteral("网格尺寸丢了: 存前 %1 读回 %2").arg(expectedGridSize).arg(reloaded->backgroundGridSize());
             }
+
+            // 第二个循环必须落在同一个点上：累积型误差只看一轮常常看不出来（每存开一次
+            // 就胖一个笔宽的尺子就是这样），再走一轮存读、要求结果与第一轮完全相同。
+            reloaded->setModified(true);
+            PersistenceManager::persistenceManager()->persistDocumentScene(proxy, reloaded, 0);
+
+            const QByteArray pageXmlAgain = SvgSubsetAdaptor::loadSceneAsText(proxy, 0);
+            GraphicsScene   *second       = SvgSubsetAdaptor::loadScene(proxy, pageXmlAgain);
+            if (!second)
+            {
+                failures << QStringLiteral("第二轮读不回场景（%1 字节）").arg(pageXmlAgain.size());
+            }
+            else
+            {
+                const QStringList secondFacts = sceneFacts(second);
+                const QStringList secondOrder = sceneOrder(second);
+
+                if (secondFacts != gotFacts)
+                {
+                    foreach (const QString &line, gotFacts)
+                    {
+                        if (!secondFacts.contains(line))
+                        {
+                            failures << QStringLiteral("第二个循环里变了: %1").arg(line);
+                        }
+                    }
+                    foreach (const QString &line, secondFacts)
+                    {
+                        if (!gotFacts.contains(line))
+                        {
+                            failures << QStringLiteral("第二个循环里多出: %1").arg(line);
+                        }
+                    }
+                }
+                if (secondOrder != gotOrder)
+                {
+                    failures << QStringLiteral("第二个循环里叠放次序变了: %1").arg(secondOrder.join(QStringLiteral(">")));
+                }
+            }
+
+            const QStringList pagesAfterTwo = pageFiles(documentDirectory);
+            if (pagesAfterTwo.size() != 1)
+            {
+                failures << QStringLiteral("两轮存完页文件应有 1 个，实际 %1 个").arg(pagesAfterTwo.size());
+            }
         }
 
         for (const QString &failure : failures)
