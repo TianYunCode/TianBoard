@@ -59,15 +59,14 @@ QVariant GraphicsProxyWidget::itemChange(GraphicsItemChange change, const QVaria
 void GraphicsProxyWidget::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+            QVariant(pUuid)); // 把 UUID 同时存入图形项数据，便于场景快速操作项
 }
 
 void GraphicsProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mousePressEvent(event)) {
-        //NOOP
+        // 有意为空：委托已消费该事件
     } else {
-        // QT Proxy Widget is a bit lazy, we force the selection ...
+        // 代理控件不会主动选中自己，这里强制设为选中
 
         setSelected(true);
     }
@@ -77,7 +76,7 @@ void GraphicsProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void GraphicsProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
-        // NOOP;
+        // 有意为空：委托已消费该事件
     } else {
         QGraphicsProxyWidget::mouseMoveEvent(event);
     }
@@ -86,6 +85,7 @@ void GraphicsProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 
 void GraphicsProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseReleaseEvent(event)) {
+        // 有意为空：委托已消费该事件
     } else
         QGraphicsProxyWidget::mouseReleaseEvent(event);
 }
@@ -99,11 +99,11 @@ void GraphicsProxyWidget::wheelEvent(QGraphicsSceneWheelEvent *event) {
 
 void GraphicsProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     Q_UNUSED(event)
-    //    NOOP
+    // 有意为空：悬停进入无需处理，光标由代理内部控件自行管理
 }
 void GraphicsProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     Q_UNUSED(event)
-    //    NOOP
+    // 有意为空：悬停离开无需处理，光标由代理内部控件自行管理
 }
 
 void GraphicsProxyWidget::resize(qreal w, qreal h) {

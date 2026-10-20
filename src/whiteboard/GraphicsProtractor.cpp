@@ -50,7 +50,7 @@ GraphicsProtractor::GraphicsProtractor()
     mRotateSvgItem->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::CppTool)); //Necessary to set if we want z value to be assigned correctly
+            QVariant(itemLayerType::CppTool)); // 必须设置：场景按图层类型分配 z 值
     setFlag(QGraphicsItem::ItemIsSelectable, false);
 
     mCloseSvgItem->setPos(closeButtonRect().topLeft());
@@ -69,7 +69,7 @@ void GraphicsProtractor::paint(QPainter *painter, const QStyleOptionGraphicsItem
     Q_UNUSED(widget);
 
     QPen pen_(drawColor());
-    pen_.setWidth(0); // Line width = 1 pixel regardless of scale / zoom
+    pen_.setWidth(0); // 线宽恒为 1 像素，不随缩放变化
     painter->setPen(pen_);
 
     painter->setFont(QFont("Arial", 11));
@@ -311,9 +311,8 @@ QRectF GraphicsProtractor::resetButtonRect() const {
 
     return QRectF(-refWidth * 7, -height / 2.0, width, height);
 
-    // Note: these hardcoded position values make it impossible
-    // to use setScale() on the buttons without affecting their
-    // relative position on the tool.
+    // 注意：这些硬编码的位置值导致无法对按钮调用 setScale()
+    // 而不影响它们在工具上的相对位置。
 }
 
 
@@ -360,7 +359,7 @@ void GraphicsProtractor::paintGraduations(QPainter *painter) {
 
     QFontMetricsF fm1(font1);
 
-    //Font for internal arc
+    // 内弧刻度数字用的字体
     QFont font2 = painter->font();
     font2.setPointSizeF(font1.pointSizeF() / 1.5);
     QFontMetricsF fm2(font2);
@@ -382,17 +381,17 @@ void GraphicsProtractor::paintGraduations(QPainter *painter) {
                                      QPointF(center.x() + co * tenDegreeGraduationLength,
                                              center.y() - si * tenDegreeGraduationLength)));
 
-        //external arc
+        // 外弧刻度线
         painter->drawLine(QLineF(
             QPointF(center.x() + rad * co, center.y() - rad * si),
             QPointF(center.x() + (rad - graduationLength) * co, center.y() - (rad - graduationLength) * si)));
-        //internal arc
+        // 内弧刻度线
         painter->drawLine(QLineF(QPointF(center.x() + rad / 2 * co, center.y() - rad / 2 * si),
                                  QPointF(center.x() + (rad / 2 + graduationLength) * co,
                                          center.y() - (rad / 2 + graduationLength) * si)));
 
         if (0 == angle % 10) {
-            //external arc
+            // 外弧刻度数字
             painter->setFont(font1);
             QString grad = QString("%1").arg((int)(angle));
             QString grad2 = QString("%1").arg((int)(mSpan - angle));
@@ -403,7 +402,7 @@ void GraphicsProtractor::paintGraduations(QPainter *painter) {
                        fm1.horizontalAdvance(grad), fm1.height()),
                 Qt::AlignTop, grad);
 
-            //internal arc
+            // 内弧刻度数字
             painter->setFont(font2);
             painter->drawText(QRectF(center.x() + (rad / 2 + graduationLength * 1.5) * co -
                                          fm2.horizontalAdvance(grad2) / 2,
@@ -422,10 +421,9 @@ void GraphicsProtractor::paintButtons(QPainter *painter) {
     Q_UNUSED(painter);
 
     if (mShowButtons) {
-        // The buttons (close, reset, resize & rotate) are rotated around the center
-        // of the protractor, to follow it as it is rotated.
-        // As coordinates are local to each QGraphicsItem, the position of the rotation
-        // center relative to each button is the inverse of that button's position.
+        // 关闭、重置、缩放、旋转四个按钮绕量角器中心旋转，跟随工具一起转动。
+        // 由于坐标是各 QGraphicsItem 的本地坐标，旋转中心相对按钮的位置
+        // 就是按钮自身位置取反。
 
         mCloseSvgItem->setTransformOriginPoint(closeButtonRect().topLeft() * -1);
         mCloseSvgItem->setRotation(rotation() - mStartAngle);
@@ -469,9 +467,9 @@ void GraphicsProtractor::paintAngleMarker(QPainter *painter) {
     painter->rotate(-mCurrentAngle);
     painter->translate(-rect().center().x(), -rect().center().y());
 
-    //Paint Angle text (horizontally)
+    // 绘制角度文字（保持水平）
 
-    //restore transformations
+    // 撤销前面叠加的旋转变换
     painter->translate(rect().center());
     painter->rotate(mCurrentAngle);
     painter->rotate(mStartAngle);
@@ -539,10 +537,8 @@ GraphicsScene *GraphicsProtractor::scene() const {
 }
 
 QBrush GraphicsProtractor::fillBrush() const {
-    QColor fillColor =
-        edgeFillColor(); // scene()->isDarkBackground() ? sDarkBackgroundFillColor : sFillColor;
-    QColor fillColorCenter =
-        middleFillColor(); //scene()->isDarkBackground() ? sDarkBackgroundFillColorCenter : sFillColorCenter;
+    QColor fillColor = edgeFillColor();
+    QColor fillColorCenter = middleFillColor();
     QColor transparentWhite = Qt::white;
     transparentWhite.setAlpha(scene()->isDarkBackground() ? sDrawTransparency : sFillTransparency);
     QRadialGradient radialGradient(rect().center(), radius(), rect().center());
@@ -574,9 +570,7 @@ void GraphicsProtractor::copyItemParameters(Item *copy) const {
 }
 
 void GraphicsProtractor::rotateAroundCenter(qreal angle) {
-    // Q_UNUSED(angle);
-
-    // Align the implementation with the others apps objects.
+    // 与其他工具对象保持一致：绕旋转中心转动
     QTransform transform;
     transform.translate(rotationCenter().x(), rotationCenter().y());
     transform.rotate(angle);

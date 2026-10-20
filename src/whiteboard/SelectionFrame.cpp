@@ -28,10 +28,8 @@ SelectionFrame::SelectionFrame()
     setLocalBrush(QBrush(Settings::paletteColor));
     setPen(Qt::NoPen);
     setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(
-            itemLayerType::SelectionFrame)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::SelectionFrame)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlags(QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsSelectable | ItemIsMovable);
 
     connect(Application::boardController, &BoardController::zoomChanged, this,
@@ -86,8 +84,8 @@ void SelectionFrame::setEnclosedItems(const QList<QGraphicsItem *> pGraphicsItem
     GraphicsFlags resultFlags;
     mEnclosedtems.clear();
 
-    // If at least one of the enclosed items is locked, the entire selection is
-    // considered to be locked.
+    // 被选集合里只要有一个锁定图元，整组选中就按锁定处理：
+    // 否则用户会以为能拖动整组，结果只带动了其中没锁的那几个。
     mIsLocked = false;
 
     foreach (QGraphicsItem *nextItem, pGraphicsItems) {
@@ -243,8 +241,8 @@ static bool sortByZ(GraphicsItemDelegate *A, GraphicsItemDelegate *B) {
 void SelectionFrame::duplicate() {
     Application::undoStack->beginMacro(Settings::undoCommandTransactionName);
 
-    // The mEnclosedtems list items are in order of selection. To avoid losing their
-    // relative zValues when duplicating, we re-order the list.
+    // mEnclosedtems 是按选中先后排的，复制前必须按 Z 序重排，
+    // 否则副本之间原本的上下层关系会被选中顺序覆盖掉。
     std::sort(mEnclosedtems.begin(), mEnclosedtems.end(), sortByZ);
 
     foreach (GraphicsItemDelegate *d, mEnclosedtems) {
@@ -262,7 +260,7 @@ void SelectionFrame::increaseZlevelUp() {
     while (itemIt != selItems.begin()) {
         itemIt--;
         QGraphicsItem *item = *itemIt;
-        ubscene()->changeZLevelTo(item, ZLayerController::up);
+        graphicsScene()->changeZLevelTo(item, ZLayerController::up);
     }
 
     addSelectionUndo(selItems, ZLayerController::up);
@@ -271,7 +269,7 @@ void SelectionFrame::increaseZlevelUp() {
 void SelectionFrame::increaseZlevelTop() {
     QList<QGraphicsItem *> selItems = sortedByZ(scene()->selectedItems());
     foreach (QGraphicsItem *item, selItems) {
-        ubscene()->changeZLevelTo(item, ZLayerController::top);
+        graphicsScene()->changeZLevelTo(item, ZLayerController::top);
     }
     addSelectionUndo(selItems, ZLayerController::top);
 }
@@ -279,7 +277,7 @@ void SelectionFrame::increaseZlevelTop() {
 void SelectionFrame::increaseZlevelDown() {
     QList<QGraphicsItem *> selItems = sortedByZ(scene()->selectedItems());
     foreach (QGraphicsItem *item, selItems) {
-        ubscene()->changeZLevelTo(item, ZLayerController::down);
+        graphicsScene()->changeZLevelTo(item, ZLayerController::down);
     }
     addSelectionUndo(selItems, ZLayerController::down);
 }
@@ -289,13 +287,13 @@ void SelectionFrame::increaseZlevelBottom() {
     QListIterator<QGraphicsItem *> iter(selItems);
     iter.toBack();
     while (iter.hasPrevious()) {
-        ubscene()->changeZLevelTo(iter.previous(), ZLayerController::bottom);
+        graphicsScene()->changeZLevelTo(iter.previous(), ZLayerController::bottom);
     }
     addSelectionUndo(selItems, ZLayerController::bottom);
 }
 
 void SelectionFrame::groupItems() {
-    GraphicsGroupContainerItem *groupItem = ubscene()->createGroup(enclosedGraphicsItems());
+    GraphicsGroupContainerItem *groupItem = graphicsScene()->createGroup(enclosedGraphicsItems());
 
     groupItem->setSelected(true);
     DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
@@ -306,7 +304,7 @@ void SelectionFrame::addSelectionUndo(QList<QGraphicsItem *> items, ZLayerContro
     if (!items.empty()) {
         qreal topItemLevel = items.at(0)->data(GraphicsItemData::ItemOwnZValue).toReal();
         GraphicsItemZLevelUndoCommand *cmd =
-            new GraphicsItemZLevelUndoCommand(ubscene(), items, topItemLevel, dest);
+            new GraphicsItemZLevelUndoCommand(graphicsScene(), items, topItemLevel, dest);
         Application::undoStack->push(cmd);
     }
 }
@@ -375,7 +373,7 @@ void SelectionFrame::clearButtons() {
     mButtons.clear();
 }
 
-inline GraphicsScene *SelectionFrame::ubscene() {
+inline GraphicsScene *SelectionFrame::graphicsScene() {
     return qobject_cast<GraphicsScene *>(scene());
 }
 
@@ -412,8 +410,8 @@ void SelectionFrame::setCursorFromAngle(QString angle) {
 }
 
 QList<QGraphicsItem *> SelectionFrame::sortedByZ(const QList<QGraphicsItem *> &pItems) {
-    //select only items wiht the same z-level as item's one and push it to sortedItems QMultiMap
-    // It means: keep only the selected items and remove the selection frame from the list
+    // 选中框自己也在 selectedItems() 里，必须摘掉，
+    // 不然它会被当成普通被选图元一起排序、一起搬动。
     QMultiMap<qreal, QGraphicsItem *> sortedItems;
     foreach (QGraphicsItem *tmpItem, pItems) {
         if (tmpItem->type() == Type) {

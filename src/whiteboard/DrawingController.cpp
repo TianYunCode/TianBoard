@@ -60,7 +60,7 @@ DrawingController::DrawingController(QObject *parent)
 }
 
 DrawingController::~DrawingController() {
-    // NOOP
+    // 刻意留空
 }
 
 int DrawingController::stylusTool() {

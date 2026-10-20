@@ -26,7 +26,7 @@ GraphicsCurtainItem::GraphicsCurtainItem(QGraphicsItem *parent) : QGraphicsRectI
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-#if QT_VERSION >= 0x040600 // needs Qt 4.6.0 or better
+#if QT_VERSION >= 0x040600 // 需要 Qt 4.6.0 及以上
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 #endif
 
@@ -35,7 +35,7 @@ GraphicsCurtainItem::GraphicsCurtainItem(QGraphicsItem *parent) : QGraphicsRectI
     this->setAcceptHoverEvents(true);
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::Curtain)); //Necessary to set if we want z value to be assigned correctly
+            QVariant(itemLayerType::Curtain)); // 必须设置：场景按图层类型分配 z 值
 }
 
 GraphicsCurtainItem::~GraphicsCurtainItem() {}
@@ -53,13 +53,12 @@ QVariant GraphicsCurtainItem::itemChange(GraphicsItemChange change, const QVaria
 void GraphicsCurtainItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+            QVariant(pUuid)); // 把 UUID 同时存入图形项数据，便于场景快速操作项
 }
 
 void GraphicsCurtainItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mousePressEvent(event)) {
-        //NOOP
+        // 有意为空：委托已消费该事件，无需再走基类逻辑
     } else {
         QGraphicsRectItem::mousePressEvent(event);
     }
@@ -67,7 +66,7 @@ void GraphicsCurtainItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void GraphicsCurtainItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
-        // NOOP;
+        // 有意为空：委托已消费该事件，无需再走基类逻辑
     } else {
         QGraphicsRectItem::mouseMoveEvent(event);
     }
@@ -89,7 +88,7 @@ void GraphicsCurtainItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
         }
     }
 
-    // Never draw the rubber band, we draw our custom selection with the DelegateFrame
+    // 不绘制系统橡皮筋选中框，自定义选中效果由 DelegateFrame 负责
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
     styleOption.state &= ~QStyle::State_Selected;
 

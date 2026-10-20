@@ -73,19 +73,19 @@ void BoardPaletteManager::initPalettesPosAtStartup() {
 void BoardPaletteManager::setupLayout() {}
 
 /**
- * \brief Set up the dock palette widgets
+ * @brief 创建停靠式调色板控件，并完成注册、信号连接与初始模式设置。
  */
 void BoardPaletteManager::setupDockPaletteWidgets() {
-    // Create the widgets for the dock palettes
+    // 先创建可停靠的页面导航、遮罩属性与下载进度控件。
     mpPageNavigWidget = new PageNavigationWidget();
 
     mpCachePropWidget = new CachePropertiesWidget();
 
     mpDownloadWidget = new DockDownloadWidget();
-    // Add the dock palettes
+    // 左右两个停靠调色板容器。
     mLeftPalette = new LeftPalette(mContainer);
 
-    // LEFT palette widgets
+    // 左侧只放页面导航。
     mLeftPalette->registerWidget(mpPageNavigWidget);
     mLeftPalette->addTab(mpPageNavigWidget);
 
@@ -93,31 +93,30 @@ void BoardPaletteManager::setupDockPaletteWidgets() {
     mLeftPalette->showTabWidget(0);
 
     mRightPalette = new RightPalette(mContainer);
-    // RIGHT palette widgets
+    // 右侧默认显示素材库。
     mpFeaturesWidget = new FeaturesWidget();
     mRightPalette->registerWidget(mpFeaturesWidget);
     mRightPalette->addTab(mpFeaturesWidget);
 
-    // The cache widget will be visible only if a cache is put on the page
+    // 遮罩属性面板只在页面上存在遮罩时才显示。
     mRightPalette->registerWidget(mpCachePropWidget);
 
-    //  The download widget will be part of the right palette but
-    //  will become visible only when the first download starts
+    // 下载进度面板挂在右侧，但要等第一次下载开始才显示。
     mRightPalette->registerWidget(mpDownloadWidget);
     mRightPalette->connectSignals();
     changeMode(DockWidgetMode::Board, true);
 
-    // Hide the tabs that must be hidden
+    // 初始状态下先移除这两个标签页。
     mRightPalette->removeTab(mpDownloadWidget);
     mRightPalette->removeTab(mpCachePropWidget);
 }
 
 void BoardPaletteManager::slot_changeMainMode(ApplicationController::MainMode mainMode) {
-    //    Board = 0, Internet, Document, Tutorial, WebDocument
+    // 主模式取值：Board = 0、Internet、Document、Tutorial、WebDocument。
 
     switch (mainMode) {
         case ApplicationController::Board: {
-            // call changeMode only when switch NOT from desktop mode
+            // 从桌面模式返回时不要再次切到 Board 模式，避免重复布局。
             if (!Application::applicationController->isShowingDesktop())
                 changeMode(DockWidgetMode::Board);
         } break;
@@ -158,13 +157,13 @@ void BoardPaletteManager::setupPalettes() {
 
     setupDockPaletteWidgets();
 
-    // Add the other palettes
+    // 除停靠调色板外，再创建自由浮动的笔、缩放等调色板。
     mStylusPalette = new StylusPalette(
         mContainer,
         Settings::settings()->appToolBarOrientationVertical->get().toBool() ? Qt::Vertical : Qt::Horizontal);
     connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked),
             Application::boardController, &BoardController::stylusToolDoubleClicked, Qt::UniqueConnection);
-    mStylusPalette->show(); // always show stylus palette at startup
+    mStylusPalette->show(); // 启动时笔调色板必须露出来，否则用户找不到切换笔的地方
 
     mZoomPalette = new ZoomPalette(mContainer);
 
@@ -245,7 +244,7 @@ void BoardPaletteManager::pagePaletteButtonPressed() {
 void BoardPaletteManager::pagePaletteButtonReleased() {
     if (mPendingPageButtonPressed) {
         if (mPageButtonPressedTime.msecsTo(QTime::currentTime()) > 900) {
-            // The palette is reinstanciated because the duplication depends on the current scene
+            // 页调色板依赖当前场景，因此每次长按都重建。
             delete (mPagePalette);
             mPagePalette = 0;
             QList<QAction *> pageActions;
@@ -259,7 +258,7 @@ void BoardPaletteManager::pagePaletteButtonReleased() {
             mPagePalette->groupActions();
             mPagePalette->setClosable(true);
 
-            // As we recreate the pagePalette every time, we must reconnect the slots
+            // 重建后动作与调色板的连接需要重新建立。
             connect(Application::mainWindow->ui().actionNewPage, &QAction::triggered, mPagePalette,
                     &ActionPalette::close);
             connect(Application::mainWindow->ui().actionDuplicatePage, &QAction::triggered, mPagePalette,
@@ -428,11 +427,9 @@ void BoardPaletteManager::containerResized() {
 
     if (mLeftPalette) {
         mLeftPalette->resize(mLeftPalette->width(), mContainer->height());
-        mLeftPalette->resize(mLeftPalette->width(), mContainer->height());
     }
 
     if (mRightPalette) {
-        mRightPalette->resize(mRightPalette->width(), mContainer->height());
         mRightPalette->resize(mRightPalette->width(), mContainer->height());
     }
 }
@@ -565,7 +562,7 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
 
     switch (newMode) {
         case DockWidgetMode::Board: {
-            // On Application start up the mAddItemPalette isn't initialized yet
+            // 启动阶段 mAddItemPalette 可能尚未创建。
             if (mAddItemPalette) {
                 mAddItemPalette->setParent(Application::boardController->controlContainer());
             }
@@ -626,9 +623,6 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
             mAddItemPalette->setParent(Application::mainWindow);
             if (PlatformUtils::hasVirtualKeyboard() && mKeyboardPalette != NULL &&
                 Settings::settings()->useSystemOnScreenKeyboard->get().toBool() == false) {
-                //                    tmp variable?
-                //                    BrowserWindow* brWnd = Application::webController->GetCurrentWebBrowser();
-
                 if (mKeyboardPalette->keyboardVisible()) {
                     mKeyboardPalette->hide();
                     mKeyboardPalette->setParent(Application::mainWindow);
@@ -787,13 +781,13 @@ void BoardPaletteManager::changeStylusPaletteOrientation(QVariant var) {
     bool bVertical = var.toBool();
     bool bVisible = mStylusPalette->isVisible();
 
-    // Clean the old palette
+    // 先销毁旧的笔调色板，再按新方向重建。
     if (NULL != mStylusPalette) {
         delete mStylusPalette;
         mStylusPalette = NULL;
     }
 
-    // Create the new palette
+    // 按方向创建新的笔调色板。
     if (bVertical) {
         mStylusPalette = new StylusPalette(mContainer, Qt::Vertical);
     } else {
@@ -802,7 +796,7 @@ void BoardPaletteManager::changeStylusPaletteOrientation(QVariant var) {
 
     connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked),
             Application::boardController, &BoardController::stylusToolDoubleClicked, Qt::UniqueConnection);
-    mStylusPalette->setVisible(bVisible); // always show stylus palette at startup
+    mStylusPalette->setVisible(bVisible); // 启动时笔调色板必须露出来，否则用户找不到切换笔的地方
 }
 
 

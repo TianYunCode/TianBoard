@@ -12,7 +12,7 @@ QMap<QUuid, QPointer<PDFRenderer>> PDFRenderer::sRenderers;
 PDFRenderer::PDFRenderer() : dpiForRendering(96) {}
 
 PDFRenderer::~PDFRenderer() {
-    // NOOP
+    // 刻意留空
 }
 
 PDFRenderer *PDFRenderer::rendererForUuid(const QUuid &uuid, const QString &filename, bool importingFile) {

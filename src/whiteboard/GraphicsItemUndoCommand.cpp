@@ -22,6 +22,7 @@ GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene *pScene,
       mExcludedFromGroup(groupsMap) {
     mFirstRedo = true;
 
+    // 新增项先冻结、移除项解冻：避免内嵌网页控件在场景增删过程中继续渲染
     QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
     while (itAdded.hasNext()) {
         Application::boardController->freezeWebWidget(itAdded.next(), true);
@@ -36,6 +37,7 @@ GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene *pScene,
 GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene *pScene, QGraphicsItem *pRemovedItem,
                                                  QGraphicsItem *pAddedItem)
     : UndoCommand(), mScene(pScene) {
+    // 单项版本：任一参数可为空，对应只做删除或只做新增
     if (pRemovedItem) {
         mRemovedItems.insert(pRemovedItem);
     }
@@ -47,15 +49,14 @@ GraphicsItemUndoCommand::GraphicsItemUndoCommand(GraphicsScene *pScene, QGraphic
     mFirstRedo = true;
 }
 
-GraphicsItemUndoCommand::~GraphicsItemUndoCommand() {
-    //NOOP
-}
+GraphicsItemUndoCommand::~GraphicsItemUndoCommand() {}
 
 void GraphicsItemUndoCommand::undo() {
     if (!mScene) {
         return;
     }
 
+    // 1) 撤销“新增”：把当时加入场景的项再移出
     QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
     while (itAdded.hasNext()) {
         QGraphicsItem *item = itAdded.next();
@@ -63,6 +64,8 @@ void GraphicsItemUndoCommand::undo() {
         Application::boardController->freezeWebWidget(item, true);
         item->setSelected(false);
 
+        // 笔迹多边形可能挂在组合下，移出场景前要记住其场景变换并脱离组合，
+        // 否则重新加入时会被组合的变换重复应用
         QTransform t;
         bool bApplyTransform = false;
         GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
@@ -82,15 +85,18 @@ void GraphicsItemUndoCommand::undo() {
             polygonItem->setTransform(t);
     }
 
+    // 2) 撤销“删除”：把当时移出的项放回场景
     QSetIterator<QGraphicsItem *> itRemoved(mRemovedItems);
     while (itRemoved.hasNext()) {
         QGraphicsItem *item = itRemoved.next();
         if (item) {
+            // 背景项不能走普通 addItem，否则会丢失固定背景标记
             if (ItemLayerType::FixedBackground == item->data(GraphicsItemData::ItemLayerType))
                 mScene->setAsBackgroundObject(item);
             else
                 mScene->addItem(item);
 
+            // 笔迹多边形重新插回场景后，再挂回其笔迹组
             if (GraphicsPolygonItem::Type == item->type()) {
                 GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
                 if (polygonItem) {
@@ -104,6 +110,7 @@ void GraphicsItemUndoCommand::undo() {
         }
     }
 
+    // 3) 恢复组合归属：按 UUID 找到项并重新加入原组合
     QMultiMapIterator<GraphicsGroupContainerItem *, QUuid> curMapElement(mExcludedFromGroup);
     GraphicsGroupContainerItem *nextGroup = NULL;
     GraphicsGroupContainerItem *previousGroupItem = NULL;
@@ -113,11 +120,12 @@ void GraphicsItemUndoCommand::undo() {
         curMapElement.next();
 
         groupChanged = previousGroupItem != curMapElement.key();
-        //trying to find the group on the scene;
+        // 同一个组合的条目连续排列，只在组合变化时切换当前目标
         if (!nextGroup || groupChanged) {
             GraphicsGroupContainerItem *groupCandidate = curMapElement.key();
             if (groupCandidate) {
                 nextGroup = groupCandidate;
+                // 组合本身也可能已被移出场景，需要先放回
                 if (!mScene->items().contains(nextGroup)) {
                     mScene->addItem(nextGroup);
                 }
@@ -134,19 +142,20 @@ void GraphicsItemUndoCommand::undo() {
         GraphicsItem::Delegate(nextGroup)->update();
     }
 
-    // force refresh, QT is a bit lazy and take a lot of time (nb item ^2 ?) to trigger repaint
+    // 主动刷新：场景的增量重绘在大批量项变化时可能延迟
     mScene->update(mScene->sceneRect());
     mScene->updateSelectionFrame();
 }
 
 void GraphicsItemUndoCommand::redo() {
-    // the Undo framework calls a redo while appending the undo command.
-    // as we have already plotted the elements, we do not want to do it twice
+    // 撤销框架在 push 命令时会立即调用一次 redo，而此前的操作已经生效，
+    // 因此首次调用只清除标志，不重复执行
     if (!mFirstRedo) {
         if (!mScene) {
             return;
         }
 
+        // 1) 先按组合归属把项从组合中移出，再执行场景层面的增删
         QMultiMapIterator<GraphicsGroupContainerItem *, QUuid> curMapElement(mExcludedFromGroup);
         GraphicsGroupContainerItem *nextGroup = NULL;
         GraphicsGroupContainerItem *previousGroupItem = NULL;
@@ -156,7 +165,6 @@ void GraphicsItemUndoCommand::redo() {
             curMapElement.next();
 
             groupChanged = previousGroupItem != curMapElement.key();
-            //trying to find the group on the scene;
             if (!nextGroup || groupChanged) {
                 GraphicsGroupContainerItem *groupCandidate = curMapElement.key();
                 if (groupCandidate) {
@@ -165,6 +173,7 @@ void GraphicsItemUndoCommand::redo() {
             }
             QGraphicsItem *groupedItem = mScene->itemForUuid(curMapElement.value());
             if (groupedItem) {
+                // 组合只剩最后一个成员时直接解散，避免留下空组合
                 if (nextGroup->childItems().count() == 1) {
                     nextGroup->destroy(false);
                     break;
@@ -176,6 +185,7 @@ void GraphicsItemUndoCommand::redo() {
             GraphicsItem::Delegate(nextGroup)->update();
         }
 
+        // 2) 重做“删除”
         QSetIterator<QGraphicsItem *> itRemoved(mRemovedItems);
         while (itRemoved.hasNext()) {
             QGraphicsItem *item = itRemoved.next();
@@ -203,6 +213,7 @@ void GraphicsItemUndoCommand::redo() {
             Application::boardController->freezeWebWidget(item, true);
         }
 
+        // 3) 重做“新增”
         QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
         while (itAdded.hasNext()) {
             QGraphicsItem *item = itAdded.next();
@@ -223,7 +234,7 @@ void GraphicsItemUndoCommand::redo() {
             }
         }
 
-        // force refresh, QT is a bit lazy and take a lot of time (nb item ^2) to trigger repaint
+        // 主动刷新：场景的增量重绘在大批量项变化时可能延迟
         mScene->update(mScene->sceneRect());
     } else {
         mFirstRedo = false;

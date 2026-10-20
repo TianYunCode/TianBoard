@@ -13,7 +13,7 @@ GraphicsPolygonItem::GraphicsPolygonItem(QGraphicsItem *parent)
       mIsNominalLine(false),
       mStroke(0),
       mpGroup(NULL) {
-    // NOOP
+    // 刻意留空
     initialize();
 }
 
@@ -24,7 +24,7 @@ GraphicsPolygonItem::GraphicsPolygonItem(const QPolygonF &polygon, QGraphicsItem
       mIsNominalLine(false),
       mStroke(0),
       mpGroup(NULL) {
-    // NOOP
+    // 刻意留空
     initialize();
 }
 
@@ -36,7 +36,7 @@ GraphicsPolygonItem::GraphicsPolygonItem(const QLineF &pLine, qreal pWidth)
       mIsNominalLine(true),
       mStroke(0),
       mpGroup(NULL) {
-    // NOOP
+    // 刻意留空
     initialize();
 }
 
@@ -47,23 +47,21 @@ GraphicsPolygonItem::GraphicsPolygonItem(const QLineF &pLine, qreal pStartWidth,
       mIsNominalLine(true),
       mStroke(0),
       mpGroup(NULL) {
-    // NOOP
+    // 刻意留空
     initialize();
 }
 
 
 void GraphicsPolygonItem::initialize() {
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::DrawingItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::DrawingItem)); // 必须设好图层类型，Z 值才会被分到正确的层
     setUuid(QUuid::createUuid());
 }
 
 void GraphicsPolygonItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+            QVariant(pUuid)); // UUID 存进图元数据，场景按 UUID 找图元，不必遍历整棵树
 }
 
 void GraphicsPolygonItem::clearStroke() {

@@ -21,7 +21,7 @@ GraphicsWidgetItemDelegate::GraphicsWidgetItemDelegate(GraphicsWidgetItem *pDele
 
 
 GraphicsWidgetItemDelegate::~GraphicsWidgetItemDelegate() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -70,10 +70,4 @@ void GraphicsWidgetItemDelegate::freeze(bool frozen) {
 
 GraphicsWidgetItem *GraphicsWidgetItemDelegate::delegated() {
     return static_cast<GraphicsWidgetItem *>(mDelegated);
-}
-
-
-void GraphicsWidgetItemDelegate::remove(bool canundo) {
-    delegated()->removeScript();
-    GraphicsItemDelegate::remove(canundo);
 }

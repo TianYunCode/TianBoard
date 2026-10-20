@@ -25,7 +25,6 @@ GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *pa
       mInitialLoadDone(false),
       mIsFreezable(true),
       mIsResizable(false),
-      mLoadIsErronous(false),
       mCanBeContent(0),
       mCanBeTool(0),
       mWidgetUrl(pWidgetUrl),
@@ -33,33 +32,15 @@ GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *pa
       mIsTakingSnapshot(false),
       mShouldMoveWidget(false),
       mDropHandler(nullptr) {
-    setData(
-        GraphicsItemData::ItemLayerType,
-        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
-                                              //QWebEngineView
-                                              //QGraphicsWidget::setGraphicsEffect
-                                              //   QGraphicsView::setPage(new WebPage(this));
-    //QGraphicsWidget::setAttribute(QWebEngineSettings::JavaEnabled, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::LocalStorageDatabaseEnabled, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::OfflineWebApplicationCacheEnabled, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::OfflineStorageDatabaseEnabled, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::DnsPrefetchEnabled, true);
-    //QGraphicsWebView::settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
+    setData(GraphicsItemData::ItemLayerType,
+            QVariant(itemLayerType::ObjectItem)); // 必须设好图层类型，Z 值才会被分到正确的层
 
-    //page()->setNetworkAccessManager(NetworkAccessManager::defaultAccessManager());
 
     setAcceptDrops(true);
     setAutoFillBackground(false);
 
-    //QPalette pagePalette = page()->palette();
-    //pagePalette.setBrush(QPalette::Base, QBrush(Qt::transparent));
-    //pagePalette.setBrush(QPalette::Window, QBrush(Qt::transparent));
-    //page()->setPalette(pagePalette);
 
     QPalette viewPalette = palette();
-    //pagePalette.setBrush(QPalette::Base, QBrush(Qt::transparent));
     viewPalette.setBrush(QPalette::Window, QBrush(Qt::transparent));
     setPalette(viewPalette);
 
@@ -71,35 +52,16 @@ GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *pa
 
 
 GraphicsWidgetItem::~GraphicsWidgetItem() {
-    /* NOOP */
+    // 不释放 mDropHandler：脚本门面是以场景为父对象 new 出来的，由场景回收。
 }
 
 void GraphicsWidgetItem::initialize() {
     setMinimumSize(nominalSize());
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::ObjectItem)); // Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::ObjectItem)); // 必须设好图层类型，Z 值才会被分到正确的层
 
     if (Delegate() && Delegate()->frame() && resizable())
         Delegate()->frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
-
-    /* QPalette palette = page()->palette();
-    palette.setBrush(QPalette::Base, QBrush(Qt::transparent));
-    page()->setPalette(palette);
-    page()->setLinkDelegationPolicy(QWebEnginePage::DelegateAllLinks);*/
-
-    //connect(page(), SIGNAL(geometryChangeRequested(const QRect&)), this, SLOT(geometryChangeRequested(const QRect&)));
-    //connect(this, SIGNAL(loadFinished(bool)), this, SLOT(mainFrameLoadFinished (bool)));
-    //connect(page()->mainFrame(), SIGNAL(initialLayoutCompleted()), this, SLOT(initialLayoutCompleted()));
-    //connect(page(), SIGNAL(linkClicked(const QUrl&)), this, SLOT(onLinkClicked(const QUrl&)));
-}
-
-void GraphicsWidgetItem::onLinkClicked(const QUrl &url) {
-    //load(url);
-}
-
-void GraphicsWidgetItem::initialLayoutCompleted() {
-    mInitialLoadDone = true;
 }
 
 QUrl GraphicsWidgetItem::mainHtml() {
@@ -108,7 +70,6 @@ QUrl GraphicsWidgetItem::mainHtml() {
 
 void GraphicsWidgetItem::loadMainHtml() {
     mInitialLoadDone = false;
-    //load(mMainHtmlUrl);
 }
 
 QUrl GraphicsWidgetItem::widgetUrl() {
@@ -184,11 +145,6 @@ void GraphicsWidgetItem::removeAllDatastoreEntries() {
     mDatastore.clear();
 }
 
-void GraphicsWidgetItem::removeScript() {
-    //if (page() && page()->mainFrame())
-    //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onremove) { widget.onremove();}");
-}
-
 void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event) {
     // 处理拖放的是 api 的门面（它要 DownloadManager 与文档对象目录），画板只认
     // BoardDropHandler 这个接口；实现由装配点在启动时装上。
@@ -202,19 +158,19 @@ void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event) {
 }
 
 QUrl GraphicsWidgetItem::getOwnFolder() const {
-    return ownFolder;
+    return mOwnFolder;
 }
 
 void GraphicsWidgetItem::setOwnFolder(const QUrl &newFolder) {
-    ownFolder = newFolder;
+    mOwnFolder = newFolder;
 }
 
 void GraphicsWidgetItem::setSnapshotPath(const QUrl &newFilePath) {
-    SnapshotFile = newFilePath;
+    mSnapshotFilePath = newFilePath;
 }
 
 QUrl GraphicsWidgetItem::getSnapshotPath() {
-    return SnapshotFile;
+    return mSnapshotFilePath;
 }
 
 void GraphicsWidgetItem::clearSource() {
@@ -225,16 +181,11 @@ void GraphicsWidgetItem::clearSource() {
 void GraphicsWidgetItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+            QVariant(pUuid)); // UUID 存进图元数据，场景按 UUID 找图元，不必遍历整棵树
 }
 
 QSize GraphicsWidgetItem::nominalSize() const {
     return mNominalSize;
-}
-
-bool GraphicsWidgetItem::hasLoadedSuccessfully() const {
-    return (mInitialLoadDone && !mLoadIsErronous);
 }
 
 bool GraphicsWidgetItem::freezable() {
@@ -315,12 +266,8 @@ QString GraphicsWidgetItem::widgetName(const QUrl &widgetPath) {
             if (!dictElement.isNull()) {
                 QDomNodeList childNodes = dictElement.childNodes();
 
-                /* looking for something like
-                 * ..
-                 * <key>CFBundleDisplayName</key>
-                 * <string>brain scans</string>
-                 * ..
-                 */
+                // 在 <dict> 的子节点里找相邻的一对，形如：
+                //   <key>CFBundleDisplayName</key><string>brain scans</string>
 
                 for (int i = 0; i < childNodes.count() - 1; i++) {
                     if (childNodes.at(i).isElement()) {
@@ -357,14 +304,15 @@ QString GraphicsWidgetItem::widgetName(const QUrl &widgetPath) {
 QString GraphicsWidgetItem::iconFilePath(const QUrl &pUrl) {
     QStringList files;
 
-    files << "icon.svg"; /* W3C widget default 1 */
-    files << "icon.ico"; /* W3C widget default 2 */
-    files << "icon.png"; /* W3C widget default 3 */
-    files << "icon.gif"; /* W3C widget default 4 */
-    files << "Icon.png"; /* Apple widget default */
+    // 按 W3C 小部件规范允许的图标名依次尝试，Apple 的桌面小部件另有大写 Icon.png。
+    files << "icon.svg";
+    files << "icon.ico";
+    files << "icon.png";
+    files << "icon.gif";
+    files << "Icon.png";
 
     QString file = FileSystemUtils::getFirstExistingFileFromList(pUrl.toLocalFile(), files);
-    /* default */
+    // 一个都没有就用随包的缺省图标，界面不会因为缺图而空一块。
     if (file.length() == 0) {
         file = QString(":/images/defaultWidgetIcon.png");
     }
@@ -400,16 +348,16 @@ bool GraphicsWidgetItem::event(QEvent *event) {
 
 void GraphicsWidgetItem::dropEvent(QGraphicsSceneDragDropEvent *event) {
     processDropEvent(event);
-    //QGraphicsWebView::dropEvent(event);
 }
 
 void GraphicsWidgetItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    // 委托没把按下事件用于点手柄时，视为点在小部件上，直接选中。
     if (!Delegate()->mousePressEvent(event))
-        setSelected(true); /* forcing selection */
+        setSelected(true);
 
     QGraphicsWidget::mousePressEvent(event);
 
-    // did webkit consume the mouse press ?
+    // 内嵌页面把按下事件收下了（未 accept 说明用户想操作页面内部），就不整体拖动图元。
     mShouldMoveWidget = !event->isAccepted() && (event->buttons() & Qt::LeftButton);
 
     mLastMousePos = mapToScene(event->pos());
@@ -425,28 +373,17 @@ void GraphicsWidgetItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void GraphicsWidgetItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
-    sendJSEnterEvent();
     Delegate()->hoverEnterEvent(event);
 }
 void GraphicsWidgetItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
-    sendJSLeaveEvent();
     Delegate()->hoverLeaveEvent(event);
 }
 
-void GraphicsWidgetItem::sendJSEnterEvent() {
-    //if (page() && page()->mainFrame())
-    //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onenter) { widget.onenter();}");
-}
-
-void GraphicsWidgetItem::sendJSLeaveEvent() {
-    //if (page() && page()->mainFrame())
-    //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onleave) { widget.onleave();}");
-}
-
 void GraphicsWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-    //QGraphicsView::paint(painter, option, widget);
-
-
+    // 注意：mInitialLoadDone 在 Qt6 改造后没有任何地方把它置真（完成回调原本挂在
+    // QWebPage::initialLayoutCompleted 上），所以这块提示气泡是常驻的；文本绘制早已被
+    // 注释掉，只剩一个空圆角框。要恢复小部件的显示链路，必须连带把 size()/resize() 与
+    // takeSnapshot() 一起重建，单改这里没有意义，详见 docs/code-suspicions.md。
     if (!mInitialLoadDone) {
         QString message;
 
@@ -457,7 +394,6 @@ void GraphicsWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         QFontMetrics fm = painter->fontMetrics();
         QRect txtBoundingRect = fm.boundingRect(message);
 
-        //txtBoundingRect.moveCenter(rect().center().toPoint());
         txtBoundingRect.adjust(-10, -5, 10, 5);
 
         painter->setPen(Qt::NoPen);
@@ -465,64 +401,33 @@ void GraphicsWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         painter->drawRoundedRect(txtBoundingRect, 3, 3);
 
         painter->setPen(Qt::white);
-        //painter->drawText(rect(), Qt::AlignCenter, message);
     }
 
     Delegate()->postpaint(painter, option, widget);
 }
 
-void GraphicsWidgetItem::geometryChangeRequested(const QRect &geom) {
-    resize(geom.width(), geom.height());
-}
-
-void GraphicsWidgetItem::mainFrameLoadFinished(bool ok) {
-    mLoadIsErronous = !ok;
-    //update(boundingRect());
-
-    if (mInitialLoadDone && scene() && scene()->renderingContext() == GraphicsScene::Screen)
-        takeSnapshot();
-}
-
 void GraphicsWidgetItem::wheelEvent(QGraphicsSceneWheelEvent *event) {
     if (Delegate()->wheelEvent(event)) {
-        //QGraphicsView::wheelEvent(event);
         event->accept();
     }
 }
 
-//QVariant GraphicsWidgetItem::itemChange(GraphicsItemChange change, const QVariant &value)
-//{
-//    if ((change == QGraphicsItem::ItemSelectedHasChanged) &&  scene()) {
-//        if (isSelected())
-//            scene()->setActiveWindow(this);
-//        else
-//            if(scene()->activeWindow() == this)
-//                scene()->setActiveWindow(0);
-//    }
-//
-//    QVariant newValue = Delegate()->itemChange(change, value);
-//    return QGraphicsView::itemChange(change, newValue);
-//}
 
 void GraphicsWidgetItem::resize(qreal w, qreal h) {
     GraphicsWidgetItem::resize(QSizeF(w, h));
 }
 
 
+// 缩放链路在 Qt6 的网页小部件改造里被整体摘掉了：size() 恒返回空尺寸，resize() 因此
+// 不做任何事，图元的可见大小只由快照图与 nominalSize() 决定。要恢复缩放必须连带
+// 重建快照与排版路径，不能只把这几行填回去。
 void GraphicsWidgetItem::resize(const QSizeF &pSize) {
-    if (pSize != size()) {
-        //QGraphicsWidget::setMaximumSize(pSize.width(), pSize.height());
-        //QGraphicsWidget::resize(pSize.width(), pSize.height());
-        //      if (Delegate())
-        //          Delegate()->positionHandles();
-        //      if (scene())
-        //          scene()->setModified(true);
-    }
+    if (pSize != size()) {}
 }
 
 QSizeF GraphicsWidgetItem::size() const {
     QSizeF sz;
-    return sz; //QGraphicsWidget::size();
+    return sz;
 }
 
 
@@ -552,11 +457,9 @@ GraphicsAppleWidgetItem::GraphicsAppleWidgetItem(const QUrl &pWidgetUrl, QGraphi
     mMainHtmlUrl = pWidgetUrl;
     mMainHtmlUrl.setPath(pWidgetUrl.path() + "/" + mMainHtmlFileName);
 
-    //load(mMainHtmlUrl);
 
     QPixmap defaultPixmap(pWidgetUrl.toLocalFile() + "/Default.png");
 
-    //setMaximumSize(defaultPixmap.size());
 
     mNominalSize = defaultPixmap.size();
 
@@ -565,12 +468,12 @@ GraphicsAppleWidgetItem::GraphicsAppleWidgetItem(const QUrl &pWidgetUrl, QGraphi
 
 
 GraphicsAppleWidgetItem::~GraphicsAppleWidgetItem() {
-    /* NOOP */
+    // 成员全是值类型或由 Qt 父子关系持有，无需额外释放。
 }
 
 void GraphicsAppleWidgetItem::setUuid(const QUuid &pUuid) {
+    // 只落到 Item 的实现，跳过 GraphicsWidgetItem 那份额外的图元数据写入。
     Item::setUuid(pUuid);
-    //setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
 Item *GraphicsAppleWidgetItem::deepCopy() const {
@@ -593,7 +496,6 @@ void GraphicsAppleWidgetItem::copyItemParameters(Item *copy) const {
         }
 
         cp->setSourceUrl(this->sourceUrl());
-        //cp->setZValue(this->zValue());
     }
 }
 
@@ -662,7 +564,6 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsIt
         if (roles.contains("tunix"))
             mCanBeTool |= GraphicsWidgetItem::type_UNIX;
 
-        /* --------- */
 
         if (roles == "" || roles.contains("content"))
             mCanBeContent = GraphicsWidgetItem::type_ALL;
@@ -676,7 +577,6 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsIt
         if (roles.contains("cunix"))
             mCanBeContent |= GraphicsWidgetItem::type_UNIX;
 
-        //------------------------------//
 
         QDomNodeList contentDomList = widgetElement.elementsByTagName("content");
 
@@ -728,15 +628,12 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsIt
 
     mMainHtmlUrl = pWidgetUrl;
     mMainHtmlUrl.setPath(pWidgetUrl.path() + "/" + mMainHtmlFileName);
-    /* is it a valid local file ? */
+    // 拼出来的入口路径必须真的存在，否则只留文件名，交给后面的相对路径去解析。
     QFile f(mMainHtmlUrl.toLocalFile());
 
     if (!f.exists())
         mMainHtmlUrl = QUrl(mMainHtmlFileName);
 
-    //load(mMainHtmlUrl);
-
-    //setMaximumSize(QSize(width, height));
 
     mNominalSize = QSize(width, height);
 
@@ -745,17 +642,17 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsIt
 }
 
 GraphicsWebWidgetItem::~GraphicsWebWidgetItem() {
-    /* NOOP */
+    // 成员全是值类型或由 Qt 父子关系持有，无需额外释放。
 }
 
 void GraphicsWebWidgetItem::setUuid(const QUuid &pUuid) {
+    // 只落到 Item 的实现，跳过 GraphicsWidgetItem 那份额外的图元数据写入。
     Item::setUuid(pUuid);
-    //setData(GraphicsItemData::ItemUuid, QVariant(pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
 }
 
 Item *GraphicsWebWidgetItem::deepCopy() const {
     GraphicsWebWidgetItem *copy = new GraphicsWebWidgetItem(mWidgetUrl, parentItem());
-    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    copy->setUuid(this->uuid()); // 小部件是不可变的，直接复用这份参数没问题
     copyItemParameters(copy);
 
     return copy;
@@ -1036,12 +933,6 @@ QString GraphicsWebWidgetItem::textForSubElementByLocale(QDomElement rootElement
 void GraphicsWebWidgetItem::copyItemParameters(Item *copy) const {
     GraphicsWebWidgetItem *cp = dynamic_cast<GraphicsWebWidgetItem *>(copy);
     if (cp) {
-        /*cp->setPos(this->pos());
-        cp->setTransform(this->transform());
-        cp->setFlag(QGraphicsItem::ItemIsMovable, true);
-        cp->setFlag(QGraphicsItem::ItemIsSelectable, true);
-        cp->setData(GraphicsItemData::ItemLayerType, this->data(GraphicsItemData::ItemLayerType));
-        cp->setData(GraphicsItemData::ItemLocked, this->data(GraphicsItemData::ItemLocked));*/
         cp->setSourceUrl(this->sourceUrl());
 
         cp->resize(this->size());
@@ -1053,7 +944,5 @@ void GraphicsWebWidgetItem::copyItemParameters(Item *copy) const {
         foreach (QString key, mDatastore.keys()) {
             cp->setDatastoreEntry(key, mDatastore.value(key));
         }
-
-        //cp->setZValue(this->zValue());
     }
 }

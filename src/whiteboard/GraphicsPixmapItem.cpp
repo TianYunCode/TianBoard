@@ -23,15 +23,13 @@ GraphicsPixmapItem::GraphicsPixmapItem(QGraphicsItem *parent) : QGraphicsPixmapI
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
     setTransformationMode(Qt::SmoothTransformation);
 
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::ObjectItem)); // 必须设置：场景按图层类型分配 z 值
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
     setData(GraphicsItemData::ItemCanBeSetAsBackground, true);
 
-    setUuid(
-        QUuid::createUuid()); //more logical solution is in creating uuid for element in element's constructor
+    setUuid(QUuid::createUuid()); // 更合理的做法是在元素自身的构造函数里生成 UUID
 }
 
 GraphicsPixmapItem::~GraphicsPixmapItem() {}
@@ -57,15 +55,15 @@ void GraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Delegate()->setDragPixmap(pixmap().scaled(newSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     if (Delegate()->mousePressEvent(event)) {
-        //NOOP
+        // 有意为空：委托已消费该事件
     } else {
-        //        QGraphicsPixmapItem::mousePressEvent(event);
+        // 有意为空：不调基类实现，避免其默认拖动逻辑与委托的选中/拖放冲突
     }
 }
 
 void GraphicsPixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
-        // NOOP;
+        // 有意为空：委托已消费该事件
     } else {
         QGraphicsPixmapItem::mouseMoveEvent(event);
     }
@@ -80,7 +78,7 @@ void GraphicsPixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 void GraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     painter->setRenderHint(QPainter::Antialiasing, false);
 
-    // Never draw the rubber band, we draw our custom selection with the DelegateFrame
+    // 不绘制系统橡皮筋选中框，自定义选中效果由 DelegateFrame 负责
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
 
     styleOption.state &= ~QStyle::State_Selected;
@@ -94,7 +92,7 @@ void GraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 Item *GraphicsPixmapItem::deepCopy() const {
     GraphicsPixmapItem *copy = new GraphicsPixmapItem();
 
-    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    copy->setUuid(this->uuid()); // 只要位图内容不可变，副本沿用同一 UUID 就是安全的
 
     copyItemParameters(copy);
 

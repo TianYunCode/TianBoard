@@ -36,10 +36,6 @@ const QString FeaturesController::favoritePath = rootPath + "/Favorites";
 
 void FeaturesComputingThread::scanFS(const QUrl &currentPath, const QString &currVirtualPath,
                                      const QSet<QUrl> &pFavoriteSet) {
-    //    Q_ASSERT(QFileInfo(currentPath.toLocalFile()).exists());
-    //    if(QFileInfo(currentPath.toLocalFile()).exists())
-    //        return;
-
     QFileInfoList fileInfoList = FileSystemUtils::allElementsInDirectory(currentPath.toLocalFile());
 
     QFileInfoList::iterator fileInfo;
@@ -65,7 +61,7 @@ void FeaturesComputingThread::scanFS(const QUrl &currentPath, const QString &cur
         emit scanPath(fullFileName);
 
         if (pFavoriteSet.find(QUrl::fromLocalFile(fullFileName)) != pFavoriteSet.end()) {
-            //TODO send favoritePath from the controller or make favoritePath public and static
+            // TODO：favoritePath 应由控制器下发，或改成公开静态成员。
             emit sendFeature(Feature(FeaturesController::favoritePath + "/" + fileName, icon, fileName,
                                      QUrl::fromLocalFile(fullFileName), featureType));
         }
@@ -143,8 +139,6 @@ void FeaturesComputingThread::compute(const QList<QPair<QUrl, Feature>> &pScanni
 
 void FeaturesComputingThread::run() {
     forever {
-        //        qDebug() << "Custom thread started execution";
-
         mMutex.lock();
         QList<QPair<QUrl, Feature>> searchData = mScanningData;
         QSet<QUrl> favoriteSet = mFavoriteSet;
@@ -157,17 +151,12 @@ void FeaturesComputingThread::run() {
             break;
         }
 
-        //        QTime curTime = QTime::currentTime();
         int fsCnt = featuresCountAll(searchData);
-        //        int msecsto = curTime.msecsTo(QTime::currentTime());
-        //        qDebug() << "time on evaluation" << msecsto;
 
         emit maxFilesCountEvaluated(fsCnt);
 
         emit scanStarted();
-        //        curTime = QTime::currentTime();
         scanAll(searchData, favoriteSet);
-        //        qDebug() << "Time on finishing" << curTime.msecsTo(QTime::currentTime());
         emit scanFinished();
 
         mMutex.lock();
@@ -180,8 +169,6 @@ void FeaturesComputingThread::run() {
 }
 
 FeaturesComputingThread::~FeaturesComputingThread() {
-    //    qDebug() <<  "thread destructor catched";
-
     mMutex.lock();
     abort = true;
     mWaitCondition.wakeOne();
@@ -263,7 +250,7 @@ bool Feature::inTrash() const {
 
 FeaturesController::FeaturesController(QWidget *pParentWidget)
     : QObject(pParentWidget), featuresList(0), mLastItemOffsetIndex(0) {
-    //Initializing physical directories from Settings
+    // 从设置读取用户目录与内置素材库目录。
     mUserAudioDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userAudioDirectory());
     mUserVideoDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userVideoDirectory());
     mUserPicturesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userImageDirectory());
@@ -273,7 +260,6 @@ FeaturesController::FeaturesController(QWidget *pParentWidget)
     mLibPicturesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationImageLibraryDirectory());
     mLibAudiosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationAudiosLibraryDirectory());
     mLibVideosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationVideosLibraryDirectory());
-    //mLibInteractiveDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationInteractivesDirectory());
     mLibShapesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationShapeLibraryDirectory());
     trashDirectoryPath = QUrl::fromLocalFile(Settings::userTrashDirPath());
 
@@ -284,7 +270,6 @@ FeaturesController::FeaturesController(QWidget *pParentWidget)
                             mUserVideoDirectoryPath, FEATURE_CATEGORY);
     picturesElement = Feature(picturesPath, QImage(":images/libpalette/PicturesCategory.svg"), tr("Pictures"),
                               mUserPicturesDirectoryPath, FEATURE_CATEGORY);
-    //interactElement = Feature( interactPath, QImage(":images/libpalette/InteractivesCategory.svg"), tr("Interactivities") ,  mLibInteractiveDirectoryPath, FEATURE_CATEGORY);
     applicationsElement = Feature(appPath, QImage(":images/libpalette/ApplicationsCategory.svg"),
                                   tr("Applications"), mUserInteractiveDirectoryPath, FEATURE_CATEGORY);
     shapesElement = Feature(shapesPath, QImage(":images/libpalette/ShapesCategory.svg"), tr("Shapes"),
@@ -300,7 +285,6 @@ FeaturesController::FeaturesController(QWidget *pParentWidget)
     scanFS();
 
     featuresModel = new FeaturesModel(featuresList, this);
-    //featuresModel->setSupportedDragActions(Qt::CopyAction | Qt::MoveAction);
 
     featuresProxyModel = new FeaturesProxyModel(this);
     featuresProxyModel->setFilterFixedString(rootPath);
@@ -343,7 +327,6 @@ void FeaturesController::startThread() {
                   << QPair<QUrl, Feature>(mUserVideoDirectoryPath, moviesElement)
 
                   << QPair<QUrl, Feature>(mLibShapesDirectoryPath, shapesElement)
-                  //<<  QPair<QUrl, Feature>(mLibInteractiveDirectoryPath, interactElement)
                   << QPair<QUrl, Feature>(trashDirectoryPath, trashElement);
 
     mCThread.compute(computingData, favoriteSet);
@@ -353,12 +336,10 @@ void FeaturesController::scanFS() {
     featuresList->clear();
     featuresList->append(rootElement);
 
-    *featuresList << audiosElement << moviesElement
-                  << picturesElement
-                  //<< interactElement
-                  << applicationsElement << shapesElement << favoriteElement << trashElement;
+    *featuresList << audiosElement << moviesElement << picturesElement << applicationsElement << shapesElement
+                  << favoriteElement << trashElement;
 
-    //filling favoriteList
+    // 读取收藏列表，随后把收藏项一并放进模型。
     loadFavoriteList();
 
     QList<ToolsManager::ToolDescriptor> tools = ToolsManager::manager()->allTools();
@@ -469,13 +450,13 @@ QString FeaturesController::uniqNameForFeature(const Feature &feature, const QSt
             if (!parentVirtualPath.endsWith("/")) {
                 parentVirtualPath.append("/");
             }
-            //Cut virtual path prevfix
+            // 去掉虚拟路径前缀，只保留相对部分。
             int i = curResultName.indexOf(feature.getFullVirtualPath());
             if (i != -1) {
                 curResultName = curResultName.right(curFeature.getFullVirtualPath().count() - i -
                                                     parentVirtualPath.count());
             }
-            //if directory has children, emptying the name;
+            // 仍含分隔符说明是目录，不作为文件名参与重名判断。
             i = curResultName.indexOf("/");
             if (i != -1) {
                 curResultName = "";
@@ -750,10 +731,6 @@ Feature FeaturesController::getDestinationFeatureForMimeType(const QString &pMmi
         return moviesElement;
     else if (pMmimeType.contains("image") || pMmimeType.isEmpty())
         return picturesElement;
-    //else if ( pMmimeType.contains("application") )
-    //{
-    //    return interactElement;
-    //}
     return Feature();
 }
 
@@ -767,7 +744,7 @@ void FeaturesController::addDownloadedFile(const QUrl &sourceUrl, const QByteArr
     QString fileName;
     QString filePath;
 
-    //Audio item
+    // 图片：由字节解码后统一另存为 jpg。
     if (dest == picturesElement) {
         QString UniqName = uniqNameForFeature(dest, adjustName(pTitle), ".jpg");
         fileName = !UniqName.isNull()
@@ -806,9 +783,6 @@ void FeaturesController::addDownloadedFile(const QUrl &sourceUrl, const QByteArr
 }
 
 Feature FeaturesController::moveItemToFolder(const QUrl &url, const Feature &destination) {
-    /*Feature newElement = copyItemToFolder( url, destination );
-    deleteItem( url );
-    return newElement;*/
     QString sourcePath = url.toLocalFile();
 
     Q_ASSERT(QFileInfo(sourcePath).exists());
@@ -843,7 +817,7 @@ Feature FeaturesController::moveItemToFolder(const QUrl &url, const Feature &des
 void FeaturesController::rescanModel() {
     featuresModel->removeRows(0, featuresList->count());
 
-    //Could implement infolder scanning for better perfomance
+    // 目前整体重扫；后续可只扫描目标目录做增量更新以提升性能。
     scanFS();
     refreshModels();
 }
@@ -857,7 +831,6 @@ void FeaturesController::siftElements(const QString &pSiftValue) {
 }
 
 Feature FeaturesController::getFeature(const QModelIndex &index, const QString &listName) {
-    //    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(pOnView->model());
     QAbstractItemModel *model = 0;
     if (listName == FeaturesWidget::objNamePathList) {
         model = featuresPathModel;
@@ -870,9 +843,6 @@ Feature FeaturesController::getFeature(const QModelIndex &index, const QString &
     }
 
     return Feature();
-
-
-    //    return pOnView->model()->data(index, Qt::UserRole + 1).value<Feature>();  /*featuresSearchModel->data(index, Qt::UserRole + 1).value<Feature>()*/;
 }
 
 void FeaturesController::searchStarted(const QString &pattern, QListView *pOnView) {
@@ -881,7 +851,6 @@ void FeaturesController::searchStarted(const QString &pattern, QListView *pOnVie
         featuresProxyModel->invalidate();
         curListModel = featuresProxyModel;
     } else if (pattern.size() > 1) {
-        //        featuresSearchModel->setFilterPrefix(currentElement.getFullVirtualPath());
         featuresSearchModel->setFilterWildcard("*" + pattern + "*");
         pOnView->setModel(featuresSearchModel);
         featuresSearchModel->invalidate();
@@ -934,8 +903,7 @@ void FeaturesController::moveExternalData(const QUrl &url, const Feature &destin
 
     Feature dest = destination;
 
-    if (destination != trashElement && destination != Feature()
-        /*&& !destination.getFullVirtualPath().startsWith( possibleDest.getFullVirtualPath(), Qt::CaseInsensitive )*/) {
+    if (destination != trashElement && destination != Feature()) {
         dest = possibleDest;
     }
 

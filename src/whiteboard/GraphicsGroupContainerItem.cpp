@@ -23,9 +23,8 @@ GraphicsGroupContainerItem::GraphicsGroupContainerItem(QGraphicsItem *parent)
 
     setUuid(QUuid::createUuid());
 
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    // 同时写入小写键，场景据图层类型分配 z 值，缺少该项会导致层级排序不正确
+    setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem));
 }
 
 GraphicsGroupContainerItem::~GraphicsGroupContainerItem() {}
@@ -40,7 +39,7 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
         return;
     }
 
-    //Check if group is allready rotatable or flippable
+    // 组合的旋转/翻转/锁定能力取所有子项的交集：已有子项时只能收紧，不能放宽
     if (childItems().count()) {
         if (GraphicsItem::isFlippable(this) && !GraphicsItem::isFlippable(item)) {
             Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, false);
@@ -57,10 +56,11 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
         Delegate()->setLocked(GraphicsItem::isLocked(item));
     }
 
+    // 加入控制类子项后，组合整体也归入控制图层
     if (item->data(GraphicsItemData::ItemLayerType) == ItemLayerType::Control)
         setData(GraphicsItemData::ItemLayerType, item->data(GraphicsItemData::ItemLayerType));
 
-    // COMBINE
+    // 先求出子项到组合的变换，再改变父子关系，保证视觉位置不变
     bool ok;
     QTransform itemTransform = item->itemTransform(this, &ok);
 
@@ -70,7 +70,7 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
         return;
     }
 
-    //setting item flags to given item
+    // 子项不再单独响应选择与拖动，统一由组合的选择框接管
     item->setSelected(false);
     item->setFlag(QGraphicsItem::ItemIsSelectable, false);
     item->setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -83,15 +83,16 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
         item->scene()->removeItem(item);
     }
 
+    // 从待删除列表中移除，避免场景随后把刚加入组合的项删掉
     if (corescene())
         corescene()->removeItemFromDeletion(item);
     item->setParentItem(this);
 
-    // removing position from translation component of the new transform
+    // pos 已经承载了平移，变换里要把这部分减掉，否则会重复平移
     if (!item->pos().isNull())
         newItemTransform *= QTransform::fromTranslate(-item->x(), -item->y());
 
-    // removing additional transformations properties applied with itemTransform()
+    // 再把旋转、缩放、变换列表、变换原点等已经被 setPos/setRotation 等表达的属性剥离
     QPointF origin = item->transformOriginPoint();
     QMatrix4x4 m;
     QList<QGraphicsTransform *> transformList = item->transformations();
@@ -103,11 +104,11 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
     newItemTransform.scale(1 / item->scale(), 1 / item->scale());
     newItemTransform.translate(-origin.x(), -origin.y());
 
-    // ### Expensive, we could maybe use dirtySceneTransform bit for optimization
+    // ### 开销较大，或可借助 dirtySceneTransform 标志位优化
 
     item->setTransform(newItemTransform);
-    //    item->d_func()->setIsMemberOfGroup(true);
     prepareGeometryChange();
+    // 组合自身不参与绘制，包围盒靠累加子项的包围盒维持
     itemsBoundingRect |= itemTransform.mapRect(item->boundingRect() | item->childrenBoundingRect());
     update();
 }
@@ -117,6 +118,7 @@ void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item) {
         return;
     }
 
+    // 先登记到待删除列表，移出组合的过程中场景不会立即回收它
     CoreGraphicsScene *groupScene = corescene();
     if (groupScene) {
         groupScene->addItemToDeletion(item);
@@ -128,6 +130,7 @@ void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item) {
 }
 
 void GraphicsGroupContainerItem::deselectCurrentItem() {
+    // 只有媒体项需要额外的工具栏收尾，其他子项无需处理
     if (mCurrentItem &&
         (mCurrentItem->type() == GraphicsMediaItem::Type || mCurrentItem->type() == GraphicsVideoItem::Type ||
          mCurrentItem->type() == GraphicsAudioItem::Type)) {
@@ -148,6 +151,7 @@ void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGrap
     Q_UNUSED(painter);
     Q_UNUSED(option);
 
+    // 组合本身无内容，绘制交给委托（画选择框）
     Delegate()->postpaint(painter, option, widget);
 }
 
@@ -160,7 +164,8 @@ CoreGraphicsScene *GraphicsGroupContainerItem::corescene() {
 GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplication() const {
     GraphicsGroupContainerItem *copy = new GraphicsGroupContainerItem();
 
-    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    // 子项尚未复制，保留原 UUID 以便调用方把副本与原组合对应起来
+    copy->setUuid(this->uuid());
 
     copyItemParameters(copy);
 
@@ -171,7 +176,7 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplicati
 GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const {
     GraphicsGroupContainerItem *copy = new GraphicsGroupContainerItem();
 
-    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    copy->setUuid(this->uuid());
 
     foreach (QGraphicsItem *it, childItems()) {
         Item *childAsItem = dynamic_cast<Item *>(it);
@@ -200,12 +205,12 @@ void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const {
 
 void GraphicsGroupContainerItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    // 同时存一份到图形项数据，场景按 UUID 查找项时可直接读取，无需转换类型
+    setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
 void GraphicsGroupContainerItem::destroy(bool canUndo) {
+    // 先逐个解除父子关系并恢复交互标志，再删除空组合
     foreach (QGraphicsItem *item, childItems()) {
         pRemoveFromGroup(item);
         item->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -226,8 +231,9 @@ void GraphicsGroupContainerItem::clearSource() {
 
 void GraphicsGroupContainerItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mousePressEvent(event)) {
-        //NOOP
+        // 有意为空：委托已消费该事件，无需再走基类逻辑
     } else {
+        // 委托未接管时按普通图形项处理，并确保组合被选中
         QGraphicsItem::mousePressEvent(event);
         setSelected(true);
     }
@@ -235,20 +241,20 @@ void GraphicsGroupContainerItem::mousePressEvent(QGraphicsSceneMouseEvent *event
 
 void GraphicsGroupContainerItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
-        // NOOP;
+        // 有意为空：委托已消费该事件，无需再走基类逻辑
     } else {
         QGraphicsItem::mouseMoveEvent(event);
     }
 }
 
 void GraphicsGroupContainerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    //    mDelegate->mouseReleaseEvent(event);
     QGraphicsItem::mouseReleaseEvent(event);
 }
 
 QVariant GraphicsGroupContainerItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     QVariant newValue = Delegate()->itemChange(change, value);
 
+    // 组合移动或变化后，子项的选择框要跟着重新摆放
     foreach (QGraphicsItem *child, childItems()) {
         GraphicsItem *item = dynamic_cast<GraphicsItem *>(child);
         if (item) {
@@ -256,6 +262,7 @@ QVariant GraphicsGroupContainerItem::itemChange(GraphicsItemChange change, const
         }
     }
 
+    // 选中状态变化时释放媒体子项的交互状态
     if (QGraphicsItem::ItemSelectedChange == change) {
         deselectCurrentItem();
     }
@@ -271,6 +278,7 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
 
     QGraphicsItem *newParent = parentItem();
 
+    // 移出后重新计算剩余子项的公共能力，允许恢复旋转/翻转
     if (childItems().count()) {
         if (!GraphicsItem::isFlippable(item) || !GraphicsItem::isRotatable(item)) {
             bool flippableNow = true;
@@ -297,7 +305,7 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
         }
     }
 
-    // COMBINE
+    // 先求子项到新父项的变换，再换父项并用地图像素位置保持视觉位置
     bool ok;
     QTransform itemTransform;
     if (newParent)
@@ -314,12 +322,12 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
         Scene->addItem(item);
     }
 
-    // removing position from translation component of the new transform
+    // 从新变换的平移分量中扣除位置
     if (!item->pos().isNull())
         itemTransform *= QTransform::fromTranslate(-item->x(), -item->y());
 
-    // removing additional transformations properties applied
-    // with itemTransform() or sceneTransform()
+    // 剥离 itemTransform()/sceneTransform() 附带的额外变换属性
+    // （旋转、缩放、变换列表、变换原点）
     QPointF origin = item->transformOriginPoint();
     QMatrix4x4 m;
     QList<QGraphicsTransform *> transformList = item->transformations();
@@ -331,12 +339,12 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
     itemTransform.scale(1 / item->scale(), 1 / item->scale());
     itemTransform.translate(-origin.x(), -origin.y());
 
-    // ### Expensive, we could maybe use dirtySceneTransform bit for optimization
+    // ### 开销较大，或可借助 dirtySceneTransform 标志位优化
 
     item->setTransform(itemTransform);
-    //    item->d_func()->setIsMemberOfGroup(item->group() != 0);
 
-    // ### Quite expensive. But removeFromGroup() isn't called very often.
+    // ### 开销不小，不过 removeFromGroup() 很少被调用
+    // 移出后组合不再需要累加维护包围盒，直接按剩余子项重算
     prepareGeometryChange();
     itemsBoundingRect = childrenBoundingRect();
 

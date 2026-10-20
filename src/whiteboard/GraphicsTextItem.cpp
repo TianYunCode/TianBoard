@@ -30,9 +30,8 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem *parent)
     Delegate()->setFrameFlag(GF_REVOLVABLE, true);
 
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::ObjectItem)); // 必须设好图层类型，Z 值才会被分到正确的层
 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
@@ -75,8 +74,8 @@ QVariant GraphicsTextItem::itemChange(GraphicsItemChange change, const QVariant 
 }
 
 void GraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    // scene()->itemAt(pos) returns 0 if pos is not over text, but over text item, but mouse press comes.
-    // It is a cludge...
+    // 放映模式下点击落在图元包围盒的空白处（没有压在字上）时，scene()->itemAt() 返回空，
+    // 但事件仍然会送到本图元。这里是权宜写法：收下事件并让出焦点，绝不能进编辑态。
     if (StylusTool::Play == DrawingController::drawingController()->stylusTool()) {
         QGraphicsTextItem::mousePressEvent(event);
         event->accept();
@@ -146,8 +145,8 @@ void GraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 void GraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event) {}
 
 void GraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    // scene()->itemAt(pos) returns 0 if pos is not over text, but over text item, but mouse press comes.
-    // It is a cludge...
+    // 放映模式下点击落在图元包围盒的空白处（没有压在字上）时，scene()->itemAt() 返回空，
+    // 但事件仍然会送到本图元。这里是权宜写法：收下事件并让出焦点，绝不能进编辑态。
     if (StylusTool::Play == DrawingController::drawingController()->stylusTool()) {
         event->accept();
         clearFocus();
@@ -165,27 +164,22 @@ void GraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void GraphicsTextItem::keyPressEvent(QKeyEvent *event) {
-    if (Delegate() && !Delegate()->keyPressEvent(event)) {
-        qDebug() << "GraphicsTextItem::keyPressEvent(QKeyEvent *event) has been rejected by delegate. Don't "
-                    "call base class method";
+    // 委托吃掉按键时（比如方向键留给控制手柄）不能再交给基类，否则文本会跟着动光标。
+    if (Delegate() && !Delegate()->keyPressEvent(event))
         return;
-    }
 
     QGraphicsTextItem::keyPressEvent(event);
 }
 
 void GraphicsTextItem::keyReleaseEvent(QKeyEvent *event) {
-    if (Delegate() && !Delegate()->keyReleaseEvent(event)) {
-        qDebug() << "GraphicsTextItem::keyPressEvent(QKeyEvent *event) has been rejected by delegate. Don't "
-                    "call base class method";
+    if (Delegate() && !Delegate()->keyReleaseEvent(event))
         return;
-    }
 
     QGraphicsTextItem::keyReleaseEvent(event);
 }
 
 void GraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-    // Never draw the rubber band, we draw our custom selection with the DelegateFrame
+    // 从不画 Qt 自己的选框：选中效果由委托的边框画，这里把选中与焦点状态摘掉。
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
     styleOption.state &= ~QStyle::State_Selected;
     styleOption.state &= ~QStyle::State_HasFocus;
@@ -270,14 +264,6 @@ qreal GraphicsTextItem::textHeight() const {
     return mTextHeight;
 }
 
-/**
- * @brief Get the ratio between font size in pixels and points.
- * @return The ratio of pixel size to point size of the first character, or 0 if the text item is empty.
- *
- * Qt may display fonts differently on different platforms -- on the same display,
- * the same point size may be displayed at different pixel sizes. This function returns the
- * ratio of pixel size to point size, based on the first character in the text item.
- */
 qreal GraphicsTextItem::pixelsPerPoint() const {
     QTextCursor cursor = textCursor();
     if (cursor.isNull())
@@ -286,15 +272,10 @@ qreal GraphicsTextItem::pixelsPerPoint() const {
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
     cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
 
-    QFont f = cursor.charFormat().font();
-    qDebug() << "ppp. Font: " << f;
     QFontInfo fi(cursor.charFormat().font());
 
     qreal pixelSize = fi.pixelSize();
     qreal pointSize = fi.pointSizeF();
-
-    //qDebug() << "Pixel size: " << pixelSize;
-    //qDebug() << "Point size: " << pointSize;
 
     if (pointSize == 0)
         return 0;
@@ -333,9 +314,8 @@ QSizeF GraphicsTextItem::size() const {
 
 void GraphicsTextItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    // UUID 同时存进图元数据：场景按 UUID 找回图元，不必遍历整棵树。
+    setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
 
@@ -349,8 +329,6 @@ void GraphicsTextItem::documentSizeChanged(const QSizeF &newSize) {
 }
 
 void GraphicsTextItem::activateTextEditor(bool activate) {
-    qDebug() << textInteractionFlags();
-
     this->isActivatedTextEditor = activate;
 
     if (!activate) {
@@ -358,6 +336,4 @@ void GraphicsTextItem::activateTextEditor(bool activate) {
     } else {
         setTextInteractionFlags(Qt::TextEditorInteraction);
     }
-
-    qDebug() << textInteractionFlags();
 }

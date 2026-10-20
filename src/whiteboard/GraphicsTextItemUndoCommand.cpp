@@ -2,15 +2,12 @@
 #include "whiteboard/GraphicsTextItem.h"
 
 
-GraphicsTextItemUndoCommand::GraphicsTextItemUndoCommand(GraphicsTextItem *textItem) : mTextItem(textItem) {
-    // NOOP
-}
+GraphicsTextItemUndoCommand::GraphicsTextItemUndoCommand(GraphicsTextItem *textItem) : mTextItem(textItem) {}
 
-GraphicsTextItemUndoCommand::~GraphicsTextItemUndoCommand() {
-    // NOOP
-}
+GraphicsTextItemUndoCommand::~GraphicsTextItemUndoCommand() {}
 
 void GraphicsTextItemUndoCommand::undo() {
+    // 文本项可能已被删除，QPointer 会自动置空
     if (mTextItem && mTextItem->document())
         mTextItem->document()->undo();
 }

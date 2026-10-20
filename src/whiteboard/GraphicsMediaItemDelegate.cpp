@@ -24,12 +24,14 @@ GraphicsMediaItemDelegate::GraphicsMediaItemDelegate(GraphicsMediaItem *pDelegat
     QPalette palette;
     palette.setBrush(QPalette::Light, Qt::darkGray);
 
+    // 新建媒体项沿用当前的全局静音状态
     if (delegated()->isMuted())
         delegated()->setMute(true);
 }
 
 bool GraphicsMediaItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
+    // 按下时先浮出工具栏，并重置自动隐藏计时
     mToolBarItem->show();
     positionHandles();
 
@@ -39,12 +41,7 @@ bool GraphicsMediaItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
     return GraphicsItemDelegate::mousePressEvent(event);
 }
 
-/**
- * @brief Show the toolbar (play/pause, seek, mute).
- *
- * The toolbar then auto-hides after a set amount of time, if the video is currently
- * playing or is paused.
- */
+// 显示工具栏；播放中或暂停时启动自动隐藏计时
 void GraphicsMediaItemDelegate::showToolBar(bool autohide) {
     mToolBarItem->show();
     if (mToolBarShowTimer) {
@@ -53,11 +50,11 @@ void GraphicsMediaItemDelegate::showToolBar(bool autohide) {
         else
             mToolBarShowTimer->stop();
 
-        // Don't hide the toolbar if we're at the beginning of the video
+        // 停在起始位置时通常还没开始观看，保持工具栏可见
         if (delegated()->mediaPosition() == delegated()->initialPos())
             mToolBarShowTimer->stop();
 
-        // Don't hide the toolbar if it was explicitly requested
+        // 调用方显式要求常显时不自动隐藏
         if (!autohide)
             mToolBarShowTimer->stop();
     }
@@ -69,6 +66,7 @@ void GraphicsMediaItemDelegate::hideToolBar() {
 
 void GraphicsMediaItemDelegate::buildButtons() {
     if (!mPlayPauseButton) {
+        // 媒体按钮放在工具栏上，而不是选择框四角
         mPlayPauseButton =
             new DelegateButton(":/images/play.svg", mDelegated, mToolBarItem, Qt::TitleBarArea);
         connect(mPlayPauseButton, &DelegateButton::clicked, this,
@@ -90,7 +88,7 @@ void GraphicsMediaItemDelegate::buildButtons() {
 
         connect(mMuteButton, &DelegateButton::clicked, delegated(), &GraphicsMediaItem::toggleMute);
         connect(mMuteButton, &DelegateButton::clicked, this,
-                &GraphicsMediaItemDelegate::toggleMute); // for changing button image
+                &GraphicsMediaItemDelegate::toggleMute); // 仅用于切换按钮图标
 
         mToolBarButtons << mPlayPauseButton << mStopButton << mMuteButton;
 
@@ -99,6 +97,7 @@ void GraphicsMediaItemDelegate::buildButtons() {
         mToolBarItem->setVisibleOnBoard(true);
         mToolBarItem->setShifting(false);
 
+        // 有封面/占位的媒体才需要自动隐藏工具栏
         if (!mToolBarShowTimer) {
             if (delegated()->hasLinkedImage()) {
                 mToolBarShowTimer = new QTimer();
@@ -108,6 +107,7 @@ void GraphicsMediaItemDelegate::buildButtons() {
         }
 
         else {
+            // 任一控件被操作都重新计时
             connect(mPlayPauseButton, &DelegateButton::clicked, mToolBarShowTimer,
                     qOverload<>(&QTimer::start));
 
@@ -125,6 +125,7 @@ void GraphicsMediaItemDelegate::buildButtons() {
 }
 
 GraphicsMediaItemDelegate::~GraphicsMediaItemDelegate() {
+    // 计时器未指定父对象，需要手动释放
     if (mToolBarShowTimer) {
         delete mToolBarShowTimer;
         mToolBarShowTimer = NULL;
@@ -138,6 +139,7 @@ void GraphicsMediaItemDelegate::positionHandles() {
     if (mediaItem) {
         QRectF toolBarRect = mToolBarItem->rect();
 
+        // 工具栏贴在媒体内容底部，宽度与内容一致
         mToolBarItem->setPos(0, mediaItem->boundingRect().height() - mToolBarItem->rect().height());
 
         toolBarRect.setWidth(mediaItem->boundingRect().width());
@@ -150,6 +152,7 @@ void GraphicsMediaItemDelegate::positionHandles() {
     foreach (DelegateButton *button, mToolBarButtons)
         toolBarButtonsWidth += button->boundingRect().width() + mToolBarItem->getElementsPadding();
 
+    // 控制条占据除按钮之外的全部宽度
     QRectF mediaItemRect = mMediaControl->rect();
     mediaItemRect.setWidth(mediaItem->boundingRect().width() - toolBarButtonsWidth);
     mediaItemRect.setHeight(mToolBarItem->boundingRect().height());
@@ -163,6 +166,7 @@ void GraphicsMediaItemDelegate::positionHandles() {
 }
 
 void GraphicsMediaItemDelegate::remove(bool canUndo) {
+    // 删除前先停止播放，避免撤销栈中留下仍在播放的对象
     if (delegated())
         delegated()->stop();
 
@@ -188,33 +192,33 @@ void GraphicsMediaItemDelegate::togglePlayPause() {
 }
 
 void GraphicsMediaItemDelegate::mediaStatusChanged(QMediaPlayer::MediaStatus status) {
-    // Possible statuses are: UnknownMediaStatus, NoMedia, LoadingMedia, LoadedMedia,
-    // StalledMedia, BufferingMedia, BufferedMedia, EndOfMedia, InvalidMedia
+    // 可能的状态：UnknownMediaStatus、NoMedia、LoadingMedia、LoadedMedia、
+    // StalledMedia、BufferingMedia、BufferedMedia、EndOfMedia、InvalidMedia
 
     if (status == QMediaPlayer::LoadedMedia)
         mMediaControl->totalTimeChanged(delegated()->mediaDuration());
 
-    // At the beginning of the video, play/pause to load and display the first frame
+    // 视频停在开头时，用一次播放+暂停来加载并显示第一帧
     if ((status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia) &&
         delegated()->mediaPosition() == delegated()->initialPos() && !delegated()->isStopped()) {
         delegated()->play();
         delegated()->pause();
     }
 
-    // At the end of the video, make sure the progress bar doesn't autohide
+    // 播放到结尾时保持进度条常显，不自动隐藏
     if (status == QMediaPlayer::EndOfMedia)
         showToolBar(false);
 
 
-    // in most cases, the only necessary action is to update the play/pause state
+    // 多数情况下只需刷新播放/暂停按钮的状态
     updatePlayPauseState();
 }
 
 void GraphicsMediaItemDelegate::mediaStateChanged(QMediaPlayer::PlaybackState state) {
     Q_UNUSED(state);
-    // Possible states are StoppedState, PlayingState and PausedState
+    // 可能的状态：StoppedState、PlayingState、PausedState
 
-    // updatePlayPauseState handles this functionality
+    // 具体处理统一在 updatePlayPauseState 里完成
     updatePlayPauseState();
 }
 

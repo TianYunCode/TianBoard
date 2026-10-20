@@ -47,22 +47,22 @@ DelegateButton::DelegateButton(const QString &fileName, QGraphicsItem *pDelegate
     setCacheMode(QGraphicsItem::NoCache); /* 必须 NoCache：抓屏时位图要随窗口刷新，教师屏才能与副屏同步 */
 }
 
-DelegateButton::~DelegateButton() {
-    // NOOP
-}
+DelegateButton::~DelegateButton() {}
 
 void DelegateButton::setFileName(const QString &fileName) {
+    // 直接替换共享渲染器，父对象设为自身以便随按钮释放
     QGraphicsSvgItem::setSharedRenderer(new QSvgRenderer(fileName, this));
 }
 
 void DelegateButton::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    // 长按 300ms 后才开始显示进度，避免普通点击闪烁
     if (mShowProgressIndicator) {
         QTimer::singleShot(300, this, &DelegateButton::startShowProgress);
     }
 
     mIsPressed = true;
 
-    // make sure delegate is selected, to avoid control being hidden
+    // 记录按下时刻，释放时据此区分单击与长按
     mPressedTime = QTime::currentTime();
 
     event->setAccepted(!mIsTransparentToMouseEvent);
@@ -77,6 +77,7 @@ void DelegateButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     mIsPressed = false;
     int timeto = qAbs(QTime::currentTime().msecsTo(mPressedTime));
 
+    // 按压时间短于长按阈值算点击，否则算长按
     if (timeto < Settings::longClickInterval) {
         emit clicked();
     } else {
@@ -94,6 +95,7 @@ void DelegateButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     QGraphicsSvgItem::paint(painter, option, widget);
     painter->restore();
 
+    // 按压期间在图标外画一圈白色进度弧，长度按已按压时长增长
     if (mIsPressed && mShowProgressIndicator) {
         QPen pen;
         pen.setBrush(Qt::white);
@@ -111,6 +113,7 @@ void DelegateButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 }
 
 void DelegateButton::timerEvent(QTimerEvent *event) {
+    // 约 27fps 刷新进度弧，开销很小但足够顺滑
     if (event->timerId() == mProgressTimerId) {
         mPressProgres = qAbs(QTime::currentTime().msecsTo(mPressedTime));
         update();
@@ -118,6 +121,7 @@ void DelegateButton::timerEvent(QTimerEvent *event) {
 }
 
 void DelegateButton::startShowProgress() {
+    // 延迟到点后按钮可能已经松开，需再次确认仍处于按压状态
     if (mIsPressed) {
         mProgressTimerId = startTimer(37);
     }
@@ -141,11 +145,13 @@ GraphicsItemDelegate::GraphicsItemDelegate(QGraphicsItem *pDelegated, QObject *p
       mToolBarItem(NULL),
       mMimeData(NULL) {
     setFrameFlags(fls);
+    // 视图缩放变化时所有委托都要重新摆放选择框
     connect(Application::boardController, &BoardController::zoomChanged, this,
             &GraphicsItemDelegate::onZoomChanged);
 }
 
 void GraphicsItemDelegate::createControls() {
+    // 需要工具栏的项先创建工具栏容器，按钮由子类注入
     if (testFrameFlags(GF_TOOLBAR_USED) && !mToolBarItem)
         mToolBarItem = new GraphicsToolBarItem(mDelegated);
 
@@ -153,6 +159,7 @@ void GraphicsItemDelegate::createControls() {
         mFrame =
             new GraphicsDelegateFrame(this, QRectF(0, 0, 0, 0), mFrameWidth, testFrameFlags(GF_RESPECT_RATIO),
                                       testFrameFlags(GF_TITLE_BAR_USED));
+        // 先隐藏，等项被选中时再显示
         mFrame->hide();
         mFrame->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
@@ -178,6 +185,7 @@ void GraphicsItemDelegate::createControls() {
     if (!mZOrderUpButton) {
         mZOrderUpButton =
             new DelegateButton(":/images/z_layer_up.svg", mDelegated, mFrame, Qt::BottomLeftSection);
+        // 层级按钮支持长按直达最上层/最下层，因此需要进度指示
         mZOrderUpButton->setShowProgressIndicator(true);
         connect(mZOrderUpButton, &DelegateButton::clicked, this, &GraphicsItemDelegate::increaseZLevelUp);
         connect(mZOrderUpButton, &DelegateButton::longClicked, this,
@@ -198,6 +206,7 @@ void GraphicsItemDelegate::createControls() {
 
     buildButtons();
 
+    // 统一的初始隐藏，确保未选中的项不显示任何控件
     foreach (DelegateButton *button, mButtons) {
         button->hide();
         button->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -211,6 +220,7 @@ void GraphicsItemDelegate::freeControls() {
     if (mFrame) {
         if (controlsScene)
             controlsScene->removeItem(mFrame);
+        // 框架的子项（按钮、把手）随框架一起延迟销毁
         mFrame->deleteLater();
         mFrame = nullptr;
     }
@@ -218,6 +228,7 @@ void GraphicsItemDelegate::freeControls() {
 }
 
 void GraphicsItemDelegate::showControls() {
+    // 控件按屏幕像素绘制，需要抵消系统缩放与画板缩放
     mAntiScaleRatio =
         1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
     positionHandles();
@@ -231,8 +242,8 @@ GraphicsItemDelegate::~GraphicsItemDelegate() {
     if (Application::boardController)
         disconnect(Application::boardController, &BoardController::zoomChanged, this,
                    &GraphicsItemDelegate::onZoomChanged);
-    // do not release mMimeData.
-    // the mMimeData is owned by QDrag since the setMimeData call as specified in the documentation
+    // 不在此处释放 mMimeData：交给 QDrag 后其所有权已转移，
+    // 未交给 QDrag 的情况由下一次 setMimeData() 负责回收。
 }
 
 
@@ -241,9 +252,11 @@ QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange chan
     switch (static_cast<int>(change)) {
         case QGraphicsItem::ItemSelectedHasChanged: {
             if (ownerScene) {
-                if (value.toBool()) { //selected(true)
+                if (value.toBool()) { // 变为选中
+                    // 选中时临时提升到选中层级，避免被其他项遮挡
                     ownerScene->setSelectedZLevel(delegated());
                 } else {
+                    // 取消选中后恢复原层级并释放选择框，减少常驻图元
                     ownerScene->setOwnZlevel(delegated());
                     freeControls();
                 }
@@ -251,6 +264,7 @@ QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange chan
 
         } break;
         case QGraphicsItem::ItemVisibleHasChanged: {
+            // 控制类项不参与“在扩展屏显示”，其余项随可见性同步显示状态
             bool shownOnDisplay =
                 mDelegated->data(GraphicsItemData::ItemLayerType).toInt() != ItemLayerType::Control;
             showHide(shownOnDisplay);
@@ -262,6 +276,7 @@ QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange chan
             if (!controlsExist()) {
                 break;
             }
+            // 几何变化后选择框要跟随，并标记文档已修改
             mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() *
                                    Application::boardController->currentZoom());
             positionHandles();
@@ -280,10 +295,11 @@ GraphicsScene *GraphicsItemDelegate::owningScene() {
     return castScene;
 }
 
-/** Used to render custom data after the main "Paint" operation is finished */
+// 主绘制完成后的附加绘制：无控件时用半透明矩形表示选中
 void GraphicsItemDelegate::postpaint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                                      QWidget *widget) {
     Q_UNUSED(widget)
+    // 控件尚未创建时（如组合），用半透明遮罩表示选中
     if (option->state & QStyle::State_Selected && !controlsExist()) {
         painter->save();
         painter->setPen(Qt::NoPen);
@@ -299,6 +315,7 @@ bool GraphicsItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
     startUndoStep();
 
+    // 未选中时第一次按下只负责选中，不进入拖动
     if (!delegated()->isSelected()) {
         delegated()->setSelected(true);
         return true;
@@ -334,6 +351,7 @@ bool GraphicsItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 
 bool GraphicsItemDelegate::wheelEvent(QGraphicsSceneWheelEvent *event) {
     Q_UNUSED(event);
+    // 选中项吞掉滚轮，避免滚动时误缩放画板
     if (delegated()->isSelected())
         return true;
     else
@@ -343,7 +361,7 @@ bool GraphicsItemDelegate::wheelEvent(QGraphicsSceneWheelEvent *event) {
 bool GraphicsItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
 
-    //Deselect all the rest selected items if no ctrl key modifier
+    // 未按 Ctrl 时，释放后只保留当前项选中
     if (delegated()->scene() && delegated()->scene()->selectedItems().count() &&
         event->modifiers() != Qt::ControlModifier) {
         foreach (QGraphicsItem *item, delegated()->scene()->selectedItems()) {
@@ -378,10 +396,9 @@ bool GraphicsItemDelegate::keyReleaseEvent(QKeyEvent *event) {
 
 QGraphicsItem *GraphicsItemDelegate::delegated() {
     QGraphicsItem *curDelegate = 0;
+    // 若图形项属于组合，则把整个组合当作委托目标，选择框和删除都作用于组合
     if (mDelegated->parentItem() && mDelegated->parentItem()->type() == GraphicsGroupContainerItem::Type) {
-        curDelegate =
-            mDelegated
-                ->parentItem(); // considering delegated item as an item's group which contains everything
+        curDelegate = mDelegated->parentItem();
     } else {
         curDelegate = mDelegated;
     }
@@ -395,6 +412,7 @@ void GraphicsItemDelegate::positionHandles() {
     }
 
     if (mDelegated->isSelected()) {
+        // 选中时才构建并显示控件；触控笔处于播放模式时不显示框架，避免遮挡演示
         bool shownOnDisplay =
             mDelegated->data(GraphicsItemData::ItemLayerType).toInt() != ItemLayerType::Control;
         showHide(shownOnDisplay);
@@ -428,6 +446,8 @@ void GraphicsItemDelegate::setZOrderButtonsVisible(bool visible) {
         updateFrame();
         updateButtons();
 
+        // 把层级按钮从框架坐标系换算到内容坐标系，再改挂到内容上，
+        // 这样按钮不会随框架一起旋转/缩放
         QPointF newUpPoint = mFrame->mapToItem(mDelegated, mZOrderUpButton->pos());
         QPointF newDownPoint = mFrame->mapToItem(mDelegated, mZOrderDownButton->pos());
 
@@ -450,6 +470,7 @@ void GraphicsItemDelegate::setZOrderButtonsVisible(bool visible) {
 void GraphicsItemDelegate::remove(bool canUndo) {
     GraphicsScene *scene = dynamic_cast<GraphicsScene *>(mDelegated->scene());
     if (scene) {
+        // 框架可能已脱离场景，先临时挂回并刷新按钮，确保删除命令记录的是完整状态
         if (mFrame && !mFrame->scene() && mDelegated->scene()) {
             mDelegated->scene()->addItem(mFrame);
             mFrame->setAntiScale(mAntiScaleRatio);
@@ -462,14 +483,14 @@ void GraphicsItemDelegate::remove(bool canUndo) {
             scene->removeItem(mFrame);
         }
 
-        /* this is performed because when removing delegated from scene while it contains flash content, segfault happens because of QGraphicsScene::removeItem() */
+        // 含内嵌窗口内容的项必须先移出场景再销毁，否则 removeItem 过程中可能崩溃；
+        // 这里仅做类型转换，实际清理在场景删除项时完成
         GraphicsWidgetItem *mDelegated_casted = dynamic_cast<GraphicsWidgetItem *>(mDelegated);
-        /*      if (mDelegated_casted)
-            mDelegated_casted->setHtml(QString());*/
 
         scene->removeItem(mDelegated);
 
         if (canUndo) {
+            // 删除命令持有该项，撤销时重新插回场景
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(scene, mDelegated, 0);
             Application::undoStack->push(uc);
         }
@@ -512,6 +533,7 @@ void GraphicsItemDelegate::increaseZlevelBottom() {
 }
 
 void GraphicsItemDelegate::lock(bool locked) {
+    // 组合需要整组锁定，因此递归写入子项
     setLockedRecurs(locked, mDelegated);
     mDelegated->update();
 
@@ -528,6 +550,7 @@ void GraphicsItemDelegate::setLockedRecurs(const QVariant &pLock, QGraphicsItem 
 }
 
 void GraphicsItemDelegate::showHide(bool show) {
+    // 通过图层类型表达“是否在扩展屏显示”：Object 显示，Control 只在控制屏显示
     QVariant showFlag = QVariant(show ? ItemLayerType::Object : ItemLayerType::Control);
     showHideRecurs(showFlag, mDelegated);
     mDelegated->update();
@@ -542,9 +565,7 @@ void GraphicsItemDelegate::showHideRecurs(const QVariant &pShow, QGraphicsItem *
     }
 }
 
-/**
- * @brief Set delegate as background for the scene, replacing any existing background.
- */
+// 把当前项铺满页面作为背景，替换已有背景
 void GraphicsItemDelegate::setAsBackground() {
     GraphicsScene *scene = owningScene();
     QGraphicsItem *item = delegated();
@@ -552,11 +573,13 @@ void GraphicsItemDelegate::setAsBackground() {
     if (scene && item) {
         startUndoStep();
 
+        // 背景以页面尺寸为准，重置变换并把内容中心对齐到原点
         item->resetTransform();
         item->setPos(item->sceneBoundingRect().width() / -2., item->sceneBoundingRect().height() / -2.);
 
         scene->setAsBackgroundObject(item, true);
 
+        // 单独记录一次变换撤销步骤，使“设为背景”可回退
         GraphicsItemTransformUndoCommand *uc = new GraphicsItemTransformUndoCommand(
             mDelegated, mPreviousPosition, mPreviousTransform, mPreviousZValue, mPreviousSize, true);
         Application::undoStack->push(uc);
@@ -572,6 +595,7 @@ void GraphicsItemDelegate::gotoContentSource() {
 }
 
 void GraphicsItemDelegate::startUndoStep() {
+    // 只记录几何与层级快照；尺寸需项支持 ResizableGraphicsItem 才有意义
     mPreviousPosition = mDelegated->pos();
     mPreviousTransform = mDelegated->transform();
     mPreviousZValue = mDelegated->zValue();
@@ -587,6 +611,7 @@ void GraphicsItemDelegate::startUndoStep() {
 void GraphicsItemDelegate::commitUndoStep() {
     ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(mDelegated);
 
+    // 只有确实发生变化才压栈，避免点击也产生空的撤销记录
     if (mDelegated->pos() != mPreviousPosition || mDelegated->transform() != mPreviousTransform ||
         mDelegated->zValue() != mPreviousZValue ||
         (resizableItem && resizableItem->size() != mPreviousSize)) {
@@ -598,6 +623,7 @@ void GraphicsItemDelegate::commitUndoStep() {
 }
 
 void GraphicsItemDelegate::onZoomChanged() {
+    // 缩放后重新计算反缩放系数并刷新框架，保证把手屏幕尺寸不变
     mAntiScaleRatio =
         1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
 
@@ -607,8 +633,7 @@ void GraphicsItemDelegate::onZoomChanged() {
 void GraphicsItemDelegate::buildButtons() {}
 
 void GraphicsItemDelegate::freeButtons() {
-    //Previously deleted with the frame
-    // Rimplement for some specific behavior
+    // 按钮已随框架一起删除，这里只需清空指针与列表，避免悬空
     mButtons.clear();
     mDeleteButton = 0;
     mMenuButton = 0;
@@ -617,6 +642,7 @@ void GraphicsItemDelegate::freeButtons() {
 }
 
 void GraphicsItemDelegate::decorateMenu(QMenu *menu) {
+    // 锁定与扩展屏显示是通用菜单项；背景/来源为可选能力，按数据与标志决定是否出现
     mLockAction = menu->addAction(tr("Locked"), this, &GraphicsItemDelegate::lock);
     QIcon lockIcon;
     lockIcon.addPixmap(QPixmap(":/images/locked.svg"), QIcon::Normal, QIcon::On);
@@ -654,6 +680,7 @@ void GraphicsItemDelegate::decorateMenu(QMenu *menu) {
 }
 
 void GraphicsItemDelegate::updateMenuActionState() {
+    // 菜单每次弹出前同步勾选状态，避免显示过期信息
     if (mLockAction)
         mLockAction->setChecked(isLocked());
 
@@ -676,6 +703,7 @@ void GraphicsItemDelegate::showMenu() {
 
     updateMenuActionState();
 
+    // 菜单在控制视图上弹出，锚点为菜单按钮右下角
     BoardView *cv = Application::boardController->controlView();
     QRect pinPos = cv->mapFromScene(mMenuButton->sceneBoundingRect()).boundingRect();
 
@@ -691,6 +719,7 @@ void GraphicsItemDelegate::setLocked(bool pLocked) {
 }
 
 void GraphicsItemDelegate::updateFrame() {
+    // 框架可能因取消选中被移出场景，重新显示前要挂回
     if (mFrame && !mFrame->scene() && mDelegated->scene())
         mDelegated->scene()->addItem(mFrame);
 
@@ -723,6 +752,7 @@ void GraphicsItemDelegate::updateButtons(bool showUpdated) {
     if (showUpdated)
         mDeleteButton->show();
 
+    // 按贴边区域分组依次排布：i 左上、j 左下、k 标题栏、l 无区域（仅计数）
     int i = 1, j = 0, k = 0, l = 0;
     int frameButtonHeight = mDeleteButton->boundingRect().size().height();
     qreal topXTitleBar = topX + (1.6 * mFrameWidth * mAntiScaleRatio);
@@ -745,6 +775,7 @@ void GraphicsItemDelegate::updateButtons(bool showUpdated) {
             button->setParentItem(mFrame);
             button->setPos(topXTitleBar + (k++ * (frameButtonHeight + 5) * mAntiScaleRatio), topYTitleBar);
             button->setTransform(tr);
+            // 标题栏按钮略小，避免与标题文字争空间
             button->setTransform(QTransform::fromScale(0.8, 0.8), true);
         } else if (button->getSection() == Qt::NoSection) {
             ++l;
@@ -755,6 +786,7 @@ void GraphicsItemDelegate::updateButtons(bool showUpdated) {
         }
         if (showUpdated) {
             button->show();
+            // 按钮与内容同层，避免被其他图形项盖住
             button->setZValue(delegated()->zValue());
         }
     }
@@ -774,6 +806,7 @@ void GraphicsItemDelegate::setFrameFlags(GraphicsFlags pf) {
         return;
     }
 
+    // 把可翻转/可旋转能力写回图形项数据，序列化与其他逻辑都读取这两个字段
     if (testFrameFlags(GF_FLIPPABLE_ALL_AXIS)) {
         mDelegated->setData(GraphicsItemData::ItemFlippable, QVariant(testFrameFlags(GF_FLIPPABLE_ALL_AXIS)));
     }
@@ -797,6 +830,7 @@ GraphicsToolBarItem::GraphicsToolBarItem(QGraphicsItem *parent)
       mMinWidth(200),
       mInitialHeight(26),
       mElementsPadding(2) {
+    // 初始宽度与父项一致，高度固定
     QRectF rect = this->rect();
     rect.setHeight(mInitialHeight);
     rect.setWidth(parent->boundingRect().width());
@@ -810,6 +844,7 @@ GraphicsToolBarItem::GraphicsToolBarItem(QGraphicsItem *parent)
 
 
 void GraphicsToolBarItem::positionHandles() {
+    // 元素从左侧依次水平排列，间距为 mElementsPadding
     int itemXOffset = 0;
     foreach (QGraphicsItem *item, mItemsOnToolBar) {
         item->setPos(itemXOffset, 0);
@@ -826,6 +861,7 @@ void GraphicsToolBarItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
+    // 圆角背景使用当前调色板颜色，与画板主题一致
     QPainterPath path;
     path.addRoundedRect(rect(), 10, 10);
 
@@ -842,6 +878,7 @@ MediaTimer::MediaTimer(QGraphicsItem *parent) : QGraphicsRectItem(parent) {
 
 MediaTimer::~MediaTimer() {}
 void MediaTimer::positionHandles() {
+    // 由高度推导段长与字距，再按位数把整体水平居中
     digitSpace = smallPoint ? 2 : 1;
     ySegLen = rect().height() * 5 / 12;
     xSegLen = ySegLen * 2 / 3;
@@ -856,6 +893,7 @@ void MediaTimer::positionHandles() {
 void MediaTimer::drawString(const QString &s, QPainter &p, QBitArray *newPoints, bool newString) {
     QPoint pos;
 
+    // 逐位绘制；newString 为 true 时还会重绘上一位的差异（用于小数点变化）
     for (int i = 0; i < ndigits; i++) {
         pos = QPoint(xOffset + xAdvance * i, yOffset);
         if (newString)
@@ -881,8 +919,7 @@ void MediaTimer::drawString(const QString &s, QPainter &p, QBitArray *newPoints,
 }
 
 void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, int segLen, char newCh, char oldCh) {
-    char updates[18][2]; // can hold 2 times number of segments, only
-                         // first 9 used if segment table is correct
+    char updates[18][2]; // 容量为段数的两倍；段表正确时实际只会用到前 9 个
     int nErases;
     int nUpdates;
     const char *segs;
@@ -892,20 +929,21 @@ void MediaTimer::drawDigit(const QPoint &pos, QPainter &p, int segLen, char newC
     const char draw = 1;
     const char leaveAlone = 2;
 
+    // 新旧字符做差集：只擦除消失的段、只绘制新增的段，重叠段保持不动
     segs = getSegments(oldCh);
     for (nErases = 0; segs[nErases] != 99; nErases++) {
-        updates[nErases][0] = erase;         // get segments to erase to
-        updates[nErases][1] = segs[nErases]; // remove old char
+        updates[nErases][0] = erase;
+        updates[nErases][1] = segs[nErases];
     }
     nUpdates = nErases;
     segs = getSegments(newCh);
     for (i = 0; segs[i] != 99; i++) {
         for (j = 0; j < nErases; j++)
-            if (segs[i] == updates[j][1]) { // same segment ?
-                updates[j][0] = leaveAlone; // yes, already on screen
+            if (segs[i] == updates[j][1]) {
+                updates[j][0] = leaveAlone;
                 break;
             }
-        if (j == nErases) { // if not already on screen
+        if (j == nErases) {
             updates[nUpdates][0] = draw;
             updates[nUpdates][1] = segs[i];
             nUpdates++;
@@ -934,8 +972,9 @@ char MediaTimer::segments[][8] = {
     {99, 0, 0, 0, 0, 0, 0, 0}  // 11   empty
 };
 
-const char *MediaTimer::getSegments(char ch) // gets list of segments for ch
+const char *MediaTimer::getSegments(char ch) // 返回字符 ch 对应的段号列表
 {
+    // 返回以 99 结尾的段号表；空格表示空位，冒号占用中间两个点
     if (ch >= '0' && ch <= '9')
         return segments[ch - '0'];
     if (ch == ':')
@@ -958,6 +997,7 @@ void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p, int
 #define DARK
 
     QPolygon a;
+    // 每个 case 用相对坐标拼出一个段的四边形；LIGHT/DARK 是空宏，仅用于标明起止笔
     switch (segmentNo) {
         case 0:
             ppt = pt;
@@ -997,7 +1037,7 @@ void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p, int
             LINETO(segLen - width - 1, -width / 2);
             LINETO(segLen - 1, 0);
             DARK;
-            if (width & 1) { // adjust for integer division error
+            if (width & 1) { // 修正整数除法带来的误差
                 LINETO(segLen - width - 3, width / 2 + 1);
                 LINETO(width + 2, width / 2 + 1);
             } else {
@@ -1070,7 +1110,7 @@ void MediaTimer::drawSegment(const QPoint &pos, char segmentNo, QPainter &p, int
         default:
             break;
     }
-    // End exact copy
+    // 段轮廓拼完后统一填充为白色
     p.setPen(Qt::white);
     p.setBrush(Qt::white);
     p.drawPolygon(a);
@@ -1106,33 +1146,36 @@ void MediaTimer::internalSetString(const QString &s) {
     QBitArray newPoints(ndigits);
 
     if (!smallPoint) {
+        // 不显示小数点时直接右对齐截断
         if (len == ndigits)
             buffer = s;
         else
             buffer = s.right(ndigits).rightJustified(ndigits, QLatin1Char(' '));
     } else {
+        // 小数点单独占一位，连续两个小数点时补一个空格占位
         int index = -1;
         bool lastWasPoint = true;
         newPoints.clearBit(0);
         for (i = 0; i < len; i++) {
             if (s[i] == QLatin1Char('.')) {
-                if (lastWasPoint) {           // point already set for digit?
-                    if (index == ndigits - 1) // no more digits
+                if (lastWasPoint) {
+                    if (index == ndigits - 1)
                         break;
                     index++;
-                    buffer[index] = QLatin1Char(' '); // 2 points in a row, add space
+                    buffer[index] = QLatin1Char(' ');
                 }
-                newPoints.setBit(index); // set decimal point
+                newPoints.setBit(index);
                 lastWasPoint = true;
             } else {
                 if (index == ndigits - 1)
                     break;
                 index++;
                 buffer[index] = s[i];
-                newPoints.clearBit(index); // decimal point default off
+                newPoints.clearBit(index);
                 lastWasPoint = false;
             }
         }
+        // 内容不足位数时整体右移，前面补空格
         if (index < ((int)ndigits) - 1) {
             for (i = index; i >= 0; i--) {
                 buffer[ndigits - 1 - index + i] = buffer[i];
@@ -1155,6 +1198,7 @@ void MediaTimer::internalSetString(const QString &s) {
 }
 
 void MediaTimer::display(const QString &s) {
+    // val 仅保存数值形式，绘制仍使用字符串，以便兼容冒号与空格
     val = 0;
     bool ok = false;
     double v = s.toDouble(&ok);
@@ -1172,17 +1216,18 @@ void MediaTimer::setNumDigits(int numDigits) {
         qWarning("QLCDNumber::setNumDigits: Min 0 digits allowed");
         numDigits = 0;
     }
-    if (digitStr.isNull()) { // from constructor
+    if (digitStr.isNull()) { // 仅在构造阶段成立
+        // 构造阶段：按 1.5 倍位数预留空间（含分隔符位置）
         ndigits = numDigits + numDigits / 2 - 1;
         digitStr.fill(QLatin1Char(' '), ndigits);
         points.fill(0, ndigits);
-        digitStr[ndigits - 1] = QLatin1Char('0'); // "0" is the default number
+        digitStr[ndigits - 1] = QLatin1Char('0'); // 默认显示 0
     } else {
-        if (numDigits == ndigits) // no change
+        if (numDigits == ndigits) // 位数未变化
             return;
         int i;
         int dif;
-        if (numDigits > ndigits) { // expand
+        if (numDigits > ndigits) { // 扩展：内容右移，左侧补空
             dif = numDigits - ndigits;
             QString buf;
             buf.fill(QLatin1Char(' '), dif);
@@ -1192,7 +1237,7 @@ void MediaTimer::setNumDigits(int numDigits) {
                 points.setBit(i, points.testBit(i - dif));
             for (i = 0; i < dif; i++)
                 points.clearBit(i);
-        } else { // shrink
+        } else { // 收缩：保留右侧低位
             dif = ndigits - numDigits;
             digitStr = digitStr.right(numDigits);
             QBitArray tmpPoints = points;
@@ -1219,6 +1264,7 @@ DelegateMediaControl::DelegateMediaControl(GraphicsMediaItem *pDelegated, QGraph
     setPen(Qt::NoPen);
     setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
 
+    // 数字计时器是控制条的子项，随控制条一起销毁
     lcdTimer = new MediaTimer(this);
 
     update();
@@ -1231,6 +1277,7 @@ void DelegateMediaControl::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
     QPainterPath path;
 
+    // 进度槽为圆角胶囊，按当前时间比例计算滑块位置
     path.addRoundedRect(mSeecArea, mSeecArea.height() / 2, mSeecArea.height() / 2);
     painter->fillPath(path, brush());
 
@@ -1252,6 +1299,7 @@ void DelegateMediaControl::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
 
 QPainterPath DelegateMediaControl::shape() const {
+    // 命中区域只覆盖进度条，避免遮挡上方媒体画面
     QPainterPath path;
     path.addRoundedRect(mSeecArea, mSeecArea.height() / 2, mSeecArea.height() / 2);
     return path;
@@ -1267,7 +1315,7 @@ void DelegateMediaControl::positionHandles() {
     mDisplayFormat = "ss";
 
 
-    //Explanation at least the second and minutes are diplayed
+    // 至少显示分与秒；超过一小时再补上小时位
     mDisplayFormat = "mm:" + mDisplayFormat;
     digitsCount += 3;
     timerWidth += mLCDTimerArea.height();
@@ -1283,6 +1331,7 @@ void DelegateMediaControl::positionHandles() {
     mLCDTimerArea.setWidth(timerWidth);
     lcdTimer->setRect(mLCDTimerArea);
 
+    // 计时器贴右侧，进度槽占据剩余宽度
     lcdTimer->setPos(rect().width() - mLCDTimerArea.width(), 0);
 
     mSeecAreaBorderHeight = rect().height() / 20;
@@ -1308,6 +1357,7 @@ void DelegateMediaControl::updateTicker(qint64 time) {
 
 
 void DelegateMediaControl::totalTimeChanged(qint64 newTotalTime) {
+    // 总时长变化可能改变显示格式（是否出现小时位），需要重新布局
     if (mTotalTimeInMs != newTotalTime) {
         mTotalTimeInMs = newTotalTime;
         positionHandles();
@@ -1317,6 +1367,7 @@ void DelegateMediaControl::totalTimeChanged(qint64 newTotalTime) {
 
 
 void DelegateMediaControl::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    // 用左右各偏移半个胶囊高度的方式排除圆角外侧的点击
     qreal frameWidth = mSeecArea.height() / 2;
     if (boundingRect().contains(event->pos() - QPointF(frameWidth, 0)) &&
         boundingRect().contains(event->pos() + QPointF(frameWidth, 0))) {
@@ -1346,6 +1397,7 @@ void DelegateMediaControl::seekToMousePos(QPointF mousePos) {
     minX = frameWidth;
     length = mSeecArea.width() - mSeecArea.height();
 
+    // 把鼠标位置夹在可拖动范围内，再按比例换算成播放时间
     qreal mouseX = mousePos.x();
     if (mouseX >= (mSeecArea.width() - mSeecArea.height() / 2))
         mouseX = mSeecArea.width() - mSeecArea.height() / 2;
@@ -1354,7 +1406,7 @@ void DelegateMediaControl::seekToMousePos(QPointF mousePos) {
         qint64 tickPos = (mTotalTimeInMs / length) * (mouseX - minX);
         mDelegate->setMediaPos(tickPos);
 
-        //OSX is a bit lazy
+        // 立即刷新数字，部分平台上播放器回调有延迟
         updateTicker(tickPos);
     }
     emit used();

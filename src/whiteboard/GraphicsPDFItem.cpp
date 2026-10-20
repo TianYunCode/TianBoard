@@ -10,10 +10,8 @@
 GraphicsPDFItem::GraphicsPDFItem(PDFRenderer *renderer, int pageNumber, QGraphicsItem *parent)
     : PdfPageItem(renderer, pageNumber, parent) {
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object); //deprecated
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(
-            itemLayerType::BackgroundItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::BackgroundItem)); // 必须设好图层类型，Z 值才会被分到正确的层
 
     setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON));
 }
@@ -34,7 +32,7 @@ void GraphicsPDFItem::setUuid(const QUuid &pUuid) {
 
 void GraphicsPDFItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mousePressEvent(event)) {
-        // NOOP
+        // 刻意留空
     } else {
         PdfPageItem::mousePressEvent(event);
     }
@@ -43,7 +41,7 @@ void GraphicsPDFItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void GraphicsPDFItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
-        // NOOP
+        // 刻意留空
     } else {
         PdfPageItem::mouseMoveEvent(event);
     }
@@ -63,7 +61,7 @@ void GraphicsPDFItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 Item *GraphicsPDFItem::deepCopy() const {
     GraphicsPDFItem *copy = new GraphicsPDFItem(mRenderer, mPageNumber, parentItem());
 
-    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    copy->setUuid(this->uuid()); // 小部件是不可变的，直接复用这份参数没问题
 
     copyItemParameters(copy);
 

@@ -14,7 +14,7 @@ PageSizeUndoCommand::PageSizeUndoCommand(GraphicsScene *pScene, const QSize &pre
 }
 
 PageSizeUndoCommand::~PageSizeUndoCommand() {
-    //NOOP
+    // 有意为空：无资源需要手动释放
 }
 
 void PageSizeUndoCommand::undo() {
@@ -23,20 +23,20 @@ void PageSizeUndoCommand::undo() {
     }
 
     Application::boardController->setPageSize(mPreviousSize);
-    // force refresh, QT is a bit lazy and take a lot of time (nb item ^2 ?) to trigger repaint
+    // 强制刷新：Qt 触发重绘偏慢（耗时疑与项数量的平方成正比？）
     mScene->update(mScene->sceneRect());
 }
 
 void PageSizeUndoCommand::redo() {
-    // the Undo framework calls a redo while appending the undo command.
-    // as we have already plotted the elements, we do not want to do it twice
+    // 撤销框架在压入命令时会先调用一次 redo；
+    // 此时新页面尺寸已经生效，不能重复执行
     if (!mFirstRedo) {
         if (!mScene) {
             return;
         }
 
         Application::boardController->setPageSize(mNewSize);
-        // force refresh, QT is a bit lazy and take a lot of time (nb item ^2) to trigger repaint
+        // 强制刷新：Qt 触发重绘偏慢（耗时疑与项数量的平方成正比）
         mScene->update(mScene->sceneRect());
     } else {
         mFirstRedo = false;

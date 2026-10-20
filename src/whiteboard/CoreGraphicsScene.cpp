@@ -5,12 +5,12 @@
 
 
 CoreGraphicsScene::CoreGraphicsScene(QObject *parent) : QGraphicsScene(parent), mIsModified(true) {
-    //NOOP
+    // 待删列表由 addItem/removeItem 维护，构造期无事可做
 }
 
 CoreGraphicsScene::~CoreGraphicsScene() {
-    //we must delete removed items that are no more in any scene
-    //at groups deleting some items can be added to mItemsToDelete, so we need to use iterators.
+    // 场景析构要把它登记过的图元真删掉，否则图元脱离场景后没人接管就漏了。
+    // 删组时子图元会被追加进同一个列表，所以只能边遍历边判，不能先取快照。
     foreach (QGraphicsItem *item, mItemsToDelete) {
         if (item) {
             if (item->scene() == NULL || item->scene() == this) {

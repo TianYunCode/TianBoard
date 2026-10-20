@@ -20,6 +20,7 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItemDelegate::delegated() {
 }
 
 void GraphicsGroupContainerItemDelegate::decorateMenu(QMenu *menu) {
+    // 组合作为整体只能锁定或整组显示/隐藏，因此菜单项挂在组级委托上
     mLockAction = menu->addAction(tr("Locked"), this, &GraphicsGroupContainerItemDelegate::lock);
     QIcon lockIcon;
     lockIcon.addPixmap(QPixmap(":/images/locked.svg"), QIcon::Normal, QIcon::On);
@@ -38,6 +39,7 @@ void GraphicsGroupContainerItemDelegate::decorateMenu(QMenu *menu) {
 }
 
 void GraphicsGroupContainerItemDelegate::buildButtons() {
+    // 解散按钮放在左上角，点击后组内子项全部释放
     if (!mDestroyGroupButton) {
         mDestroyGroupButton =
             new DelegateButton(":/images/ungroupItems.svg", mDelegated, mFrame, Qt::TopLeftSection);
@@ -58,6 +60,7 @@ void GraphicsGroupContainerItemDelegate::freeButtons() {
 
 bool GraphicsGroupContainerItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event)
+    // 组合被点击时先收起正在交互的媒体子项工具栏
     delegated()->deselectCurrentItem();
     return false;
 }

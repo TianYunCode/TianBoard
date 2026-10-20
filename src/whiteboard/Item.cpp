@@ -13,11 +13,11 @@
 #include "whiteboard/GraphicsItemDelegate.h"
 
 Item::Item() : mUuid(QUuid()), mRenderingQuality(Item::RenderingQualityNormal) {
-    // NOOP
+    // 刻意留空
 }
 
 Item::~Item() {
-    // NOOP
+    // 刻意留空
 }
 
 GraphicsItem::~GraphicsItem() {

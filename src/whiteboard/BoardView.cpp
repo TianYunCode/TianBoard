@@ -114,12 +114,6 @@ BoardView::BoardView(BoardController *pController, QWidget *pParent, bool isCont
     init();
 
     d->mFilterZIndex = false;
-    /*
-    mFilterZIndex = true;
-    mStartLayer = ItemLayerType::FixedBackground;
-    mEndLayer = ItemLayerType::Control;
-    */
-
 
     d->mLongPressTimer.setInterval(d->mLongPressInterval);
     d->mLongPressTimer.setSingleShot(true);
@@ -165,7 +159,7 @@ void BoardView::init() {
             SLOT(settingChanged(QVariant)));
 
     setOptimizationFlags(QGraphicsView::IndirectPainting |
-                         QGraphicsView::DontSavePainterState); // enable BoardView::drawItems filter
+                         QGraphicsView::DontSavePainterState); // 打开 BoardView 的自绘过滤
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setWindowFlags(Qt::FramelessWindowHint);
     setFrameStyle(QFrame::NoFrame);
@@ -237,7 +231,7 @@ void BoardView::keyPressEvent(QKeyEvent *event) {
         }
 
 
-        if (event->modifiers() & Qt::ControlModifier) // keep only ctrl/cmd keys
+        if (event->modifiers() & Qt::ControlModifier) // 只留 ctrl/cmd，其余修饰键不该触发画板手势
         {
             switch (event->key()) {
                 case Qt::Key_Plus:
@@ -278,7 +272,7 @@ void BoardView::keyPressEvent(QKeyEvent *event) {
                     break;
                 }
                 default: {
-                    // NOOP
+                    // 刻意留空
                 }
             }
         }
@@ -384,7 +378,7 @@ void BoardView::tabletEvent(QTabletEvent *event) {
             break;
         }
         default: {
-            //NOOP
+            // 刻意留空
         }
     }
 
@@ -507,8 +501,6 @@ bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item) {
             }
             return false;
             break;
-            //case QWebEngineView::Type:
-            //       return true;
         case QGraphicsProxyWidget::Type:
             return false;
 
@@ -536,8 +528,6 @@ bool BoardView::itemShouldReceiveSuspendedMousePressEvent(QGraphicsItem *item) {
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
     switch (item->type()) {
-        //case QWebEngineView::Type:
-        //    return false;
         case GraphicsPixmapItem::Type:
         case GraphicsSvgItem::Type:
         case GraphicsTextItem::Type:
@@ -893,12 +883,7 @@ void BoardView::mousePressEvent(QMouseEvent *event) {
 
 
 void BoardView::mouseMoveEvent(QMouseEvent *event) {
-    //    static QTime lastCallTime;
-    //    if (!lastCallTime.isNull()) {
-    //        qDebug() << "time interval is " << lastCallTime.msecsTo(QTime::currentTime());
-    //    }
-
-    //  QTime mouseMoveTime = QTime::currentTime();
+    // 位移未超过系统拖拽阈值时忽略，避免手抖被误判成拖动。
     if (!d->mIsDragInProgress && ((mapToScene(event->pos()) - d->mLastPressedMousePos).manhattanLength() <
                                   QApplication::startDragDistance())) {
         return;
@@ -951,20 +936,14 @@ void BoardView::mouseMoveEvent(QMouseEvent *event) {
                 d->mRubberBand->setGeometry(bandRect);
                 d->mRubberBand->show();
 
-                //          QTime startTime = QTime::currentTime();
-                //          QTime testTime = QTime::currentTime();
+                // 框选：先撤销上一帧已不在框内的选中项，再增量选中框内可被选择的图元。
                 QList<QGraphicsItem *> rubberItems = items(bandRect);
-                //          qDebug() << "==================";
-                //          qDebug() << "| ====rubber items" << testTime.msecsTo(QTime::currentTime());
-                //          testTime = QTime::currentTime();
                 foreach (QGraphicsItem *item, d->mJustSelectedItems) {
                     if (!rubberItems.contains(item)) {
                         item->setSelected(false);
                         d->mJustSelectedItems.remove(item);
                     }
                 }
-                //          qDebug() << "| ===foreach length" << testTime.msecsTo(QTime::currentTime());
-                //          testTime = QTime::currentTime();
 
                 int counter = 0;
                 if (currentTool == StylusTool::Selector) {
@@ -987,12 +966,6 @@ void BoardView::mouseMoveEvent(QMouseEvent *event) {
                         }
                     }
                 }
-
-                //          qDebug() << "| ==selected items count" << counter << Qt::endl
-                //                   << "| ==selection time" << testTime.msecsTo(QTime::currentTime()) << Qt::endl
-                //                   << "| =elapsed time " << startTime.msecsTo(QTime::currentTime()) << Qt::endl
-                //                   << "==================";
-                //          QCoreApplication::removePostedEvents(scene(), 0);
             }
             handleItemMouseMove(event);
         } break;
@@ -1015,16 +988,13 @@ void BoardView::mouseMoveEvent(QMouseEvent *event) {
             }
             event->accept();
     }
-
-    //  qDebug() << "mouse move time" << mouseMoveTime.msecsTo(QTime::currentTime());
-    //  lastCallTime = QTime::currentTime();
 }
 
 void BoardView::mouseReleaseEvent(QMouseEvent *event) {
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
     setToolCursor(currentTool);
-    // first/ propagate device release to the scene
+    // 先把设备释放传播给场景，确保笔画/橡皮状态收尾。
     if (scene())
         scene()->inputDeviceRelease();
 
@@ -1051,7 +1021,7 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
                    (!isCppTool(d->movingItem) || GraphicsCurtainItem::Type == d->movingItem->type())) {
             if (d->suspendedMousePressEvent) {
                 QGraphicsView::mousePressEvent(
-                    d->suspendedMousePressEvent); // suspendedMousePressEvent is deleted by old Qt event loop
+                    d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
                 d->movingItem = NULL;
                 delete d->suspendedMousePressEvent;
                 d->suspendedMousePressEvent = NULL;
@@ -1060,7 +1030,6 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
                 if (isBoardItem(d->movingItem) && DelegateButton::Type != d->movingItem->type() &&
                     GraphicsDelegateFrame::Type != d->movingItem->type() &&
                     GraphicsCache::Type != d->movingItem->type() &&
-                    //QGraphicsView::Type != movingItem->type() && // for W3C widgets as Tools.
                     !(!isMultipleSelectionEnabled() && d->movingItem->parentItem() &&
                       GraphicsWidgetItem::Type == d->movingItem->type() &&
                       GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type())) {
@@ -1123,7 +1092,7 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
                    (!isCppTool(d->movingItem) || GraphicsCurtainItem::Type == d->movingItem->type())) {
             if (d->suspendedMousePressEvent) {
                 QGraphicsView::mousePressEvent(
-                    d->suspendedMousePressEvent); // suspendedMousePressEvent is deleted by old Qt event loop
+                    d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
                 d->movingItem = NULL;
                 delete d->suspendedMousePressEvent;
                 d->suspendedMousePressEvent = NULL;
@@ -1133,7 +1102,6 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
                     QGraphicsSvgItem::Type != d->movingItem->type() &&
                     GraphicsDelegateFrame::Type != d->movingItem->type() &&
                     GraphicsCache::Type != d->movingItem->type() &&
-                    //QGraphicsView::Type != movingItem->type() && // for W3C widgets as Tools.
                     !(!isMultipleSelectionEnabled() && d->movingItem->parentItem() &&
                       GraphicsWidgetItem::Type == d->movingItem->type() &&
                       GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type())) {
@@ -1172,7 +1140,7 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
         } else {
             if (d->suspendedMousePressEvent) {
                 QGraphicsView::mousePressEvent(
-                    d->suspendedMousePressEvent); // suspendedMousePressEvent is deleted by old Qt event loop
+                    d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
                 d->movingItem = NULL;
                 delete d->suspendedMousePressEvent;
                 d->suspendedMousePressEvent = NULL;
@@ -1234,18 +1202,18 @@ void BoardView::forcedTabletRelease() {
 }
 
 void BoardView::mouseDoubleClickEvent(QMouseEvent *event) {
-    // We don't want a double click, we want two clicks
+    // 双击按两次单击处理，避免进入 Qt 的默认双击语义。
     mousePressEvent(event);
 }
 
 void BoardView::wheelEvent(QWheelEvent *wheelEvent) {
     QList<QGraphicsItem *> selItemsList = scene()->selectedItems();
-    // if NO have selected items, than no need process mouse wheel. just exist
+    // 没有选中项时滚轮不做特殊处理。
     if (selItemsList.count() > 0) {
-        // only one selected item possible, so we will work with first item only
+        // 当前只考虑第一个选中图元。
         QGraphicsItem *selItem = selItemsList[0];
 
-        // get items list under mouse cursor
+        // 只有滚轮位于选中图元上方时才缩放，否则交给基类。
         QPointF scenePos = mapToScene(wheelEvent->position().toPoint());
         QList<QGraphicsItem *> itemsList = scene()->items(scenePos);
 
@@ -1314,8 +1282,7 @@ void BoardView::dropEvent(QDropEvent *event) {
             event->acceptProposedAction();
         }
     }
-    // 事件处理期间库条目可能已被模型删除，这里要防住
-    //Qt base classes
+    // 素材库条目可能在事件处理期间被模型删除；统一改为复制，避免拖放变成移动。
     if (event->dropAction() == Qt::MoveAction) {
         event->setDropAction(Qt::CopyAction);
     }
@@ -1355,7 +1322,7 @@ void BoardView::drawBackground(QPainter *painter, const QRectF &rect) {
 
         if (transform().m11() < 0.7) {
             int alpha = 255 * transform().m11() / 2;
-            bgCrossColor.setAlpha(alpha); // fade the crossing on small zooms
+            bgCrossColor.setAlpha(alpha); // 缩小后十字线显得过粗，按缩放比例淡一些压住视觉重量
         }
 
         qreal gridSize = scene()->backgroundGridSize();
@@ -1426,7 +1393,7 @@ void BoardView::virtualKeyboardActivated(bool b) {
 }
 
 
-// Apple remote desktop sends funny events when the transmission is bad
+// 远程桌面在链路较差时可能送来坐标离谱的鼠标事件，需要用屏幕范围过滤。
 
 bool BoardView::isAbsurdPoint(QPoint point) {
     VirtualDesktop *desktop = VirtualDesktop::instance();
@@ -1485,7 +1452,7 @@ void BoardView::setToolCursor(int tool) {
             break;
         default:
             Q_ASSERT(false);
-            //failsafe
+            // 兜底：出现未知工具时仍使用画笔光标。
             controlViewport->setCursor(Resources::resources()->penCursor);
     }
 }

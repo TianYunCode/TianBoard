@@ -25,7 +25,7 @@ GraphicsRuler::GraphicsRuler() : QGraphicsRectItem(), mResizing(false), mRotatin
     create(*this);
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::CppTool)); //Necessary to set if we want z value to be assigned correctly
+            QVariant(itemLayerType::CppTool)); // 必须设置：场景按图层类型分配 z 值
 
     setFlag(QGraphicsItem::ItemIsSelectable, false);
     updateResizeCursor();
@@ -48,7 +48,7 @@ void GraphicsRuler::updateResizeCursor() {
 
 
 GraphicsRuler::~GraphicsRuler() {
-    // NOOP
+    // 有意为空：按钮子项随父项自动销毁，无需额外清理
 }
 
 Item *GraphicsRuler::deepCopy() const {
@@ -128,13 +128,13 @@ void GraphicsRuler::paintGraduations(QPainter *painter) {
     painter->setFont(font());
     QFontMetricsF fontMetrics(painter->font());
 
-    // Update the width of one "centimeter" to correspond to the width of the background grid (whether it is displayed or not)
+    // 让一个“厘米”的宽度与背景网格一致（无论网格是否显示）
     sPixelsPerCentimeter = Application::boardController->activeScene()->backgroundGridSize();
 
     qreal pixelsPerMillimeter = sPixelsPerCentimeter / 10.0;
     int rulerLengthInMillimeters = (rect().width() - sLeftEdgeMargin - sRoundingRadius) / pixelsPerMillimeter;
 
-    // When a "centimeter" is too narrow, we only display every 5th number, and every 5th millimeter mark
+    // 当一个“厘米”过窄时，只标注每 5 个数字和每 5 毫米的刻度线
     double numbersWidth = fontMetrics.horizontalAdvance("00");
     bool shouldDisplayAllNumbers = (numbersWidth <= (sPixelsPerCentimeter - 5));
 
@@ -421,12 +421,12 @@ void GraphicsRuler::DrawLine(const QPointF &scenePos, qreal width) {
     itemPos.setY(y);
     itemPos = mapToScene(itemPos);
 
-    // We have to use "pointed" line for marker tool
+    // 荧光笔工具必须使用“点式”线条绘制
     scene()->drawLineTo(itemPos, mStrokeWidth,
                         DrawingController::drawingController()->stylusTool() != StylusTool::Marker);
 }
 
 void GraphicsRuler::EndLine() {
-    // We never come to this place
+    // 正常流程不会执行到这里
     scene()->inputDeviceRelease();
 }

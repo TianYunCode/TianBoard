@@ -9,6 +9,7 @@ GraphicsItemTransformUndoCommand::GraphicsItemTransformUndoCommand(
     const QSizeF &prevSize, bool setToBackground)
     : UndoCommand() {
     mItem = pItem;
+    // 旧值来自调用方快照，当前值在这里立即读取，两者共同构成一次撤销记录
     mPreviousTransform = prevTransform;
     mCurrentTransform = pItem->transform();
 
@@ -21,17 +22,17 @@ GraphicsItemTransformUndoCommand::GraphicsItemTransformUndoCommand(
     mPreviousSize = prevSize;
     ResizableGraphicsItem *resizableItem = dynamic_cast<ResizableGraphicsItem *>(pItem);
 
+    // 不支持改变尺寸的项不记录尺寸
     if (resizableItem)
         mCurrentSize = resizableItem->size();
 
     mSetToBackground = setToBackground;
 }
 
-GraphicsItemTransformUndoCommand::~GraphicsItemTransformUndoCommand() {
-    // NOOP
-}
+GraphicsItemTransformUndoCommand::~GraphicsItemTransformUndoCommand() {}
 
 void GraphicsItemTransformUndoCommand::undo() {
+    // 先取消背景，再恢复几何，避免背景对象仍指向该项时被改尺寸
     if (mSetToBackground) {
         GraphicsScene *scene = dynamic_cast<GraphicsScene *>(mItem->scene());
         if (scene && scene->isBackgroundObject(mItem)) {

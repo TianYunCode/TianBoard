@@ -38,6 +38,7 @@ GraphicsSvgItem::GraphicsSvgItem(const QByteArray &pFileData, QGraphicsItem *par
 
 
 void GraphicsSvgItem::init() {
+    // 新旧两个层级键都要写：文档读写与部分委托逻辑仍读旧键 ItemLayerType。
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
 
     setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON | GF_RESPECT_RATIO | GF_REVOLVABLE));
@@ -51,7 +52,7 @@ void GraphicsSvgItem::init() {
 
     setData(
         GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+        QVariant(itemLayerType::ObjectItem)); //Z 值分配依赖这份层级数据，不设置的话图元会被排到错误的层级上
 
     setData(GraphicsItemData::ItemCanBeSetAsBackground, true);
 
@@ -91,7 +92,7 @@ void GraphicsSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void GraphicsSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     if (Delegate()->mouseMoveEvent(event)) {
-        // NOOP;
+        // 委托已经接管了这次拖动（移动/缩放/旋转），这里故意什么都不做。
     } else {
         QGraphicsSvgItem::mouseMoveEvent(event);
     }
@@ -105,7 +106,7 @@ void GraphicsSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 
 
 void GraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-    // Never draw the rubber band, we draw our custom selection with the DelegateFrame
+    // 绝不画 Qt 自带的选中橡皮筋，选中效果由委托的选择框绘制。
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
     styleOption.state &= ~QStyle::State_Selected;
 
@@ -117,7 +118,7 @@ void GraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 Item *GraphicsSvgItem::deepCopy() const {
     GraphicsSvgItem *copy = new GraphicsSvgItem(this->fileData());
 
-    copy->setUuid(this->uuid()); // this is OK for now as long as Widgets are imutable
+    copy->setUuid(this->uuid()); // 副本沿用同一 UUID；源文件按 UUID 命名，删除其一会连带影响另一份。
 
     copyItemParameters(copy);
 
@@ -177,9 +178,9 @@ GraphicsPixmapItem *GraphicsSvgItem::toPixmapItem() const {
 
 void GraphicsSvgItem::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    setData(
+        GraphicsItemData::ItemUuid,
+        QVariant(pUuid)); //把 UUID 同时写进图元 data，场景内按 UUID 查找图元时就不必逐个做类型转换，速度更快
 }
 
 

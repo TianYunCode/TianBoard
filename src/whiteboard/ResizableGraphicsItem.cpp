@@ -2,11 +2,11 @@
 
 
 ResizableGraphicsItem::ResizableGraphicsItem() {
-    // NOOP
+    // 刻意留空
 }
 
 ResizableGraphicsItem::~ResizableGraphicsItem() {
-    // NOOP
+    // 刻意留空
 }
 
 void ResizableGraphicsItem::resize(const QSizeF &pSize) {

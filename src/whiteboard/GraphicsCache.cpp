@@ -24,13 +24,13 @@ GraphicsCache::GraphicsCache(GraphicsScene *scene)
       mShapeWidth(100),
       mDrawMask(false),
       mScene(scene) {
-    // Get the board size and pass it to the shape
+    // 获取画板尺寸，用于设置遮罩矩形的范围
     QRect boardRect = Application::boardController->displayView()->rect();
     setRect(-15 * boardRect.width(), -15 * boardRect.height(), 30 * boardRect.width(),
             30 * boardRect.height());
     setData(Qt::UserRole, QVariant("Cache"));
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::Cache)); //Necessary to set if we want z value to be assigned correctly
+            QVariant(itemLayerType::Cache)); // 必须设置：场景按图层类型分配 z 值
 }
 
 GraphicsCache::~GraphicsCache() {
@@ -85,7 +85,7 @@ void GraphicsCache::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->setBrush(mMaskColor);
     painter->setPen(mMaskColor);
 
-    // Draw the hole
+    // 在遮罩路径上挖出镂空的洞
     QPainterPath path;
     path.addRect(rect());
 
@@ -107,7 +107,7 @@ void GraphicsCache::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     mShapePos = event->pos();
     mDrawMask = true;
 
-    // Note: if refresh issues occure, replace the following 3 lines by: update();
+    // 注意：若出现刷新问题，可把下面 3 行替换为 update();
     update(updateRect(event->pos()));
     mOldShapeWidth = mShapeWidth;
     mOldShapePos = event->pos();
@@ -116,7 +116,7 @@ void GraphicsCache::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 void GraphicsCache::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     mShapePos = event->pos();
 
-    // Note: if refresh issues occure, replace the following 3 lines by: update();
+    // 注意：若出现刷新问题，可把下面 3 行替换为 update();
     update(updateRect(event->pos()));
     mOldShapeWidth = mShapeWidth;
     mOldShapePos = event->pos();
@@ -126,7 +126,7 @@ void GraphicsCache::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
     mDrawMask = false;
 
-    // Note: if refresh issues occure, replace the following 3 lines by: update();
+    // 注意：若出现刷新问题，可把下面 3 行替换为 update();
     update(updateRect(event->pos()));
     mOldShapeWidth = mShapeWidth;
     mOldShapePos = event->pos();

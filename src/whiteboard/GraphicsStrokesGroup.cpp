@@ -12,29 +12,27 @@ GraphicsStrokesGroup::GraphicsStrokesGroup(QGraphicsItem *parent)
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
 
     setUuid(QUuid::createUuid());
-    setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
+    setData(GraphicsItemData::itemLayerType,
+            QVariant(itemLayerType::ObjectItem)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemIsMovable, true);
 
     mDebugText = NULL;
-    debugTextEnabled = false; // set to true to get a graphical display of strokes' Z-levels
+    debugTextEnabled = false; // 调试开关：置真会按笔迹的 Z 层上色显示，方便核对分层有没有错乱
 }
 
 GraphicsStrokesGroup::~GraphicsStrokesGroup() {}
 
 void GraphicsStrokesGroup::setUuid(const QUuid &pUuid) {
     Item::setUuid(pUuid);
-    setData(GraphicsItemData::ItemUuid,
-            QVariant(
-                pUuid)); //store item uuid inside the QGraphicsItem to fast operations with Items on the scene
+    // UUID 同时存进图元数据：场景按 UUID 找回图元，不必遍历整棵树。
+    setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
 void GraphicsStrokesGroup::setColor(const QColor &color, colorType pColorType) {
-    //TODO Implement common mechanism of managing groups, drop GraphicsStroke if it's obsolete
-    //Using casting for the moment
+    // TODO: 组的统一管理还没做，现在只能按类型强转子图元；
+    // GraphicsStroke 该不该退役，取决于那套机制长什么样
     foreach (QGraphicsItem *item, childItems()) {
         if (item->type() == GraphicsPolygonItem::Type) {
             GraphicsPolygonItem *curPolygon = static_cast<GraphicsPolygonItem *>(item);
@@ -159,12 +157,12 @@ void GraphicsStrokesGroup::copyItemParameters(Item *copy) const {
 }
 
 void GraphicsStrokesGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-    // Never draw the rubber band, we draw our custom selection with the DelegateFrame
+    // 从不画 Qt 自己的选框：选中效果由委托边框画，这里把选中状态摘掉
     QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
     QStyle::State svState = option->state;
     styleOption.state &= ~QStyle::State_Selected;
     QGraphicsItemGroup::paint(painter, &styleOption, widget);
-    //Restoring state
+    // 状态位原样还回去，别让摘掉的选中态泄漏给委托的后绘
     styleOption.state |= svState;
 
     Delegate()->postpaint(painter, &styleOption, widget);

@@ -103,15 +103,10 @@ GraphicsTextItemDelegate::GraphicsTextItemDelegate(GraphicsTextItem *pDelegated,
 
     delegated()->adjustSize();
     delegated()->contentsChanged();
-
-    connect(delegated()->document(), &QTextDocument::cursorPositionChanged, this,
-            &GraphicsTextItemDelegate::onCursorPositionChanged);
-    connect(delegated()->document(), &QTextDocument::modificationChanged, this,
-            &GraphicsTextItemDelegate::onModificationChanged);
 }
 
 GraphicsTextItemDelegate::~GraphicsTextItemDelegate() {
-    // NOOP
+    // 按钮、菜单动作都挂在图元与委托的对象树上，Qt 负责回收。
 }
 
 QFont GraphicsTextItemDelegate::createDefaultFont() {
@@ -180,15 +175,11 @@ void GraphicsTextItemDelegate::createControls() {
     frame()->setOperationMode(GraphicsDelegateFrame::Resizing);
 }
 
-/**
- * @brief Calculate the width of the toolbar containing the text item-related buttons
- * @return The space between the left-most and right-most buttons in pixels
- */
 qreal GraphicsTextItemDelegate::titleBarWidth() {
     if (!mFontButton)
         return 0;
 
-    // refresh the frame and buttons' positions
+    // 先重排边框与按钮，下面取的极值才是刚摆好的那组位置
     positionHandles();
 
     qreal titleBarWidth(0);
@@ -235,8 +226,7 @@ void GraphicsTextItemDelegate::contentsChanged() {
     delegated()->contentsChanged();
 }
 
-// This method is used to filter the available fonts. Only the web-compliant fonts
-// will remain in the font list.
+// 过滤字体对话框里的字体列表：只保留 Web 标准字体，免得选到画板上渲染不出来的字体。
 void GraphicsTextItemDelegate::customize(QFontDialog &fontDialog) {
     if (Settings::settings()->isDarkBackground()) {
         fontDialog.setStyleSheet("background-color: white;");
@@ -285,7 +275,7 @@ void GraphicsTextItemDelegate::customize(QFontDialog &fontDialog) {
 
 void GraphicsTextItemDelegate::pickFont() {
     if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0) {
-        // https://bugreports.qt.io/browse/QTBUG-79637
+        // 显式带上控制视图作父窗口，绕开 https://bugreports.qt.io/browse/QTBUG-79637
         QFontDialog fontDialog(static_cast<QGraphicsView *>(Application::boardController->controlView()));
 
         fontDialog.setOption(QFontDialog::DontUseNativeDialog);
@@ -299,7 +289,7 @@ void GraphicsTextItemDelegate::pickFont() {
             Settings::settings()->setItalicFont(selectedFont.italic());
             Settings::settings()->setFontPointSize(selectedFont.pointSize());
 
-            //setting format for selected item
+            // 把刚选定的字体应用到当前选区
             QTextCursor curCursor = delegated()->textCursor();
             QTextCharFormat format;
             format.setFont(selectedFont);
@@ -391,18 +381,6 @@ void GraphicsTextItemDelegate::alignButtonProcess() {
     }
 
     qDebug() << "sender process" << sndr;
-}
-
-void GraphicsTextItemDelegate::onCursorPositionChanged(const QTextCursor &cursor) {
-    qDebug() << "cursor position changed";
-    qDebug() << "-----------------------";
-    qDebug() << "we have a selection!" << cursor.selectionStart();
-    qDebug() << "-----------------------";
-}
-
-void GraphicsTextItemDelegate::onModificationChanged(bool ch) {
-    Q_UNUSED(ch);
-    qDebug() << "modification changed";
 }
 
 void GraphicsTextItemDelegate::onContentChanged() {
@@ -513,12 +491,11 @@ bool GraphicsTextItemDelegate::keyReleaseEvent(QKeyEvent *event) {
             break;
     }
 
-    qDebug() << "Key has been released" << QString::number(event->key(), 16);
     return true;
 }
 
 void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode changeMode) {
-    // round it to the nearest hundredth
+    // 字号因子四舍五入到百分位，避免浮点累计误差让字号越改越偏
     factor = floor(factor * 100 + 0.5) / 100.;
 
     if (scaleSize == changeMode) {
@@ -542,7 +519,7 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
         cursor.select(QTextCursor::Document);
     }
 
-    // Now we got the real start and stop positions
+    // 到这里才拿到选区真正的起止位置（anchor 与 position 谁前谁后不定）
     int startPos = qMin(cursor.anchor(), cursor.position());
     int endPos = qMax(cursor.anchor(), cursor.position());
 
@@ -556,23 +533,23 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
     QBrush curBrush;
     QBrush nextCharBrush;
 
-    // we search continuous blocks of the text with the same PointSize and allpy new settings for them.
+    // 把选区按“字号/族/粗斜/下划线/前景色都相同”切成连续片段，一段一段套用新设置。
     cursor.setPosition(startPos, QTextCursor::MoveAnchor);
     while (iCursorPos < endPos) {
         bEndofTheSameBlock = false;
         iBlockLen = 0;
 
-        // Here we get the point size of the first character
+        // 先取片段首字符的样式作为本段基准
         cursor.setPosition(iCursorPos + 1, QTextCursor::KeepAnchor);
         curFont = cursor.charFormat().font();
         curBrush = cursor.charFormat().foreground();
         iPointSize = curFont.pointSize();
 
-        // Then we position the end cursor to the start cursor position
+        // 再把光标收回到起点，下面逐字符往前探
         cursor.setPosition(iCursorPos, QTextCursor::KeepAnchor);
 
         do {
-            // Get the next character font size
+            // 探下一个字符的样式
             cursor.setPosition(iCursorPos + iBlockLen + 1, QTextCursor::KeepAnchor);
             nextCharFont = cursor.charFormat().font();
             nextCharBrush = cursor.charFormat().foreground();
@@ -591,7 +568,7 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
         } while (!bEndofTheSameBlock);
 
 
-        //setting new parameters
+        // 套用新参数
         QFont tmpFont = curFont;
         int iNewPointSize = (changeSize == changeMode) ? (iPointSize + factor) : (iPointSize * factor);
         tmpFont.setPointSize((iNewPointSize > 0) ? iNewPointSize : 1);
@@ -608,7 +585,7 @@ void GraphicsTextItemDelegate::ChangeTextSize(qreal factor, textChangeMode chang
 
     delegated()->setFont(curFont);
     Settings::settings()->setFontPointSize(iPointSize);
-    //returning initial selection
+    // 恢复原来的选区
     cursor.setPosition(anchorPos, QTextCursor::MoveAnchor);
     cursor.setPosition(cursorPos, QTextCursor::KeepAnchor);
 
@@ -623,7 +600,7 @@ void GraphicsTextItemDelegate::recolor() {
     int cursorPos = cursor.position();
 
     if (0 == anchorPos - cursorPos) {
-        // If nothing is selected, then we select all the text
+        // 没有选区时按全文处理
         cursor.setPosition(0, QTextCursor::MoveAnchor);
         cursor.setPosition(cursor.document()->characterCount() - 1, QTextCursor::KeepAnchor);
     }
@@ -644,11 +621,11 @@ void GraphicsTextItemDelegate::recolor() {
         bEndofTheSameBlock = false;
         iBlockLen = 0;
 
-        // Here we get the point size of the first character
+        // 先取片段首字符的样式作为本段基准
         cursor.setPosition(iCursorPos + 1, QTextCursor::KeepAnchor);
         curBrush = cursor.charFormat().foreground();
 
-        // Then we position the end cursor to the start cursor position
+        // 再把光标收回到起点，下面逐字符往前探
         cursor.setPosition(iCursorPos, QTextCursor::KeepAnchor);
 
         do {
@@ -665,7 +642,7 @@ void GraphicsTextItemDelegate::recolor() {
         } while (!bEndofTheSameBlock);
 
 
-        //setting new parameters
+        // 套用新参数
         if (delegated()->scene()->isDarkBackground()) {
             if (curBrush.color() == Qt::black) {
                 curBrush = QBrush(Qt::white);
@@ -687,7 +664,7 @@ void GraphicsTextItemDelegate::recolor() {
     }
 
     delegated()->setFont(curFont);
-    //returning initial selection
+    // 恢复原来的选区
     cursor.setPosition(anchorPos, QTextCursor::MoveAnchor);
     cursor.setPosition(cursorPos, QTextCursor::KeepAnchor);
 
@@ -728,18 +705,18 @@ bool GraphicsTextItemDelegate::oneBlockSelection() {
     int pos = cursor.position();
     int anchor = cursor.anchor();
 
-    // no selection
+    // 没有选区，光标点本身就落在一个段落里
     if (pos == anchor) {
         return true;
     }
 
-    //selecton within one text block
+    // 起止点都在同一段落内
     QTextBlock blck = cursor.block();
     if (blck.contains(pos) && blck.contains(anchor)) {
         return true;
     }
 
-    //otherwise
+    // 跨段落：对齐按钮要显示“混合”状态
     return false;
 }
 

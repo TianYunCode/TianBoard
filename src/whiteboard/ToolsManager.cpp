@@ -74,5 +74,5 @@ ToolsManager::ToolsManager(QObject *parent) : QObject(parent) {
 }
 
 ToolsManager::~ToolsManager() {
-    // NOOP
+    // 刻意留空
 }

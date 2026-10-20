@@ -65,7 +65,7 @@ ZLayerController::ZLayerController(QGraphicsScene *scene)
 {
     scopeMap.insert(itemLayerType::NoLayer, ItemLayerTypeData(errorNumber, errorNumber));
     scopeMap.insert(itemLayerType::BackgroundItem, ItemLayerTypeData(-1000000.0, -1000000.0));
-    // DEFAULT_Z_VALUE isn't used because it allows to easily identify new objects
+    // 对象层刻意不包含 DEFAULT_Z_VALUE：留着 0 这个值才能一眼认出"还没分配过 Z 值"的新图元
     scopeMap.insert(itemLayerType::ObjectItem, ItemLayerTypeData(-1000000.0, DEFAULT_Z_VALUE - 1.0));
     scopeMap.insert(itemLayerType::DrawingItem, ItemLayerTypeData(DEFAULT_Z_VALUE + 1.0, 1000000.0));
     scopeMap.insert(itemLayerType::ToolItem, ItemLayerTypeData(1000000.0, 1000100.0));
@@ -91,7 +91,7 @@ qreal ZLayerController::generateZLevel(itemLayerType::Enum key) {
 
     result += incrementalStep;
     if (result >= top) {
-        // If not only one variable presents in the scope, notify that values for scope are over
+        // 只有区间上下限不重合（即该层能容纳多个值）时，用尽才值得告警
         if (scopeMap.value(key).topLimit != scopeMap.value(key).bottomLimit) {
             qDebug() << "new values are over for the scope" << key;
         }
@@ -121,7 +121,7 @@ qreal ZLayerController::changeZLevelTo(QGraphicsItem *item, moveDestination dest
         return errorNum();
     }
 
-    //select only items wiht the same z-level as item's one and push it to sortedItems QMultiMap
+    // 只挑与目标图元同层的图元，按"自身 Z 值"塞进有序 QMultiMap
     QMultiMap<qreal, QGraphicsItem *> sortedItems;
     if (mScene->items().count()) {
         foreach (QGraphicsItem *tmpItem, mScene->items()) {
@@ -131,7 +131,7 @@ qreal ZLayerController::changeZLevelTo(QGraphicsItem *item, moveDestination dest
         }
     }
 
-    //If only one item itself - do nothing, return it's z-value
+    // 层里只有它自己时无事可做，直接返回其自身 Z 值
     if (sortedItems.count() == 1 && sortedItems.values().first() == item) {
         qDebug() << "only one item exists in layer. Have nothing to change";
         return item->data(GraphicsItemData::ItemOwnZValue).toReal();
@@ -193,16 +193,14 @@ qreal ZLayerController::changeZLevelTo(QGraphicsItem *item, moveDestination dest
 
                 ItemLayerTypeData curItemLayerTypeData = scopeMap.value(curItemLayerType);
 
-                //if we have some free space between lowest graphics item and layer's bottom bound,
-                //insert element close to first element in layer
+                // 该层最底下的图元与层下界之间还有空档，就把新值贴着层内第一个图元插进去
                 if (nextZ > curItemLayerTypeData.bottomLimit + curItemLayerTypeData.incStep) {
                     qreal result = nextZ - curItemLayerTypeData.incStep;
                     GraphicsItem::assignZValue(item, result);
                 } else {
                     GraphicsItem::assignZValue(item, nextZ);
 
-                    bool doubleGap =
-                        false; //to detect if we can finish rundown since we can insert item to the free space
+                    bool doubleGap = false; // 记录是否找到过空档：有空档就能把图元直接插进去，不必整层往下挪
 
                     while (iCurElement.peekNext().value() != item) {
                         qreal curZ = iCurElement.value()->data(GraphicsItemData::ItemOwnZValue).toReal();
@@ -234,19 +232,10 @@ qreal ZLayerController::changeZLevelTo(QGraphicsItem *item, moveDestination dest
     }
 
 
-    //clear selection of the item and then select it again to activate selectionChangeProcessing()
+    // 先取消选中再重新选中，逼一次 selectionChanged，选中框才会按新的 Z 序重画。
     item->scene()->clearSelection();
     item->setSelected(true);
 
-    foreach (QGraphicsItem *iitem, sortedItems.values()) {
-        if (iitem)
-            iitem != item ? qDebug() << "current value" << iitem->zValue()
-                          : qDebug() << "marked value" << QString::number(iitem->zValue(), 'f');
-    }
-
-    //Return new z value assigned to item
-
-    // experimental
     item->setZValue(item->data(GraphicsItemData::ItemOwnZValue).toReal());
 
     return item->data(GraphicsItemData::ItemOwnZValue).toReal();
@@ -278,9 +267,6 @@ void ZLayerController::shiftStoredZValue(QGraphicsItem *item, qreal zValue) {
     }
 }
 
-/**
- * @brief Returns true if the zLevel is not used by any item on the scene, or false if so.
- */
 bool ZLayerController::zLevelAvailable(qreal z) {
     foreach (QGraphicsItem *it, dynamic_cast<GraphicsScene *>(mScene)->getFastAccessItems()) {
         if (it->zValue() == z)
@@ -334,8 +320,6 @@ GraphicsScene::GraphicsScene(DocumentProxy *parent, bool enableUndoRedoStack)
 
     mBackgroundGridSize = Settings::settings()->crossSize;
 
-    //    Just for debug. Do not delete please
-    //    connect(this, SIGNAL(selectionChanged()), this, SLOT(selectionChangedProcessing()));
     connect(Application::undoStack.data(), &QUndoStack::indexChanged, this,
             &GraphicsScene::updateSelectionFrameWrapper);
 }
@@ -379,35 +363,31 @@ bool GraphicsScene::inputDevicePress(const QPointF &scenePos, const qreal &press
         StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
         if (DrawingController::drawingController()->isDrawingTool()) {
-            // -----------------------------------------------------------------
-            // We fall here if we are using the Pen, the Marker or the Line tool
-            // -----------------------------------------------------------------
+            // 走到这里说明用的是画笔、记号笔或直线工具。
             qreal width = 0;
 
-            // delete current stroke, if not assigned to any polygon
+            // 上一笔还没落到任何多边形上，先把它丢掉
             if (mCurrentStroke && mCurrentStroke->polygons().empty()) {
                 delete mCurrentStroke;
                 mCurrentStroke = NULL;
             }
 
-            // hide the marker preview circle
+            // 收起记号笔的粗细预览圈
             if (currentTool == StylusTool::Marker)
                 hideMarkerCircle();
 
-            // hide the pen preview circle
+            // 收起画笔的粗细预览圈
             if (currentTool == StylusTool::Pen)
                 hidePenCircle();
 
-            // ---------------------------------------------------------------
-            // Create a new Stroke. A Stroke is a collection of QGraphicsLines
-            // ---------------------------------------------------------------
+            // 开一条新笔迹：一笔就是一组多边形，落点逐渐追加进去
             mCurrentStroke = new GraphicsStroke(this);
 
             if (currentTool != StylusTool::Line) {
-                // Handle the pressure
+                // 笔宽随压感变化
                 width = DrawingController::drawingController()->currentToolWidth() * pressure;
             } else {
-                // Ignore pressure for the line tool
+                // 直线工具不吃压感，否则画不出等宽直线
                 width = DrawingController::drawingController()->currentToolWidth();
             }
 
@@ -490,10 +470,10 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
             qreal width = 0;
 
             if (currentTool != StylusTool::Line) {
-                // Handle the pressure
+                // 压感下限取 0.2：抬笔时压感归零会画出看不见的一笔
                 width = dc->currentToolWidth() * qMax(pressure, 0.2);
             } else {
-                // Ignore pressure for line tool
+                // 直线工具不吃压感
                 width = dc->currentToolWidth();
             }
 
@@ -514,9 +494,7 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
                         mPreviousPolygonItems.removeAll(mpLastPolygon);
                     }
 
-                // ------------------------------------------------------------------------
-                // Here we wanna make sure that the Line will 'grip' at i*45, i*90 degrees
-                // ------------------------------------------------------------------------
+                // 直线吸附到 45 度整数倍上，手抖也能画出水平/垂直/对角线
 
                 QLineF radius(mPreviousPoint, position);
                 qreal angle = radius.angle();
@@ -551,12 +529,12 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
                 }
 
 
-                // Don't draw segments smaller than a certain length. This can help with performance
-                // (less polygons to draw) but mostly with making the curve look smooth.
+                // 太短的一段不生成多边形：少画几块是一方面，主要是短段的斜接看着毛刺。
 
                 qreal antiScaleRatio = 1. / (Application::boardController->systemScaleFactor() *
                                              Application::boardController->currentZoom());
-                qreal MIN_DISTANCE = 10 * antiScaleRatio; // arbitrary. Move to settings if relevant.
+                // 阈值按缩放反算，屏幕上始终约 10 像素；取值是经验值，需要可调再进设置。
+                qreal MIN_DISTANCE = 10 * antiScaleRatio;
                 qreal distance = QLineF(mPreviousPoint, scenePos).length();
 
                 mDistanceFromLastStrokePoint += distance;
@@ -571,10 +549,8 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
                 }
 
                 if (interpolate) {
-                    // Bezier curves aren't drawn all the way to the scenePos (they stop halfway between the previous and
-                    // current scenePos), so we add a line from the last drawn position in the stroke and the
-                    // scenePos, to make the drawing feel more responsive. This line is then deleted if a new segment is
-                    // added to the stroke. (Or it is added to the stroke when we stop drawing)
+                    // 贝塞尔只画到前后两点的中点，笔尖当前位置还没画出来，跟手会觉得慢半拍。
+                    // 所以补一段临时多边形连到当前点；下一段生成时删掉它，停笔时正式并入笔迹。
 
                     if (mTempPolygon) {
                         removeItem(mTempPolygon);
@@ -623,14 +599,14 @@ bool GraphicsScene::inputDeviceRelease() {
         if (mArcPolygonItem) {
             GraphicsStrokesGroup *pStrokes = new GraphicsStrokesGroup();
 
-            // Add the arc
+            // 弧本身并入这组笔迹
             mAddedItems.remove(mArcPolygonItem);
             removeItem(mArcPolygonItem);
             CoreGraphicsScene::removeItemFromDeletion(mArcPolygonItem);
             mArcPolygonItem->setStrokesGroup(pStrokes);
             pStrokes->addToGroup(mArcPolygonItem);
 
-            // Add the center cross
+            // 圆心的十字标记也归进同一组，删一个就删整组
             foreach (QGraphicsItem *item, mAddedItems) {
                 mAddedItems.remove(item);
                 removeItem(item);
@@ -654,7 +630,7 @@ bool GraphicsScene::inputDeviceRelease() {
                 addPolygonItemToCurrentStroke(poly);
             }
 
-            // replace the stroke by a simplified version of it
+            // 按设置把这一笔换成简化版（点更少、多边形更少）
             if ((currentTool == StylusTool::Pen &&
                  Settings::settings()->boardSimplifyPenStrokes->get().toBool()) ||
                 (currentTool == StylusTool::Marker &&
@@ -665,7 +641,7 @@ bool GraphicsScene::inputDeviceRelease() {
 
             GraphicsStrokesGroup *pStrokes = new GraphicsStrokesGroup();
 
-            // Remove the strokes that were just drawn here and replace them by a stroke item
+            // 把刚才逐段画出来的临时多边形摘下来，收进一个笔迹组当作“一笔”
             foreach (GraphicsPolygonItem *poly, mCurrentStroke->polygons()) {
                 mPreviousPolygonItems.removeAll(poly);
                 removeItem(poly);
@@ -674,7 +650,7 @@ bool GraphicsScene::inputDeviceRelease() {
                 pStrokes->addToGroup(poly);
             }
 
-            // TODO LATER : Generate well pressure-interpolated polygons and create the line group with them
+            // TODO: 压感插值不够平滑，起笔收笔处会出现明显的宽度台阶
 
             mAddedItems.clear();
             mAddedItems << pStrokes;
@@ -689,7 +665,7 @@ bool GraphicsScene::inputDeviceRelease() {
     }
 
     if (mRemovedItems.size() > 0 || mAddedItems.size() > 0) {
-        if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+        if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *udcmd =
                 new GraphicsItemUndoCommand(this, mRemovedItems, mAddedItems); //deleted by the undoStack
 
@@ -806,7 +782,7 @@ void GraphicsScene::hidePenCircle() {
         mPenCircle->hide();
 }
 
-// call this function when user release mouse button in Magnifier mode
+// 放大镜模式下松开鼠标时调用：临时控件用完就得拆掉
 void GraphicsScene::DisposeMagnifierQWidgets() {
     if (magniferControlViewWidget) {
         magniferControlViewWidget->hide();
@@ -821,8 +797,8 @@ void GraphicsScene::DisposeMagnifierQWidgets() {
         delete magniferDisplayViewWidget;
         magniferDisplayViewWidget = NULL;
     }
-    // some time have crash here on access to app (when call from destructor when close TianBoard app)
-    // so i just add try/catch section here
+    // 关程序时本函数可能从析构里被调到，那一刻 Application 已经没了；
+    // 这里宁可吞掉异常，也不能让退出流程崩在恢复光标上。
     try {
         Application::app()->restoreOverrideCursor();
     } catch (...) {}
@@ -886,9 +862,8 @@ void GraphicsScene::drawCurve(const QList<QPointF> &points, qreal startWidth, qr
 
 void GraphicsScene::addPolygonItemToCurrentStroke(GraphicsPolygonItem *polygonItem) {
     if (!polygonItem->brush().isOpaque()) {
-        // -------------------------------------------------------------------------------------
-        // Here we substract the polygons that are overlapping in order to keep the transparency
-        // -------------------------------------------------------------------------------------
+        // 半透明笔迹自叠处会被重画成更深的一块，所以把先前那几段从新段里减掉，
+        // 保证任何一点的覆盖层数都只有一次。
         for (int i = 0; i < mPreviousPolygonItems.size(); i++) {
             GraphicsPolygonItem *previous = mPreviousPolygonItems.value(i);
             polygonItem->subtract(previous);
@@ -898,7 +873,6 @@ void GraphicsScene::addPolygonItemToCurrentStroke(GraphicsPolygonItem *polygonIt
     mpLastPolygon = polygonItem;
     mAddedItems.insert(polygonItem);
 
-    // Here we add the item to the scene
     addItem(polygonItem);
     if (!mCurrentStroke)
         mCurrentStroke = new GraphicsStroke(this);
@@ -918,7 +892,7 @@ void GraphicsScene::eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth) {
     QPainterPath eraserPath;
     eraserPath.addPolygon(eraserPolygon);
 
-    // Get all the items that are intersecting with the eraser path
+    // 先用包围矩形粗筛，再在下面按路径精确求交
     QList<QGraphicsItem *> collidItems = items(eraserBoundingRect, Qt::IntersectsItemBoundingRect);
 
     QList<GraphicsPolygonItem *> intersectedItems;
@@ -938,7 +912,7 @@ void GraphicsScene::eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth) {
         if (eraserPath.contains(itemPainterPath)) {
 #pragma omp critical
             {
-                // Compete remove item
+                // 整块都被擦掉了，不需要留残余
                 intersectedItems << pi;
                 intersectedPolygons << QList<QPolygonF>();
             }
@@ -954,14 +928,12 @@ void GraphicsScene::eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth) {
     }
 
     for (int i = 0; i < intersectedItems.size(); i++) {
-        // item who intersects with eraser
         GraphicsPolygonItem *intersectedPolygonItem = intersectedItems[i];
 
         if (!intersectedPolygons[i].empty()) {
-            // intersected polygons generated as QList<QPolygon> QPainterPath::toFillPolygons(),
-            // so each intersectedPolygonItem has one or couple of QPolygons who should be removed from it.
+            // toFillPolygons() 给的是擦除后剩下的若干块：被擦中间的图元会裂成两块以上，
+            // 每块都要变成独立图元顶替原来那一个。
             for (int j = 0; j < intersectedPolygons[i].size(); j++) {
-                // create small polygon from couple of polygons to replace particular erased polygon
                 GraphicsPolygonItem *polygonItem =
                     new GraphicsPolygonItem(intersectedPolygons[i][j], intersectedPolygonItem->parentItem());
 
@@ -974,7 +946,7 @@ void GraphicsScene::eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth) {
             }
         }
 
-        //remove full polygon item for replace it by couple of polygons which creates the same stroke without a part intersects with eraser
+        // 原图元整块删除，由上面那几块残片接棒，视觉上就是“被擦掉一段”
         mRemovedItems << intersectedPolygonItem;
 
         QTransform t;
@@ -1121,7 +1093,7 @@ void GraphicsScene::initPolygonItem(GraphicsPolygonItem *polygonItem) {
     if (DrawingController::drawingController()->stylusTool() == StylusTool::Marker) {
         colorOnDarkBG = Application::boardController->markerColorOnDarkBackground();
         colorOnLightBG = Application::boardController->markerColorOnLightBackground();
-    } else // settings->stylusTool() == StylusTool::Pen + failsafe
+    } else // 判的是“当前工具等于画笔”，再兜一层底，取不到工具时不误判
     {
         colorOnDarkBG = Application::boardController->penColorOnDarkBackground();
         colorOnLightBG = Application::boardController->penColorOnLightBackground();
@@ -1132,8 +1104,6 @@ void GraphicsScene::initPolygonItem(GraphicsPolygonItem *polygonItem) {
     } else {
         polygonItem->setColor(colorOnLightBG);
     }
-
-    //polygonItem->setColor(QColor(rand()%256, rand()%256, rand()%256, polygonItem->brush().color().alpha()));
 
     polygonItem->setColorOnDarkBackground(colorOnDarkBG);
     polygonItem->setColorOnLightBackground(colorOnLightBG);
@@ -1260,7 +1230,6 @@ GraphicsScene *GraphicsScene::sceneDeepCopy() const {
         if (group) {
             GraphicsGroupContainerItem *groupCloned = group->deepCopyNoChildDuplication();
             groupCloned->resetTransform();
-            groupCloned->resetTransform();
             groupCloned->setPos(0, 0);
             bool locked = groupCloned->Delegate()->isLocked();
 
@@ -1381,10 +1350,10 @@ void GraphicsScene::clearContent(clearCase pCase) {
             break;
     }
 
-    // force refresh, QT is a bit lazy and take a lot of time (nb item ^2 ?) to trigger repaint
+    // 整场景强制重画：只标脏改动区域的话，Qt 合并脏矩形会拖很久才刷新
     update(sceneRect());
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
 
         GraphicsItemUndoCommand *uc =
             new GraphicsItemUndoCommand(this, removedItems, QSet<QGraphicsItem *>(), groupsMap);
@@ -1413,7 +1382,7 @@ GraphicsPixmapItem *GraphicsScene::addPixmap(const QPixmap &pPixmap, QGraphicsIt
 
     addItem(pixmapItem);
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, replaceFor, pixmapItem);
         Application::undoStack->push(uc);
     }
@@ -1455,7 +1424,7 @@ GraphicsPixmapItem *GraphicsScene::addPixmap(const QPixmap &pPixmap, QGraphicsIt
 }
 
 void GraphicsScene::textUndoCommandAdded(GraphicsTextItem *textItem) {
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsTextItemUndoCommand *uc = new GraphicsTextItemUndoCommand(textItem);
         Application::undoStack->push(uc);
     }
@@ -1487,7 +1456,7 @@ GraphicsMediaItem *GraphicsScene::addMedia(const QUrl &pMediaFileUrl, bool shoul
 
     mediaItem->show();
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, mediaItem);
         Application::undoStack->push(uc);
     }
@@ -1555,7 +1524,7 @@ void GraphicsScene::addGraphicsWidget(GraphicsWidgetItem *graphicsWidget, const 
         graphicsWidget->loadMainHtml();
 
         graphicsWidget->setSelected(true);
-        if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+        if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, graphicsWidget);
             Application::undoStack->push(uc);
         }
@@ -1592,7 +1561,7 @@ GraphicsGroupContainerItem *GraphicsScene::createGroup(QList<QGraphicsItem *> it
     groupItem->setVisible(true);
     groupItem->setFocus();
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemGroupUndoCommand *uc = new GraphicsItemGroupUndoCommand(this, groupItem);
         Application::undoStack->push(uc);
     }
@@ -1618,7 +1587,7 @@ void GraphicsScene::addGroup(GraphicsGroupContainerItem *groupItem) {
         groupItem->setUuid(QUuid::createUuid());
     }
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, groupItem);
         Application::undoStack->push(uc);
     }
@@ -1670,7 +1639,7 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
 
     addItem(svgItem);
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, svgItem);
         Application::undoStack->push(uc);
     }
@@ -1722,7 +1691,7 @@ GraphicsTextItem *GraphicsScene::addTextWithFont(const QString &pString, const Q
 
     textItem->show();
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, textItem);
         Application::undoStack->push(uc);
     }
@@ -1745,7 +1714,7 @@ GraphicsTextItem *GraphicsScene::addTextHtml(const QString &pString, const QPoin
     addItem(textItem);
     textItem->show();
 
-    if (mUndoRedoStackEnabled) { //should be deleted after scene own undo stack implemented
+    if (mUndoRedoStackEnabled) { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, textItem);
         Application::undoStack->push(uc);
     }
@@ -1763,7 +1732,8 @@ GraphicsTextItem *GraphicsScene::addTextHtml(const QString &pString, const QPoin
 void GraphicsScene::addItem(QGraphicsItem *item) {
     CoreGraphicsScene::addItem(item);
 
-    // the default z value is already set. This is the case when a svg file is read
+    // 带着默认 Z 进来的（例如从 SVG 读入）或值已被占用的都要重新分层；
+    // 已经分好层的不必再动，否则导入文档的叠放次序会被打乱。
     if (item->zValue() == DEFAULT_Z_VALUE || item->zValue() == ZLayerController::errorNum() ||
         !mZLayerController->zLevelAvailable(item->zValue())) {
         qreal zvalue = mZLayerController->generateZLevel(item);
@@ -1799,7 +1769,7 @@ void GraphicsScene::removeItem(QGraphicsItem *item) {
         --mItemCount;
 
     mFastAccessItems.removeAll(item);
-    /* delete the item if it is cache to allow its reinstanciation, because Cache implements design pattern Singleton. */
+    // 缓存图元是单例式的：只从场景摘掉不够，必须真删，否则再加载同一份缓存拿到的是旧对象。
     if (dynamic_cast<GraphicsCache *>(item))
         CoreGraphicsScene::deleteItem(item);
 }
@@ -1818,7 +1788,7 @@ void GraphicsScene::deselectAllItems() {
     foreach (QGraphicsItem *gi, selectedItems()) {
         gi->clearFocus();
         gi->setSelected(false);
-        // Hide selection frame
+        // 取消选中要把选中框一起收掉，否则按钮还挂在空选中上
         if (mSelectionFrame) {
             mSelectionFrame->setEnclosedItems(QList<QGraphicsItem *>());
         }
@@ -1840,9 +1810,7 @@ void GraphicsScene::deselectAllItemsExcept(QGraphicsItem *item) {
     }
 }
 
-/**
- * Return the bounding rectangle of all items on the page except for tools (ruler, compass,...)
- */
+// 只算批注内容的包围盒：尺子、圆规这类工具不属于页面内容，不该把盒子撑大。
 QRectF GraphicsScene::annotationsBoundingRect() const {
     QRectF boundingRect;
 
@@ -1895,9 +1863,7 @@ void GraphicsScene::unsetBackgroundObject() {
     mBackgroundObject->setFlag(QGraphicsItem::ItemIsMovable, true);
     mBackgroundObject->setAcceptedMouseButtons(Qt::LeftButton);
 
-    // Item zLayer and Layer Type should be set by the caller of this function, as
-    // it may depend on the object type, where it was before, etc.
-
+    // 层级与图层类型留给调用方决定：同一个图元回到普通层还是背景层，取决于它原来在哪。
     mBackgroundObject = 0;
 }
 
@@ -1915,13 +1881,13 @@ QRectF GraphicsScene::normalizedSceneRect(qreal ratio) {
         qreal normalizedRectRatio = normalizedRect.width() / normalizedRect.height();
 
         if (normalizedRectRatio > ratio) {
-            //the normalized rect is too wide, we increase height
+            // 归一化后的框太宽：按目标比例补高，左右不动，上下对称外扩
             qreal newHeight = normalizedRect.width() / ratio;
             qreal offset = (newHeight - normalizedRect.height()) / 2;
             normalizedRect.setY(normalizedRect.y() - offset);
             normalizedRect.setHeight(newHeight);
         } else if (normalizedRectRatio < ratio) {
-            //the normalized rect is too high, we increase the width
+            // 太窄：反过来补宽
             qreal newWidth = normalizedRect.height() * ratio;
             qreal offset = (newWidth - normalizedRect.width()) / 2;
             normalizedRect.setX(normalizedRect.x() - offset);
@@ -1936,7 +1902,7 @@ QGraphicsItem *GraphicsScene::itemForUuid(QUuid uuid) {
     QGraphicsItem *result = 0;
     QString ui = uuid.toString();
 
-    //simple search before implementing container for fast access
+    // 线性扫一遍：图元多了之后该换按 UUID 索引的容器，现在还没有
     foreach (QGraphicsItem *item, items()) {
         if (GraphicsScene::getPersonalUuid(item) == uuid && !uuid.isNull()) {
             result = item;
@@ -1978,7 +1944,7 @@ QGraphicsItem *GraphicsScene::scaleToFitDocumentSize(QGraphicsItem *item, bool c
 }
 
 void GraphicsScene::addRuler(QPointF center) {
-    GraphicsRuler *ruler = new GraphicsRuler(); // mem : owned and destroyed by the scene
+    GraphicsRuler *ruler = new GraphicsRuler(); // 内存交给场景，随场景一起销毁
     mTools << ruler;
     QRectF rect = ruler->rect();
     ruler->setRect(center.x() - rect.width() / 2, center.y() - rect.height() / 2, rect.width(),
@@ -1992,9 +1958,8 @@ void GraphicsScene::addRuler(QPointF center) {
 }
 
 void GraphicsScene::addProtractor(QPointF center) {
-    // Protractor
-
-    GraphicsProtractor *protractor = new GraphicsProtractor(); // mem : owned and destroyed by the scene
+    // 量角器是工具图元：由场景持有并销毁，同时记进 mTools 以便整体显隐
+    GraphicsProtractor *protractor = new GraphicsProtractor();
     mTools << protractor;
 
     protractor->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
@@ -2008,9 +1973,8 @@ void GraphicsScene::addProtractor(QPointF center) {
 }
 
 void GraphicsScene::addTriangle(QPointF center) {
-    // Triangle
-
-    GraphicsTriangle *triangle = new GraphicsTriangle(); // mem : owned and destroyed by the scene
+    // 三角板同上：场景持有，算作工具
+    GraphicsTriangle *triangle = new GraphicsTriangle();
     mTools << triangle;
 
     triangle->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
@@ -2024,7 +1988,7 @@ void GraphicsScene::addTriangle(QPointF center) {
 }
 
 void GraphicsScene::addMagnifier(MagnifierParams params) {
-    // can have only one magnifier at one time
+    // 放大镜同时只能有一个，重复调用直接忽略
     if (magniferControlViewWidget)
         return;
 
@@ -2153,7 +2117,7 @@ void GraphicsScene::resizedMagnifier(qreal newPercent) {
 }
 
 void GraphicsScene::addCompass(QPointF center) {
-    GraphicsCompass *compass = new GraphicsCompass(); // mem : owned and destroyed by the scene
+    GraphicsCompass *compass = new GraphicsCompass(); // 内存交给场景，随场景一起销毁
     mTools << compass;
     addItem(compass);
 
@@ -2181,7 +2145,7 @@ void GraphicsScene::addCache() {
 }
 
 void GraphicsScene::addMask(const QPointF &center) {
-    GraphicsCurtainItem *curtain = new GraphicsCurtainItem(); // mem : owned and destroyed by the scene
+    GraphicsCurtainItem *curtain = new GraphicsCurtainItem(); // 内存交给场景，随场景一起销毁
     mTools << curtain;
 
     addItem(curtain);
@@ -2269,11 +2233,8 @@ QSize GraphicsScene::nominalSize() {
     return mNominalSize;
 }
 
-/**
- * @brief Return the scene's boundary size, including any background item
- *
- * If no background item is present, this returns nominalSize()
- */
+// 场景的实际边界：有背景图元（例如 PDF 页当背景）时以它的包围尺寸为准，
+// 因为页面大小是被背景撑出来的，而不是名义尺寸；没有背景才回落 nominalSize()。
 QSize GraphicsScene::sceneSize() {
     GraphicsPDFItem *pdfItem = qgraphicsitem_cast<GraphicsPDFItem *>(backgroundObject());
 
@@ -2408,7 +2369,7 @@ void GraphicsScene::drawBackground(QPainter *painter, const QRectF &rect) {
             bgCrossColor = QColor(Settings::settings()->boardCrossColorLightBackground->get().toString());
         if (mZoomFactor < 0.7) {
             int alpha = 255 * mZoomFactor / 2;
-            bgCrossColor.setAlpha(alpha); // fade the crossing on small zooms
+            bgCrossColor.setAlpha(alpha); // 缩小后十字线显得过粗，按缩放比例淡一些压住视觉重量
         }
 
         painter->setPen(bgCrossColor);
@@ -2561,16 +2522,15 @@ void GraphicsScene::setDocumentUpdated() {
 
 void GraphicsScene::createEraiser() {
     if (Settings::settings()->showEraserPreviewCircle->get().toBool()) {
-        mEraser = new QGraphicsEllipseItem(); // mem : owned and destroyed by the scene
+        mEraser = new QGraphicsEllipseItem(); // 内存交给场景，随场景一起销毁
         mEraser->setRect(QRect(0, 0, 0, 0));
         mEraser->setVisible(false);
 
         updateEraserColor();
 
         mEraser->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
-        mEraser->setData(
-            GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::Eraiser)); //Necessary to set if we want z value to be assigned correctly
+        mEraser->setData(GraphicsItemData::itemLayerType,
+                         QVariant(itemLayerType::Eraiser)); // 必须设好图层类型，Z 值才会被分到正确的层
 
         mTools << mEraser;
         addItem(mEraser);
@@ -2578,7 +2538,7 @@ void GraphicsScene::createEraiser() {
 }
 
 void GraphicsScene::createPointer() {
-    mPointer = new QGraphicsEllipseItem(); // mem : owned and destroyed by the scene
+    mPointer = new QGraphicsEllipseItem(); // 内存交给场景，随场景一起销毁
     mPointer->setRect(QRect(0, 0, 20, 20));
     mPointer->setVisible(false);
 
@@ -2586,9 +2546,8 @@ void GraphicsScene::createPointer() {
     mPointer->setBrush(QBrush(QColor(255, 0, 0, 186)));
 
     mPointer->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
-    mPointer->setData(
-        GraphicsItemData::itemLayerType,
-        QVariant(itemLayerType::Pointer)); //Necessary to set if we want z value to be assigned correctly
+    mPointer->setData(GraphicsItemData::itemLayerType,
+                      QVariant(itemLayerType::Pointer)); // 必须设好图层类型，Z 值才会被分到正确的层
 
     mTools << mPointer;
     addItem(mPointer);

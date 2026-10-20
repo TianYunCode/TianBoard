@@ -137,31 +137,26 @@ BoardController::~BoardController() {
 }
 
 /**
- * @brief Set the default background grid size to appear as roughly 1cm on screen
+ * @brief 把默认背景网格调到屏幕上大约 1 厘米。
  */
 void BoardController::initBackgroundGridSize() {
-    // Besides adjusting for DPI, we also need to scale the grid size by the ratio of the control view size
-    // to document size. However the control view isn't available as soon as the boardController is created,
-    // so we approximate this ratio as (document resolution) / (screen resolution).
-    // Later on, this is calculated by `updateSystemScaleFactor` and stored in `mSystemScaleFactor`.
+    // 网格尺寸既要随 DPI 换算，又要按“控制视图像素 / 文档标称尺寸”的比例修正。
+    // 构造期控制视图还不可用，这里先用文档高度 / 屏幕高度近似该比例；
+    // 之后 updateSystemScaleFactor() 会算出精确值存入 mSystemScaleFactor。
 
     VirtualDesktop *desktop = VirtualDesktop::instance();
     qreal dpi = desktop->physicalDpi();
 
-    // The display manager isn't initialized yet so we have to just assume the control view is on the main display
+    // 显示管理器此时尚未初始化，只能假定控制视图位于主屏。
     qreal screenY = desktop->screenGeometry(mControlView).height();
     qreal documentY = mActiveScene->nominalSize().height();
     qreal resolutionRatio = documentY / screenY;
-
-    //qDebug() << "resolution ratio: " << resolutionRatio;
 
     int gridSize = (resolutionRatio * 10. * dpi) / GeometryUtils::inchSize;
 
     Settings::settings()->crossSize = gridSize;
     Settings::settings()->defaultCrossSize = gridSize;
     mActiveScene->setBackgroundGridSize(gridSize);
-
-    //qDebug() << "grid size: " << gridSize;
 }
 
 int BoardController::currentPage() {
@@ -248,69 +243,6 @@ QRectF BoardController::controlGeometry() {
 
 void BoardController::setupToolbar() {
     Settings *settings = Settings::settings();
-    //// Setup color choice widget
-    //QList<QAction *> colorActions;
-    //colorActions.append(mMainWindow->ui().actionColor0);
-    //colorActions.append(mMainWindow->ui().actionColor1);
-    //colorActions.append(mMainWindow->ui().actionColor2);
-    //colorActions.append(mMainWindow->ui().actionColor3);
-    //colorActions.append(mMainWindow->ui().actionColor4);
-
-    //ToolbarButtonGroup *colorChoice =
-    //        new ToolbarButtonGroup(mMainWindow->ui().boardToolBar, colorActions);
-
-    ////mMainWindow->ui().boardToolBar->insertWidget(mMainWindow->ui().actionBackgrounds, colorChoice);
-
-    //connect(settings->appToolBarDisplayText, SIGNAL(changed(QVariant)), colorChoice, SLOT(displayText(QVariant)));
-    //connect(colorChoice, SIGNAL(activated(int)), this, SLOT(setColorIndex(int)));
-    //connect(DrawingController::drawingController(), SIGNAL(colorIndexChanged(int)), colorChoice, SLOT(setCurrentIndex(int)));
-    //connect(DrawingController::drawingController(), SIGNAL(colorPaletteChanged()), colorChoice, SLOT(colorPaletteChanged()));
-    //connect(DrawingController::drawingController(), SIGNAL(colorPaletteChanged()), this, SLOT(colorPaletteChanged()));
-
-    //colorChoice->displayText(QVariant(settings->appToolBarDisplayText->get().toBool()));
-    //colorChoice->colorPaletteChanged();
-
-    //// Setup line width choice widget
-    //QList<QAction *> lineWidthActions;
-    //lineWidthActions.append(mMainWindow->ui().actionLineSmall);
-    //lineWidthActions.append(mMainWindow->ui().actionLineMedium);
-    //lineWidthActions.append(mMainWindow->ui().actionLineLarge);
-
-    //ToolbarButtonGroup *lineWidthChoice =
-    //        new ToolbarButtonGroup(mMainWindow->ui().boardToolBar, lineWidthActions);
-
-    //connect(settings->appToolBarDisplayText, SIGNAL(changed(QVariant)), lineWidthChoice, SLOT(displayText(QVariant)));
-
-    //connect(lineWidthChoice, SIGNAL(activated(int))
-    //        , DrawingController::drawingController(), SLOT(setLineWidthIndex(int)));
-
-    //connect(DrawingController::drawingController(), SIGNAL(lineWidthIndexChanged(int))
-    //        , lineWidthChoice, SLOT(setCurrentIndex(int)));
-
-    //lineWidthChoice->displayText(QVariant(settings->appToolBarDisplayText->get().toBool()));
-
-    ////mMainWindow->ui().boardToolBar->insertWidget(mMainWindow->ui().actionBackgrounds, lineWidthChoice);
-
-    //// Setup eraser width choice widget
-
-    //QList<QAction *> eraserWidthActions;
-    //eraserWidthActions.append(mMainWindow->ui().actionEraserSmall);
-    //eraserWidthActions.append(mMainWindow->ui().actionEraserMedium);
-    //eraserWidthActions.append(mMainWindow->ui().actionEraserLarge);
-
-    //ToolbarButtonGroup *eraserWidthChoice =
-    //        new ToolbarButtonGroup(mMainWindow->ui().boardToolBar, eraserWidthActions);
-
-    //mMainWindow->ui().boardToolBar->insertWidget(mMainWindow->ui().actionBackgrounds, eraserWidthChoice);
-
-    //connect(settings->appToolBarDisplayText, SIGNAL(changed(QVariant)), eraserWidthChoice, SLOT(displayText(QVariant)));
-    //connect(eraserWidthChoice, SIGNAL(activated(int)), DrawingController::drawingController(), SLOT(setEraserWidthIndex(int)));
-
-    //eraserWidthChoice->displayText(QVariant(settings->appToolBarDisplayText->get().toBool()));
-    //eraserWidthChoice->setCurrentIndex(settings->eraserWidthIndex());
-
-    //mMainWindow->ui().boardToolBar->insertSeparator(mMainWindow->ui().actionBackgrounds);
-
 
     Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().boardToolBar,
                                                          mMainWindow->ui().actionBoard);
@@ -530,7 +462,7 @@ GraphicsItem *BoardController::duplicateItem(Item *item) {
     QUrl sourceUrl;
     QByteArray pData;
 
-    //common parameters for any item
+    // 统一计算插入位置与尺寸：复用图元原始几何，避免类型分派处重复处理。
     QPointF itemPos;
     QSizeF itemSize;
 
@@ -645,7 +577,7 @@ GraphicsItem *BoardController::duplicateItem(Item *item) {
 
     if (retItem) {
         QGraphicsItem *graphicsRetItem = dynamic_cast<QGraphicsItem *>(retItem);
-        if (mActiveScene->isURStackIsEnabled()) { //should be deleted after scene own undo stack implemented
+        if (mActiveScene->isURStackIsEnabled()) { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(mActiveScene, 0, graphicsRetItem);
             Application::undoStack->push(uc);
         }
@@ -764,7 +696,7 @@ void BoardController::zoomIn(QPointF scenePoint) {
 void BoardController::zoomOut(QPointF scenePoint) {
     if ((mControlView->horizontalScrollBar()->maximum() == 0) &&
         (mControlView->verticalScrollBar()->maximum() == 0)) {
-        // Do not zoom out if we reached the maximum
+        // 两个滚动条都没有可滚动范围，说明已缩到最小。
         qApp->beep();
         return;
     }
@@ -784,7 +716,7 @@ void BoardController::zoomRestore() {
     centerRestore();
 
     foreach (QGraphicsItem *gi, mActiveScene->selectedItems()) {
-        //force item to redraw the frame (for the anti scale calculation)
+        // 先取消再恢复选中，强制选中框按新的反缩放系数重绘。
         gi->setSelected(false);
         gi->setSelected(true);
     }
@@ -931,15 +863,14 @@ void BoardController::downloadURL(const QUrl &url, QString contentSourceUrl, con
                              internalData);
             file.close();
         } else {
-            // media items should be copyed in separate thread
-
+            // 媒体文件体积大，交给下载管理器在后台线程复制，避免阻塞界面。
             sDownloadFileDesc desc;
             desc.modal = false;
             desc.srcUrl = sUrl;
             desc.originalSrcUrl = contentSourceUrl;
             desc.currentSize = 0;
             desc.name = QFileInfo(url.toString()).fileName();
-            desc.totalSize = 0; // The total size will be retrieved during the download
+            desc.totalSize = 0; // 总大小要等下载过程中才拿得到，先按未知处理
             desc.pos = pPos;
             desc.size = pSize;
             desc.isBackground = isBackground;
@@ -952,13 +883,13 @@ void BoardController::downloadURL(const QUrl &url, QString contentSourceUrl, con
         if (parametersStringPosition != -1)
             urlString = urlString.left(parametersStringPosition);
 
-        // When we fall there, it means that we are dropping something from the web to the board
+        // 走到这里说明是从网页拖入的远程资源，需要走模态下载流程。
         sDownloadFileDesc desc;
         desc.modal = true;
         desc.srcUrl = urlString;
         desc.currentSize = 0;
         desc.name = QFileInfo(urlString).fileName();
-        desc.totalSize = 0; // The total size will be retrieved during the download
+        desc.totalSize = 0; // 总大小要等下载过程中才拿得到，先按未知处理
         desc.pos = pPos;
         desc.size = pSize;
         desc.isBackground = isBackground;
@@ -967,7 +898,7 @@ void BoardController::downloadURL(const QUrl &url, QString contentSourceUrl, con
     }
 
     if (isBackground && oldBackgroundObject != mActiveScene->backgroundObject()) {
-        if (mActiveScene->isURStackIsEnabled()) { //should be deleted after scene own undo stack implemented
+        if (mActiveScene->isURStackIsEnabled()) { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(mActiveScene, oldBackgroundObject,
                                                                       mActiveScene->backgroundObject());
             Application::undoStack->push(uc);
@@ -981,8 +912,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
                                         QSize pSize, bool isBackground, bool internalData) {
     QString mimeType = pContentTypeHeader;
 
-    // In some cases "image/jpeg;charset=" is retourned by the drag-n-drop. That is
-    // why we will check if an ; exists and take the first part (the standard allows this kind of mimetype)
+    // 拖放可能带上 "image/jpeg;charset=..." 这类参数，只取分号前的标准 MIME。
     if (mimeType.isEmpty())
         mimeType = FileSystemUtils::mimeTypeFromFileName(sourceUrl.toString());
 
@@ -1358,7 +1288,7 @@ void BoardController::findUniquesItems(const QUndoCommand *parent, QSet<QGraphic
         }
     }
 
-    // Undo command transaction macros. Process separatedly
+    // 事务宏只负责分组，其子命令已在上面递归处理，这里直接返回。
     if (parent->text() == Settings::undoCommandTransactionName) {
         return;
     }
@@ -1369,8 +1299,7 @@ void BoardController::findUniquesItems(const QUndoCommand *parent, QSet<QGraphic
 
     const GraphicsItemUndoCommand *cmd = dynamic_cast<const GraphicsItemUndoCommand *>(parent);
 
-    // go through all added and removed objects, for create list of unique objects
-    // grouped items will be deleted by groups, so we don't need do delete that items.
+    // 收集新增与移除列表中的图元；组内图元会随组一起删除，不单独收集。
     QSetIterator<QGraphicsItem *> itAdded(cmd->GetAddedList());
     while (itAdded.hasNext()) {
         QGraphicsItem *item = itAdded.next();
@@ -1390,14 +1319,13 @@ void BoardController::findUniquesItems(const QUndoCommand *parent, QSet<QGraphic
 
 void BoardController::ClearUndoStack() {
     QSet<QGraphicsItem *> uniqueItems;
-    // go through all stack command
+    // 遍历撤销栈里的每条命令，收集其引用到的图元。
     for (int i = 0; i < Application::undoStack->count(); i++) {
         findUniquesItems(Application::undoStack->command(i), uniqueItems);
     }
 
-    // Get items from clipboard in order not to delete an item that was cut
-    // (using source URL of graphics items as a surrogate for equality testing)
-    // This ensures that we can cut and paste a media item, widget, etc. from one page to the next.
+    // 先取得剪贴板中图元的来源 URL：被剪切但尚未粘贴的图元不在场景里，也不能删。
+    // 这里用来源 URL 作相等性替身，使媒体、网页小部件等能跨页剪切粘贴。
     QClipboard *clipboard = QApplication::clipboard();
     const QMimeData *data = clipboard->mimeData();
     QList<QUrl> sourceURLs;
@@ -1412,8 +1340,7 @@ void BoardController::ClearUndoStack() {
         }
     }
 
-    // go through all unique items, and check, if they are on scene, or not.
-    // if not on scene, than item can be deleted
+    // 既不在场景、也不在剪贴板中的图元才可以销毁。
     QSetIterator<QGraphicsItem *> itUniq(uniqueItems);
     while (itUniq.hasNext()) {
         QGraphicsItem *item = itUniq.next();
@@ -1435,7 +1362,7 @@ void BoardController::ClearUndoStack() {
         }
     }
 
-    // clear stack, and command list
+    // 清空撤销栈，命令对象随之释放。
     Application::undoStack->clear();
 }
 
@@ -1567,7 +1494,7 @@ void BoardController::documentSceneChanged(DocumentProxy *pDocumentProxy, int pI
 
 void BoardController::autosaveTimeout() {
     if (Application::applicationController->displayMode() != ApplicationController::Board) {
-        //perform autosave only in board mode
+        // 只在画板模式下自动保存。
         return;
     }
 
@@ -1633,7 +1560,7 @@ void BoardController::setColorIndex(int pColorIndex) {
         mPenColorOnLightBackground = Settings::settings()->penColors(false).at(pColorIndex);
 
         if (DrawingController::drawingController()->stylusTool() == StylusTool::Selector) {
-            // If we are in mode board, then do that
+            // 画板模式下选择器没有意义，切回画笔。
             if (Application::applicationController->displayMode() == ApplicationController::Board) {
                 DrawingController::drawingController()->setStylusTool(StylusTool::Pen);
                 mMainWindow->ui().actionPen->setChecked(true);
@@ -1687,9 +1614,8 @@ void BoardController::updateSystemScaleFactor() {
 
     if (mActiveScene) {
         QSize pageNominalSize = mActiveScene->nominalSize();
-        //we're going to keep scale factor untouched if the size is custom
+        // 按页面标称尺寸与控制视口的较小比例做适配；自定义尺寸也走同一路径。
         QMap<DocumentSizeRatio::Enum, QSize> sizesMap = Settings::settings()->documentSizes;
-        //  if(pageNominalSize == sizesMap.value(DocumentSizeRatio::Ratio16_9) || pageNominalSize == sizesMap.value(DocumentSizeRatio::Ratio4_3))
         {
             QSize controlSize = controlViewport();
 
@@ -1834,7 +1760,6 @@ void BoardController::grabScene(const QRectF &pSceneRect) {
         mActiveScene->render(&painter, targetRect, pSceneRect);
 
         mActiveScene->setRenderingContext(GraphicsScene::Screen);
-        //        mActiveScene->setRenderingQuality(Item::RenderingQualityNormal);
         mActiveScene->setRenderingQuality(Item::RenderingQualityHigh);
 
 
@@ -1849,7 +1774,7 @@ GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startP
     QUuid uuid = QUuid::createUuid();
     QUrl concreteUrl = pSourceUrl;
 
-    // media file is not in document folder yet
+    // 未要求直接复用源文件时，先把媒体复制进文档目录。
     if (!bUseSource) {
         QString destFile;
         bool b = PersistenceManager::persistenceManager()->addFileToDocument(
@@ -1859,7 +1784,7 @@ GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startP
             return NULL;
         }
         concreteUrl = QUrl::fromLocalFile(destFile);
-    } // else we just use source Url.
+    } // 否则直接沿用源文件 URL。
 
 
     GraphicsMediaItem *vi = mActiveScene->addMedia(concreteUrl, startPlay, pos);
@@ -1879,7 +1804,7 @@ GraphicsMediaItem *BoardController::addAudio(const QUrl &pSourceUrl, bool startP
     QUuid uuid = QUuid::createUuid();
     QUrl concreteUrl = pSourceUrl;
 
-    // media file is not in document folder yet
+    // 未要求直接复用源文件时，先把媒体复制进文档目录。
     if (!bUseSource) {
         QString destFile;
         bool b = PersistenceManager::persistenceManager()->addFileToDocument(
@@ -1889,7 +1814,7 @@ GraphicsMediaItem *BoardController::addAudio(const QUrl &pSourceUrl, bool startP
             return NULL;
         }
         concreteUrl = QUrl::fromLocalFile(destFile);
-    } // else we just use source Url.
+    } // 否则直接沿用源文件 URL。
 
     GraphicsMediaItem *ai = mActiveScene->addMedia(concreteUrl, startPlay, pos);
     selectedDocument()->setMetaData(Settings::documentUpdatedAt,
@@ -1934,13 +1859,10 @@ GraphicsWidgetItem *BoardController::addWebWidget(const QUrl &pUrl, const QPoint
 }
 
 void BoardController::cut() {
-    //---------------------------------------------------------//
-
+    // 先固定选区：下面的循环会把图元从场景移除，直接遍历 selectedItems() 会被修改。
     QList<QGraphicsItem *> selectedItems;
     foreach (QGraphicsItem *gi, mActiveScene->selectedItems())
         selectedItems << gi;
-
-    //---------------------------------------------------------//
 
     QList<Item *> selected;
     foreach (QGraphicsItem *gi, selectedItems) {
@@ -1955,8 +1877,6 @@ void BoardController::cut() {
         }
     }
 
-    //---------------------------------------------------------//
-
     if (selected.size() > 0) {
         QClipboard *clipboard = QApplication::clipboard();
 
@@ -1968,8 +1888,6 @@ void BoardController::cut() {
         selectedDocument()->setMetaData(Settings::documentUpdatedAt,
                                         StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
     }
-
-    //---------------------------------------------------------//
 }
 
 
@@ -2086,7 +2004,7 @@ void BoardController::processMimeData(const QMimeData *pMimeData, const QPointF 
         QImage img = qvariant_cast<QImage>(pMimeData->imageData());
         QPixmap pix = QPixmap::fromImage(img);
 
-        // validate that the image is really an image, webkit does not fill properly the image mime data
+        // 校验位图是否有效：网页端提供的图像 MIME 数据可能不完整。
         if (pix.width() != 0 && pix.height() != 0) {
             mActiveScene->addPixmap(pix, NULL, pPos, 1.);
             return;
@@ -2095,7 +2013,7 @@ void BoardController::processMimeData(const QMimeData *pMimeData, const QPointF 
 
     if (pMimeData->hasText()) {
         if ("" != pMimeData->text()) {
-            // Sometimes, it is possible to have an URL as text. we check here if it is the case
+            // 文本也可能是一个 URL，先识别出来走下载流程。
             QString qsTmp = pMimeData->text().remove(QRegularExpression("[\\0]"));
             if (qsTmp.startsWith("http"))
                 downloadURL(QUrl(qsTmp), QString(), pPos);
@@ -2229,9 +2147,7 @@ void BoardController::freezeWebWidget(QGraphicsItem *item, bool freeze) {
         if (0 == item_casted)
             return;
 
-        //if (freeze) {
-        //    item_casted->load(QUrl(GraphicsWebWidgetItem::freezedWidgetFilePath()));
-        //} else
+        // freeze 参数暂未参与分支：两种状态都重新加载主页面。
         item_casted->loadMainHtml();
     }
 }

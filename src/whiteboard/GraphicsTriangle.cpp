@@ -39,7 +39,7 @@ GraphicsTriangle::GraphicsTriangle()
     mRotateSvgItem->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::CppTool)); //Necessary to set if we want z value to be assigned correctly
+            QVariant(itemLayerType::CppTool)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlag(QGraphicsItem::ItemIsSelectable, false);
 
     updateResizeCursor();
@@ -95,7 +95,7 @@ void GraphicsTriangle::setRect(qreal x, qreal y, qreal w, qreal h, Orientation o
     polygon << QPointF(x, y) << QPoint(x, y + h) << QPoint(x + w, y + h);
     setPolygon(polygon);
 
-    //  Save the bounds rect
+    // 记录未旋转前的包围矩形，作为后续缩放的基准。
     bounds_rect.setX(x);
     bounds_rect.setY(y);
     bounds_rect.setWidth(w);
@@ -317,9 +317,6 @@ void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     mCloseSvgItem->setPos(closeButtonRect().topLeft());
 
-    //qDebug() << "GraphicsTriangle Paint"<<"closeButtonRect().topLeft()="
-    //<<closeButtonRect().topLeft();
-
     mHFlipSvgItem->setPos(hFlipRect().topLeft());
     mVFlipSvgItem->setPos(vFlipRect().topLeft());
     mRotateSvgItem->setPos(rotateRect().topLeft());
@@ -337,8 +334,6 @@ QPainterPath GraphicsTriangle::shape() const {
     QPainterPath tShape;
     QPolygonF tPolygon;
 
-    //qDebug() << "GraphicsTriangle shape()"<<"A1 ="<<A1<<"B1 ="<<B1<<"C1 ="<<C1;
-
     tPolygon << A1 << B1 << C1;
     tShape.addPolygon(tPolygon);
     tPolygon.clear();
@@ -348,9 +343,6 @@ QPainterPath GraphicsTriangle::shape() const {
         tShape.addPolygon(tPolygon);
         tPolygon.clear();
     }
-
-    //qDebug() << "GraphicsTriangle shape()"<<"A1 ="<<A1<<"B1 ="<<B1<<"C1 ="<<C1;
-    //qDebug() << "GraphicsTriangle shape()"<<"A2 ="<<A2<<"B2 ="<<B2<<"C2 ="<<C2;
 
     return tShape;
 }
@@ -364,11 +356,11 @@ void GraphicsTriangle::paintGraduations(QPainter *painter) {
     painter->setFont(font());
     QFontMetricsF fontMetrics(painter->font());
 
-    // Update the width of one "centimeter" to correspond to the width of the background grid (whether it is displayed or not)
+    // 让“一厘米”与背景网格宽度一致（无论网格是否显示）。
     sPixelsPerCentimeter = Application::boardController->activeScene()->backgroundGridSize();
     double pixelsPerMillimeter = sPixelsPerCentimeter / 10.0;
 
-    // When a "centimeter" is too narrow, we only display every 5th number, and every 5th millimeter mark
+    // 一厘米太窄时只显示每 5 个数字与每 5 毫米刻度，避免文字重叠。
     double numbersWidth = fontMetrics.horizontalAdvance("00");
     bool shouldDisplayAllNumbers = (numbersWidth <= (sPixelsPerCentimeter - 5));
 
@@ -450,7 +442,7 @@ void GraphicsTriangle::rotateAroundCenter(qreal angle) {
     QTransform transform;
     rotateAroundCenter(transform, rotationCenter());
     setTransform(transform, true);
-    this->angle = oldAngle + angle; // We have to store absolute value for FLIP case
+    this->angle = oldAngle + angle; // 存的是累加后的绝对角度：三角板在翻转状态下要靠它算回真实朝向
 }
 
 void GraphicsTriangle::rotateAroundCenter(QTransform &transform, QPointF center) {
@@ -671,8 +663,7 @@ void GraphicsTriangle::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
             }
         }
 
-        //-----------------------------------------------//
-
+        // 第二缩放手柄：按朝向决定纵向拉伸的方向。
         if (mResizing2) {
             if (mOrientation == BottomRight || mOrientation == BottomLeft) {
                 int deltaY = lastPos.y() - currPos.y();
@@ -692,15 +683,12 @@ void GraphicsTriangle::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
             }
         }
 
-        //-----------------------------------------------//
-
+        // 旋转：用当前与上一帧相对中心的极角差更新角度。
         if (mRotating) {
             QLineF currentLine(rotationCenter(), event->pos());
             QLineF lastLine(rotationCenter(), event->lastPos());
             rotateAroundCenter(currentLine.angleTo(lastLine));
         }
-
-        //-----------------------------------------------//
 
         event->accept();
     }
@@ -789,10 +777,6 @@ void GraphicsTriangle::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
         DrawingController::drawingController()->mActiveRuler = this;
         event->accept();
     }
-
-    //
-    //event->accept(); //**
-    //update(); //**
 }
 
 void GraphicsTriangle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
@@ -880,16 +864,15 @@ void GraphicsTriangle::DrawLine(const QPointF &scenePos, qreal width) {
     itemPos.setY(y);
     itemPos = mapToScene(itemPos);
 
-    // We have to use "pointed" line for marker tool
+    // 非记号笔工具使用带笔锋的线条，记号笔保持普通线条。
     scene()->drawLineTo(itemPos, mStrokeWidth,
                         DrawingController::drawingController()->stylusTool() != StylusTool::Marker);
 }
 
 /**
- * @brief Check whether a given QRectF is inside the triangle (A1, B1, C1).
+ * @brief 判断矩形是否落在三角形（A1、B1、C1）内部。
  *
- * Returns true if any corner of the rectangle is within the triangle or, if strict is set to true,
- * if all corners of the rectangle are within the triangle.
+ * 任一顶点在三角形内即返回 true；strict 为 true 时要求矩形的全部角点都在内部。
  */
 bool GraphicsTriangle::contains(const QRectF &rect, bool strict) {
     QPolygonF poly;

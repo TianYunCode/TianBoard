@@ -56,11 +56,10 @@ QList<QPair<QPointF, qreal>> GraphicsStroke::addPoint(const QPointF &point, qrea
     }
 
     else {
-        // The curve we are interpolating is not between two drawn points;
-        // it is between the midway points of the second-to-last and last point, and last and current point.
+        // 平滑插值不是在两个真实落点之间做，而是在“倒数第二点—最后点”的中点
+        // 与“最后点—当前点”的中点之间做，这样每一段贝塞尔的端点都是已画位置。
 
-
-        // The first segment is just a straight line to the first midway point
+        // 第一没有“上一段”可接，直接一条直线连到第一个中点
         if (n == 1) {
             QPointF lastPoint = mReceivedPoints[0].first;
             qreal lastWidth = mReceivedPoints[0].second;
@@ -88,7 +87,7 @@ QList<QPair<QPointF, qreal>> GraphicsStroke::addPoint(const QPointF &point, qrea
             newPoints << strokePoint(calculated[i], w);
         }
 
-        // avoid adding duplicates
+        // 上一段的终点就是这一段的起点，去掉重复点，否则多边形会退化
         if (newPoints.first().first == mDrawnPoints.last().first)
             mDrawnPoints.removeLast();
 
@@ -136,10 +135,8 @@ void GraphicsStroke::clear() {
     }
 }
 
-/**
- * @brief Return a simplified version of the stroke, with less points and polygons.
- *
- */
+// 返回一条点更少、多边形也更少的等价笔迹。少于三个点没什么可简化的，返回空指针，
+// 调用方保留原笔迹。
 GraphicsStroke *GraphicsStroke::simplify() {
     if (mDrawnPoints.size() < 3)
         return NULL;
@@ -148,26 +145,16 @@ GraphicsStroke *GraphicsStroke::simplify() {
     newStroke->mDrawnPoints = QList<strokePoint>(mDrawnPoints);
 
     QList<strokePoint> &points = newStroke->mDrawnPoints;
-    //qDebug() << "Simplifying. Before: " << points.size() << " points and " << polygons().size() << " polygons";
+    // 简化算法：把当前点与其后两点记作 A、B、C。(AB) 与 (BC) 的夹角小于阈值就认为三点共线，
+    // 删掉中间的 B；然后 A 不变，用接下来的点当新的 B、C 继续判，直到不共线为止，
+    // 此时当前的 B 升级为新的 A，如此往下推。
+    // A 与 B 之间笔宽差得太多时即使共线也不删 B，否则粗细过渡会被抹平成一段直边。
+    // TODO: 目前只会删“近似直线”上的点，弯弧段还简不掉，需要换更聪明的算法
 
-    /* Basic simplifying algorithm: consider A, B and C the current point and the two following ones.
-     * If the angle between (AB) and (BC) is lower than a certain threshold,
-     * the three points are considered to be aligned and the middle one (B) is removed.
-     *
-     * We then consider the two following points as the new B and C while keeping the same A, and
-     * test these three points. As long as they are aligned, B is erased and we start over.
-     * If not, the current B becomes the new A, and so on.
-     *
-     * In case the stroke thickness varies a lot between A and B, then B is not removed even if it
-     * should be according to the previous criteria.
-     *
-     * TODO: more advanced algorithm that could also simplify curved sections of the stroke
-     */
-
-    // angle difference in degrees between AB and BC below which the segments are considered colinear
+    // AB 与 BC 的夹角（度）低于它就判定三点共线
     qreal thresholdAngle = Settings::settings()->boardSimplifyPenStrokesThresholdAngle->get().toReal();
 
-    // Relative difference in thickness between two consecutive points (A and B) below which they are considered equal
+    // 相邻两点（A 与 B）笔宽的相对比值低于它才算粗细一致
     qreal thresholdWidthDifference =
         Settings::settings()->boardSimplifyPenStrokesThresholdWidthDifference->get().toReal();
 
@@ -175,7 +162,7 @@ GraphicsStroke *GraphicsStroke::simplify() {
     QList<QList<strokePoint>::iterator> toDelete;
 
     while (it + 2 != points.end()) {
-        // it, b_it and (b_it+1) correspond to A, B and C respectively
+        // it、b_it、b_it+1 分别就是上面的 A、B、C
         QList<strokePoint>::iterator b_it(it + 1);
 
         while (b_it + 1 != points.end()) {
@@ -194,8 +181,7 @@ GraphicsStroke *GraphicsStroke::simplify() {
             it = b_it;
     }
 
-    // Next, we iterate over the new points to build the polygons that make up the stroke.
-    // A new polygon is created every time drawCurve is true.
+    // 再走一遍简化后的点，用 drawCurve 标记的地方切段，每段生成一个多边形。
 
     QList<GraphicsPolygonItem *> newPolygons;
     QList<strokePoint> newStrokePoints;
@@ -206,16 +192,14 @@ GraphicsStroke *GraphicsStroke::simplify() {
 
         newStrokePoints << points[i];
 
-        // Limiting the size of the polygons, and creating new ones when there is a sharp angle between
-        // consecutive point helps with two issues:
-        // 1. When a polygon is transparent and it overlaps with itself, it is *sometimes* filled incorrectly.
-        // 2. This way of simplifying strokes resuls in sharp, rather than rounded, corners when there is a sharp angle
-        //    in the stroke
+        // 限制单个多边形的规模、遇到急折角就另起一段，解决两件事：
+        // 1. 半透明多边形自叠时，Qt 有时会填错，出现不该有的深色块；
+        // 2. 简化后的急角本来是尖的，切开之后每段各自平滑，转角才是圆的而不是刀尖。
 
         if (newStrokePoints.size() > 1 && i < points.size() - 1) {
             qreal angle =
                 qFabs(GeometryUtils::angle(points[i - 1].first, points[i].first, points[i + 1].first));
-            if (angle < 150) // arbitrary threshold, change if necessary
+            if (angle < 150) // 经验阈值：小于 150 度算急折，需要可调再进设置
                 drawCurve = true;
         }
 
@@ -225,9 +209,8 @@ GraphicsStroke *GraphicsStroke::simplify() {
         if (drawCurve) {
             GraphicsPolygonItem *poly =
                 mScene->polygonToPolygonItem(GeometryUtils::curveToPolygon(newStrokePoints, true, true));
-            //poly->setColor(QColor(rand()%256, rand()%256, rand()%256, poly->brush().color().alpha())); // useful for debugging
 
-            // Subtract overlapping polygons if the stroke is translucent
+            // 半透明笔迹：把前面已经画过的段从本段里减掉，避免自叠处变深
             if (!poly->brush().isOpaque()) {
                 foreach (GraphicsPolygonItem *prev, newPolygons)
                     poly->subtract(prev);
@@ -260,8 +243,6 @@ GraphicsStroke *GraphicsStroke::simplify() {
         poly->setFillRule(Qt::WindingFill);
         poly->setStroke(newStroke);
     }
-
-    //qDebug() << "After: " << points.size() << " points and " << newStroke->polygons().size() << " polygons";
 
     return newStroke;
 }

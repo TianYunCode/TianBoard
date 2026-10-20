@@ -2,9 +2,9 @@
 
 
 UndoCommand::UndoCommand(QUndoCommand *parent) : QUndoCommand(parent) {
-    // NOOP
+    // 刻意留空
 }
 
 UndoCommand::~UndoCommand() {
-    // NOOP
+    // 刻意留空
 }

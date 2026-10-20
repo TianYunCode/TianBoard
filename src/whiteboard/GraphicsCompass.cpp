@@ -54,7 +54,7 @@ GraphicsCompass::GraphicsCompass()
     unsetCursor();
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::CppTool)); //Necessary to set if we want z value to be assigned correctly
+            QVariant(itemLayerType::CppTool)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlag(QGraphicsItem::ItemIsSelectable, false);
 
     connect(Application::boardController, &BoardController::penColorChanged, this,
@@ -64,7 +64,7 @@ GraphicsCompass::GraphicsCompass()
 }
 
 GraphicsCompass::~GraphicsCompass() {
-    // NOOP
+    // 刻意留空
 }
 
 Item *GraphicsCompass::deepCopy() const {
