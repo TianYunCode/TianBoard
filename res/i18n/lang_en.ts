@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="454"/>
+        <location filename="../../src/core/Application.cpp" line="481"/>
         <source>Page Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="470"/>
+        <location filename="../../src/core/Application.cpp" line="497"/>
         <source>Screen Recording</source>
         <translation type="unfinished"></translation>
     </message>
@@ -331,53 +331,33 @@
 <context>
     <name>DocumentManager</name>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="46"/>
-        <source>images</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="47"/>
-        <source>videos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="48"/>
-        <source>objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="49"/>
-        <source>widgets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="108"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="103"/>
         <source>All supported files (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="196"/>
-        <location filename="../../src/core/DocumentManager.cpp" line="266"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="191"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="261"/>
         <source>Inserting page %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="205"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="200"/>
         <source>Import successful.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="221"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="216"/>
         <source>Importing file %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="275"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="270"/>
         <source>Import of file %1 successful.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="315"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="310"/>
         <source>File %1 saved</source>
         <translation type="unfinished"></translation>
     </message>

@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="454"/>
+        <location filename="../../src/core/Application.cpp" line="481"/>
         <source>Page Size</source>
         <translation>页面尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="470"/>
+        <location filename="../../src/core/Application.cpp" line="497"/>
         <source>Screen Recording</source>
         <translation>录屏</translation>
     </message>
@@ -27,7 +27,7 @@
     <message>
         <location filename="../../src/ui/BackgroundPalette.cpp" line="52"/>
         <source>Grid size</source>
-        <translation type="unfinished"></translation>
+        <translation>网格尺寸</translation>
     </message>
 </context>
 <context>
@@ -35,7 +35,7 @@
     <message>
         <location filename="../../src/ui/BlackoutWidget.cpp" line="56"/>
         <source>Click to Return to Application</source>
-        <translation type="unfinished"></translation>
+        <translation>点击返回应用</translation>
     </message>
 </context>
 <context>
@@ -43,42 +43,42 @@
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="64"/>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>组合</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="64"/>
         <source>Ungroup</source>
-        <translation type="unfinished"></translation>
+        <translation>解组</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="305"/>
         <source>Saving document...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在保存文档……</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="313"/>
         <source>Document has just been saved...</source>
-        <translation type="unfinished"></translation>
+        <translation>文档刚刚已保存……</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="667"/>
         <source>Deleting page %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在删除第 %1 页</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="679"/>
         <source>Page %1 deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %1 页已删除</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="1023"/>
         <source>Downloading content %1 failed</source>
-        <translation type="unfinished"></translation>
+        <translation>内容 %1 下载失败</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="1031"/>
         <source>Download finished</source>
-        <translation type="unfinished"></translation>
+        <translation>下载完成</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="1151"/>
@@ -86,27 +86,27 @@
         <location filename="../../src/whiteboard/BoardController.cpp" line="2049"/>
         <location filename="../../src/whiteboard/BoardController.cpp" line="2080"/>
         <source>Add file operation failed: file copying error</source>
-        <translation type="unfinished"></translation>
+        <translation>添加文件失败：文件复制出错</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="1309"/>
         <source>Unknown tool type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知的工具类型 %1</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="1368"/>
         <source>Unknown content type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知的内容类型 %1</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="2432"/>
         <source>Add Item</source>
-        <translation type="unfinished"></translation>
+        <translation>添加条目</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/BoardController.cpp" line="2432"/>
         <source>All Supported (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>全部支持的格式 (%1)</translation>
     </message>
 </context>
 <context>
@@ -119,7 +119,7 @@
     <message>
         <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="810"/>
         <source>Error Adding Image to Library</source>
-        <translation type="unfinished"></translation>
+        <translation>把图片加入素材库时出错</translation>
     </message>
 </context>
 <context>
@@ -127,22 +127,22 @@
     <message>
         <location filename="../../src/ui/CachePropertiesWidget.cpp" line="37"/>
         <source>Cache Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>遮罩属性</translation>
     </message>
     <message>
         <location filename="../../src/ui/CachePropertiesWidget.cpp" line="50"/>
         <source>Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>颜色：</translation>
     </message>
     <message>
         <location filename="../../src/ui/CachePropertiesWidget.cpp" line="61"/>
         <source>Shape:</source>
-        <translation type="unfinished"></translation>
+        <translation>形状：</translation>
     </message>
     <message>
         <location filename="../../src/ui/CachePropertiesWidget.cpp" line="80"/>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>大小：</translation>
     </message>
     <message>
         <location filename="../../src/ui/CachePropertiesWidget.cpp" line="91"/>
@@ -155,7 +155,7 @@
     <message>
         <location filename="../../src/web/SearchLineEdit.cpp" line="9"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>清除</translation>
     </message>
 </context>
 <context>
@@ -197,113 +197,113 @@
         <location filename="../../src/model/DocumentController.cpp" line="1805"/>
         <location filename="../../src/model/DocumentController.cpp" line="3531"/>
         <source>Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>回收站</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="1805"/>
         <source>Untitled Documents</source>
-        <translation type="unfinished"></translation>
+        <translation>未命名文档</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="1879"/>
         <source>New Folder</source>
-        <translation type="unfinished">新建文件夹</translation>
+        <translation>新建文件夹</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2062"/>
         <source>Add Folder of Images</source>
-        <translation type="unfinished"></translation>
+        <translation>添加图片文件夹</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2063"/>
         <source>Add Images</source>
-        <translation type="unfinished"></translation>
+        <translation>添加图片</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2064"/>
         <source>Add Pages from File</source>
-        <translation type="unfinished"></translation>
+        <translation>从文件添加页面</translation>
     </message>
     <message numerus="yes">
         <location filename="../../src/model/DocumentController.cpp" line="2393"/>
         <source>duplicated %1 page</source>
         <comment>duplicated %1 pages</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>复制了 %1 页</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2406"/>
         <source>Duplicating Document %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在复制文档 %1</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2410"/>
         <source>Document %1 copied</source>
-        <translation type="unfinished"></translation>
+        <translation>文档 %1 已复制</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2420"/>
         <source>Remove Item</source>
-        <translation type="unfinished"></translation>
+        <translation>删除条目</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2420"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
-        <translation type="unfinished"></translation>
+        <translation>确定要删除所选的条目吗？</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2947"/>
         <location filename="../../src/model/DocumentController.cpp" line="3053"/>
         <source>Open Supported File</source>
-        <translation type="unfinished"></translation>
+        <translation>打开支持的文件</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2978"/>
         <location filename="../../src/model/DocumentController.cpp" line="3068"/>
         <source>Importing file %1...</source>
-        <translation type="unfinished">正在导入文件 %1……</translation>
+        <translation>正在导入文件 %1……</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="2988"/>
         <location filename="../../src/model/DocumentController.cpp" line="3081"/>
         <source>Failed to import file ... </source>
-        <translation type="unfinished"></translation>
+        <translation>导入文件失败…… </translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3004"/>
         <source>Import all Images from Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>导入文件夹内的全部图片</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3018"/>
         <source>Folder does not contain any image files</source>
-        <translation type="unfinished"></translation>
+        <translation>该文件夹里没有任何图片文件</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3267"/>
         <source>Open Document</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文档</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3267"/>
         <source>The document &apos;%1&apos; has been generated with a newer version of TianBoard (%2). By opening it, you may lose some information. Do you want to proceed?</source>
-        <translation type="unfinished"></translation>
+        <translation>文档「%1」是用更新版本的 TianBoard（%2）生成的，打开它可能丢失部分内容。确定要继续吗？</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3320"/>
         <source>Add all Images to Document</source>
-        <translation type="unfinished"></translation>
+        <translation>把全部图片加入文档</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3320"/>
         <source>All Images (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>全部图片 (%1)</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3332"/>
         <source>Selection does not contain any image files!</source>
-        <translation type="unfinished"></translation>
+        <translation>所选内容里没有任何图片文件！</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3535"/>
@@ -314,71 +314,51 @@
         <location filename="../../src/model/DocumentController.cpp" line="3539"/>
         <location filename="../../src/model/DocumentController.cpp" line="3543"/>
         <source>Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>空</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3790"/>
         <source>Page %1</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %1 页</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="3794"/>
         <source>Title page</source>
-        <translation type="unfinished"></translation>
+        <translation>封面页</translation>
     </message>
 </context>
 <context>
     <name>DocumentManager</name>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="46"/>
-        <source>images</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="47"/>
-        <source>videos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="48"/>
-        <source>objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="49"/>
-        <source>widgets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="108"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="103"/>
         <source>All supported files (*.%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>全部支持的文件 (*.%1)</translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="196"/>
-        <location filename="../../src/core/DocumentManager.cpp" line="266"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="191"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="261"/>
         <source>Inserting page %1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>正在插入第 %1 页，共 %2 页</translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="205"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="200"/>
         <source>Import successful.</source>
-        <translation type="unfinished">导入成功。</translation>
+        <translation>导入完成。</translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="221"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="216"/>
         <source>Importing file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在导入文件 %1</translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="275"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="270"/>
         <source>Import of file %1 successful.</source>
-        <translation type="unfinished"></translation>
+        <translation>文件 %1 导入完成。</translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="315"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="310"/>
         <source>File %1 saved</source>
-        <translation type="unfinished"></translation>
+        <translation>文件 %1 已保存</translation>
     </message>
 </context>
 <context>
@@ -386,7 +366,7 @@
     <message>
         <location filename="../../src/ui/DocumentNavigator.cpp" line="129"/>
         <source>Page %0</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %0 页</translation>
     </message>
 </context>
 <context>
@@ -394,24 +374,26 @@
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="73"/>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>接受</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="73"/>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>替换</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="74"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="131"/>
         <source>The name %1 is allready used.
 Keeping this name will replace the document.
 Providing a new name will create a new document.</source>
-        <translation type="unfinished"></translation>
+        <translation>名称 %1 已被占用。
+沿用这个名字会替换掉原有文档。
+换一个名字则会新建一份文档。</translation>
     </message>
 </context>
 <context>
@@ -419,18 +401,18 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="324"/>
         <source>My documents</source>
-        <translation type="unfinished"></translation>
+        <translation>我的文档</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="326"/>
         <source>Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>回收站</translation>
     </message>
     <message numerus="yes">
         <location filename="../../src/model/DocumentController.cpp" line="719"/>
         <source>%1 pages copied</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>已复制 %1 页</numerusform>
         </translation>
     </message>
 </context>
@@ -439,24 +421,24 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="1567"/>
         <source>Copying page %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>正在复制第 %1/%2 页</translation>
     </message>
     <message numerus="yes">
         <location filename="../../src/model/DocumentController.cpp" line="1618"/>
         <source>%1 pages copied</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>已复制 %1 页</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="1628"/>
         <source>Remove Item</source>
-        <translation type="unfinished"></translation>
+        <translation>删除条目</translation>
     </message>
     <message>
         <location filename="../../src/model/DocumentController.cpp" line="1628"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
-        <translation type="unfinished"></translation>
+        <translation>确定要删除所选的条目吗？</translation>
     </message>
 </context>
 <context>
@@ -464,27 +446,27 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/ui/DocumentsWidget.cpp" line="202"/>
         <source>TianBoard Documents</source>
-        <translation type="unfinished"></translation>
+        <translation>TianBoard 文档</translation>
     </message>
     <message>
         <location filename="../../src/ui/DocumentsWidget.cpp" line="203"/>
         <source>Creation date</source>
-        <translation type="unfinished"></translation>
+        <translation>创建日期</translation>
     </message>
     <message>
         <location filename="../../src/ui/DocumentsWidget.cpp" line="204"/>
         <source>Update date</source>
-        <translation type="unfinished"></translation>
+        <translation>更新日期</translation>
     </message>
     <message>
         <location filename="../../src/ui/DocumentsWidget.cpp" line="205"/>
         <source>Alphabetical order</source>
-        <translation type="unfinished"></translation>
+        <translation>按名称排序</translation>
     </message>
     <message>
         <location filename="../../src/ui/DocumentsWidget.cpp" line="207"/>
         <source>Sort Order</source>
-        <translation type="unfinished"></translation>
+        <translation>排序方式</translation>
     </message>
 </context>
 <context>
@@ -492,22 +474,22 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="40"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>表单</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="58"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="81"/>
         <source>Try Again</source>
-        <translation type="unfinished"></translation>
+        <translation>重试</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="86"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>停止</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="91"/>
@@ -517,73 +499,73 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="175"/>
         <source>Save File</source>
-        <translation type="unfinished"></translation>
+        <translation>保存文件</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="179"/>
         <source>Download canceled: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>下载已取消：%1</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="284"/>
         <source>Error opening saved file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>打开已保存的文件出错：%1</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="295"/>
         <source>Error saving: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>保存出错：%1</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="303"/>
         <source>Network Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>网络错误：%1</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="344"/>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="348"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>分钟</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="364"/>
         <source>- %4 %5 remaining</source>
-        <translation type="unfinished"></translation>
+        <translation>- 剩余 %4 %5</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="366"/>
         <source>%1 of %2 (%3/sec) %4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2（%3/秒）%4</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="368"/>
         <source>?</source>
         <comment>unknown file size</comment>
-        <translation type="unfinished"></translation>
+        <translation>未知</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="380"/>
         <source>%1 of %2 - Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2 - 已停止</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="391"/>
         <source>bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>字节</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="396"/>
         <source>KB</source>
-        <translation type="unfinished"></translation>
+        <translation>KB</translation>
     </message>
     <message>
         <location filename="../../src/web/WebDownloadManager.cpp" line="401"/>
         <source>MB</source>
-        <translation type="unfinished"></translation>
+        <translation>MB</translation>
     </message>
 </context>
 <context>
@@ -591,12 +573,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/ui/DownloadWidget.cpp" line="25"/>
         <source>Downloading files</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载文件</translation>
     </message>
     <message>
         <location filename="../../src/ui/DownloadWidget.cpp" line="45"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
@@ -606,7 +588,7 @@ Providing a new name will create a new document.</source>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1330"/>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1334"/>
         <source>Page %0</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %0 页</translation>
     </message>
 </context>
 <context>
@@ -616,7 +598,7 @@ Providing a new name will create a new document.</source>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1561"/>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1565"/>
         <source>Page %0</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %0 页</translation>
     </message>
 </context>
 <context>
@@ -624,32 +606,32 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportAdaptor.cpp" line="95"/>
         <source>Exporting document...</source>
-        <translation type="unfinished">正在导出文档……</translation>
+        <translation>正在导出文档……</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportAdaptor.cpp" line="106"/>
         <source>Export failed</source>
-        <translation type="unfinished"></translation>
+        <translation>导出失败</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportAdaptor.cpp" line="107"/>
         <source>Unable to export to the selected location. You do not have the permissions necessary to save the file.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法导出到所选位置：没有保存该文件所需的权限。</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportAdaptor.cpp" line="114"/>
         <source>Export failed: location not writable</source>
-        <translation type="unfinished"></translation>
+        <translation>导出失败：目标位置不可写</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportAdaptor.cpp" line="126"/>
         <source>Export successful.</source>
-        <translation type="unfinished">导出成功。</translation>
+        <translation>导出完成。</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportAdaptor.cpp" line="146"/>
         <source>Warnings during export was appeared</source>
-        <translation type="unfinished"></translation>
+        <translation>导出过程中出现了警告</translation>
     </message>
 </context>
 <context>
@@ -657,7 +639,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportDocument.cpp" line="20"/>
         <source>Page</source>
-        <translation type="unfinished"></translation>
+        <translation>页</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportDocument.cpp" line="29"/>
@@ -667,12 +649,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportDocument.cpp" line="65"/>
         <source>Exporting %1 %2 of %3</source>
-        <translation type="unfinished"></translation>
+        <translation>正在导出%1第 %2 页，共 %3 页</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportDocument.cpp" line="76"/>
         <source>Export to TianBoard Format</source>
-        <translation type="unfinished"></translation>
+        <translation>导出为 TianBoard 格式</translation>
     </message>
 </context>
 <context>
@@ -681,7 +663,7 @@ Providing a new name will create a new document.</source>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="42"/>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="53"/>
         <source>Failed to export...</source>
-        <translation type="unfinished"></translation>
+        <translation>导出失败……</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="45"/>
@@ -692,17 +674,17 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="69"/>
         <source>Exporting document...</source>
-        <translation type="unfinished">正在导出文档……</translation>
+        <translation>正在导出文档……</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="76"/>
         <source>Export successful.</source>
-        <translation type="unfinished">导出成功。</translation>
+        <translation>导出完成。</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="83"/>
         <source>Export failed.</source>
-        <translation type="unfinished">导出失败。</translation>
+        <translation>导出失败。</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="130"/>
@@ -715,12 +697,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportFullPDF.cpp" line="51"/>
         <source>Export as PDF File</source>
-        <translation type="unfinished"></translation>
+        <translation>导出为 PDF 文件</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportFullPDF.cpp" line="111"/>
         <source>Export to PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>导出到 PDF</translation>
     </message>
 </context>
 <context>
@@ -756,17 +738,17 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportPDF.cpp" line="34"/>
         <source>Export as PDF File</source>
-        <translation type="unfinished"></translation>
+        <translation>导出为 PDF 文件</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportPDF.cpp" line="72"/>
         <source>Exporting page %1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>正在导出第 %1 页，共 %2 页</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportPDF.cpp" line="128"/>
         <source>Export to PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>导出到 PDF</translation>
     </message>
 </context>
 <context>
@@ -774,32 +756,32 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ExportWeb.cpp" line="20"/>
         <source>Page</source>
-        <translation type="unfinished"></translation>
+        <translation>页</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportWeb.cpp" line="34"/>
         <source>Export as Web data</source>
-        <translation type="unfinished"></translation>
+        <translation>导出为网页数据</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportWeb.cpp" line="39"/>
         <source>Exporting document...</source>
-        <translation type="unfinished">正在导出文档……</translation>
+        <translation>正在导出文档……</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportWeb.cpp" line="48"/>
         <source>Export successful.</source>
-        <translation type="unfinished">导出成功。</translation>
+        <translation>导出完成。</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportWeb.cpp" line="54"/>
         <source>Export failed.</source>
-        <translation type="unfinished">导出失败。</translation>
+        <translation>导出失败。</translation>
     </message>
     <message>
         <location filename="../../src/content/ExportWeb.cpp" line="63"/>
         <source>Export to Web Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>导出到网页浏览器</translation>
     </message>
 </context>
 <context>
@@ -807,17 +789,17 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="1028"/>
         <source>Add to page</source>
-        <translation type="unfinished"></translation>
+        <translation>添加到页面</translation>
     </message>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="1032"/>
         <source>Add to library</source>
-        <translation type="unfinished"></translation>
+        <translation>添加到素材库</translation>
     </message>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="1037"/>
         <source>Object informations</source>
-        <translation type="unfinished"></translation>
+        <translation>对象信息</translation>
     </message>
 </context>
 <context>
@@ -868,37 +850,37 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="306"/>
         <source>Audios</source>
-        <translation type="unfinished"></translation>
+        <translation>音频</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="307"/>
         <source>Movies</source>
-        <translation type="unfinished"></translation>
+        <translation>视频</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="309"/>
         <source>Pictures</source>
-        <translation type="unfinished"></translation>
+        <translation>图片</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="311"/>
         <source>Applications</source>
-        <translation type="unfinished"></translation>
+        <translation>应用</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="312"/>
         <source>Shapes</source>
-        <translation type="unfinished"></translation>
+        <translation>形状</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="313"/>
         <source>Favorites</source>
-        <translation type="unfinished"></translation>
+        <translation>收藏</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="315"/>
         <source>Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>回收站</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/FeaturesController.cpp" line="760"/>
@@ -912,17 +894,17 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="783"/>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>接受</translation>
     </message>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="784"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="785"/>
         <source>Enter a new folder name</source>
-        <translation type="unfinished"></translation>
+        <translation>请输入新的文件夹名称</translation>
     </message>
 </context>
 <context>
@@ -930,7 +912,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/ui/FeaturesWidget.cpp" line="892"/>
         <source>Loading </source>
-        <translation type="unfinished"></translation>
+        <translation>正在加载 </translation>
     </message>
 </context>
 <context>
@@ -938,12 +920,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsGroupContainerItemDelegate.cpp" line="26"/>
         <source>Locked</source>
-        <translation type="unfinished"></translation>
+        <translation>已锁定</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsGroupContainerItemDelegate.cpp" line="33"/>
         <source>Visible on Extended Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>在扩展屏上显示</translation>
     </message>
 </context>
 <context>
@@ -951,22 +933,22 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="735"/>
         <source>Locked</source>
-        <translation type="unfinished"></translation>
+        <translation>已锁定</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="742"/>
         <source>Visible on Extended Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>在扩展屏上显示</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="752"/>
         <source>Set as background</source>
-        <translation type="unfinished"></translation>
+        <translation>设为背景</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="762"/>
         <source>Go to Content Source</source>
-        <translation type="unfinished"></translation>
+        <translation>跳到内容来源</translation>
     </message>
 </context>
 <context>
@@ -974,17 +956,17 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="407"/>
         <source>Media resource couldn&apos;t be resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>无法解析媒体资源</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="410"/>
         <source>Unsupported media format</source>
-        <translation type="unfinished"></translation>
+        <translation>不支持的媒体格式</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="413"/>
         <source>Media error: </source>
-        <translation type="unfinished"></translation>
+        <translation>媒体错误：</translation>
     </message>
 </context>
 <context>
@@ -992,7 +974,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsTextItem.cpp" line="17"/>
         <source>&lt;Type Text Here&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>＜在此输入文字＞</translation>
     </message>
 </context>
 <context>
@@ -1000,12 +982,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="360"/>
         <source>Text Color</source>
-        <translation type="unfinished"></translation>
+        <translation>文字颜色</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="485"/>
         <source>Editable</source>
-        <translation type="unfinished"></translation>
+        <translation>可编辑</translation>
     </message>
 </context>
 <context>
@@ -1021,7 +1003,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsWidgetItem.cpp" line="469"/>
         <source>Loading ...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在加载……</translation>
     </message>
 </context>
 <context>
@@ -1029,12 +1011,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/whiteboard/GraphicsWidgetItemDelegate.cpp" line="46"/>
         <source>Frozen</source>
-        <translation type="unfinished"></translation>
+        <translation>已冻结</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/GraphicsWidgetItemDelegate.cpp" line="57"/>
         <source>Transform as Tool </source>
-        <translation type="unfinished"></translation>
+        <translation>作为工具变换 </translation>
     </message>
 </context>
 <context>
@@ -1042,26 +1024,26 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ImportDocument.cpp" line="33"/>
         <source>TianBoard (*.tbz)</source>
-        <translation type="unfinished"></translation>
+        <translation>TianBoard 文档 (*.tbz)</translation>
     </message>
     <message>
         <location filename="../../src/content/ImportDocument.cpp" line="139"/>
         <location filename="../../src/content/ImportDocument.cpp" line="159"/>
         <source>Importing file %1...</source>
-        <translation type="unfinished">正在导入文件 %1……</translation>
+        <translation>正在导入文件 %1……</translation>
     </message>
     <message>
         <location filename="../../src/content/ImportDocument.cpp" line="147"/>
         <location filename="../../src/content/ImportDocument.cpp" line="166"/>
         <location filename="../../src/content/ImportDocument.cpp" line="172"/>
         <source>Import of file %1 failed.</source>
-        <translation type="unfinished">文件 %1 导入失败。</translation>
+        <translation>文件 %1 导入失败。</translation>
     </message>
     <message>
         <location filename="../../src/content/ImportDocument.cpp" line="152"/>
         <location filename="../../src/content/ImportDocument.cpp" line="178"/>
         <source>Import successful.</source>
-        <translation type="unfinished">导入成功。</translation>
+        <translation>导入完成。</translation>
     </message>
 </context>
 <context>
@@ -1069,7 +1051,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ImportDocumentSetAdaptor.cpp" line="34"/>
         <source>TianBoard Document Set (*.tbx)</source>
-        <translation type="unfinished"></translation>
+        <translation>TianBoard 文档集 (*.tbx)</translation>
     </message>
 </context>
 <context>
@@ -1077,7 +1059,7 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ImportImage.cpp" line="37"/>
         <source>Image Format (</source>
-        <translation type="unfinished"></translation>
+        <translation>图片格式 (</translation>
     </message>
 </context>
 <context>
@@ -1117,17 +1099,17 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/content/ImportPDF.cpp" line="30"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>可携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="../../src/content/ImportPDF.cpp" line="42"/>
         <source>PDF import failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF 导入失败。</translation>
     </message>
     <message>
         <location filename="../../src/content/ImportPDF.cpp" line="51"/>
         <source>Importing page %1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>正在导入第 %1 页，共 %2 页</translation>
     </message>
 </context>
 <context>
@@ -2066,12 +2048,12 @@ Providing a new name will create a new document.</source>
     <message>
         <location filename="../../src/core/NetworkAccessManager.cpp" line="82"/>
         <source>&lt;qt&gt;Enter username and password for &quot;%1&quot; at %2&lt;/qt&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;qt&gt;请输入 %2 上「%1」的用户名和密码&lt;/qt&gt;</translation>
     </message>
     <message>
         <location filename="../../src/core/NetworkAccessManager.cpp" line="123"/>
         <source>Failed to log to Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>登录代理失败</translation>
     </message>
     <message>
         <location filename="../../src/core/NetworkAccessManager.cpp" line="150"/>
@@ -2082,7 +2064,13 @@ Providing a new name will create a new document.</source>
 %2
 
 Do you want to ignore these errors for this host?</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL 错误：
+
+%1
+
+%2
+
+要忽略这台主机的这些错误吗？</translation>
     </message>
     <message>
         <location filename="../../src/core/NetworkAccessManager.cpp" line="154"/>
@@ -2100,17 +2088,17 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/core/PersistenceManager.cpp" line="595"/>
         <source>(copy)</source>
-        <translation type="unfinished"></translation>
+        <translation>（副本）</translation>
     </message>
     <message>
         <location filename="../../src/core/PersistenceManager.cpp" line="1278"/>
         <source>Document Repository Loss</source>
-        <translation type="unfinished"></translation>
+        <translation>文档库位置丢失</translation>
     </message>
     <message>
         <location filename="../../src/core/PersistenceManager.cpp" line="1278"/>
         <source>TianBoard has lost access to the document repository &apos;%1&apos;. Unfortunately the application must shut down to avoid data corruption. Latest changes may be lost as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>TianBoard 已无法访问文档库「%1」。为避免数据损坏，程序必须退出，最近的改动可能一并丢失。</translation>
     </message>
 </context>
 <context>
@@ -2118,7 +2106,7 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/platform/PlatformUtils_win.cpp" line="150"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>英文</translation>
     </message>
 </context>
 <context>
@@ -2126,7 +2114,7 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="1329"/>
         <source>Marker is pressure sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>荧光笔启用压感</translation>
     </message>
 </context>
 <context>
@@ -2348,22 +2336,22 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/ui/ProxyDialog.cpp" line="37"/>
         <source>Connect to Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>连接代理</translation>
     </message>
     <message>
         <location filename="../../src/ui/ProxyDialog.cpp" line="42"/>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <location filename="../../src/ui/ProxyDialog.cpp" line="51"/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <location filename="../../src/ui/ProxyDialog.cpp" line="67"/>
         <source>Save username and password for future use</source>
-        <translation type="unfinished"></translation>
+        <translation>保存用户名和密码供以后使用</translation>
     </message>
 </context>
 <context>
@@ -2371,24 +2359,24 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/content/IwbDocumentAdaptor.cpp" line="1300"/>
         <source>Element ID = </source>
-        <translation type="unfinished"></translation>
+        <translation>元素 ID = </translation>
     </message>
     <message>
         <location filename="../../src/content/IwbDocumentAdaptor.cpp" line="1302"/>
         <source>Content is not supported in destination format.</source>
-        <translation type="unfinished"></translation>
+        <translation>目标格式不支持该内容。</translation>
     </message>
     <message>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1171"/>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1387"/>
         <source>Remove Page</source>
-        <translation type="unfinished"></translation>
+        <translation>删除页面</translation>
     </message>
     <message>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1171"/>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="1387"/>
         <source>Are you sure you want to remove 1 page from the selected document &apos;%0&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>确定要从所选文档「%0」中删除这 1 页吗？</translation>
     </message>
 </context>
 <context>
@@ -2467,7 +2455,7 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/settings/Settings.cpp" line="919"/>
         <source>My Movies</source>
-        <translation type="unfinished"></translation>
+        <translation>我的视频</translation>
     </message>
 </context>
 <context>
@@ -2475,32 +2463,32 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="58"/>
         <source>New &amp;Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>新建标签页(&amp;T)</translation>
     </message>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="62"/>
         <source>Clone Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>克隆标签页</translation>
     </message>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="67"/>
         <source>&amp;Close Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭标签页(&amp;C)</translation>
     </message>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="70"/>
         <source>Close &amp;Other Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭其他标签页(&amp;O)</translation>
     </message>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="75"/>
         <source>Reload Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>重新加载此页</translation>
     </message>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="82"/>
         <source>Reload All Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>重新加载全部</translation>
     </message>
 </context>
 <context>
@@ -2508,13 +2496,13 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="199"/>
         <source>Recently Closed Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>最近关闭的标签页</translation>
     </message>
     <message>
         <location filename="../../src/web/TabWidget.cpp" line="374"/>
         <location filename="../../src/web/TabWidget.cpp" line="402"/>
         <source>(Untitled)</source>
-        <translation type="unfinished"></translation>
+        <translation>（未命名）</translation>
     </message>
 </context>
 <context>
@@ -2522,12 +2510,12 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/content/ThumbnailAdaptor.cpp" line="44"/>
         <source>Generating preview thumbnails ...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在生成页面缩略图……</translation>
     </message>
     <message>
         <location filename="../../src/content/ThumbnailAdaptor.cpp" line="52"/>
         <source>%1 thumbnails generated ...</source>
-        <translation type="unfinished"></translation>
+        <translation>已生成 %1 张缩略图……</translation>
     </message>
 </context>
 <context>
@@ -2535,7 +2523,7 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/ui/ThumbnailWidget.cpp" line="958"/>
         <source>Page %0</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %0 页</translation>
     </message>
 </context>
 <context>
@@ -2607,7 +2595,7 @@ Do you want to ignore these errors for this host?</source>
         <location filename="../../src/web/WebDownloadManager.cpp" line="783"/>
         <source>%1 Downloads</source>
         <comment>always &gt;= 2</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 个下载</translation>
     </message>
 </context>
 <context>
@@ -2641,7 +2629,7 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/ui/ZoomPalette.cpp" line="96"/>
         <source>%1 x</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 倍</translation>
     </message>
 </context>
 <context>
@@ -2649,12 +2637,12 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="353"/>
         <source>Pen is Pressure Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>钢笔启用压感</translation>
     </message>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="354"/>
         <source>Opacity</source>
-        <translation type="unfinished">不透明度</translation>
+        <translation>不透明度</translation>
     </message>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="355"/>
@@ -2669,7 +2657,7 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="357"/>
         <source>Line Width</source>
-        <translation type="unfinished"></translation>
+        <translation>线宽</translation>
     </message>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="358"/>
@@ -2679,22 +2667,22 @@ Do you want to ignore these errors for this host?</source>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="359"/>
         <source>Strong</source>
-        <translation type="unfinished"></translation>
+        <translation>粗</translation>
     </message>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="360"/>
         <source>Fine</source>
-        <translation type="unfinished"></translation>
+        <translation>细</translation>
     </message>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="361"/>
         <source>Show preview circle from</source>
-        <translation type="unfinished"></translation>
+        <translation>预览圆起始直径</translation>
     </message>
     <message>
         <location filename="../../src/core/PreferencesController.cpp" line="362"/>
         <source>px</source>
-        <translation type="unfinished"></translation>
+        <translation>像素</translation>
     </message>
 </context>
 </TS>

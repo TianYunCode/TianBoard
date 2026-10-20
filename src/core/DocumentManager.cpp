@@ -43,11 +43,6 @@ DocumentManager *DocumentManager::documentManager()
 
 DocumentManager::DocumentManager(QObject *parent) : QObject(parent)
 {
-    QString dummyImages                         = tr("images");
-    QString dummyVideos                         = tr("videos");
-    QString dummyObjects                        = tr("objects");
-    QString dummyWidgets                        = tr("widgets");
-
     ExportFullPDF  *exportFullPdf               = new ExportFullPDF(this);
     ExportDocument *exportDocument              = new ExportDocument(this);
 
