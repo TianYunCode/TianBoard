@@ -201,7 +201,7 @@ include。
   的是 `core/ApplicationController.h`，头文件里 `DesktopAnnotationController` 只是前置声明，
   它调用成员函数——即便真在 Mac 上编译也是错的。
 - 拖放门面反向边：`GraphicsWidgetItem::processDropEvent` 过去 `new WebWidgetBoardAPI(...)`
-  再调它，画板因此 include `api/`。现在画板只认自己这层的 `whiteboard/BoardDropHandler`
+  再调它，画板因此 include `api/`。现在画板只认自己这层的 `whiteboard/IBoardDropHandler`
   接口（一个纯虚函数 + 一个工厂指针），`WebWidgetBoardAPI` 实现它，实现由装配点
   `app/main.cpp` 在启动时装上（`installBoardDropHandlerFactory`）。放在 `app/` 而不是
   `core/Application.cpp`，是因为 api 本来就认 core，装上就会新造一组 `core` ↔ `api` 环；

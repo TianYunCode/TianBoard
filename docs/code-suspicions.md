@@ -43,7 +43,7 @@
   部署里根本没有这个目录）、只被那条死链 new 出来的 `WebWidgetAPI`/
   `WebWidgetPreferenceAPI` 两个门面，以及 `FeaturesWebWidget` 里从不使用的 `boardApi`。
   留着的四个槽是给桥恢复用的，删了就等于把这条路堵死。
-- **已顺手修掉的故障**：拖放落到小部件上时门面是空指针——现在经 `whiteboard/BoardDropHandler`
+- **已顺手修掉的故障**：拖放落到小部件上时门面是空指针——现在经 `whiteboard/IBoardDropHandler`
   接口按需创建（实现由 `app/main.cpp` 装上，见 docs/architecture.md 第五节）；
   `ToolWidget::javaScriptWindowObjectCleared()` 每次切活动场景 `new` 一个
   `WebWidgetBoardAPI`（父对象给场景，无人接收）并重复连接
