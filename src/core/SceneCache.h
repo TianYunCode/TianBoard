@@ -57,6 +57,8 @@ public:
     void shiftUpScenes(DocumentProxy *proxy, int startIncIndex, int endIncIndex);
 
 private:
+    void enforceCacheLimit();
+
     void internalMoveScene(DocumentProxy *proxy, int sourceIndex, int targetIndex);
 
     void dumpCacheContent();

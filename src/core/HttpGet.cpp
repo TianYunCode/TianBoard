@@ -34,9 +34,11 @@ QNetworkReply *HttpGet::get(QUrl pUrl, QPointF pPos, QSize pSize, bool isBackgro
     mPos = pPos;
     mSize = pSize;
     mIsBackground = isBackground;
-    mIsSelfAborting = false;
 
     cancelRequest();
+    // cancelRequest() 会把 mIsSelfAborting 置真（用来忽略旧 reply 的 finished）；
+    // 这里必须在新请求发出之后复位，否则重定向/第二次 get() 的完成信号会被永久吞掉。
+    mIsSelfAborting = false;
 
     NetworkAccessManager *nam = NetworkAccessManager::defaultAccessManager();
     mReply = nam->get(QNetworkRequest(pUrl));

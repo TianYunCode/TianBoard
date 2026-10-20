@@ -231,6 +231,9 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
                         bool b = PersistenceManager::persistenceManager()->addFileToDocument(
                             document, file.fileName(), importAdaptor->folderToCopy(), uuid, filepath);
                         if (!b) {
+                            // 这里 continue 会绕过循环末尾的 setDisabled(false)，
+                            // 界面从此一直处于禁用状态。
+                            Application::setDisabled(false);
                             continue;
                         }
                     }

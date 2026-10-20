@@ -129,8 +129,9 @@ void Application::setupTranslators(const QStringList &args) {
 
     QString requested;
 
-    if (args.contains("-lang"))
-        requested = args.at(args.indexOf("-lang") + 1);
+    const int langIndex = args.indexOf("-lang");
+    if (langIndex >= 0 && langIndex + 1 < args.size())
+        requested = args.at(langIndex + 1);
 
     if (requested.isEmpty())
         requested = languages->savedPreference();
@@ -266,6 +267,11 @@ int Application::exec(const QString &pFileToImport) {
     connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this,
             &Application::onScreenCountChanged);
 
+    // 第二个实例把要打开的文档路径通过单实例通道发过来；此前没人收这条消息，
+    // 双击文档只会让新进程退出、已运行的实例毫无反应。
+    setActivationWindow(mainWindow);
+    connect(this, &QtSingleApplication::messageReceived, this, &Application::handleOpenMessage);
+
     // 冒烟自检（tst_smoke 用 `--ui-smoke` 拉起）：依次切到文档 / 网页 / 画板模式再退出。
     // 这些切换以前从来没有自动化覆盖；文档模式的代理模型索引错用就是这样漏到用户手里的
     // （Debug 下 Qt 弹断言对话框、事件循环卡死）。断言一旦出现，进程不会按时退出，测试判红。
@@ -360,10 +366,11 @@ void Application::closing() {
     if (webController)
         webController->closing();
 
-    Settings::settings()->closing();
-
+    // 工具栏位置要写在落盘之前：closing() 里已经 save() 过，之后 set() 只会进队列。
     Settings::settings()->appToolBarPositionedAtTop->set(
         mainWindow->toolBarArea(mainWindow->ui().boardToolBar) == Qt::TopToolBarArea);
+
+    Settings::settings()->closing();
 
     quit();
 }

@@ -338,8 +338,12 @@ void DownloadManager::startFileDownload(sDownloadFileDesc desc) {
 
         if (cpHelper->download())
             mDownloads[desc.id] = cpHelper;
-        else
+        else {
             delete cpHelper;
+            // 下载根本没开始，不会再有 finished 信号；手动走收尾释放并发槽，
+            // 否则这个 id 永远占着 mDLAvailability 的一个位置。
+            onDownloadError(desc.id);
+        }
     } else {
         DownloadHttpFile *http = new DownloadHttpFile(desc.id, this);
         connect(http, &DownloadHttpFile::downloadProgress, this, &DownloadManager::onDownloadProgress);
@@ -386,7 +390,7 @@ void DownloadManager::checkIfModalRemains() {
         }
     }
 
-    if (bModal || (mCrntDL.empty() && mPendingDL.empty())) {
+    if (!bModal) {
         // Close the modal window
         Application::mainWindow->hideDownloadWidget();
 

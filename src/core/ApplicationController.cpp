@@ -527,6 +527,9 @@ void ApplicationController::useMultiScreen(bool use) {
     if (use && !mMirror)
         mMirror = new ScreenMirror();
     if (!use && mMirror) {
+        // 先把 DisplayManager 的显示控件换回 mDisplayView 再删：它保存的是裸指针，
+        // 直接 delete 之后 adjustScreens()->positionScreens() 会对已释放的 mMirror 调 hide()。
+        mirroringEnabled(false);
         delete mMirror;
         mMirror = NULL;
     }

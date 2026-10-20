@@ -372,7 +372,11 @@ private:
     void teacherGuideToContainer(const QDomElement &element) {
         QDomElement nMediaElement = element.firstChildElement(tMedia);
         while (!nMediaElement.isNull()) {
-            QString path = nMediaElement.attribute(aRelativePath);
+            // 先取下一个兄弟再处理当前节点：下面有 continue，不推进游标会死循环。
+            const QDomElement currentMediaElement = nMediaElement;
+            nMediaElement = nMediaElement.nextSiblingElement(tMedia);
+
+            QString path = currentMediaElement.attribute(aRelativePath);
             if (path.isNull()) {
                 continue;
             }
@@ -382,8 +386,6 @@ private:
                 return;
             }
             mDomIdsMap.insert(uid, path);
-
-            nMediaElement = nMediaElement.nextSiblingElement(tMedia);
         }
     }
 

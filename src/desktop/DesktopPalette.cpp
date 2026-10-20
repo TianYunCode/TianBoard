@@ -99,13 +99,16 @@ void DesktopPalette::adjustPosition() {
 }
 
 void DesktopPalette::disappearForCapture() {
-    setWindowOpacity(0.0);
+    // 桌面批注模式下这个调色板是 mTransparentDrawingView 的子控件，不是顶层窗口；
+    // setWindowOpacity 对子控件是空操作（Qt 直接 return），截图时它仍会留在画面里。
+    hide();
     qApp->processEvents();
 }
 
 
 void DesktopPalette::appear() {
     setWindowOpacity(1.0);
+    show();
 }
 
 

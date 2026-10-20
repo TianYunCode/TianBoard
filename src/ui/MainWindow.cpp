@@ -1240,6 +1240,9 @@ void MainWindow::switchToBoardWidget() {
 void MainWindow::addWebWidget(QWidget *pWidget) {
     if (!d->webWidget) {
         d->webWidget = pWidget;
+        // BrowserWindow 关闭时 deleteLater()；不置空的话下一次 addWebWidget 会以为
+        // 还挂着一个网页控件，switchToWebWidget 也会对已删除的对象 setCurrentWidget。
+        connect(pWidget, &QObject::destroyed, this, [this] { d->webWidget = nullptr; });
         d->stackedLayout->addWidget(d->webWidget);
     }
 }

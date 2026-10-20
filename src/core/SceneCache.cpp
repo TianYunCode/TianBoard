@@ -55,6 +55,31 @@ void SceneCache::insert(DocumentProxy *proxy, int pageIndex, GraphicsScene *scen
     if (mViewStates.contains(key)) {
         scene->setViewState(mViewStates.value(key));
     }
+
+    enforceCacheLimit();
+}
+
+
+void SceneCache::enforceCacheLimit() {
+    const int limit = qMax(1, Settings::settings()->pageCacheSize->get().toInt());
+    // 最久未使用的先淘汰；活动页不能删（正在显示），放回队尾。
+    // 队列里可能有 move/reinsert 留下的过期 key，跳过即可。
+    int attempts = mCachedKeyFIFO.size();
+    while (mCachedSceneCount > limit && attempts-- > 0 && !mCachedKeyFIFO.isEmpty()) {
+        const SceneCacheID key = mCachedKeyFIFO.dequeue();
+        if (!QHash<SceneCacheID, GraphicsScene *>::contains(key)) {
+            continue;
+        }
+        GraphicsScene *scene = QHash<SceneCacheID, GraphicsScene *>::value(key);
+        if (!scene || scene->isActive()) {
+            mCachedKeyFIFO.enqueue(key);
+            continue;
+        }
+        mViewStates.insert(key, scene->viewState());
+        QHash<SceneCacheID, GraphicsScene *>::remove(key);
+        mCachedSceneCount--;
+        scene->deleteLater();
+    }
 }
 
 

@@ -485,9 +485,9 @@ DocumentProxy *PersistenceManager::duplicateDocument(DocumentProxy *pDocumentPro
 
     FileSystemUtils::copyDir(pDocumentProxy->persistencePath(), copy->persistencePath());
 
-    // regenerate scenes UUIDs
-    for (int i = 0; i < pDocumentProxy->pageCount(); i++) {
-        SvgSubsetAdaptor::setSceneUuid(pDocumentProxy, i, QUuid::createUuid());
+    // regenerate scenes UUIDs on the copy, not on the source document
+    for (int i = 0; i < copy->pageCount(); i++) {
+        SvgSubsetAdaptor::setSceneUuid(copy, i, QUuid::createUuid());
     }
 
     foreach (QString key, pDocumentProxy->metaDatas().keys()) {
