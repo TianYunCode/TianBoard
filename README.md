@@ -25,16 +25,19 @@ OpenSSL：原先用的那两处（代理密码的 AES、两个 md5 助手）一�
 ## 自测
 
 ```
-.\scripts\verify.ps1                    # 配置→构建→判错误/新鲜度→查平台分支→ctest→format -Check
+.\scripts\verify.ps1                    # 配置→构建→判错误/新鲜度→查平台分支→查编码→查配置项→ctest→format -Check
 .\scripts\verify.ps1 -Configuration release
 ```
 
 `verify.ps1` 存在的原因是踩过一次真实的假绿：MSBuild `/m` 下某个工程编译失败时其它工程继续，
 `TianBoard.exe` 不重新链接，磁盘上还是上一次的旧产物，`ctest` 拿旧 exe 照样全绿。所以它
-在跑测试之前先卡三条硬判据：**构建日志里 `error C`/`LNK`/`fatal error` 计数为 0**、
+在跑测试之前先卡五条硬判据：**构建日志里 `error C`/`LNK`/`fatal error` 计数为 0**、
 **没有输入比产物新**（`src/` 与根构建文件对 `TianBoard.exe`，每个 `tst_x.cpp` 对各自的
-`tst_x.exe`），以及**源码里没有平台条件编译**（`Q_OS_*`/`Q_WS_*`，理由见
-[docs/coding-style.md](docs/coding-style.md) 第二节）。手动跑的话两条命令就够：
+`tst_x.exe`）、**源码里没有平台条件编译**（`Q_OS_*`/`Q_WS_*`，理由见
+[docs/coding-style.md](docs/coding-style.md) 第二节）、**源码全是合法 UTF-8 且除 TAB/换行外
+没有控制字节**（批量改注释的脚本能把缩进写成 `0x01`，clang-format 照收，最后只剩 MSVC 一句
+看不懂的"未知字符 '0x1'"；`src/app/resource.h` 按 ANSI 给 `rc.exe` 读，是唯一豁免），
+以及 **`res/etc/TianBoard.config` 里每个 `Section/Key` 都能在代码里找到注册**。手动跑的话两条命令就够：
 
 ```
 cmake --build build --config Debug --target TianBoard -- /m /v:m
@@ -104,6 +107,11 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 收紧成真 `STATIC` 库；其余模块因为还有 11 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
-代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，345 个文件）已用
+代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，344 个文件）已用
 clang-format 22.1.8 排过一次，日常提交前跑 `.\scripts\format.ps1 -Check`（0 才是干净）。
-`third/` 永久排除，格式化结果绑定 clang-format 版本，升版本要单独一次全量提交。
+`third/` 与 `src/app/resource.h` 永久排除（后者是 ANSI 代码页给 `rc.exe` 读的符号表，
+重排或转码会让 `.res` 静默出错），格式化结果绑定 clang-format 版本，升版本要单独一次全量提交。
+
+注释规范见 [docs/coding-style.md](docs/coding-style.md) 第六节：`.h` 与没有对应头文件的 `.cpp`
+开头是 `@file` + `@brief`，类型与接口用 Doxygen（中文描述、英文命令），实现文件不重复头文件
+的文档、只写关键步骤；被注释掉的旧代码一律不留。

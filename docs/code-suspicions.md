@@ -2,6 +2,8 @@
 
 改造过程中发现、但**刻意没有动手**的问题集中记在这里。
 
+行号会随改动漂移，认不出某一行时按后面的函数名找，别只信编号。
+
 为什么不当场修：一次提交里既改结构又改行为，出了问题分不清是哪一半引起的，
 回滚也只能整批回滚。所以凡是“看着像缺陷、但修它会改变运行期行为”或者“需要产品
 决策”的，先记账。依赖结构的问题在 [架构说明](architecture.md) 的“依赖债”一节，
@@ -12,49 +14,54 @@
 ## 一、空实现与半截实现（有调用点，用户点了没反应）
 
 ### 1. `WebWidgetBoardAPI` 两个方法收了参数不用
-- **位置**：`src/api/WebWidgetBoardAPI.cpp:367`（`usedMethods`）、`372`（`response`）
+- **位置**：`src/api/WebWidgetBoardAPI.cpp:371`（`usedMethods`）、`377`（`response`）
 - **现象**：`usedMethods(QStringList methods)` 里 `foreach` 循环体是空的；
   `response(bool correct)` 立刻 `Q_UNUSED(correct)`，注释都是 `// TODO: Implement this method`。
   小部件回报“我用过哪些方法 / 调用成功与否”这两条通道目前没有下游。
 - **建议**：确认这是废弃协议还是待实现；废弃就删掉声明与调用点，待实现就补测试。
 
 ### 2. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:993/1011/1030`（`freezedWidgetWrapper.html`、
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:862/880/899`（`freezedWidgetWrapper.html`、
   按 `npapi-wrapper*` 前缀挑包装页、读 `etc/npapi-wrapper.config.xml`）与
-  `src/content/IwbSubsetAdaptor.cpp:895`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
+  `src/content/IwbSubsetAdaptor.cpp:891`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
 - **现象**：Qt6 WebEngine 没有 NPAPI/Flash 插件接口，这套包装页只能显示一张“无法播放”的
   静态图；但代码路径是活的，旧文档里的 flash 条目会走到这里。
 - **建议**：要么把 flash 条目明确降级成“不支持的媒体”并提示用户，要么连同
   `res/etc/npapi-wrapper.*`、`freezedWidgetWrapper.html` 一起删。属于产品可见的取舍。
 
 ### 3. 小部件的 JS 桥与加载回调在 Qt6 里没有接回来
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp`（`mainFrameLoadFinished()`、
-  `initialLayoutCompleted()`、`geometryChangeRequested()`、`onLinkClicked()`）与
-  `src/ui/ToolWidget.cpp::initialize()`（只 `load()`，页面里拿不到任何 API 对象）
-- **现象**：Qt5 时代这些槽挂在 `page()->mainFrame()` 的
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp`（`mInitialLoadDone`、`loadMainHtml()`、
+  `paint()` 的“加载中”分支）与 `src/ui/ToolWidget.cpp::initialize()`（只 `load()`，页面里拿不到任何 API 对象）
+- **现象**：Qt5 时代这些回调挂在 `page()->mainFrame()` 的
   `initialLayoutCompleted`/`geometryChangeRequested`/`linkClicked` 等信号上，Qt6 WebEngine
   没有对应信号（要换 `QWebEnginePage::webChannel` + 页面侧 `qwebchannel.js`，小部件自己的
-  脚本不认），所以这些槽没有发送者：`mInitialLoadDone` 恒为 false ⇒
-  `hasLoadedSuccessfully()` 恒 false，`paint()` 永远走“未加载”分支。小部件仍能显示
+  脚本不认）。所以 `mInitialLoadDone` 没有任何路径置真，`paint()` 永远走“未加载”分支，
+  每个小部件图元左上角都挂着一个空的气泡底。小部件仍能显示
   （`ToolWidget` 的预览视图是真的），但脚本调不到画板能力。
-- **这一轮已经删掉的死半截**：`javaScriptWindowObjectCleared()`（基类与
+- **这一轮删掉的**：上面那四个从没被连接过的槽（`mainFrameLoadFinished`、
+  `initialLayoutCompleted`、`geometryChangeRequested`、`onLinkClicked`）连同
+  `hasLoadedSuccessfully()`、`removeScript()`、`sendJSEnterEvent()`/`sendJSLeaveEvent()`
+  ——它们的函数体要么整块被注释掉，要么只把入参丢给 `Q_UNUSED`，调用点拿到的永远是空效果。
+  桥要恢复时从 git 历史里取回即可，本条记录说明该接哪些信号。
+- **上一轮删掉的死半截**：`javaScriptWindowObjectCleared()`（基类与
   `GraphicsWebWidgetItem` 两处）、`injectInlineJavaScript()` 连同它读的
   `widget-inline-js` 目录扫描（`ApplicationController::widgetInlineJavaScripts()`，
   部署里根本没有这个目录）、只被那条死链 new 出来的 `WebWidgetAPI`/
   `WebWidgetPreferenceAPI` 两个门面，以及 `FeaturesWebWidget` 里从不使用的 `boardApi`。
-  留着的四个槽是给桥恢复用的，删了就等于把这条路堵死。
 - **已顺手修掉的故障**：拖放落到小部件上时门面是空指针——现在经 `whiteboard/IBoardDropHandler`
   接口按需创建（实现由 `app/main.cpp` 装上，见 docs/architecture.md 第五节）；
   `ToolWidget::javaScriptWindowObjectCleared()` 每次切活动场景 `new` 一个
   `WebWidgetBoardAPI`（父对象给场景，无人接收）并重复连接
   `DownloadManager::downloadFinished` —— 泄漏 + 重复回调，已连同该槽一起删除。
 - **建议**：真要恢复脚本桥，需要一次独立改造：定下 QWebChannel 的对象名与 JS 侧包装，
-  并把 `WebWidget*API` 剩下的门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
+  并把 `WebWidget*API` 剩下的门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`；
+  同时把 `paint()` 那个常驻气泡改成“确实没有内容时才提示”。
 
 ### 4. 「捕获网页」(Web Trap) 在 Qt6 下整条命中测试链是空的
-- **位置**：`src/web/WebTrapWebView.cpp`（`trapElementAtPos()` 的函数体整块在 `/* */` 里、
-  `highliteElementAtPos()` 依赖 `page()->webChannel()`，而全仓没有任何 `setWebChannel` 调用）、
-  `src/web/TabWidget.cpp:332/337`（等着 `pixmapCaptured`/`embedCodeCaptured`，永远等不到）
+- **位置**：`src/web/WebTrapWebView.cpp`（`trapElementAtPos()` 现在是空实现，函数里用中文
+  注明了为什么；`highliteElementAtPos()` 依赖 `page()->webChannel()`，而全仓没有任何
+  `setWebChannel` 调用）、`src/web/TabWidget.cpp:328/333`（等着 `pixmapCaptured`/
+  `embedCodeCaptured`，永远等不到）
 - **现象**：Qt5 那套靠 `QWebHitTestResult` 取"页面上这块图/这个嵌入代码"的能力，Qt6
   WebEngine 没有对应 API（要自己发 JS 到页面里取元素信息）。按钮点亮后只是切换一个内部
   标志位，什么都不捕获。已把 `actionWebTrap` 在 `WebController::setupPalettes()` 里
@@ -78,29 +85,45 @@
   那样**按需创建**，不要在构造期拿“当时的活动场景”（见第三节）。
 
 ### 6. `.iwb` 的命名空间校验只打日志、不拒绝
-- **位置**：`src/content/IwbSubsetAdaptor.cpp:1100/1108/1127/1207` 四条"incorrect … namespace,
-  incorrect document"，紧跟其后的 `return false` 全被注释掉（`:1101/:1109/:1128/:1208`）
-- **现象**：命名空间对不上照样往下导，每个节点各打一条日志。这既可能是"故意容忍旧文档"，
-  也可能是"当年为了导入某个坏文件临时关掉校验忘了恢复"，属于行为问题，别在日志清理的提交里顺手改。
+- **位置**：`src/content/IwbSubsetAdaptor.cpp:1097/1105/1124/1202` 四条"incorrect … namespace,
+  incorrect document"
+- **现象**：命名空间对不上照样往下导，每个节点各打一条日志。代码里原来紧跟的
+  `//return false;` 已经在注释清理那轮删掉（删的是注释，行为没变），各处补了一句中文
+  说明“这里刻意放行”。这既可能是"故意容忍旧文档"，也可能是"当年为了导入某个坏文件
+  临时关掉校验忘了恢复"，属于行为问题，别在日志清理的提交里顺手改。
 
-### 7. 其它 `TODO`（全仓 23 处里的其余部分，按模块列，不再逐条展开）
-- `src/content/IwbSubsetAdaptor.cpp:98`、`1125`：子集读写有两段没实现
-  （“从 parseIwbElement() 的结果建组”）。
-- `src/content/ImportIwb.cpp:64/78/204`：导入 .iwb 时的临时目录与内容转换留 TODO ——
-  与“旧文档不必保持可读”的既定决策一致，属于可以不填的坑。
-- `src/core/PersistenceManager.cpp:163`（双击打开文档包的临时绕法）、`:216`（临时 if）
-  与 `:610`（落盘对象处理）：上游遗留的临时分支；`src/settings/Settings.cpp:20`
-  还有一处 `//TODO: user-settable?`。
-- `src/whiteboard/GraphicsItemGroupUndoCommand.cpp:28`：`//Work around. TODO determine why
-  does Qt call the redo function on pushing to undo` —— undo 栈语义可疑，动它要写回归。
+### 7. 代码里剩下的 `TODO`（全仓 14 处，`WebWidgetBoardAPI` 那两处见第一节，不重复列）
+- `src/core/PersistenceManager.cpp:163`（双击打开文档包时的等待光标绕法）、`:217`（临时 if）
+  与 `:612`（复制页面时磁盘对象只能靠“再存一遍”顺带搬走）：上游遗留的临时分支。
+- `src/settings/Settings.cpp:17`：`maxCrossSize` 是否开放给用户自行设置。
+- `src/ui/DocumentNavigator.cpp:112`：文档页数与容器页数各数一遍，缺页就地补——
+  临时绕法暴露的是结构问题。
+- `src/whiteboard/FeaturesController.cpp:64`（`favoritePath` 该由控制器下发还是公开静态成员）、
+  `:242`（库条目权限机制要重新设计）。
 - `src/whiteboard/GraphicsTextItem.cpp:26`（控件本该按需创建却在构造期建）、
-  `GraphicsStrokesGroup.cpp:36`、`GraphicsDelegateFrame.cpp:750`、
-  `GraphicsScene.cpp:677`（笔迹平滑“TODO LATER”）、`GraphicsStroke.cpp:164`：
-  绘制热路径上的算法欠账。
-- `src/whiteboard/FeaturesController.h:154`：`//TODO make less complicated for betteer maintainence`
-  （原文如此），`FeaturesController.cpp:68`：`favoritePath` 的取法待定。
-- `src/ui/MainWindow.cpp:1278`：导出时文件对话框的 `// HACK`（上游注释说明了为什么不能改成
-  常规写法），别顺手“清理”。
+  `GraphicsStrokesGroup.cpp:34`（组缺统一管理机制）、`GraphicsDelegateFrame.cpp:777`
+  （三个变换可合并成一次）、`GraphicsScene.cpp:653`（压感插值不平滑，起收笔有台阶）、
+  `GraphicsStroke.cpp:152`（简化算法只会删近共线点，弯弧段简不掉）：绘制热路径上的算法欠账。
+
+注释清理那一轮删掉了三处只写着“这里还没实现”的 `//TODO` 行，坑本身还在，记在这里免得被忘掉：
+
+- `src/content/IwbSubsetAdaptor.cpp`（原 `:98`、`:1125`）：子集读写有两段没实现
+  （“从 `parseIwbElement()` 的结果建组”）。
+- `src/content/ImportIwb.cpp`（原 `:64/:78/:204`）：导入 .iwb 的临时目录与内容转换——
+  与“旧文档不必保持可读”的既定决策一致，属于可以不填的坑。
+- `src/whiteboard/GraphicsItemGroupUndoCommand.cpp`（原 `:28`）：
+  `//Work around. TODO determine why does Qt call the redo function on pushing to undo`
+  ——这个“为什么”已经查实并写成正向说明（入栈时 `QUndoStack` 会自动 `redo()` 一次，
+  组合在创建命令时已生效，所以首次执行要跳过）。undo 栈语义可疑，动它仍要配回归。
+- `src/whiteboard/FeaturesController.h`（原 `:154`）：
+  `//TODO make less complicated for betteer maintainence`（原文如此）——一句没有指向的
+  自我批评，删掉不损失信息；`Features` 那套模型/视图确实纠缠，要动先出方案。
+
+另有两处不是 TODO 但同样别顺手改：
+
+- `src/ui/MainWindow.cpp:1285`：导出时文件对话框的 `// HACK`（注释说明了为什么不能改成
+  常规写法）。
+- 文档格式相关的常量与旧键名，见下面第三节。
 
 ## 二、需要产品决策，不该由重构顺手改掉
 
@@ -125,10 +148,10 @@
   版本信息静默丢失。另外 `TianBoard.rc` 是 UTF-16，改这两个文件必须用字节级工具，
   别用文本编辑器——编码一变整个文件就是二进制乱码，而 `rc.exe` 仍可能返回 0，
   只在产出的 `.res` 体积上露馅。
-- `src/recording/WindowsMediaFile.h:5` 的 `#ifndef inteface` **不是** include guard
+- `src/recording/WindowsMediaFile.h:10` 的 `#ifndef inteface` **不是** include guard
   （守卫已经是 `#pragma once`），它包住的是 `#define interface struct` 这个 Windows SDK
   老写法。拼错的 `inteface` 目前无害，但别把它当残留守卫删掉。
-- **`IwbConstants.h` 里还有 C 风格遗产**：第 3 行 `#define PI 3.1415926535`（污染宏命名
+- **`IwbConstants.h` 里还有 C 风格遗产**：第 12 行 `#define PI 3.1415926535`（污染宏命名
   空间，且与 `M_PI` 重复）、`FEATURE_*` 一组常量、`eAncestors`/`eCopyMode`/`eAddItemMode`
   这类 `e` 前缀 + 值前缀不一致的枚举。改成 `constexpr` 与 `enum class` 是纯改名，
   但要和 `svgIWBNS`/`tIWB*` 一组常量一起做，别混进功能提交。

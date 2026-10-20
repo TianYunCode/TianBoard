@@ -6,8 +6,9 @@
 #   .\scripts\format.ps1 -Check             # 只查不改；0=干净 1=有待格式化 2=环境问题
 #   .\scripts\format.ps1 -Path src\utils    # 只处理指定目录或文件
 #
-# 永远排除：build*/ 构建产物、third/ 内联第三方（quazip/zlib/openssl/qtsingleapplication
-# 自带风格，动了它们就把 vendor 代码和自家代码混在一个 diff 里，回滚都分不开）。
+# 永远排除：build*/ 构建产物、third/ 内联第三方（quazip/singleapp 自带风格，动了它们
+# 就把 vendor 代码和自家代码混在一个 diff 里，回滚都分不开）、src/app/resource.h
+# （资源脚本的符号表，ANSI 代码页给 rc.exe 读，重排或转码都会让 .res 出问题）。
 #
 # 注意：全仓（src/ + tests/，345 个文件）已在 2026-10-20 用 clang-format 22.1.8 跑过
 # 一次，此后日常约定是提交前 `-Check` 自检。格式化结果由 clang-format 版本决定，
@@ -56,7 +57,8 @@ foreach ($root in $roots) {
     if (-not (Test-Path $root)) { Write-Error "路径不存在: $root"; exit 2 }
     $files += Get-ChildItem -Path $root -Recurse -File | Where-Object {
         $_.Extension -in $extensions -and
-        $_.FullName -notmatch '\\build(-[^\\]*)?\\' -and $_.FullName -notmatch '\\third\\'
+        $_.FullName -notmatch '\\build(-[^\\]*)?\\' -and $_.FullName -notmatch '\\third\\' -and
+        $_.Name -ne 'resource.h'
     }
 }
 $files = @($files | Sort-Object -Property FullName -Unique)

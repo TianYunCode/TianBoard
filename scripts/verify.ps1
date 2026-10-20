@@ -16,6 +16,8 @@
 #  2. 构建命令的退出码很容易被后面一句 shell 吃掉（`...; grep ...; true` 会让后台
 #     任务报"成功"），所以这里每步都显式取 $LASTEXITCODE。
 #  3. 排版门禁（format.ps1 -Check）和构建一起跑，才不会攒出"以后再格式化"的债。
+#  4. 另外三条静态门禁都在构建之后、测试之前：无平台条件编译（2b）、源码编码合规（2d）、
+#     默认配置的每个 Section/Key 都有代码注册（2c）。三条都是历史上真攒出来的债。
 # ======================================================================
 param(
     [ValidateSet('debug', 'release')]
@@ -153,6 +155,37 @@ if ($platformHits.Count -gt 0) {
 }
 Write-Host '  OK: src/ 与 tests/ 没有平台条件编译' -ForegroundColor Green
 
+# ---- 2d. 源码编码门禁 ----
+# 全仓源码必须是合法 UTF-8，且除了 TAB/换行之外不许出现控制字节。批量改注释的脚本
+# 很容易写出这类污染：正则为把替换写成 '\1' 而不是 r'\1' 时，Python 会塞进一个 0x01
+# 顶掉缩进——clang-format 照收不误，最后只有 MSVC 报一句看不懂的“未知字符 '0x1'”。
+# 唯一例外 src/app/resource.h：它必须以 ANSI 代码页存在，rc.exe 才认（UTF-8 会让图标
+# 与版本信息静默丢失，见 docs/code-suspicions.md 第三节）。
+$encodingHits = @()
+foreach ($dir in @('src', 'tests')) {
+    foreach ($f in Get-ChildItem -Path (Join-Path $Root $dir) -Recurse -File |
+        Where-Object { $_.Extension -in '.cpp', '.h' -and $_.Name -ne 'resource.h' }) {
+        $bytes = [IO.File]::ReadAllBytes($f.FullName)
+        $strict = New-Object System.Text.UTF8Encoding($false, $true)
+        try {
+            $text = $strict.GetString($bytes)
+        } catch {
+            $encodingHits += "$($f.Name) 不是合法 UTF-8"
+            continue
+        }
+        $m = [regex]::Matches($text, '[\x00-\x08\x0B\x0C\x0E-\x1F]')
+        if ($m.Count -gt 0) {
+            $encodingHits += ("{0} 含 {1} 个控制字节（首个在第 {2} 字符）" -f
+                $f.Name, $m.Count, $m[0].Index)
+        }
+    }
+}
+if ($encodingHits.Count -gt 0) {
+    $encodingHits | Select-Object -First 8 | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
+    throw "有 $($encodingHits.Count) 个源文件编码不合规"
+}
+Write-Host '  OK: src/ 与 tests/ 源码全是合法 UTF-8 且无控制字节' -ForegroundColor Green
+
 # ---- 2c. 默认配置与代码注册的一致性 ----
 # res/etc/TianBoard.config 随安装包发布，里面每个 Section/Key 都必须有对应的
 # `new Setting(this, "Section", "Key", ...)`；反过来代码里的项不必都写进默认配置
@@ -203,4 +236,4 @@ if (-not $SkipFormat) {
     }
 }
 
-Write-Host "`n全部通过：构建 0 error、应用与测试产物都不比自己的输入旧、测试全绿、排版合规。" -ForegroundColor Green
+Write-Host "`n全部通过：构建 0 error、产物不比输入旧、无平台条件编译、编码合规、配置项全对得上、测试全绿、排版合规。" -ForegroundColor Green
