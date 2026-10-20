@@ -21,12 +21,12 @@
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsPolygonItem.h"
 
-#include "platform/CustomCaptureWindow.h"
+#include "ui/CustomCaptureWindow.h"
 #include "platform/WindowCapture.h"
 #include "desktop/DesktopPalette.h"
 #include "desktop/DesktopPropertyPalette.h"
 
-#include "platform/KeyboardPalette.h"
+#include "ui/KeyboardPalette.h"
 #include "ui/Resources.h"
 
 

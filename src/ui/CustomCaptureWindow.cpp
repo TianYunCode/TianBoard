@@ -2,7 +2,7 @@
 #include "core/VirtualDesktop.h"
 #include <QStyle>
 
-#include "platform/CustomCaptureWindow.h"
+#include "ui/CustomCaptureWindow.h"
 
 #include "platform/PlatformUtils.h"
 #include "ui/RubberBand.h"

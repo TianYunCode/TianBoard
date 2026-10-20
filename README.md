@@ -85,7 +85,8 @@ src/web          内嵌浏览器与网页控制器
 src/desktop      屏幕批注（平台无关部分）
 src/recording    录屏：画面与声音采集、录制调色板、Windows Media 编码器
 src/ui           全部界面控件与调色板
-src/platform     平台相关实现：PlatformUtils*、WindowCapture*、KeyboardPalette*
+src/platform     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
+                 KeyboardSender*、CredentialStore*
 src/utils        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、Enums.h…
 third/           内联的 quazip/zlib 与 qtsingleapplication
 res/             images / etc / library / customizations / style / i18n(.ts) / qrc
@@ -96,10 +97,10 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 ```
 
 每个模块的 `CMakeLists.txt` 显式列出全部源文件（不用 GLOB），新增文件不改清单就不进构建。
-`src/utils`（出边为零）与 `src/settings`（只依赖 utils）已经从 `OBJECT` 收紧成真 `STATIC`
-库；其余模块因为还有 17 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
+`src/utils`（出边为零）、`src/settings` 与 `src/platform`（都只依赖 utils）已经从 `OBJECT`
+收紧成真 `STATIC` 库；其余模块因为还有 15 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
-代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，343 个文件）已用
+代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，344 个文件）已用
 clang-format 22.1.8 排过一次，日常提交前跑 `.\scripts\format.ps1 -Check`（0 才是干净）。
 `third/` 永久排除，格式化结果绑定 clang-format 版本，升版本要单独一次全量提交。

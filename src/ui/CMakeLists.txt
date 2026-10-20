@@ -2,11 +2,12 @@
 # ui — 界面控件与调色板：MainWindow（+ 手写表单 MainWindowUi.h）、各类
 #      FloatingPalette / DockPalette / ToolWidget / 缩略图视图 / 消息框，
 #      以及原先根下 widgets/ 的内容（已并进来）与从 network/ 移来的
-#      ProxyDialog（它是对话框，不是服务）。
-#      屏幕键盘 KeyboardPalette* 在 src/platform/。
+#      ProxyDialog（它是对话框，不是服务）。屏幕键盘 KeyboardPalette* 与框选取图的
+#      CustomCaptureWindow* 也从 src/platform/ 移到了这里——它们是界面，平台层只留
+#      下"怎么把一次按键交给系统"这一件事（platform/KeyboardSender）。
 #
-# 允许依赖：model、utils、api。尚未成立的边：ui <-> core / whiteboard / content /
-# model / platform。
+# 允许依赖：model、utils、api、platform。尚未成立的边：ui <-> core / whiteboard /
+# content / model。
 # ======================================================================
 
 add_library(tb_ui OBJECT
@@ -22,6 +23,8 @@ add_library(tb_ui OBJECT
     CircleFrame.h
     ColorPicker.cpp
     ColorPicker.h
+    CustomCaptureWindow.cpp
+    CustomCaptureWindow.h
     DockDownloadWidget.cpp
     DockDownloadWidget.h
     DockPalette.cpp
@@ -48,6 +51,8 @@ add_library(tb_ui OBJECT
     FloatingPalette.h
     IconButton.cpp
     IconButton.h
+    KeyboardPalette.cpp
+    KeyboardPalette.h
     LeftPalette.cpp
     LeftPalette.h
     Magnifer.cpp

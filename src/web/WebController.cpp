@@ -14,7 +14,6 @@
 #include "ui/WidgetMirror.h"
 #include "ui/MainWindow.h"
 #include "ui/WebToolsPalette.h"
-#include "platform/KeyboardPalette.h"
 
 #include "settings/Settings.h"
 #include "settings/Setting.h"
@@ -25,7 +24,7 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
 
-#include "platform/CustomCaptureWindow.h"
+#include "ui/CustomCaptureWindow.h"
 #include "whiteboard/BoardPaletteManager.h"
 
 
@@ -108,14 +107,6 @@ void WebController::setupPalettes() {
     if (!mToolsCurrentPalette) {
         mToolsCurrentPalette = new WebToolsPalette(Application::mainWindow);
         Application::boardController->paletteManager()->setCurrentWebToolsPalette(mToolsCurrentPalette);
-#ifndef Q_OS_WIN
-        if (PlatformUtils::hasVirtualKeyboard() &&
-            Application::boardController->paletteManager()->mKeyboardPalette)
-            connect(Application::boardController->paletteManager()->mKeyboardPalette,
-                    &KeyboardPalette::closed,
-                    Application::boardController->paletteManager()->mKeyboardPalette,
-                    &KeyboardPalette::onDeactivated);
-#endif
 
         connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this,
                 [this] { customCapture(); });

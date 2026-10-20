@@ -11,7 +11,7 @@
 
 #include "ui/MainWindow.h"
 #include "ui/StylusPalette.h"
-#include "platform/KeyboardPalette.h"
+#include "ui/KeyboardPalette.h"
 #include "ui/ToolWidget.h"
 #include "ui/ZoomPalette.h"
 #include "ui/WebToolsPalette.h"
@@ -159,10 +159,6 @@ void BoardPaletteManager::slot_changeDesktopMode(bool isDesktop) {
 void BoardPaletteManager::setupPalettes() {
     if (PlatformUtils::hasVirtualKeyboard()) {
         mKeyboardPalette = new KeyboardPalette(0);
-#ifndef Q_OS_WIN
-        connect(mKeyboardPalette, &KeyboardPalette::closed, mKeyboardPalette,
-                &KeyboardPalette::onDeactivated);
-#endif
     }
 
     setupDockPaletteWidgets();

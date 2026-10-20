@@ -82,11 +82,8 @@ signals:
 
 private slots:
     void keyboardPaletteButtonSizeChanged(QVariant size);
-    void onActivated(bool b);
 
 public slots:
-    // 由 BoardPaletteManager / WebController 连接
-    void onDeactivated();
     void showKeyboard(bool show);
     void hideKeyboard();
 
@@ -96,8 +93,6 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void moveEvent(QMoveEvent *event);
 
-    void sendKeyEvent(KEYCODE keyCode);
-
     void setLocale(int nLocale);
 
     const QString *getLocaleName();
@@ -105,18 +100,9 @@ protected:
     void init();
 
 private:
-    void checkLayout();
-
     void createCtrlButtons();
 
-    // createCtrlButtons() 的平台实现（ui/KeyboardPalette_win.cpp）拿不到 Private 的定义，
-    // 由它来分配并挂住 d->ctrlButtons。
-    KeyboardButton **createCtrlButtonArray(int count);
-
     void setInput(const KeyboardLocale *locale);
-
-    // Can be redefined under each platform
-    void onLocaleChanged(KeyboardLocale *locale);
 
     struct Private;
     std::unique_ptr<Private> d;
@@ -145,9 +131,6 @@ protected:
 
     KeyboardPalette *keyboardPalette();
     ContentImage *contentImage() const;
-
-    void sendUnicodeSymbol(KEYCODE keycode);
-    void sendControlSymbol(int nSymbol);
 
 private:
     struct Private;

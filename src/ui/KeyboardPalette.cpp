@@ -2,8 +2,10 @@
 #include <QList>
 #include <QSize>
 
-#include "platform/KeyboardPalette.h"
+#include "ui/KeyboardPalette.h"
 #include "settings/Settings.h"
+
+#include "platform/KeyboardSender.h"
 
 #include "core/Application.h"
 #include "ui/MainWindow.h"
@@ -115,9 +117,19 @@ KeyboardPalette::KeyboardPalette(QWidget *parent)
     init();
 }
 
-KeyboardButton **KeyboardPalette::createCtrlButtonArray(int count) {
-    d->ctrlButtons = new KeyboardButton *[count];
-    return d->ctrlButtons;
+void KeyboardPalette::createCtrlButtons() {
+    d->ctrlButtons = new KeyboardButton *[9];
+
+    int ctrlID = 0;
+    d->ctrlButtons[ctrlID++] = new CntrlButton(this, KeyboardSender::Backspace, "backspace");
+    d->ctrlButtons[ctrlID++] = new CntrlButton(this, KeyboardSender::Tab, "tab");
+    d->ctrlButtons[ctrlID++] = new CapsLockButton(this, "capslock"); // Caps Lock
+    d->ctrlButtons[ctrlID++] = new CntrlButton(this, tr("Enter"), KeyboardSender::Enter);
+    d->ctrlButtons[ctrlID++] = new ShiftButton(this, "shift");
+    d->ctrlButtons[ctrlID++] = new ShiftButton(this, "shift");
+    d->ctrlButtons[ctrlID++] = new LocaleButton(this); // 切换输入法
+    d->ctrlButtons[ctrlID++] = new CntrlButton(this, "", KeyboardSender::Space);
+    d->ctrlButtons[ctrlID++] = new LocaleButton(this);
 }
 
 //QList<KeyboardPalette*> KeyboardPalette::instances;
@@ -127,7 +139,6 @@ void KeyboardPalette::init() {
 
     setKeyButtonSize(Settings::settings()->boardKeyboardPaletteKeyBtnSize->get().toString());
 
-    connect(this, &KeyboardPalette::keyboardActivated, this, &KeyboardPalette::onActivated);
     connect(Settings::settings()->boardKeyboardPaletteKeyBtnSize, &Setting::changed, this,
             &KeyboardPalette::keyboardPaletteButtonSizeChanged);
     connect(Application::mainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this,
@@ -186,8 +197,6 @@ KeyboardPalette::~KeyboardPalette() {
         delete d->currBtnImages;
         d->currBtnImages = NULL;
     }
-
-    onActivated(false);
 }
 
 bool KeyboardPalette::isEnabled() {
@@ -209,7 +218,6 @@ void KeyboardPalette::setLocale(int nLocale) {
         d->nCurrentLocale = nLocale;
 
         setInput(d->locales[d->nCurrentLocale]);
-        onLocaleChanged(d->locales[d->nCurrentLocale]);
         update();
 
         Settings::settings()->KeyboardLocale->set(d->nCurrentLocale);
@@ -277,8 +285,6 @@ void KeyboardPalette::adjustSizeAndPosition(bool pUp) {
 }
 
 void KeyboardPalette::paintEvent(QPaintEvent *event) {
-    checkLayout();
-
     ActionPalette::paintEvent(event);
 
     QRect r = this->geometry();
@@ -395,11 +401,6 @@ void KeyboardPalette::paintEvent(QPaintEvent *event) {
 
     //------------------------------------------------
 }
-
-void KeyboardPalette::onDeactivated() {
-    onActivated(false);
-}
-
 
 //-----------------------------------------------------------------------//
 // BTNImages Class
@@ -566,10 +567,10 @@ void KeyButton::onPress() {
 
         if (keyboardPalette()->d->nSpecialModifierIndex) {
             if (d->keybt->codes[codeIndex].empty()) {
-                sendUnicodeSymbol(keyboardPalette()->d->specialModifier);
-                sendUnicodeSymbol(d->keybt->codes[shifted()]);
+                KeyboardSender::sendUnicodeKey(keyboardPalette()->d->specialModifier);
+                KeyboardSender::sendUnicodeKey(d->keybt->codes[shifted()]);
             } else {
-                sendUnicodeSymbol(d->keybt->codes[codeIndex]);
+                KeyboardSender::sendUnicodeKey(d->keybt->codes[codeIndex]);
             }
 
             keyboardPalette()->d->nSpecialModifierIndex = 0;
@@ -580,7 +581,7 @@ void KeyButton::onPress() {
                 keyboardPalette()->d->nSpecialModifierIndex = nSpecialModifierIndex;
                 keyboardPalette()->d->specialModifier = d->keybt->codes[codeIndex];
             } else {
-                sendUnicodeSymbol(d->keybt->codes[codeIndex]);
+                KeyboardSender::sendUnicodeKey(d->keybt->codes[codeIndex]);
             }
         }
     }
@@ -621,7 +622,7 @@ CntrlButton::CntrlButton(KeyboardPalette *parent, const QString &_label, int _co
 CntrlButton::~CntrlButton() {}
 
 void CntrlButton::onPress() {
-    sendControlSymbol(d->code);
+    KeyboardSender::sendVirtualKey(d->code);
 }
 
 void CntrlButton::onRelease() {}
