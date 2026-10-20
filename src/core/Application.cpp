@@ -34,6 +34,7 @@
 #include "whiteboard/ToolsManager.h"
 #include "core/DisplayManager.h"
 #include "core/FormatSelfTest.h"
+#include "core/SnapSelfTest.h"
 
 QPointer<QUndoStack> Application::undoStack;
 
@@ -306,6 +307,32 @@ int Application::exec(const QString &pFileToImport)
                 []
                 {
                     qApp->exit(FormatSelfTest::run());
+                });
+        }
+    }
+
+    // 网格吸附接线自检（tst_snap 用 `--snap-selftest` 拉起）：查 GraphicsScene 把格距、背景
+    // 类型与图元外框喂给吸附数学的姿势；纯几何另有 tests/tst_snapping 单独覆盖。
+    if (arguments().contains("--snap-selftest"))
+    {
+        // 同上：崩溃时 stderr 块缓冲会吞掉最后的日志，verbose 分支按条落盘。
+        setVerbose(true);
+
+        if (isRunning())
+        {
+            qWarning() << "snap-selftest: 已有实例在运行，让路";
+            QTimer::singleShot(0, qApp,
+                []
+                {
+                    qApp->exit(75);
+                });
+        }
+        else
+        {
+            QTimer::singleShot(1500, qApp,
+                []
+                {
+                    qApp->exit(SnapSelfTest::run());
                 });
         }
     }

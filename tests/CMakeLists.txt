@@ -86,6 +86,16 @@ set_tests_properties(tst_format PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 网格吸附接线自检：应用带 --snap-selftest 跑场景侧那一层（纯几何另有 tst_snapping）。
+add_executable(tst_snap tst_snap.cpp)
+target_compile_options(tst_snap PRIVATE /MP /utf-8)
+target_link_libraries(tst_snap PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_snap TianBoard)
+add_test(NAME tst_snap COMMAND tst_snap)
+set_tests_properties(tst_snap PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

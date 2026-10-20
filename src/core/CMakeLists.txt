@@ -43,6 +43,8 @@ add_library(tb_core OBJECT
     PersistenceManager.h
     PreferencesController.cpp
     PreferencesController.h
+    SnapSelfTest.cpp
+    SnapSelfTest.h
     SceneCache.cpp
     SceneCache.h
     TextTools.cpp
