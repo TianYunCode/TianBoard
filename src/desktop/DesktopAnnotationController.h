@@ -28,7 +28,6 @@ public:
     void hideWindow();
 
     DesktopPalette *desktopPalette();
-    QPainterPath desktopPalettePath() const;
     BoardView *drawingView();
 
     void TransparentWidgetResized();

@@ -217,7 +217,6 @@ void DisplayManager::blackout() {
         mBlackoutWidgets << blackoutWidget;
     }
 
-    PlatformUtils::fadeDisplayOut();
 
     foreach (BlackoutWidget *blackoutWidget, mBlackoutWidgets) {
         PlatformUtils::showFullScreen(blackoutWidget);
@@ -230,7 +229,6 @@ void DisplayManager::unBlackout() {
         mBlackoutWidgets.takeFirst()->close();
     }
 
-    PlatformUtils::fadeDisplayIn();
 
     Application::boardController->freezeWebWidgets(false);
 }

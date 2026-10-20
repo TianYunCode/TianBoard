@@ -91,8 +91,6 @@ private:
 public:
     static void init();
     static void destroy();
-    static void fadeDisplayOut();
-    static void fadeDisplayIn();
     static QString translationPath(QString pFilePrefix, QString pLanguage);
     static QString systemLanguage();
     static bool hasVirtualKeyboard();

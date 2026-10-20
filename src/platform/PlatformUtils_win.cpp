@@ -11,15 +11,6 @@ void PlatformUtils::init() {
     initializeKeyboardLayouts();
 }
 
-
-void PlatformUtils::fadeDisplayOut() {
-    // NOOP
-}
-
-void PlatformUtils::fadeDisplayIn() {
-    // NOOP
-}
-
 QStringList PlatformUtils::availableTranslations() {
     QString translationsPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/";
     QStringList translationsList = FileSystemUtils::allFiles(translationsPath);
