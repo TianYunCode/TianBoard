@@ -151,14 +151,14 @@ include。
 | `core` ↔ `whiteboard` | 33 / 65 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
 | `core` ↔ `ui` | 13 / 40 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp`、`DocumentManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `ui` ↔ `whiteboard` | 40 / 48 | 调色板与画板互相认 |
+| `ui` ↔ `whiteboard` | 39 / 48 | 调色板与画板互相认 |
 | `core` ↔ `model` | 11 / 13 | `core/DocumentManager` ↔ `model/DocumentController` |
 | `model` ↔ `ui` | 8 / 9 | `model/DocumentController.cpp` 直接建 ThumbnailView/MainWindow |
-| `model` ↔ `whiteboard` | 6 / 9 | 文档页与图形场景互认 |
+| `model` ↔ `whiteboard` | 2 / 9 | 文档页与图形场景互认（model 只剩 `GraphicsScene`/`BoardController` 两个头） |
 | `model` ↔ `content` | 22 / 5 | `model/DocumentContainer.cpp` 直接调 ThumbnailAdaptor |
 | `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
-| `core` ↔ `recording` | 2 / 7 | ApplicationController/PreferencesController 认 RecordingController |
+| `core` ↔ `recording` | 2 / 5 | ApplicationController/PreferencesController 认 RecordingController |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -276,11 +276,11 @@ content     -> core:44, model:22, platform:3, settings:12, utils:22, whiteboard:
 core        -> content:16, desktop:2, model:11, platform:7, recording:2, settings:15,
                ui:13, utils:7, web:2, whiteboard:33
 desktop     -> core:7, platform:3, settings:3, ui:12, web:1, whiteboard:9
-model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteboard:6
+model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteboard:2
 platform    -> utils:1
-recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
+recording   -> core:5, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> core:40, model:9, platform:9, settings:16, utils:8, whiteboard:40
+ui          -> core:40, model:9, platform:9, settings:16, utils:8, whiteboard:39
 utils       -> （无出边）
 web         -> core:17, platform:1, settings:5, ui:5, utils:2, whiteboard:5
 whiteboard  -> core:65, model:9, platform:5, settings:20, ui:48, utils:43

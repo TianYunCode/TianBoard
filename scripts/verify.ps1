@@ -135,6 +135,24 @@ if ($testSources.Count -gt 0) {
 }
 Write-Host "  OK: 0 error；$([IO.Path]::GetFileName($Exe)) 与测试产物都不比自己的输入旧（$($exeTime.ToString('HH:mm:ss'))）" -ForegroundColor Green
 
+# ---- 2b. 平台条件编译门禁 ----
+# 本工程只有 Win32 一套实现（src/platform/ 全是 *_win.cpp）：Q_OS_*/Q_WS_* 的非 Windows
+# 分支永远编译不到，Windows 分支的条件恒真。平台差异只靠文件名与 platform/ 模块表达，
+# 规矩见 docs/coding-style.md 第二节；这里把"重新引入分支"挡在提交前。
+$platformHits = @()
+foreach ($dir in @('src', 'tests')) {
+    $platformHits += Get-ChildItem -Path (Join-Path $Root $dir) -Recurse -File |
+        Where-Object { $_.Extension -in '.cpp', '.h' } |
+        Select-String -Pattern 'Q_OS_|Q_WS_' -List
+}
+if ($platformHits.Count -gt 0) {
+    $platformHits | Select-Object -First 8 | ForEach-Object {
+        Write-Host "  $($_.Path.Substring($Root.Length + 1)): $($_.Line.Trim())" -ForegroundColor Red
+    }
+    throw "还有 $($platformHits.Count) 个文件含平台条件编译（Q_OS_/Q_WS_），见 docs/coding-style.md 第二节"
+}
+Write-Host '  OK: src/ 与 tests/ 没有平台条件编译' -ForegroundColor Green
+
 # ---- 3. 测试 ----
 # ctest 是 cmake 的同级程序，不能用 cmake.exe 带 --test-dir 去叫它。
 $Ctest = Join-Path (Split-Path -Parent $CMake) 'ctest.exe'

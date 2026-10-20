@@ -20,13 +20,7 @@
 
 #include "content/ExportPDF.h"
 #include "content/ThumbnailAdaptor.h"
-
 #include "content/MetadataDcSubsetAdaptor.h"
-
-#include "whiteboard/BoardController.h"
-#include "whiteboard/BoardPaletteManager.h"
-#include "whiteboard/DrawingController.h"
-
 
 #include "ui/ThumbnailView.h"
 #include "ui/MousePressFilter.h"
@@ -36,9 +30,8 @@
 #include "ui/DocumentsWidget.h"
 #include "ui/DocumentToolsPalette.h"
 
+#include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
-#include "whiteboard/GraphicsSvgItem.h"
-#include "whiteboard/GraphicsPixmapItem.h"
 
 #include "model/DocumentProxy.h"
 

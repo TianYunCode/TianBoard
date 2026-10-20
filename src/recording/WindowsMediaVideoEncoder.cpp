@@ -4,7 +4,6 @@
 
 #include "utils/FileSystemUtils.h"
 
-#include "core/Application.h"
 
 WindowsMediaVideoEncoder::WindowsMediaVideoEncoder(QObject *pParent)
     : AbstractVideoEncoder(pParent),

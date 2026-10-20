@@ -5,8 +5,8 @@
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
-#include "core/ApplicationController.h"
 #include "core/DisplayManager.h"
+#include "core/ApplicationController.h"
 #include "settings/Settings.h"
 
 #include "web/WebController.h"

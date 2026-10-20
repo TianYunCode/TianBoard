@@ -25,14 +25,16 @@ OpenSSL：原先用的那两处（代理密码的 AES、两个 md5 助手）一�
 ## 自测
 
 ```
-.\scripts\verify.ps1                    # 配置→构建→判错误→跑 ctest→format -Check
+.\scripts\verify.ps1                    # 配置→构建→判错误/新鲜度→查平台分支→ctest→format -Check
 .\scripts\verify.ps1 -Configuration release
 ```
 
 `verify.ps1` 存在的原因是踩过一次真实的假绿：MSBuild `/m` 下某个工程编译失败时其它工程继续，
 `TianBoard.exe` 不重新链接，磁盘上还是上一次的旧产物，`ctest` 拿旧 exe 照样全绿。所以它
-在跑测试之前先卡两条硬判据：**构建日志里 `error C`/`LNK`/`fatal error` 计数为 0**，且
-**exe 的修改时间确实是本次构建推进的**。手动跑的话两条命令就够：
+在跑测试之前先卡三条硬判据：**构建日志里 `error C`/`LNK`/`fatal error` 计数为 0**、
+**没有输入比产物新**（`src/` 与根构建文件对 `TianBoard.exe`，每个 `tst_x.cpp` 对各自的
+`tst_x.exe`），以及**源码里没有平台条件编译**（`Q_OS_*`/`Q_WS_*`，理由见
+[docs/coding-style.md](docs/coding-style.md) 第二节）。手动跑的话两条命令就够：
 
 ```
 cmake --build build --config Debug --target TianBoard -- /m /v:m

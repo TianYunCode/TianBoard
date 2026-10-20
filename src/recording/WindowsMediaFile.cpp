@@ -2,8 +2,6 @@
 
 #include <QtGui>
 
-#include "core/Application.h"
-
 
 WindowsMediaFile::WindowsMediaFile(QObject *pParent)
     : QObject(pParent),

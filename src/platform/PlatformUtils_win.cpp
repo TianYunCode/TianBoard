@@ -12,10 +12,6 @@ void PlatformUtils::init() {
 }
 
 
-void PlatformUtils::hideFile(const QString &filePath) {
-    Q_UNUSED(filePath);
-}
-
 void PlatformUtils::fadeDisplayOut() {
     // NOOP
 }
@@ -162,11 +158,6 @@ void PlatformUtils::destroyKeyboardLayouts() {
     keyboardLayouts = NULL;
 }
 
-QString PlatformUtils::urlFromClipboard() {
-    QString qsRet;
-    //  Not implemented yet
-    return qsRet;
-}
 
 void PlatformUtils::setFrontProcess() {
     // not used in Windows

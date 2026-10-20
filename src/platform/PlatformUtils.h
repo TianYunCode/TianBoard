@@ -91,7 +91,6 @@ private:
 public:
     static void init();
     static void destroy();
-    static void hideFile(const QString &filePath);
     static void fadeDisplayOut();
     static void fadeDisplayIn();
     static QString translationPath(QString pFilePrefix, QString pLanguage);
@@ -103,7 +102,6 @@ public:
     static void setWindowNonActivableFlag(QWidget *widget, bool nonAcivable);
     static QString computerName();
     static KeyboardLocale **getKeyboardLayouts(int &nCount);
-    static QString urlFromClipboard();
     static QStringList availableTranslations();
     static void setFrontProcess();
     static void showFullScreen(QWidget *pWidget);

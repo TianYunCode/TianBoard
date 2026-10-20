@@ -6,9 +6,9 @@
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
+#include "core/DisplayManager.h"
 #include "settings/Settings.h"
 #include "settings/Setting.h"
-#include "core/DisplayManager.h"
 
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
