@@ -291,14 +291,16 @@ void DownloadItem::downloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
 
 
 void DownloadItem::updateInfoLabel() {
-    if (m_reply->error() == QNetworkReply::NoError)
+    // 错误提示由错误分支负责；正常下载时进度、速度与剩余时间都要继续刷新。
+    if (m_reply->error() != QNetworkReply::NoError)
         return;
 
     qint64 bytesTotal = d->progressBar->maximum();
     bool running = !downloadedSuccessfully();
 
     // update info label
-    double speed = mBytesReceived * 1000.0 / mDownloadTime.elapsed();
+    const qint64 elapsedMs = mDownloadTime.elapsed();
+    double speed = elapsedMs > 0 ? mBytesReceived * 1000.0 / elapsedMs : 0.0;
     double timeRemaining = ((double)(bytesTotal - mBytesReceived)) / speed;
     QString timeRemainingString = tr("seconds");
     if (timeRemaining > 60) {
@@ -580,12 +582,10 @@ void WebDownloadManager::updateRow() {
     item->setFileIconPixmap(icon.pixmap(48, 48));
     d->downloadsView->setRowHeight(row, item->minimumSizeHint().height());
 
+    // 这里曾经把 JavascriptEnabled 当成 PrivateBrowsingEnabled 判断：JS 默认开启，
+    // 于是任何下载一结束就被移出列表，removePolicy() 完全失效。
+    // 本程序没有隐私浏览模式，直接按用户选的策略处理即可。
     bool remove = false;
-    QWebEngineSettings *globalSettings = QWebEngineProfile::defaultProfile()->settings();
-
-    if (!item->downloading() &&
-        globalSettings->testAttribute(QWebEngineSettings::JavascriptEnabled)) //PrivateBrowsingEnabled
-        remove = true;
 
     if (item->downloadedSuccessfully() && removePolicy() == WebDownloadManager::SuccessFullDownload)
         remove = true;
@@ -724,7 +724,11 @@ int DownloadModel::rowCount(const QModelIndex &parent) const {
 
 
 bool DownloadModel::removeRows(int row, int count, const QModelIndex &parent) {
-    if (parent.isValid())
+    if (parent.isValid() || count <= 0)
+        return false;
+
+    // 调用方可能拿着 -1 或过期行号进来（空列表按 Delete）；越界时 at(i) 会读到缓冲区外。
+    if (row < 0 || row + count > mDownloadManager->mDownloads.size())
         return false;
 
     int lastRow = row + count - 1;

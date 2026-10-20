@@ -81,6 +81,12 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(
 
 
 BrowserWindow::~BrowserWindow() {
+    // 下载管理器在 webBrowserInstance() 里被 setParent 到本窗口，会随窗口一起销毁；
+    // 静态指针不清空的话，下一次 downloadManager() 会返回悬空对象。
+    if (sWebDownloadManager && sWebDownloadManager->parent() == this) {
+        sWebDownloadManager = nullptr;
+    }
+
     if (d->mTabWidget) {
         delete d->mTabWidget;
         d->mTabWidget = NULL;

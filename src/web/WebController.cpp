@@ -50,6 +50,13 @@ void WebController::webBrowserInstance() {
         if (!mCurrentWebBrowser) {
             mCurrentWebBrowser = new BrowserWindow(mMainWindow->centralWidget(), mMainWindow);
 
+            // closeEvent 里是 deleteLater()，窗口没了 mCurrentWebBrowser/mBrowserWidget
+            // 必须跟着置空，否则下次进入网页模式会把悬空指针当活对象用。
+            connect(mCurrentWebBrowser, &QObject::destroyed, this, [this] {
+                mCurrentWebBrowser = nullptr;
+                mBrowserWidget = nullptr;
+            });
+
             mMainWindow->addWebWidget(mCurrentWebBrowser);
 
             connect(mCurrentWebBrowser, &BrowserWindow::activeViewChange, this,
