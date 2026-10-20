@@ -816,8 +816,6 @@ void DocumentTreeModel::moveIndexes(const QModelIndexList &source, const QModelI
 
     DocumentTreeNode *newParentNode = nodeFromIndex(destinationParent);
 
-    bool hasOneInsertion = false;
-
     for (int i = 0; i < source.size(); i++) {
         DocumentTreeNode *sourceNode = nodeFromIndex(source.at(i));
         QModelIndex s = source.at(i);
@@ -829,16 +827,15 @@ void DocumentTreeModel::moveIndexes(const QModelIndexList &source, const QModelI
             int sourceIndex = source.at(i).row();
             int destIndex = positionForParent(sourceNode, newParentNode);
 
+            // 每个 beginMoveRows 必须有自己的 endMoveRows：多选移动时只在最外面 end 一次，
+            // 前面的 rowsAboutToBeMoved 就没有对应的 rowsMoved，代理模型与持久索引会错位。
             beginMoveRows(s.parent(), sourceIndex, sourceIndex, destinationParent, destIndex);
             fixNodeName(s, destinationParent);
             sourceNode->parentNode()->moveChild(sourceNode, destIndex, newParentNode);
             updateIndexNameBindings(sourceNode);
-            hasOneInsertion = true;
+            endMoveRows();
         }
     }
-
-    if (hasOneInsertion)
-        endMoveRows();
 }
 
 void DocumentTreeModel::moveIndex(const QModelIndex &what, const QModelIndex &destination) {
@@ -2106,67 +2103,89 @@ void DocumentController::deleteSelectedItem() {
 }
 
 void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTreeModel *docModel) {
-    DeletionType deletionForSelection = deletionTypeForSelection(mSelectionType, indexes.at(0), docModel);
+    if (mSelectionType == Page) {
+        deletePages(mDocumentsView->thumbnailWidget()->selectedItems());
+        return;
+    }
 
-    switch (deletionForSelection) {
-        case DeletePage: {
-            deletePages(mDocumentsView->thumbnailWidget()->selectedItems());
-            break;
+    // 每个索引按自己的位置各算各的删除方式。混选“回收站 / 我的文档 / 普通文档”时，
+    // 过去拿 indexes.at(0) 的结果套全程：普通文档会被 CompleteDelete 永久删除；
+    // 把回收站 MoveToTrash 到它自己则让 emptyFolder 的 while (rowCount()) 永不结束。
+    // 用 QPersistentModelIndex 保存选择：每删/移走一项，后面索引的行号会被自动校正，
+    // 不会拿着过期的 row 去 removeRow。
+    QList<QPersistentModelIndex> pending;
+    QSet<QPersistentModelIndex> selected;
+    pending.reserve(indexes.size());
+    foreach (const QModelIndex &index, indexes) {
+        QPersistentModelIndex persistent(index);
+        if (persistent.isValid()) {
+            pending.append(persistent);
+            selected.insert(persistent);
         }
-        case MoveToTrash: {
-            moveIndexesToTrash(indexes, docModel);
-            break;
+    }
+
+    for (const QPersistentModelIndex &persistent : pending) {
+        if (!persistent.isValid()) {
+            continue;
         }
-        case CompleteDelete: {
-            for (int i = 0; i < indexes.size(); i++) {
-                DocumentTreeModel *docModel =
-                    PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-                DocumentProxy *newProxy = docModel->proxyData(indexes.at(i));
+
+        // 祖先也被选中时跳过：处理祖先时已经把整棵子树搬走或删掉了。
+        bool ancestorSelected = false;
+        for (QModelIndex ancestor = persistent.parent(); ancestor.isValid(); ancestor = ancestor.parent()) {
+            if (selected.contains(QPersistentModelIndex(ancestor))) {
+                ancestorSelected = true;
+                break;
+            }
+        }
+        if (ancestorSelected) {
+            continue;
+        }
+
+        const QModelIndex index = persistent;
+        switch (deletionTypeForSelection(mSelectionType, index, docModel)) {
+            case DeletePage:
+                deletePages(mDocumentsView->thumbnailWidget()->selectedItems());
+                break;
+            case MoveToTrash:
+                moveIndexesToTrash(QModelIndexList{index}, docModel);
+                break;
+            case CompleteDelete: {
+                DocumentProxy *newProxy = docModel->proxyData(index);
                 if (newProxy) {
                     pureSetDocument(newProxy);
                 }
                 emit documentThumbnailsUpdated(this);
-
-                deleteIndexAndAssociatedData(indexes.at(i));
+                deleteIndexAndAssociatedData(index);
+                break;
             }
-            break;
-        }
-        case EmptyFolder: {
-            for (int i = 0; i < indexes.size(); i++) {
-                QModelIndex currentIndex = indexes.at(i);
-                if (currentIndex ==
+            case EmptyFolder: {
+                if (index ==
                     docModel->myDocumentsIndex()) { //清空“我的文档”：所有条目移入回收站，随后补一个空白文档
-                    int startInd = 0;
-                    while (docModel->rowCount(currentIndex)) {
-                        QModelIndex testSubINdecurrentIndex = docModel->index(startInd, 0, currentIndex);
-                        if (!testSubINdecurrentIndex.isValid()) {
+                    while (docModel->rowCount(index)) {
+                        QModelIndex subIndex = docModel->index(0, 0, index);
+                        if (!subIndex.isValid()) {
                             break;
                         }
-                        docModel->moveIndex(testSubINdecurrentIndex, docModel->trashIndex());
+                        docModel->moveIndex(subIndex, docModel->trashIndex());
                     }
-                    //Here, we are sure that the current scene has been deleted
                     createEmptyDocument();
                 } else {
-                    //Check if we will delete the current scene
-                    DocumentTreeNode *currentNode = docModel->nodeFromIndex(currentIndex);
+                    DocumentTreeNode *currentNode = docModel->nodeFromIndex(index);
                     bool deleteCurrentScene =
                         currentNode->findNode(docModel->nodeFromIndex(docModel->currentIndex()));
 
-                    emptyFolder(currentIndex, MoveToTrash); //Empty constant folder
+                    emptyFolder(index, MoveToTrash); //Empty constant folder
 
                     if (deleteCurrentScene)
                         createEmptyDocument();
                 }
+                break;
             }
-
-            break;
-        }
-        case EmptyTrash: {
-            for (int i = 0; i < indexes.size(); i++) {
-                emptyFolder(indexes.at(i), CompleteDelete); // Empty trash folder
-            }
-
-            break;
+            case EmptyTrash:
+                emptyFolder(index, CompleteDelete); // Empty trash folder
+                break;
+            case NoDeletion:
+                break;
         }
     }
 }
@@ -3213,6 +3232,11 @@ void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *) {
 
     mDocumentsView->thumbnailWidget()->setGraphicsItems(items, itemsPath, labels,
                                                         Application::mimeTypeBoardPage);
+
+    // ThumbnailAdaptor::get() 返回 new 出来的 QPixmap，SceneThumbnailPixmap 只是按值拷贝；
+    // 不在这里释放的话，每刷新一次缩略图就泄漏 pageCount 个 QPixmap。
+    qDeleteAll(thumbs);
+    thumbs.clear();
 
     if (docModel->inTrash(current)) {
         mDocumentsView->thumbnailWidget()->setDragEnabled(false);

@@ -81,11 +81,12 @@ void DocumentContainer::updatePage(int index) {
 }
 
 void DocumentContainer::deleteThumbPage(int index) {
-    mDocumentThumbs.removeAt(index);
+    delete mDocumentThumbs.takeAt(index);
 }
 
 void DocumentContainer::updateThumbPage(int index) {
     if (mDocumentThumbs.size() > index) {
+        delete mDocumentThumbs.at(index);
         mDocumentThumbs[index] = ThumbnailAdaptor::get(mCurrentDocument, index);
         emit documentPageUpdated(index);
     } else {
