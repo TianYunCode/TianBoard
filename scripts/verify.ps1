@@ -153,6 +153,40 @@ if ($platformHits.Count -gt 0) {
 }
 Write-Host '  OK: src/ 与 tests/ 没有平台条件编译' -ForegroundColor Green
 
+# ---- 2c. 默认配置与代码注册的一致性 ----
+# res/etc/TianBoard.config 随安装包发布，里面每个 Section/Key 都必须有对应的
+# `new Setting(this, "Section", "Key", ...)`；反过来代码里的项不必都写进默认配置
+# （缺省值在代码里）。历史上攒出过 17 条没人读的键，靠人眼对不完，所以做成门禁。
+$configPath = Join-Path $Root 'res/etc/TianBoard.config'
+$configKeys = New-Object System.Collections.Generic.List[string]
+$section = ''
+foreach ($line in Get-Content $configPath) {
+    $t = $line.Trim()
+    if ($t -match '^\[(.+)\]$') { $section = $Matches[1]; continue }
+    if ($t -eq '' -or $t.StartsWith(';') -or $t.StartsWith('#')) { continue }
+    if ($t -match '^([^=]+)=') {
+        [void]$configKeys.Add("$section/$($Matches[1].Trim())")
+    }
+}
+$settingsSource = Get-Content (Join-Path $Root 'src/settings/Settings.cpp') -Raw
+# 两种注册形态都要认：Setting/ColorListSetting 这类成员对象，以及直接走
+# value("Section/Key", ...) / setValue("Section/Key", ...) 的标量项。
+$codeKeys = New-Object System.Collections.Generic.List[string]
+foreach ($m in [regex]::Matches($settingsSource, 'new \w*Setting\(\s*this\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"')) {
+    [void]$codeKeys.Add("$($m.Groups[1].Value)/$($m.Groups[2].Value)")
+}
+foreach ($m in [regex]::Matches($settingsSource, '(?:value|setValue)\(\s*"([^"]+)/([^"]+)"')) {
+    [void]$codeKeys.Add("$($m.Groups[1].Value)/$($m.Groups[2].Value)")
+}
+$orphanKeys = @($configKeys | Where-Object { $codeKeys -notcontains $_ })
+if ($orphanKeys.Count -gt 0) {
+    $orphanKeys | Select-Object -First 10 | ForEach-Object {
+        Write-Host "  配置里有、代码里没有: $_" -ForegroundColor Red
+    }
+    throw "res/etc/TianBoard.config 里有 $($orphanKeys.Count) 个键没有对应的 Setting 注册"
+}
+Write-Host "  OK: 默认配置 $($configKeys.Count) 个键全部有代码注册（代码共 $($codeKeys.Count) 个设置项）" -ForegroundColor Green
+
 # ---- 3. 测试 ----
 # ctest 是 cmake 的同级程序，不能用 cmake.exe 带 --test-dir 去叫它。
 $Ctest = Join-Path (Split-Path -Parent $CMake) 'ctest.exe'
