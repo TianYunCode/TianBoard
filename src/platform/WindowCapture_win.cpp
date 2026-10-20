@@ -1,13 +1,10 @@
 #include "platform/WindowCapture.h"
 
 #include "platform/WindowCaptureDelegate_win.h"
-#include "desktop/DesktopAnnotationController.h"
-#include "desktop/DesktopPalette.h"
-
-#include "whiteboard/BoardView.h"
 
 
-WindowCapture::WindowCapture(DesktopAnnotationController *parent) : QObject(parent), mParent(parent) {
+WindowCapture::WindowCapture(QWidget *grabTarget, QObject *parent)
+    : QObject(parent), mGrabTarget(grabTarget) {
     // NOOP
 }
 
@@ -23,14 +20,14 @@ const QPixmap WindowCapture::getCapturedWindow() {
 
 
 int WindowCapture::execute() {
-    mParent->desktopPalette()->grabMouse();
-    mParent->desktopPalette()->grabKeyboard();
+    mGrabTarget->grabMouse();
+    mGrabTarget->grabKeyboard();
 
     WindowCaptureDelegate windowCaptureEventHandler;
     int result = windowCaptureEventHandler.execute();
 
-    mParent->desktopPalette()->releaseMouse();
-    mParent->desktopPalette()->releaseKeyboard();
+    mGrabTarget->releaseMouse();
+    mGrabTarget->releaseKeyboard();
 
     mWindowPixmap = windowCaptureEventHandler.getCapturedWindow();
 

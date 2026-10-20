@@ -412,7 +412,7 @@ void DesktopAnnotationController::windowCapture() {
 
     mDesktopPalette->disappearForCapture();
 
-    WindowCapture util(this);
+    WindowCapture util(mDesktopPalette, this);
 
     if (util.execute() == QDialog::Accepted) {
         QPixmap windowPixmap = util.getCapturedWindow();
