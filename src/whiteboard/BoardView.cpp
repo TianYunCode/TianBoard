@@ -29,11 +29,6 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardPaletteManager.h"
 
-#ifdef Q_OS_OSX
-#include "core/ApplicationController.h"
-#include "desktop/DesktopAnnotationController.h"
-#endif
-
 #include "whiteboard/GraphicsTextItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsWidgetItem.h"
@@ -358,18 +353,6 @@ void BoardView::tabletEvent(QTabletEvent *event) {
     }
 
     bool acceptEvent = true;
-#ifdef Q_OS_OSX
-    //Work around #1388. After selecting annotation tool in desktop mode, annotation view appears on top when
-    //using Mac OS X. In this case tablet event should send mouse event so as to let user interact with
-    //stylus palette.
-    Q_ASSERT(Application::applicationController->uninotesController());
-    if (Application::applicationController->uninotesController()->drawingView() == this) {
-        if (Application::applicationController->uninotesController()->desktopPalettePath().contains(
-                event->pos())) {
-            acceptEvent = false;
-        }
-    }
-#endif
 
     switch (event->type()) {
         case QEvent::TabletPress: {
@@ -779,57 +762,6 @@ void BoardView::setMultiselection(bool enable) {
 bool BoardView::isMultipleSelectionEnabled() {
     return d->mMultipleSelectionIsEnabled;
 }
-
-// work around for handling tablet events on MAC OS with Qt 4.8.0 and above
-#if defined(Q_OS_OSX)
-bool BoardView::directTabletEvent(QEvent *event) {
-    QTabletEvent *tEvent = static_cast<QTabletEvent *>(event);
-    tEvent = new QTabletEvent(tEvent->type(), mapFromGlobal(tEvent->pos()), tEvent->globalPos(),
-                              tEvent->device(), tEvent->pointerType(), tEvent->pressure(), tEvent->xTilt(),
-                              tEvent->yTilt(), tEvent->tangentialPressure(), tEvent->rotation(), tEvent->z(),
-                              tEvent->modifiers(), tEvent->uniqueId());
-
-    if (geometry().contains(tEvent->pos())) {
-        if (NULL == widgetForTabletEvent(this->parentWidget(), tEvent->pos())) {
-            tabletEvent(tEvent);
-            return true;
-        }
-    }
-    return false;
-}
-
-QWidget *BoardView::widgetForTabletEvent(QWidget *w, const QPoint &pos) {
-    Q_ASSERT(w);
-
-    // it should work that, but it doesn't. So we check if it is control view.
-    //BoardView *board = qobject_cast<BoardView *>(w);
-    BoardView *board = Application::boardController->controlView();
-
-    QWidget *childAtPos = NULL;
-
-    QList<QObject *> childs = w->children();
-    foreach (QObject *child, childs) {
-        QWidget *childWidget = qobject_cast<QWidget *>(child);
-        if (childWidget) {
-            if (childWidget->isVisible() && childWidget->geometry().contains(pos)) {
-                QWidget *lastChild = widgetForTabletEvent(childWidget, pos);
-
-                if (board && board->viewport() == lastChild)
-                    continue;
-
-                if (NULL != lastChild)
-                    childAtPos = lastChild;
-                else
-                    childAtPos = childWidget;
-
-                break;
-            } else
-                childAtPos = NULL;
-        }
-    }
-    return childAtPos;
-}
-#endif
 
 void BoardView::longPressEvent() {
     DrawingController *drawingController = DrawingController::drawingController();

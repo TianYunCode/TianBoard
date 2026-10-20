@@ -123,7 +123,6 @@ public:
 public slots:
     void showDocumentsDialog();
     void showKeyboard(bool show);
-    void toggleRecording(bool checked);
     void blackout();
     void addScene();
     void addScene(DocumentProxy *proxy, int sceneIndex, bool replaceActiveIfEmpty = false);

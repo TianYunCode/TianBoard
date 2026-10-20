@@ -4,8 +4,8 @@
 #           Win32 的窗口捕获实现（WindowCapture*、CustomCaptureWindow*）在
 #           src/platform/，本模块只留平台无关的批注逻辑与调色板。
 #
-# 允许依赖：utils、model。尚未成立的边：desktop <-> core / ui / whiteboard /
-# platform / web。
+# 允许依赖：utils、model。尚未成立的边：desktop <-> core / ui / platform / web
+# （whiteboard 的反向边已断：画板要挂调色板时问 core 装配层要宿主窗口）。
 # ======================================================================
 
 add_library(tb_desktop OBJECT

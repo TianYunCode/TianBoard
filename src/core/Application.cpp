@@ -231,6 +231,8 @@ int Application::exec(const QString &pFileToImport) {
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController,
             &ApplicationController::showDesktop);
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, this, &Application::stopScript);
+    connect(mainWindow->ui().actionRecording, &QAction::triggered, applicationController,
+            &ApplicationController::toggleRecordingPalette);
 #if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
     connect(mainWindow->ui().actionHideApplication, &QAction::triggered, this, &Application::showMinimized);
 #else

@@ -126,7 +126,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 19 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 17 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
@@ -145,24 +145,22 @@ include。
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 33 / 66 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 11 / 41 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
+| `core` ↔ `whiteboard` | 33 / 65 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 11 / 38 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `content` ↔ `whiteboard` | 50 / 3 | `whiteboard/GraphicsWidgetItem.*` 反向认 content |
-| `ui` ↔ `whiteboard` | 43 / 46 | 调色板与画板互相认 |
+| `ui` ↔ `whiteboard` | 40 / 46 | 调色板与画板互相认 |
 | `core` ↔ `model` | 11 / 13 | `core/DocumentManager` ↔ `model/DocumentController` |
-| `model` ↔ `ui` | 8 / 11 | `model/DocumentController.cpp` 直接建 ThumbnailView/MainWindow |
+| `model` ↔ `ui` | 8 / 9 | `model/DocumentController.cpp` 直接建 ThumbnailView/MainWindow |
 | `model` ↔ `whiteboard` | 6 / 9 | 文档页与图形场景互认 |
 | `model` ↔ `content` | 22 / 5 | `model/DocumentContainer.cpp` 直接调 ThumbnailAdaptor |
-| `core` ↔ `web` | 2 / 18 | `core/Application.cpp` 认 WebController |
+| `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
 | `core` ↔ `recording` | 2 / 7 | ApplicationController/PreferencesController 认 RecordingController |
 | `core` ↔ `platform` | 7 / 3 | `platform/KeyboardPalette.cpp` 认 Application |
 | `api` ↔ `whiteboard` | 8 / 2 | `whiteboard/GraphicsWidgetItem.cpp` 反向认 api 门面 |
-| `content` ↔ `ui` | 2 / 4 | `content/ExportAdaptor.cpp` 弹 MessagesDialog/MainWindow |
+| `content` ↔ `ui` | 2 / 2 | `content/ExportAdaptor.cpp` 弹 MessagesDialog/MainWindow |
 | `platform` ↔ `ui` | 4 / 6 | `platform/KeyboardPalette.h` 认 `ui/ActionPalette.h` |
-| `desktop` ↔ `whiteboard` | 9 / 2 | BoardView 反向认 DesktopAnnotationController |
-| `recording` ↔ `whiteboard` | 4 / 2 | BoardController 反向认 RecordingController |
 | `web` ↔ `whiteboard` | 5 / 7 | 互相认控制器与图形项 |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
@@ -172,6 +170,24 @@ include。
 `WindowCapture_win.cpp` 里那个 `whiteboard/BoardView.h` 从来没用过；抓窗口时独占鼠标
 键盘的需求改成构造时收一个 `QWidget*`（`WindowCapture(QWidget *grabTarget, ...)`），
 于是它不再认识 `desktop/DesktopPalette` 与 `DesktopAnnotationController`。
+
+`whiteboard` 现在对 `desktop` 与 `recording` 都是**零出边**（这两组环因此消失）：
+
+- 白板工具栏的“录制”按钮不再由 `BoardPaletteManager` 转发。这条 connect 挪到装配层
+  （`core/Application.cpp`），转发的槽换成 `ApplicationController::toggleRecordingPalette`
+  ——装配层本来就认识 `RecordingController`，画板模块不必为它 include `recording/`。
+  顺手删掉 `BoardController::toggleRecording`：它没有发送者，而且真按下去会懒建一个
+  录制控制器，把“没启用录制也创建录制管线”这个老问题留着。
+- 桌面批注宿主：`BoardPaletteManager` 要把左右调色板挂到透明批注窗口上，过去它
+  include `desktop/DesktopAnnotationController.h` 再 `uninotesController()->drawingView()`。
+  现在装配层给两个动词——`desktopDrawingHost()`（给我一个能当父控件的窗口）和
+  `desktopDrawingResized()`（宿主尺寸变了）——画板只认 `ApplicationController`。
+  返回类型是 `QWidget*`，`DesktopAnnotationController` 留在 desktop 内部。
+- `BoardView.cpp` 里那段 `Q_OS_OSX` 的手写板事件转发（`directTabletEvent` /
+  `widgetForTabletEvent`，注释自己写着 Qt 4.8 的 workaround）连带删掉：本工程只有
+  Win32 平台实现（`src/platform/*_win.cpp`），Mac 上根本链接不起来；而且那段代码 include
+  的是 `core/ApplicationController.h`，头文件里 `DesktopAnnotationController` 只是前置声明，
+  它调用成员函数——即便真在 Mac 上编译也是错的。
 
 ### 拆环顺序（从叶子往根拆）
 
@@ -189,14 +205,15 @@ include。
 5. **`platform/`**（部分完成）：`WindowCapture` 不再认 `desktop/*` 与 `whiteboard/BoardView`
    （抓窗口时只收一个 `QWidget*` 作为鼠标/键盘的捕获目标）。剩下的脏边是
    `KeyboardPalette` 认 `ui/MainWindow`、`ui/ActionPalette`，以及
-   `CustomCaptureWindow` 认 `ui/RubberBand`——后者是三个模块共用的可选边控件，
-   放 `ui/` 是对的，要断它得把"框选交互"整体上移出平台层。平台层应当只暴露
-   "捕获一块画面""弹一个键盘"，由调用方实现宿主接口。
+   `CustomCaptureWindow` 认 `ui/RubberBand`——后者是三个模块共用的可选边框控件，
+   放 `ui/` 是对的，要断它得把“框选交互”整体上移出平台层。平台层应当只暴露
+   “捕获一块画面”“弹一个键盘”，由调用方实现宿主接口。
 6. **`content/`**：主要脏边是 `content/ExportAdaptor.cpp` → `ui/MainWindow`、
    `ui/MessagesDialog`（导出进度与错误框）。导出器改为回报状态，界面自己决定怎么显示。
-7. **`desktop/` + `recording/` + `web/`**：把 `BoardView`/`BoardController` 对这三者的
-   直接调用换成控制器之间的事件转发（白板只发“进入桌面批注”“开始录制”这类请求）。
-8. **`ui/` ↔ `whiteboard/`（最大的一组，43/47）**：拆成“画板拥有视图，调色板经
+7. **`desktop/` + `recording/` + `web/`**（部分完成）：画板侧对 `desktop` 与 `recording`
+   的直接调用已全部换成装配层的转发（见上一节）；剩下 `web` ↔ `whiteboard` 一组，
+   要断的是 `whiteboard` 反向认 `web` 的 7 处（网页内容小部件需要 WebController）。
+8. **`ui/` ↔ `whiteboard/`（最大的一组，40/46）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
 9. **`core/`**（最后）：core 是装配点，`core` → `ui`/`whiteboard` 的边要换成接口 +
    构造期注入，或者把 `ApplicationController` 上提到 `app/`，让 core 退化成纯服务集合。
@@ -219,12 +236,12 @@ model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteb
 platform    -> core:3, settings:1, ui:4, utils:1
 recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> api:2, content:4, core:41, model:11, platform:6, settings:16, utils:9,
-               whiteboard:43
+ui          -> api:1, content:2, core:38, model:9, platform:6, settings:15, utils:8,
+               whiteboard:40
 utils       -> （无出边）
-web         -> core:18, platform:3, settings:5, ui:4, utils:2, whiteboard:5
-whiteboard  -> api:2, content:3, core:66, desktop:2, model:9, platform:7, recording:2,
-               settings:20, ui:46, utils:42, web:7
+web         -> core:17, platform:3, settings:5, ui:4, utils:2, whiteboard:5
+whiteboard  -> api:2, content:3, core:65, model:9, platform:7, settings:20, ui:46,
+               utils:42, web:7
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

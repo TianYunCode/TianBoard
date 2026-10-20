@@ -187,7 +187,7 @@
   `tst_assets` 管不到这一层。
 - **`.clang-format` 读不进去时是"整份配置作废"，不是"忽略那一条"**：里面原先写了个
   clang-format 不认识的 `CppNamespaceIndentation`，于是它对每个文件都报
-  `invalid argument` 后什么都不做，而 `format.ps1 -Check` 照样把 348 个文件全报成
+  `invalid argument` 后什么都不做，而 `format.ps1 -Check` 照样把全仓文件全报成
   "待格式化"——看起来像"还有好多没排"，实际是"一个都没排成功"。改完配置后要用
   **单文件 dry run**（`clang-format --style=file:<文件> x.h | diff x.h -`）确认真的读懂了规则，
   别只看 -Check 的退出码。

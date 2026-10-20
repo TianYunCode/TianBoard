@@ -38,10 +38,6 @@ public:
     void setMultiselection(bool enable);
     bool isMultipleSelectionEnabled();
 
-#if defined(Q_OS_OSX)
-    bool directTabletEvent(QEvent *event);
-    QWidget *widgetForTabletEvent(QWidget *w, const QPoint &pos);
-#endif
 signals:
     void resized(QResizeEvent *event);
     void mouseReleased();

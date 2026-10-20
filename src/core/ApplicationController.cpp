@@ -423,6 +423,21 @@ void ApplicationController::hideDesktop() {
     emit desktopMode(false);
 }
 
+// 白板工具栏上的"录制"按钮过去由 BoardPaletteManager 代为转发，画板模块因此得
+// include RecordingController。转发挪到装配层（这里本来就认识各控制器），
+// 并且仍然只在第一次按下时才创建录制控制器——instance() 是懒建的。
+void ApplicationController::toggleRecordingPalette(bool visible) {
+    RecordingController::instance()->toggleRecordingPalette(visible);
+}
+
+QWidget *ApplicationController::desktopDrawingHost() {
+    return mUninoteController->drawingView();
+}
+
+void ApplicationController::desktopDrawingResized() {
+    mUninoteController->TransparentWidgetResized();
+}
+
 void ApplicationController::setMirrorSourceWidget(QWidget *pWidget) {
     if (mMirror) {
         mMirror->setSourceWidget(pWidget);

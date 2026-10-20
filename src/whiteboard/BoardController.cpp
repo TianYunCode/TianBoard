@@ -52,8 +52,6 @@
 #include "whiteboard/DrawingController.h"
 #include "whiteboard/BoardView.h"
 
-#include "recording/RecordingController.h"
-
 #include "content/MetadataDcSubsetAdaptor.h"
 #include "content/SvgSubsetAdaptor.h"
 
@@ -2121,11 +2119,6 @@ void BoardController::processMimeData(const QMimeData *pMimeData, const QPointF 
     }
 }
 
-
-void BoardController::toggleRecording(bool checked) {
-    if (RecordingController::instance())
-        RecordingController::instance()->toggleRecordingPalette(checked);
-}
 
 void BoardController::moveGraphicsWidgetToControlView(GraphicsWidgetItem *graphicsWidget) {
     mActiveScene->setURStackEnable(false);

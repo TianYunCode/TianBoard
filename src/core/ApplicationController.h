@@ -62,6 +62,12 @@ public:
 
     DesktopAnnotationController *uninotesController() { return mUninoteController; }
 
+    // 桌面批注模式下承载画板调色板的宿主窗口，以及它的尺寸变化通知。画板只需要
+    // "一个能当父控件的窗口"，不需要认识 DesktopAnnotationController 本身——装配层
+    // 提供这两个入口，whiteboard 就不必为这事 include desktop/。
+    QWidget *desktopDrawingHost();
+    void desktopDrawingResized();
+
     enum MainMode { Board = 0, Internet, Document, WebDocument };
 
     MainMode displayMode() { return mMainMode; }
@@ -85,6 +91,8 @@ public slots:
     void showDesktop(bool dontSwitchFrontProcess = false);
 
     void hideDesktop();
+
+    void toggleRecordingPalette(bool visible);
 
     void useMultiScreen(bool use);
 

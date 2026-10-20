@@ -117,7 +117,6 @@ private slots:
     void backgroundPaletteClosed();
 
     void toggleStylusPalette(bool checked);
-    void toggleRecordingPalette(bool checked);
 
     void erasePaletteButtonPressed();
     void erasePaletteButtonReleased();

@@ -24,8 +24,6 @@
 #include "web/TabWidget.h"
 #include "web/WebView.h"
 
-#include "desktop/DesktopAnnotationController.h"
-
 
 #include "core/NetworkAccessManager.h"
 
@@ -33,7 +31,6 @@
 #include "whiteboard/GraphicsPixmapItem.h"
 
 #include "model/DocumentProxy.h"
-#include "recording/RecordingController.h"
 #include "whiteboard/DrawingController.h"
 
 #include "whiteboard/ToolsManager.h"
@@ -363,8 +360,6 @@ void BoardPaletteManager::connectPalettes() {
             &BoardPaletteManager::changeBackground);
     connect(Application::mainWindow->ui().actionRuledDarkBackground, &QAction::triggered, this,
             &BoardPaletteManager::changeBackground);
-    connect(Application::mainWindow->ui().actionRecording, &QAction::triggered, this,
-            &BoardPaletteManager::toggleRecordingPalette);
 
     connect(Application::mainWindow->ui().actionAddItemToCurrentPage, &QAction::triggered, this,
             &BoardPaletteManager::addItemToCurrentPage);
@@ -562,11 +557,6 @@ void BoardPaletteManager::pagePaletteClosed() {
 }
 
 
-void BoardPaletteManager::toggleRecordingPalette(bool checked) {
-    RecordingController::instance()->toggleRecordingPalette(checked);
-}
-
-
 void BoardPaletteManager::addItem(const QUrl &pUrl) {
     mItemUrl = pUrl;
     mPixmap = QPixmap();
@@ -618,12 +608,9 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
         } break;
 
         case DockWidgetMode::Desktop: {
-            mAddItemPalette->setParent(
-                (QWidget *)Application::applicationController->uninotesController()->drawingView());
-            mLeftPalette->assignParent(
-                (QWidget *)Application::applicationController->uninotesController()->drawingView());
-            mRightPalette->assignParent(
-                (QWidget *)Application::applicationController->uninotesController()->drawingView());
+            mAddItemPalette->setParent(Application::applicationController->desktopDrawingHost());
+            mLeftPalette->assignParent(Application::applicationController->desktopDrawingHost());
+            mRightPalette->assignParent(Application::applicationController->desktopDrawingHost());
             mStylusPalette->raise();
 
             if (PlatformUtils::hasVirtualKeyboard() && mKeyboardPalette != NULL &&
@@ -631,8 +618,7 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
                 if (mKeyboardPalette->keyboardVisible()) {
                     mKeyboardPalette->hide();
 #ifndef Q_OS_LINUX
-                    mKeyboardPalette->setParent(
-                        (QWidget *)Application::applicationController->uninotesController()->drawingView());
+                    mKeyboardPalette->setParent(Application::applicationController->desktopDrawingHost());
 #else
                     mKeyboardPalette->setParent(0);
 #endif
@@ -645,8 +631,7 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
 #ifdef Q_OS_LINUX
                     mKeyboardPalette->setParent(0);
 #else
-                    mKeyboardPalette->setParent(
-                        (QWidget *)Application::applicationController->uninotesController()->drawingView());
+                    mKeyboardPalette->setParent(Application::applicationController->desktopDrawingHost());
 #endif //Q_OS_LINUX
 #ifdef Q_OS_OSX
                 mKeyboardPalette->setWindowFlags(Qt::Dialog | Qt::Popup | Qt::FramelessWindowHint);
@@ -661,7 +646,7 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
 #endif
 
             if (!isInit)
-                Application::applicationController->uninotesController()->TransparentWidgetResized();
+                Application::applicationController->desktopDrawingResized();
 
             if (mWebToolsCurrentPalette)
                 mWebToolsCurrentPalette->hide();

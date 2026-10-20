@@ -3,8 +3,8 @@
 #             Windows Media 编码器与波形录音（编码器与波形录音原来是子目录，
 #             现已扁平并入本模块）。
 #
-# 允许依赖：utils、model。尚未成立的边：recording <-> core / ui / whiteboard /
-# web / platform。
+# 允许依赖：utils、model。尚未成立的边：recording <-> core / ui / web / platform
+# （whiteboard 的反向边已断：工具栏"录制"由 core 装配层直连 RecordingController）。
 # ======================================================================
 
 add_library(tb_recording OBJECT

@@ -6,7 +6,8 @@
 #              分开只让 include 前缀显得比实际耦合更干净）。
 #
 # 允许依赖：model、utils、api。尚未成立的边：whiteboard <-> core / ui / content /
-# desktop / recording / web / platform。绘制热路径在本模块，改动要盯性能。
+# web / platform。对 desktop 与 recording 已经是零出边（录制按钮的转发与桌面批注
+# 宿主都挪到 core 装配层）。绘制热路径在本模块，改动要盯性能。
 # ======================================================================
 
 add_library(tb_whiteboard OBJECT
