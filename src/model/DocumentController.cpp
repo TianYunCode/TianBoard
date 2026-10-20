@@ -1163,35 +1163,35 @@ void DocumentTreeView::setSelectedAndExpanded(const QModelIndex &pIndex, bool pE
         return;
     }
 
-    QModelIndex indexCurrentDoc = pIndex;
-    clearSelection();
-
     SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
+
+    // pIndex 来自 DocumentTreeModel；视图的 model 是代理，setCurrentIndex/setExpanded/
+    // scrollTo/edit 只吃代理索引。此前直接传源索引，Qt6 的 QSortFilterProxyModel 会在
+    // setExpanded → hasChildren → mapToSource 这条链上断言
+    // "index from wrong model passed to mapToSource"。
+    const QModelIndex viewIndex = proxy ? proxy->mapFromSource(pIndex) : pIndex;
+
+    if (!viewIndex.isValid()) {
+        return;
+    }
+
+    clearSelection();
 
     QItemSelectionModel::SelectionFlags sel =
         pExpand ? QItemSelectionModel::Select : QItemSelectionModel::Deselect;
 
-    setCurrentIndex(pExpand ? indexCurrentDoc : QModelIndex());
+    setCurrentIndex(pExpand ? viewIndex : QModelIndex());
 
-    selectionModel()->select(proxy->mapFromSource(indexCurrentDoc), QItemSelectionModel::Rows | sel);
+    selectionModel()->select(viewIndex, QItemSelectionModel::Rows | sel);
 
-    while (indexCurrentDoc.parent().isValid()) {
-        setExpanded(indexCurrentDoc.parent(), pExpand);
-        indexCurrentDoc = indexCurrentDoc.parent();
+    for (QModelIndex parent = viewIndex.parent(); parent.isValid(); parent = parent.parent()) {
+        setExpanded(parent, pExpand);
     }
 
-    scrollTo(proxy->mapFromSource(pIndex), QAbstractItemView::PositionAtCenter);
+    scrollTo(viewIndex, QAbstractItemView::PositionAtCenter);
 
     if (pEdit)
-        edit(proxy->mapFromSource(pIndex));
-}
-
-void DocumentTreeView::onModelIndexChanged(const QModelIndex &pNewIndex, const QModelIndex &pOldIndex) {
-    Q_UNUSED(pOldIndex)
-
-    QModelIndex indexSource = mapIndexToSource(pNewIndex);
-
-    setSelectedAndExpanded(indexSource, true);
+        edit(viewIndex);
 }
 
 void DocumentTreeView::hSliderRangeChanged(int min, int max) {
@@ -1868,9 +1868,6 @@ void DocumentController::setupViews() {
                 this,
                 qOverload<const QItemSelection &, const QItemSelection &>(
                     &DocumentController::TreeViewSelectionChanged));
-        connect(PersistenceManager::persistenceManager()->mDocumentTreeStructureModel,
-                &DocumentTreeModel::indexChanged, mDocumentsView->documentTreeView(),
-                &DocumentTreeView::onModelIndexChanged);
         connect(PersistenceManager::persistenceManager()->mDocumentTreeStructureModel,
                 &DocumentTreeModel::currentIndexMoved, this, &DocumentController::currentIndexMoved);
 

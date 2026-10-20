@@ -199,7 +199,6 @@ public:
     bool isDescendantOf(const QModelIndex &pPossibleDescendant, const QModelIndex &pPossibleAncestor) const;
 
 signals:
-    void indexChanged(const QModelIndex &newIndex, const QModelIndex &oldIndex);
     void currentIndexMoved(const QModelIndex &newIndex, const QModelIndex &previous);
 
 private:
@@ -247,7 +246,6 @@ public:
 
 public slots:
     void setSelectedAndExpanded(const QModelIndex &pIndex, bool pExpand = true, bool pEdit = false);
-    void onModelIndexChanged(const QModelIndex &pNewIndex, const QModelIndex &pOldIndex);
     void hSliderRangeChanged(int min, int max);
 
 protected:

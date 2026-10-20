@@ -265,6 +265,17 @@ int Application::exec(const QString &pFileToImport) {
     onScreenCountChanged(1);
     connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this,
             &Application::onScreenCountChanged);
+
+    // 冒烟自检（tst_smoke 用 `--ui-smoke` 拉起）：依次切到文档 / 网页 / 画板模式再退出。
+    // 这些切换以前从来没有自动化覆盖；文档模式的代理模型索引错用就是这样漏到用户手里的
+    // （Debug 下 Qt 弹断言对话框、事件循环卡死）。断言一旦出现，进程不会按时退出，测试判红。
+    if (arguments().contains("--ui-smoke")) {
+        QTimer::singleShot(2000, applicationController, &ApplicationController::showDocument);
+        QTimer::singleShot(4000, applicationController, &ApplicationController::showInternet);
+        QTimer::singleShot(6000, applicationController, &ApplicationController::showBoard);
+        QTimer::singleShot(8000, qApp, &QCoreApplication::quit);
+    }
+
     return QApplication::exec();
 }
 
