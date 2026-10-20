@@ -12,16 +12,17 @@ WindowsMediaVideoEncoder::WindowsMediaVideoEncoder(QObject *pParent)
       mRecordAudio(true),
       mLastAudioLevel(0),
       mIsPaused(false) {
-    // NOOP
+    // 刻意留空
 }
 
 
 WindowsMediaVideoEncoder::~WindowsMediaVideoEncoder() {
-    // NOOP
+    // 刻意留空
 }
 
 
 bool WindowsMediaVideoEncoder::start() {
+    // profile 是带占位符的 WMV 配置模板，按本次录制的尺寸/码率/帧时长替换后再交给 WM 写入器。
     QString profile = FileSystemUtils::readTextFile(":/recording/TianBoard.prx");
 
     profile.replace("{in.videoWidth}", QString("%1").arg(videoSize().width()));
@@ -31,6 +32,7 @@ bool WindowsMediaVideoEncoder::start() {
 
     qDebug() << profile;
 
+    // 音频是可选能力：设备打不开或启动失败时只关掉录音，视频仍照常录。
     if (mRecordAudio) {
         mWaveRecorder = new WaveRecorder(this);
 
@@ -76,6 +78,7 @@ bool WindowsMediaVideoEncoder::start() {
 bool WindowsMediaVideoEncoder::stop() {
     bool audioOk = true;
 
+    // 先断音频连接并关闭 waveIn，确保最后几块 PCM 已进入 writer，再结束视频写入。
     if (mWaveRecorder) {
         disconnect(mWaveRecorder, &WaveRecorder::newWaveBuffer, mWMVideo,
                    &WindowsMediaFile::appendAudioBuffer);
@@ -110,6 +113,7 @@ bool WindowsMediaVideoEncoder::stop() {
 
 
 void WindowsMediaVideoEncoder::newPixmap(const QImage &pPix, long timestamp) {
+    // 暂停期间控制器仍可能触发重绘，这里直接丢弃，避免把暂停画面写进视频。
     if (mWMVideo && !mIsPaused) {
         if (!mWMVideo->appendVideoFrame(pPix, timestamp)) {
             qWarning() << "Error adding new video frame" << mWMVideo->lastErrorMessage();
@@ -144,6 +148,7 @@ void WindowsMediaVideoEncoder::processAudioBuffer(const QByteArray &audioData, l
     Q_UNUSED(timestamp);
 
     if (mWaveRecorder && mRecordAudio) {
+        // 按 16 bit 样本逐点处理：绝对值除以 128 归一到 0-255，取本块最大能量再开方作为 VU 表电平。
         const long samplesCount = audioData.size() / 2;
         const qint16 *samples = reinterpret_cast<const qint16 *>(audioData.constData());
         quint16 maxRMS = 0;

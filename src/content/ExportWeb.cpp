@@ -17,13 +17,11 @@ THIRD_PARTY_WARNINGS_ENABLE
 
 
 ExportWeb::ExportWeb(QObject *parent) : ExportAdaptor(parent) {
-    ExportWeb::tr("Page"); // dummy slot for translation
+    ExportWeb::tr("Page"); // 空槽：只为让翻译工具抽到这几个导出用的界面文案
 }
 
 
-ExportWeb::~ExportWeb() {
-    // NOOP
-}
+ExportWeb::~ExportWeb() {}
 
 
 void ExportWeb::persist(DocumentProxy *pDocumentProxy) {

@@ -26,8 +26,8 @@
 #include "recording/RecordingPalette.h"
 
 
-// 录屏只有一套实现：WindowsMedia 视频 + WaveIn 音频（见 docs/coding-style.md，
-// 本工程按平台分东西靠文件名与 platform/ 模块，不靠条件编译）。
+// 录屏只保留 Windows 一套实现：Windows Media 写视频、waveIn 采音频。
+// 平台差异靠文件名与 platform/ 模块区分，这里不使用条件编译。
 #include "recording/WindowsMediaVideoEncoder.h"
 #include "recording/WaveRecorder.h"
 
@@ -73,7 +73,7 @@ RecordingController::RecordingController(QObject *pParent)
 
 
 RecordingController::~RecordingController() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -149,6 +149,7 @@ void RecordingController::setSourceWidget(QWidget *pWidget) {
 
             QSizeF videoFrameSize(mVideoFrameSizeAtStart);
 
+            // 取较小的缩放比，保证整个源画面都能装进视频画布且不变形。
             qreal scaleHorizontal = videoFrameSize.width() / sourceWidgetSize.width();
             qreal scaleVertical = videoFrameSize.height() / sourceWidgetSize.height();
 
@@ -158,6 +159,7 @@ void RecordingController::setSourceWidget(QWidget *pWidget) {
 
             BoardView *bv = qobject_cast<BoardView *>(mSourceWidget);
 
+            // 白板源按场景渲染并跟随活动页/背景变化；网页与桌面源按控件重绘或定时抓屏。
             if (bv) {
                 connect(Application::boardController, &BoardController::activeSceneChanged, this,
                         &RecordingController::activeSceneChanged);
@@ -170,6 +172,7 @@ void RecordingController::setSourceWidget(QWidget *pWidget) {
             } else {
                 QSizeF scaledWidgetSize = sourceWidgetSize * scale;
 
+                // 非白板源四周留出的空白在视频里显示为背景色，这里把控件居中。
                 int offsetX = (videoFrameSize.width() - scaledWidgetSize.width()) / 2;
                 int offsetY = (videoFrameSize.height() - scaledWidgetSize.height()) / 2;
 
@@ -230,8 +233,7 @@ void RecordingController::start() {
         QSize scaledboardSize = Application::boardController->controlView()->size();
         scaledboardSize.scale(recommendedSize, Qt::KeepAspectRatio);
 
-        // Video width/height should be a multiple of 4
-
+        // 视频宽高必须是 4 的倍数，否则编码器可能拒绝该媒体类型；向下取整到 4 的倍数。
         int width = scaledboardSize.width();
         int height = scaledboardSize.height();
 
@@ -285,16 +287,10 @@ void RecordingController::start() {
 
             QString videoFileName;
 
-            //if (mIntranetPublicationAction && mIntranetPublicationAction->isChecked())
-            //{
+            // 文件名带时间戳与计算机名，便于同一目录下多次录制后区分来源。
             videoFileName = mRecordingPath + "/" + "Recording-" +
                             QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + "-" +
                             PlatformUtils::computerName() + "." + mVideoEncoder->videoFileExtension();
-            //}
-            //else
-            //{
-            //    videoFileName = mRecordingPath + "/" + tr("TianBoard Cast") + "." + mVideoEncoder->videoFileExtension();
-            //}
 
             videoFileName = FileSystemUtils::nextAvailableFileName(videoFileName, " ");
 
@@ -386,6 +382,8 @@ void RecordingController::stop() {
 
 
 bool RecordingController::eventFilter(QObject *obj, QEvent *event) {
+    // Paint 事件只累积区域；队列由空变非空时挂一个按帧率延时的抓取，
+    // 把这一帧内的多次重绘合并成一次 render，顺便避开 render() 自身触发的重入。
     if (mRecordingState == Recording && !mIsGrabbing && event->type() == QEvent::Paint) {
         QPaintEvent *paintEvent = static_cast<QPaintEvent *>(event);
 
@@ -406,6 +404,7 @@ void RecordingController::processWidgetPaintEvent() {
 
     QRect repaintRect;
 
+    // 首帧或换源后必须整幅重绘，因为 mLatestCapture 里没有可复用的旧内容。
     if (!mInitialized) {
         mWidgetRepaintRectQueue.clear();
         repaintRect = mSourceWidget->geometry();
@@ -427,6 +426,7 @@ void RecordingController::processWidgetPaintEvent() {
         p.setRenderHints(QPainter::Antialiasing);
         p.setRenderHints(QPainter::SmoothPixmapTransform);
 
+        // 只重绘脏区域，画面其余部分沿用上一帧，因此每次仍送出整幅图像。
         mSourceWidget->render(&p, repaintRect.topLeft(), QRegion(repaintRect), QWidget::DrawChildren);
 
         mIsGrabbing = false;
@@ -437,6 +437,7 @@ void RecordingController::processWidgetPaintEvent() {
 
 
 void RecordingController::activeSceneChanged() {
+    // 活动页切换后旧场景可能被销毁，先断掉旧连接，再把渲染区域入队并写章节标记。
     if (mSourceScene) {
         disconnect(mSourceScene, &QGraphicsScene::changed, this, &RecordingController::sceneChanged);
     }
@@ -479,7 +480,7 @@ long RecordingController::elapsedRecordingMs() {
 
 void RecordingController::startNextChapter() {
     if (mVideoEncoder) {
-        //punch chapter in
+        // 每次换源或换页都记一个“Part N”章节，时间戳取当前有效录制时长。
         ++mPartNumber;
         mVideoEncoder->newChapter(tr("Part %1").arg(mPartNumber), elapsedRecordingMs());
     }
@@ -541,6 +542,7 @@ void RecordingController::processScenePaintEvent() {
 
         QPainter p(&mLatestCapture);
 
+        // 先套视图到视频画布的缩放，再乘视图自身的视口变换，场景坐标才能落到正确像素上。
         p.setTransform(mViewToVideoTransform);
         p.setTransform(bv->viewportTransform(), true);
 
@@ -556,6 +558,7 @@ void RecordingController::processScenePaintEvent() {
         else
             p.fillRect(repaintRect, Qt::white);
 
+        // 录制上下文只画固定背景到工具层之间的条目，界面装饰不会进视频；画完立即恢复屏幕上下文。
         scene->setRenderingContext(GraphicsScene::Recording);
 
         scene->render(&p, repaintRect, repaintRect);
@@ -621,6 +624,7 @@ void RecordingController::encodingFinished(bool ok) {
                                      false);
         }
 
+        // 编码器已经发完 encodingFinished，回收它并把状态机送回 Stopped，界面据此恢复操作。
         mVideoEncoder->deleteLater();
 
         setRecordingState(Stopped);
@@ -636,6 +640,7 @@ void RecordingController::sendLatestPixmapToEncoder() {
 void RecordingController::timerEvent(QTimerEvent *event) {
     if (mRecordingState == Recording && event->timerId() == mScreenGrabingTimerEventID &&
         mSourceWidget == VirtualDesktop::instance()) {
+        // 桌面源没有可过滤的控件重绘，只能按帧率整屏抓取，再缩放贴进视频画布的对应位置。
         VirtualDesktop *dtop = VirtualDesktop::instance();
         QRect dtopRect = dtop->screenGeometry(Application::controlScreenIndex());
         QScreen *screen = Application::controlScreen();

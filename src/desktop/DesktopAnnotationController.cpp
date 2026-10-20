@@ -69,8 +69,7 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     mTransparentDrawingScene->setDrawingMode(true);
 
     mDesktopPalette = new DesktopPalette(mTransparentDrawingView, rightPalette);
-    // This was not fix, parent reverted
-    // FIX #633: The palette must be 'floating' in order to stay on top of the library palette
+    // 工具栏必须保持浮动层级，才能盖在右侧库面板之上；改挂回普通子控件会被库面板压住。
 
     if (PlatformUtils::hasVirtualKeyboard()) {
         connect(Application::boardController->paletteManager()->mKeyboardPalette,
@@ -99,7 +98,7 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged, this,
             &DesktopAnnotationController::stylusToolChanged);
 
-    // Add the desktop associated palettes
+    // 三个属性面板同样挂在透明视图下，跟随工具栏一起浮动。
     mDesktopPenPalette = new DesktopPenPalette(mTransparentDrawingView, rightPalette);
 
     connect(mDesktopPalette, &FloatingPalette::maximized, mDesktopPenPalette,
@@ -116,9 +115,8 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     mDesktopEraserPalette->setBackgroundBrush(Settings::settings()->opaquePaletteColor);
 
 
-    // Hack : the size of the property palettes is computed the first time the palette is visible
-    //        In order to prevent palette overlap on if the desktop palette is on the right of the
-    //        screen, a setVisible(true) followed by a setVisible(false) is done.
+    // 属性面板的尺寸要到第一次显示时才计算；先 show 再 hide 强制完成布局，
+    // 否则工具栏贴右时面板尺寸还是 0，定位会与工具栏重叠。
     mDesktopPenPalette->setVisible(true);
     mDesktopMarkerPalette->setVisible(true);
     mDesktopEraserPalette->setVisible(true);
@@ -137,11 +135,6 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     connect(&mHoldTimerEraser, &QTimer::timeout, this, &DesktopAnnotationController::eraserActionReleased);
 
     onDesktopPaletteMaximized();
-
-    // FIX #633: Ensure that these palettes stay on top of the other elements
-    //mDesktopEraserPalette->raise();
-    //mDesktopMarkerPalette->raise();
-    //mDesktopPenPalette->raise();
 }
 
 DesktopAnnotationController::~DesktopAnnotationController() {
@@ -161,10 +154,6 @@ DesktopPalette *DesktopAnnotationController::desktopPalette() {
     return mDesktopPalette;
 }
 
-/**
- * \brief Toggle the visibility of the pen associated palette
- * @param checked as the visibility state
- */
 void DesktopAnnotationController::desktopPenActionToggled(bool checked) {
     setAssociatedPalettePosition(mDesktopPenPalette, "actionPen");
     mDesktopPenPalette->setVisible(checked);
@@ -172,10 +161,6 @@ void DesktopAnnotationController::desktopPenActionToggled(bool checked) {
     mDesktopEraserPalette->setVisible(false);
 }
 
-/**
- * \brief Toggle the visibility of the marker associated palette
- * @param checked as the visibility state
- */
 void DesktopAnnotationController::desktopMarkerActionToggled(bool checked) {
     setAssociatedPalettePosition(mDesktopMarkerPalette, "actionMarker");
     mDesktopMarkerPalette->setVisible(checked);
@@ -183,10 +168,6 @@ void DesktopAnnotationController::desktopMarkerActionToggled(bool checked) {
     mDesktopEraserPalette->setVisible(false);
 }
 
-/**
- * \brief Toggle the visibility of the eraser associated palette
- * @param checked as the visibility state
- */
 void DesktopAnnotationController::desktopEraserActionToggled(bool checked) {
     setAssociatedPalettePosition(mDesktopEraserPalette, "actionEraser");
     mDesktopEraserPalette->setVisible(checked);
@@ -194,11 +175,6 @@ void DesktopAnnotationController::desktopEraserActionToggled(bool checked) {
     mDesktopMarkerPalette->setVisible(false);
 }
 
-/**
- * \brief Set the location of the properties palette
- * @param palette as the palette
- * @param actionName as the name of the related action
- */
 void DesktopAnnotationController::setAssociatedPalettePosition(ActionPalette *palette,
                                                                const QString &actionName) {
     QPoint desktopPalettePos = mDesktopPalette->geometry().topLeft();
@@ -209,20 +185,20 @@ void DesktopAnnotationController::setAssociatedPalettePosition(ActionPalette *pa
         if (act->objectName() == actionName) {
             int iAction = actions.indexOf(act);
             yPen = iAction * (mDesktopPalette->buttonSize().height() + 2 * mDesktopPalette->border() +
-                              6); // This is the mysterious value (6)
+                              6); // 6 是按钮间的固定垂直间距（历史经验值，与工具栏布局对应）
             break;
         }
     }
 
-    // First determine if the palette must be shown on the left or on the right
-    if (desktopPalettePos.x() <= (mTransparentDrawingView->width() -
-                                  (palette->width() + mDesktopPalette->width() + mRightPalette->width() +
-                                   20))) // we take a small margin of 20 pixels
-    {
-        // Display it on the right
+    // 先判断面板放得下右边还是只能放左边：右侧要同时避开工具栏与主界面右侧栏，
+    // 20 像素是留给面板与窗口边缘的余量。
+    if (desktopPalettePos.x() <=
+        (mTransparentDrawingView->width() -
+         (palette->width() + mDesktopPalette->width() + mRightPalette->width() + 20))) {
+        // 右侧放得下，紧贴工具栏右边缘。
         desktopPalettePos += QPoint(mDesktopPalette->width(), yPen);
     } else {
-        // Display it on the left
+        // 右侧空间不足，翻到工具栏左侧。
         desktopPalettePos += QPoint(0 - palette->width(), yPen);
     }
 
@@ -266,6 +242,7 @@ void DesktopAnnotationController::showWindow() {
 
     updateBackground();
 
+    // 进入桌面模式前保存画板工具，再切回桌面上次使用的工具，两套上下文互不覆盖。
     mBoardStylusTool = DrawingController::drawingController()->stylusTool();
 
     DrawingController::drawingController()->setStylusTool(mDesktopStylusTool);
@@ -295,6 +272,8 @@ void DesktopAnnotationController::stylusToolChanged(int tool) {
 void DesktopAnnotationController::updateBackground() {
     QBrush newBrush;
 
+    // 选择器与截图需要完全透明；其余工具用 alpha=1 的近透明灰，
+    // 既让批注有底色可依，又基本不遮挡桌面。
     if (mIsFullyTransparent || DrawingController::drawingController()->stylusTool() == StylusTool::Selector) {
         newBrush = QBrush(Qt::transparent);
     } else {
@@ -312,6 +291,7 @@ void DesktopAnnotationController::hideWindow() {
 
     mDesktopPalette->hide();
 
+    // 记住桌面工具并恢复进入前的画板工具，避免桌面上的选择器/指针状态带回白板。
     mDesktopStylusTool = DrawingController::drawingController()->stylusTool();
     DrawingController::drawingController()->setStylusTool(mBoardStylusTool);
 }
@@ -323,12 +303,14 @@ void DesktopAnnotationController::goToBoard() {
 
 void DesktopAnnotationController::customCapture() {
     onToolClicked();
+    // 抓图前把批注层彻底透明化，抓完再按当前工具恢复背景。
     mIsFullyTransparent = true;
     updateBackground();
 
+    // 截图期间工具栏与淡灰背景都必须先撤掉，否则会一起被抓进画面。
     mDesktopPalette->disappearForCapture();
     CustomCaptureWindow customCaptureWindow(mDesktopPalette);
-    // need to show the window before execute it to avoid some glitch on windows.
+    // 窗口要先显示再进入模态循环，否则 Windows 上首次绘制会闪一下或留下残影。
 
     if (customCaptureWindow.execute(getScreenPixmap()) == QDialog::Accepted) {
         QPixmap selectedPixmap = customCaptureWindow.getSelectedPixmap();
@@ -354,8 +336,7 @@ void DesktopAnnotationController::windowCapture() {
     if (util.execute() == QDialog::Accepted) {
         QPixmap windowPixmap = util.getCapturedWindow();
 
-        // on Mac OS X we can only know that user cancel the operatiion by checking is the image is null
-        // because the screencapture utility always return code 0 event if user cancel the application
+        // 取消选择或抓取失败都会得到空图，空图不发出，避免把空白插进文档。
         if (!windowPixmap.isNull()) {
             emit imageCaptured(windowPixmap, false);
         }
@@ -392,6 +373,7 @@ QPixmap DesktopAnnotationController::getScreenPixmap() {
     VirtualDesktop *desktop = VirtualDesktop::instance();
     QScreen *screen = Application::controlScreen();
 
+    // 以光标所在屏幕为准，多显示器下截的是用户正在操作的那一块。
     QRect rect = desktop->screenGeometry(QCursor::pos());
 
     return VirtualDesktop::grabScreen(screen, rect);
@@ -404,6 +386,7 @@ void DesktopAnnotationController::updateShowHideState(bool pEnabled) {
 
 
 void DesktopAnnotationController::screenLayoutChanged() {
+    // 只有检测到可用副屏时才显示“副屏显示白板”按钮，否则该按钮没有意义。
     if (Application::applicationController && Application::applicationController->displayManager() &&
         Application::applicationController->displayManager()->hasDisplay()) {
         mDesktopPalette->setShowHideButtonVisible(true);
@@ -412,9 +395,6 @@ void DesktopAnnotationController::screenLayoutChanged() {
     }
 }
 
-/**
- * \brief Handles the pen action pressed event
- */
 void DesktopAnnotationController::penActionPressed() {
     mbArrowClicked = false;
     mDesktopMarkerPalette->hide();
@@ -423,13 +403,13 @@ void DesktopAnnotationController::penActionPressed() {
     mPenHoldTimer = QTime::currentTime();
     mPendingPenButtonPressed = true;
 
-    // Check if the mouse cursor is on the little arrow
+    // 按钮右下角的小箭头是“展开属性面板”的热区，用按下时的光标位置判断，避免拖动后误判。
     QPoint cursorPos = QCursor::pos();
     QPoint palettePos = mDesktopPalette->pos();
     QPoint buttonPos = mDesktopPalette->buttonPos(Application::mainWindow->ui().actionPen);
 
-    int iX = cursorPos.x() - (palettePos.x() + buttonPos.x()); // x position of the cursor in the palette
-    int iY = cursorPos.y() - (palettePos.y() + buttonPos.y()); // y position of the cursor in the palette
+    int iX = cursorPos.x() - (palettePos.x() + buttonPos.x()); // 光标相对按钮左上角的横向偏移
+    int iY = cursorPos.y() - (palettePos.y() + buttonPos.y()); // 光标相对按钮左上角的纵向偏移
 
     if (iX >= 30 && iX <= 40 && iY >= 30 && iY <= 40) {
         mbArrowClicked = true;
@@ -439,12 +419,10 @@ void DesktopAnnotationController::penActionPressed() {
     }
 }
 
-/**
- * \brief Handles the pen action released event
- */
 void DesktopAnnotationController::penActionReleased() {
     mHoldTimerPen.stop();
     if (mPendingPenButtonPressed) {
+        // 长按（含定时器已接近超时）或点小箭头都展开面板，短按则执行工具动作。
         if (mbArrowClicked || mPenHoldTimer.msecsTo(QTime::currentTime()) > PROPERTY_PALETTE_TIMER - 100) {
             togglePropertyPalette(mDesktopPenPalette);
         } else {
@@ -457,9 +435,6 @@ void DesktopAnnotationController::penActionReleased() {
     switchCursor(StylusTool::Pen);
 }
 
-/**
- * \brief Handles the eraser action pressed event
- */
 void DesktopAnnotationController::eraserActionPressed() {
     mbArrowClicked = false;
     mDesktopPenPalette->hide();
@@ -468,13 +443,13 @@ void DesktopAnnotationController::eraserActionPressed() {
     mEraserHoldTimer = QTime::currentTime();
     mPendingEraserButtonPressed = true;
 
-    // Check if the mouse cursor is on the little arrow
+    // 与笔按钮相同的判定：只有点在按钮右下角的小箭头上才直接展开面板。
     QPoint cursorPos = QCursor::pos();
     QPoint palettePos = mDesktopPalette->pos();
     QPoint buttonPos = mDesktopPalette->buttonPos(Application::mainWindow->ui().actionEraser);
 
-    int iX = cursorPos.x() - (palettePos.x() + buttonPos.x()); // x position of the cursor in the palette
-    int iY = cursorPos.y() - (palettePos.y() + buttonPos.y()); // y position of the cursor in the palette
+    int iX = cursorPos.x() - (palettePos.x() + buttonPos.x()); // 光标相对按钮左上角的横向偏移
+    int iY = cursorPos.y() - (palettePos.y() + buttonPos.y()); // 光标相对按钮左上角的纵向偏移
 
     if (iX >= 30 && iX <= 40 && iY >= 30 && iY <= 40) {
         mbArrowClicked = true;
@@ -484,12 +459,10 @@ void DesktopAnnotationController::eraserActionPressed() {
     }
 }
 
-/**
- * \brief Handles the eraser action released event
- */
 void DesktopAnnotationController::eraserActionReleased() {
     mHoldTimerEraser.stop();
     if (mPendingEraserButtonPressed) {
+        // 长按或点小箭头展开橡皮属性面板，短按只切工具。
         if (mbArrowClicked || mEraserHoldTimer.msecsTo(QTime::currentTime()) > PROPERTY_PALETTE_TIMER - 100) {
             togglePropertyPalette(mDesktopEraserPalette);
         } else {
@@ -503,9 +476,6 @@ void DesktopAnnotationController::eraserActionReleased() {
 }
 
 
-/**
- * \brief Handles the marker action pressed event
- */
 void DesktopAnnotationController::markerActionPressed() {
     mbArrowClicked = false;
     mDesktopPenPalette->hide();
@@ -514,13 +484,13 @@ void DesktopAnnotationController::markerActionPressed() {
     mMarkerHoldTimer = QTime::currentTime();
     mPendingMarkerButtonPressed = true;
 
-    // Check if the mouse cursor is on the little arrow
+    // 与笔按钮相同的判定：只有点在按钮右下角的小箭头上才直接展开面板。
     QPoint cursorPos = QCursor::pos();
     QPoint palettePos = mDesktopPalette->pos();
     QPoint buttonPos = mDesktopPalette->buttonPos(Application::mainWindow->ui().actionMarker);
 
-    int iX = cursorPos.x() - (palettePos.x() + buttonPos.x()); // x position of the cursor in the palette
-    int iY = cursorPos.y() - (palettePos.y() + buttonPos.y()); // y position of the cursor in the palette
+    int iX = cursorPos.x() - (palettePos.x() + buttonPos.x()); // 光标相对按钮左上角的横向偏移
+    int iY = cursorPos.y() - (palettePos.y() + buttonPos.y()); // 光标相对按钮左上角的纵向偏移
 
     if (iX >= 30 && iX <= 40 && iY >= 30 && iY <= 40) {
         mbArrowClicked = true;
@@ -531,12 +501,10 @@ void DesktopAnnotationController::markerActionPressed() {
 }
 
 
-/**
- * \brief Handles the marker action released event
- */
 void DesktopAnnotationController::markerActionReleased() {
     mHoldTimerMarker.stop();
     if (mPendingMarkerButtonPressed) {
+        // 长按或点小箭头展开标记属性面板，短按只切工具。
         if (mbArrowClicked || mMarkerHoldTimer.msecsTo(QTime::currentTime()) > PROPERTY_PALETTE_TIMER - 100) {
             togglePropertyPalette(mDesktopMarkerPalette);
         } else {
@@ -565,10 +533,6 @@ void DesktopAnnotationController::pointerActionReleased() {
 }
 
 
-/**
- * \brief Toggle the given palette visibility
- * @param palette as the given palette
- */
 void DesktopAnnotationController::togglePropertyPalette(ActionPalette *palette) {
     if (NULL != palette) {
         bool bShow = !palette->isVisible();
@@ -588,11 +552,10 @@ void DesktopAnnotationController::switchCursor(const int tool) {
     mTransparentDrawingView->setToolCursor(tool);
 }
 
-/**
- * \brief Reconnect the pressed & released signals of the property palettes
- */
 void DesktopAnnotationController::onDesktopPaletteMaximized() {
-    // Pen
+    // 工具栏每次展开都会重建按钮，这里重新连接按下/释放信号；
+    // 收起时由 onDesktopPaletteMinimize() 成对断开，否则连接会越积越多。
+    // 笔
     ActionPaletteButton *pPenButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPen);
     if (NULL != pPenButton) {
@@ -601,7 +564,7 @@ void DesktopAnnotationController::onDesktopPaletteMaximized() {
                 &DesktopAnnotationController::penActionReleased);
     }
 
-    // Eraser
+    // 橡皮
     ActionPaletteButton *pEraserButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionEraser);
     if (NULL != pEraserButton) {
@@ -611,7 +574,7 @@ void DesktopAnnotationController::onDesktopPaletteMaximized() {
                 &DesktopAnnotationController::eraserActionReleased);
     }
 
-    // Marker
+    // 标记
     ActionPaletteButton *pMarkerButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionMarker);
     if (NULL != pMarkerButton) {
@@ -621,7 +584,7 @@ void DesktopAnnotationController::onDesktopPaletteMaximized() {
                 &DesktopAnnotationController::markerActionReleased);
     }
 
-    // Pointer
+    // 选择器
     ActionPaletteButton *pSelectorButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionSelector);
     if (NULL != pSelectorButton) {
@@ -631,7 +594,7 @@ void DesktopAnnotationController::onDesktopPaletteMaximized() {
                 &DesktopAnnotationController::selectorActionReleased);
     }
 
-    // Pointer
+    // 指针
     ActionPaletteButton *pPointerButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPointer);
     if (NULL != pPointerButton) {
@@ -642,12 +605,9 @@ void DesktopAnnotationController::onDesktopPaletteMaximized() {
     }
 }
 
-/**
- * \brief Disconnect the pressed & release signals of the property palettes
- * This is done to prevent memory leaks
- */
 void DesktopAnnotationController::onDesktopPaletteMinimize() {
-    // Pen
+    // 断开连接既防重复触发，也避免按钮销毁后仍保留指向本控制器的连接。
+    // 笔
     ActionPaletteButton *pPenButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPen);
     if (NULL != pPenButton) {
@@ -657,7 +617,7 @@ void DesktopAnnotationController::onDesktopPaletteMinimize() {
                    &DesktopAnnotationController::penActionReleased);
     }
 
-    // Marker
+    // 标记
     ActionPaletteButton *pMarkerButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionMarker);
     if (NULL != pMarkerButton) {
@@ -667,7 +627,7 @@ void DesktopAnnotationController::onDesktopPaletteMinimize() {
                    &DesktopAnnotationController::markerActionReleased);
     }
 
-    // Eraser
+    // 橡皮
     ActionPaletteButton *pEraserButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionEraser);
     if (NULL != pEraserButton) {
@@ -677,8 +637,8 @@ void DesktopAnnotationController::onDesktopPaletteMinimize() {
                    &DesktopAnnotationController::eraserActionReleased);
     }
 
-    // Selector —— onDesktopPaletteMaximized() 连了五组按钮，这里过去只断三组，
-    // 于是每"最小化→再打开"一轮，选择/指针就多得一条连接，点一次触发多次。
+    // 选择器：展开时连了五组按钮，这里必须同样断五组。过去只断三组，
+    // 每经历一轮“最小化→再展开”，选择器/指针就多一条连接，点一次触发多次。
     ActionPaletteButton *pSelectorButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionSelector);
     if (NULL != pSelectorButton) {
@@ -688,7 +648,7 @@ void DesktopAnnotationController::onDesktopPaletteMinimize() {
                    &DesktopAnnotationController::selectorActionReleased);
     }
 
-    // Pointer
+    // 指针
     ActionPaletteButton *pPointerButton =
         mDesktopPalette->getButtonFromAction(Application::mainWindow->ui().actionPointer);
     if (NULL != pPointerButton) {
@@ -703,15 +663,13 @@ void DesktopAnnotationController::TransparentWidgetResized() {
     onTransparentWidgetResized();
 }
 
-/**
- * \brief Resize the library palette.
- */
 void DesktopAnnotationController::onTransparentWidgetResized() {
     int rW = Application::boardController->paletteManager()->rightPalette()->width();
     int lW = Application::boardController->paletteManager()->leftPalette()->width();
 
     int rH = mTransparentDrawingView->height();
 
+    // 先加 1 像素再恢复原宽，强制侧栏按新高度重新布局；单纯同尺寸 resize 会被 Qt 忽略。
     Application::boardController->paletteManager()->rightPalette()->resize(rW + 1, rH);
     Application::boardController->paletteManager()->rightPalette()->resize(rW, rH);
 

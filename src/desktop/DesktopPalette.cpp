@@ -76,7 +76,7 @@ DesktopPalette::DesktopPalette(QWidget *parent, RightPalette *_rightPalette)
 
     adjustSizeAndPosition();
 
-    //  This palette can be minimized
+    //  此调色板支持最小化
     QIcon maximizeIcon;
     maximizeIcon.addPixmap(QPixmap(":/images/toolbar/stylusTab.png"), QIcon::Normal, QIcon::On);
     d->mMaximizeAction = new QAction(maximizeIcon, tr("Show the stylus palette"), this);
@@ -140,7 +140,7 @@ void DesktopPalette::setDisplaySelectButtonVisible(bool visible) {
     d->mDisplaySelectAction->setVisible(visible);
 }
 
-//  Called when the palette is near the border and must be minimized
+//  调色板靠近边框时触发最小化
 void DesktopPalette::minimizeMe(eMinimizedLocation location) {
     Q_UNUSED(location);
     QList<QAction *> actions;
@@ -152,7 +152,7 @@ void DesktopPalette::minimizeMe(eMinimizedLocation location) {
     adjustSizeAndPosition();
 }
 
-//  Called when the user wants to maximize the palette
+//  用户点击展开时触发最大化
 void DesktopPalette::maximizeMe() {
     QList<QAction *> actions;
     clearLayout();
@@ -174,7 +174,7 @@ void DesktopPalette::maximizeMe() {
 
     adjustSizeAndPosition();
 
-    // Notify that the maximization has been done
+    // 通知最大化已完成
     emit maximized();
 }
 

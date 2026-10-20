@@ -166,7 +166,7 @@ public:
         mCurrentDir = dir.toLocalFile();
         cleanTrash();
 
-        // Gathering information from svg files
+        // 先收集各 SVG 页面里引用到的资源标识。
         QFileInfoList svgInfos =
             QDir(mCurrentDir).entryInfoList(QStringList() << "*.svg", QDir::NoDotAndDotDot | QDir::Files);
         foreach (QFileInfo svgInfo, svgInfos) {
@@ -181,16 +181,15 @@ public:
             QString delPath = mPresentIdsMap.value(key);
             if (delPath.isNull()) {
                 continue;
-            } else if (delPath.endsWith(wgtSuff)) { //remove corresponding thumb
+            } else if (delPath.endsWith(wgtSuff)) { // 控件文件对应的缩略图也要删除
                 QString thumbPath = thumbFileNameFrom(delPath);
 
-                //N/C - NNE - 20140417
                 if (QFile::exists(thumbPath)) {
                     rm_r(thumbPath);
                 }
             }
             rm_r(delPath);
-            // Clear parent dir if empty
+            // 删除后若父目录已空，则一并移除。
             QDir dir(delPath);
             dir.cdUp();
             if (dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
@@ -249,7 +248,7 @@ private:
     }
 
     void findRedundandElements(QVector<QString> &v) {
-        // Taking information from the physical file system
+        // 再扫描磁盘上实际存在的资源标识，与 SVG 中记录的集合做对称差。
         QStringList domIds = mDomIdsMap.keys();
         QStringList presentIds = mPresentIdsMap.keys();
         v.resize(qMax(domIds.count(), presentIds.count()));
@@ -266,11 +265,9 @@ private:
         } else if (what == tForeignObject) {
             foreingObjectToContainer(element);
 
-            //N/C - NNE - 20140317
             cleanObjectFolder(element);
 
-            //N/C - NNE - 20140520
-            //foreign object may referer resource which are not present in the svg
+            // 外部对象可能引用了 SVG 里没有记录的资源，需要补登记。
             addResourceIdToSvg(element);
         } else if (what == tTeacherGuide) {
             teacherGuideToContainer(element);
@@ -279,11 +276,8 @@ private:
         pullActionFromElement(element);
     }
 
-    // When exporting, reduce the size of the document package
+    // 导出前清理对象目录，减小文档包体积。
     void cleanObjectFolder(const QDomElement &element) {
-        //QDomElement preference = element.firstChildElement("tb:preference");
-
-        //N/C - NNE - 20141021
         QDomNodeList childrenNode = element.elementsByTagName("tb:preference");
 
         QVector<QString> objectsIdUsed;
@@ -297,7 +291,7 @@ private:
                 int findPos = value.indexOf("objects/");
                 int endPos;
 
-                //find all objects used
+                // 收集该偏好值里引用到的所有对象路径。
                 while (findPos != -1) {
                     endPos = value.indexOf("\"", findPos);
                     objectsIdUsed << value.mid(findPos, endPos - findPos);
@@ -305,8 +299,6 @@ private:
                 }
             }
         }
-        //N/C - NNE - 20141021 : END
-
 
         QString path = element.attribute(aSrc);
         QString objectsFolderPath = mCurrentDir + "/" + path + "/objects/";
@@ -314,8 +306,8 @@ private:
         QDir dir(objectsFolderPath);
         dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
 
-        //then check all files in the objects directory
-        //delete the file not used (not in te objectIdUsed variable)
+        // 再把 objects/ 目录里剩下、却没被本文档引用的文件删掉，
+        // 否则每次保存都会把用不上的对象越堆越多。
         QFileInfoList list = dir.entryInfoList();
         for (int i = 0; i < list.size(); i++) {
             QFileInfo fileInfo = list.at(i);
@@ -325,9 +317,7 @@ private:
             }
         }
     }
-    // N/C - NNE - 20140317 : END
 
-    //N/C - NNE - 20140520
     void addResourceIdToSvg(const QDomElement &element) {
         QDomElement textContent = element.firstChildElement("itemTextContent");
 
@@ -336,7 +326,7 @@ private:
         int findPos = value.indexOf("images/");
         int endPos;
 
-        //find all objects used
+        // 记下 SVG 里引用到的每个 images/ 资源，按 UUID 建索引
         while (findPos != -1) {
             endPos = value.indexOf("\"", findPos);
 
@@ -349,7 +339,6 @@ private:
             findPos = value.indexOf("images/", endPos);
         }
     }
-    //N/C - NNE - 20140520 : END
 
     void pullActionFromElement(const QDomElement &element) {
         if (!element.hasAttribute(aActionMedia)) {
@@ -403,7 +392,7 @@ private:
 
     void foreingObjectToContainer(const QDomElement &element) {
         QString type = element.attribute(aType);
-        if (type == vText) { // We don't have to care of the text object
+        if (type == vText) { // 文本对象这里不用管，它走自己的序列化通道
             return;
         }
 
@@ -473,7 +462,7 @@ private:
                 element.setAttribute(aActionMedia, newActionPath);
             }
         } else if (tagName == tForeignObject) {
-            //Pdf object is a special case. Detect if it ends with #reference
+            // PDF 对象是特例：以 #reference 结尾表示引用外部文档，而不是内嵌内容
             QString reqExt = element.attribute(aReqExt);
             if (reqExt == vReqExt) { //pdf reference
                 QString ref = element.attribute(aHref);
@@ -489,7 +478,7 @@ private:
             }
 
             QString type = element.attribute(aType);
-            if (type == vText) { // We don't have to care of the text object
+            if (type == vText) { // 文本对象这里不用管，它走自己的序列化通道
                 if (element.hasAttribute(aActionMedia)) {
                     QString newRelative = cureNCopy(element.attribute(aActionMedia));
                     element.setAttribute(aActionMedia, newRelative);

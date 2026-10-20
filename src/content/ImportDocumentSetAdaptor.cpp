@@ -17,13 +17,9 @@ THIRD_PARTY_WARNINGS_DISABLE
 THIRD_PARTY_WARNINGS_ENABLE
 
 
-ImportDocumentSetAdaptor::ImportDocumentSetAdaptor(QObject *parent) : ImportAdaptor(parent) {
-    // NOOP
-}
+ImportDocumentSetAdaptor::ImportDocumentSetAdaptor(QObject *parent) : ImportAdaptor(parent) {}
 
-ImportDocumentSetAdaptor::~ImportDocumentSetAdaptor() {
-    // NOOP
-}
+ImportDocumentSetAdaptor::~ImportDocumentSetAdaptor() {}
 
 
 QStringList ImportDocumentSetAdaptor::supportedExtentions() {
@@ -108,10 +104,6 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
         }
 
         QString actFileName = file.getActualFileName();
-        //        int ind = actFileName.indexOf("/");
-        //        if ( ind!= -1) {
-        //            actFileName.remove(0, ind + 1);
-        //        }
         QString newFileName = documentRoot + "/" + actFileName;
         QFileInfo newFileInfo(newFileName);
         if (!rootDir.mkpath(newFileInfo.absolutePath()))

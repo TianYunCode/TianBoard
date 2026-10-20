@@ -14,7 +14,7 @@ WindowsMediaFile::WindowsMediaFile(QObject *pParent)
       mWMInputAudioProps(0),
       mWMProfileManager(0),
       mFramesPerSecond(-1) {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -23,6 +23,7 @@ bool WindowsMediaFile::init(const QString &videoFileName, const QString &profile
     mFramesPerSecond = pFramesPerSecond;
     mVideoFileName = videoFileName;
 
+    // 每个写入器自己初始化 COM，close() 里配对反初始化；调用方不需要额外准备 COM。
     CoInitialize(0);
 
     if (FAILED(WMCreateProfileManager(&mWMProfileManager))) {
@@ -31,6 +32,7 @@ bool WindowsMediaFile::init(const QString &videoFileName, const QString &profile
         return false;
     }
 
+    // 自定义 .prx 是 WM 9 格式，必须先让 profile manager 按 9.0 版本解析。
     IWMProfileManager2 *wmProfileManager = 0;
 
     if (FAILED(mWMProfileManager->QueryInterface(IID_IWMProfileManager2, (void **)&wmProfileManager))) {
@@ -82,6 +84,7 @@ bool WindowsMediaFile::init(const QString &videoFileName, const QString &profile
         return false;
     }
 
+    // profile 里可能同时声明音视频输入；记下各自索引，写入样本时按索引区分轨道。
     for (DWORD i = 0; i < mediaInputCount; i++) {
         IWMInputMediaProps *wmInoutMediaProps = 0;
 
@@ -158,6 +161,7 @@ bool WindowsMediaFile::close() {
         mPushSink->Release();
     }
 
+    // EndWriting 之后文件才定型，此时用元数据编辑器重新打开，把缓存的章节标记补进去。
     if (mChapters.length() > 0) {
         IWMMetadataEditor *editor = 0;
         IWMHeaderInfo *headerInfo = 0;
@@ -185,7 +189,7 @@ bool WindowsMediaFile::close() {
 
 
 WindowsMediaFile::~WindowsMediaFile() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -236,6 +240,7 @@ bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nB
     bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmpInfo.bmiHeader.biBitCount = nBitsPerPixel;
     bmpInfo.bmiHeader.biWidth = nFrameWidth;
+    // 高度取负表示 top-down DIB：首行就是画面顶部，与 QImage 的内存行序一致，无需再翻转。
     bmpInfo.bmiHeader.biHeight = -nFrameHeight;
     bmpInfo.bmiHeader.biPlanes = 1;
     bmpInfo.bmiHeader.biSizeImage = nFrameWidth * nFrameHeight * nBitsPerPixel / 8;
@@ -253,6 +258,7 @@ bool WindowsMediaFile::initVideoStream(int nFrameWidth, int nFrameHeight, int nB
     videoInfo.dwBitRate = (nFrameWidth * nFrameHeight * bmpInfo.bmiHeader.biBitCount * mFramesPerSecond);
 
     videoInfo.dwBitErrorRate = 0;
+    // WM 的时间单位是 100 ns，每帧时长 = 10^7 / 帧率。
     videoInfo.AvgTimePerFrame = 10000000 / mFramesPerSecond;
     memcpy(&(videoInfo.bmiHeader), &bmpInfo.bmiHeader, sizeof(BITMAPINFOHEADER));
 
@@ -314,6 +320,7 @@ bool WindowsMediaFile::appendVideoFrame(const QImage &pImage, long mstimestamp) 
         return false;
     }
 
+    // 输入媒体类型按 RGB32 配置，QImage 也由控制器统一分配成 RGB32，可直接整块拷贝。
     const uchar *imageBuffer = pImage.bits();
     memcpy((void *)rawBuffer, imageBuffer, static_cast<quint32>(pImage.sizeInBytes()));
 
@@ -350,6 +357,7 @@ void WindowsMediaFile::appendAudioBuffer(const QByteArray &audioData, long mstim
         return;
     }
 
+    // 样本缓冲区由 writer 按 profile 分配，长度可能小于这段 PCM，只能拷贝两者中较小的一段。
     const DWORD copyLength = qMin<DWORD>(rawBufferLength, static_cast<DWORD>(audioData.size()));
     memcpy((void *)rawBuffer, audioData.constData(), copyLength);
 
@@ -371,6 +379,7 @@ void WindowsMediaFile::appendAudioBuffer(const QByteArray &audioData, long mstim
 
 
 void WindowsMediaFile::startNewChapter(const QString &pLabel, long timestamp) {
+    // 录制中途只记录，等 close() 结束写入后再统一落到文件头。
     MarkerInfo mi;
     mi.label = pLabel;
     mi.timestamp = timestamp;

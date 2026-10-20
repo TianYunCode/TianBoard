@@ -7,11 +7,11 @@
 
 
 MimeDataItem::MimeDataItem(DocumentProxy *proxy, int sceneIndex) : mProxy(proxy), mSceneIndex(sceneIndex) {
-    // NOOP
+    // 刻意留空
 }
 
 MimeDataItem::~MimeDataItem() {
-    // NOOP
+    // 刻意留空
 }
 
 MimeData::MimeData(const QList<MimeDataItem> &items) : QMimeData(), mItems(items) {
@@ -19,7 +19,7 @@ MimeData::MimeData(const QList<MimeDataItem> &items) : QMimeData(), mItems(items
 }
 
 MimeData::~MimeData() {
-    // NOOP
+    // 刻意留空
 }
 
 MimeDataGraphicsItem::MimeDataGraphicsItem(QList<Item *> pItems) {

@@ -11,12 +11,12 @@ WaveRecorder::WaveRecorder(QObject *pParent)
       mNbChannels(2),
       mSampleRate(44100),
       mBitsPerSample(16) {
-    // NOOP
+    // 刻意留空
 }
 
 
 WaveRecorder::~WaveRecorder() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -26,6 +26,7 @@ bool WaveRecorder::init(const QString &waveInDeviceName) {
     // 时间戳按“本次录制”清零。start() 会被暂停/恢复复用，不能在那里清零。
     mMsTimeStamp = 0;
 
+    // 按设备名查找输入通道；名字对不上或为空时保持 WAVE_MAPPER，交给系统选默认设备。
     if (waveInDeviceName.length() > 0) {
         int count = waveInGetNumDevs();
 
@@ -60,8 +61,7 @@ bool WaveRecorder::init(const QString &waveInDeviceName) {
     }
 
     int nbBuffers = 6;
-    int sampleBufferSize =
-        44100 * 2 * 2 * mBufferLengthInMs / 1000; // 44.1 Khz * stereo * 16bit * buffer length
+    int sampleBufferSize = 44100 * 2 * 2 * mBufferLengthInMs / 1000; // 44.1 kHz × 双声道 × 16 bit × 缓冲时长
 
     for (int i = 0; i < nbBuffers; i++) {
         WAVEHDR *buffer = new WAVEHDR();
@@ -91,6 +91,7 @@ bool WaveRecorder::init(const QString &waveInDeviceName) {
 
 
 bool WaveRecorder::start() {
+    // 暂停恢复也会走到这里：已有录制起点时不要重置，否则时间戳基准会漂移。
     if (!mIsRecording) {
         mRecordingStartTime = QTime::currentTime();
         mIsRecording = true;
@@ -118,6 +119,7 @@ bool WaveRecorder::stop() {
 
 
 bool WaveRecorder::close() {
+    // 先 reset 把队列里的缓冲区都标记为完成，紧接着 unprepare/释放才不会失败。
     if (waveInReset(mWaveInDevice) != MMSYSERR_NOERROR) {
         setLastErrorMessage("Cannot reset wave in device ");
         return false;
@@ -145,12 +147,12 @@ void CALLBACK WaveRecorder::waveInProc(HWAVEIN waveInDevice, UINT message, DWORD
     Q_UNUSED(param2);
 
     if (message == WIM_DATA) {
-        //qDebug() << "wave in receiving data";
-
         WaveRecorder *recorder = (WaveRecorder *)instance;
         WAVEHDR *buffer = (WAVEHDR *)param1;
 
         if (recorder && buffer && recorder->isRecording()) {
+            // WIM_DATA 表示这块缓冲区已录满且头部仍标记为 prepared；先 unprepare，
+            // 才能重新 prepare 并 AddBuffer，让同一块内存回到采集队列继续循环。
             waveInUnprepareHeader(waveInDevice, buffer, sizeof(WAVEHDR));
             recorder->emitNewWaveBuffer(buffer);
 
@@ -168,6 +170,7 @@ void CALLBACK WaveRecorder::waveInProc(HWAVEIN waveInDevice, UINT message, DWORD
 
 void WaveRecorder::emitNewWaveBuffer(WAVEHDR *pBuffer) {
     if (mIsRecording) {
+        // 拷贝出本块 PCM；时间戳取本块起点，发完后再按实际字节数推进，暂停由 skipTime() 补齐。
         const QByteArray audioData(reinterpret_cast<const char *>(pBuffer->lpData),
                                    static_cast<int>(pBuffer->dwBytesRecorded));
         emit newWaveBuffer(audioData, mMsTimeStamp);
@@ -193,6 +196,7 @@ QStringList WaveRecorder::waveInDevices() {
         }
     }
 
+    // 混音器仅用于调试输出，不是可采集的录音端点，因此不加入返回列表。
     int mixersCount = mixerGetNumDevs();
 
     for (int i = 0; i < mixersCount; i++) {

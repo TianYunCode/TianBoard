@@ -53,7 +53,7 @@ QObject *Application::staticMemoryCleaner = 0;
 
 Application::Application(const QString &id, int &argc, char **argv)
     : QtSingleApplication(id, argc, argv), mPreferencesController(NULL) {
-    staticMemoryCleaner = new QObject(0); // deleted in Application destructor
+    staticMemoryCleaner = new QObject(0); // 由 Application 析构函数删除
 
     setOrganizationName("TianBoard");
     setOrganizationDomain("");
@@ -96,7 +96,7 @@ Application::Application(const QString &id, int &argc, char **argv)
     if (css.length() > 0)
         setStyleSheet(css);
 
-    QApplication::setStartDragDistance(8); // default is 4, and is a bit small for tablets
+    QApplication::setStartDragDistance(8); // 默认值是 4，对触摸屏来说偏小
 
     installEventFilter(this);
 }
@@ -154,9 +154,6 @@ int Application::exec(const QString &pFileToImport) {
     QDir webDbDir(webDbPath);
     if (!webDbDir.exists(webDbPath))
         webDbDir.mkpath(webDbPath);
-
-    //QWebEngineSettings::setIconDatabasePath(webDbPath);
-    //   QWebEngineSettings::setOfflineStoragePath (webDbPath);
 
     QWebEngineSettings *gs = QWebEngineProfile::defaultProfile()->settings();
     gs->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
@@ -519,16 +516,15 @@ QString Application::urlFromHtml(QString html) {
     QString url;
     QDomDocument domDoc;
 
-    //    We remove all the comments & CRLF of this html
+    // 去掉 HTML 注释与 CRLF，避免解析器在提取 src 时被注释节点干扰。
     _html = html.remove(comments);
     domDoc.setContent(_html.remove(QRegularExpression("[\\0]")));
     QDomElement rootElem = domDoc.documentElement();
 
-    //  QUICKFIX: Here we have to check rootElem. Sometimes it can be a <meta> tag
-    //  In such a case we will not be able to retrieve the src value
+    // 根元素有时是 <meta> 标签，这时 src 挂在它的第一个子元素上。
     if (rootElem.tagName().toLower().contains("meta")) {
         qDebug() << rootElem.firstChildElement().tagName();
-        //  In that case we get the next element
+        // 取下一个元素的 src。
         url = rootElem.firstChildElement().attribute("src");
     } else {
         url = rootElem.attribute("src");

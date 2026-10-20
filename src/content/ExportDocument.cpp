@@ -17,12 +17,10 @@ THIRD_PARTY_WARNINGS_ENABLE
 
 
 ExportDocument::ExportDocument(QObject *parent) : ExportAdaptor(parent) {
-    ExportDocument::tr("Page"); // dummy slot for translation
+    ExportDocument::tr("Page"); // 空槽：只为让翻译工具抽到这几个导出用的界面文案
 }
 
-ExportDocument::~ExportDocument() {
-    // NOOP
-}
+ExportDocument::~ExportDocument() {}
 
 void ExportDocument::persist(DocumentProxy *pDocumentProxy) {
     persistLocally(pDocumentProxy, tr("Export as TianBoard Document"));
@@ -31,6 +29,7 @@ void ExportDocument::persist(DocumentProxy *pDocumentProxy) {
 
 bool ExportDocument::persistsDocument(DocumentProxy *pDocumentProxy, const QString &filename) {
     QuaZip zip(filename);
+    // .tbz 内的路径可能含非 ASCII 文档名，统一用 UTF-8，避免在其它平台解压乱码。
     zip.setFileNameCodec("UTF-8");
     if (!zip.open(QuaZip::mdCreate)) {
         qWarning("Export failed. Cause: zip.open(): %d", zip.getZipError());

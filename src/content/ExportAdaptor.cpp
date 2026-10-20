@@ -10,14 +10,10 @@
 #include "settings/Setting.h"
 #include "core/Application.h"
 
-ExportAdaptor::ExportAdaptor(QObject *parent) : QObject(parent), mIsVerbose(true) {
-    // NOOP
-}
+ExportAdaptor::ExportAdaptor(QObject *parent) : QObject(parent), mIsVerbose(true) {}
 
 
-ExportAdaptor::~ExportAdaptor() {
-    // NOOP
-}
+ExportAdaptor::~ExportAdaptor() {}
 
 QString ExportAdaptor::askForFileName(DocumentProxy *pDocument, const QString &pDialogTitle) {
     QString defaultName;
@@ -35,7 +31,7 @@ QString ExportAdaptor::askForFileName(DocumentProxy *pDocument, const QString &p
         return filename;
     }
 
-    // add extension if needed
+    // QFileDialog 不会强制补后缀：用户手输文件名后这里补齐，避免生成无扩展名文件。
     QFileInfo fileNameInfo(filename);
     if (fileNameInfo.suffix() != exportExtention().mid(1, exportExtention().length() - 1)) {
         filename += exportExtention();
@@ -86,7 +82,8 @@ void ExportAdaptor::persistLocally(DocumentProxy *pDocumentProxy, const QString 
         if (mIsVerbose)
             Application::showMessage(tr("Exporting document..."));
 
-        // Check that the location is writeable
+        // 只检查目录权限而不是文件本身：文件可能尚不存在，QFileInfo::isWritable 对
+        // 不存在的路径不可靠。
         QFileInfo info(filename);
         info.setFile(info.absolutePath());
 
@@ -116,7 +113,7 @@ void ExportAdaptor::persistLocally(DocumentProxy *pDocumentProxy, const QString 
 }
 
 bool ExportAdaptor::persistsDocument(DocumentProxy *pDocument, const QString &filename) {
-    // Implemented in child classes
+    // 基类没有写出能力；子类必须覆写，否则只弹对话框不产出文件。
 
     Q_UNUSED(pDocument);
     Q_UNUSED(filename);

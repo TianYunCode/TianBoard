@@ -33,7 +33,9 @@
 #include "QFile"
 
 
-//tag names definition. Use them everiwhere!
+// IWB 内容 XML 的标签名。这里保留一份导入端专用的局部副本，语义与 IwbConstants.h
+// 中的常量一致；两处改动必须同步，否则导入与导出会认不出彼此的产物。
+
 static QString tElement = "element";
 static QString tGroup = "group";
 static QString tEllipse = "ellipse";
@@ -56,7 +58,7 @@ static QString tFlash = "flash";
 static QString tAudio = "a";
 static QString tVideo = "video";
 
-//attribute names definition
+// IWB 内容 XML 的属性名。前缀 a 表示 attribute，避免与 aX/aY 这类局部变量混淆。
 static QString aFill = "fill";
 static QString aFillopacity = "fill-opacity";
 static QString aX = "x";
@@ -87,7 +89,7 @@ static QString aBackground = "background";
 static QString aLocked = "locked";
 static QString aEditable = "editable";
 
-//attributes part names
+// transform 属性里可出现的函数名。
 static QString apRotate = "rotate";
 static QString apTranslate = "translate";
 
@@ -95,10 +97,8 @@ static QString apTranslate = "translate";
 IwbSubsetAdaptor::IwbSubsetAdaptor() {}
 
 bool IwbSubsetAdaptor::convertIwbFileToDocumentPackage(QString &iwbSourceFile, DocumentProxy *pDocument) {
-    //TODO
-    // fill document proxy metadata
-    // create persistance manager to save data using proxy
-    // create IwbSubsetReader and make it parse iwbSourceFolder
+    // 页面与元数据的落盘由 reader 内部完成（persist 时经 PersistenceManager 建场景），
+    // 这里只负责打开 content.xml 并把解析结果交回调用方。
     QFile file(iwbSourceFile);
 
     if (!file.open(QIODevice::ReadOnly)) {
@@ -142,9 +142,6 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parse() {
     if (QFile::exists(mTempFilePath))
         QFile::remove(mTempFilePath);
 
-    //    if (mTmpFlashDir.exists())
-    //        FileSystemUtils::deleteDir(mTmpFlashDir.path());
-
     return result;
 }
 
@@ -182,7 +179,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgSwitchSection(const QDomElement 
 bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgRect(const QDomElement &element) {
     qreal x1 = element.attribute(aX).toDouble();
     qreal y1 = element.attribute(aY).toDouble();
-    //rect dimensions
+    // 矩形左上角与宽高；后面按描边宽度向外扩，保证粗描边不被裁掉。
     qreal width = element.attribute(aWidth).toDouble();
     qreal height = element.attribute(aHeight).toDouble();
 
@@ -199,15 +196,14 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgRect(const QDomElement &element)
     width += strokeWidth;
     height += strokeWidth;
 
-    //init svg generator with temp file
+    // 场景里没有“矩形图元”，先画进临时 SVG 再作为 GraphicsSvgItem 加入。
     QSvgGenerator *generator = createSvgGenerator(width, height);
 
-    //init painter to paint to svg
     QPainter painter;
 
     painter.begin(generator);
 
-    //fill rect
+    // 先填后描边，描边压在填充之上，与浏览器渲染顺序一致。
     if (fillColor.isValid()) {
         painter.setBrush(QBrush(fillColor));
         painter.fillRect(0, 0, width, height, fillColor);
@@ -249,21 +245,20 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgRect(const QDomElement &element)
     return true;
 }
 bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgEllipse(const QDomElement &element) {
-    //ellipse horisontal and vertical radius
+    // rx/ry 是半径，生成器按外接矩形尺寸创建。
     qreal rx = element.attribute(aRx).toDouble();
     qreal ry = element.attribute(aRy).toDouble();
     QSvgGenerator *generator = createSvgGenerator(rx * 2, ry * 2);
 
-    //fill and stroke color
+    // 缺省属性会转成无效 QColor，交给画笔时保持“无填充/无描边”。
     QColor fillColor = colorFromString(element.attribute(aFill));
     QColor strokeColor = colorFromString(element.attribute(aStroke));
     int strokeWidth = element.attribute(aStrokewidth).toInt();
 
-    //ellipse center coordinates
+    // 椭圆在 SVG 中是中心定位，转成左上角定位再交给 repositionSvgItem。
     qreal cx = element.attribute(aCx).toDouble();
     qreal cy = element.attribute(aCy).toDouble();
 
-    //init painter to paint to svg
     QPainter painter;
     painter.begin(generator);
 
@@ -317,7 +312,8 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
                 point.setY(sCoord.at(1).toFloat());
                 polygon << point;
             } else if (sCoord.size() == 4) {
-                //This is the case on system were the "," is used to seperate decimal
+                // 逗号既作坐标分隔符又作小数点：德/法语区工具会导出 "1,5,2,5"，
+                // split 后得到 4 段，这里按“x 整数,x 小数,y 整数,y 小数”还原。
                 QPointF point;
                 QString x = sCoord.at(0) + "." + sCoord.at(1);
                 QString y = sCoord.at(2) + "." + sCoord.at(3);
@@ -330,10 +326,10 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
         }
     }
 
-    //bounding rect lef top corner coordinates
+    // 点集的外接矩形：左上角用于定位，宽高用于生成同尺寸的临时 SVG。
     qreal x1 = polygon.boundingRect().topLeft().x();
     qreal y1 = polygon.boundingRect().topLeft().y();
-    //bounding rect dimensions
+    // 外接矩形尺寸，描边宽度稍后会额外加上。
     qreal width = polygon.boundingRect().width();
     qreal height = polygon.boundingRect().height();
 
@@ -356,7 +352,8 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
 
     QUuid itemUuid(element.attribute(aId).right(QUuid().toString().length()));
     QUuid itemGroupUuid(element.attribute(aId).left(QUuid().toString().length() - 1));
-    if (!itemUuid.isNull() && (itemGroupUuid != itemUuid)) // reimported from a .tbz document
+    if (!itemUuid.isNull() &&
+        (itemGroupUuid != itemUuid)) // 从 .tbz 重新导入的场景：组 UUID 与图元 UUID 不相等才需要重建
     {
         GraphicsPolygonItem *graphicsPolygon = mCurrentScene->polygonToPolygonItem(polygon);
 
@@ -379,7 +376,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
         QSvgGenerator *generator = createSvgGenerator(width + pen.width(), height + pen.width());
         QPainter painter;
 
-        painter.begin(generator); //drawing to svg tmp file
+        painter.begin(generator); // 先把图元画进临时 SVG 文件
 
         painter.translate(pen.widthF() / 2 - x1, pen.widthF() / 2 - y1);
         painter.setBrush(brush);
@@ -388,7 +385,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
 
         painter.end();
 
-        //add resulting svg file to scene
+        // 临时 SVG 只是渲染载体，加入场景后即可删除生成器。
         GraphicsSvgItem *svgItem = mCurrentScene->addSvg(QUrl::fromLocalFile(generator->fileName()));
         QTransform transform;
         QString textTransform = element.attribute(aTransform);
@@ -429,7 +426,8 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
                 point.setY(sCoord.at(1).toFloat());
                 polygon << point;
             } else if (sCoord.size() == 4) {
-                //This is the case on system were the "," is used to seperate decimal
+                // 逗号既作坐标分隔符又作小数点：德/法语区工具会导出 "1,5,2,5"，
+                // split 后得到 4 段，这里按“x 整数,x 小数,y 整数,y 小数”还原。
                 QPointF point;
                 QString x = sCoord.at(0) + "." + sCoord.at(1);
                 QString y = sCoord.at(2) + "." + sCoord.at(3);
@@ -442,11 +440,11 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
         }
     }
 
-    //bounding rect lef top corner coordinates
+    // 点集的外接矩形：左上角用于定位，宽高用于生成同尺寸的临时 SVG。
     qreal x1 = polygon.boundingRect().topLeft().x();
     qreal y1 = polygon.boundingRect().topLeft().y();
 
-    //bounding rect dimensions
+    // 外接矩形尺寸，描边宽度稍后会额外加上。
     qreal width = polygon.boundingRect().width();
     qreal height = polygon.boundingRect().height();
 
@@ -469,7 +467,8 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
 
     QUuid itemUuid(element.attribute(aId).right(QUuid().toString().length()));
     QUuid itemGroupUuid(element.attribute(aId).left(QUuid().toString().length() - 1));
-    if (!itemUuid.isNull() && (itemGroupUuid != itemUuid)) // reimported from a .tbz document
+    if (!itemUuid.isNull() &&
+        (itemGroupUuid != itemUuid)) // 从 .tbz 重新导入的场景：组 UUID 与图元 UUID 不相等才需要重建
     {
         GraphicsPolygonItem *graphicsPolygon = new GraphicsPolygonItem(polygon);
 
@@ -494,7 +493,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
         QSvgGenerator *generator = createSvgGenerator(width + pen.width(), height + pen.width());
         QPainter painter;
 
-        painter.begin(generator); //drawing to svg tmp file
+        painter.begin(generator); // 先把图元画进临时 SVG 文件
 
         painter.translate(pen.widthF() / 2 - x1, pen.widthF() / 2 - y1);
         painter.setBrush(brush);
@@ -503,7 +502,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
 
         painter.end();
 
-        //add resulting svg file to scene
+        // 临时 SVG 只是渲染载体，加入场景后即可删除生成器。
         GraphicsSvgItem *svgItem = mCurrentScene->addSvg(QUrl::fromLocalFile(generator->fileName()));
 
         QString uuid = QUuid::createUuid().toString();
@@ -537,8 +536,8 @@ void IwbSubsetAdaptor::IwbSubsetReader::parseTextAttributes(const QDomElement &e
                                                             QString &fontStretch, bool &italic,
                                                             int &fontWeight, int &textAlign,
                                                             QTransform &fontTransform) {
-    //consider inch has 72 liens
-    //since svg font size is given in pixels, divide it by pixels per line
+    // SVG 的 font-size 以像素给出，场景字体以点为单位：1 英寸 = 72 点，
+    // 因此按“像素 * 72 / 物理 DPI”换算，和 PDF/打印路径保持同一基准。
     QString fontSz = element.attribute(aFontSize);
     if (!fontSz.isNull())
         fontSize = fontSz.toDouble() * 72 / VirtualDesktop::instance()->physicalDpi();
@@ -669,20 +668,17 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgText(const QDomElement &element)
     qreal curX = 0.0;
     qreal linespacing = QFontMetricsF(painter.font()).leading();
 
-    //    remember if text area has transform
-    //    QString transformString;
     QTransform transform = fontTransform;
 
     QRectF lastDrawnTextBoundingRect;
-    //parse text area tags
 
-    //recursive call any tspan in text svg element
+    // 递归处理 tspan：文本节点累积到同一行，<tbreak> 才换行。
     parseTSpan(element, painter, curX, curY, width, height, linespacing, lastDrawnTextBoundingRect, fontSize,
                fontColor, fontFamily, fontStretch, italic, fontWeight, textAlign, fontTransform);
 
     painter.end();
 
-    //add resulting svg file to scene
+    // 文本已画进临时 SVG，转成图元后生成器即可释放。
     GraphicsSvgItem *svgItem = mCurrentScene->addSvg(QUrl::fromLocalFile(generator->fileName()));
 
     QString uuid = QUuid::createUuid().toString();
@@ -724,8 +720,7 @@ void IwbSubsetAdaptor::IwbSubsetReader::parseTSpan(const QDomElement &parent, QP
                    curNode.nodeType() == QDomNode::TextNode) {
             QDomCharacterData textData = curNode.toCharacterData();
             QString text = textData.data().trimmed();
-            //            width = painter.fontMetrics().horizontalAdvance(text);
-            //get bounding rect to obtain desired text height
+            // 按可用宽度换行后的实际边界，用于算下一段文字的起始 x。
             lastDrawnTextBoundingRect = painter.boundingRect(QRectF(curX, curY, width, height - curY),
                                                              textAlign | Qt::TextWordWrap, text);
             painter.drawText(curX, curY, width, lastDrawnTextBoundingRect.height(),
@@ -776,14 +771,14 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgTextarea(const QDomElement &elem
     blockFormat.setAlignment(Qt::AlignLeft);
 
     QTextCharFormat textFormat;
-    // default values
+    // 文本框默认只读：IWB 的 textarea 是静态标注，用户要改的是可编辑文本图元。
     textFormat.setFontPointSize(12);
     textFormat.setForeground(qApp->palette().color(QPalette::WindowText));
     textFormat.setFontFamily("Arial");
     textFormat.setFontItalic(false);
     textFormat.setFontWeight(QFont::Normal);
 
-    // readed values
+    // 元素上的属性作为默认值，tspan 里的同名属性再逐段覆盖。
     readTextBlockAttr(element, blockFormat);
     readTextCharAttr(element, textFormat);
 
@@ -810,7 +805,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgTextarea(const QDomElement &elem
         transform = transformFromString(textTransform, svgItem);
     }
 
-    //by default all the textAreas are not editable
+    // IWB 的 textarea 不带“可编辑”语义，统一按只读处理。
     GraphicsTextItemDelegate *curDelegate = dynamic_cast<GraphicsTextItemDelegate *>(svgItem->Delegate());
     if (curDelegate) {
         curDelegate->setEditable(false);
@@ -839,8 +834,6 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgImage(const QDomElement &element
         if (!QFile::exists(imagePath)) {
             qDebug() << "can't load file" << pwdContent + "/" + itemRefPath << "maybe file corrupted";
             return false;
-        } else {
-            //            qDebug() << "size of file" << itemRefPath << QFileInfo(itemRefPath).size();
         }
         pix.load(imagePath);
         if (pix.isNull()) {
@@ -1034,7 +1027,7 @@ void IwbSubsetAdaptor::IwbSubsetReader::addItemToGSection(QGraphicsItem *item) {
 }
 
 void IwbSubsetAdaptor::IwbSubsetReader::hashSceneItem(const QDomElement &element, GraphicsItem *item) {
-    //    adding element pointer to hash to refer if needed
+    // 建立 id -> 图元的索引，供后面的 <iwb:element ref="..."> 回填锁定/可编辑状态。
     QString key = element.attribute(aId);
     if (!key.isNull()) {
         persistedItems.insert(key, item);
@@ -1044,8 +1037,8 @@ void IwbSubsetAdaptor::IwbSubsetReader::hashSceneItem(const QDomElement &element
 bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgElement(const QDomElement &parent) {
     QString tagName = parent.tagName();
     if (parent.namespaceURI() != svgNS) {
+        // 只告警不中断：部分工具会改写命名空间前缀或 URI，但元素结构仍可解析。
         qWarning() << "Incorrect namespace, error at content file, line number" << parent.lineNumber();
-        //return false;
     }
 
     if (tagName == tG && !parseGSection(parent))
@@ -1100,16 +1093,16 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPageset(const QDomElement &paren
 
 bool IwbSubsetAdaptor::IwbSubsetReader::parseIwbMeta(const QDomElement &element) {
     if (element.namespaceURI() != iwbNS) {
+        // 元数据不影响页面几何，命名空间不符时继续导入。
         qWarning() << "incorrect meta namespace, incorrect document";
-        //return false;
     }
 
     return true;
 }
 bool IwbSubsetAdaptor::IwbSubsetReader::parseSvg(const QDomElement &svgSection) {
     if (svgSection.namespaceURI() != svgNS) {
+        // 与 parseSvgElement 相同：命名空间异常只影响严格校验，不阻断解析。
         qWarning() << "incorrect svg namespace, incorrect document";
-        // return false;
     }
 
     parseSvgSectionAttr(svgSection);
@@ -1125,10 +1118,10 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvg(const QDomElement &svgSection) 
 }
 
 GraphicsGroupContainerItem *IwbSubsetAdaptor::IwbSubsetReader::parseIwbGroup(QDomElement &parent) {
-    //TODO. Create groups from elements parsed by parseIwbElement() function
+    // 递归展开 <iwb:group>：子分组先建，再按 ref 把已解析的图元挂进来；
+    // 引用 id 比 UUID 长说明这一条是多边形笔迹，需要合并成 GraphicsStrokesGroup。
     if (parent.namespaceURI() != iwbNS) {
         qWarning() << "incorrect iwb group namespace, incorrect document";
-        //  return false;
     }
 
     GraphicsGroupContainerItem *group = new GraphicsGroupContainerItem();
@@ -1205,13 +1198,13 @@ bool IwbSubsetAdaptor::IwbSubsetReader::strToBool(QString str) {
 
 bool IwbSubsetAdaptor::IwbSubsetReader::parseIwbElement(QDomElement &element) {
     if (element.namespaceURI() != iwbNS) {
+        // 扩展段命名空间不符时宁可少锁几个图元，也不要让整页导入失败。
         qWarning() << "incorrect iwb element namespace, incorrect document";
-        //  return false;
     }
 
     bool locked = false;
     bool isEditableItem = false;
-    bool isEditable = false; //Text items to convert to GraphicsTextItem only
+    bool isEditable = false; // 只有要转成 GraphicsTextItem 的文本项才置这个标记
 
     QString IDRef = element.attribute(aRef);
     if (!IDRef.isNull()) {
@@ -1264,8 +1257,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseDoc() {
 
 void IwbSubsetAdaptor::IwbSubsetReader::repositionSvgItem(QGraphicsItem *item, qreal width, qreal height,
                                                           qreal x, qreal y, QTransform &transform) {
-    //First using viebox coordinates, then translate them to scene coordinates
-
+    // 先把元素换算到 viewBox 坐标系，再按 viewBox 与场景的缩放比映射到场景坐标。
     QRectF itemBounds = item->boundingRect();
 
     qreal xScale = width / itemBounds.width();
@@ -1339,8 +1331,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::persistScenes() {
 }
 
 QColor IwbSubsetAdaptor::IwbSubsetReader::colorFromString(const QString &clrString) {
-    //init regexp with pattern
-    //pattern corresponds to strings like 'rgb(1,2,3) or rgb(10%,20%,30%)'
+    // IWB 颜色可能是 rgb(...) 也可能带百分号，QColor 本身不认识这两种写法。
     QRegExp regexp("rgb\\(([0-9]+%{0,1}),([0-9]+%{0,1}),([0-9]+%{0,1})\\)");
     if (regexp.exactMatch(clrString)) {
         if (regexp.capturedTexts().count() == 4 &&
@@ -1371,7 +1362,7 @@ QTransform IwbSubsetAdaptor::IwbSubsetReader::transformFromString(const QString 
     QTransform tr;
 
     foreach (QString trStr, trString.split(" ", Qt::SkipEmptyParts)) {
-        //check pattern for strings like 'rotate(10)'
+        // 只带角度的 rotate(10)：绕图元原点旋转。
         QRegExp regexp("rotate\\( *([-+]{0,1}[0-9]*\\.{0,1}[0-9]*) *\\)");
         if (regexp.exactMatch(trStr)) {
             angle = regexp.capturedTexts().at(1).toDouble();
@@ -1382,7 +1373,7 @@ QTransform IwbSubsetAdaptor::IwbSubsetReader::transformFromString(const QString 
             continue;
         };
 
-        //check pattern for strings like 'rotate(10,20,20)' or 'rotate(10.1,10.2,34.2)'
+        // rotate(角度, cx, cy)：IWB 会把旋转中心一并写出，坐标需减去图元位置。
         regexp.setPattern("rotate\\( *([-+]{0,1}[0-9]*\\.{0,1}[0-9]*) *, *([-+]{0,1}[0-9]*\\.{0,1}[0-9]*) *, "
                           "*([-+]{0,1}[0-9]*\\.{0,1}[0-9]*) *\\)");
         if (regexp.exactMatch(trStr)) {
@@ -1396,7 +1387,7 @@ QTransform IwbSubsetAdaptor::IwbSubsetReader::transformFromString(const QString 
             continue;
         }
 
-        //check pattern for strings like 'translate(11.0, 12.34)'
+        // translate(dx, dy)；逗号后的空格可有可无，正则里用 *,* 兼容。
         regexp.setPattern(
             "translate\\( *([-+]{0,1}[0-9]*\\.{0,1}[0-9]*) *,*([-+]{0,1}[0-9]*\\.{0,1}[0-9]*)*\\)");
         if (regexp.exactMatch(trStr)) {
@@ -1431,8 +1422,6 @@ bool IwbSubsetAdaptor::IwbSubsetReader::getViewBoxDimenstions(const QString &vie
 
 QSvgGenerator *IwbSubsetAdaptor::IwbSubsetReader::createSvgGenerator(qreal width, qreal height) {
     QSvgGenerator *generator = new QSvgGenerator();
-    //    qWarning() << QString("Making generator with file %1, size (%2, %3) and viewbox (%4 %5 %6 %7)").arg(mTempFilePath)
-    //        .arg(width).arg(height).arg(0.0).arg(0.0).arg(width).arg(width);
     generator->setResolution(VirtualDesktop::instance()->physicalDpi());
     generator->setFileName(mTempFilePath);
     generator->setSize(QSize(width, height));
@@ -1482,10 +1471,4 @@ bool IwbSubsetAdaptor::IwbSubsetReader::createTempFlashPath() {
 
     return true;
 }
-IwbSubsetAdaptor::IwbSubsetReader::~IwbSubsetReader() {
-    //    QList<int> pages;
-    //    for (int i = 0; i < mProxy->pageCount(); i++) {
-    //        pages << i;
-    //    }
-    //    PersistenceManager::persistenceManager()->deleteDocumentScenes(mProxy, pages);
-}
+IwbSubsetAdaptor::IwbSubsetReader::~IwbSubsetReader() {}

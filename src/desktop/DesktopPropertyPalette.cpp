@@ -18,7 +18,7 @@ int DesktopPropertyPalette::getParentRightOffset() {
 
 DesktopPenPalette::DesktopPenPalette(QWidget *parent, RightPalette *rightPalette)
     : DesktopPropertyPalette(parent, rightPalette) {
-    // Setup color choice widget
+    // 颜色选择控件
     QList<QAction *> colorActions;
     colorActions.append(Application::mainWindow->ui().actionColor0);
     colorActions.append(Application::mainWindow->ui().actionColor1);
@@ -31,7 +31,6 @@ DesktopPenPalette::DesktopPenPalette(QWidget *parent, RightPalette *rightPalette
 
     colorChoice->displayText(false);
 
-    //connect(colorChoice, SIGNAL(activated(int)), this, SLOT(Application::boardController->setColorIndex(int)));
     connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, colorChoice,
             &ToolbarButtonGroup::setCurrentIndex);
     connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, this,
@@ -43,7 +42,7 @@ DesktopPenPalette::DesktopPenPalette(QWidget *parent, RightPalette *rightPalette
 
     layout()->addWidget(colorChoice);
 
-    // Setup line width choice widget
+    // 线宽选择控件
     QList<QAction *> lineWidthActions;
     lineWidthActions.append(Application::mainWindow->ui().actionLineSmall);
     lineWidthActions.append(Application::mainWindow->ui().actionLineMedium);
@@ -72,7 +71,7 @@ void DesktopPenPalette::onButtonReleased() {
 }
 
 /**
- * \brief Disconnect the released event of the buttons
+ * \brief 断开按钮的 released 事件连接
  */
 void DesktopPenPalette::onParentMinimized() {
     for (int i = 0; i < buttons().size(); i++) {
@@ -81,7 +80,7 @@ void DesktopPenPalette::onParentMinimized() {
 }
 
 /**
- * \brief Connect the released event of the buttons
+ * \brief 连接按钮的 released 事件
  */
 void DesktopPenPalette::onParentMaximized() {
     for (int i = 0; i < buttons().size(); i++) {
@@ -92,7 +91,7 @@ void DesktopPenPalette::onParentMaximized() {
 
 DesktopEraserPalette::DesktopEraserPalette(QWidget *parent, RightPalette *rightPalette)
     : DesktopPropertyPalette(parent, rightPalette) {
-    // Setup eraser width choice widget
+    // 橡皮宽度选择控件
     QList<QAction *> eraserWidthActions;
     eraserWidthActions.append(Application::mainWindow->ui().actionEraserSmall);
     eraserWidthActions.append(Application::mainWindow->ui().actionEraserMedium);
@@ -118,7 +117,7 @@ DesktopEraserPalette::DesktopEraserPalette(QWidget *parent, RightPalette *rightP
 
 DesktopMarkerPalette::DesktopMarkerPalette(QWidget *parent, RightPalette *rightPalette)
     : DesktopPropertyPalette(parent, rightPalette) {
-    // Setup color choice widget
+    // 颜色选择控件
     QList<QAction *> colorActions;
     colorActions.append(Application::mainWindow->ui().actionColor0);
     colorActions.append(Application::mainWindow->ui().actionColor1);
@@ -130,7 +129,6 @@ DesktopMarkerPalette::DesktopMarkerPalette(QWidget *parent, RightPalette *rightP
         new ToolbarButtonGroup(Application::mainWindow->ui().boardToolBar, colorActions);
     colorChoice->displayText(false);
 
-    //connect(colorChoice, SIGNAL(activated(int)), this, SLOT(Application::boardController->setColorIndex(int)));
     connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, colorChoice,
             &ToolbarButtonGroup::setCurrentIndex);
     connect(DrawingController::drawingController(), &DrawingController::colorIndexChanged, this,
@@ -142,7 +140,7 @@ DesktopMarkerPalette::DesktopMarkerPalette(QWidget *parent, RightPalette *rightP
 
     layout()->addWidget(colorChoice);
 
-    // Setup line width choice widget
+    // 线宽选择控件
     QList<QAction *> lineWidthActions;
     lineWidthActions.append(Application::mainWindow->ui().actionLineSmall);
     lineWidthActions.append(Application::mainWindow->ui().actionLineMedium);

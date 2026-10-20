@@ -47,19 +47,13 @@ DocumentManager::DocumentManager(QObject *parent) : QObject(parent) {
     QString dummyObjects = tr("objects");
     QString dummyWidgets = tr("widgets");
 
-    //ExportIwb* iwbExporter = new ExportIwb(this);
     ExportFullPDF *exportFullPdf = new ExportFullPDF(this);
     ExportDocument *exportDocument = new ExportDocument(this);
 
     ExportDocumentSetAdaptor *exportDocumentSet = new ExportDocumentSetAdaptor(this);
     mExportAdaptors.append(exportDocument);
     mExportAdaptors.append(exportDocumentSet);
-    //mExportAdaptors.append(webPublished);
     mExportAdaptors.append(exportFullPdf);
-    //mExportAdaptors.append(iwbExporter);
-
-    //     ExportWeb* exportWeb = new ExportWeb(this);
-    //     mExportAdaptors.append(exportWeb);
 
     // 导出器只回报警告，弹窗这件事留在认识界面的这一层。
     for (ExportAdaptor *adaptor : mExportAdaptors) {
@@ -86,16 +80,14 @@ DocumentManager::DocumentManager(QObject *parent) : QObject(parent) {
 }
 
 
-DocumentManager::~DocumentManager() {
-    // NOOP
-}
+DocumentManager::~DocumentManager() {}
 
 
 QStringList DocumentManager::importFileExtensions(bool notUbx) {
     QStringList result;
 
     foreach (ImportAdaptor *importAdaptor, mImportAdaptors) {
-        //issue 1629 - NNE - 20131213 : add test to remove tbx extention if necessary
+        // 某些场景下要排除文档集（tbx）格式，此时跳过以它为首要扩展名的适配器。
         if (!(notUbx && importAdaptor->supportedExtentions().at(0) == "tbx")) {
             result << importAdaptor->supportedExtentions();
         }
@@ -110,7 +102,7 @@ QString DocumentManager::importFileFilter(bool notUbx) {
     result += tr("All supported files (*.%1)").arg(importFileExtensions(notUbx).join(" *."));
     foreach (ImportAdaptor *importAdaptor, mImportAdaptors) {
         if (importAdaptor->importFileFilter().length() > 0) {
-            //issue 1629 - NNE - 20131213 : Add a test on tbx before put in the list
+            // 与扩展名列表一致，这里也要按需排除文档集格式。
             if (!(notUbx && importAdaptor->supportedExtentions().at(0) == "tbx")) {
                 if (result.length()) {
                     result += ";;";
@@ -155,13 +147,13 @@ DocumentProxy *DocumentManager::importFile(const QFile &pFile, const QString &pG
             } else {
                 PageBasedImportAdaptor *importAdaptor = (PageBasedImportAdaptor *)adaptor;
 
-                // Document import procedure.....
+                // 页面型导入：先建文档，再把每一页依次落到场景中。
                 QString documentName = QFileInfo(pFile.fileName()).completeBaseName();
-                document = PersistenceManager::persistenceManager()->createDocument(
-                    pGroup, documentName,
-                    false // Issue 1630 - CFA - 201410503 - suppression de la page vide ajoutee à l'import des pdfs
-                    ,
-                    QString(), 0, true);
+                document =
+                    PersistenceManager::persistenceManager()->createDocument(pGroup, documentName,
+                                                                             false // 导入 PDF 时不再补空白页
+                                                                             ,
+                                                                             QString(), 0, true);
                 if (document) {
                     QUuid uuid = QUuid::createUuid();
                     QString filepath = pFile.fileName();
@@ -215,8 +207,8 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
                 Application::setDisabled(true);
 
                 if (adaptor->isDocumentBased()) {
-                    //issue 1629 - NNE - 20131212 : Resolve a segfault, but for .tbx, actually
-                    //the file will be not imported...
+                    // 用 dynamic_cast 再判空：文档集格式在这里可能并不支持追加，
+                    // 直接按类型转换后调用会导致崩溃。
                     DocumentBasedImportAdaptor *importAdaptor =
                         dynamic_cast<DocumentBasedImportAdaptor *>(adaptor);
 

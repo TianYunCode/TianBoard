@@ -22,14 +22,10 @@ THIRD_PARTY_WARNINGS_DISABLE
 THIRD_PARTY_WARNINGS_ENABLE
 
 
-ImportIwb::ImportIwb(QObject *parent) : DocumentBasedImportAdaptor(parent) {
-    // NOOP
-}
+ImportIwb::ImportIwb(QObject *parent) : DocumentBasedImportAdaptor(parent) {}
 
 
-ImportIwb::~ImportIwb() {
-    // NOOP
-}
+ImportIwb::~ImportIwb() {}
 
 
 QStringList ImportIwb::supportedExtentions() {
@@ -60,30 +56,27 @@ bool ImportIwb::addFileToDocument(DocumentProxy *pDocument, const QFile &pFile) 
     QFileInfo fi(pFile);
     Application::showMessage(tr("Importing file %1...").arg(fi.baseName()), true);
 
-    // first unzip the file to the correct place
-    //TODO create temporary path for iwb file content
+    // IWB 通常是 zip 包；解压失败时按裸 XML 处理（有些工具直接导出 content.xml）。
     QString path = QDir::tempPath();
 
     QString documentRootFolder = expandFileToDir(pFile, path);
     QString contentFile;
-    if (documentRootFolder.isEmpty()) //if file has failed to unzip it is probably just xml file
+    if (documentRootFolder.isEmpty()) // 解压失败：输入可能本身就是 XML
         contentFile = pFile.fileName();
-    else //get path to content xml (according to iwb specification)
+    else // IWB 规范规定内容入口为包根目录下的 content.xml
         contentFile = documentRootFolder.append("/content.xml");
 
     if (!contentFile.length()) {
         Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return false;
     } else {
-        //TODO convert expanded IWB file content to the destination document
-        //create destination document proxy
-        //fill metadata and save
+        // 先建一个临时文档目录承接转换结果，成功后整体并入目标文档并删除临时目录。
         DocumentProxy *destDocument =
             new DocumentProxy(PersistenceManager::persistenceManager()->generateUniqueDocumentPath());
         QDir dir;
         dir.mkdir(destDocument->persistencePath());
 
-        //try to import iwb to document
+        // 转换成功后把页面与资源并入现有文档，临时目录不再需要。
         if (IwbSubsetAdaptor::convertIwbFileToDocumentPackage(contentFile, destDocument)) {
             PersistenceManager::persistenceManager()->addDirectoryContentToDocument(
                 destDocument->persistencePath(), pDocument);
@@ -112,8 +105,7 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir) {
     QuaZipFileInfo info;
     QuaZipFile file(&zip);
 
-    //create unique iwb document root fodler
-    //use current date/time and temp number for folder name
+    // 解压目录名用“时间戳 + 序号”，避免同一分钟内多次导入时互相覆盖。
     QString documentRootFolder;
     int tmpNumber = 0;
     QDir rootDir;
@@ -143,10 +135,7 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir) {
             qWarning() << "Import failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
             return "";
         }
-        //        if(!file.open(QIODevice::ReadOnly)) {
-        //            qWarning() << "Import failed. Cause: file.open(): " << zip.getZipError();
-        //            return "";
-        //        }
+        // 解压失败已在上面返回；此处打开失败按 zip 条目损坏处理。
         file.open(QIODevice::ReadOnly);
         if (file.getZipError() != UNZ_OK) {
             qWarning() << "Import failed. Cause: file.getFileName(): " << zip.getZipError();
@@ -195,30 +184,28 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir) {
 
 
 DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup) {
-    Q_UNUSED(pGroup); // group is defined in the imported file
+    Q_UNUSED(pGroup); // 分组信息由文件内的元数据决定，调用方传入的 pGroup 仅在下方覆盖显示名
 
     QFileInfo fi(pFile);
     Application::showMessage(tr("Importing file %1...").arg(fi.baseName()), true);
 
-    // first unzip the file to the correct place
-    //TODO create temporary path for iwb file content
+    // 与 addFileToDocument 相同的解包策略：zip 优先，失败则当作裸 XML。
     QString path = QDir::tempPath();
 
     QString documentRootFolder = expandFileToDir(pFile, path);
     QString contentFile;
     if (documentRootFolder.isEmpty())
-        //if file has failed to umzip it is probably just xml file
+        // 解压失败：输入可能本身就是未压缩的 content.xml
         contentFile = pFile.fileName();
     else
-        //get path to content xml
+        // IWB 规范规定内容入口为包根目录下的 content.xml
         contentFile = QString("%1/content.xml").arg(documentRootFolder);
 
     if (!contentFile.length()) {
         Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return 0;
     } else {
-        //create destination document proxy
-        //fill metadata and save
+        // 转换器在解析第一页前就会写 metadata.rdf，因此版本/更新时间必须提前填好。
         DocumentProxy *destDocument =
             new DocumentProxy(PersistenceManager::persistenceManager()->generateUniqueDocumentPath());
         QDir dir;
@@ -233,7 +220,7 @@ DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup) 
                                   StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
         DocumentProxy *newDocument = NULL;
-        //try to import iwb to document
+        // 转换成功后再登记为正式文档；失败则整个临时目录丢弃。
         if (IwbSubsetAdaptor::convertIwbFileToDocumentPackage(contentFile, destDocument)) {
             newDocument = PersistenceManager::persistenceManager()->createDocumentFromDir(
                 destDocument->persistencePath(), "", "", false, false, true);

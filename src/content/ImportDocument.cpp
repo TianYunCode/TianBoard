@@ -16,13 +16,9 @@ THIRD_PARTY_WARNINGS_DISABLE
 THIRD_PARTY_WARNINGS_ENABLE
 
 
-ImportDocument::ImportDocument(QObject *parent) : DocumentBasedImportAdaptor(parent) {
-    // NOOP
-}
+ImportDocument::ImportDocument(QObject *parent) : DocumentBasedImportAdaptor(parent) {}
 
-ImportDocument::~ImportDocument() {
-    // NOOP
-}
+ImportDocument::~ImportDocument() {}
 
 
 QStringList ImportDocument::supportedExtentions() {

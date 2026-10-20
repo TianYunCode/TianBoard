@@ -60,7 +60,7 @@ const QPixmap *ThumbnailAdaptor::get(DocumentProxy *proxy, int pageIndex) {
 
     QPixmap *pix = new QPixmap();
     if (file.exists()) {
-        //Warning. Works only with modified Qt
+        // 第三个参数按颜色深度/色彩空间解码，0 表示不让 Qt 做缩放，保持原图尺寸。
         pix->load(fileName, 0, Qt::AutoColor);
     }
     return pix;

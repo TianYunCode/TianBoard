@@ -72,22 +72,13 @@ void AsyncLocalFileDownloader::abort() {
     mAborting.storeRelease(1);
 }
 
-/** The unique instance of the download manager */
 static DownloadManager *pInstance = NULL;
 
-/**
- * \brief Constructor
- * @param parent as the parent widget
- * @param name as the object name
- */
 DownloadManager::DownloadManager(QObject *parent, const char *name) : QObject(parent) {
     setObjectName(name);
     init();
 }
 
-/**
- * \brief Destructor
- */
 DownloadManager::~DownloadManager() {
     // 本地复制线程是自己释放的，父对象析构前必须等它们真正结束，
     // 否则会出现 “QThread: Destroyed while thread is still running”。
@@ -99,10 +90,6 @@ DownloadManager::~DownloadManager() {
     }
 }
 
-/**
- * \brief Get the download manager
- * @return a pointer on the download manager
- */
 DownloadManager *DownloadManager::downloadManager() {
     if (NULL == pInstance) {
         pInstance = new DownloadManager();
@@ -117,21 +104,15 @@ void DownloadManager::destroy() {
     pInstance = NULL;
 }
 
-/**
- * \brief Add a file to the download list
- * @param desc as the given file description
- */
 int DownloadManager::addFileToDownload(sDownloadFileDesc desc) {
-    // Set the ID for this download
+    // 编号由管理器统一分配，调用方传入的值会被覆盖。
     desc.id = mLastID;
     mLastID++;
 
-    // Add the file to the pending download list
     mPendingDL.append(desc);
 
-    // If the download is modal, show the download dialog
     if (desc.modal) {
-        // Update the download order (priority to modal files)
+        // 模态任务要排在队首，并立即显示下载窗口。
         updateDownloadOrder();
         Application::mainWindow->showDownloadWidget();
     }
@@ -144,9 +125,6 @@ int DownloadManager::addFileToDownload(sDownloadFileDesc desc) {
     return desc.id;
 }
 
-/**
- * \brief Initialize the download manager
- */
 void DownloadManager::init() {
     mCrntDL.clear();
     mPendingDL.clear();
@@ -158,10 +136,8 @@ void DownloadManager::init() {
     }
 }
 
-/**
- * \brief Update the download order. The modal downloads will be put in priority.
- */
 void DownloadManager::updateDownloadOrder() {
+    // 模态任务排到非模态任务之前，保证等待框对应的下载优先完成。
     QVector<sDownloadFileDesc> modalFiles;
     QVector<sDownloadFileDesc> nonModalfiles;
 
@@ -177,65 +153,40 @@ void DownloadManager::updateDownloadOrder() {
     mPendingDL = modalFiles + nonModalfiles;
 }
 
-/**
- * \brief Update the download list. If a current download is finished, we take a
- *  file from the pending download list and add it to the download list.
- */
 void DownloadManager::onUpdateDownloadLists() {
+    // 并发槽位以 id 记录，-1 表示空闲；有空位就把等待队列头部移入进行中。
     for (int i = 0; i < SIMULTANEOUS_DOWNLOAD; i++) {
         if (mPendingDL.empty()) {
-            // If we fall here that means that there is no pending download
             break;
         }
         if (-1 == mDLAvailability.at(i)) {
-            // Pending downloads exist and a download 'slot' is available
-            // Let's move the first pending download to the current download
-            // list and fill the slot
             sDownloadFileDesc desc = mPendingDL.at(0);
             mCrntDL.append(desc);
             mPendingDL.remove(0);
             mDLAvailability.remove(i);
             mDLAvailability.insert(i, desc.id);
 
-            // Start the download of this file
             startFileDownload(desc);
         }
     }
 }
 
-/**
- * \brief Get the list of the current downloads
- * @return a QVector of current downloads
- */
 QVector<sDownloadFileDesc> DownloadManager::currentDownloads() {
     return mCrntDL;
 }
 
-/**
- * \brief Get the list of the pending downloads
- * @return a QVector of pending downloads
- */
 QVector<sDownloadFileDesc> DownloadManager::pendingDownloads() {
     return mPendingDL;
 }
 
-/**
- * \brief Update the file transfer information
- * @param desc as the current downloaded file description
- */
 void DownloadManager::onDownloadProgress(int id, qint64 received, qint64 total) {
     updateFileCurrentSize(id, received, total);
 }
 
-/**
- * \brief Called when the download of the given file is finished
- * @param desc as the current downloaded file description
- */
-
 void DownloadManager::onDownloadFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl,
                                          QString pContentTypeHeader, QByteArray pData, QPointF pPos,
                                          QSize pSize, bool isBackground) {
-    //    Temporary data for dnd do not delete it please
+    // 拖放位置与尺寸只对画板生效，这里先不拆参，由下游信号原样带走。
     Q_UNUSED(pPos)
     Q_UNUSED(pSize)
     Q_UNUSED(isBackground)
@@ -248,7 +199,7 @@ void DownloadManager::onDownloadFinished(int id, bool pSuccess, QUrl sourceUrl, 
                 emit downloadFinished(pSuccess, desc, pData);
 
             } else if (desc.dest == sDownloadFileDesc::board) {
-                // The downloaded file is modal so we must put it on the board
+                // 画板模式下由画板控制器决定落点与插入方式。
                 emit addDownloadedFileToBoard(pSuccess, sourceUrl, contentUrl, pContentTypeHeader, pData,
                                               pPos, pSize, isBackground);
             } else {
@@ -259,23 +210,16 @@ void DownloadManager::onDownloadFinished(int id, bool pSuccess, QUrl sourceUrl, 
         }
     }
 
-    // Then do this
     updateFileCurrentSize(id);
 }
 
-/**
- * \brief Update the description of the given current downloaded file
- * @param desc as the current downloaded file description
- */
 void DownloadManager::updateFileCurrentSize(int id, qint64 received, qint64 total) {
     for (int i = 0; i < mCrntDL.size(); i++) {
         if (mCrntDL.at(i).id != id)
             continue;
 
         if (received >= 0 && total >= 0) {
-            // -------------------------------------
-            // [=============== x% ====            ]
-            // -------------------------------------
+            // 进度更新：保留总量未知（-1）的情况给下面的收尾分支。
             sDownloadFileDesc desc = mCrntDL.at(i);
             desc.currentSize = received;
             desc.totalSize = total;
@@ -285,19 +229,14 @@ void DownloadManager::updateFileCurrentSize(int id, qint64 received, qint64 tota
             return;
         }
 
-        // -------------------------------------
-        // [=============== 100% ==============]
-        // -------------------------------------
-        // received and total are negative. That means that the download is finished
+        // received/total 为负表示下载已结束：把大小补成总量并移出进行中列表。
         mCrntDL[i].currentSize = mCrntDL.at(i).totalSize;
 
-        // Remove the finished file from the current download list
         mCrntDL.remove(i);
 
-        // Here we don't forget to remove the reply related to the finished download
         releaseDownload(id);
 
-        // Free the download slot used by the finished file
+        // 归还并发槽位。
         for (int j = 0; j < mDLAvailability.size(); j++) {
             if (id == mDLAvailability.at(j)) {
                 mDLAvailability[j] = -1;
@@ -307,17 +246,14 @@ void DownloadManager::updateFileCurrentSize(int id, qint64 received, qint64 tota
 
         const bool allDone = mCrntDL.isEmpty() && mPendingDL.isEmpty();
 
-        // Here we check if some modal downloads remain
         checkIfModalRemains();
 
-        // Then we start the next pending download. 走队列而不是直接递归调用：
-        // 同步失败的下载会在同一栈里层层回调进来。
+        // 走队列而不是直接递归调用：同步失败的下载会在同一栈里层层回调进来。
         if (!allDone)
             QMetaObject::invokeMethod(this, &DownloadManager::onUpdateDownloadLists, Qt::QueuedConnection);
 
         emit downloadFinished(id);
 
-        // Verify if all downloads are finished
         if (allDone) {
             finishDownloads();
         }
@@ -326,11 +262,8 @@ void DownloadManager::updateFileCurrentSize(int id, qint64 received, qint64 tota
     }
 }
 
-/**
- * \brief Start the download of a file
- * @param desc as the given file description
- */
 void DownloadManager::startFileDownload(sDownloadFileDesc desc) {
+    // 本地文件走工作线程复制；网络资源走 HTTP 下载，两者共用同一套完成回调。
     if (desc.srcUrl.startsWith("file://") || desc.srcUrl.startsWith("/")) {
         AsyncLocalFileDownloader *cpHelper = new AsyncLocalFileDownloader(desc, this);
         connect(cpHelper, &AsyncLocalFileDownloader::signal_asyncCopyFinished, this,
@@ -350,7 +283,7 @@ void DownloadManager::startFileDownload(sDownloadFileDesc desc) {
         connect(http, &DownloadHttpFile::downloadFinished, this, &DownloadManager::onDownloadFinished);
         connect(http, &DownloadHttpFile::downloadError, this, &DownloadManager::onDownloadError);
 
-        //the desc.srcUrl is encoded. So we have to decode it before.
+        // 传入的地址是编码过的，先解码再交给网络层。
         QUrl url = QUrl::fromEncoded(desc.srcUrl.toUtf8());
         http->get(url, desc.pos, desc.size, desc.isBackground);
 
@@ -369,9 +302,6 @@ void DownloadManager::releaseDownload(int id) {
         handle->deleteLater();
 }
 
-/**
- * \brief Verify if modal downloads remains and notify everyone if it is not the case.
- */
 void DownloadManager::checkIfModalRemains() {
     bool bModal = false;
     for (int i = 0; i < mCrntDL.size(); i++) {
@@ -391,19 +321,15 @@ void DownloadManager::checkIfModalRemains() {
     }
 
     if (!bModal) {
-        // Close the modal window
+        // 没有模态任务了，关闭下载窗口并通知界面。
         Application::mainWindow->hideDownloadWidget();
 
-        // Notify that no modal downloads are pending
         emit downloadModalFinished();
     }
 }
 
-/**
- * \brief Cancel all downloads
- */
 void DownloadManager::cancelDownloads() {
-    // Stop the current downloads
+    // 先请求中止，再清空队列；句柄自身负责延后释放。
     QMap<int, QObject *>::iterator it = mDownloads.begin();
     for (; it != mDownloads.end(); it++) {
         if (AsyncLocalFileDownloader *localDownload = qobject_cast<AsyncLocalFileDownloader *>(it.value()))
@@ -412,7 +338,6 @@ void DownloadManager::cancelDownloads() {
             httpDownload->cancel();
     }
 
-    // Clear all the lists
     init();
 
     checkIfModalRemains();
@@ -435,7 +360,7 @@ void DownloadManager::finishDownloads(bool cancel) {
 }
 
 void DownloadManager::cancelDownload(int id) {
-    // Stop the download. 两类句柄都会自行安排释放，这里只负责发出取消请求。
+    // 两类句柄都会自行安排释放，这里只负责发出取消请求。
     QObject *handle = mDownloads.value(id);
     if (AsyncLocalFileDownloader *pLocalDownload = qobject_cast<AsyncLocalFileDownloader *>(handle)) {
         if (pLocalDownload->isRunning())
@@ -446,7 +371,7 @@ void DownloadManager::cancelDownload(int id) {
 
     mDownloads.remove(id);
 
-    // Remove the canceled download from the download lists
+    // 从进行中或等待列表里摘掉该任务。
     bool bFound = false;
     for (int i = 0; i < mCrntDL.size(); i++) {
         if (id == mCrntDL.at(i).id) {
@@ -465,7 +390,7 @@ void DownloadManager::cancelDownload(int id) {
         }
     }
 
-    // Free the download slot used by the finished file
+    // 归还并发槽位。
     for (int h = 0; h < mDLAvailability.size(); h++) {
         if (id == mDLAvailability.at(h)) {
             mDLAvailability.remove(h);
@@ -474,19 +399,15 @@ void DownloadManager::cancelDownload(int id) {
         }
     }
 
-    // Here we check if some modal downloads remain
     checkIfModalRemains();
 
-    // Then we update the list of downloads
     onUpdateDownloadLists();
 
-    // Verify if all downloads are finished
     if (mCrntDL.empty() && mPendingDL.empty()) {
         finishDownloads();
     }
 }
 
-// ------------------------------------------------------------------------------
 DownloadHttpFile::DownloadHttpFile(int fileId, QObject *parent)
     : HttpGet(parent), mId(fileId), mCancelled(false) {
     connect(this, &HttpGet::downloadFinished, this, &DownloadHttpFile::onDownloadFinished);
@@ -506,11 +427,9 @@ void DownloadHttpFile::onDownloadProgress(qint64 bytesReceived, qint64 bytesTota
 void DownloadHttpFile::onDownloadFinished(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader,
                                           QByteArray pData, QPointF pPos, QSize pSize, bool isBackground) {
     if (pSuccess) {
-        // Notify the end of the download
         emit downloadFinished(mId, pSuccess, sourceUrl, sourceUrl, pContentTypeHeader, pData, pPos, pSize,
                               isBackground);
     } else {
-        // Notify the fact that and error occured during the download
         emit downloadError(mId);
     }
 

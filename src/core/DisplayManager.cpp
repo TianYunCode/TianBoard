@@ -71,8 +71,7 @@ void DisplayManager::swapDisplayScreens(bool swap) {
     initScreenIndexes();
 
     if (swap && !mPreviousScreenIndexes.isEmpty()) {
-        // As it s a really specific ask and we don't have much time to handle it correctly
-        // this code handles only the swap between the main display screen and the first previous one
+        // 交换逻辑只覆盖“主展示屏与第一块历史屏”，更多屏幕的组合不在支持范围内。
         int displayScreenIndex = mDisplayScreenIndex;
         mDisplayScreenIndex = mPreviousScreenIndexes.at(0);
         mPreviousScreenIndexes.clear();
@@ -86,9 +85,7 @@ void DisplayManager::swapDisplayScreens(bool swap) {
 }
 
 
-DisplayManager::~DisplayManager() {
-    // NOOP
-}
+DisplayManager::~DisplayManager() {}
 
 
 int DisplayManager::numScreens() {
@@ -206,10 +203,10 @@ void DisplayManager::blackout() {
     for (int i = 0; i < screenIndexes.size(); i++) {
         int screenIndex = screenIndexes.at(i);
 
-        BlackoutWidget *blackoutWidget = new BlackoutWidget(); //deleted in DisplayManager::unBlackout
+        BlackoutWidget *blackoutWidget = new BlackoutWidget(); // 由 DisplayManager::unBlackout 删除
         connect(blackoutWidget, &BlackoutWidget::activity, this, &DisplayManager::unBlackout);
 
-        // display logo on main screen
+        // 只有控制屏显示返回控件，其余屏幕只显示标志。
         blackoutWidget->setReturnControlsVisible(screenIndex == mControlScreenIndex);
 
         blackoutWidget->setGeometry(mDesktop->screenGeometry(screenIndex));
@@ -225,7 +222,7 @@ void DisplayManager::blackout() {
 
 void DisplayManager::unBlackout() {
     while (!mBlackoutWidgets.isEmpty()) {
-        // the widget is also destroyed thanks to its Qt::WA_DeleteOnClose attribute
+        // 控件带 Qt::WA_DeleteOnClose，close() 之后由 Qt 释放。
         mBlackoutWidgets.takeFirst()->close();
     }
 

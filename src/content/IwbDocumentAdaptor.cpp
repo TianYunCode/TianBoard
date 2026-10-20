@@ -60,7 +60,7 @@ bool IwbDocumentAdaptor::convertPageToIwb(const QString &from, const QString &to
     if (!compressZip(tmpDestination, to))
         qDebug() << "error in compression";
 
-    //Cleanning tmp souces in filesystem
+    // 源是 .tbz 时解压出来的是临时目录，转换完立即删除；源本身是目录时保留。
     if (!QFileInfo(from).isDir())
         if (!freeDir(source))
             qDebug() << "can't delete tmp directory" << QDir(source).absolutePath()
@@ -697,7 +697,7 @@ QString IwbDocumentAdaptor::ToIwbConverter::getDstContentFolderName(const QStrin
     QString sRet;
     QString sDstContentFolderName;
 
-    // widgets must be saved as .png images.
+    // Widget 在 IWB 里没有等价图元，统一转成 png 快照放进 images/ 目录。
     if ((tIWBImage == elementType) || (tPageForeignObject == elementType))
         sDstContentFolderName = cfImages;
     else if (tIWBVideo == elementType)
@@ -720,14 +720,6 @@ QString IwbDocumentAdaptor::ToIwbConverter::getSrcContentFolderName(QString href
             sRet = sPart;
         }
     }
-
-    //     if (0 < ls.count())
-    //         sRet = ls.at(ls.count()-1);
-    //
-    //     sRet = href.remove(sRet);
-    //
-    //     if (sRet.endsWith("/"))
-    //         sRet.remove("/");
 
     return sRet;
 }
@@ -914,6 +906,8 @@ QTransform IwbDocumentAdaptor::ToIwbConverter::transformOfPageElement(const QDom
 
     QStringList transformParameters;
 
+    // 只处理 matrix(a,b,c,d,e,f) 形式：IWB 导出端把 rotate/translate 都折算成矩阵，
+    // 其它函数写法在这里会被忽略，保持单位变换。
     QString transformAttribute = pageElement.attribute(aTransform);
     transformAttribute.remove("matrix");
     transformAttribute.remove("(");
@@ -1176,7 +1170,8 @@ bool IwbDocumentAdaptor::ToIwbConverter::setIwbAttribute(const QString &attribut
         if (0 < iwbElement.attributes().count()) {
             QStringList tl = pageElement.attribute(aSVGHref).split("/");
             QString id = tl.at(tl.count() - 1);
-            // if element already have an ID, we use it. Else we create new id for element.
+            // 元素已有 id 时沿用，保证同一页面内 SVG 元素与 iwb:element 的 ref 对应；
+            // 没有 href 的图元（例如矩形）才生成新 UUID。
             if (QString() == id)
                 id = QUuid::createUuid().toString();
 
@@ -1266,7 +1261,6 @@ bool IwbDocumentAdaptor::ToIwbConverter::createBackground(const QDomElement &ele
 
     QDomDocument doc;
 
-    //QDomElement svgBackgroundElementPart = doc.createElementNS(svgIWBNS,svgIWBNSPrefix + ":" + tPageImage);
     QDomElement svgBackgroundElementPart = doc.createElementNS(svgIWBNS, svgIWBNSPrefix + ":" + tIWBRect);
     QDomElement iwbBackgroundElementPart = doc.createElementNS(iwbNS, iwbNsPrefix + ":" + tElement);
 
@@ -1290,11 +1284,8 @@ bool IwbDocumentAdaptor::ToIwbConverter::createBackground(const QDomElement &ele
         svgBackgroundElementPart.setAttribute(aHeight, bckRect.height());
         svgBackgroundElementPart.setAttribute(aWidth, bckRect.width());
 
-        //svgBackgroundElementPart.setAttribute(aSVGHref, backgroundImagePath);
-
         iwbBackgroundElementPart.setAttribute(aRef, sElementID);
         iwbBackgroundElementPart.setAttribute(aBackground, avTrue);
-        //iwbBackgroundElementPart.setAttribute(aLocked, avTrue);
 
         addSVGElementToResultModel(svgBackgroundElementPart, dstSvgList, DEFAULT_BACKGROUND_LAYER);
         addIWBElementToResultModel(iwbBackgroundElementPart);
@@ -1407,7 +1398,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseSVGGGroup(const QDomElement &eleme
     QDomElement svgElementPart = doc.createElementNS(svgIWBNS, svgIWBNSPrefix + ":" + tIWBG);
     QDomElement iwbElementPart = doc.createElementNS(iwbNS, iwbNsPrefix + ":" + tElement);
 
-    // Elements can know about its layer, so it must add result QDomElements to ordrered list.
+    // 元素的 z-value 不一定等于插入顺序，先按层号收集再统一排序写出。
     while (!nextElement.isNull()) {
         QString tagName = nextElement.tagName();
         if (tagName == tPageLine)
@@ -1511,7 +1502,8 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageAudio(const QDomElement &eleme
     QDomElement iwbElementPart = doc.createElementNS(iwbNS, iwbNsPrefix + ":" + tElement);
 
     if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart)) {
-        //we must create image-containers for audio files
+        // IWB 的 <a> 元素只能引用媒体，图形本身要另写一个 image 作为可点击封面，
+        // 因此这里先给音频生成 png 图标，再把原来的 audio 元素改名成 image。
         int audioImageDimention =
             qMin(svgElementPart.attribute(aWidth).toInt(), svgElementPart.attribute(aHeight).toInt());
         QString srcAudioImageFile(sAudioElementImage);
@@ -1522,7 +1514,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageAudio(const QDomElement &eleme
 
         QFile srcFile(srcAudioImageFile);
 
-        //creating folder for audioImage
+        // 音频图标与普通图片共用 images/ 目录，按元素 uuid 命名避免冲突。
         QDir dstDocFolder(destinationPath);
         bool bRes = true;
         if (!dstDocFolder.exists(cfImages))
@@ -1531,7 +1523,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageAudio(const QDomElement &eleme
         if (bRes &&
             createPngFromSvg(srcAudioImageFile, dstAudioImageFilePath, transformOfPageElement(element),
                              QSize(audioImageDimention, audioImageDimention))) {
-            // first we place content
+            // <a> 的 href 指向音频，image 的 href 指向图标，两者共同构成可播放元素。
             QDomElement svgASection = doc.createElementNS(svgIWBNS, svgIWBNSPrefix + ":" + tIWBA);
             svgASection.setAttribute(aSVGHref, svgElementPart.attribute(aSVGHref));
 
@@ -1781,7 +1773,7 @@ QString IwbDocumentAdaptor::ToIwbConverter::contentIWBFileName() const {
     return destinationPath + "/" + fIWBContent;
 }
 
-//setting SVG dimenitons
+// 解析 metadata.rdf 里的 "宽x高" 尺寸串；格式不合法时返回空 QSize 由调用方报错。
 QSize IwbDocumentAdaptor::ToIwbConverter::getSVGDimentions(const QString &element) {
     QStringList dimList;
 

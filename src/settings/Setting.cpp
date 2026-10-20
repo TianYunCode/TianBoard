@@ -6,7 +6,7 @@
 
 
 Setting::Setting(Settings *parent) : QObject(parent) {
-    //NOOP
+    // 刻意留空
 }
 
 Setting::Setting(Settings *owner, const QString &pDomain, const QString &pKey, const QVariant &pDefaultValue)
@@ -16,11 +16,11 @@ Setting::Setting(Settings *owner, const QString &pDomain, const QString &pKey, c
       mKey(pKey),
       mPath(pDomain + "/" + pKey),
       mDefaultValue(pDefaultValue) {
-    get(); // force caching of the setting
+    get(); // 读一次，把该设置项缓存进内存
 }
 
 Setting::~Setting() {
-    // NOOP
+    // 刻意留空
 }
 
 void Setting::set(const QVariant &pValue) {
@@ -53,7 +53,7 @@ void Setting::setInt(int pValue) {
 
 
 ColorListSetting::ColorListSetting(Settings *parent) : Setting(parent) {
-    //NOOP
+    // 刻意留空
 }
 
 ColorListSetting::ColorListSetting(Settings *owner, const QString &pDomain, const QString &pKey,
@@ -69,7 +69,7 @@ ColorListSetting::ColorListSetting(Settings *owner, const QString &pDomain, cons
 }
 
 ColorListSetting::~ColorListSetting() {
-    // NOOP
+    // 刻意留空
 }
 
 QVariant ColorListSetting::reset() {

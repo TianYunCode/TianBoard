@@ -14,7 +14,7 @@ int Settings::pointerDiameter = 40;
 int Settings::crossSize = 24;
 int Settings::defaultCrossSize = 24;
 int Settings::minCrossSize = 12;
-int Settings::maxCrossSize = 96; //TODO: user-settable?
+int Settings::maxCrossSize = 96; // TODO: 是否开放给用户自行设置？
 int Settings::colorPaletteSize = 5;
 int Settings::objectFrameWidth = 20;
 int Settings::boardMargin = 10;
@@ -97,7 +97,7 @@ const int Settings::defaultVideoWidth = 80;
 const int Settings::thumbnailSpacing = 20;
 const int Settings::longClickInterval = 1200;
 
-const qreal Settings::minScreenRatio = 1.33; // 800/600 or 1024/768
+const qreal Settings::minScreenRatio = 1.33; // 对应 800/600、1024/768 这一档分辨率
 
 QStringList Settings::bitmapFileExtensions;
 QStringList Settings::vectoFileExtensions;
@@ -105,7 +105,7 @@ QStringList Settings::imageFileExtensions;
 QStringList Settings::widgetFileExtensions;
 QStringList Settings::interactiveContentFileExtensions;
 
-QColor Settings::treeViewBackgroundColor = QColor(209, 215, 226); //in synch with css tree view background
+QColor Settings::treeViewBackgroundColor = QColor(209, 215, 226); // 与样式表里树形视图背景色一致
 
 int Settings::objectInControlViewMargin = 100;
 
@@ -172,21 +172,21 @@ void Settings::InitKeyboardPaletteKeyBtnSizes() {
 }
 
 void Settings::ValidateKeyboardPaletteKeyBtnSize() {
-    // if boardKeyboardPaletteKeyBtnSize is not initialized, or supportedKeyboardSizes not initialized or empty
+    // 设置项还没建立、或候选尺寸表为空时无从校验，直接放过。
     if (!boardKeyboardPaletteKeyBtnSize || !supportedKeyboardSizes || supportedKeyboardSizes->size() == 0)
         return;
 
-    // get original size value
+    // 读出已保存的按键尺寸。
     QString origValue = boardKeyboardPaletteKeyBtnSize->get().toString();
 
-    // parse available size values, for make sure original value is valid
+    // 与候选表逐项比对，确认保存值仍然合法。
     for (int i = 0; i < supportedKeyboardSizes->size(); i++) {
         int compareCode = QString::compare(origValue, supportedKeyboardSizes->at(i));
         if (compareCode == 0)
             return;
     }
 
-    // if original value is invalid, than set it value to first value from avaliable list
+    // 不在候选表里（多半是旧版本或手改配置留下的），回退到表内第一项。
     boardKeyboardPaletteKeyBtnSize->set(supportedKeyboardSizes->at(0));
 }
 
@@ -404,7 +404,7 @@ void Settings::init() {
     // 七个带 tr() 的标签，取词时机不对；这里留空，由唯一的读方自己兜默认。
     favoritesNativeToolUris = new Setting(this, "App", "FavoriteToolURIs", QStringList());
 
-    // removed in version 4.4.b.2
+    // 该配置项在 4.4.b.2 起已废弃，顺手清掉旧配置文件里的残留键。
     mUserSettings->remove("Recording/RecordMicrophone");
 
     documentThumbnailWidth = new Setting(this, "Document", "ThumbnailWidth", Settings::defaultThumbnailWidth);
@@ -441,30 +441,23 @@ void Settings::init() {
 }
 
 
-/**
- * @brief Returns the value for the *key* setting, or *defaultValue* if the key doesn't exist
- *
- * The value is also added to the local settings queue, to prevent future disk I/O when accessing
- * that same setting.
- *
- * If the value doesn't exist in the application settings (i.e it was not present in the config file),
- * it is also added there.
- */
+// 读取顺序：内存队列 -> 应用级配置 -> 用户级配置，三处都没有才用 defaultValue。
+// 副作用：应用级配置里缺这个键时会把 defaultValue 补写进去（只改内存中的 QSettings
+// 对象），命中结果也会进队列，避免同一个键反复触发磁盘 I/O。
 QVariant Settings::value(const QString &key, const QVariant &defaultValue) {
-    // Check first the settings queue, then the app settings, then the user settings.
-    // If the key exists in neither of these, then defaultValue is returned.
+    // 先查内存队列，命中就不必再读盘。
 
     if (mSettingsQueue.contains(key))
         return mSettingsQueue.value(key);
 
-    // If the setting doesn't exist in the App settings, add it there
+    // 应用级配置里没有这个键，就把默认值补写进去
     if (!sAppSettings->contains(key) && !(defaultValue == QVariant()))
         sAppSettings->setValue(key, defaultValue);
 
-    // Get the value from the user settings (or if it doesn't exist there, from the app settings)
+    // 用户级配置优先，缺省再回落到应用级配置
     QVariant val = mUserSettings->value(key, sAppSettings->value(key, defaultValue));
 
-    // Add the value to the settings queue for faster access next time it is requested
+    // 结果放进队列，下次读同一个键更快
     mSettingsQueue[key] = val;
 
     return val;
@@ -472,21 +465,20 @@ QVariant Settings::value(const QString &key, const QVariant &defaultValue) {
 
 
 void Settings::setValue(const QString &key, const QVariant &value) {
-    // Save the setting to the queue only; a call to save() is necessary to persist the settings
+    // 只写进队列；必须再调用 save() 才会真正落盘
     mSettingsQueue[key] = value;
 }
 
-/**
- * @brief Save all the queued settings to disk
- */
+// 把队列里的设置批量写入用户配置文件。
 void Settings::save() {
     QHash<QString, QVariant>::const_iterator it = mSettingsQueue.constBegin();
 
     while (it != mSettingsQueue.constEnd()) {
         /*
-         * We save the setting to the user settings if
-         * a) it is different from the (non-null) value stored in the user settings, or
-         * b) it doesn't currently exist in the user settings AND has changed from the app settings
+         * 满足下面任一条件才写用户配置：
+         * a) 用户配置里已有该键，但值与队列中的不同；
+         * b) 用户配置里没有该键，且队列值与应用级配置里的值不同。
+         * 其余情况保持“继承应用级默认值”，避免把默认值抄成用户覆盖值。
         */
         if (mUserSettings->contains(it.key()) && it.value() != mUserSettings->value(it.key())) {
             mUserSettings->setValue(it.key(), it.value());
@@ -499,7 +491,7 @@ void Settings::save() {
         ++it;
     }
 
-    // Force save to file
+    // 立即同步到文件，不等 QSettings 析构
     mUserSettings->sync();
 
     qDebug() << "User settings saved";
@@ -532,7 +524,7 @@ qreal Settings::currentPenWidth() {
             break;
         default:
             Q_ASSERT(false);
-            //failsafe
+            // 兜底：Release 下 Q_ASSERT 不生效，仍要返回一个可用宽度
             width = boardPenFineWidth->get().toDouble();
             break;
     }
@@ -600,7 +592,7 @@ qreal Settings::currentMarkerWidth() {
             break;
         default:
             Q_ASSERT(false);
-            //failsafe
+            // 兜底：Release 下 Q_ASSERT 不生效，仍要返回一个可用宽度
             width = boardMarkerFineWidth->get().toDouble();
             break;
     }
@@ -641,7 +633,7 @@ QList<QColor> Settings::markerColors(bool onDarkBackground) {
 }
 
 //----------------------------------------//
-// eraser
+// 橡皮
 
 int Settings::eraserWidthIndex() {
     return value("Board/EraserCircleWidthIndex", 1).toInt();
@@ -690,7 +682,7 @@ qreal Settings::currentEraserWidth() {
             break;
         default:
             Q_ASSERT(false);
-            //failsafe
+            // 兜底：Release 下 Q_ASSERT 不生效，仍要返回一个可用宽度
             width = eraserFineWidth();
             break;
     }
@@ -1157,10 +1149,7 @@ void Settings::closing() {
     save();
 }
 
-/**
- * @brief Permanently remove a setting, from local memory and config files
- * @param setting The setting to remove
- */
+// 彻底移除一个键：应用级配置、用户级配置与内存队列里都清掉。
 void Settings::removeSetting(const QString &setting) {
     if (sAppSettings->contains(setting))
         sAppSettings->remove(setting);
@@ -1174,11 +1163,10 @@ void Settings::removeSetting(const QString &setting) {
 
 void Settings::checkNewSettings() {
     /*
-     * Some settings were modified in new versions and TianBoard can crash
-     * if an old settings file is used. This function checks these settings and
-     * if necessary, resets them to the values initialized in Settings::init().
+     * 有些设置项在新版本里改了含义或取值范围，继续沿用旧配置文件会直接崩。
+     * 这里逐项检查，必要时把它们重置成 init() 里初始化的默认值。
      *
-     * Thus this method can be removed when it is no longer deemed useful.
+     * 等这些老配置文件都淘汰干净，本函数可以整个删掉。
      */
 
     // 调色板从 4 色扩到 5 色之后写的老配置只有 4 个选中项，读回来会让画笔取到越界的
@@ -1195,19 +1183,17 @@ void Settings::checkNewSettings() {
 
     colorSettings.clear();
 
-    // Next we check whether all the new colors were added; i.e if some default
-    // colors are not also in the config file, we add them to it.
+    // 接着补齐新版本新增的候选颜色：配置文件里缺哪个默认色就把它追加进去。
 
-    // This is not nearly as critical as the above issue, but the users (or admins) seemingly
-    // can't be trusted to delete or modify their own config file when upgrading, so they might
-    // wonder why they don't have the new colors in their app.
+    // 这件事远不如上面那条关键，但升级时不能指望用户（或管理员）自己去删改配置文件，
+    // 否则他们只会奇怪“为什么新版本的颜色在我这儿看不到”。
 
     colorSettings << boardPenDarkBackgroundColors << boardPenLightBackgroundColors
                   << boardMarkerDarkBackgroundColors << boardMarkerLightBackgroundColors;
 
     foreach (ColorListSetting *setting, colorSettings) {
         QStringList defaultColors = qvariant_cast<QStringList>(setting->defaultValue());
-        QStringList currentColors(qvariant_cast<QStringList>(setting->get())); // copy
+        QStringList currentColors(qvariant_cast<QStringList>(setting->get())); // 取副本，改完整体写回
 
         foreach (QString c, defaultColors) {
             if (!currentColors.contains(c))
@@ -1218,10 +1204,10 @@ void Settings::checkNewSettings() {
     }
 
 
-    // A typo was corrected in version 1.3
+    // 1.3 版修正了这个键名的拼写错误，旧键要清掉，否则会留下一个没人读的死键
     removeSetting("Board/useSystemOnScreenKeybard");
 
 
-    // CrossedBackground changed in 1.4 (no longer a bool but an enum; can be crossed or ruled)
+    // 1.4 版把 CrossedBackground 从 bool 改成枚举（crossed / ruled），旧键直接清掉
     removeSetting("Board/CrossedBackground");
 }

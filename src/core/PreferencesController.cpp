@@ -29,12 +29,11 @@ qreal PreferencesController::sMinPenWidth = 0.5;
 qreal PreferencesController::sMaxPenWidth = 50.0;
 
 
-// Hand-written replacement for the generated ui_brushProperties.h form (uic 6.9.3).
-// The form is built into the QFrame handed to BrushPropertiesFrame, which owns it as
-// its parent widget; the Ui struct holds raw pointers only. Object names and the
-// translated source texts must stay exactly as uic produced them. The translation
-// context is kept as "brushProperties" because BrushPropertiesFrame is not a QObject,
-// so no tr() is available for it.
+// 手写的界面代码，取代 uic（6.9.3）生成的 ui_brushProperties.h。
+// 控件都建在交给 BrushPropertiesFrame 的那个 QFrame 之下，由该 QFrame 作为父对象
+// 负责销毁；Ui 结构只持有裸指针，自己不 delete 任何东西。对象名与待翻译原文必须
+// 与 uic 生成的完全一致，否则 .ts 翻译对不上。翻译上下文仍用 "brushProperties"，
+// 因为 BrushPropertiesFrame 不是 QObject，没有 tr() 可用。
 struct BrushPropertiesFrame::Ui {
     QGridLayout *gridLayout;
     QFrame *pressureFrame;
@@ -353,8 +352,8 @@ struct BrushPropertiesFrame::Ui {
 
         retranslateUi(brushProperties);
 
-        // QMetaObject::connectSlotsByName() omitted on purpose: BrushPropertiesFrame is
-        // not a QObject and declares no slot at all.
+        // 故意不调用 QMetaObject::connectSlotsByName()：BrushPropertiesFrame 不是
+        // QObject，也根本没有声明任何槽，调了只会白扫一遍对象树。
     } // setupUi
 
     void retranslateUi(QFrame *brushProperties) {
@@ -383,10 +382,9 @@ struct BrushPropertiesFrame::Private {
 };
 
 
-// Hand-written replacement for the generated ui_preferences.h form (uic 6.9.3).
-// Every widget and layout created below is parented to the dialog, so Qt owns and
-// destroys them: this struct holds raw pointers only and never deletes anything.
-// Object names and translated source texts must stay exactly as uic produced them.
+// 手写的界面代码，取代 uic（6.9.3）生成的 ui_preferences.h。
+// 下面创建的每个控件与布局都以对话框为父对象，由 Qt 负责销毁：本结构只持有裸指针，
+// 从不 delete。对象名与待翻译原文必须与 uic 生成的完全一致，否则 .ts 翻译对不上。
 struct PreferencesDialog::Ui {
     QGridLayout *gridLayout;
     QFrame *frame;
@@ -1117,8 +1115,8 @@ struct PreferencesDialog::Ui {
         closeButton->setDefault(true);
         mainTabWidget->setCurrentIndex(3);
 
-        // QMetaObject::connectSlotsByName() omitted on purpose: the dialog and its
-        // controller declare no on_<object>_<signal>() slot.
+        // 故意不调用 QMetaObject::connectSlotsByName()：对话框与其控制器都没有声明
+        // on_<对象名>_<信号>() 形式的槽，靠名字自动连接一个也连不上。
     } // setupUi
 
     void retranslateUi(QWidget *preferencesDialog) {
@@ -1224,7 +1222,7 @@ PreferencesController::PreferencesController(QWidget *parent)
       mLightBackgroundGridColorPicker(0) {
     mDesktop = VirtualDesktop::instance();
     mPreferencesWindow = new PreferencesDialog(this, parent, Qt::Dialog);
-    // The dialog owns its form; this is a borrowed pointer, never deleted here.
+    // 界面归对话框所有，这里只是借用指针，本类不负责删除。
     mPreferencesUI = &mPreferencesWindow->ui();
     adjustScreens(1);
     connect(mDesktop, &VirtualDesktop::screenCountChanged, this, &PreferencesController::adjustScreens);
@@ -1256,7 +1254,7 @@ void PreferencesController::show() {
 void PreferencesController::wire() {
     Settings *settings = Settings::settings();
 
-    // main tab
+    // 主标签页
     mPreferencesUI->mainTabWidget->setCurrentWidget(mPreferencesUI->displayTab);
 
     connect(mPreferencesUI->closeButton, &QPushButton::released, this, &PreferencesController::close);
@@ -1264,7 +1262,7 @@ void PreferencesController::wire() {
             &PreferencesController::defaultSettings);
 
 
-    // OSK preferences
+    // 屏幕键盘设置
 
     for (int i = 0; i < settings->supportedKeyboardSizes->size(); i++)
         mPreferencesUI->keyboardPaletteKeyButtonSize->addItem(settings->supportedKeyboardSizes->at(i));
@@ -1275,7 +1273,7 @@ void PreferencesController::wire() {
     connect(mPreferencesUI->useSystemOSKCheckBox, &QCheckBox::clicked, this,
             &PreferencesController::systemOSKCheckBoxToggled);
 
-    // Documents Mode preferences
+    // 文档模式设置
     connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked,
             settings->showDateColumnOnAlphabeticalSort, &Setting::setBool);
     connect(mPreferencesUI->showDateColumnOnAlphabeticalSort, &QCheckBox::clicked,
@@ -1322,8 +1320,8 @@ void PreferencesController::wire() {
     connect(mPreferencesUI->toolbarDisplayTextCheckBox, &QCheckBox::clicked, settings->appToolBarDisplayText,
             &Setting::setBool);
 
-    //grid tab
-    //On light background
+    // 网格标签页
+    // 浅色背景一侧
     QPalette lightBackgroundPalette = QApplication::palette();
     lightBackgroundPalette.setColor(QPalette::Window, Qt::white);
 
@@ -1360,7 +1358,7 @@ void PreferencesController::wire() {
     connect(mPreferencesUI->lightBackgroundOpacitySlider, &QSlider::valueChanged, this,
             &PreferencesController::lightBackgroundCrossOpacityValueChanged);
 
-    //On dark background
+    // 深色背景一侧
     QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
     QColor selectedCrossColorDarkBackground(settings->boardCrossColorDarkBackground->get().toString());
 
@@ -1382,7 +1380,7 @@ void PreferencesController::wire() {
     connect(mPreferencesUI->darkBackgroundOpacitySlider, &QSlider::valueChanged, this,
             &PreferencesController::darkBackgroundCrossOpacityValueChanged);
 
-    // pen
+    // 钢笔属性面板
     QList<QColor> penLightBackgroundColors = settings->boardPenLightBackgroundColors->colors();
     QList<QColor> penDarkBackgroundColors = settings->boardPenDarkBackgroundColors->colors();
     QList<QColor> penLightBackgroundSelectedColors =
@@ -1408,7 +1406,7 @@ void PreferencesController::wire() {
     connect(mPenProperties->ui().circleSpinBox, &QSpinBox::valueChanged, this,
             &PreferencesController::penPreviewFromSizeChanged);
 
-    // marker
+    // 荧光笔属性面板
     QList<QColor> markerLightBackgroundColors = settings->boardMarkerLightBackgroundColors->colors();
     QList<QColor> markerDarkBackgroundColors = settings->boardMarkerDarkBackgroundColors->colors();
     QList<QColor> markerLightBackgroundSelectedColors =
@@ -1439,7 +1437,7 @@ void PreferencesController::wire() {
 void PreferencesController::init() {
     Settings *settings = Settings::settings();
 
-    // display tab
+    // 显示标签页
     for (int i = 0; i < mPreferencesUI->keyboardPaletteKeyButtonSize->count(); i++)
         if (mPreferencesUI->keyboardPaletteKeyButtonSize->itemText(i) ==
             settings->boardKeyboardPaletteKeyBtnSize->get().toString()) {
@@ -1492,7 +1490,7 @@ void PreferencesController::init() {
     mPreferencesUI->verticalChoice->setChecked(settings->appToolBarOrientationVertical->get().toBool());
     mPreferencesUI->horizontalChoice->setChecked(!settings->appToolBarOrientationVertical->get().toBool());
 
-    // pen tab
+    // 钢笔标签页
     mPenProperties->ui().fineSlider->setValue(settings->boardPenFineWidth->get().toDouble() * sSliderRatio);
     mPenProperties->ui().mediumSlider->setValue(settings->boardPenMediumWidth->get().toDouble() *
                                                 sSliderRatio);
@@ -1503,7 +1501,7 @@ void PreferencesController::init() {
     mPenProperties->ui().circleCheckBox->setChecked(settings->showPenPreviewCircle->get().toBool());
     mPenProperties->ui().circleSpinBox->setValue(settings->penPreviewFromSize->get().toInt());
 
-    // marker tab
+    // 荧光笔标签页
     mMarkerProperties->ui().fineSlider->setValue(settings->boardMarkerFineWidth->get().toDouble() *
                                                  sSliderRatio);
     mMarkerProperties->ui().mediumSlider->setValue(settings->boardMarkerMediumWidth->get().toDouble() *
@@ -1517,7 +1515,7 @@ void PreferencesController::init() {
 }
 
 void PreferencesController::close() {
-    //web
+    // 主页与代理凭据没有实时连线，只在关闭对话框时统一写回
     QString homePage = mPreferencesUI->webHomePage->text();
 
     Settings::settings()->webHomePage->set(homePage);

@@ -3,8 +3,8 @@
 #include <QtCore>
 
 
-#define AUTOSAVE_IN 1000 * 3 // seconds
-#define MAXWAIT 1000 * 15    // seconds
+#define AUTOSAVE_IN 1000 * 3 // 毫秒：最后一次变更后的等待时间
+#define MAXWAIT 1000 * 15    // 毫秒：从首次变更起的最大延迟
 
 AutoSaver::AutoSaver(QObject *parent) : QObject(parent) {
     Q_ASSERT(parent);

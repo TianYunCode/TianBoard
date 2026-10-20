@@ -71,7 +71,7 @@ LanguageManager::LanguageManager(QObject *parent)
       mQtTranslator(new QTranslator(this)),
       mCurrentLanguage(QString::fromLatin1(kSourceLanguage)),
       mInstalled(false) {
-    // NOOP
+    // 刻意留空
 }
 
 LanguageManager *LanguageManager::instance() {

@@ -19,14 +19,12 @@ const QString MetadataDcSubsetAdaptor::metadataFilename = "metadata.rdf";
 MetadataDcSubsetAdaptor::MetadataDcSubsetAdaptor() {}
 
 
-MetadataDcSubsetAdaptor::~MetadataDcSubsetAdaptor() {
-    // NOOP
-}
+MetadataDcSubsetAdaptor::~MetadataDcSubsetAdaptor() {}
 
 
 void MetadataDcSubsetAdaptor::persist(DocumentProxy *proxy) {
     if (!QDir(proxy->persistencePath()).exists()) {
-        //In this case the a document is an empty document so we do not persist it
+        // 文档尚未落地（新建后还没保存过），此时没有目录可写，直接跳过。
         return;
     }
     QString fileName = proxy->persistencePath() + "/" + metadataFilename;
@@ -128,7 +126,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
 
                         QSize docSize(width, height);
 
-                        if (width == 1024 && height == 768) // move from 1024/768 to 1280/960
+                        if (width == 1024 && height == 768) // 旧版默认页面尺寸，迁移到当前配置尺寸
                         {
                             docSize = Settings::settings()->pageSize->get().toSize();
                         }
@@ -165,14 +163,14 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
         int controlScreenIndex = dw->primaryScreen();
 
         QSize docSize = dw->screenGeometry(controlScreenIndex).size();
-        docSize.setHeight(docSize.height() - 70); // 70 = toolbar height
+        docSize.setHeight(docSize.height() - 70); // 扣掉工具栏高度，避免页面被工具条遮住
 
         qDebug() << "Document size not found, using default view size" << docSize;
 
         metadata.insert(Settings::documentSize, QVariant(docSize));
     }
 
-    // this is necessary to update the old files date
+    // 旧文件只写了日期没有时间，补成 UTC 零点，保证后续按 ISO 时间解析不失败。
     QString dateString = metadata.value(Settings::documentDate).toString();
     if (dateString.length() < 10) {
         metadata.remove(Settings::documentDate);

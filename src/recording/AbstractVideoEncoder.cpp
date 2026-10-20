@@ -7,11 +7,11 @@ AbstractVideoEncoder::AbstractVideoEncoder(QObject *pParent)
       mVideoSize(640, 480),
       mVideoBitsPerSecond(1700000) // 1.7 Mbps
 {
-    // NOOP
+    // 刻意留空
 }
 
 AbstractVideoEncoder::~AbstractVideoEncoder() {
-    // NOOP
+    // 刻意留空
 }
 
 

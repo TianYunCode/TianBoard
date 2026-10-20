@@ -8,7 +8,7 @@
 
 HttpGet::HttpGet(QObject *parent)
     : QObject(parent), mReply(0), mIsBackground(false), mRedirectionCount(0), mIsSelfAborting(false) {
-    // NOOP
+    // 成员都在初始化列表里置好，构造体内无额外动作。
 }
 
 
@@ -91,7 +91,7 @@ void HttpGet::requestFinished() {
 }
 
 void HttpGet::downloadProgressed(qint64 bytesReceived, qint64 bytesTotal) {
-    //    qDebug() << "received: " << bytesReceived << ", / " << bytesTotal << " bytes";
+    // bytesTotal 为 -1 表示响应没给出总长度，此时进度无从计算，直接不上报。
     if (-1 != bytesTotal) {
         emit downloadProgress(bytesReceived, bytesTotal);
     }

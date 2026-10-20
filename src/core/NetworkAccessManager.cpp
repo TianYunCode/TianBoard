@@ -52,9 +52,9 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent)
 
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &req,
                                                    QIODevice *outgoingData) {
-    QNetworkRequest request = req; // copy so we can modify
-    // this is a temporary hack until we properly use the pipelining flags from QtWebkit
-    // pipeline everything! :)
+    QNetworkRequest request = req; // 拷一份再改，不动调用方传进来的那个请求
+    // 临时做法：这里对所有请求一律打开 HTTP 管线化，没有按网页视图给出的管线化标志
+    // 区分。等真正接上那套标志后，再改成按请求决定。
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
 
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, request, outgoingData);
@@ -80,8 +80,8 @@ void NetworkAccessManager::authenticationRequired(QNetworkReply *reply, QAuthent
                        .arg((reply->url().toString()).toHtmlEscaped());
     dialog.setIntroText(introMessage);
 
-    // Pre-fill with the proxy credentials stored by the preferences dialog, the
-    // same pair proxyAuthenticationRequired() uses silently.
+    // 用偏好设置里保存下来的凭据预填对话框；proxyAuthenticationRequired() 静默用的
+    // 也是同一对用户名/密码。
     const ProxyCredentials stored = CredentialStore::proxyCredentials();
     dialog.setUserName(stored.userName);
     dialog.setPassword(stored.password);
@@ -119,7 +119,7 @@ void NetworkAccessManager::proxyAuthenticationRequired(const QNetworkProxy &prox
 }
 
 void NetworkAccessManager::sslErrors(QNetworkReply *reply, const QList<QSslError> &error) {
-    // check if SSL certificate has been trusted already
+    // 先看这个主机（含端口）是否已被用户信任过，信任过就不再弹窗打断
     QString replyHost = reply->url().host() + ":" + QString::number(reply->url().port());
     if (!sslTrustedHostList.contains(replyHost)) {
         QWidget *mainWindow = QApplication::activeWindow();

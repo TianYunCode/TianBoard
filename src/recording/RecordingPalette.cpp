@@ -34,6 +34,8 @@ RecordingPalette::RecordingPalette(QWidget *parent) : ActionPalette(Qt::Horizont
 
     addAction(Application::mainWindow->ui().actionRecordingConfig);
 
+    // 配置入口复用主工具栏的 QAction，菜单挂在它关联的 QToolButton 上。
+    // 设备/尺寸/发布动作都由 RecordingController 懒加载创建，调色板只负责把它们拼进菜单。
     foreach (QWidget *menuWidget, Application::mainWindow->ui().actionRecordingConfig->associatedWidgets()) {
         QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
 
@@ -70,7 +72,7 @@ RecordingPalette::RecordingPalette(QWidget *parent) : ActionPalette(Qt::Horizont
 
 
 RecordingPalette::~RecordingPalette() {
-    // NOOP
+    // 刻意留空
 }
 
 
@@ -82,8 +84,7 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
         Application::mainWindow->ui().actionRecordingPause->setChecked(false);
         Application::mainWindow->ui().actionRecordingPause->setEnabled(true);
 
-        //Application::mainWindow->actionRecordingMic->setEnabled(false);
-
+        // 录制中改音频设备/尺寸不会作用到已创建的编码器，直接禁掉配置入口。
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(false);
     } else if (state == RecordingController::Stopped) {
         Application::mainWindow->ui().actionRecordingStart->setChecked(false);
@@ -92,7 +93,6 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
         Application::mainWindow->ui().actionRecordingPause->setChecked(false);
         Application::mainWindow->ui().actionRecordingPause->setEnabled(false);
 
-        //Application::mainWindow->actionRecordingMic->setEnabled(true);
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(true);
     } else if (state == RecordingController::Paused) {
         Application::mainWindow->ui().actionRecordingStart->setChecked(true);
@@ -101,7 +101,6 @@ void RecordingPalette::recordingStateChanged(RecordingController::RecordingState
         Application::mainWindow->ui().actionRecordingPause->setChecked(true);
         Application::mainWindow->ui().actionRecordingPause->setEnabled(true);
 
-        //Application::mainWindow->actionRecordingMic->setEnabled(false);
         Application::mainWindow->ui().actionRecordingConfig->setEnabled(false);
     } else {
         Application::mainWindow->ui().actionRecordingStart->setEnabled(false);
@@ -115,6 +114,7 @@ void RecordingPalette::recordingProgressChanged(qint64 ms) {
     int min = ms / 60000;
     int seconds = (ms / 1000) % 60;
 
+    // 分钟左补空格、秒左补 0，保证计时文本宽度稳定，标签不会随秒数跳动。
     d->mTimerLabel->setText(QString("%1:%2").arg(min, 3, 10, QChar(' ')).arg(seconds, 2, 10, QChar('0')));
 }
 
@@ -125,12 +125,12 @@ void RecordingPalette::audioLevelChanged(quint8 level) {
 
 
 VuMeter::VuMeter(QWidget *pParent) : QWidget(pParent), mVolume(0) {
-    // NOOP
+    // 刻意留空
 }
 
 
 VuMeter::~VuMeter() {
-    // NOOP
+    // 刻意留空
 }
 
 void VuMeter::setVolume(quint8 pVolume) {
@@ -146,6 +146,7 @@ void VuMeter::paintEvent(QPaintEvent *e) {
 
     QPainter painter(this);
 
+    // 上下各留 4 像素，把 0-255 的音量线性映射成剩余高度。
     int h = (height() - 8) * mVolume / 255;
     QRectF rect(0, height() - 4 - h, width(), h);
 

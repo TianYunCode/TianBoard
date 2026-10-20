@@ -74,7 +74,7 @@ ApplicationController::ApplicationController(BoardView *pControlView, BoardView 
         mPreviousViews.append(previousView);
     }
 
-    mBlackScene = new GraphicsScene(0); // deleted by ApplicationController::destructor
+    mBlackScene = new GraphicsScene(0); // 由 ApplicationController 析构函数删除
     mBlackScene->setBackground(true, PageBackground::plain);
 
     if (mDisplayManager->numScreens() >= 2 && mDisplayManager->useMultiScreen()) {
@@ -472,15 +472,8 @@ void ApplicationController::closing() {
         mUninoteController->close();
     }
 
-    /*
-
-    if (Application::documentController)
-        Application::documentController->closing();
-
-    */
-
-    PersistenceManager::persistenceManager()
-        ->closing(); // ALTI/AOU - 20140616 : to update the file "documents/folders.xml"
+    // 退出前把文档目录树写回 documents/folders.xml。
+    PersistenceManager::persistenceManager()->closing();
 }
 
 

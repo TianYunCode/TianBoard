@@ -17,9 +17,7 @@ ImportPDF::ImportPDF(QObject *parent) : PageBasedImportAdaptor(parent) {
 }
 
 
-ImportPDF::~ImportPDF() {
-    // NOOP
-}
+ImportPDF::~ImportPDF() {}
 
 
 QStringList ImportPDF::supportedExtentions() {
@@ -35,8 +33,8 @@ QString ImportPDF::importFileFilter() {
 QList<GraphicsItem *> ImportPDF::import(const QUuid &uuid, const QString &filePath) {
     QList<GraphicsItem *> result;
 
-    PDFRenderer *pdfRenderer = PDFRenderer::rendererForUuid(
-        uuid, filePath, true); // renderer is automatically deleted when not used anymore
+    // 渲染器由 PDFRenderer 按 uuid 缓存，图元析构、引用计数归零后会自动释放。
+    PDFRenderer *pdfRenderer = PDFRenderer::rendererForUuid(uuid, filePath, true); // 第三个参数表示允许创建
 
     if (!pdfRenderer->isValid()) {
         Application::showMessage(tr("PDF import failed."));
@@ -48,7 +46,8 @@ QList<GraphicsItem *> ImportPDF::import(const QUuid &uuid, const QString &filePa
 
     for (int pdfPageNumber = 1; pdfPageNumber <= pdfPageCount; pdfPageNumber++) {
         Application::showMessage(tr("Importing page %1 of %2").arg(pdfPageNumber).arg(pdfPageCount), true);
-        result << new GraphicsPDFItem(pdfRenderer, pdfPageNumber); // deleted by the scene
+        // 所有权交给调用方，placeImportedItemToScene 时再转交场景。
+        result << new GraphicsPDFItem(pdfRenderer, pdfPageNumber); // 由场景负责 delete
     }
     return result;
 }

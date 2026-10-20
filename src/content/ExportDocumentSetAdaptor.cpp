@@ -21,9 +21,7 @@ THIRD_PARTY_WARNINGS_ENABLE
 
 ExportDocumentSetAdaptor::ExportDocumentSetAdaptor(QObject *parent) : ExportAdaptor(parent) {}
 
-ExportDocumentSetAdaptor::~ExportDocumentSetAdaptor() {
-    // NOOP
-}
+ExportDocumentSetAdaptor::~ExportDocumentSetAdaptor() {}
 
 void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy) {
     QModelIndex treeViewParentIndex;
@@ -122,13 +120,9 @@ bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, Docum
 
     DocumentProxy *pDocumentProxy = model->proxyForIndex(parentIndex);
     if (pDocumentProxy) {
-        //        Q_ASSERT(QFileInfo(pDocumentProxy->persistencePath()).exists());
-        //        ForeighnObjectsHandler cleaner;
-        //        cleaner.cure(pDocumentProxy->persistencePath());
-
         QString documentPath(pDocumentProxy->persistencePath());
-        //document.checkDocumentDirectory(documentPath);
 
+        // 每个文档目录以自身目录名作为包内前缀，子文档因此天然落在父目录之下。
         QDir documentDir = QDir(pDocumentProxy->persistencePath());
         QuaZipFile zipFile(&zip);
         FileSystemUtils::compressDirInZip(documentDir, QFileInfo(documentPath).fileName() + "/", &zipFile,

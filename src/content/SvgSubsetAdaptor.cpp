@@ -101,15 +101,14 @@ static bool itemZIndexComp(const QGraphicsItem *item1, const QGraphicsItem *item
 
 
 void SvgSubsetAdaptor::upgradeScene(DocumentProxy *proxy, const int pageIndex) {
-    //4.2
+    // 4.2 版本迁移
     QDomDocument doc = loadSceneDocument(proxy, pageIndex);
-    QDomElement elSvg = doc.documentElement(); // SVG tag
-    QString formatVersion =
-        elSvg.attributeNS(Settings::documentNamespaceUri, "version", "4.1"); // default to 4.1
+    QDomElement elSvg = doc.documentElement();                                                   // SVG 根标签
+    QString formatVersion = elSvg.attributeNS(Settings::documentNamespaceUri, "version", "4.1"); // 默认 4.1
 
     if (formatVersion.startsWith("4.1") || formatVersion.startsWith("4.2") ||
         formatVersion.startsWith("4.3")) {
-        // migrate to 4.2.1 (or latter)
+        // 迁移到 4.2.1 或更高版本
         GraphicsScene *scene = loadScene(proxy, pageIndex);
         scene->setModified(true);
         persistScene(proxy, scene, pageIndex);
@@ -268,7 +267,7 @@ GraphicsScene *SvgSubsetAdaptor::loadScene(DocumentProxy *proxy, const QByteArra
 
 SvgSubsetAdaptor::SvgSubsetReader::SvgSubsetReader(DocumentProxy *pProxy, const QByteArray &pXmlData)
     : mXmlReader(pXmlData), mProxy(pProxy), mDocumentPath(pProxy->persistencePath()), mGroupHasInfo(false) {
-    // NOOP
+    // 空实现
 }
 
 
@@ -301,8 +300,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                 if (!svgUbVersion.isNull()) {
                     QString formatVersion = svgUbVersion.toString();
 
-                    //may look like : 4 or 4.1 or 4.2 or 4.2.1, etc
-
+                    // 版本串形如 4 / 4.1 / 4.2 / 4.2.1，段数不定
                     QStringList parts = formatVersion.split(".");
 
                     if (parts.length() > 0) {
@@ -387,8 +385,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                 if (!ruledBackgroundValue.isNull())
                     ruledBackground = (ruledBackgroundValue.toString() == xmlTrue);
 
-                if (ruledBackground &&
-                    !crossedBackground) { // if for some reason both are true, the background will be a grid
+                if (ruledBackground && !crossedBackground) { // 万一两个标记同时为真，背景按网格处理
                     QStringView gridSizeValue = mXmlReader.attributes().value(mNamespaceUri, "grid-size");
 
                     if (!gridSizeValue.isNull()) {
@@ -603,8 +600,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
 
                     videoItem->show();
                 }
-            } else if (mXmlReader.name() ==
-                       "text") //This is for backward compatibility with proto text field prior to version 4.3
+            } else if (mXmlReader.name() == "text") // 4.3 以前正文写在 text 字段里，读旧文档时还得认它
             {
                 GraphicsTextItem *textItem = textItemFromSvg();
                 if (textItem) {
@@ -669,10 +665,8 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                         VirtualDesktop *desktop = VirtualDesktop::instance();
                         qreal currentDpi = desktop->physicalDpi();
                         qreal pdfScale = qreal(proxy->pageDpi()) / currentDpi;
-                        // qDebug() << "pdfScale " << pdfScale;
-
-                        // If the PDF is in the background, it occupies the whole page; so we can simply
-                        // use that information to calculate its scale.
+                        // PDF 当背景时它铺满整页，比例直接由页面尺寸与 DPI 就能算出来，
+                        // 不必去问图元自己的变换。
                         if (isBackground) {
                             qreal pageWidth = mScene->nominalSize().width();
                             qreal pageHeight = mScene->nominalSize().height();
@@ -748,10 +742,10 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
 
                 currentWidget->setDatastoreEntry(key, value);
             } else if (mXmlReader.name() == tGroups) {
-                //considering groups section at the end of the document
+                // groups 段写在文档末尾，交给专门的读取器补挂
                 readGroupRoot();
             } else {
-                // NOOP
+                // 未知元素整体跳过：文档里出现新版写入的标签时，旧版本仍要能读出剩下的内容
             }
         } else if (mXmlReader.isEndElement()) {
             if (mXmlReader.name() == "g") {
@@ -827,8 +821,8 @@ GraphicsGroupContainerItem *SvgSubsetAdaptor::SvgSubsetReader::readGroup() {
                 QString id = mXmlReader.attributes().value(aId).toString();
                 QGraphicsItem *curItem = readElementFromGroup();
 
-                // Explanation: the second condition discriminate the old storage version that should
-                // not be interpreted anymore
+                // 第二个条件是过滤旧版存储格式的：那种 UUID 里带两对花括号，
+                // 现在的格式不会再解释它，读进来只会得到一堆对不上号的图元。
                 if (curItem && id.count("{") < 2)
                     groupContainer.append(curItem);
             } else {
@@ -843,8 +837,6 @@ GraphicsGroupContainerItem *SvgSubsetAdaptor::SvgSubsetReader::readGroup() {
         group->addToGroup(item);
 
     if (group->childItems().count()) {
-        //        mScene->addItem(group);
-
         if (1 == group->childItems().count()) {
             group->destroy(false);
         }
@@ -897,12 +889,8 @@ void SvgSubsetAdaptor::persistScene(DocumentProxy *proxy, GraphicsScene *pScene,
 
 SvgSubsetAdaptor::SvgSubsetWriter::SvgSubsetWriter(DocumentProxy *proxy, GraphicsScene *pScene,
                                                    const int pageIndex)
-    : mScene(pScene),
-      mDocumentPath(proxy->persistencePath()),
-      mPageIndex(pageIndex)
-
-{
-    // NOOP
+    : mScene(pScene), mDocumentPath(proxy->persistencePath()), mPageIndex(pageIndex) {
+    // 写文件用的路径与页号从代理取，其余状态在各自 write 调用里现取
 }
 
 
@@ -970,7 +958,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::writeSvgElement(DocumentProxy *proxy) {
 bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int pageIndex) {
     Q_UNUSED(pageIndex);
 
-    //Creating dom structure to store information
+    // 组信息先攒在一份临时 DOM 里，最后统一写到文档末尾的 groups 段
     QDomDocument groupDomDocument;
     QDomElement groupRoot = groupDomDocument.createElement(tGroups);
     groupDomDocument.appendChild(groupRoot);
@@ -989,7 +977,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
 
     writeSvgElement(proxy);
 
-    // Get the items from the scene
+    // 取出全部图元，按 Z 序排好——写出顺序就是文档里的叠放顺序
     QList<QGraphicsItem *> items = mScene->items();
 
     std::sort(items.begin(), items.end(), itemZIndexComp);
@@ -1001,7 +989,6 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
     while (!items.empty()) {
         QGraphicsItem *item = items.takeFirst();
 
-        // Is the item a polygon?
         GraphicsPolygonItem *polygonItem = qgraphicsitem_cast<GraphicsPolygonItem *>(item);
         if (polygonItem && polygonItem->isVisible()) {
             GraphicsStroke *currentStroke = polygonItem->stroke();
@@ -1057,7 +1044,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
                 if (stroke && !stroke->hasPressure()) {
                     strokeToSvgPolyline(stroke, groupHoldsInfo);
 
-                    //we can dequeue all polygons belonging to that stroke
+                    // 这一笔的所有多边形一起出队，剩下的循环不再看它们
                     foreach (GraphicsPolygonItem *gi, stroke->polygons()) {
                         items.removeOne(gi);
                     }
@@ -1083,14 +1070,12 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
             openStroke = 0;
         }
 
-        // Is the item a picture?
         GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
         if (pixmapItem && pixmapItem->isVisible()) {
             pixmapItemToLinkedImage(pixmapItem);
             continue;
         }
 
-        // Is the item a shape?
         GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
         if (svgItem && svgItem->isVisible()) {
             svgItemToLinkedSvg(svgItem);
@@ -1111,77 +1096,66 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
             continue;
         }
 
-        // Is the item an app?
         GraphicsAppleWidgetItem *appleWidgetItem = qgraphicsitem_cast<GraphicsAppleWidgetItem *>(item);
         if (appleWidgetItem && appleWidgetItem->isVisible()) {
             graphicsAppleWidgetToSvg(appleWidgetItem);
             continue;
         }
 
-        // Is the item a web widget (W3C Widgets format)?
         GraphicsWebWidgetItem *webWidgetItem = qgraphicsitem_cast<GraphicsWebWidgetItem *>(item);
         if (webWidgetItem && webWidgetItem->isVisible()) {
             graphicsWebWidgetToSvg(webWidgetItem);
             continue;
         }
 
-        // Is the item a PDF?
         GraphicsPDFItem *pdfItem = qgraphicsitem_cast<GraphicsPDFItem *>(item);
         if (pdfItem && pdfItem->isVisible()) {
             pdfItemToLinkedPDF(pdfItem);
             continue;
         }
 
-        // Is the item a text?
         GraphicsTextItem *textItem = qgraphicsitem_cast<GraphicsTextItem *>(item);
         if (textItem && textItem->isVisible()) {
             textItemToSvg(textItem);
             continue;
         }
 
-        // Is the item a curtain?
         GraphicsCurtainItem *curtainItem = qgraphicsitem_cast<GraphicsCurtainItem *>(item);
         if (curtainItem && curtainItem->isVisible()) {
             curtainItemToSvg(curtainItem);
             continue;
         }
 
-        // Is the item a ruler?
         GraphicsRuler *ruler = qgraphicsitem_cast<GraphicsRuler *>(item);
         if (ruler && ruler->isVisible()) {
             rulerToSvg(ruler);
             continue;
         }
 
-        // Is the item a cache?
         GraphicsCache *cache = qgraphicsitem_cast<GraphicsCache *>(item);
         if (cache && cache->isVisible()) {
             cacheToSvg(cache);
             continue;
         }
 
-        // Is the item a compass
         GraphicsCompass *compass = qgraphicsitem_cast<GraphicsCompass *>(item);
         if (compass && compass->isVisible()) {
             compassToSvg(compass);
             continue;
         }
 
-        // Is the item a protractor?
         GraphicsProtractor *protractor = qgraphicsitem_cast<GraphicsProtractor *>(item);
         if (protractor && protractor->isVisible()) {
             protractorToSvg(protractor);
             continue;
         }
 
-        // Is the item a triangle?
         GraphicsTriangle *triangle = qgraphicsitem_cast<GraphicsTriangle *>(item);
         if (triangle && triangle->isVisible()) {
             triangleToSvg(triangle);
             continue;
         }
 
-        // Is the item a group?
         GraphicsGroupContainerItem *groupItem = qgraphicsitem_cast<GraphicsGroupContainerItem *>(item);
         if (groupItem && groupItem->isVisible()) {
             persistGroupToDom(groupItem, &groupRoot, &groupDomDocument);
@@ -1195,7 +1169,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
         openStroke = 0;
     }
 
-    //writing group data
+    // 攒到这里的组确实有内容才写 groups 段，空段留给读取方判断版本反而添乱
     if (groupRoot.hasChildNodes()) {
         mXmlWriter.writeStartElement(tGroups);
         QDomElement curElement = groupRoot.firstChildElement();
@@ -1283,7 +1257,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgLine(GraphicsPolygonItem
     mXmlWriter.writeAttribute("x1", QString::number(line.p1().x(), 'f', 2));
     mXmlWriter.writeAttribute("y1", QString::number(line.p1().y(), 'f', 2));
 
-    // SVG renderers (Chrome) do not like line where (x1, y1) == (x2, y2)
+    // 零长度直线会让部分 SVG 渲染器（Chrome）整条不画，人为挪开一点点
     qreal x2 = line.p2().x();
     if (line.p1() == line.p2())
         x2 += 0.01;
@@ -1325,7 +1299,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::strokeToSvgPolyline(GraphicsStroke *stro
 
         points << pols.last()->originalLine().p2();
 
-        // SVG renderers (Chrome) do not like line withe where x1/y1 == x2/y2
+        // 同样的理由：两点重合的折线也得不到渲染
         if (points.size() == 2 && (points.at(0) == points.at(1))) {
             points[1] = QPointF(points[1].x() + 0.01, points[1].y());
         }
@@ -1399,7 +1373,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgPolygon(GraphicsPolygonI
         qreal alpha = polygonItem->brush().color().alphaF();
         mXmlWriter.writeAttribute("fill-opacity", QString::number(alpha, 'f', 2));
 
-        // we trick SVG antialiasing, to avoid seeing light gaps between polygons
+        // 半透明笔迹的多边形接缝处会因反锯齿露出一道亮缝；用同色的 1px 描边盖住它。
         if (alpha < 1.0) {
             qreal trickedAlpha = trickAlpha(alpha);
             mXmlWriter.writeAttribute("stroke", polygonItem->brush().color().name());
@@ -1407,11 +1381,10 @@ void SvgSubsetAdaptor::SvgSubsetWriter::polygonItemToSvgPolygon(GraphicsPolygonI
             mXmlWriter.writeAttribute("stroke-opacity", QString::number(trickedAlpha, 'f', 2));
         }
 
-        // svg default fill rule is nonzero, but Qt is evenodd
-        //
-        //http://www.w3.org/TR/SVG11/painting.html
-        //http://doc.trolltech.com/4.5/qgraphicspolygonitem.html#fillRule
-        //
+        // SVG 默认填充规则是 nonzero，而 Qt 的多边形默认 odd-even，
+        // 两边不显式写死就会在自交笔迹上画出不一样的洞。
+        // 参考 https://www.w3.org/TR/SVG11/painting.html 与
+        // https://doc.qt.io/qt-6/qgraphicspolygonitem.html#fillRule
 
         if (polygonItem->fillRule() == Qt::OddEvenFill)
             mXmlWriter.writeAttribute("fill-rule", "evenodd");
@@ -1461,7 +1434,7 @@ SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSvg(const QColor &pDefa
                 point.setY(sCoord.at(1).toFloat());
                 polygon << point;
             } else if (sCoord.size() == 4) {
-                //This is the case on system were the "," is used to seperate decimal
+                // 有的系统把坐标写成以逗号作小数点，切出来正好是四段
                 QPointF point;
                 QString x = sCoord.at(0) + "." + sCoord.at(1);
                 QString y = sCoord.at(2) + "." + sCoord.at(3);
@@ -1528,8 +1501,8 @@ SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSvg(const QColor &pDefa
         polygonItem->setColorOnLightBackground(color);
     }
 
-    // Before TianBoard v1.4, fill rule was only saved if it was "Even-odd". Therefore if no fill rule
-    // is specified, we assume that it should be Winding fill.
+    // v1.4 以前只有 odd-even 才会写 fill-rule，缺省即“非 odd-even”，
+    // 所以属性缺失要按 Winding 解释，而不是照抄 SVG 的 nonzero。
 
     QStringView fillRule = mXmlReader.attributes().value("fill-rule");
 
@@ -1703,7 +1676,7 @@ SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFromPolylineSvg(const QColor &pDe
                 point.setY(sCoord.at(1).toFloat());
                 points << point;
             } else if (sCoord.size() == 4) {
-                //This is the case on system were the "," is used to seperate decimal
+                // 有的系统把坐标写成以逗号作小数点，切出来正好是四段
                 QPointF point;
                 QString x = sCoord.at(0) + "." + sCoord.at(1);
                 QString y = sCoord.at(2) + "." + sCoord.at(3);
@@ -1874,7 +1847,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::audioItemToLinkedAudio(GraphicsAudioItem
 
 
 void SvgSubsetAdaptor::SvgSubsetWriter::videoItemToLinkedVideo(GraphicsVideoItem *videoItem) {
-    /* w3c sample
+    /* 按 W3C 小部件动画的写法，输出形如：
      *
      *  <video xlink:href="noonoo.avi" volume=".8" type="video/x-msvideo"
      *               width="320" height="240" x="50" y="50" repeatCount="indefinite"/>
@@ -2005,9 +1978,8 @@ void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem *gItem
     QStringView zValueAttr = mXmlReader.attributes().value(mNamespaceUri, "z-value");
 
     if (!zValueAttr.isNull()) {
-        // FIX
-        // In the firsts zvalue implemenations values outside the boudaries have been used.
-        // No boundaries specified on documentation but to small values are not correctly handled.
+        // 早期实现写出的 Z 值可能落在合法区间之外（文档当年没规定边界），
+        // 太小的值会让分层逻辑算错，所以读回来时先夹回边界内。
         qreal zValue = zValueAttr.toString().toFloat();
         while (zValue < -999999)
             zValue /= 10.;
@@ -2044,7 +2016,7 @@ void SvgSubsetAdaptor::SvgSubsetReader::graphicsItemFromSvg(QGraphicsItem *gItem
         gItem->setData(GraphicsItemData::ItemEditable, QVariant(isEditable));
     }
 
-    //deprecated as of 4.4.a.12
+    // 自 4.4.a.12 起废弃的 layer 数字属性：只为读旧文档保留，写出方不再产生它
     QStringView layerValue = mXmlReader.attributes().value(mNamespaceUri, "layer");
     if (!layerValue.isNull()) {
         bool ok;
@@ -2162,7 +2134,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem *
     mXmlWriter.writeAttribute("src", startFileUrl);
     mXmlWriter.writeEndElement(); //iFrame
 
-    //persists widget state
+    // 小部件的 preference 属于会话状态，也要落进文档，否则重开就丢
     QMap<QString, QString> preferences = item->preferences();
 
     foreach (QString key, preferences.keys()) {
@@ -2176,7 +2148,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem *
         mXmlWriter.writeEndElement(); //tb::preference
     }
 
-    //persists datasore state
+    // datastore 是小部件声明要持久化的数据，同样写进文档
     QMap<QString, QString> datastore = item->datastoreEntries();
 
     foreach (QString key, datastore.keys()) {
@@ -2255,7 +2227,7 @@ GraphicsWebWidgetItem *SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromS
 
 void SvgSubsetAdaptor::SvgSubsetWriter::textItemToSvg(GraphicsTextItem *item) {
     /**
-     * sample
+     * 输出形如：
      *
         <foreignObject x="0" y="0" width="489.297" height="76.3303" transform="matrix(0.508456, -0.861088, 0.861088, 0.508456, -181.721, 243.124)" tb:z-value="-9999998.000000" tb:background="false" tb:fill-on-dark-background="#81ff5c" tb:fill-on-light-background="#008000">
             <xhtml:body>
@@ -2284,12 +2256,11 @@ void SvgSubsetAdaptor::SvgSubsetWriter::textItemToSvg(GraphicsTextItem *item) {
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "fill-on-light-background",
                               colorLightBg.name());
 
-    //for new documents from version 4.5.0
+    // 4.5.0 起文本内容改由 itemTextContent 承载
     mXmlWriter.writeStartElement("itemTextContent");
 
-    // Note: don't use mXmlWriter.writeCDATA(htmlString); because it doesn't escape characters sequences correctly.
-    // Texts copied from other programs like Open-Office can truncate the svg file.
-    //mXmlWriter.writeCharacters(item->toHtml());
+    // 不能用 writeCDATA：它不转义字符序列，从别处粘来的正文里只要出现 "]]>"
+    // 就会把整份 SVG 截断。这里先洗掉危险序列，再按普通文本写出。
     mXmlWriter.writeCharacters(TextTools::cleanHtmlCData(item->toHtml()));
     mXmlWriter.writeEndElement(); //itemTextContent
 
@@ -2340,17 +2311,15 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg() {
 
         mXmlReader.readNext();
         if (mXmlReader.isStartElement()) {
-            //for new documents from version 4.5.0
+            // 4.5.0 起的文档走 itemTextContent；更早的走下面那套 font 属性
             if (mFileVersion >= 40500) {
                 if (mXmlReader.name() == "itemTextContent") {
                     text = mXmlReader.readElementText();
                     textItem->setHtml(text);
 
-                    // Fonts sizes are not displayed the same across platforms: e.g a text item with the same
-                    // font size (in Pts) is displayed smaller on Linux than Windows. This messes up layouts
-                    // when importing documents created on another computer, so if a font is being displayed
-                    // at a different size (relative to the rest of the document) than it was when created,
-                    // we adjust its size.
+                    // 同样的磅值在不同机器上渲染出的像素高不一样，导入别的机器存的文档
+                    // 版式就会散架。这里按存进文档的 pixelsPerPoint 与当前机器的比值
+                    // 把字号换算回来，让相对大小跟创建时保持一致。
                     if (originalPixelsPerPoint != 0) {
                         qreal pixelsPerPoint = textItem->pixelsPerPoint();
 
@@ -2366,7 +2335,7 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg() {
                                 textDelegate->scaleTextSize(ratio);
                         }
                     } else
-                        // mark scene as modified so the text item will be saved with a pixelsPerPoint value
+                        // 标脏，好让这一笔下次保存时把本机测到的 pixelsPerPoint 写进去
                         saveSceneAfterLoading = true;
 
 
@@ -2378,8 +2347,8 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg() {
                     return textItem;
                 }
 
-                //tracking for backward capability with older versions
             } else if (mXmlReader.name() == "font") {
+                // 老格式：字号字体直接挂在 font 标签的属性上
                 QFont font = textItem->font();
 
                 QStringView fontFamily = mXmlReader.attributes().value("face");
@@ -2458,8 +2427,7 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg() {
 
 void SvgSubsetAdaptor::SvgSubsetWriter::curtainItemToSvg(GraphicsCurtainItem *curtainItem) {
     /**
-     *
-     * sample
+     * 输出形如：
      *
       <tb:curtain x="250" y="150" width="122" height="67"...>
       </tb:curtain>
@@ -2472,7 +2440,6 @@ void SvgSubsetAdaptor::SvgSubsetWriter::curtainItemToSvg(GraphicsCurtainItem *cu
     mXmlWriter.writeAttribute("height", QString("%1").arg(curtainItem->boundingRect().height()));
     mXmlWriter.writeAttribute("transform", toSvgTransform(curtainItem->sceneTransform()));
 
-    //graphicsItemToSvg(curtainItem);
     QString zs;
     zs.setNum(curtainItem->zValue(), 'f'); // 'f' keeps precision
     mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
@@ -2515,8 +2482,7 @@ GraphicsCurtainItem *SvgSubsetAdaptor::SvgSubsetReader::curtainItemFromSvg() {
 
 void SvgSubsetAdaptor::SvgSubsetWriter::rulerToSvg(GraphicsRuler *item) {
     /**
-     *
-     * sample
+     * 输出形如：
      *
       <tb:ruler x="250" y="150" width="122" height="67"...>
       </tb:ruler>
@@ -2569,8 +2535,7 @@ GraphicsRuler *SvgSubsetAdaptor::SvgSubsetReader::rulerFromSvg() {
 
 void SvgSubsetAdaptor::SvgSubsetWriter::compassToSvg(GraphicsCompass *item) {
     /**
-     *
-     * sample
+     * 输出形如：
      *
       <tb:compass x="250" y="150" width="122" height="67"...>
       </tb:compass>
@@ -2623,8 +2588,7 @@ GraphicsCompass *SvgSubsetAdaptor::SvgSubsetReader::compassFromSvg() {
 
 void SvgSubsetAdaptor::SvgSubsetWriter::protractorToSvg(GraphicsProtractor *item) {
     /**
-     *
-     * sample
+     * 输出形如：
      *
       <tb:protractor x="250" y="150" width="122" height="67"...>
       </tb:protractor>
@@ -2693,8 +2657,7 @@ GraphicsProtractor *SvgSubsetAdaptor::SvgSubsetReader::protractorFromSvg() {
 
 void SvgSubsetAdaptor::SvgSubsetWriter::triangleToSvg(GraphicsTriangle *item) {
     /**
-     *
-     * sample
+     * 输出形如：
      *
       <tb:triangle x="250" y="150" width="122" height="67"...>
       </tb:triangle>

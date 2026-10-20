@@ -13,14 +13,10 @@
 #include "whiteboard/PDFRenderer.h"
 
 
-ImportImage::ImportImage(QObject *parent) : PageBasedImportAdaptor(parent) {
-    // NOOP
-}
+ImportImage::ImportImage(QObject *parent) : PageBasedImportAdaptor(parent) {}
 
 
-ImportImage::~ImportImage() {
-    // NOOP
-}
+ImportImage::~ImportImage() {}
 
 
 QStringList ImportImage::supportedExtentions() {
@@ -75,7 +71,7 @@ void ImportImage::placeImportedItemToScene(GraphicsScene *scene, GraphicsItem *i
         scene->addPixmap(pixmapItem->pixmap(), NULL, QPointF(0, 0), 1.0, false, true);
     scene->setAsBackgroundObject(sceneItem, true);
 
-    // Only stored pixmap, should be deleted now
+    // 导入用的临时图元只为了携带 pixmap，场景已复制出背景对象，这里必须释放。
     delete pixmapItem;
 }
 

@@ -11,12 +11,12 @@
 
 
 SceneCache::SceneCache() : mCachedSceneCount(0) {
-    // NOOP
+    // 无额外动作，计数已在初始化列表里置零。
 }
 
 
 SceneCache::~SceneCache() {
-    // NOOP
+    // 无动作。注意：这里并不释放仍留在缓存里的 GraphicsScene。
 }
 
 
@@ -29,8 +29,8 @@ GraphicsScene *SceneCache::createScene(DocumentProxy *proxy, int pageIndex, bool
 
 
 void SceneCache::insert(DocumentProxy *proxy, int pageIndex, GraphicsScene *scene) {
-    // A null entry would still make contains() true, and PersistenceManager::
-    // loadDocumentScene then returns null instead of falling back to disk.
+    // 空指针也必须挡在门外：一旦插进哈希表，contains() 就会为真，
+    // PersistenceManager::loadDocumentScene 便直接返回空，而不再回落到从磁盘加载。
     if (!proxy || !scene)
         return;
 

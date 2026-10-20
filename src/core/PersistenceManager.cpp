@@ -160,7 +160,8 @@ void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &con
 }
 
 QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(DocumentProxy *pProxy) {
-    //TODO: remove this hack, needed for double-click on a document package
+    // TODO: 双击文档包打开时会先套一个等待光标，这里的“存起来再改回去”是给那条路径擦屁股的，
+    //  proper 的做法是让打开流程自己管光标而不是在对话框里改。
     Qt::CursorShape saveShape;
     if (Application::overrideCursor()) {
         saveShape = Application::overrideCursor()->shape();
@@ -375,7 +376,7 @@ DocumentProxy *PersistenceManager::createDocument(const QString &pGroupName, con
         this->generatePathIfNeeded(doc);
         QDir dir(doc->persistencePath());
         if (!dir.mkpath(doc->persistencePath())) {
-            return 0; // if we can't create the path, abort function.
+            return 0; // 仓库路径建不出来就别往下走，写文档只会留下一堆半截文件
         }
     }
 
@@ -442,7 +443,8 @@ DocumentProxy *PersistenceManager::createDocumentFromDir(const QString &pDocumen
         SvgSubsetAdaptor::setSceneUuid(doc, i, QUuid::createUuid());
     }
 
-    //work around the
+    // 新建的文档已经落盘，但要不要留在树里取决于是否重名：
+    // 调用方不想弹框就直接收，想弹框则等用户裁决，否决的话要把刚写的目录一起删掉。
     bool addDoc = false;
     if (!promptDialogIfExists) {
         addDoc = true;
@@ -485,7 +487,7 @@ DocumentProxy *PersistenceManager::duplicateDocument(DocumentProxy *pDocumentPro
 
     FileSystemUtils::copyDir(pDocumentProxy->persistencePath(), copy->persistencePath());
 
-    // regenerate scenes UUIDs on the copy, not on the source document
+    // 副本的每一页都要换新 UUID：源文档的页号不能被副本顶掉，否则场景缓存会认错页。
     for (int i = 0; i < copy->pageCount(); i++) {
         SvgSubsetAdaptor::setSceneUuid(copy, i, QUuid::createUuid());
     }
@@ -542,7 +544,7 @@ void PersistenceManager::deleteDocumentScenes(DocumentProxy *proxy, const QList<
     foreach (int index, compactedIndexes) {
         GraphicsScene *scene = loadDocumentScene(proxy, index);
         if (scene) {
-            //scene is about to move into new document
+            // 这一页即将连带的媒体文件要搬进回收站那份文档，搬完才允许删原页
             foreach (QUrl relativeFile, scene->relativeDependencies()) {
                 QString source = scene->document()->persistencePath() + "/" + relativeFile.toString();
                 QString target = trashDocProxy->persistencePath() + "/" + relativeFile.toString();
@@ -607,15 +609,14 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index)
 
     copyPage(proxy, index, index + 1);
 
-    //TODO: write a proper way to handle object on disk
+    // TODO: 复制页面时磁盘上的对象只能靠“加载再存一遍”顺带搬走，缺一套正式的引用复制机制
     GraphicsScene *scene = loadDocumentScene(proxy, index + 1);
     if (!scene)
         return;
 
     foreach (QGraphicsItem *item, scene->items()) {
-        // GraphicsAudioItem and GraphicsVideoItem report their own Type, so
-        // qgraphicsitem_cast never matches the abstract base and the media file
-        // used to be shared by both pages.
+        // 音频与视频图元各自回报 Type，qgraphicsitem_cast 认不出抽象基类，
+        // 所以这里要按类型逐个问；早先正因为漏了视频分支，副本页会和原页共用同一个媒体文件。
         GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem *>(item);
 
         if (mediaItem) {
@@ -725,8 +726,6 @@ void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, D
     DocumentController *ctrl = Application::documentController;
     ctrl->addPixmapAt(pix, toIndex);
     ctrl->TreeViewSelectionChanged(ctrl->firstSelectedTreeIndex(), QModelIndex());
-
-    //    emit documentSceneCreated(to, toIndex + 1);
 }
 
 
@@ -921,8 +920,8 @@ int PersistenceManager::sceneCount(const DocumentProxy *proxy) {
     }
 
     if (pageIndex == 1 && addedMissingZeroPage) {
-        // increment is done only to check if there are other pages than the missing zero page
-        // This situation means -> no pages on the document
+        // 上面那个加号只为判断“除了补出来的 0 页还有没有别的页”；
+        // 走到这里说明整本文档其实一页都没有。
         return 0;
     }
 
@@ -973,7 +972,7 @@ bool PersistenceManager::addDirectoryContentToDocument(const QString &documentRo
 
         QFile thumb(documentRootFolder +
                     FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", sourceIndex));
-        // We can ignore error in this case, thumbnail will be genarated
+        // 缩略图复制失败可以忽略：缺了会在下次生成时补出来，不影响正文。
         thumb.copy(pDocument->persistencePath() +
                    FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", targetIndex));
     }
@@ -991,7 +990,6 @@ bool PersistenceManager::addDirectoryContentToDocument(const QString &documentRo
 
     pDocument->setPageCount(sceneCount(pDocument));
 
-    //issue NC - NNE - 20131213 : At this point, all is well done.
     return true;
 }
 
@@ -1111,7 +1109,7 @@ void PersistenceManager::checkIfDocumentRepositoryExists() {
     QDir rp(mDocumentRepositoryPath);
 
     if (!rp.exists()) {
-        // we have lost the document repository ..
+        // 文档仓库目录不在了（被挪走或网盘掉线），只能提示用户重新指定
 
         QString humanPath = QDir::cleanPath(mDocumentRepositoryPath);
         humanPath = QDir::toNativeSeparators(humanPath);

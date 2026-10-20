@@ -1,3 +1,8 @@
+/**
+ * @file IwbSubsetAdaptor.h
+ * @brief 读取 IWB 1.0 内容（content.xml），转换为内部文档包。
+ */
+
 #pragma once
 
 #include <QtXml>
@@ -21,20 +26,45 @@ class QTextCharFormat;
 class QTextCursor;
 class GraphicsStrokesGroup;
 
+/**
+ * @brief IWB 导入适配器：把 IWB 页面解析成场景，再逐页写进文档包。
+ *
+ * 负责格式一侧的全部工作：<pageset>/<page> 的页序、<g> 分组、<switch> 分支、
+ * 各类图形与媒体元素、z-value 层序、viewBox 到场景坐标的换算。写出的结果不是
+ * DocumentProxy 对象，而是通过 PersistenceManager 落盘的页面 SVG 与资源目录，
+ * 调用方随后用指针创建或追加文档。
+ */
 class IwbSubsetAdaptor {
 public:
     IwbSubsetAdaptor();
+    /**
+     * @brief 把 iwbSourceFile 解析成文档包，页面写入 pDocument 的持久化目录。
+     * @param iwbSourceFile 源 content.xml 路径（可能被改写为临时副本）。
+     * @param pDocument 目标文档代理，提供持久化目录与默认页面尺寸。
+     * @return 至少成功解析一页时返回 true。
+     */
     static bool convertIwbFileToDocumentPackage(QString &iwbSourceFile, DocumentProxy *pDocument);
 
 private:
+    /**
+     * @brief 单次导入的解析器：持有 DOM 与“引用 id -> 图元”索引。
+     *
+     * IWB 用 id/ref 把 SVG 元素与 <iwb:element> 扩展属性关联起来，解析顺序不保证
+     * 被引用者先出现，因此先 hash 出所有元素再逐个回填；每解析完一页立即持久化，
+     * 避免整本文档同时驻留内存。
+     */
     class IwbSubsetReader {
     public:
+        /** @brief 绑定目标文档与 content.xml 文件设备，读取前不解析。 */
         IwbSubsetReader(DocumentProxy *proxy, QFile *content);
         ~IwbSubsetReader();
 
+        /// 目标文档；提供页面数量、尺寸与持久化目录。
         DocumentProxy *mProxy;
+        /// content.xml 的文本内容缓存（解析期间复用，避免反复读盘）。
         QString pwdContent;
 
+        /** @brief 执行完整解析；至少一页成功时返回 true。 */
         bool parse();
 
     private:
@@ -95,7 +125,7 @@ private:
                                QTextCharFormat &charFormat);
         inline void hashSceneItem(const QDomElement &element, GraphicsItem *item);
 
-        // to kill
+        // 以下文本属性读取服务于旧版内嵌 HTML 文本路径，新解析走 QTextCursor 分支
         inline void parseTextAttributes(const QDomElement &element, qreal &fontSize, QColor &fontColor,
                                         QString &fontFamily, QString &fontStretch, bool &italic,
                                         int &fontWeight, int &textAlign, QTransform &fontTransform);
