@@ -202,9 +202,9 @@
   个别落到完全无关的代码上）。核对不用肉眼：
   `grep -oE "src/[a-z/]+\.cpp:[0-9]+" docs/code-suspicions.md` 列出来，再
   `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“170 个头/169 个
-  `#pragma once`”“全仓 23 处 TODO”这类计数也是派生数字，改完要重测。
+  `#pragma once`”“全仓 21 处 TODO”这类计数也是派生数字，改完要重测。
 - **构建报错不会让 ctest 变红**：MSBuild `/m` 下某个工程编译失败时其它工程继续，
-  `TianBoard.exe` 沿用上一次链接好的旧文件，`ctest` 拿旧产物照样 7/7 通过。本轮
+  `TianBoard.exe` 沿用上一次链接好的旧文件，`ctest` 拿旧产物照样全绿。本轮
   实证踩过一次（删掉一个成员函数、漏改类内两处非限定调用，坏的提交已经进了历史）。
   所以“验证通过”的前提是**构建日志里 `error C`/`LNK` 计数为 0 且 exe 的 mtime 推进了**，
   然后才谈测试；也别用 `...; true` 这种收尾，后台任务的退出码会变成那句 `true` 的 0。
@@ -216,3 +216,37 @@
   并对 stage 里的必需文件做硬校验；`windeployqt` 的模块参数按 Qt6 的名字写
   （`-webenginewidgets`，Qt6 没有 `-webengine` 这个选项）。脚本尚未在装了 Inno Setup
   的机器上实跑过，第一次跑要人工看一遍 stage 清单。
+
+## 五、全量审计已修的缺陷（2026-10-20）
+
+一次跨模块只读审计（model/content、whiteboard、core、web/desktop/recording）后集中修掉的
+真实缺陷，记在这里避免以后又当成"设计如此"：
+
+- **文档树**：多选删除按第一项的决定套全程（混选回收站可永久删除普通文档，或让
+  `while (rowCount())` 死循环）；删除循环使用过期 `QModelIndex` 行号；`moveIndexes`
+  的 `beginMoveRows`/`endMoveRows` 不成对；缩略图 `QPixmap` 三处泄漏。
+- **IWB/SVG 读写**：`<switch>` 分支解析失败时死循环；空笔迹组 delete 后继续使用；
+  `ref` 未命中时解引用空指针；空文本项 delete 后 `resize`；导出 `<g>` 无路径元素时
+  `layers.at(0)` 越界；`metadata.rdf` 的版本号被后续元素覆盖回 4.1（"新版本文档"
+  警告因此从未触发）。
+- **画板**：置底撤销从 `end()` 解引用；复制把场景活对象放进剪贴板（源文档关闭后粘贴
+  即 UAF）；`fls | GF_XXX` 当条件导致能力位恒真（连同 `sf_showProgress`）；单选到
+  选择框时 Delegate 为空；SVG 按下每次泄漏一个 GraphicsPixmapItem 与一份 QMimeData；
+  `addSvg` 落盘失败仍返回刚入场景的条目；Play 工具松手时 `movingItem` 可能为空；
+  复制组重复 `addItem`；媒体工厂返回未初始化指针。
+- **网页**：浏览器窗口 `deleteLater()` 后多处裸指针悬空；下载列表 `row == -1` 越界；
+  进度标签的判断写反（正常下载不刷新）；把 `JavascriptEnabled` 当隐私浏览开关导致
+  `RemovePolicy` 失效。
+- **录屏**：启动失败不回收编码器/定时器（重试叠份）；视频初始化失败后麦克风一直采集；
+  暂停偏移不清零使新录制首帧时间戳为负；音频时间戳在恢复时被清零；waveIn 回调线程
+  直接写 `IWMWriter`（已改为拷贝 + 队列连接）。**这一段只过了编译与冒烟，没有在真机上
+  录过音视频，改动后需要人工录一段验证音画同步与暂停恢复。**
+- **核心**：关多屏时 `DisplayManager` 仍持有已删除的 mirror；复制文档把新 UUID 写到
+  源文档；导入失败跳过 `setDisabled(false)`；本地下载 prepare 失败永久占用并发槽；
+  `checkIfModalRemains` 条件写反；`-lang` 末参数越界；单实例消息无人接收（双击文档
+  无反应）；`SceneCache` 从不淘汰（`pageCacheSize` 失效）；HTTP 重定向后完成信号被吞；
+  退出时工具栏位置写在落盘之后；`MimeDataGraphicsItem` 不回收剪贴板副本。
+
+仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
+`selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
+`PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。
