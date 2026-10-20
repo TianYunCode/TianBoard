@@ -13,28 +13,23 @@
 #include "platform/PlatformUtils.h"
 #include "core/LanguageManager.h"
 #include "utils/FileSystemUtils.h"
-#include "utils/StringUtils.h"
 
 #include "settings/Settings.h"
 #include "settings/Setting.h"
 #include "core/PersistenceManager.h"
-#include "core/DocumentManager.h"
 #include "core/PreferencesController.h"
-#include "core/IdleTimer.h"
 #include "core/ApplicationController.h"
 
 #include "whiteboard/BoardController.h"
-#include "whiteboard/DrawingController.h"
 #include "whiteboard/BoardView.h"
+#include "whiteboard/DrawingController.h"
 #include "whiteboard/BoardPaletteManager.h"
 #include "web/WebController.h"
 
 #include "model/DocumentController.h"
-#include "model/DocumentProxy.h"
 
 #include "ui/MainWindow.h"
 #include "ui/Resources.h"
-#include "ui/ThumbnailWidget.h"
 
 #include "whiteboard/ToolsManager.h"
 #include "core/DisplayManager.h"

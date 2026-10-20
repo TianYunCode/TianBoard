@@ -19,7 +19,6 @@
 #include "whiteboard/BoardPaletteManager.h"
 
 #include "whiteboard/GraphicsScene.h"
-#include "whiteboard/GraphicsPolygonItem.h"
 
 #include "ui/CustomCaptureWindow.h"
 #include "platform/WindowCapture.h"
@@ -27,7 +26,6 @@
 #include "desktop/DesktopPropertyPalette.h"
 
 #include "ui/KeyboardPalette.h"
-#include "ui/Resources.h"
 
 
 DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightPalette *rightPalette)
