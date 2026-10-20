@@ -1426,7 +1426,9 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseSVGGGroup(const QDomElement &eleme
         layers << nextSVGElement.next().key();
 
     std::sort(layers.begin(), layers.end());
-    int layer = layers.at(0);
+    // <g> 里可能只有本转换器不支持的元素（text/rect 等），此时 layers 为空；
+    // 用默认层导出空组，而不是 at(0) 越界。
+    int layer = layers.isEmpty() ? DEFAULT_LAYER : layers.at(0);
 
     nextSVGElement.toFront();
     while (nextSVGElement.hasNext())

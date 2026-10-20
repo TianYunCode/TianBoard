@@ -171,6 +171,9 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgSwitchSection(const QDomElement 
     while (!currentSvgElement.isNull()) {
         if (parseSvgElement(currentSvgElement))
             return true;
+        // 这个分支解析失败（比如引用的媒体文件缺失）要继续试下一个候选分支；
+        // 不推进游标会在同一个元素上无限重试，导入直接卡死主线程。
+        currentSvgElement = currentSvgElement.nextSiblingElement();
     }
 
     return false;
@@ -1173,14 +1176,12 @@ GraphicsGroupContainerItem *IwbSubsetAdaptor::IwbSubsetReader::parseIwbGroup(QDo
         if (currentStroke->polygons().empty())
             delete currentStroke;
 
-        if (pStrokesGroup->childItems().count())
+        if (pStrokesGroup->childItems().count()) {
             mCurrentScene->addItem(pStrokesGroup);
-        else
+            groupContainer.append(qgraphicsitem_cast<QGraphicsItem *>(pStrokesGroup));
+        } else {
+            // 空笔迹组用完就删；删完不能再进 groupContainer（悬空指针）。
             delete pStrokesGroup;
-
-        if (pStrokesGroup) {
-            QGraphicsItem *strokeGroup = qgraphicsitem_cast<QGraphicsItem *>(pStrokesGroup);
-            groupContainer.append(strokeGroup);
         }
     }
 
@@ -1227,7 +1228,9 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseIwbElement(QDomElement &element) {
             referedItem = *iReferedItem;
             referedItem->Delegate()->lock(locked);
         }
-        if (isEditableItem) {
+        // ref 指向的 id 没被解析出来时 referedItem 仍为 0（例如引用了被跳过的媒体），
+        // 这里必须判空再取 Delegate()。
+        if (isEditableItem && referedItem) {
             GraphicsTextItemDelegate *textDelegate =
                 dynamic_cast<GraphicsTextItemDelegate *>(referedItem->Delegate());
             if (textDelegate) {

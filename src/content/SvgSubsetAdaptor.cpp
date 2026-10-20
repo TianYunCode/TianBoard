@@ -214,9 +214,9 @@ QByteArray SvgSubsetAdaptor::loadSceneAsText(DocumentProxy *proxy, const int pag
             return "";
         }
 
-        return file.readAll();
-
+        const QByteArray content = file.readAll();
         file.close();
+        return content;
     }
     return "";
 }
@@ -724,17 +724,6 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                     }
                 } else if (type == "text") {
                     GraphicsTextItem *textItem = textItemFromSvg();
-                    GraphicsTextItemDelegate *textDelegate = 0;
-
-                    if (textItem)
-                        textDelegate = dynamic_cast<GraphicsTextItemDelegate *>(textItem->Delegate());
-
-                    if (textDelegate) {
-                        VirtualDesktop *desktop = VirtualDesktop::instance();
-                        qreal currentDpi = desktop->physicalDpi();
-                        qreal textSizeMultiplier = qreal(proxy->pageDpi()) / currentDpi;
-                        //textDelegate->scaleTextSize(textSizeMultiplier);
-                    }
 
                     if (textItem) {
                         textItem->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -2454,13 +2443,13 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg() {
     }
 
     if (text.isEmpty()) {
+        // 老版本/截断文档里的 <foreignObject type="text"> 可能没有文本节点；
+        // 调用方都判空，直接把空项丢掉，别再对已 delete 的指针调 resize。
         delete textItem;
-        textItem = 0;
-    } else {
-        textItem->setPlainText(text);
-        textItem->resize(width, height);
+        return nullptr;
     }
 
+    textItem->setPlainText(text);
     textItem->resize(width, height);
 
     return textItem;

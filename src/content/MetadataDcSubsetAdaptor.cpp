@@ -89,6 +89,9 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
     bool sizeFound = false;
     bool updatedAtFound = false;
     QString date;
+    // untagged doc version 4.1。必须声明在循环外：写进 metadata 的动作要等整份 rdf
+    // 读完再做，否则 <size>/<updated-at>/<page-count> 每个起始元素都会把它覆盖回 4.1。
+    QString docVersion = "4.1";
 
     if (file.exists()) {
         if (!file.open(QIODevice::ReadOnly)) {
@@ -102,8 +105,6 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
             xml.readNext();
 
             if (xml.isStartElement()) {
-                QString docVersion = "4.1"; // untagged doc version 4.1
-
                 if (xml.name() == "title") {
                     metadata.insert(Settings::documentName, xml.readElementText());
                 } else if (xml.name() == "type") {
@@ -148,7 +149,6 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
                            xml.namespaceUri() == Settings::documentNamespaceUri) {
                     metadata.insert(Settings::documentPageCount, xml.readElementText());
                 }
-                metadata.insert(Settings::documentVersion, docVersion);
             }
 
             if (xml.hasError()) {
@@ -156,6 +156,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath) {
             }
         }
 
+        metadata.insert(Settings::documentVersion, docVersion);
         file.close();
     }
 
