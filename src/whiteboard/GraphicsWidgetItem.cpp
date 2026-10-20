@@ -3,7 +3,7 @@
 #include <QtWebChannel/QWebChannel>
 
 #include "whiteboard/GraphicsWidgetItem.h"
-#include "whiteboard/BoardDropHandler.h"
+#include "whiteboard/IBoardDropHandler.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsItemDelegate.h"
 #include "whiteboard/GraphicsWidgetItemDelegate.h"
@@ -120,37 +120,11 @@ QString GraphicsWidgetItem::mainHtmlFileName() {
 }
 
 bool GraphicsWidgetItem::canBeContent() {
-// if we under MAC OS
-#if defined(Q_OS_MAC)
-    return mCanBeContent & GraphicsWidgetItem::type_MAC;
-#endif
-
-// if we under UNIX OS
-#if defined(Q_OS_UNIX)
-    return mCanBeContent & GraphicsWidgetItem::type_UNIX;
-#endif
-
-// if we under WINDOWS OS
-#if defined(Q_OS_WIN)
     return mCanBeContent & GraphicsWidgetItem::type_WIN;
-#endif
 }
 
 bool GraphicsWidgetItem::canBeTool() {
-// if we under MAC OS
-#if defined(Q_OS_MAC)
-    return mCanBeTool & GraphicsWidgetItem::type_MAC;
-#endif
-
-    // if we under UNIX OS
-#if defined(Q_OS_UNIX)
-    return mCanBeTool & GraphicsWidgetItem::type_UNIX;
-#endif
-
-    // if we under WINDOWS OS
-#if defined(Q_OS_WIN)
     return mCanBeTool & GraphicsWidgetItem::type_WIN;
-#endif
 }
 
 QString GraphicsWidgetItem::preference(const QString &key) const {

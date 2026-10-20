@@ -2445,12 +2445,7 @@ void GraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent) {
     }
 
     if ((si.size() > 0) && (keyEvent->isAccepted())) {
-#ifdef Q_OS_MAC
-        if (keyEvent->key() == Qt::Key_Backspace)
-#else
-        if (keyEvent->matches(QKeySequence::Delete))
-#endif
-        {
+        if (keyEvent->matches(QKeySequence::Delete)) {
             QVector<GraphicsItem *> itemsToRemove;
             QVector<QGraphicsItem *> itemToRemove;
 

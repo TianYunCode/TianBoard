@@ -177,10 +177,7 @@ DocumentProxy *DocumentManager::importFile(const QFile &pFile, const QString &pG
                     foreach (GraphicsItem *page, pages) {
                         Application::showMessage(tr("Inserting page %1 of %2").arg(++nPage).arg(pages.size()),
                                                  true);
-#ifdef Q_WS_MACX
-                        //Workaround for issue 912
-                        QApplication::processEvents();
-#endif
+
                         int pageIndex = document->pageCount();
                         GraphicsScene *scene =
                             PersistenceManager::persistenceManager()->createDocumentSceneAt(document,

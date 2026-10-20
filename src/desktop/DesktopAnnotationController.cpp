@@ -51,9 +51,6 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     mTransparentDrawingView = new BoardView(Application::boardController, static_cast<QWidget *>(0), false,
                                             true); // deleted in DesktopAnnotationController::destructor
     mTransparentDrawingView->setAttribute(Qt::WA_TranslucentBackground, true);
-#ifdef Q_OS_OSX
-    mTransparentDrawingView->setAttribute(Qt::WA_MacNoShadow, true);
-#endif
     mTransparentDrawingView->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Window |
                                             Qt::NoDropShadowWindowHint);
     mTransparentDrawingView->setCacheMode(QGraphicsView::CacheNone);
@@ -81,15 +78,6 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
         connect(Application::boardController->paletteManager()->mKeyboardPalette,
                 &KeyboardPalette::keyboardActivated, mTransparentDrawingView,
                 &BoardView::virtualKeyboardActivated);
-
-#ifdef Q_OS_LINUX
-        connect(Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::moved,
-                this, [this] { refreshMask(); });
-        connect(Application::mainWindow->ui().actionVirtualKeyboard, &QAction::triggered, this,
-                [this] { refreshMask(); });
-        connect(mDesktopPalette, &DesktopPalette::refreshMask, this,
-                &DesktopAnnotationController::refreshMask);
-#endif
     }
 
     connect(mDesktopPalette, &DesktopPalette::boardClick, this, &DesktopAnnotationController::goToBoard);
@@ -150,13 +138,6 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
     connect(&mHoldTimerMarker, &QTimer::timeout, this, &DesktopAnnotationController::markerActionReleased);
     connect(&mHoldTimerEraser, &QTimer::timeout, this, &DesktopAnnotationController::eraserActionReleased);
 
-#ifdef Q_OS_LINUX
-    connect(mDesktopPalette, &FloatingPalette::moving, this, &DesktopAnnotationController::refreshMask);
-    connect(Application::boardController->paletteManager()->rightPalette(), &RightPalette::resized, this,
-            &DesktopAnnotationController::refreshMask);
-    connect(Application::boardController->paletteManager()->addItemPalette(), &ActionPalette::closed, this,
-            &DesktopAnnotationController::refreshMask);
-#endif
     onDesktopPaletteMaximized();
 
     // FIX #633: Ensure that these palettes stay on top of the other elements
@@ -309,20 +290,10 @@ void DesktopAnnotationController::showWindow() {
 
     DrawingController::drawingController()->setStylusTool(mDesktopStylusTool);
 
-#ifndef Q_OS_LINUX
     PlatformUtils::showFullScreen(mTransparentDrawingView);
-#else
-    // this is necessary to avoid hiding the panels on Unity and Cinnamon
-    // if finer control is necessary, use qgetenv("XDG_CURRENT_DESKTOP")
-    mTransparentDrawingView->show();
-#endif
     PlatformUtils::setDesktopMode(true);
 
     mDesktopPalette->appear();
-
-#ifdef Q_OS_LINUX
-    updateMask(true);
-#endif
 }
 
 
@@ -346,18 +317,8 @@ void DesktopAnnotationController::updateBackground() {
 
     if (mIsFullyTransparent || DrawingController::drawingController()->stylusTool() == StylusTool::Selector) {
         newBrush = QBrush(Qt::transparent);
-#ifdef Q_OS_LINUX
-        updateMask(true);
-#endif
     } else {
-#if defined(Q_OS_OSX)
-        newBrush = QBrush(QColor(127, 127, 127, 15));
-#else
         newBrush = QBrush(QColor(127, 127, 127, 1));
-#endif
-#ifdef Q_OS_LINUX
-        updateMask(false);
-#endif
     }
 
     if (mTransparentDrawingScene && mTransparentDrawingScene->backgroundBrush() != newBrush)
@@ -388,10 +349,6 @@ void DesktopAnnotationController::customCapture() {
     mDesktopPalette->disappearForCapture();
     CustomCaptureWindow customCaptureWindow(mDesktopPalette);
     // need to show the window before execute it to avoid some glitch on windows.
-
-#ifndef Q_OS_WIN // Working only without this call on win32 desktop mode
-    PlatformUtils::showFullScreen(&customCaptureWindow);
-#endif
 
     if (customCaptureWindow.execute(getScreenPixmap()) == QDialog::Accepted) {
         QPixmap selectedPixmap = customCaptureWindow.getSelectedPixmap();
@@ -780,120 +737,6 @@ void DesktopAnnotationController::onTransparentWidgetResized() {
 
     Application::boardController->paletteManager()->leftPalette()->resize(lW + 1, rH);
     Application::boardController->paletteManager()->leftPalette()->resize(lW, rH);
-}
-
-void DesktopAnnotationController::updateMask(bool bTransparent) {
-    if (bTransparent) {
-        // Here we have to generate a new mask This method is certainly resource
-        // consuming but for the moment this is the only solution that I found.
-        mMask = QPixmap(mTransparentDrawingView->width(), mTransparentDrawingView->height());
-        mMask.fill(Qt::transparent);
-
-        QPainter p;
-
-        p.begin(&mMask);
-
-        p.setPen(Qt::red);
-        p.setBrush(QBrush(Qt::red));
-
-        // Here we draw the widget mask
-        if (mDesktopPalette->isVisible()) {
-            p.drawRect(mDesktopPalette->geometry().x(), mDesktopPalette->geometry().y(),
-                       mDesktopPalette->width(), mDesktopPalette->height());
-        }
-        if (Application::boardController->paletteManager()->mKeyboardPalette->isVisible()) {
-            p.drawRect(Application::boardController->paletteManager()->mKeyboardPalette->geometry().x(),
-                       Application::boardController->paletteManager()->mKeyboardPalette->geometry().y(),
-                       Application::boardController->paletteManager()->mKeyboardPalette->width(),
-                       Application::boardController->paletteManager()->mKeyboardPalette->height());
-        }
-
-        if (Application::boardController->paletteManager()->leftPalette()->isVisible()) {
-            QRect leftPalette(Application::boardController->paletteManager()->leftPalette()->geometry().x(),
-                              Application::boardController->paletteManager()->leftPalette()->geometry().y(),
-                              Application::boardController->paletteManager()->leftPalette()->width(),
-                              Application::boardController->paletteManager()->leftPalette()->height());
-
-            QRect tabsPalette(
-                Application::boardController->paletteManager()->leftPalette()->getTabPaletteRect());
-
-            p.drawRect(leftPalette);
-            p.drawRect(tabsPalette);
-        }
-
-        if (Application::boardController->paletteManager()->rightPalette()->isVisible()) {
-            QRect rightPalette(Application::boardController->paletteManager()->rightPalette()->geometry().x(),
-                               Application::boardController->paletteManager()->rightPalette()->geometry().y(),
-                               Application::boardController->paletteManager()->rightPalette()->width(),
-                               Application::boardController->paletteManager()->rightPalette()->height());
-
-            QRect tabsPalette(
-                Application::boardController->paletteManager()->rightPalette()->getTabPaletteRect());
-
-            p.drawRect(rightPalette);
-            p.drawRect(tabsPalette);
-        }
-
-#ifdef Q_OS_LINUX
-        //Rquiered only for compiz wm
-        //TODO. Window manager detection screen
-
-        if (Application::boardController->paletteManager()->addItemPalette()->isVisible()) {
-            p.drawRect(Application::boardController->paletteManager()->addItemPalette()->geometry());
-        }
-
-#endif
-
-        p.end();
-
-        // Then we add the annotations. We create another painter because we need to
-        // apply transformations on it for coordinates matching
-        QPainter annotationPainter;
-
-        QTransform trans;
-        trans.translate(mTransparentDrawingView->width() / 2, mTransparentDrawingView->height() / 2);
-
-        annotationPainter.begin(&mMask);
-        annotationPainter.setPen(Qt::red);
-        annotationPainter.setBrush(Qt::red);
-
-        annotationPainter.setTransform(trans);
-
-        QList<QGraphicsItem *> allItems = mTransparentDrawingScene->items();
-
-        for (int i = 0; i < allItems.size(); i++) {
-            QGraphicsItem *pCrntItem = allItems.at(i);
-
-            if (pCrntItem->isVisible() && pCrntItem->type() == GraphicsPolygonItem::Type) {
-                QPainterPath crntPath = pCrntItem->shape();
-                QRectF rect = crntPath.boundingRect();
-
-                annotationPainter.drawRect(rect);
-            }
-        }
-
-        annotationPainter.end();
-
-        mTransparentDrawingView->setMask(mMask.mask());
-    } else {
-        // Remove the mask
-        QPixmap noMask(mTransparentDrawingView->width(), mTransparentDrawingView->height());
-        mTransparentDrawingView->setMask(noMask.mask());
-    }
-}
-
-void DesktopAnnotationController::refreshMask() {
-    if (mTransparentDrawingScene && mTransparentDrawingView->isVisible()) {
-        if (mIsFullyTransparent ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Selector
-            //Needed to work correctly when another actions on stylus are checked
-            || DrawingController::drawingController()->stylusTool() == StylusTool::Eraser ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Pointer ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Pen ||
-            DrawingController::drawingController()->stylusTool() == StylusTool::Marker) {
-            updateMask(true);
-        }
-    }
 }
 
 void DesktopAnnotationController::onToolClicked() {

@@ -26,12 +26,10 @@
 #include "recording/RecordingPalette.h"
 
 
-// 录屏只有 Windows 一套实现（WindowsMedia 视频 + WaveIn 音频）。其他平台不再引用
-// 本仓库里并不存在的 ffmpeg 封装，mVideoEncoder 保持为空，录制入口自动不起作用。
-#ifdef Q_OS_WIN
+// 录屏只有一套实现：WindowsMedia 视频 + WaveIn 音频（见 docs/coding-style.md，
+// 本工程按平台分东西靠文件名与 platform/ 模块，不靠条件编译）。
 #include "recording/WindowsMediaVideoEncoder.h"
 #include "recording/WaveRecorder.h"
-#endif
 
 
 RecordingController *RecordingController::sInstance = 0;
@@ -244,9 +242,7 @@ void RecordingController::start() {
 
         applicationMainModeChanged(Application::applicationController->displayMode());
 
-#ifdef Q_OS_WIN
         mVideoEncoder = new WindowsMediaVideoEncoder(this); //deleted on stop
-#endif
 
         if (mVideoEncoder) {
             connect(mVideoEncoder, &AbstractVideoEncoder::encodingStatus, this,
@@ -657,9 +653,7 @@ void RecordingController::timerEvent(QTimerEvent *event) {
 QStringList RecordingController::audioRecordingDevices() {
     QStringList devices;
 
-#ifdef Q_OS_WIN
     devices = WaveRecorder::waveInDevices();
-#endif
 
     return devices;
 }

@@ -53,10 +53,6 @@ const QString Application::mimeTypeBoardPage = QString("application/vnd.tianboar
 const QString Application::mimeTypeBoardPageItem = QString("application/vnd.tianboard-page-item");
 const QString Application::mimeTypeBoardPageThumbnail = QString("application/vnd.tianboard-thumbnail");
 
-#if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
-bool bIsMinimized = false;
-#endif
-
 QObject *Application::staticMemoryCleaner = 0;
 
 
@@ -96,9 +92,7 @@ Application::Application(const QString &id, int &argc, char **argv)
             &Application::toolBarDisplayTextChanged);
     updateProtoActionsState();
 
-#ifndef Q_OS_OSX
     setWindowIcon(QIcon(":/images/TianBoardIcon.svg"));
-#endif
 
     setStyle("fusion");
 
@@ -233,12 +227,8 @@ int Application::exec(const QString &pFileToImport) {
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, this, &Application::stopScript);
     connect(mainWindow->ui().actionRecording, &QAction::triggered, applicationController,
             &ApplicationController::toggleRecordingPalette);
-#if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
-    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, this, &Application::showMinimized);
-#else
     connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow,
             &MainWindow::showMinimized);
-#endif
 
     mPreferencesController = new PreferencesController(mainWindow);
 
@@ -288,17 +278,6 @@ void Application::onScreenCountChanged(int newCount) {
     DisplayManager displayManager;
     mainWindow->ui().actionMultiScreen->setEnabled(displayManager.numScreens() > 1);
 }
-
-void Application::showMinimized() {
-#ifdef Q_OS_OSX
-    mainWindow->hide();
-    bIsMinimized = true;
-#elif defined(Q_OS_LINUX)
-    mainWindow->showMinimized();
-    bIsMinimized = true;
-#endif
-}
-
 
 void Application::startScript() {
     this->boardController->freezeWebWidgets(false);
@@ -480,19 +459,6 @@ bool Application::eventFilter(QObject *obj, QEvent *event) {
     if (event->type() == QEvent::ApplicationActivate) {
         if (boardController && boardController->controlView())
             boardController->controlView()->setMultiselection(false);
-
-#if defined(Q_OS_OSX)
-        if (bIsMinimized) {
-            if (mainWindow->isHidden())
-                mainWindow->show();
-            bIsMinimized = false;
-        }
-#elif defined(Q_OS_LINUX)
-        if (bIsMinimized) {
-            bIsMinimized = false;
-            PlatformUtils::showFullScreen(mainWindow);
-        }
-#endif
     }
 
     return result;

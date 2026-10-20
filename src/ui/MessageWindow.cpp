@@ -29,10 +29,6 @@ MessageWindow::MessageWindow(QWidget *parent)
 
     d->mLayout->setContentsMargins(radius() + 15, 4, radius() + 15, 4);
 
-#ifdef Q_OS_OSX
-    d->mLayout->setContentsMargins(radius() + 15, 8, radius() + 15, 10);
-#endif
-
     d->mLayout->addWidget(d->mSpinningWheel);
     d->mLayout->addWidget(d->mLabel);
 }

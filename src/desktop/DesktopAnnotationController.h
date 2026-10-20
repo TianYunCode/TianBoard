@@ -80,13 +80,11 @@ private slots:
     void onDesktopPaletteMaximized();
     void onDesktopPaletteMinimize();
     void onTransparentWidgetResized();
-    void refreshMask();
     void onToolClicked();
 
 private:
     void setAssociatedPalettePosition(ActionPalette *palette, const QString &actionName);
     void togglePropertyPalette(ActionPalette *palette);
-    void updateMask(bool bTransparent);
 
     DesktopPalette *mDesktopPalette;
     //KeyboardPalette *mKeyboardPalette;
@@ -113,6 +111,4 @@ private:
 
     int mBoardStylusTool;
     int mDesktopStylusTool;
-
-    QPixmap mMask;
 };

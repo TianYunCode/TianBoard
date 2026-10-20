@@ -83,17 +83,6 @@ Magnifier::Magnifier(QWidget *parent, bool isInteractive)
 
     if (parent) {
         setAttribute(Qt::WA_NoMousePropagation);
-    } else {
-        // standalone window
-        // !!!! Should be included into Windows after QT recompilation
-#ifndef Q_OS_WIN
-        //        setAttribute(Qt::WA_TranslucentBackground);
-        setAttribute(Qt::WA_MacAlwaysShowToolWindow);
-#endif
-#ifdef Q_OS_OSX
-        setAttribute(Qt::WA_MacAlwaysShowToolWindow);
-        setAttribute(Qt::WA_MacNoShadow);
-#endif
     }
 
     connect(&d->mRefreshTimer, &QTimer::timeout, this, &Magnifier::slot_refresh);

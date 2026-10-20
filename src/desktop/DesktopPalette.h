@@ -25,10 +25,6 @@ signals:
     void windowClick();
     void screenClick();
 
-    //#ifdef Q_OS_LINUX //TODO: check why this produces an error on linux if uncommented
-    void refreshMask();
-    //#endif
-
 public slots:
     void showHideClick(bool checked);
     void updateShowHideState(bool pShowEnabled);

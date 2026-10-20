@@ -34,10 +34,17 @@
   新增这类文件一律 `.hpp`，别再出现“名字像类、其实是纯头文件”的 `.h`。
   例外：`Globals.h`、`Enums.h`、`MainWindowUi.h`、`IwbConstants.h` 这些是既有纯头文件，
   改名要单独排期（牵动 include 与 moc），不与功能改动混在一起。
-* **纯抽象接口用 `I<名字>.h`**：`IDocumentStore.h`、`IThumbnailProvider.h`。
+* **纯抽象接口用 `I<名字>.h`**：`IBoardDropHandler.h`（第一个例子）、后续的
+  `IDocumentStore.h`、`IThumbnailProvider.h`。
   拆依赖环时抽出来的接口一律走这个命名，一眼能看出它是“只有契约”的头。
-  目前全仓还没有这个形式的文件（最接近的是 `platform/WindowCapture.h`），
-  后续拆环时按这个名字补。
+  接口旁边可以带一对装配用的工厂声明（`installXxxFactory` / `createXxx`），
+  实现由装配点在启动时装上；这类头不带任何 Qt 依赖，只用前置声明。
+* **源码里不写平台条件编译**。`Q_OS_WIN`/`Q_OS_OSX`/`Q_OS_LINUX`/`Q_WS_*` 在 `src/` 与
+  `tests/` 下已经清零：本产品只有 Win32 一个平台（`src/platform/` 里全是 `_win` 实现，
+  Mac/Linux 根本链接不起来），非 Windows 分支是永远编译不到的死代码，Windows 分支的条件
+  是永远为真的常量。要表达“这块代码是平台的”，用**文件名**（`PlatformUtils_win.cpp`、
+  `KeyboardSender_win.cpp`）和 **`src/platform/` 这个模块**，不要用 `#ifdef`。
+  新增代码同理：需要平台差异就往 `platform/` 放一个接口，别在业务模块里加分支。
 * **不带 `WB`/`UB` 前缀，也不带尾部下划线**。历史名字已清空：`DownloadManager_` →
   `WebDownloadManager`、`ub_message_output` → `messageOutputHandler`、`WB_MAX_ZOOM` →
   `MAX_ZOOM_LEVEL`、`WB_FREE_CONTROL` 宏就地展开后删除、`CFF*` 一族 → `Iwb*`、
@@ -56,7 +63,7 @@
 
 ## 三、防重复包含
 
-`src/` 下 172 个头文件里 171 个用 `#pragma once`，新增头文件也一律用它，不要再写
+`src/` 下 170 个头文件里 169 个用 `#pragma once`，新增头文件也一律用它，不要再写
 `#ifndef` 守卫。
 
 **唯一例外是 `src/app/resource.h`**：它只被 `TianBoard.rc` include，而 `rc.exe` 的
@@ -70,7 +77,7 @@
 
 ## 四、Pimpl
 
-已有 77 个类转成了 Pimpl（分布在 47 个头文件里，少数头文件带多个类），统一用这个形态
+已有 75 个类转成了 Pimpl（分布在 45 个头文件里，少数头文件带多个类），统一用这个形态
 （不要另发明一套）：
 
 ```cpp

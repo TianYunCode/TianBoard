@@ -24,17 +24,10 @@ FileSystemUtils::~FileSystemUtils() {
 
 
 QString FileSystemUtils::removeLocalFilePrefix(QString input) {
-#ifdef Q_OS_WIN
     if (input.startsWith("file:///"))
         return input.mid(8);
     else
         return input;
-#else
-    if (input.startsWith("file://"))
-        return input.mid(7);
-    else
-        return input;
-#endif
 }
 
 QString FileSystemUtils::applicationResourcesDirectory() {

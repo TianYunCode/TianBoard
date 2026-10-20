@@ -331,11 +331,6 @@ void Settings::init() {
 
     bool defaultShowPageImmediatelyOnMirroredScreen = true;
 
-#if defined(Q_OS_LINUX)
-    // screen duplication is very slow on X11
-    defaultShowPageImmediatelyOnMirroredScreen = false;
-#endif
-
     webShowPageImmediatelyOnMirroredScreen = new Setting(this, "Web", "ShowPageImediatelyOnMirroredScreen",
                                                          defaultShowPageImmediatelyOnMirroredScreen);
 
@@ -356,11 +351,6 @@ void Settings::init() {
         boardZoomFactor->set(1.41);
 
     int defaultRefreshRateInFramePerSecond = 8;
-
-#if defined(Q_OS_LINUX)
-    // screen duplication is very slow on X11
-    defaultRefreshRateInFramePerSecond = 2;
-#endif
 
     mirroringRefreshRateInFps = new Setting(this, "Mirroring", "RefreshRateInFramePerSecond",
                                             QVariant(defaultRefreshRateInFramePerSecond));

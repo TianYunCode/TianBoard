@@ -17,13 +17,7 @@ RubberBand::RubberBand(Shape s, QWidget *p)
       mLastPressedPoint(QPoint()) {
     customStyle = NULL;
 
-#ifdef Q_OS_WIN
     customStyle = QStyleFactory::create("windows");
-#elif defined(Q_OS_OSX)
-    customStyle = QStyleFactory::create("macintosh");
-#elif defined(Q_OS_LINUX)
-    customStyle = QStyleFactory::create("oxygen");
-#endif
 
     if (customStyle)
         QRubberBand::setStyle(customStyle);

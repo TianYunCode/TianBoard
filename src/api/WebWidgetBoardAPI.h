@@ -3,7 +3,7 @@
 #include <QtCore>
 #include <QGraphicsSceneDragDropEvent>
 
-#include "whiteboard/BoardDropHandler.h"
+#include "whiteboard/IBoardDropHandler.h"
 #include "core/DownloadManager.h"
 
 class GraphicsScene;
@@ -14,7 +14,7 @@ class WebWidgetMessageAPI;
 class DatastoreAPI;
 class DocumentDatastoreAPI;
 
-class WebWidgetBoardAPI : public QObject, public BoardDropHandler {
+class WebWidgetBoardAPI : public QObject, public IBoardDropHandler {
     Q_OBJECT
 
     Q_PROPERTY(int pageCount READ pageCount SCRIPTABLE true)
@@ -93,7 +93,7 @@ public slots:
     bool isDropableData(const QMimeData *pMimeData) const;
 
 public:
-    // whiteboard 里的 BoardDropHandler 接口：拖到小部件上的东西要怎么进画板。
+    // whiteboard 里的 IBoardDropHandler 接口：拖到小部件上的东西要怎么进画板。
     // 画板只认接口，实现由装配点装上（见 app/main.cpp）。
     void processDropEvent(QGraphicsSceneDragDropEvent *event) override;
 

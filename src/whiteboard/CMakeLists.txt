@@ -10,7 +10,7 @@
 #
 # 允许依赖：model、utils。尚未成立的边：whiteboard <-> core / ui / platform。
 # 对 api、desktop、recording、content 与 web 已经是零出边：录制按钮的转发、桌面批注
-# 宿主与浏览器跳转都挪到了 core 装配层，拖放门面改经本模块的 BoardDropHandler 接口回调。
+# 宿主与浏览器跳转都挪到了 core 装配层，拖放门面改经本模块的 IBoardDropHandler 接口回调。
 # 绘制热路径在本模块，改动要盯性能。
 # ======================================================================
 
@@ -19,8 +19,8 @@ add_library(tb_whiteboard OBJECT
     AbstractDrawRuler.h
     BoardController.cpp
     BoardController.h
-    BoardDropHandler.cpp
-    BoardDropHandler.h
+    IBoardDropHandler.cpp
+    IBoardDropHandler.h
     BoardPaletteManager.cpp
     BoardPaletteManager.h
     BoardView.cpp

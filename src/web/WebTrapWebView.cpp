@@ -46,8 +46,6 @@ void WebTrapWebView::setIsTrapping(bool pIsTrapping) {
     d->mDomElementRect = QRect();
     d->mCurrentContentType = Unknown;
     /*
-#if defined(Q_OS_WIN)
-
     if(mIsTrapping)
     {
         if (!mTrapingWidget)
@@ -69,7 +67,6 @@ void WebTrapWebView::setIsTrapping(bool pIsTrapping) {
          mTrapingWidget->setVisible(false);
     }
 
-#endif
 */
 
     update();

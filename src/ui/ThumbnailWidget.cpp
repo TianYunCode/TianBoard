@@ -324,22 +324,12 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event) {
         d->mLassoRectItem = new QGraphicsRectItem(0);
         scene()->addItem(d->mLassoRectItem);
 
-#ifdef Q_OS_OSX
-        // The following code must stay in synch with <Qt installation folder>\src\gui\styles\qmacstyle_mac.mm
-        QColor strokeColor;
-        strokeColor.setHsvF(0, 0, 0.86, 1.0);
-        d->mLassoRectItem->setPen(QPen(strokeColor));
-        QColor fillColor(option.palette.color(QPalette::Disabled, QPalette::Highlight));
-        fillColor.setHsvF(0, 0, 0.53, 0.25);
-        d->mLassoRectItem->setBrush(fillColor);
-#else
         // The following code must stay in synch with <Qt installation folder>\src\gui\styles\qwindowsxpstyle.cpp
         QColor highlight = option.palette.color(QPalette::Active, QPalette::Highlight);
         d->mLassoRectItem->setPen(highlight.darker(120));
         QColor dimHighlight(qMin(highlight.red() / 2 + 110, 255), qMin(highlight.green() / 2 + 110, 255),
                             qMin(highlight.blue() / 2 + 110, 255), 127);
         d->mLassoRectItem->setBrush(dimHighlight);
-#endif
 
         d->mLassoRectItem->setZValue(10000);
         d->mLassoRectItem->setRect(QRectF(d->mMousePressScenePos, QSizeF()));

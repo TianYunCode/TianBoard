@@ -38,11 +38,6 @@
 #include "core/NetworkAccessManager.h"
 
 
-#ifdef Q_OS_MAC
-#include <Carbon/Carbon.h>
-#endif
-
-
 ApplicationController::ApplicationController(BoardView *pControlView, BoardView *pDisplayView,
                                              MainWindow *pMainWindow, QObject *parent,
                                              RightPalette *rightPalette)

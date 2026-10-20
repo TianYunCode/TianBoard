@@ -147,10 +147,6 @@ void DesktopPalette::minimizeMe(eMinimizedLocation location) {
     setActions(actions);
 
     adjustSizeAndPosition();
-
-#ifdef Q_OS_LINUX
-    emit refreshMask();
-#endif
 }
 
 //  Called when the user wants to maximize the palette
@@ -177,9 +173,6 @@ void DesktopPalette::maximizeMe() {
 
     // Notify that the maximization has been done
     emit maximized();
-#ifdef Q_OS_LINUX
-    emit refreshMask();
-#endif
 }
 
 void DesktopPalette::showEvent(QShowEvent *event) {

@@ -170,6 +170,9 @@ include。
 - `WindowCapture_win.cpp` 里那个 `whiteboard/BoardView.h` 从来没用过；抓窗口时独占鼠标
   键盘的需求改成构造时收一个 `QWidget*`（`WindowCapture(QWidget *grabTarget, ...)`），
   于是它不再认识 `desktop/DesktopPalette` 与 `DesktopAnnotationController`。
+本工程只有 Win32 一个平台：`src/` 与 `tests/` 里已经没有任何 `Q_OS_*` 条件编译，
+平台差异只靠"文件名叫 `*_win.cpp` + 住在 `platform/` 模块"表达（规矩见
+`docs/coding-style.md` 第二节）。
 - 屏幕键盘 `KeyboardPalette*` 与框选取图的 `CustomCaptureWindow*` 搬去 `ui/`——它们本来
   就是界面：继承 `ui/ActionPalette`、要 `ui/MainWindow` 定位、要 `ui/RubberBand` 画框，
   还认 `core/Application` 与 `core/VirtualDesktop`。平台层只剩下不带界面的那件事：

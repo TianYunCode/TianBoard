@@ -11,7 +11,7 @@
 #include "whiteboard/Item.h"
 #include "whiteboard/ResizableGraphicsItem.h"
 
-class BoardDropHandler;
+class IBoardDropHandler;
 class GraphicsScene;
 
 struct WidgetType {
@@ -144,7 +144,7 @@ private:
     bool mIsFrozen;
     bool mIsTakingSnapshot;
     bool mShouldMoveWidget;
-    BoardDropHandler *mDropHandler;
+    IBoardDropHandler *mDropHandler;
     QPixmap mSnapshot;
     QPointF mLastMousePos;
     QUrl ownFolder;

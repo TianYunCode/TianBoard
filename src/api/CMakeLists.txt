@@ -4,7 +4,7 @@
 #
 # 目标依赖：utils、model、content、core、whiteboard。本模块只朝下认画板；
 # 画板需要门面的那一件事（拖到小部件上的东西怎么进画板）经 whiteboard 自己的
-# BoardDropHandler 接口回调过来，实现由装配点在启动时装上（见 app/main.cpp）。
+# IBoardDropHandler 接口回调过来，实现由装配点在启动时装上（见 app/main.cpp）。
 #
 # 已经删掉的 widget 门面 WebWidgetAPI/WebWidgetPreferenceAPI：Qt6 没有
 # addToJavaScriptWindowObject，注册它的那条 connect 在移植时就断了线，

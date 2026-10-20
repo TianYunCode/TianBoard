@@ -585,10 +585,8 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
 
             mLeftPalette->setVisible(leftPaletteVisible);
             mRightPalette->setVisible(rightPaletteVisible);
-#ifdef Q_OS_WIN
             if (rightPaletteVisible)
                 mRightPalette->setAdditionalVOffset(0);
-#endif
 
             if (!isInit)
                 containerResized();
@@ -606,33 +604,16 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit) {
                 Settings::settings()->useSystemOnScreenKeyboard->get().toBool() == false) {
                 if (mKeyboardPalette->keyboardVisible()) {
                     mKeyboardPalette->hide();
-#ifndef Q_OS_LINUX
                     mKeyboardPalette->setParent(Application::applicationController->desktopDrawingHost());
-#else
-                    mKeyboardPalette->setParent(0);
-#endif
-#ifdef Q_OS_OSX
-                    mKeyboardPalette->setWindowFlags(Qt::Dialog | Qt::Popup | Qt::FramelessWindowHint);
-#endif
                     mKeyboardPalette->show();
                 } else
-// In linux keyboard in desktop mode have to allways be with null parent
-#ifdef Q_OS_LINUX
-                    mKeyboardPalette->setParent(0);
-#else
                     mKeyboardPalette->setParent(Application::applicationController->desktopDrawingHost());
-#endif //Q_OS_LINUX
-#ifdef Q_OS_OSX
-                mKeyboardPalette->setWindowFlags(Qt::Dialog | Qt::Popup | Qt::FramelessWindowHint);
-#endif
             }
 
             mLeftPalette->setVisible(leftPaletteVisible);
             mRightPalette->setVisible(rightPaletteVisible);
-#ifdef Q_OS_WIN
             if (rightPaletteVisible && Settings::settings()->appToolBarPositionedAtTop->get().toBool())
                 mRightPalette->setAdditionalVOffset(30);
-#endif
 
             if (!isInit)
                 Application::applicationController->desktopDrawingResized();

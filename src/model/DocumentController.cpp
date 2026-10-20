@@ -1813,11 +1813,7 @@ void DocumentController::setupViews() {
             }
         }
 
-#ifdef Q_OS_OSX
-        mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Backspace));
-#else
         mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
-#endif
 
         connect(mMainWindow->ui().actionDelete, &QAction::triggered, this,
                 &DocumentController::deleteSelectedItem);
@@ -1904,11 +1900,7 @@ void DocumentController::setupViews() {
 
         mDocumentsView->thumbnailWidget()->setBackgroundBrush(Settings::documentViewLightColor);
 
-#ifdef Q_WS_MACX
-        mMessageWindow = new MessageWindow(NULL);
-#else
         mMessageWindow = new MessageWindow(mDocumentsView->thumbnailWidget());
-#endif
 
         mMessageWindow->setCustomPosition(true);
         mMessageWindow->hide();
@@ -2811,12 +2803,7 @@ void DocumentController::showMessage(const QString &message, bool showSpinningWh
 
         QRect newSize = mDocumentsView->thumbnailWidget()->geometry();
 
-#ifdef Q_WS_MACX
-        QPoint point(newSize.left() + margin, newSize.bottom() - mMessageWindow->height() - margin);
-        mMessageWindow->move(mDocumentsView->thumbnailWidget()->mapToGlobal(point));
-#else
         mMessageWindow->move(margin, newSize.height() - mMessageWindow->height() - margin);
-#endif
 
         mMessageWindow->showMessage(message, showSpinningWheel);
     }
@@ -2939,11 +2926,7 @@ void DocumentController::updateActions() {
         return;
     }
 
-#ifdef Q_OS_OSX
-    mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Backspace));
-#else
     mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
-#endif
 
     QModelIndex selectedIndex = firstSelectedTreeIndex();
     DocumentProxy *selectedProxy = docModel->proxyData(selectedIndex);

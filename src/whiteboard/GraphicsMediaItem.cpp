@@ -526,11 +526,7 @@ void GraphicsVideoItem::hasVideoChanged(bool hasVideo) {
 }
 
 void GraphicsVideoItem::mediaStateChanged(QMediaPlayer::PlaybackState state) {
-#if defined(Q_OS_OSX) || defined(Q_OS_WIN)
     setPlaceholderVisible((state == QMediaPlayer::StoppedState));
-#else
-    Q_UNUSED(state);
-#endif
 }
 
 void GraphicsVideoItem::activeSceneChanged() {

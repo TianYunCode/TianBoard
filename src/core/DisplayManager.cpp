@@ -93,12 +93,6 @@ DisplayManager::~DisplayManager() {
 
 int DisplayManager::numScreens() {
     int screenCount = mDesktop->screenCount();
-    // Some window managers report two screens when the two monitors are in "cloned" mode; this hack ensures
-    // that we consider this as just one screen.
-#ifdef Q_OS_LINUX
-    if (screenCount > 1 && mDesktop->screenGeometry(0) == mDesktop->screenGeometry(1))
-        return 1;
-#endif
     return screenCount;
 }
 

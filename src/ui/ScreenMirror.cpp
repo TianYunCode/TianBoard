@@ -7,10 +7,6 @@
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
 
-#if defined(Q_OS_OSX)
-#include <ApplicationServices/ApplicationServices.h>
-#endif
-
 
 struct ScreenMirror::Private {
     QPointer<QWidget> sourceWidget;

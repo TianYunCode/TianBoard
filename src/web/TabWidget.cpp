@@ -34,12 +34,6 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent) {
     setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     setMovable(true);
     setDocumentMode(false);
-
-#ifdef Q_OS_OSX
-    QFont baseFont = font();
-    baseFont.setPointSize(baseFont.pointSize() - 2);
-    setFont(baseFont);
-#endif
 }
 
 void TabBar::selectTabAction() {

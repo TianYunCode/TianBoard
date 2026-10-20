@@ -61,11 +61,7 @@ const QPixmap *ThumbnailAdaptor::get(DocumentProxy *proxy, int pageIndex) {
     QPixmap *pix = new QPixmap();
     if (file.exists()) {
         //Warning. Works only with modified Qt
-#ifdef Q_OS_LINUX
         pix->load(fileName, 0, Qt::AutoColor);
-#else
-        pix->load(fileName, 0, Qt::AutoColor);
-#endif
     }
     return pix;
 }

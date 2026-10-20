@@ -99,9 +99,7 @@
   绘制热路径上的算法欠账。
 - `src/whiteboard/FeaturesController.h:154`：`//TODO make less complicated for betteer maintainence`
   （原文如此），`FeaturesController.cpp:68`：`favoritePath` 的取法待定。
-- `src/desktop/DesktopAnnotationController.cpp`（窗口管理器探测没做）、`src/desktop/DesktopPalette.h:28`：
-  一行被注释掉的 `#ifdef Q_OS_LINUX`（“在 Linux 上放开就会报错”）。
-- `src/ui/MainWindow.cpp:1313`：导出时文件对话框的 `// HACK`（上游注释说明了为什么不能改成
+- `src/ui/MainWindow.cpp:1278`：导出时文件对话框的 `// HACK`（上游注释说明了为什么不能改成
   常规写法），别顺手“清理”。
 
 ## 二、需要产品决策，不该由重构顺手改掉
@@ -122,8 +120,8 @@
 
 ## 三、命名与形态遗留
 
-- **`src/app/resource.h` 是全仓唯一保留 `#ifndef` 守卫的头**（`src/` 下 172 个头文件里
-  171 个已经是 `#pragma once`）：`rc.exe` 不认识 `#pragma once`，把它改掉会让图标与
+- **`src/app/resource.h` 是全仓唯一保留 `#ifndef` 守卫的头**（`src/` 下 170 个头文件里
+  169 个已经是 `#pragma once`）：`rc.exe` 不认识 `#pragma once`，把它改掉会让图标与
   版本信息静默丢失。另外 `TianBoard.rc` 是 UTF-16，改这两个文件必须用字节级工具，
   别用文本编辑器——编码一变整个文件就是二进制乱码，而 `rc.exe` 仍可能返回 0，
   只在产出的 `.res` 体积上露馅。
@@ -203,7 +201,7 @@
   `文件:行号`，一次 clang-format 全量重排就让它们**全部指偏**（多数偏 10–300 行，
   个别落到完全无关的代码上）。核对不用肉眼：
   `grep -oE "src/[a-z/]+\.cpp:[0-9]+" docs/code-suspicions.md` 列出来，再
-  `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“172 个头/171 个
+  `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“170 个头/169 个
   `#pragma once`”“全仓 23 处 TODO”这类计数也是派生数字，改完要重测。
 - **构建报错不会让 ctest 变红**：MSBuild `/m` 下某个工程编译失败时其它工程继续，
   `TianBoard.exe` 沿用上一次链接好的旧文件，`ctest` 拿旧产物照样 7/7 通过。本轮

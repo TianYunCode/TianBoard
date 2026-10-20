@@ -52,10 +52,6 @@ protected:
     QMenu *createPopupMenu() override { return nullptr; }
 
 private:
-#if defined(Q_OS_OSX)
-    bool event(QEvent *event) override;
-#endif
-
     struct Private;
     std::unique_ptr<Private> d;
 };

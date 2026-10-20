@@ -10,11 +10,6 @@
 #include "core/DisplayManager.h"
 #include "core/LanguageManager.h"
 
-// work around for handling tablet events on MAC OS with Qt 4.8.0 and above
-#if defined(Q_OS_OSX)
-#include "whiteboard/BoardView.h"
-#endif
-
 
 #include "ui/MainWindowUi.h"
 
@@ -1219,16 +1214,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(par
     d->stackedLayout = new QStackedLayout(central);
     setCentralWidget(central);
 
-#ifdef Q_OS_OSX
-    d->ui.actionPreferences->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Comma));
-    d->ui.actionQuit->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
-#elif defined(Q_OS_WIN)
     d->ui.actionPreferences->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Return));
     // this code, because it unusable, system key combination can`t be triggered, even we add it manually
     d->ui.actionQuit->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F4));
-#else
-    d->ui.actionQuit->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F4));
-#endif
 }
 
 MainWindow::~MainWindow() = default;
@@ -1286,29 +1274,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     emit closeEvent_Signal(event);
 }
 
-// work around for handling tablet events on MAC OS with Qt 4.8.0 and above
-#if defined(Q_OS_OSX)
-bool MainWindow::event(QEvent *event) {
-    bool bRes = QMainWindow::event(event);
-
-    if (NULL != Application::boardController) {
-        BoardView *controlV = Application::boardController->controlView();
-        if (controlV && controlV->isVisible()) {
-            switch (event->type()) {
-                case QEvent::TabletEnterProximity:
-                case QEvent::TabletLeaveProximity:
-                case QEvent::TabletMove:
-                case QEvent::TabletPress:
-                case QEvent::TabletRelease: {
-                    return controlV->directTabletEvent(event);
-                }
-            }
-        }
-    }
-    return bRes;
-}
-#endif
-
 void MainWindow::onExportDone() {
     // HACK :  When opening the file save dialog during the document exportation,
     //         some buttons of the toolbar become disabled without any reason. We
@@ -1330,13 +1295,7 @@ bool MainWindow::yesNoQuestion(QString windowTitle, QString text) {
     QPushButton *yesButton = messageBox.addButton(tr("Yes"), QMessageBox::YesRole);
     messageBox.addButton(tr("No"), QMessageBox::NoRole);
     messageBox.setIcon(QMessageBox::Question);
-
-#ifdef Q_OS_LINUX
-    // to avoid to be handled by x11. This allows us to keep to the back all the windows manager stuff like palette, toolbar ...
-    messageBox.setWindowFlags(Qt::Dialog | Qt::X11BypassWindowManagerHint);
-#else
     messageBox.setWindowFlags(Qt::Dialog);
-#endif
 
     messageBox.exec();
     return messageBox.clickedButton() == yesButton;

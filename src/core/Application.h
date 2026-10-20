@@ -89,9 +89,6 @@ public slots:
 
 private slots:
     void closing();
-    //#ifdef Q_OS_OSX // for some reason this is not compiled if the ifdef is uncommented
-    void showMinimized();
-    //#endif
     void onScreenCountChanged(int newCount);
 
 private:
@@ -101,11 +98,5 @@ private:
     bool mIsVerbose;
 
 protected:
-    /*
-#if defined(Q_OS_MAC) && !defined(QT_MAC_USE_COCOA)
-        bool macEventFilter(EventHandlerCallRef caller, EventRef event);
-#endif
-        */
-
     PreferencesController *mPreferencesController;
 };
