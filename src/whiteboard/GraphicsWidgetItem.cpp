@@ -19,8 +19,6 @@
 
 #include "core/NetworkAccessManager.h"
 
-#include "web/WebKitUtils.h"
-#include "web/WebController.h"
 
 GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
     : QGraphicsWidget(parent),

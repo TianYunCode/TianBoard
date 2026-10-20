@@ -2,8 +2,9 @@
 # web — 内嵌浏览器（QWebEngine）与网页控制器：WebController、
 #       browser/ 下的浏览器窗口与标签页控件（原 web/browser/，扁平并入）。
 #
-# 允许依赖：utils、content（导入导出走同一套文档格式）。尚未成立的边：
-# web <-> core / ui / whiteboard / recording。
+# 允许依赖：utils、settings、platform、ui、whiteboard（网页内容要能变成画板图形项）。
+# 尚未成立的边：web <-> core。（画板反向认 web 的那 7 处已断：4 处是死 include，
+# 3 处合成 core/ApplicationController::openInternetUrl。）
 # ======================================================================
 
 add_library(tb_web OBJECT

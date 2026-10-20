@@ -52,6 +52,10 @@ public:
 
     void showInternet();
 
+    // 切到浏览器模式并打开这个地址。画板里那三条"去来源页 / 购买链接 / 点开的链接"
+    // 都只要这一句，不必认识 web/WebController.h——装配层本来就认识所有控制器。
+    void openInternetUrl(const QUrl &url);
+
     void showDocument();
 
     void showMessage(const QString &message, bool showSpinningWheel);

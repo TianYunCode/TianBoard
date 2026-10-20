@@ -19,11 +19,6 @@
 #include "ui/BackgroundPalette.h"
 #include "ui/FavoriteToolPalette.h"
 
-#include "web/WebController.h"
-#include "web/BrowserWindow.h"
-#include "web/TabWidget.h"
-#include "web/WebView.h"
-
 
 #include "core/NetworkAccessManager.h"
 
@@ -303,13 +298,11 @@ void BoardPaletteManager::erasePaletteButtonReleased() {
 }
 
 void BoardPaletteManager::linkClicked(const QUrl &url) {
-    Application::applicationController->showInternet();
-    Application::webController->loadUrl(url);
+    Application::applicationController->openInternetUrl(url);
 }
 
 void BoardPaletteManager::purchaseLinkActivated(const QString &link) {
-    Application::applicationController->showInternet();
-    Application::webController->loadUrl(QUrl(link));
+    Application::applicationController->openInternetUrl(QUrl(link));
 }
 
 void BoardPaletteManager::connectPalettes() {

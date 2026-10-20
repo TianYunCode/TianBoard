@@ -27,7 +27,6 @@
 #include "whiteboard/GraphicsMediaItem.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
 
-#include "web/WebController.h"
 
 #include "utils/FileSystemUtils.h"
 #include "whiteboard/DrawingController.h"
@@ -562,8 +561,7 @@ void GraphicsItemDelegate::gotoContentSource() {
     Item *item = dynamic_cast<Item *>(mDelegated);
 
     if (item && !item->sourceUrl().isEmpty()) {
-        Application::applicationController->showInternet();
-        Application::webController->loadUrl(item->sourceUrl());
+        Application::applicationController->openInternetUrl(item->sourceUrl());
     }
 }
 

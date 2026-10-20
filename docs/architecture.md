@@ -128,7 +128,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 12 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 11 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
@@ -159,7 +159,6 @@ include。
 | `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
 | `core` ↔ `recording` | 2 / 7 | ApplicationController/PreferencesController 认 RecordingController |
-| `web` ↔ `whiteboard` | 5 / 7 | 互相认控制器与图形项 |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -181,7 +180,7 @@ include。
   （`checkLayout`/`onActivated`/`onLocaleChanged`）、从没定义过的 `sendKeyEvent` 声明，
   以及两处 `#ifndef Q_OS_WIN` 里连接空槽的 `onDeactivated`——本工程只有 Win32 平台实现。
 
-`whiteboard` 现在对 `desktop`、`recording`、`api` 与 `content` 都是**零出边**（这四组环因此消失）：
+`whiteboard` 现在对 `desktop`、`recording`、`api`、`content` 与 `web` 都是**零出边**（这五组环因此消失）：
 
 - 白板工具栏的“录制”按钮不再由 `BoardPaletteManager` 转发。这条 connect 挪到装配层
   （`core/Application.cpp`），转发的槽换成 `ApplicationController::toggleRecordingPalette`
@@ -215,6 +214,11 @@ include。
   content（而 content 本来就认画板 50+ 处），所以整簇搬进 `src/whiteboard/`：它做的是
   “一页 PDF 怎么变成画布上的图形”，不是文档格式读写。搬完 `whiteboard` 对 content 零出边，
   `tst_pdfrenderer` 的源路径与 include 一并改到 `whiteboard/`。
+- 浏览器跳转：`BoardPaletteManager::linkClicked` / `purchaseLinkActivated` 和
+  `GraphicsItemDelegate::gotoContentSource` 三处都是同一个两步——`showInternet()` 再
+  `Application::webController->loadUrl(...)`。合成装配层的一个
+  `ApplicationController::openInternetUrl(QUrl)`，画板只认 `core/ApplicationController.h`；
+  另外四条 `web/*` include（BrowserWindow、TabWidget、WebView、WebKitUtils）本就没人用，删掉。
 
 `content` ↔ `ui` 也断掉了，两个方向各两处：
 
@@ -248,9 +252,8 @@ include。
    `core/DocumentManager`；对话框父窗口经 `Application::dialogHost()` 拿 `QWidget*`；
    `ui/DocumentNavigator` 的两条死 include 删除。`content` 剩下的脏边都在
    `content` ↔ `core`（44/15）与 `content` ↔ `model`（22/5）这两组上）
-7. **`desktop/` + `recording/` + `web/`**（部分完成）：画板侧对 `desktop` 与 `recording`
-   的直接调用已全部换成装配层的转发（见上一节）；剩下 `web` ↔ `whiteboard` 一组，
-   要断的是 `whiteboard` 反向认 `web` 的 7 处（网页内容小部件需要 WebController）。
+7. ~~**`desktop/` + `recording/` + `web/`**~~（已完成：画板侧对这三者的直接调用全部换成
+   装配层的转发——录制按钮、批注宿主、`openInternetUrl`，见上一节）
 8. **`ui/` ↔ `whiteboard/`（最大的一组，40/48）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
 9. **`core/`**（最后）：core 是装配点，`core` → `ui`/`whiteboard` 的边要换成接口 +
@@ -277,7 +280,7 @@ settings    -> utils:3
 ui          -> core:40, model:9, platform:9, settings:16, utils:8, whiteboard:40
 utils       -> （无出边）
 web         -> core:17, platform:1, settings:5, ui:5, utils:2, whiteboard:5
-whiteboard  -> core:65, model:9, platform:5, settings:20, ui:48, utils:43, web:7
+whiteboard  -> core:65, model:9, platform:5, settings:20, ui:48, utils:43
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

@@ -350,6 +350,11 @@ void ApplicationController::showInternet() {
     }
 }
 
+void ApplicationController::openInternetUrl(const QUrl &url) {
+    showInternet();
+    Application::webController->loadUrl(url);
+}
+
 
 void ApplicationController::showDocument() {
     mMainWindow->ui().webToolBar->hide();
