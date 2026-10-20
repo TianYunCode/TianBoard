@@ -1,6 +1,11 @@
-// 校验中文语言包真的能编译、能被装上、并且按预期改变取词结果。
-// 这一步是语言切换功能的地基：上下文名（MainWindow 等）一旦和代码里的 tr()
-// 归属对不上，切换后界面不会有任何变化，而这个错误只有加载 .qm 才暴露得出来。
+/**
+ * @file tst_language.cpp
+ * @brief 守住中文语言包真的能编译、能被装上、并且按预期改变取词结果；摘掉后回到英文原文。
+ *
+ * 这一步是语言切换功能的地基：上下文名（MainWindow 等）一旦和代码里的 tr() 归属对不上，
+ * 切换后界面不会有任何变化，而这个错误只有加载 .qm 才暴露得出来。
+ */
+
 #include <QtTest>
 
 #include <QCoreApplication>
@@ -11,7 +16,9 @@ class TestLanguage : public QObject {
     Q_OBJECT
 
 private slots:
+    /// @brief 装上 .qm 后 MainWindow 与 PreferencesDialog 两个上下文都取到中文，带参文案仍留 %1。
     void chineseCatalogueTranslatesMainWindowTexts();
+    /// @brief 摘掉翻译器后同一个 key 回落成英文原文，与界面上选择 "en" 时的行为一致。
     void removingTranslatorFallsBackToSourceText();
 };
 

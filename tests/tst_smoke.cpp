@@ -1,9 +1,14 @@
-// Starts the real TianBoard executable the way a user does, keeps it alive long
-// enough to run its whole startup chain (settings, display detection, palettes,
-// WebEngine), and fails if it dies on its own or ignores the close request that
-// the application itself installs (MainWindow::closeEvent -> Application::closing
-// -> persist + quit). Qt reports a broken SIGNAL/SLOT connect as a runtime
-// warning only, so the captured log is scanned for those as well.
+/**
+ * @file tst_smoke.cpp
+ * @brief 冒烟测试：像用户那样把真的 TianBoard 可执行文件启起来，让它跑完整条启动链，
+ *        再走应用自己装的关闭路径退干净；自己先死掉或不理关闭请求都算失败。
+ *
+ * 存活时间要够长，能走完整个启动链（配置、显示器探测、调色板、WebEngine）。
+ * 关闭走的是应用自己装的那条路：MainWindow::closeEvent -> Application::closing
+ * -> 落盘 + 退出事件循环。Qt 把连错的 SIGNAL/SLOT 只报成运行时警告，所以捕获到的
+ * 日志也要一并扫这些标记。
+ */
+
 #include <QtTest>
 
 #include <QCoreApplication>
@@ -16,7 +21,9 @@ class TestSmoke : public QObject {
     Q_OBJECT
 
 private slots:
+    /// @brief 应用能自己起来、活过整条启动链，收到关闭请求后正常退出，且日志里没有连错的信号槽。
     void applicationStartsAndStaysAlive();
+    /// @brief etc / library / customizations 与默认配置必须和 exe 同目录，否则启动时配置树是空的。
     void runtimeDataIsDeployedNextToTheExecutable();
 
 private:
@@ -84,8 +91,8 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
         return Broken;
     }
 
-    // Startup does the document autosave, screen detection and palette creation;
-    // a crash lands inside the first couple of seconds.
+    // 启动阶段要做文档自动保存、屏幕探测与调色板创建；
+    // 会崩的话基本都崩在头几秒之内。
     QTest::qWait(6000);
 
     if (app.state() != QProcess::Running) {
@@ -97,11 +104,10 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
 
     *log = app.readAll();
 
-    // Closing the window is the supported way out: MainWindow::closeEvent forwards to
-    // Application::closing(), which persists the board and quits the loop. Measured on
-    // an idle machine that takes about 2s, but it is doing real disk I/O while the rest
-    // of the suite (and the antivirus) is busy, so a single over-long shutdown is only
-    // retried — three of them in a row is a real stall.
+    // 关窗口才是受支持的退出方式：MainWindow::closeEvent 把请求转给
+    // Application::closing()，由它把画板落盘、再退出事件循环。空载机器上实测约 2s，
+    // 但这段时间里它在做真实的磁盘 I/O，而测试套件的其余部分（以及杀毒软件）同时也在
+    // 忙，所以单次关闭超时只当重试理由——连着三次都超时才算真的卡住。
     app.terminate();
     if (!app.waitForFinished(20000)) {
         app.kill();
@@ -123,8 +129,8 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
         return Broken;
     }
 
-    // A GUI-subsystem executable inherits no console, so under QProcess the debug
-    // output may never reach the pipe. Only assert on it when we did get output.
+    // GUI 子系统的可执行文件不继承控制台，所以在 QProcess 下调试输出可能根本到不了
+    // 管道。只有确实收到了输出，才对它做断言。
     if (!log->trimmed().isEmpty()) {
         for (const char *marker : kBrokenConnectMarkers) {
             if (log->contains(marker)) {
@@ -141,9 +147,8 @@ TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QStri
 void TestSmoke::runtimeDataIsDeployedNextToTheExecutable() {
     const QDir appDir = QFileInfo(qEnvironmentVariable("TIANBOARD_EXE")).absoluteDir();
 
-    // FileSystemUtils::applicationResourcesDirectory() == applicationDirPath(), so
-    // these three directories and the default configuration must sit beside the
-    // exe; without them the app starts with an empty settings tree.
+    // FileSystemUtils::applicationResourcesDirectory() == applicationDirPath()，所以
+    // 这三个目录和默认配置必须紧挨着 exe 放；少了它们，应用会带着一棵空的配置树启动。
     QVERIFY(appDir.exists("etc"));
     QVERIFY(appDir.exists("library"));
     QVERIFY(appDir.exists("customizations"));

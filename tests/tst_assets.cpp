@@ -1,6 +1,12 @@
-// 资源完整性测试：qrc 里登记的每个文件都必须真的在磁盘上，res/images 下的每个
-// 文件都必须能被解码，品牌图形必须真的画得出内容。之前出现过 mask.png /
-// toolbar/internet.png 这类"代码或 qrc 引用了不存在的图"的问题，这里一次性守住。
+/**
+ * @file tst_assets.cpp
+ * @brief 守住随包资源的完整性：qrc 里登记的每个文件都必须真的在磁盘上，res/images
+ *        下的每个文件都必须能被解码，品牌图形必须真的画得出内容。
+ *
+ * 之前出现过 mask.png / toolbar/internet.png 这类"代码或 qrc 引用了不存在的图"的问题，
+ * 运行时只表现为界面上一块空白，靠人眼发现不了。
+ */
+
 #include <QtTest>
 
 #include <QDir>
@@ -26,11 +32,17 @@ class TestAssets : public QObject {
     Q_OBJECT
 
 private slots:
+    /// @brief qrc 里登记的每个文件条目都必须在 res/ 下真实存在，杜绝打包后运行期找不到图。
     void qrcEntriesExistOnDisk();
+    /// @brief res/images 下的每个位图/SVG 都能被对应解码器解析，不出现损坏或截断的文件。
     void everyImageDecodes();
+    /// @brief 品牌图形走自有 SVG，且已登记进 qrc；旧的位图形态必须彻底不存在。
     void brandAssetsAreOwnAndRegistered();
+    /// @brief 应用图标在 512x512 下渲染出的圆角块外透明、块内为蓝色底、笔迹为白色。
     void appIconRendersAsDesigned();
+    /// @brief 黑屏标记只有白色笔迹，四个角完全透明，可直接叠加在任意背景上。
     void blackoutMarkIsWhiteOnTransparent();
+    /// @brief library/ 与 images/ 下所有 SVG 真渲染后既无解析告警也确实画出了像素。
     void svgAssetsPaintWithoutTruncation();
 
 private:
@@ -130,16 +142,16 @@ void TestAssets::appIconRendersAsDesigned() {
     QVERIFY2(!icon.isNull(), "TianBoardIcon.svg did not render");
     QCOMPARE(icon.size(), QSize(512, 512));
 
-    // Outside the rounded tile there must be nothing.
+    // 圆角块之外必须什么都没有：图标要贴在任务栏/桌面各种底色上，多余像素会露馅。
     QCOMPARE(icon.pixelColor(8, 8).alpha(), 0);
 
-    // Inside the tile, away from the board and the strokes: the blue gradient.
+    // 取块内一个避开白板与笔迹的点，验的应是那块蓝色渐变底。
     const QColor tile = icon.pixelColor(120, 400);
     QVERIFY2(tile.alpha() > 200, "the tile is not opaque where it should be solid");
     QVERIFY2(tile.blue() > tile.red(),
              qPrintable(QStringLiteral("tile colour %1 is not blue-ish").arg(tile.name())));
 
-    // The horizontal arm of the T is white.
+    // T 字的那一横是白色笔迹。
     const QColor stroke = icon.pixelColor(250, 189);
     QVERIFY2(stroke.red() > 230 && stroke.green() > 230 && stroke.blue() > 230,
              qPrintable(QStringLiteral("expected a white marker stroke, got %1").arg(stroke.name())));
