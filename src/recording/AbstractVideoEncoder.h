@@ -15,7 +15,10 @@ public:
 
     virtual bool pause() { return false; }
 
-    virtual bool unpause() { return false; }
+    virtual bool unpause(long audioTimeOffsetMs = 0) {
+        Q_UNUSED(audioTimeOffsetMs);
+        return false;
+    }
 
     virtual bool canPause() { return false; }
 

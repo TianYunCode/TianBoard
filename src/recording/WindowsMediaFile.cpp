@@ -333,10 +333,10 @@ bool WindowsMediaFile::appendVideoFrame(const QImage &pImage, long mstimestamp) 
 }
 
 
-void WindowsMediaFile::appendAudioBuffer(WAVEHDR *buffer, long mstimestamp) {
+void WindowsMediaFile::appendAudioBuffer(const QByteArray &audioData, long mstimestamp) {
     INSSBuffer *sampleBuffer = 0;
 
-    if (FAILED(mWMWriter->AllocateSample(buffer->dwBytesRecorded, &sampleBuffer))) {
+    if (FAILED(mWMWriter->AllocateSample(static_cast<DWORD>(audioData.size()), &sampleBuffer))) {
         setLastErrorMessage("Unable to allocate memory for new audio frame");
         return;
     }
@@ -350,7 +350,8 @@ void WindowsMediaFile::appendAudioBuffer(WAVEHDR *buffer, long mstimestamp) {
         return;
     }
 
-    memcpy((void *)rawBuffer, buffer->lpData, rawBufferLength);
+    const DWORD copyLength = qMin<DWORD>(rawBufferLength, static_cast<DWORD>(audioData.size()));
+    memcpy((void *)rawBuffer, audioData.constData(), copyLength);
 
     HRESULT hrWriteSample =
         mWMWriter->WriteSample(mAudioInputIndex, msToSampleTime(mstimestamp), 0, sampleBuffer);

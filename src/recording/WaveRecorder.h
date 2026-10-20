@@ -21,12 +21,14 @@ public:
 
     QString lastErrorMessage() { return mLastErrorMessage; }
 
-    long msTimeStamp() { mMsTimeStamp; }
-
     static QStringList waveInDevices();
 
+    // 暂停恢复时把暂停时长补进音频时间戳，避免音画在暂停后错位。
+    void skipTime(long milliseconds) { mMsTimeStamp += milliseconds; }
+
 signals:
-    void newWaveBuffer(WAVEHDR *buffer, long);
+    // 交出去的是拷贝：驱动线程在 emit 返回后会立刻回收 WAVEHDR，跨线程排队时不能传指针。
+    void newWaveBuffer(const QByteArray &audioData, long timestampMs);
 
 private:
     static void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1,

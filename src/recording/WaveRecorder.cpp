@@ -23,6 +23,9 @@ WaveRecorder::~WaveRecorder() {
 bool WaveRecorder::init(const QString &waveInDeviceName) {
     UINT deviceID = WAVE_MAPPER;
 
+    // 时间戳按“本次录制”清零。start() 会被暂停/恢复复用，不能在那里清零。
+    mMsTimeStamp = 0;
+
     if (waveInDeviceName.length() > 0) {
         int count = waveInGetNumDevs();
 
@@ -90,7 +93,6 @@ bool WaveRecorder::init(const QString &waveInDeviceName) {
 bool WaveRecorder::start() {
     if (!mIsRecording) {
         mRecordingStartTime = QTime::currentTime();
-        mMsTimeStamp = 0;
         mIsRecording = true;
     }
 
@@ -166,7 +168,9 @@ void CALLBACK WaveRecorder::waveInProc(HWAVEIN waveInDevice, UINT message, DWORD
 
 void WaveRecorder::emitNewWaveBuffer(WAVEHDR *pBuffer) {
     if (mIsRecording) {
-        emit newWaveBuffer(pBuffer, mMsTimeStamp);
+        const QByteArray audioData(reinterpret_cast<const char *>(pBuffer->lpData),
+                                   static_cast<int>(pBuffer->dwBytesRecorded));
+        emit newWaveBuffer(audioData, mMsTimeStamp);
 
         long bufferMs = pBuffer->dwBytesRecorded / mNbChannels / (mBitsPerSample / 8) * 1000 / mSampleRate;
 

@@ -208,6 +208,9 @@ RecordingController *RecordingController::instance() {
 void RecordingController::start() {
     if (mRecordingState == Stopped) {
         mInitialized = false;
+        // 上一段录制暂停过的话这里还留着旧偏移；不清零会让新录制的首帧时间戳变负。
+        mRecordingTimestampOffset = 0;
+        mTimeAtPaused = QTime();
 
         QSize recommendedSize(1024, 768);
 
@@ -314,6 +317,20 @@ void RecordingController::start() {
                     processWidgetPaintEvent();
                 }
             } else {
+                // 启动失败：applicationMainModeChanged() 已经打开了抓屏（定时器/事件过滤器），
+                // 进度定时器也已启动，编码器同样要回收；否则下一次重试会再叠一份。
+                if (mScreenGrabingTimerEventID != 0) {
+                    killTimer(mScreenGrabingTimerEventID);
+                    mScreenGrabingTimerEventID = 0;
+                }
+                if (mSourceWidget)
+                    mSourceWidget->removeEventFilter(this);
+                if (mRecordingProgressTimerEventID != 0) {
+                    killTimer(mRecordingProgressTimerEventID);
+                    mRecordingProgressTimerEventID = 0;
+                }
+                mVideoEncoder->deleteLater();
+                Application::mainWindow->ui().actionRecordingStart->setChecked(false);
                 Application::showMessage(tr("Failed to start encoder ..."), false);
             }
         } else {
@@ -337,8 +354,10 @@ void RecordingController::pause() {
 
 void RecordingController::unpause() {
     if (mVideoEncoder && mRecordingState == Paused && mVideoEncoder->canPause()) {
-        if (mVideoEncoder->unpause()) {
-            mRecordingTimestampOffset += mTimeAtPaused.msecsTo(QTime::currentTime());
+        // 先算出暂停了多久：视频与音频的时间戳都要跳过这一段，否则恢复后音画错位。
+        const long pausedMs = static_cast<long>(mTimeAtPaused.msecsTo(QTime::currentTime()));
+        if (mVideoEncoder->unpause(pausedMs)) {
+            mRecordingTimestampOffset += pausedMs;
             sendLatestPixmapToEncoder();
 
             setRecordingState(Recording);

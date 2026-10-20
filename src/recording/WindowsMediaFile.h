@@ -27,7 +27,7 @@ public:
     QString lastErrorMessage() const { return mLastErrorMessage; }
 
 public slots:
-    void appendAudioBuffer(WAVEHDR *, long);
+    void appendAudioBuffer(const QByteArray &audioData, long mstimestamp);
 
 private:
     bool initVideoStream(int pixelWidth, int pixelHeight, int bitsPerPixel);

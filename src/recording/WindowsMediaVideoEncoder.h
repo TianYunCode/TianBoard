@@ -16,7 +16,7 @@ public:
 
     virtual bool start();
     virtual bool pause();
-    virtual bool unpause();
+    virtual bool unpause(long audioTimeOffsetMs = 0);
     virtual bool stop();
 
     virtual bool canPause() { return true; };
@@ -31,7 +31,7 @@ public:
     virtual void setRecordAudio(bool pRecordAudio);
 
 private slots:
-    void processAudioBuffer(WAVEHDR *, long);
+    void processAudioBuffer(const QByteArray &audioData, long timestamp);
 
 private:
     QPointer<WindowsMediaFile> mWMVideo;

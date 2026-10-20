@@ -48,14 +48,23 @@ bool WindowsMediaVideoEncoder::start() {
     if (!mWMVideo->init(videoFileName().replace("/", "\\"), profile, framesPerSecond(), videoSize().width(),
                         videoSize().height(), 32)) {
         mWMVideo->deleteLater();
+        // 视频打不开时音频已经 init+start 过了，不收尾的话麦克风会一直采集到进程退出。
+        if (mWaveRecorder) {
+            mWaveRecorder->stop();
+            mWaveRecorder->close();
+            mWaveRecorder->deleteLater();
+            mWaveRecorder = nullptr;
+        }
         return false;
     }
 
     if (mRecordAudio) {
+        // waveIn 回调在驱动线程里跑；IWMWriter 只能在 GUI 线程写（视频帧也在那里写）。
+        // 队列连接 + QByteArray 拷贝把音频数据搬回同一线程，避免两个线程无锁操作同一个 writer。
         connect(mWaveRecorder, &WaveRecorder::newWaveBuffer, mWMVideo, &WindowsMediaFile::appendAudioBuffer,
-                Qt::DirectConnection);
+                Qt::QueuedConnection);
         connect(mWaveRecorder, &WaveRecorder::newWaveBuffer, this,
-                &WindowsMediaVideoEncoder::processAudioBuffer, Qt::DirectConnection);
+                &WindowsMediaVideoEncoder::processAudioBuffer, Qt::QueuedConnection);
     }
 
     mIsRecording = true;
@@ -131,12 +140,12 @@ void WindowsMediaVideoEncoder::setRecordAudio(bool pRecordAudio) {
 }
 
 
-void WindowsMediaVideoEncoder::processAudioBuffer(WAVEHDR *waveBuffer, long timestamp) {
+void WindowsMediaVideoEncoder::processAudioBuffer(const QByteArray &audioData, long timestamp) {
     Q_UNUSED(timestamp);
 
     if (mWaveRecorder && mRecordAudio) {
-        long samplesCount = waveBuffer->dwBytesRecorded / 2;
-        qint16 *samples = (qint16 *)waveBuffer->lpData;
+        const long samplesCount = audioData.size() / 2;
+        const qint16 *samples = reinterpret_cast<const qint16 *>(audioData.constData());
         quint16 maxRMS = 0;
 
         for (long i = 0; i < samplesCount; i++) {
@@ -172,11 +181,13 @@ bool WindowsMediaVideoEncoder::pause() {
 }
 
 
-bool WindowsMediaVideoEncoder::unpause() {
+bool WindowsMediaVideoEncoder::unpause(long audioTimeOffsetMs) {
     bool result = true;
 
     if (mIsPaused && mIsRecording) {
         if (mWaveRecorder) {
+            // 视频时间戳会跳过暂停时长，音频也要跟着跳，否则恢复后音画错位。
+            mWaveRecorder->skipTime(audioTimeOffsetMs);
             result = mWaveRecorder->start();
         }
 
