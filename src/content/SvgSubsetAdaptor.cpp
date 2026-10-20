@@ -48,7 +48,7 @@
 #include "core/Application.h"
 #include "core/TextTools.h"
 
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
 
 const QString SvgSubsetAdaptor::nsSvg = "http://www.w3.org/2000/svg";

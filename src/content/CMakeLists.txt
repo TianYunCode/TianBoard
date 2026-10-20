@@ -1,11 +1,13 @@
 # ======================================================================
 # content — 文档格式读写与导入导出：.tbz（IWB）子集、SVG/RDF 元数据、
-#           Thumbnail 数据块、PDF 渲染与导出、图片导入、Web 导出。
-#           原 adaptors/ + pdf/（PDFRenderer/QPdfRenderer/PdfPageItem 都是
-#           “文档格式”的读写件，故并入本模块）。
+#           Thumbnail 数据块、PDF 导入与导出、图片导入、Web 导出。
+#           原 adaptors/ + pdf/（都是“文档格式”的读写件，故并入本模块）。
+#           pdf/ 里的 PDFRenderer/QPdfRenderer/PdfPageItem 例外，已搬到
+#           src/whiteboard/：PdfPageItem 是 GraphicsPDFItem 的基类，三个类合起来
+#           是“一页 PDF 怎么变成画布上的图形”，没有任何格式读写以外的依赖。
 #
-# 允许依赖：model、utils、api。尚未成立的边：content <-> core / ui / whiteboard /
-# platform（ExportAdaptor 直接拿 MainWindow 弹进度框）。
+# 允许依赖：model、utils、whiteboard。尚未成立的边：content <-> core / ui
+# （ExportAdaptor 直接拿 MainWindow 弹进度框）。
 # ======================================================================
 
 add_library(tb_content OBJECT
@@ -43,12 +45,6 @@ add_library(tb_content OBJECT
     IwbSubsetAdaptor.h
     MetadataDcSubsetAdaptor.cpp
     MetadataDcSubsetAdaptor.h
-    PdfPageItem.cpp
-    PdfPageItem.h
-    PDFRenderer.cpp
-    PDFRenderer.h
-    QPdfRenderer.cpp
-    QPdfRenderer.h
     SvgSubsetAdaptor.cpp
     SvgSubsetAdaptor.h
     ThumbnailAdaptor.cpp

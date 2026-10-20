@@ -8,7 +8,7 @@
 #include "model/DocumentProxy.h"
 #include "whiteboard/GraphicsPDFItem.h"
 #include "utils/FileSystemUtils.h"
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
 #include "content/IwbSubsetAdaptor.h"
 #include "content/ImportIwb.h"

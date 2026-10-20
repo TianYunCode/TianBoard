@@ -3,11 +3,14 @@
 #              BoardPaletteManager/FeaturesController + 图形场景与全部图形项
 #              （Graphics*Item、Undo 命令）+ 绘图工具（尺规、量角器、窗帘、缓存）。
 #              原 board/ + domain/ + tools/ 三块合并（它们本就同属画板域，
-#              分开只让 include 前缀显得比实际耦合更干净）。
+#              分开只让 include 前缀显得比实际耦合更干净）；pdf/ 那三个类
+#              （PDFRenderer/QPdfRenderer/PdfPageItem）也从 content/ 搬了进来——
+#              PdfPageItem 是 GraphicsPDFItem 的基类，合起来是"一页 PDF 怎么变成
+#              画布上的图形"，不是文档格式读写。
 #
-# 允许依赖：model、utils。尚未成立的边：whiteboard <-> core / ui / content /
-# web / platform。对 api、desktop 与 recording 已经是零出边：录制按钮的转发与桌面
-# 批注宿主都挪到了 core 装配层，拖放门面改经本模块的 BoardDropHandler 接口回调。
+# 允许依赖：model、utils。尚未成立的边：whiteboard <-> core / ui / web / platform。
+# 对 api、desktop、recording 与 content 已经是零出边：录制按钮的转发与桌面批注宿主
+# 都挪到了 core 装配层，拖放门面改经本模块的 BoardDropHandler 接口回调。
 # 绘制热路径在本模块，改动要盯性能。
 # ======================================================================
 
@@ -90,8 +93,14 @@ add_library(tb_whiteboard OBJECT
     GraphicsWidgetItemDelegate.h
     Item.cpp
     Item.h
+    PDFRenderer.cpp
+    PDFRenderer.h
+    PdfPageItem.cpp
+    PdfPageItem.h
     PageSizeUndoCommand.cpp
     PageSizeUndoCommand.h
+    QPdfRenderer.cpp
+    QPdfRenderer.h
     ResizableGraphicsItem.cpp
     ResizableGraphicsItem.h
     SelectionFrame.cpp

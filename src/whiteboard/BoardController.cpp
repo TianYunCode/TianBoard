@@ -7,6 +7,7 @@
 #include <QtWebEngineWidgets>
 
 #include "utils/FileSystemUtils.h"
+#include "utils/GeometryUtils.h"
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
@@ -51,9 +52,6 @@
 
 #include "whiteboard/DrawingController.h"
 #include "whiteboard/BoardView.h"
-
-#include "content/MetadataDcSubsetAdaptor.h"
-#include "content/SvgSubsetAdaptor.h"
 
 #include "whiteboard/BoardPaletteManager.h"
 

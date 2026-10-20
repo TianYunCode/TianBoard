@@ -3,7 +3,7 @@
 #include <QtWidgets>
 #include <QtCore/QObject>
 
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
 class PdfPageItem : public QObject, public QGraphicsItem {
     Q_OBJECT

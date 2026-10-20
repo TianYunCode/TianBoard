@@ -1,4 +1,4 @@
-#include "content/PdfPageItem.h"
+#include "whiteboard/PdfPageItem.h"
 
 #include <qglobal.h>
 

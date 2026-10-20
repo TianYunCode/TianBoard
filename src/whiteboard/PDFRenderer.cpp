@@ -2,9 +2,9 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
-#include "content/QPdfRenderer.h"
+#include "whiteboard/QPdfRenderer.h"
 
 
 QMap<QUuid, QPointer<PDFRenderer>> PDFRenderer::sRenderers;

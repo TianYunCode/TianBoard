@@ -1,6 +1,6 @@
 #pragma once
 
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
 #include <QImage>
 #include <QtPdf/QPdfDocument>

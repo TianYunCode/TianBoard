@@ -21,10 +21,11 @@ src/
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentController、
   │                SortFilterProxyModel（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
-  │                图形项 + 绘图工具（原 board/ + domain/ + tools/）
+  │                图形项 + 绘图工具（原 board/ + domain/ + tools/）+ PDF 页图形项与
+  │                渲染器（PDFRenderer/QPdfRenderer/PdfPageItem，从原 pdf/ 搬来）
   ├─ content/      文档格式读写与导入导出：.tbz/.tbx 与 IWB 子集（IwbDocumentAdaptor /
   │                IwbSubsetAdaptor / ExportIwb / ImportIwb）、SVG/RDF 元数据、缩略图数据、
-  │                PDF 渲染导出（原 adaptors/ + pdf/）
+  │                PDF 导入导出（原 adaptors/；pdf/ 的图形项三家已归 whiteboard/）
   ├─ api/          小部件与文档对外 API 门面（WebWidgetBoardAPI/WebWidgetMessageAPI）
   ├─ web/          内嵌浏览器与网页控制器（原 web/ + web/browser/）
   ├─ desktop/      屏幕批注（平台无关部分）
@@ -127,7 +128,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 14 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 13 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
@@ -150,7 +151,6 @@ include。
 | `core` ↔ `whiteboard` | 33 / 65 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
 | `core` ↔ `ui` | 11 / 40 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `content` ↔ `whiteboard` | 50 / 3 | `whiteboard/GraphicsWidgetItem.*` 反向认 content |
 | `ui` ↔ `whiteboard` | 40 / 48 | 调色板与画板互相认 |
 | `core` ↔ `model` | 11 / 13 | `core/DocumentManager` ↔ `model/DocumentController` |
 | `model` ↔ `ui` | 8 / 9 | `model/DocumentController.cpp` 直接建 ThumbnailView/MainWindow |
@@ -182,7 +182,7 @@ include。
   （`checkLayout`/`onActivated`/`onLocaleChanged`）、从没定义过的 `sendKeyEvent` 声明，
   以及两处 `#ifndef Q_OS_WIN` 里连接空槽的 `onDeactivated`——本工程只有 Win32 平台实现。
 
-`whiteboard` 现在对 `desktop`、`recording` 与 `api` 都是**零出边**（这三组环因此消失）：
+`whiteboard` 现在对 `desktop`、`recording`、`api` 与 `content` 都是**零出边**（这四组环因此消失）：
 
 - 白板工具栏的“录制”按钮不再由 `BoardPaletteManager` 转发。这条 connect 挪到装配层
   （`core/Application.cpp`），转发的槽换成 `ApplicationController::toggleRecordingPalette`
@@ -209,6 +209,13 @@ include。
   `javaScriptWindowObjectCleared` → `injectInlineJavaScript` 的死链：Qt6 没有
   `addToJavaScriptWindowObject`，注册它们的 connect 在移植时就断了线，`widget-inline-js`
   目录也不在部署里——只剩"被一个从没接上的槽 new 出来"这一处引用。
+- PDF 那三家搬家：`GraphicsPDFItem` 的基类是 `content/PdfPageItem`，画板因此反向认
+  content；另有 `BoardController.cpp` 的两条适配器 include 其实从没被使用，只是碰巧供给了
+  `GeometryUtils::inchSize` 这类符号——现在改成直接 include `utils/GeometryUtils.h`。
+  `PDFRenderer`/`QPdfRenderer`/`PdfPageItem` 三个类没有任何跨模块依赖，用它们的人全在
+  content（而 content 本来就认画板 50+ 处），所以整簇搬进 `src/whiteboard/`：它做的是
+  “一页 PDF 怎么变成画布上的图形”，不是文档格式读写。搬完 `whiteboard` 对 content 零出边，
+  `tst_pdfrenderer` 的源路径与 include 一并改到 `whiteboard/`。
 
 ### 拆环顺序（从叶子往根拆）
 
@@ -227,8 +234,11 @@ include。
    `desktop/*` 与 `whiteboard/BoardView`；`KeyboardPalette*` 与 `CustomCaptureWindow*`
    这两个界面组件上移到 `ui/`，平台层只留 `KeyboardSender` 的 `SendInput`；出边只剩
    utils，已收紧成 STATIC）
-6. **`content/`**：主要脏边是 `content/ExportAdaptor.cpp` → `ui/MainWindow`、
-   `ui/MessagesDialog`（导出进度与错误框）。导出器改为回报状态，界面自己决定怎么显示。
+6. **`content/`**（`content` ↔ `whiteboard` 已断开：PDF 那三家搬进画板，见上一节）：
+   还剩 `content` ↔ `ui` 两组边——下去的一条是 `content/ExportAdaptor.cpp` →
+   `ui/MainWindow`、`ui/MessagesDialog`（导出进度与错误框），导出器改为回报状态，
+   界面自己决定怎么显示；上来的一条是 `ui/DocumentNavigator.cpp` → `content/ThumbnailAdaptor`
+   + `SvgSubsetAdaptor`（缩略图取图），该由 model 提供一页封面的位图，界面只管画。
 7. **`desktop/` + `recording/` + `web/`**（部分完成）：画板侧对 `desktop` 与 `recording`
    的直接调用已全部换成装配层的转发（见上一节）；剩下 `web` ↔ `whiteboard` 一组，
    要断的是 `whiteboard` 反向认 `web` 的 7 处（网页内容小部件需要 WebController）。
@@ -247,7 +257,7 @@ include。
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, core:1, platform:1, settings:1, utils:1, whiteboard:1
-content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:50
+content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:56
 core        -> content:15, desktop:2, model:11, platform:7, recording:2, settings:15,
                ui:11, utils:7, web:2, whiteboard:33
 desktop     -> core:7, platform:3, settings:3, ui:12, web:1, whiteboard:9
@@ -259,8 +269,7 @@ ui          -> content:2, core:40, model:9, platform:9, settings:16, utils:8,
                whiteboard:40
 utils       -> （无出边）
 web         -> core:17, platform:1, settings:5, ui:5, utils:2, whiteboard:5
-whiteboard  -> content:3, core:65, model:9, platform:5, settings:20, ui:48, utils:42,
-               web:7
+whiteboard  -> core:65, model:9, platform:5, settings:20, ui:48, utils:43, web:7
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

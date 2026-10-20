@@ -2,8 +2,9 @@
 # tests — Qt Test 用例（ctest --test-dir build -C Debug）
 #
 # 单元测试只把被测的少量源文件单独编一份进测试可执行，因此可以脱离整个应用
-# 栈构建；这也是 src/utils/ 与 src/content/ 里那些文件必须保持“自包含”的
-# 原因（它们不 include 应用装配层）。产物与 TianBoard.exe 同目录：build/bin/。
+# 栈构建；这也是 src/utils/、src/platform/ 与 src/whiteboard/PDFRenderer 那几个
+# 文件必须保持“自包含”的原因（它们不 include 应用装配层）。产物与 TianBoard.exe
+# 同目录：build/bin/。
 # ======================================================================
 find_package(Qt6 6.5 REQUIRED COMPONENTS Test)
 
@@ -36,8 +37,8 @@ tianboard_add_test(tst_credentialstore
     LIBS    Qt6::Core)
 
 tianboard_add_test(tst_pdfrenderer
-    SOURCES ${CMAKE_SOURCE_DIR}/src/content/PDFRenderer.cpp
-            ${CMAKE_SOURCE_DIR}/src/content/QPdfRenderer.cpp
+    SOURCES ${CMAKE_SOURCE_DIR}/src/whiteboard/PDFRenderer.cpp
+            ${CMAKE_SOURCE_DIR}/src/whiteboard/QPdfRenderer.cpp
     LIBS    Qt6::Core Qt6::Gui Qt6::Pdf)
 
 # 资源测试直接读源码树里的 res/，不需要把整个 qrc 链进测试。

@@ -19,7 +19,7 @@
 #include "model/DocumentProxy.h"
 #include "model/DocumentController.h"
 
-#include "content/PdfPageItem.h"
+#include "whiteboard/PdfPageItem.h"
 
 
 ExportPDF::ExportPDF(QObject *parent) : ExportAdaptor(parent) {

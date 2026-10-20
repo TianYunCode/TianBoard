@@ -9,8 +9,10 @@
 # 为什么要有这个脚本（都是踩出来的）：
 #  1. MSBuild /m 下某个工程编译失败时其它工程继续跑，主 exe 不重新链接，磁盘上还是
 #     上一次的好产物 —— 这时候 ctest 照样全绿。所以判定必须看两件事：**构建日志里的
-#     error/LNK 计数为 0**，以及**没有任何源文件比 exe 新**（树上没改动时 MSBuild 本来
+#     error/LNK 计数为 0**，以及**没有输入比产物新**（树上没改动时 MSBuild 本来
 #     就不重链接，所以不能拿"exe 离现在几分钟"当判据）。两样缺一不可。
+#     新鲜度分两套：src/ 与根构建文件对 TianBoard.exe，tests/tst_x.cpp 对各自的
+#     tst_x.exe——测试源不是应用输入，混在一起会把格式化工具碰过的时间戳误判成"没重编"。
 #  2. 构建命令的退出码很容易被后面一句 shell 吃掉（`...; grep ...; true` 会让后台
 #     任务报"成功"），所以这里每步都显式取 $LASTEXITCODE。
 #  3. 排版门禁（format.ps1 -Check）和构建一起跑，才不会攒出"以后再格式化"的债。
@@ -98,9 +100,12 @@ if (-not (Test-Path $Exe)) { throw "没有产物：$Exe —— 构建根本没�
 # 判"产物是新的"不能看它离现在多久：树上没改动时 MSBuild 本来就不会重新链接。
 # 正确的判据是**没有任何输入的修改时间晚于产物**——那样一旦某个 .cpp 编挂了、
 # 链接没发生，这个判据就会红。
+#
+# 判据分两套，因为 tests/ 下的源文件不是 TianBoard.exe 的输入：tst_*.cpp 只进各自的
+# 测试可执行，格式化工具碰一下它们的时间戳，不该把应用判成"没重编"。
 $exeTime = (Get-Item $Exe).LastWriteTime
 $inputs = @()
-foreach ($dir in @('src', 'tests')) {
+foreach ($dir in @('src')) {
     $inputs += Get-ChildItem -Path (Join-Path $Root $dir) -Recurse -File |
         Where-Object { $_.Extension -in '.cpp', '.h', '.qrc' -or $_.Name -eq 'CMakeLists.txt' }
 }
@@ -110,7 +115,25 @@ if ($stale.Count -gt 0) {
     $stale | Select-Object -First 6 | ForEach-Object { Write-Host "  比产物新: $($_.FullName.Substring($Root.Length + 1))" -ForegroundColor Red }
     throw "有 $($stale.Count) 个输入文件比 $([IO.Path]::GetFileName($Exe)) 新 —— 构建没把它们编进去，测试结果不可信"
 }
-Write-Host "  OK: 0 error；$([IO.Path]::GetFileName($Exe)) 不比任何输入旧（$($exeTime.ToString('HH:mm:ss'))）" -ForegroundColor Green
+
+# 每个测试用例跟自己那份可执行比；tests/CMakeLists.txt 跟最新的那份比。
+$BinDir = Split-Path -Parent $Exe
+$testSources = @()
+foreach ($t in (Get-ChildItem -Path $BinDir -Filter 'tst_*.exe' -File)) {
+    $own = Join-Path (Join-Path $Root 'tests') ($t.BaseName + '.cpp')
+    if ((Test-Path $own) -and ((Get-Item $own).LastWriteTime -gt $t.LastWriteTime)) {
+        throw "$($t.Name) 比 tests/$($t.BaseName).cpp 旧 —— 这个用例没重新构建，测试结果不可信"
+    }
+    $testSources += $t
+}
+$testsCmake = Get-Item (Join-Path $Root 'tests/CMakeLists.txt')
+if ($testSources.Count -gt 0) {
+    $newestTest = ($testSources | Measure-Object -Property LastWriteTime -Maximum).Maximum
+    if ($testsCmake.LastWriteTime -gt $newestTest) {
+        throw "tests/CMakeLists.txt 比所有测试可执行都新 —— 测试目标没重新构建"
+    }
+}
+Write-Host "  OK: 0 error；$([IO.Path]::GetFileName($Exe)) 与测试产物都不比自己的输入旧（$($exeTime.ToString('HH:mm:ss'))）" -ForegroundColor Green
 
 # ---- 3. 测试 ----
 # ctest 是 cmake 的同级程序，不能用 cmake.exe 带 --test-dir 去叫它。
@@ -128,4 +151,4 @@ if (-not $SkipFormat) {
     }
 }
 
-Write-Host "`n全部通过：构建 0 error、产物不比任何输入旧、测试全绿、排版合规。" -ForegroundColor Green
+Write-Host "`n全部通过：构建 0 error、应用与测试产物都不比自己的输入旧、测试全绿、排版合规。" -ForegroundColor Green

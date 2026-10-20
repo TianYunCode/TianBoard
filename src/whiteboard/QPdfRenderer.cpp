@@ -1,4 +1,4 @@
-#include "content/QPdfRenderer.h"
+#include "whiteboard/QPdfRenderer.h"
 
 #include <QtGui>
 

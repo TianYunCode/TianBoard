@@ -77,9 +77,10 @@ src/settings     设置项本身：Settings 注册表 + Setting<T> 模板
 src/core         应用与各类服务/控制器（Application、DisplayManager、
                  LanguageManager、PersistenceManager、DocumentManager…）
 src/model        文档域：DocumentProxy、DocumentContainer、DocumentController
-src/whiteboard   画板：BoardView/BoardController + 图形场景、图形项与绘图工具
+src/whiteboard   画板：BoardView/BoardController + 图形场景、图形项、绘图工具与
+                 PDF 页图形项/渲染器
 src/content      文档格式读写与导入导出：.tbz/.tbx、IWB 子集与转换、SVG/RDF 元数据、
-                 缩略图数据块、PDF 渲染导出、图片导入、Web 导出
+                 缩略图数据块、PDF 导入导出、图片导入、Web 导出
 src/api          小部件与文档对外 API 门面（WebWidget*API）
 src/web          内嵌浏览器与网页控制器
 src/desktop      屏幕批注（平台无关部分）
@@ -98,7 +99,7 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 
 每个模块的 `CMakeLists.txt` 显式列出全部源文件（不用 GLOB），新增文件不改清单就不进构建。
 `src/utils`（出边为零）、`src/settings` 与 `src/platform`（都只依赖 utils）已经从 `OBJECT`
-收紧成真 `STATIC` 库；其余模块因为还有 14 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
+收紧成真 `STATIC` 库；其余模块因为还有 13 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
 代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，344 个文件）已用

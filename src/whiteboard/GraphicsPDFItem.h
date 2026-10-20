@@ -4,7 +4,7 @@
 
 #include "whiteboard/Item.h"
 #include "utils/Enums.h"
-#include "content/PdfPageItem.h"
+#include "whiteboard/PdfPageItem.h"
 
 class GraphicsItemDelegate;
 class GraphicsPixmapItem;

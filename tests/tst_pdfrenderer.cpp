@@ -8,7 +8,7 @@
 #include <QPdfWriter>
 #include <QTemporaryDir>
 
-#include "content/QPdfRenderer.h"
+#include "whiteboard/QPdfRenderer.h"
 
 class TestPdfRenderer : public QObject {
     Q_OBJECT

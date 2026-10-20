@@ -18,7 +18,7 @@
 #include "model/DocumentProxy.h"
 #include "model/DocumentController.h"
 
-#include "content/PdfPageItem.h"
+#include "whiteboard/PdfPageItem.h"
 
 #include "content/ExportPDF.h"
 

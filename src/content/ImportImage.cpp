@@ -10,7 +10,7 @@
 
 #include "whiteboard/GraphicsPixmapItem.h"
 
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
 
 ImportImage::ImportImage(QObject *parent) : PageBasedImportAdaptor(parent) {

@@ -8,7 +8,7 @@
 
 #include "whiteboard/GraphicsPDFItem.h"
 
-#include "content/PDFRenderer.h"
+#include "whiteboard/PDFRenderer.h"
 
 
 ImportPDF::ImportPDF(QObject *parent) : PageBasedImportAdaptor(parent) {
