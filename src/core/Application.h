@@ -42,6 +42,11 @@ public:
 
     static MainWindow *mainWindow;
 
+    // 只把主窗口当"对话框挂在谁身上"用的下层模块（content 的导出对话框）取这个，
+    // 不必 include ui/MainWindow.h 去拿 MainWindow 的完整类型——见 docs/architecture.md
+    // 拆环顺序第 6 步。定义在 Application.cpp，那里认识界面。
+    static QWidget *dialogHost();
+
     static Application *app() { return static_cast<Application *> qApp; }
 
     static const QString mimeTypeBoardDocument;

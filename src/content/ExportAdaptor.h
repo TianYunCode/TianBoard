@@ -26,13 +26,18 @@ public:
 
     virtual bool isVerbose() const { return mIsVerbose; }
 
+signals:
+    // 导出过程中的警告。谁注册导出器谁负责显示——导出层不该认识 MainWindow 和
+    // MessagesDialog（见 docs/architecture.md 拆环顺序第 6 步）。
+    void exportWarnings(const QString &title, const QList<QString> &messages);
+
 protected:
     QString askForFileName(DocumentProxy *pDocument, const QString &pDialogTitle);
     QString askForDirName(DocumentProxy *pDocument, const QString &pDialogTitle);
 
     virtual void persistLocally(DocumentProxy *pDocumentProxy, const QString &pDialogTitle);
 
-    void showErrorsList(QList<QString> errorsList);
+    void reportErrorsList(const QList<QString> &errorsList);
 
     bool mIsVerbose;
     QAction *mAssociatedAction;

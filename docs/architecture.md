@@ -128,7 +128,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 13 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 12 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
@@ -149,7 +149,7 @@ include。
 | 环 | 边数 | 典型出处 |
 |---|---|---|
 | `core` ↔ `whiteboard` | 33 / 65 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 11 / 40 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
+| `core` ↔ `ui` | 13 / 40 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp`、`DocumentManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 40 / 48 | 调色板与画板互相认 |
 | `core` ↔ `model` | 11 / 13 | `core/DocumentManager` ↔ `model/DocumentController` |
@@ -159,7 +159,6 @@ include。
 | `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
 | `core` ↔ `recording` | 2 / 7 | ApplicationController/PreferencesController 认 RecordingController |
-| `content` ↔ `ui` | 2 / 2 | `content/ExportAdaptor.cpp` 弹 MessagesDialog/MainWindow |
 | `web` ↔ `whiteboard` | 5 / 7 | 互相认控制器与图形项 |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
@@ -217,6 +216,17 @@ include。
   “一页 PDF 怎么变成画布上的图形”，不是文档格式读写。搬完 `whiteboard` 对 content 零出边，
   `tst_pdfrenderer` 的源路径与 include 一并改到 `whiteboard/`。
 
+`content` ↔ `ui` 也断掉了，两个方向各两处：
+
+- 下去的一条：`ExportAdaptor::showErrorsList()` 自己 `new MessagesDialog(tr(...), Application::mainWindow)`
+  弹导出警告。改成 `reportErrorsList()` 只 `emit exportWarnings(title, messages)`，
+  由注册导出器的 `core/DocumentManager` 连上弹窗——导出层不管界面怎么显示。
+  同一个文件里两处 `QFileDialog` 拿 `Application::mainWindow` 当父窗口，为此在 core 加了
+  `Application::dialogHost()`（返回 `QWidget*`）：下层要的是“对话框挂在谁身上”，
+  不是 MainWindow 这个类型。
+- 上来的一条：`ui/DocumentNavigator.cpp` 那两条 `content/ThumbnailAdaptor.h` +
+  `SvgSubsetAdaptor.h` 从没被使用（跟 `BoardController` 那次一样，只是历史上供给过符号）。
+
 ### 拆环顺序（从叶子往根拆）
 
 按下面这个顺序拆，每一步都能把某个模块的出边降到“只指向更低的层”，然后就该模块
@@ -234,11 +244,10 @@ include。
    `desktop/*` 与 `whiteboard/BoardView`；`KeyboardPalette*` 与 `CustomCaptureWindow*`
    这两个界面组件上移到 `ui/`，平台层只留 `KeyboardSender` 的 `SendInput`；出边只剩
    utils，已收紧成 STATIC）
-6. **`content/`**（`content` ↔ `whiteboard` 已断开：PDF 那三家搬进画板，见上一节）：
-   还剩 `content` ↔ `ui` 两组边——下去的一条是 `content/ExportAdaptor.cpp` →
-   `ui/MainWindow`、`ui/MessagesDialog`（导出进度与错误框），导出器改为回报状态，
-   界面自己决定怎么显示；上来的一条是 `ui/DocumentNavigator.cpp` → `content/ThumbnailAdaptor`
-   + `SvgSubsetAdaptor`（缩略图取图），该由 model 提供一页封面的位图，界面只管画。
+6. ~~**`content/` ↔ `ui/`**~~（已完成：导出器改成 `emit exportWarnings(...)`，弹窗交给
+   `core/DocumentManager`；对话框父窗口经 `Application::dialogHost()` 拿 `QWidget*`；
+   `ui/DocumentNavigator` 的两条死 include 删除。`content` 剩下的脏边都在
+   `content` ↔ `core`（44/15）与 `content` ↔ `model`（22/5）这两组上）
 7. **`desktop/` + `recording/` + `web/`**（部分完成）：画板侧对 `desktop` 与 `recording`
    的直接调用已全部换成装配层的转发（见上一节）；剩下 `web` ↔ `whiteboard` 一组，
    要断的是 `whiteboard` 反向认 `web` 的 7 处（网页内容小部件需要 WebController）。
@@ -257,16 +266,15 @@ include。
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, core:1, platform:1, settings:1, utils:1, whiteboard:1
-content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:56
-core        -> content:15, desktop:2, model:11, platform:7, recording:2, settings:15,
-               ui:11, utils:7, web:2, whiteboard:33
+content     -> core:44, model:22, platform:3, settings:12, utils:22, whiteboard:56
+core        -> content:16, desktop:2, model:11, platform:7, recording:2, settings:15,
+               ui:13, utils:7, web:2, whiteboard:33
 desktop     -> core:7, platform:3, settings:3, ui:12, web:1, whiteboard:9
 model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteboard:6
 platform    -> utils:1
 recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> content:2, core:40, model:9, platform:9, settings:16, utils:8,
-               whiteboard:40
+ui          -> core:40, model:9, platform:9, settings:16, utils:8, whiteboard:40
 utils       -> （无出边）
 web         -> core:17, platform:1, settings:5, ui:5, utils:2, whiteboard:5
 whiteboard  -> core:65, model:9, platform:5, settings:20, ui:48, utils:43, web:7

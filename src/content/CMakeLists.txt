@@ -6,8 +6,9 @@
 #           src/whiteboard/：PdfPageItem 是 GraphicsPDFItem 的基类，三个类合起来
 #           是“一页 PDF 怎么变成画布上的图形”，没有任何格式读写以外的依赖。
 #
-# 允许依赖：model、utils、whiteboard。尚未成立的边：content <-> core / ui
-# （ExportAdaptor 直接拿 MainWindow 弹进度框）。
+# 允许依赖：model、utils、whiteboard。尚未成立的边：content <-> core（读写器到处认
+# Application 与 PersistenceManager）与 content <-> model。对 ui 已经是零出边：
+# 导出器只 emit exportWarnings，弹窗与对话框父窗口都交给认识界面的那层。
 # ======================================================================
 
 add_library(tb_content OBJECT

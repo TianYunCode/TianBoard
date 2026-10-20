@@ -41,7 +41,7 @@ void ExportIwb::persist(DocumentProxy *pDocument) {
         } else if (mIsVerbose)
             Application::showMessage(tr("Export failed."));
 
-        showErrorsList(toIWBExporter.getConversionMessages());
+        reportErrorsList(toIWBExporter.getConversionMessages());
 
         QApplication::restoreOverrideCursor();
     }

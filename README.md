@@ -99,7 +99,7 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 
 每个模块的 `CMakeLists.txt` 显式列出全部源文件（不用 GLOB），新增文件不改清单就不进构建。
 `src/utils`（出边为零）、`src/settings` 与 `src/platform`（都只依赖 utils）已经从 `OBJECT`
-收紧成真 `STATIC` 库；其余模块因为还有 13 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
+收紧成真 `STATIC` 库；其余模块因为还有 12 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
 代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，344 个文件）已用

@@ -3,6 +3,7 @@
 #include "utils/StringUtils.h"
 
 #include "content/ExportFullPDF.h"
+#include "content/ExportAdaptor.h"
 #include "content/ExportDocument.h"
 #include "content/ExportWeb.h"
 #include "content/ExportIwb.h"
@@ -12,6 +13,8 @@
 #include "content/ImportImage.h"
 #include "content/ImportIwb.h"
 #include "content/ImportDocumentSetAdaptor.h"
+#include "ui/MessagesDialog.h"
+#include "ui/MainWindow.h"
 
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsSvgItem.h"
@@ -57,6 +60,16 @@ DocumentManager::DocumentManager(QObject *parent) : QObject(parent) {
 
     //     ExportWeb* exportWeb = new ExportWeb(this);
     //     mExportAdaptors.append(exportWeb);
+
+    // 导出器只回报警告，弹窗这件事留在认识界面的这一层。
+    for (ExportAdaptor *adaptor : mExportAdaptors) {
+        connect(adaptor, &ExportAdaptor::exportWarnings, this,
+                [](const QString &title, const QList<QString> &messages) {
+                    MessagesDialog *dialog = new MessagesDialog(title, Application::mainWindow);
+                    dialog->setMessages(messages);
+                    dialog->show();
+                });
+    }
 
     ImportDocument *documentImport = new ImportDocument(this);
     mImportAdaptors.append(documentImport);

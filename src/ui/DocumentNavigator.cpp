@@ -10,8 +10,6 @@
 #include "core/Application.h"
 #include "ui/DocumentNavigator.h"
 #include "whiteboard/BoardController.h"
-#include "content/ThumbnailAdaptor.h"
-#include "content/SvgSubsetAdaptor.h"
 #include "model/DocumentController.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/BoardPaletteManager.h"

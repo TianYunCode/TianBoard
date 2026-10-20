@@ -6,8 +6,9 @@
 #      CustomCaptureWindow* 也从 src/platform/ 移到了这里——它们是界面，平台层只留
 #      下"怎么把一次按键交给系统"这一件事（platform/KeyboardSender）。
 #
-# 允许依赖：model、utils、api、platform。尚未成立的边：ui <-> core / whiteboard /
-# content / model。
+# 允许依赖：model、utils、platform。尚未成立的边：ui <-> core / whiteboard / model。
+# （对 content 与 api 已经零出边：content 那两个是从没被使用的死 include，api 那个是
+# FeaturesWidget 里从不使用的 boardApi。）
 # ======================================================================
 
 add_library(tb_ui OBJECT
