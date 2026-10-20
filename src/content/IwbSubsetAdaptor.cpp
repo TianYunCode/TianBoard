@@ -936,10 +936,16 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgImage(const QDomElement &element
     qreal width         = element.attribute(aWidth).toDouble();
     qreal height        = element.attribute(aHeight).toDouble();
 
-    QString itemRefPath = element.attribute(aHref);
+    // 包里的图片引用是带命名空间的 xlink:href，而本文档按 namespace processing 解析（见
+    // parse()），attribute("href") 与 attribute("xlink:href") 都取不到——必须 attributeNS。
+    QString itemRefPath = element.attributeNS(QStringLiteral("http://www.w3.org/1999/xlink"), QStringLiteral("href"));
+    if (itemRefPath.isEmpty())
+    {
+        itemRefPath = element.attribute(aHref);
+    }
 
     QPixmap pix;
-    if (!itemRefPath.isNull())
+    if (!itemRefPath.isEmpty())
     {
         QString imagePath = pwdContent + "/" + itemRefPath;
         if (!QFile::exists(imagePath))
@@ -954,11 +960,15 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgImage(const QDomElement &element
         }
     }
 
-    GraphicsPixmapItem *pixItem = mCurrentScene->addPixmap(pix, NULL);
+    // 最后一个参数必须为 true：图片要落进**正在导入的这份文档**的对象目录。默认的 false 走
+    // boardController->selectedDocument()，导入时界面上选中的往往是另一份文档，于是 PNG 存到
+    // 别的目录里，页上的引用指回本文档目录时找不到文件，图片静默变成空位图。
+    GraphicsPixmapItem *pixItem = mCurrentScene->addPixmap(pix, NULL, QPointF(0, 0), 1.0, false, true);
 
-    QString uuid                = QUuid::createUuid().toString();
+    // addPixmap 已经按图元当下这个 UUID 把 PNG 落了盘（文件名就是它），这里不能再换一个 UUID：
+    // 换了以后页文件写出去的 images/<新UUID>.png 在磁盘上并不存在，导入回来的图片就是空的。
+    QString uuid                = pixItem->uuid().toString();
     mRefToUuidMap.insert(element.attribute(aId), uuid);
-    pixItem->setUuid(QUuid(uuid));
 
     QTransform transform;
     QString    textTransform = element.attribute(aTransform);
@@ -1336,7 +1346,16 @@ GraphicsGroupContainerItem *IwbSubsetAdaptor::IwbSubsetReader::parseIwbGroup(QDo
                 }
                 else // single elements in group
                 {
-                    groupContainer.append(mCurrentScene->itemForUuid(QUuid(uuid)));
+                    QGraphicsItem *member = mCurrentScene->itemForUuid(QUuid(uuid));
+                    if (member)
+                    {
+                        groupContainer.append(member);
+                    }
+                    else
+                    {
+                        // 引用指向页内不存在的图元（例如背景元素）：丢掉这个成员而不是把 0 塞进组里。
+                        qWarning() << "iwb group references an unknown item" << uuid;
+                    }
                 }
             }
         }
@@ -1553,6 +1572,14 @@ bool IwbSubsetAdaptor::IwbSubsetReader::persistScenes()
 
         SvgSubsetAdaptor::persistScene(mProxy, mCurrentScene, i);
         GraphicsScene *tmpScene = SvgSubsetAdaptor::loadScene(mProxy, i);
+        if (!tmpScene)
+        {
+            // 刚写出去的页读不回来（文件缺失、打不开或解析失败都会返回 0）：跳过缩略图这一环，
+            // 不能拿着空指针继续走，否则整次 IWB 导入直接崩掉。
+            qWarning() << "cannot reload page" << i << "right after persisting it";
+            mCurrentScene->setModified(false);
+            continue;
+        }
         tmpScene->setModified(true);
         ThumbnailAdaptor::persistScene(mProxy, tmpScene, i);
         mCurrentScene->setModified(false);

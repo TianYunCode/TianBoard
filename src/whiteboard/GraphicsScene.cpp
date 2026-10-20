@@ -1788,6 +1788,13 @@ GraphicsGroupContainerItem *GraphicsScene::createGroup(QList<QGraphicsItem *> it
     addItem(groupItem);
     foreach (QGraphicsItem *item, items)
     {
+        if (!item)
+        {
+            // 调用方可能按 UUID 找图元，找不到就是 0；这里必须挡住，否则下面 item->type() 直接崩。
+            qWarning() << "createGroup: ignoring a null member item";
+            continue;
+        }
+
         if (item->type() == GraphicsGroupContainerItem::Type)
         {
             QList<QGraphicsItem *>      childItems   = item->childItems();

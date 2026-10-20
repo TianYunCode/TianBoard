@@ -287,6 +287,10 @@ int Application::exec(const QString &pFileToImport)
     // 自检会往临时目录写文档并动场景缓存，两个进程并行没有意义。
     if (arguments().contains("--format-selftest"))
     {
+        // 崩溃时 stderr 是块缓冲的，最后几条日志会跟着进程一起丢，看不出停在哪。
+        // verbose 分支按条 open/close 落盘（见 app/main.cpp 的消息处理器），所以自检开它。
+        setVerbose(true);
+
         if (isRunning())
         {
             qWarning() << "format-selftest: 已有实例在运行，让路";

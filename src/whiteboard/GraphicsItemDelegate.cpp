@@ -605,7 +605,12 @@ void GraphicsItemDelegate::lock(bool locked)
     mDelegated->update();
 
     positionHandles();
-    mFrame->positionHandles();
+    if (mFrame)
+    {
+        // 上面那个 positionHandles() 自己有 controlsExist() 保护，这里没有：图元刚被文档导入
+        // 建出来时还从没被选中过，框架尚未创建，直接 mFrame->positionHandles() 就是空指针崩溃。
+        mFrame->positionHandles();
+    }
 }
 
 void GraphicsItemDelegate::setLockedRecurs(const QVariant &pLock, QGraphicsItem *pItem)

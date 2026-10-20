@@ -296,6 +296,21 @@
   `rect()`，所以只有它两端一致。两处改成写 `rect()`（`SvgSubsetAdaptor.cpp:2888`、`:2943`）。
   这条是本轮新写的 `--format-selftest` 第一次跑就报出来的，也是它存在的理由：界面上完全看不出
   来，只有把同一页存了再冷读回来才会露。
+- **IWB 互操作（同一轮里加的第二腿）**：把自检文档导出 `.iwb` 再导回来，一次抓到四处：
+  ① `GraphicsItemDelegate::lock()` 无条件 `mFrame->positionHandles()`，而 `mFrame` 只在
+  `createControls()` 里建；导入过程中刚建出来的图元从没被选中过，于是 **导入 .iwb 直接崩**
+  （0xC0000005，`delegated+0xf: mov rcx,[rax+28h]`，rax=0）。已判空（`GraphicsItemDelegate.cpp:608`）。
+  ② `parseSvgImage` 把图片落到 `boardController->selectedDocument()` 的目录而不是正在导入的那份
+  （`addPixmap` 默认参数），落完又把图元 UUID 换成新造的（`IwbSubsetAdaptor.cpp:970`），
+  页文件于是引用 `images/<新UUID>.png` 而盘上是 `<旧UUID>.png` ⇒ **导入回来的图片全是空白**。
+  改成用代理目录 + 保留 `addPixmap` 分配的 UUID。把 ② 临时退回，`tst_format` 立刻报
+  “IWB 导入的图片是空位图”，恢复即绿——这条断言不是摆设。
+  ③ 导出器对 polyline 无条件 `stroke := fill`，而本页 polyline 的颜色本来就在 `stroke` 上、
+  `fill` 恒为 `none` ⇒ 笔迹颜色导出去变成空串。改成只有本来没有 stroke 时才回落（`IwbDocumentAdaptor.cpp:2073`）。
+  ④ 图片引用是带命名空间的 `xlink:href`，而本文档按 namespace processing 解析，
+  `attribute("href")` 取不到 ⇒ 走不进“文件不存在”那条告警、静默给一张空位图。已按 `attributeNS` 取。
+  **仍然会丢的（未修，别再当往返无损）**：IWB 没有工具图元的概念，尺子/量角器/圆规导出去就没了；
+  一笔 polyline 回来是一个覆盖整条包围盒的 polygon，`originalWidth()` 是 -1，逐段结构与笔宽不还原。
 
 仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、

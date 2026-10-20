@@ -2068,7 +2068,13 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolyline(const QDomElement &el
 
     if (copyPageCommonAttributes(element, iwbElementPart, svgElementPart))
     {
-        svgElementPart.setAttribute(aStroke, svgElementPart.attribute(aFill));
+        // IWB 用 stroke 表示线条颜色，多数图元的颜色在 fill 上，所以要搬一次；但本页的 polyline
+        // 颜色本来就写在 stroke 上、fill 恒为 none，无条件照搬会把颜色抹成空串。
+        QString strokeValue = svgElementPart.attribute(aStroke);
+        if (strokeValue.isEmpty() || strokeValue == QLatin1String("none"))
+        {
+            svgElementPart.setAttribute(aStroke, svgElementPart.attribute(aFill));
+        }
         addSVGElementToResultModel(svgElementPart, dstSvgList, getElementLayer(element));
 
         if (0 < iwbElementPart.attributes().count())

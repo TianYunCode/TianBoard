@@ -1,6 +1,8 @@
 #include "core/FormatSelfTest.h"
 
 #include "core/PersistenceManager.h"
+#include "content/ImportIwb.h"
+#include "content/IwbDocumentAdaptor.h"
 #include "content/SvgSubsetAdaptor.h"
 #include "model/DocumentProxy.h"
 #include "utils/Enums.h"
@@ -36,7 +38,10 @@ namespace
     const QColor kStrokeColor(220, 40, 40);
     const QColor kStrokeOnDark(240, 120, 110);
     const QColor kStrokeOnLight(180, 20, 20);
-    const qreal  kStrokeWidth = 7;
+    const qreal  kStrokeWidth   = 7;
+
+    /// @brief 自检文本；摆图元与比对 IWB 结果两端共用一份，不各写一遍字面量。
+    const QString kSelftestText = QStringLiteral("格式自检 Aa 一 1");
 
     /// @brief 按 0.1 取整，吸收写出器两位小数的坐标精度损失。
     qreal quantise(qreal v)
@@ -231,7 +236,7 @@ namespace
         addFreehandStroke(scene, points);
 
         GraphicsTextItem *text = new GraphicsTextItem();
-        text->setPlainText(QStringLiteral("格式自检 Aa 一 1"));
+        text->setPlainText(kSelftestText);
         text->setPos(420, 120);
         scene->addItem(text);
 
@@ -248,6 +253,52 @@ namespace
     QStringList pageFiles(const QString &documentDirectory)
     {
         return QDir(documentDirectory).entryList({QStringLiteral("page*.svg")}, QDir::Files, QDir::Name);
+    }
+
+    /**
+     * @brief 把这份文档再过一遍 IWB：导出 .iwb、由导入器读成一份新文档、把页读回来。
+     *
+     * 这一段验的是互操作链路（`IwbDocumentAdaptor` + `IwbSubsetAdaptor`）而不是原生页格式。
+     * IWB 只认 text / image / polyline / polygon / rect / group，尺子量角器圆规这些工具图元本来
+     * 就不在规范里，所以这里只要求文本、图片与笔迹颜色活着回来，并检查图片不是空位图。
+     */
+    QStringList iwbFacts(const QString &documentDirectory, QStringList &failures)
+    {
+        const QString packagePath = documentDirectory + QStringLiteral(".iwb");
+
+        IwbDocumentAdaptor adaptor;
+        if (!adaptor.convertPageToIwb(documentDirectory, packagePath))
+        {
+            failures << QStringLiteral("IWB 导出失败: %1").arg(adaptor.getConversionMessages().join(QStringLiteral(" | ")));
+            return QStringList();
+        }
+
+        ImportIwb      importer;
+        DocumentProxy *imported = importer.importFile(QFile(packagePath), QString());
+        if (!imported)
+        {
+            failures << QStringLiteral("IWB 导入没产出文档（包大小 %1 字节）").arg(QFileInfo(packagePath).size());
+            return QStringList();
+        }
+        if (imported->pageCount() != 1)
+        {
+            failures << QStringLiteral("IWB 导入后应有 1 页，实际 %1 页").arg(imported->pageCount());
+        }
+
+        QStringList    facts;
+        GraphicsScene *scene = SvgSubsetAdaptor::loadScene(imported, 0);
+        if (!scene)
+        {
+            failures << QStringLiteral("IWB 导入的文档读不回第 0 页");
+        }
+        else
+        {
+            facts = sceneFacts(scene);
+        }
+
+        PersistenceManager::persistenceManager()->deleteDocument(imported);
+        QFile::remove(packagePath);
+        return facts;
     }
 } // namespace
 
@@ -385,6 +436,51 @@ namespace FormatSelfTest
             if (pagesAfterTwo.size() != 1)
             {
                 failures << QStringLiteral("两轮存完页文件应有 1 个，实际 %1 个").arg(pagesAfterTwo.size());
+            }
+        }
+
+        if (failures.isEmpty())
+        {
+            const QStringList iwb = iwbFacts(documentDirectory, failures);
+
+            int texts             = 0;
+            int images            = 0;
+            int strokes           = 0;
+            for (const QString &fact : iwb)
+            {
+                if (fact.startsWith(QStringLiteral("text|")) && fact.contains(kSelftestText))
+                {
+                    texts++;
+                }
+                else if (fact.startsWith(QStringLiteral("pixmap|")))
+                {
+                    images++;
+                    if (fact.endsWith(QStringLiteral("|<null>")))
+                    {
+                        failures << QStringLiteral("IWB 导入的图片是空位图: %1").arg(fact);
+                    }
+                }
+                else if (fact.startsWith(QStringLiteral("segment|")))
+                {
+                    strokes++;
+                    if (!fact.contains(kStrokeColor.name(QColor::HexRgb)))
+                    {
+                        failures << QStringLiteral("IWB 往返把笔迹颜色改了: %1").arg(fact);
+                    }
+                }
+            }
+
+            if (texts != 1)
+            {
+                failures << QStringLiteral("IWB 往返后应有 1 条自检文本，实际 %1 条").arg(texts);
+            }
+            if (images != 1)
+            {
+                failures << QStringLiteral("IWB 往返后应有 1 张图片，实际 %1 张").arg(images);
+            }
+            if (strokes < 1)
+            {
+                failures << QStringLiteral("IWB 往返后笔迹全丢了");
             }
         }
 
