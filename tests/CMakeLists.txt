@@ -78,5 +78,6 @@ if(TARGET TianBoardTranslations)
     add_dependencies(tst_language TianBoardTranslations)
     add_test(NAME tst_language COMMAND tst_language)
     set_tests_properties(tst_language PROPERTIES
-        ENVIRONMENT "TIANBOARD_ZH_QM=${CMAKE_BINARY_DIR}/Language/TianBoard_zh_CN.qm")
+        ENVIRONMENT
+            "TIANBOARD_ZH_QM=${CMAKE_BINARY_DIR}/Language/TianBoard_zh_CN.qm;TIANBOARD_QT_ZH_QM=${CMAKE_BINARY_DIR}/Language/qtbase_zh_CN.qm")
 endif()

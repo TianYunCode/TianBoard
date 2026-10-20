@@ -205,6 +205,25 @@ if(Qt6LinguistTools_FOUND AND TIANBOARD_LRELEASE_EXECUTABLE)
             COMMENT "lrelease: ${_lang} -> TianBoard_${_lang}.qm"
             VERBATIM)
         list(APPEND TIANBOARD_QM_FILES ${_qm})
+
+        # Qt 自带控件的文案（消息框按钮、颜色对话框、打印对话框、向导等）不在本项目的 .ts
+        # 里，而在 Qt 安装目录的 qtbase_<locale>.qm。少了它，界面切到中文后这些控件仍是英文，
+        # 运行时只会打一句"Qt 控件翻译不可用"。随包拷进 Language/，由 src/app 的 POST_BUILD
+        # 与自家 .qm 一起放到可执行文件旁边。
+        set(_qtqm ${CMAKE_CURRENT_BINARY_DIR}/Language/qtbase_${_lang}.qm)
+        find_file(TIANBOARD_QTBASE_QM_${_lang} NAMES qtbase_${_lang}.qm
+                  HINTS ${Qt6_DIR}/../../../translations NO_DEFAULT_PATH)
+        if(TIANBOARD_QTBASE_QM_${_lang})
+            add_custom_command(OUTPUT ${_qtqm}
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/Language
+                COMMAND ${CMAKE_COMMAND} -E copy ${TIANBOARD_QTBASE_QM_${_lang}} ${_qtqm}
+                DEPENDS ${TIANBOARD_QTBASE_QM_${_lang}}
+                COMMENT "随包部署 Qt 控件翻译: ${_lang}"
+                VERBATIM)
+            list(APPEND TIANBOARD_QM_FILES ${_qtqm})
+        else()
+            message(WARNING "找不到 qtbase_${_lang}.qm；切到 ${_lang} 后 Qt 自带控件文案保持英文")
+        endif()
     endforeach()
     add_custom_target(TianBoardTranslations DEPENDS ${TIANBOARD_QM_FILES})
 endif()

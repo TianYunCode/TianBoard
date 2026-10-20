@@ -3,7 +3,8 @@
  * @brief 守住中文语言包真的能编译、能被装上、并且按预期改变取词结果；摘掉后回到英文原文。
  *
  * 这一步是语言切换功能的地基：上下文名（MainWindow 等）一旦和代码里的 tr() 归属对不上，
- * 切换后界面不会有任何变化，而这个错误只有加载 .qm 才暴露得出来。
+ * 切换后界面不会有任何变化，而这个错误只有加载 .qm 才暴露得出来。同时守住 Qt 自带的
+ * qtbase_<locale>.qm 真的随包部署了——不然中文界面里消息框按钮与颜色对话框还是英文。
  */
 
 #include <QtTest>
@@ -21,6 +22,9 @@ private slots:
     void chineseCatalogueTranslatesMainWindowTexts();
     /// @brief 摘掉翻译器后同一个 key 回落成英文原文，与界面上选择 "en" 时的行为一致。
     void removingTranslatorFallsBackToSourceText();
+    /// @brief Qt 自带控件的中文 catalogue 必须随包部署并且真的能取到词，否则消息框按钮、
+    ///        颜色对话框这些界面在中文下仍是英文。
+    void qtWidgetCatalogueIsDeployedAndTranslates();
 };
 
 static QString cataloguePath()
@@ -55,6 +59,28 @@ void TestLanguage::removingTranslatorFallsBackToSourceText()
 {
     // 摘掉翻译器之后必须回到英文原文，这正是选择 "en" 时的行为。
     QCOMPARE(QCoreApplication::translate("MainWindow", "Preferences"), QString::fromLatin1("Preferences"));
+}
+
+void TestLanguage::qtWidgetCatalogueIsDeployedAndTranslates()
+{
+    // 这些文案不在本项目的 .ts 里，装的是 Qt 自带的 qtbase_<locale>.qm；
+    // 根 CMakeLists 把它随包拷进 Language/。少这一步，界面切到中文后消息框按钮、
+    // 颜色对话框仍是英文，而运行时只打一句 qWarning，很容易在日志里被忽略。
+    const QString path = qEnvironmentVariable("TIANBOARD_QT_ZH_QM");
+    QVERIFY2(!path.isEmpty(), "set TIANBOARD_QT_ZH_QM (ctest does it through the test's ENVIRONMENT property)");
+    QVERIFY2(QFileInfo::exists(path), qPrintable(QStringLiteral("Qt widget catalogue not deployed: %1").arg(path)));
+
+    QTranslator translator;
+    QVERIFY2(translator.load(path), qPrintable(QStringLiteral("failed to load: %1").arg(path)));
+    QVERIFY(QCoreApplication::instance()->installTranslator(&translator));
+
+    QCOMPARE(QCoreApplication::translate("QPlatformTheme", "OK"), QString::fromUtf8("确定"));
+    QCOMPARE(QCoreApplication::translate("QColorDialog", "Select Color"), QString::fromUtf8("选择颜色"));
+
+    QCoreApplication::removeTranslator(&translator);
+
+    // 摘掉后必须回到英文，确保上面取到的确实是 catalogue 的内容而不是巧合。
+    QCOMPARE(QCoreApplication::translate("QPlatformTheme", "OK"), QString::fromLatin1("OK"));
 }
 
 QTEST_GUILESS_MAIN(TestLanguage)

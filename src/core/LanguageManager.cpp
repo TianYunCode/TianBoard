@@ -222,13 +222,18 @@ bool LanguageManager::setLanguage(const QString &code)
             mInstalled = true;
         }
 
-        if (loadCatalogue(mQtTranslator, QStringLiteral("qt_"), resolved))
+        // Qt 自带控件的文案（消息框按钮、颜色对话框、打印对话框、向导等）不在本项目的 .ts
+        // 里，而在 Qt 的 qtbase_<locale>.qm 中；根 CMakeLists 会把它随包拷进 Language/。
+        // 早期布局只有 qt_<locale>.qm，留作兜底。
+        const bool qtCatalogueLoaded =
+            loadCatalogue(mQtTranslator, QStringLiteral("qtbase_"), resolved) || loadCatalogue(mQtTranslator, QStringLiteral("qt_"), resolved);
+        if (qtCatalogueLoaded)
         {
             QCoreApplication::installTranslator(mQtTranslator);
         }
         else
         {
-            qDebug() << "Qt gui translation in " << resolved << " is not available";
+            qWarning() << "Qt 控件翻译不可用：" << resolved;
         }
 
         mCurrentLanguage = resolved;
