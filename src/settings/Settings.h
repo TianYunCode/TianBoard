@@ -22,7 +22,8 @@
  * 路径内的 {UserLoginName} 由装配层注入，避免设置层反向依赖平台层。
  * 所有访问均在 GUI 线程，无额外同步。
  */
-class Settings : public QObject {
+class Settings : public QObject
+{
     Q_OBJECT
 
 public:
@@ -191,247 +192,244 @@ public:
     /** @brief 返回配置了代理信息的 QNetworkProxy；未配置时返回直连代理。 */
     QNetworkProxy *httpProxy();
 
-    static int pointerDiameter; ///< 指针光标直径。
-    static int boardMargin;     ///< 画板四周留白。
+    static int pointerDiameter;                          ///< 指针光标直径。
+    static int boardMargin;                              ///< 画板四周留白。
 
-    static QColor paletteColor;       ///< 调色板主色。
-    static QColor opaquePaletteColor; ///< 不透明调色板色。
+    static QColor paletteColor;                          ///< 调色板主色。
+    static QColor opaquePaletteColor;                    ///< 不透明调色板色。
 
-    static QColor documentViewLightColor; ///< 文档视图的浅色底。
+    static QColor documentViewLightColor;                ///< 文档视图的浅色底。
 
-    static QBrush eraserBrushDarkBackground;  ///< 深色背景下的橡皮画刷。
-    static QBrush eraserBrushLightBackground; ///< 浅色背景下的橡皮画刷。
+    static QBrush eraserBrushDarkBackground;             ///< 深色背景下的橡皮画刷。
+    static QBrush eraserBrushLightBackground;            ///< 浅色背景下的橡皮画刷。
 
-    static QPen eraserPenDarkBackground;  ///< 深色背景下的橡皮画笔。
-    static QPen eraserPenLightBackground; ///< 浅色背景下的橡皮画笔。
+    static QPen eraserPenDarkBackground;                 ///< 深色背景下的橡皮画笔。
+    static QPen eraserPenLightBackground;                ///< 浅色背景下的橡皮画笔。
 
     static QColor markerCircleBrushColorDarkBackground;  ///< 深色背景下荧光笔预览圆填充色。
     static QColor markerCircleBrushColorLightBackground; ///< 浅色背景下荧光笔预览圆填充色。
 
-    static QColor markerCirclePenColorDarkBackground;  ///< 深色背景下荧光笔预览圆描边色。
-    static QColor markerCirclePenColorLightBackground; ///< 浅色背景下荧光笔预览圆描边色。
+    static QColor markerCirclePenColorDarkBackground;    ///< 深色背景下荧光笔预览圆描边色。
+    static QColor markerCirclePenColorLightBackground;   ///< 浅色背景下荧光笔预览圆描边色。
 
-    static QColor penCircleBrushColorDarkBackground;  ///< 深色背景下钢笔预览圆填充色。
-    static QColor penCircleBrushColorLightBackground; ///< 浅色背景下钢笔预览圆填充色。
+    static QColor penCircleBrushColorDarkBackground;     ///< 深色背景下钢笔预览圆填充色。
+    static QColor penCircleBrushColorLightBackground;    ///< 浅色背景下钢笔预览圆填充色。
 
-    static QColor penCirclePenColorDarkBackground;  ///< 深色背景下钢笔预览圆描边色。
-    static QColor penCirclePenColorLightBackground; ///< 浅色背景下钢笔预览圆描边色。
+    static QColor penCirclePenColorDarkBackground;       ///< 深色背景下钢笔预览圆描边色。
+    static QColor penCirclePenColorLightBackground;      ///< 浅色背景下钢笔预览圆描边色。
 
-    static QColor documentSizeMarkColorDarkBackground;  ///< 深色背景下文档尺寸标记色。
-    static QColor documentSizeMarkColorLightBackground; ///< 浅色背景下文档尺寸标记色。
+    static QColor documentSizeMarkColorDarkBackground;   ///< 深色背景下文档尺寸标记色。
+    static QColor documentSizeMarkColorLightBackground;  ///< 浅色背景下文档尺寸标记色。
 
     // 背景网格
-    static int crossSize;        ///< 当前网格间距。
-    static int defaultCrossSize; ///< 默认网格间距。
-    static int minCrossSize;     ///< 网格间距下限。
-    static int maxCrossSize;     ///< 网格间距上限。
+    static int crossSize;                                       ///< 当前网格间距。
+    static int defaultCrossSize;                                ///< 默认网格间距。
+    static int minCrossSize;                                    ///< 网格间距下限。
+    static int maxCrossSize;                                    ///< 网格间距上限。
 
-    static int colorPaletteSize; ///< 调色板色块数量。
-    static int objectFrameWidth; ///< 对象选中框线宽。
+    static int colorPaletteSize;                                ///< 调色板色块数量。
+    static int objectFrameWidth;                                ///< 对象选中框线宽。
 
-    static QString documentGroupName; ///< 文档包内的组名键。
-    static QString documentName;      ///< 文档名键。
-    static QString documentSize;      ///< 文档尺寸键。
-    static QString documentIdentifer; ///< 文档标识键。
-    static QString documentVersion;   ///< 文档格式版本键。
-    static QString documentUpdatedAt; ///< 文档更新时间键。
-    static QString documentPageCount; ///< 文档页数键。
+    static QString documentGroupName;                           ///< 文档包内的组名键。
+    static QString documentName;                                ///< 文档名键。
+    static QString documentSize;                                ///< 文档尺寸键。
+    static QString documentIdentifer;                           ///< 文档标识键。
+    static QString documentVersion;                             ///< 文档格式版本键。
+    static QString documentUpdatedAt;                           ///< 文档更新时间键。
+    static QString documentPageCount;                           ///< 文档页数键。
 
-    static QString documentDate; ///< 文档日期键。
+    static QString documentDate;                                ///< 文档日期键。
 
-    static QString trashedDocumentGroupNamePrefix; ///< 回收站文档组名前缀。
+    static QString trashedDocumentGroupNamePrefix;              ///< 回收站文档组名前缀。
 
-    static QString currentFileVersion; ///< 当前读写器支持的文档格式版本。
+    static QString currentFileVersion;                          ///< 当前读写器支持的文档格式版本。
 
-    static QString documentNamespaceUri;    ///< 文档 XML 命名空间。
-    static QString applicationNamespaceUri; ///< 应用 XML 命名空间。
+    static QString documentNamespaceUri;                        ///< 文档 XML 命名空间。
+    static QString applicationNamespaceUri;                     ///< 应用 XML 命名空间。
 
-    static QString undoCommandTransactionName; ///< 撤销事务名称。
+    static QString undoCommandTransactionName;                  ///< 撤销事务名称。
 
-    static const int maxThumbnailWidth;        ///< 缩略图最大宽度。
-    static const int defaultThumbnailWidth;    ///< 默认缩略图宽度。
-    static const int defaultSortKind;          ///< 默认排序字段。
-    static const int defaultSortOrder;         ///< 默认排序方向。
-    static const int defaultSplitterLeftSize;  ///< 左侧面板默认宽度。
-    static const int defaultSplitterRightSize; ///< 右侧面板默认宽度。
-    static const int defaultLibraryIconSize;   ///< 资源库默认图标尺寸。
+    static const int maxThumbnailWidth;                         ///< 缩略图最大宽度。
+    static const int defaultThumbnailWidth;                     ///< 默认缩略图宽度。
+    static const int defaultSortKind;                           ///< 默认排序字段。
+    static const int defaultSortOrder;                          ///< 默认排序方向。
+    static const int defaultSplitterLeftSize;                   ///< 左侧面板默认宽度。
+    static const int defaultSplitterRightSize;                  ///< 右侧面板默认宽度。
+    static const int defaultLibraryIconSize;                    ///< 资源库默认图标尺寸。
 
-    static const int defaultImageWidth;      ///< 图片对象默认宽度。
-    static const int defaultShapeWidth;      ///< 形状对象默认宽度。
-    static const int defaultWidgetIconWidth; ///< 小部件图标默认宽度。
-    static const int defaultVideoWidth;      ///< 视频对象默认宽度。
-    static const int defaultGipWidth;        ///< GIP 图片默认宽度。
-    static const int defaultSoundWidth;      ///< 音频对象默认宽度。
+    static const int defaultImageWidth;                         ///< 图片对象默认宽度。
+    static const int defaultShapeWidth;                         ///< 形状对象默认宽度。
+    static const int defaultWidgetIconWidth;                    ///< 小部件图标默认宽度。
+    static const int defaultVideoWidth;                         ///< 视频对象默认宽度。
+    static const int defaultGipWidth;                           ///< GIP 图片默认宽度。
+    static const int defaultSoundWidth;                         ///< 音频对象默认宽度。
 
-    static const int thumbnailSpacing;  ///< 缩略图间距。
-    static const int longClickInterval; ///< 长按判定时长（毫秒）。
+    static const int thumbnailSpacing;                          ///< 缩略图间距。
+    static const int longClickInterval;                         ///< 长按判定时长（毫秒）。
 
-    static const qreal minScreenRatio; ///< 屏幕最小宽高比。
+    static const qreal minScreenRatio;                          ///< 屏幕最小宽高比。
 
-    static QStringList bitmapFileExtensions;             ///< 位图后缀列表。
-    static QStringList vectoFileExtensions;              ///< 矢量图后缀列表。
-    static QStringList imageFileExtensions;              ///< 全部图片后缀列表。
-    static QStringList widgetFileExtensions;             ///< 小部件后缀列表。
-    static QStringList interactiveContentFileExtensions; ///< 互动内容后缀列表。
+    static QStringList bitmapFileExtensions;                    ///< 位图后缀列表。
+    static QStringList vectoFileExtensions;                     ///< 矢量图后缀列表。
+    static QStringList imageFileExtensions;                     ///< 全部图片后缀列表。
+    static QStringList widgetFileExtensions;                    ///< 小部件后缀列表。
+    static QStringList interactiveContentFileExtensions;        ///< 互动内容后缀列表。
 
-    static QColor treeViewBackgroundColor; ///< 树形视图背景色。
+    static QColor treeViewBackgroundColor;                      ///< 树形视图背景色。
 
-    static int objectInControlViewMargin; ///< 控件视图中对象的边距。
+    static int objectInControlViewMargin;                       ///< 控件视图中对象的边距。
 
-    static QString appPingMessage; ///< 用于单实例唤醒的进程间消息。
+    static QString appPingMessage;                              ///< 用于单实例唤醒的进程间消息。
 
-    Setting *productWebUrl; ///< 产品主页地址。
+    Setting *productWebUrl;                                     ///< 产品主页地址。
 
-    QString softwareHomeUrl; ///< 软件主页地址（非设置项，启动时固定）。
+    QString softwareHomeUrl;                                    ///< 软件主页地址（非设置项，启动时固定）。
 
-    Setting *appToolBarPositionedAtTop;     ///< 工具栏是否停靠顶部。
-    Setting *appToolBarDisplayText;         ///< 工具栏按钮是否显示文字。
-    Setting *appHideSwapDisplayScreens;     ///< 是否隐藏“交换显示屏幕”按钮。
-    Setting *appToolBarOrientationVertical; ///< 工具栏是否竖向排列。
-    Setting *appPreferredLanguage;          ///< 首选界面语言。
+    Setting *appToolBarPositionedAtTop;                         ///< 工具栏是否停靠顶部。
+    Setting *appToolBarDisplayText;                             ///< 工具栏按钮是否显示文字。
+    Setting *appHideSwapDisplayScreens;                         ///< 是否隐藏“交换显示屏幕”按钮。
+    Setting *appToolBarOrientationVertical;                     ///< 工具栏是否竖向排列。
+    Setting *appPreferredLanguage;                              ///< 首选界面语言。
 
+    Setting *appLastSessionDocumentUUID;                        ///< 上次会话打开的文档 UUID。
+    Setting *appLastSessionPageIndex;                           ///< 上次会话停留的页码。
 
-    Setting *appLastSessionDocumentUUID; ///< 上次会话打开的文档 UUID。
-    Setting *appLastSessionPageIndex;    ///< 上次会话停留的页码。
+    Setting *appUseMultiscreen;                                 ///< 是否使用多屏模式。
 
-    Setting *appUseMultiscreen; ///< 是否使用多屏模式。
+    Setting *boardPenFineWidth;                                 ///< 细档钢笔宽度。
+    Setting *boardPenMediumWidth;                               ///< 中档钢笔宽度。
+    Setting *boardPenStrongWidth;                               ///< 粗档钢笔宽度。
 
+    Setting *boardMarkerFineWidth;                              ///< 细档荧光笔宽度。
+    Setting *boardMarkerMediumWidth;                            ///< 中档荧光笔宽度。
+    Setting *boardMarkerStrongWidth;                            ///< 粗档荧光笔宽度。
 
-    Setting *boardPenFineWidth;   ///< 细档钢笔宽度。
-    Setting *boardPenMediumWidth; ///< 中档钢笔宽度。
-    Setting *boardPenStrongWidth; ///< 粗档钢笔宽度。
+    Setting *boardPenPressureSensitive;                         ///< 钢笔是否响应压感。
+    Setting *boardMarkerPressureSensitive;                      ///< 荧光笔是否响应压感。
 
-    Setting *boardMarkerFineWidth;   ///< 细档荧光笔宽度。
-    Setting *boardMarkerMediumWidth; ///< 中档荧光笔宽度。
-    Setting *boardMarkerStrongWidth; ///< 粗档荧光笔宽度。
+    Setting *boardUseHighResTabletEvent;                        ///< 是否使用高精度数位板事件。
 
-    Setting *boardPenPressureSensitive;    ///< 钢笔是否响应压感。
-    Setting *boardMarkerPressureSensitive; ///< 荧光笔是否响应压感。
+    Setting *boardInterpolatePenStrokes;                        ///< 钢笔笔画是否插值。
+    Setting *boardSimplifyPenStrokes;                           ///< 钢笔笔画是否简化。
+    Setting *boardSimplifyPenStrokesThresholdAngle;             ///< 简化时的角度阈值。
+    Setting *boardSimplifyPenStrokesThresholdWidthDifference;   ///< 简化时的笔宽差阈值。
+    Setting *boardInterpolateMarkerStrokes;                     ///< 荧光笔笔画是否插值。
+    Setting *boardSimplifyMarkerStrokes;                        ///< 荧光笔笔画是否简化。
 
-    Setting *boardUseHighResTabletEvent; ///< 是否使用高精度数位板事件。
+    Setting *boardKeyboardPaletteKeyBtnSize;                    ///< 屏幕键盘按键尺寸。
 
-    Setting *boardInterpolatePenStrokes;                      ///< 钢笔笔画是否插值。
-    Setting *boardSimplifyPenStrokes;                         ///< 钢笔笔画是否简化。
-    Setting *boardSimplifyPenStrokesThresholdAngle;           ///< 简化时的角度阈值。
-    Setting *boardSimplifyPenStrokesThresholdWidthDifference; ///< 简化时的笔宽差阈值。
-    Setting *boardInterpolateMarkerStrokes;                   ///< 荧光笔笔画是否插值。
-    Setting *boardSimplifyMarkerStrokes;                      ///< 荧光笔笔画是否简化。
+    Setting *appStartMode;                                      ///< 启动时的界面模式。
 
-    Setting *boardKeyboardPaletteKeyBtnSize; ///< 屏幕键盘按键尺寸。
+    Setting *featureSliderPosition;                             ///< 功能滑块位置。
 
-    Setting *appStartMode; ///< 启动时的界面模式。
+    Setting *boardCrossColorDarkBackground;                     ///< 深色背景网格线颜色。
+    Setting *boardCrossColorLightBackground;                    ///< 浅色背景网格线颜色。
 
-    Setting *featureSliderPosition; ///< 功能滑块位置。
+    ColorListSetting *boardGridLightBackgroundColors;           ///< 浅色背景网格色候选。
+    ColorListSetting *boardGridDarkBackgroundColors;            ///< 深色背景网格色候选。
 
-    Setting *boardCrossColorDarkBackground;  ///< 深色背景网格线颜色。
-    Setting *boardCrossColorLightBackground; ///< 浅色背景网格线颜色。
+    ColorListSetting *boardPenLightBackgroundColors;            ///< 浅色背景钢笔色候选。
+    ColorListSetting *boardPenLightBackgroundSelectedColors;    ///< 浅色背景选中的钢笔色。
 
-    ColorListSetting *boardGridLightBackgroundColors; ///< 浅色背景网格色候选。
-    ColorListSetting *boardGridDarkBackgroundColors;  ///< 深色背景网格色候选。
+    ColorListSetting *boardPenDarkBackgroundColors;             ///< 深色背景钢笔色候选。
+    ColorListSetting *boardPenDarkBackgroundSelectedColors;     ///< 深色背景选中的钢笔色。
 
-    ColorListSetting *boardPenLightBackgroundColors;         ///< 浅色背景钢笔色候选。
-    ColorListSetting *boardPenLightBackgroundSelectedColors; ///< 浅色背景选中的钢笔色。
-
-    ColorListSetting *boardPenDarkBackgroundColors;         ///< 深色背景钢笔色候选。
-    ColorListSetting *boardPenDarkBackgroundSelectedColors; ///< 深色背景选中的钢笔色。
-
-    Setting *boardMarkerAlpha; ///< 荧光笔透明度。
+    Setting *boardMarkerAlpha;                                  ///< 荧光笔透明度。
 
     ColorListSetting *boardMarkerLightBackgroundColors;         ///< 浅色背景荧光笔色候选。
     ColorListSetting *boardMarkerLightBackgroundSelectedColors; ///< 浅色背景选中的荧光笔色。
 
-    ColorListSetting *boardMarkerDarkBackgroundColors;         ///< 深色背景荧光笔色候选。
-    ColorListSetting *boardMarkerDarkBackgroundSelectedColors; ///< 深色背景选中的荧光笔色。
+    ColorListSetting *boardMarkerDarkBackgroundColors;          ///< 深色背景荧光笔色候选。
+    ColorListSetting *boardMarkerDarkBackgroundSelectedColors;  ///< 深色背景选中的荧光笔色。
 
-    Setting *showEraserPreviewCircle; ///< 是否显示橡皮预览圆。
-    Setting *showMarkerPreviewCircle; ///< 是否显示荧光笔预览圆。
-    Setting *showPenPreviewCircle;    ///< 是否显示钢笔预览圆。
-    Setting *penPreviewFromSize;      ///< 显示钢笔预览的最小笔宽。
+    Setting *showEraserPreviewCircle;                           ///< 是否显示橡皮预览圆。
+    Setting *showMarkerPreviewCircle;                           ///< 是否显示荧光笔预览圆。
+    Setting *showPenPreviewCircle;                              ///< 是否显示钢笔预览圆。
+    Setting *penPreviewFromSize;                                ///< 显示钢笔预览的最小笔宽。
 
-    Setting *webUseExternalBrowser;                  ///< 网页对象是否用外部浏览器打开。
-    Setting *webShowPageImmediatelyOnMirroredScreen; ///< 镜像屏是否立即显示网页。
+    Setting *webUseExternalBrowser;                             ///< 网页对象是否用外部浏览器打开。
+    Setting *webShowPageImmediatelyOnMirroredScreen;            ///< 镜像屏是否立即显示网页。
 
-    Setting *webHomePage; ///< 网页对象默认主页。
+    Setting *webHomePage;                                       ///< 网页对象默认主页。
 
-    Setting *pageCacheSize; ///< 页面缓存大小。
+    Setting *pageCacheSize;                                     ///< 页面缓存大小。
 
-    Setting *boardZoomFactor; ///< 缩放步进系数。
+    Setting *boardZoomFactor;                                   ///< 缩放步进系数。
 
-    Setting *mirroringRefreshRateInFps; ///< 镜像刷新率（帧/秒）。
+    Setting *mirroringRefreshRateInFps;                         ///< 镜像刷新率（帧/秒）。
 
-    Setting *lastImportFilePath;   ///< 上次导入文件的路径。
-    Setting *lastImportFolderPath; ///< 上次导入目录的路径。
+    Setting *lastImportFilePath;                                ///< 上次导入文件的路径。
+    Setting *lastImportFolderPath;                              ///< 上次导入目录的路径。
 
-    Setting *lastExportFilePath; ///< 上次导出文件的路径。
-    Setting *lastExportDirPath;  ///< 上次导出目录的路径。
+    Setting *lastExportFilePath;                                ///< 上次导出文件的路径。
+    Setting *lastExportDirPath;                                 ///< 上次导出目录的路径。
 
-    Setting *lastImportToLibraryPath; ///< 上次导入资源库的路径。
+    Setting *lastImportToLibraryPath;                           ///< 上次导入资源库的路径。
 
-    Setting *lastPicturePath; ///< 上次选择图片的路径。
-    Setting *lastWidgetPath;  ///< 上次选择小部件的路径。
-    Setting *lastVideoPath;   ///< 上次选择视频的路径。
+    Setting *lastPicturePath;                                   ///< 上次选择图片的路径。
+    Setting *lastWidgetPath;                                    ///< 上次选择小部件的路径。
+    Setting *lastVideoPath;                                     ///< 上次选择视频的路径。
 
-    Setting *appOnlineUserName; ///< 在线功能使用的用户名。
+    Setting *appOnlineUserName;                                 ///< 在线功能使用的用户名。
 
-    Setting *boardShowToolsPalette; ///< 是否显示工具面板。
+    Setting *boardShowToolsPalette;                             ///< 是否显示工具面板。
 
-    QMap<DocumentSizeRatio::Enum, QSize> documentSizes; ///< 各宽高比对应的页面尺寸。
+    QMap<DocumentSizeRatio::Enum, QSize> documentSizes;         ///< 各宽高比对应的页面尺寸。
 
-    Setting *svgViewBoxMargin; ///< SVG 视框留白。
-    Setting *pdfMargin;        ///< PDF 页边距。
-    Setting *pdfPageFormat;    ///< PDF 页面格式。
-    Setting *pdfResolution;    ///< PDF 渲染分辨率。
+    Setting *svgViewBoxMargin;                                  ///< SVG 视框留白。
+    Setting *pdfMargin;                                         ///< PDF 页边距。
+    Setting *pdfPageFormat;                                     ///< PDF 页面格式。
+    Setting *pdfResolution;                                     ///< PDF 渲染分辨率。
 
-    Setting *recordingFramesPerSecond;           ///< 录制帧率。
-    Setting *recordingVideoSize;                 ///< 录制画面尺寸。
-    Setting *recordingWindowsMediaBitsPerSecond; ///< Windows Media 录制码率。
-    Setting *recordingAudioRecordingDevice;      ///< 录制使用的音频设备。
-    Setting *recordingQuickTimeQuality;          ///< QuickTime 录制质量。
+    Setting *recordingFramesPerSecond;                          ///< 录制帧率。
+    Setting *recordingVideoSize;                                ///< 录制画面尺寸。
+    Setting *recordingWindowsMediaBitsPerSecond;                ///< Windows Media 录制码率。
+    Setting *recordingAudioRecordingDevice;                     ///< 录制使用的音频设备。
+    Setting *recordingQuickTimeQuality;                         ///< QuickTime 录制质量。
 
-    Setting *favoritesNativeToolUris; ///< 收藏的内置工具 URI 列表。
+    Setting *favoritesNativeToolUris;                           ///< 收藏的内置工具 URI 列表。
 
-    Setting *documentThumbnailWidth;    ///< 文档缩略图宽度。
-    Setting *documentSortKind;          ///< 文档排序字段。
-    Setting *documentSortOrder;         ///< 文档排序方向。
-    Setting *documentSplitterLeftSize;  ///< 文档面板左侧宽度。
-    Setting *documentSplitterRightSize; ///< 文档面板右侧宽度。
-    Setting *imageThumbnailWidth;       ///< 图片缩略图宽度。
-    Setting *videoThumbnailWidth;       ///< 视频缩略图宽度。
-    Setting *shapeThumbnailWidth;       ///< 形状缩略图宽度。
-    Setting *gipThumbnailWidth;         ///< GIP 缩略图宽度。
-    Setting *soundThumbnailWidth;       ///< 音频缩略图宽度。
+    Setting *documentThumbnailWidth;                            ///< 文档缩略图宽度。
+    Setting *documentSortKind;                                  ///< 文档排序字段。
+    Setting *documentSortOrder;                                 ///< 文档排序方向。
+    Setting *documentSplitterLeftSize;                          ///< 文档面板左侧宽度。
+    Setting *documentSplitterRightSize;                         ///< 文档面板右侧宽度。
+    Setting *imageThumbnailWidth;                               ///< 图片缩略图宽度。
+    Setting *videoThumbnailWidth;                               ///< 视频缩略图宽度。
+    Setting *shapeThumbnailWidth;                               ///< 形状缩略图宽度。
+    Setting *gipThumbnailWidth;                                 ///< GIP 缩略图宽度。
+    Setting *soundThumbnailWidth;                               ///< 音频缩略图宽度。
 
-    Setting *libraryShowDetailsForLocalItems; ///< 本地资源是否显示详情。
+    Setting *libraryShowDetailsForLocalItems;                   ///< 本地资源是否显示详情。
 
-    Setting *rightLibPaletteBoardModeWidth;         ///< 白板模式右侧资源面板宽度。
-    Setting *rightLibPaletteBoardModeIsCollapsed;   ///< 白板模式右侧资源面板是否收起。
-    Setting *rightLibPaletteDesktopModeWidth;       ///< 桌面模式右侧资源面板宽度。
-    Setting *rightLibPaletteDesktopModeIsCollapsed; ///< 桌面模式右侧资源面板是否收起。
-    Setting *leftLibPaletteBoardModeWidth;          ///< 白板模式左侧资源面板宽度。
-    Setting *leftLibPaletteBoardModeIsCollapsed;    ///< 白板模式左侧资源面板是否收起。
-    Setting *leftLibPaletteDesktopModeWidth;        ///< 桌面模式左侧资源面板宽度。
-    Setting *leftLibPaletteDesktopModeIsCollapsed;  ///< 桌面模式左侧资源面板是否收起。
+    Setting *rightLibPaletteBoardModeWidth;                     ///< 白板模式右侧资源面板宽度。
+    Setting *rightLibPaletteBoardModeIsCollapsed;               ///< 白板模式右侧资源面板是否收起。
+    Setting *rightLibPaletteDesktopModeWidth;                   ///< 桌面模式右侧资源面板宽度。
+    Setting *rightLibPaletteDesktopModeIsCollapsed;             ///< 桌面模式右侧资源面板是否收起。
+    Setting *leftLibPaletteBoardModeWidth;                      ///< 白板模式左侧资源面板宽度。
+    Setting *leftLibPaletteBoardModeIsCollapsed;                ///< 白板模式左侧资源面板是否收起。
+    Setting *leftLibPaletteDesktopModeWidth;                    ///< 桌面模式左侧资源面板宽度。
+    Setting *leftLibPaletteDesktopModeIsCollapsed;              ///< 桌面模式左侧资源面板是否收起。
 
+    Setting *pageSize;                                          ///< 页面尺寸。
 
-    Setting *pageSize; ///< 页面尺寸。
+    Setting *KeyboardLocale;                                    ///< 屏幕键盘语言。
+    Setting *swapControlAndDisplayScreens;                      ///< 是否交换控制屏与显示屏。
 
-    Setting *KeyboardLocale;               ///< 屏幕键盘语言。
-    Setting *swapControlAndDisplayScreens; ///< 是否交换控制屏与显示屏。
+    Setting *angleTolerance;                                    ///< 角度识别容差。
+    Setting *historyLimit;                                      ///< 撤销历史上限。
 
-    Setting *angleTolerance; ///< 角度识别容差。
-    Setting *historyLimit;   ///< 撤销历史上限。
+    Setting *libIconSize;                                       ///< 资源库图标尺寸。
 
-    Setting *libIconSize; ///< 资源库图标尺寸。
+    Setting *useSystemOnScreenKeyboard;                         ///< 是否使用系统屏幕键盘。
 
-    Setting *useSystemOnScreenKeyboard; ///< 是否使用系统屏幕键盘。
+    Setting *showDateColumnOnAlphabeticalSort;                  ///< 字母排序时是否显示日期列。
 
-    Setting *showDateColumnOnAlphabeticalSort; ///< 字母排序时是否显示日期列。
+    Setting *emptyTrashForOlderDocuments;                       ///< 是否自动清理旧文档。
+    Setting *emptyTrashDaysValue;                               ///< 自动清理的天数阈值。
 
-    Setting *emptyTrashForOlderDocuments; ///< 是否自动清理旧文档。
-    Setting *emptyTrashDaysValue;         ///< 自动清理的天数阈值。
-
-    Setting *magnifierDrawingMode; ///< 放大镜绘制模式。
-    Setting *autoSaveInterval;     ///< 自动保存间隔。
+    Setting *magnifierDrawingMode;                              ///< 放大镜绘制模式。
+    Setting *autoSaveInterval;                                  ///< 自动保存间隔。
 
 public slots:
     /** @brief 设置钢笔粗细档位索引。 */
@@ -471,27 +469,30 @@ public slots:
     void setValue(const QString &key, const QVariant &value);
 
     /** @brief 颜色环境变化时转发信号，供调色板刷新。 */
-    void colorChanged() { emit colorContextChanged(); }
+    void colorChanged()
+    {
+        emit colorContextChanged();
+    }
 
 signals:
     /** @brief 深/浅背景或颜色集合发生变化。 */
     void colorContextChanged();
 
 private:
-    QSettings *mAppSettings;  ///< 应用级配置（只读默认值）。
-    QSettings *mUserSettings; ///< 用户级配置（可写覆盖）。
+    QSettings *mAppSettings;                  ///< 应用级配置（只读默认值）。
+    QSettings *mUserSettings;                 ///< 用户级配置（可写覆盖）。
 
-    QHash<QString, QVariant> mSettingsQueue; ///< 待写入的用户配置缓存。
+    QHash<QString, QVariant> mSettingsQueue;  ///< 待写入的用户配置缓存。
 
-    static const int sDefaultFontPixelSize; ///< 默认字体像素大小。
-    static const char *sDefaultFontFamily;  ///< 默认字体族。
+    static const int   sDefaultFontPixelSize; ///< 默认字体像素大小。
+    static const char *sDefaultFontFamily;    ///< 默认字体族。
 
     /** @brief 打开（必要时创建）应用级配置文件。 */
     static QSettings *getAppSettings();
 
-    static QPointer<QSettings> sAppSettings; ///< 应用级配置的共享指针。
-    static QPointer<Settings> sSingleton;    ///< 单例指针。
-    static QString sUserLoginName;           ///< 装配层注入的登录名。
+    static QPointer<QSettings> sAppSettings;   ///< 应用级配置的共享指针。
+    static QPointer<Settings>  sSingleton;     ///< 单例指针。
+    static QString             sUserLoginName; ///< 装配层注入的登录名。
 
     /** @brief 确保目录存在，必要时修正路径；成功返回 true。 */
     static bool checkDirectory(QString &dirPath);

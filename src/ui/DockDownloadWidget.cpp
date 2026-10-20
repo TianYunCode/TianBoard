@@ -3,9 +3,8 @@
 
 #include "utils/Globals.h"
 
-
-DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name)
-    : DockPaletteWidget(parent, name), mpLayout(NULL), mpDLWidget(NULL) {
+DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name) : DockPaletteWidget(parent, name), mpLayout(NULL), mpDLWidget(NULL)
+{
     // 标签名与逻辑可见状态；初始不可见，首次开始下载时由调色板管理器显示。
     setName("DownloadWidget");
     setVisibleState(false);
@@ -22,12 +21,15 @@ DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name)
     mpLayout->addWidget(mpDLWidget);
 }
 
-DockDownloadWidget::~DockDownloadWidget() {
-    if (NULL != mpDLWidget) {
+DockDownloadWidget::~DockDownloadWidget()
+{
+    if (NULL != mpDLWidget)
+    {
         delete mpDLWidget;
         mpDLWidget = NULL;
     }
-    if (NULL != mpLayout) {
+    if (NULL != mpLayout)
+    {
         delete mpLayout;
         mpLayout = NULL;
     }

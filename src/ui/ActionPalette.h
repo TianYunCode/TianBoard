@@ -16,7 +16,6 @@
 
 class ActionPaletteButton;
 
-
 /**
  * @brief 把一组 QAction 排成按钮列表的浮动调色板。
  *
@@ -26,7 +25,8 @@ class ActionPaletteButton;
  * 橡皮、翻页等实例；BackgroundPalette、KeyboardPalette、DocumentToolsPalette 和
  * FavoriteToolPalette 都以它为基类。
  */
-class ActionPalette : public FloatingPalette {
+class ActionPalette : public FloatingPalette
+{
     Q_OBJECT
 
 public:
@@ -189,7 +189,8 @@ protected slots:
  * 可用状态都由 QAction 提供，因此外部只需维护动作。整个按钮矩形都可点击，且不
  * 参与键盘焦点，避免打断白板的输入焦点。
  */
-class ActionPaletteButton : public QToolButton {
+class ActionPaletteButton : public QToolButton
+{
     Q_OBJECT
 
 public:

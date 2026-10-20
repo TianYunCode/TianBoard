@@ -18,7 +18,8 @@ class VirtualDesktop;
  * 控件，不取得所有权。屏幕信息统一从 VirtualDesktop 读取，避免各模块自行枚举 QScreen。
  * 线程约束：GUI 线程专用。
  */
-class DisplayManager : public QObject {
+class DisplayManager : public QObject
+{
     Q_OBJECT
 
 public:
@@ -57,16 +58,26 @@ public:
     void setPreviousDisplaysWidgets(QList<BoardView *> pPreviousViews);
 
     /// 是否存在可用的控制屏。
-    bool hasControl() { return mControlScreenIndex > -1; }
+    bool hasControl()
+    {
+        return mControlScreenIndex > -1;
+    }
 
     /// 是否存在可用的展示屏。
-    bool hasDisplay() { return mDisplayScreenIndex > -1; }
+    bool hasDisplay()
+    {
+        return mDisplayScreenIndex > -1;
+    }
 
     /// 是否分配了至少一个历史屏。
-    bool hasPrevious() { return !mPreviousScreenIndexes.isEmpty(); }
+    bool hasPrevious()
+    {
+        return !mPreviousScreenIndexes.isEmpty();
+    }
 
     /// 屏幕角色；Previous1..5 表示第 N 块额外的历史展示屏。
-    enum DisplayRole {
+    enum DisplayRole
+    {
         None = 0,  ///< 未分配角色
         Control,   ///< 控制屏
         Display,   ///< 展示屏
@@ -78,16 +89,25 @@ public:
     };
 
     /// 是否启用多屏模式。
-    bool useMultiScreen() { return mUseMultiScreen; }
+    bool useMultiScreen()
+    {
+        return mUseMultiScreen;
+    }
 
     /// 设置多屏模式开关；只记录状态，重新布局需另行触发。
     void setUseMultiScreen(bool pUse);
 
     /// 返回控制屏下标，-1 表示未分配。
-    int controleScreenIndex() { return mControlScreenIndex; }
+    int controleScreenIndex()
+    {
+        return mControlScreenIndex;
+    }
 
     /// 返回展示屏下标，-1 表示未分配。
-    int displayScreenIndex() const { return mDisplayScreenIndex; }
+    int displayScreenIndex() const
+    {
+        return mDisplayScreenIndex;
+    }
 
     /// 返回控制屏的几何区域。
     QRect controlGeometry();

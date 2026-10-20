@@ -12,7 +12,6 @@
 
 class AbstractDrawRuler;
 
-
 /**
  * @brief 维护“当前工具”与线宽/颜色索引，并把手写笔工具变化广播给界面。
  *
@@ -21,7 +20,8 @@ class AbstractDrawRuler;
  * 参数本身存放在 Settings 中，本类只做选择与通知，不持有图元。
  * 线程约束：仅在 GUI 线程使用。
  */
-class DrawingController : public QObject {
+class DrawingController : public QObject
+{
     Q_OBJECT
 
 private:
@@ -63,10 +63,16 @@ public:
     AbstractDrawRuler *mActiveRuler; ///< 当前处于活动状态的尺具（可为空），不持有所有权
 
     /// @brief 是否处于桌面批注模式。
-    void setInDestopMode(bool mode) { mIsDesktopMode = mode; }
+    void setInDestopMode(bool mode)
+    {
+        mIsDesktopMode = mode;
+    }
 
     /// @brief 是否处于桌面批注模式。
-    bool isInDesktopMode() { return mIsDesktopMode; }
+    bool isInDesktopMode()
+    {
+        return mIsDesktopMode;
+    }
 
 public slots:
     /// @brief 切换当前工具：取消选择、更新最近绘图工具并按新工具回发线宽/颜色索引。
@@ -90,9 +96,9 @@ signals:
     void colorIndexChanged(int index);
 
 private:
-    StylusTool::Enum mStylusTool;        ///< 当前工具
-    StylusTool::Enum mLatestDrawingTool; ///< 最近一次使用的绘图工具
-    bool mIsDesktopMode;                 ///< 桌面批注模式标志
+    StylusTool::Enum mStylusTool;                 ///< 当前工具
+    StylusTool::Enum mLatestDrawingTool;          ///< 最近一次使用的绘图工具
+    bool             mIsDesktopMode;              ///< 桌面批注模式标志
 
     static DrawingController *sDrawingController; ///< 单例指针
 

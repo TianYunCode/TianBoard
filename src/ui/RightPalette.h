@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include "ui/DockPalette.h"
 
 #include <memory>
@@ -18,7 +17,8 @@
  * 折叠按 Board / Desktop 两种模式分别写入设置，切换模式时恢复对应值；
  * 展开时最大宽度被限制为父容器的 45%。
  */
-class RightPalette : public DockPalette {
+class RightPalette : public DockPalette
+{
     Q_OBJECT
 public:
     /// 构造面板并按当前模式恢复上次的宽度与折叠状态。

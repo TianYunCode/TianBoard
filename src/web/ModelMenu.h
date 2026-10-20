@@ -8,14 +8,14 @@
 #include <QtWidgets>
 #include <QMenu>
 
-
 /**
  * @brief 模型驱动的菜单：把模型的层级结构映射为子菜单与动作。
  *
  * 通过 aboutToShow 惰性生成，支持限制行数、插入分隔线、用自定义角色决定悬停文本
  * 与分隔符。当前 web 域内没有外部使用者，保留为通用部件。
  */
-class ModelMenu : public QMenu {
+class ModelMenu : public QMenu
+{
     Q_OBJECT
 
 public:

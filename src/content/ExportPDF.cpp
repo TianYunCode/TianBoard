@@ -21,26 +21,32 @@
 
 #include "whiteboard/PdfPageItem.h"
 
+ExportPDF::ExportPDF(QObject *parent) : ExportAdaptor(parent)
+{
+}
 
-ExportPDF::ExportPDF(QObject *parent) : ExportAdaptor(parent) {}
+ExportPDF::~ExportPDF()
+{
+}
 
-ExportPDF::~ExportPDF() {}
-
-void ExportPDF::persist(DocumentProxy *pDocumentProxy) {
+void ExportPDF::persist(DocumentProxy *pDocumentProxy)
+{
     persistLocally(pDocumentProxy, tr("Export as PDF File"));
 }
 
-bool ExportPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+bool ExportPDF::associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
+{
     const DocumentTreeModel *docModel = qobject_cast<const DocumentTreeModel *>(selectedIndex.model());
-    if (!selectedIndex.isValid() || docModel->isCatalog(selectedIndex)) {
+    if (!selectedIndex.isValid() || docModel->isCatalog(selectedIndex))
+    {
         return false;
     }
 
     return true;
 }
 
-
-bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &filename) {
+bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &filename)
+{
     QPdfWriter pdfWriter(filename);
 
     qDebug() << "exporting document to PDF" << filename;
@@ -51,22 +57,22 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
     pdfWriter.setCreator("TianBoard PDF export");
 
     // 场景坐标是像素，PDF 页面用点：按物理 DPI 换算成 1/72 英寸。
-    VirtualDesktop *desktop = VirtualDesktop::instance();
-    int dpiCommon = desktop->physicalDpi();
-    float scaleFactor = 72.0f / dpiCommon;
+    VirtualDesktop *desktop     = VirtualDesktop::instance();
+    int             dpiCommon   = desktop->physicalDpi();
+    float           scaleFactor = 72.0f / dpiCommon;
 
     QPainter pdfPainter;
-    bool painterNeedsBegin = true;
+    bool     painterNeedsBegin = true;
 
-    int existingPageCount = pDocumentProxy->pageCount();
+    int existingPageCount      = pDocumentProxy->pageCount();
 
-    for (int pageIndex = 0; pageIndex < existingPageCount; pageIndex++) {
-        GraphicsScene *scene =
-            PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, pageIndex);
+    for (int pageIndex = 0; pageIndex < existingPageCount; pageIndex++)
+    {
+        GraphicsScene *scene = PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, pageIndex);
         Application::showMessage(tr("Exporting page %1 of %2").arg(pageIndex + 1).arg(existingPageCount));
 
         // 导出页不保留深色/网格背景：PDF 阅读器默认白底，深色背景会掩盖笔迹。
-        bool isDark = scene->isDarkBackground();
+        bool           isDark         = scene->isDarkBackground();
         PageBackground pageBackground = scene->pageBackground();
         scene->setBackground(false, PageBackground::plain);
 
@@ -78,17 +84,20 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
         scene->setRenderingContext(GraphicsScene::NonScreen);
 
         // QPdfWriter 的页面尺寸单位是点，因此把换算后的像素尺寸当 Point 传入。
-        QPageSize outputPageSize = QPageSize(
-            QSizeF(pageSize.width() * scaleFactor, pageSize.height() * scaleFactor), QPageSize::Point);
+        QPageSize outputPageSize = QPageSize(QSizeF(pageSize.width() * scaleFactor, pageSize.height() * scaleFactor), QPageSize::Point);
         pdfWriter.setPageSize(outputPageSize);
 
         // QPainter 只能 begin 一次；后续页通过 newPage() 切页，
         // painterNeedsBegin 同时充当“begin 是否失败”的标志。
         if (painterNeedsBegin)
+        {
             painterNeedsBegin = !pdfPainter.begin(&pdfWriter);
+        }
 
         else if (pageIndex < existingPageCount)
+        {
             pdfWriter.newPage();
+        }
 
         // 用 normalizedSceneRect 保证内容完整落在页面内，不按 1:1 裁切。
         scene->render(&pdfPainter, QRectF(), scene->normalizedSceneRect());
@@ -102,15 +111,19 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
     }
 
     if (!painterNeedsBegin)
+    {
         pdfPainter.end();
+    }
 
     return true;
 }
 
-QString ExportPDF::exportExtention() {
+QString ExportPDF::exportExtention()
+{
     return QString(".pdf");
 }
 
-QString ExportPDF::exportName() {
+QString ExportPDF::exportName()
+{
     return tr("Export to PDF");
 }

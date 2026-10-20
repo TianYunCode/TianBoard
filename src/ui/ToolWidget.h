@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 #include <QWidget>
 
@@ -24,7 +23,8 @@ class QWebEngineView;
  * 由 BoardController 在把场景中的 GraphicsWidgetItem 弹出时创建，关闭后
  * 通过 remove() 隐藏并延迟删除，或者被移回场景。
  */
-class ToolWidget : public QWidget {
+class ToolWidget : public QWidget
+{
     Q_OBJECT
 
 public:

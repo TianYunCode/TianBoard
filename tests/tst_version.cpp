@@ -11,7 +11,8 @@
 
 #include "utils/Version.h"
 
-class TestVersion : public QObject {
+class TestVersion : public QObject
+{
     Q_OBJECT
 
 private slots:
@@ -24,18 +25,21 @@ private slots:
     void currentDocumentFormatParses();
 };
 
-void TestVersion::twoPartVersion() {
+void TestVersion::twoPartVersion()
+{
     // "1.0" 是 "1.0.0" 的简写：两者必须落在同一个发行版上。
     QCOMPARE(Version(QStringLiteral("1.0")).toUInt(), Version(QStringLiteral("1.0.0")).toUInt());
 }
 
-void TestVersion::threePartVersion() {
+void TestVersion::threePartVersion()
+{
     QCOMPARE(Version(QStringLiteral("4.8.0")).toUInt(), 408001700U);
     QCOMPARE(Version(QStringLiteral("4.8.1")).toUInt(), 408011700U);
     QCOMPARE(Version(QStringLiteral("4.10.0")).toUInt(), 410001700U);
 }
 
-void TestVersion::prereleaseVersion() {
+void TestVersion::prereleaseVersion()
+{
     // 1.0.0.a.3 -> Alpha(10)，1.0.0.b.3 -> Beta(11)，1.0.0.rc.3 -> RC(15)
     const Version alpha(QStringLiteral("1.0.0.a.3"));
     const Version beta(QStringLiteral("1.0.0.b.3"));
@@ -47,14 +51,16 @@ void TestVersion::prereleaseVersion() {
     QVERIFY(candidate < final);
 }
 
-void TestVersion::ordering() {
+void TestVersion::ordering()
+{
     QVERIFY(Version(QStringLiteral("4.7.0")) < Version(QStringLiteral("4.8.0")));
     QVERIFY(Version(QStringLiteral("4.8.0")) > Version(QStringLiteral("4.7.9")));
     QVERIFY(Version(QStringLiteral("5.0")) > Version(QStringLiteral("4.99.99")));
     QVERIFY(Version(QStringLiteral("4.8.0")) == Version(QStringLiteral("4.8.0")));
 }
 
-void TestVersion::documentNewerThanWriterOnly() {
+void TestVersion::documentNewerThanWriterOnly()
+{
     // DocumentController::isOKToOpenDocument() 只该挡“比当前读写器还新”的文档：
     // 相等和更旧都必须放行，否则本程序自己存的文档每次打开都要弹一次丢失警告。
     const Version current(QStringLiteral("4.8.0"));
@@ -68,14 +74,16 @@ void TestVersion::documentNewerThanWriterOnly() {
     QVERIFY(Version(QString()) <= current);
 }
 
-void TestVersion::unknownFormatYieldsZero() {
+void TestVersion::unknownFormatYieldsZero()
+{
     // 四段和空串都不是写出方会产出的格式；读取方依赖“0 表示没有可用版本”，
     // 而不是在这里崩掉或猜一个版本。
     QCOMPARE(Version(QStringLiteral("1.2.3.4")).toUInt(), 0U);
     QCOMPARE(Version(QString()).toUInt(), 0U);
 }
 
-void TestVersion::currentDocumentFormatParses() {
+void TestVersion::currentDocumentFormatParses()
+{
     // Settings::currentFileVersion 会被写进每一份保存的文档，所以真正随包发布的版本串
     // 必须过得了这个解析器。这里写成字面量是为了不让测试去链设置那一栈，
     // 两者要改就一起改。

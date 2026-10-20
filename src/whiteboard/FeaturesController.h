@@ -31,7 +31,6 @@ class FeaturesPathProxyModel;
 class FeaturesListView;
 class Feature;
 
-
 /**
  * @brief 在后台线程扫描素材目录并把结果逐条发给界面的工作线程。
  *
@@ -42,7 +41,8 @@ class Feature;
  * 生命周期：作为 FeaturesController 的成员存在，随控制器析构而结束；
  * 扫描目录期间不要从 GUI 线程直接访问其内部数据。
  */
-class FeaturesComputingThread : public QThread {
+class FeaturesComputingThread : public QThread
+{
     Q_OBJECT
 public:
     explicit FeaturesComputingThread(QObject *parent = 0);
@@ -85,19 +85,19 @@ private:
     int featuresCountAll(QList<QPair<QUrl, Feature>> pScanningData);
 
 private:
-    QMutex mMutex;                             ///< 保护任务字段的互斥量
-    QWaitCondition mWaitCondition;             ///< 任务到达/退出的等待条件
-    QUrl mScanningPath;                        ///< 当前扫描路径
-    QString mScanningVirtualPath;              ///< 当前扫描对应的虚拟路径
-    QList<QPair<QUrl, Feature>> mScanningData; ///< 待扫描任务
-    QSet<QUrl> mFavoriteSet;                   ///< 收藏集合副本
-    bool restart;                              ///< 是否请求重启扫描
-    bool abort;                                ///< 是否请求中止扫描
+    QMutex                      mMutex;               ///< 保护任务字段的互斥量
+    QWaitCondition              mWaitCondition;       ///< 任务到达/退出的等待条件
+    QUrl                        mScanningPath;        ///< 当前扫描路径
+    QString                     mScanningVirtualPath; ///< 当前扫描对应的虚拟路径
+    QList<QPair<QUrl, Feature>> mScanningData;        ///< 待扫描任务
+    QSet<QUrl>                  mFavoriteSet;         ///< 收藏集合副本
+    bool                        restart;              ///< 是否请求重启扫描
+    bool                        abort;                ///< 是否请求中止扫描
 };
 
-
 /// @brief 素材库条目的类型。
-enum FeatureElementType {
+enum FeatureElementType
+{
     FEATURE_CATEGORY,      ///< 分类根节点
     FEATURE_VIRTUALFOLDER, ///< 虚拟文件夹
     FEATURE_FOLDER,        ///< 真实文件夹
@@ -119,9 +119,13 @@ enum FeatureElementType {
  *
  * 值类型，可跨线程复制传递（已注册为 Qt 元类型）；不持有外部资源。
  */
-class Feature {
+class Feature
+{
 public:
-    Feature() { ; }
+    Feature()
+    {
+        ;
+    }
     /**
      * @param url 条目路径（保存在 virtualPath）。
      * @param icon 缩略图。
@@ -129,29 +133,55 @@ public:
      * @param realPath 真实文件路径。
      * @param type 条目类型。
      */
-    Feature(const QString &url, const QImage &icon, const QString &name, const QUrl &realPath,
-            FeatureElementType type = FEATURE_CATEGORY);
+    Feature(const QString &url, const QImage &icon, const QString &name, const QUrl &realPath, FeatureElementType type = FEATURE_CATEGORY);
     virtual ~Feature();
     /// @brief 条目名称。
-    QString getName() const { return mName; }
+    QString getName() const
+    {
+        return mName;
+    }
     /// @brief 界面显示名（可能已做本地化或去扩展名）。
-    QString getDisplayName() const { return mDisplayName; }
+    QString getDisplayName() const
+    {
+        return mDisplayName;
+    }
     /// @brief 缩略图。
-    QImage getThumbnail() const { return mThumbnail; }
+    QImage getThumbnail() const
+    {
+        return mThumbnail;
+    }
     /// @brief 所在虚拟目录。
-    QString getVirtualPath() const { return virtualDir; }
+    QString getVirtualPath() const
+    {
+        return virtualDir;
+    }
     /// @brief 真实文件路径。
-    QUrl getFullPath() const { return mPath; }
+    QUrl getFullPath() const
+    {
+        return mPath;
+    }
     /// @brief 虚拟目录 + 名称组成的完整虚拟路径。
-    QString getFullVirtualPath() const { return virtualDir + "/" + mName; }
+    QString getFullVirtualPath() const
+    {
+        return virtualDir + "/" + mName;
+    }
     /// @brief 用于打开/插入的 URL。
     QString getUrl() const;
     /// @brief 修改真实文件路径。
-    void setFullPath(const QUrl &newPath) { mPath = newPath; }
+    void setFullPath(const QUrl &newPath)
+    {
+        mPath = newPath;
+    }
     /// @brief 修改虚拟目录。
-    void setFullVirtualPath(const QString &newVirtualPath) { virtualDir = newVirtualPath; }
+    void setFullVirtualPath(const QString &newVirtualPath)
+    {
+        virtualDir = newVirtualPath;
+    }
     /// @brief 条目类型。
-    FeatureElementType getType() const { return elementType; }
+    FeatureElementType getType() const
+    {
+        return elementType;
+    }
 
     /// @brief 是否代表文件夹。
     bool isFolder() const;
@@ -166,23 +196,29 @@ public:
     /// @brief 与 operator== 相反。
     bool operator!=(const Feature &f) const;
     /// @brief 附加元数据。
-    const QMap<QString, QString> &getMetadata() const { return metadata; }
+    const QMap<QString, QString> &getMetadata() const
+    {
+        return metadata;
+    }
     /// @brief 设置附加元数据。
-    void setMetadata(const QMap<QString, QString> &data) { metadata = data; }
+    void setMetadata(const QMap<QString, QString> &data)
+    {
+        metadata = data;
+    }
 
 private:
     QString getNameFromVirtualPath(const QString &pVirtPath);
     QString getVirtualDirFromVirtualPath(const QString &pVirtPath);
 
 private:
-    QString virtualDir;              ///< 虚拟目录
-    QString virtualPath;             ///< 虚拟路径
-    QImage mThumbnail;               ///< 缩略图
-    QString mName;                   ///< 名称
-    QString mDisplayName;            ///< 显示名
-    QUrl mPath;                      ///< 真实路径
-    FeatureElementType elementType;  ///< 条目类型
-    QMap<QString, QString> metadata; ///< 附加元数据
+    QString                virtualDir;   ///< 虚拟目录
+    QString                virtualPath;  ///< 虚拟路径
+    QImage                 mThumbnail;   ///< 缩略图
+    QString                mName;        ///< 名称
+    QString                mDisplayName; ///< 显示名
+    QUrl                   mPath;        ///< 真实路径
+    FeatureElementType     elementType;  ///< 条目类型
+    QMap<QString, QString> metadata;     ///< 附加元数据
 };
 Q_DECLARE_METATYPE(Feature)
 
@@ -194,7 +230,8 @@ Q_DECLARE_METATYPE(Feature)
  * 目录扫描在 FeaturesComputingThread 中执行，结果通过信号回到 GUI 线程后再
  * 写入 featuresList，避免界面线程阻塞。
  */
-class FeaturesController : public QObject {
+class FeaturesController : public QObject
+{
     friend class FeaturesWidget;
 
     Q_OBJECT
@@ -205,10 +242,16 @@ public:
     virtual ~FeaturesController();
 
     /// @brief 当前素材条目列表。
-    QList<Feature> *getFeatures() const { return featuresList; }
+    QList<Feature> *getFeatures() const
+    {
+        return featuresList;
+    }
 
     /// @brief 素材库根目录。
-    const QString &getRootPath() const { return rootPath; }
+    const QString &getRootPath() const
+    {
+        return rootPath;
+    }
     /// @brief 启动目录扫描（异步）。
     void scanFS();
 
@@ -217,11 +260,20 @@ public:
     /// @brief 把条目的内容设为当前页背景。
     void addItemAsBackground(const Feature &item);
     /// @brief 当前在界面中选中的条目。
-    const Feature &getCurrentElement() const { return currentElement; }
+    const Feature &getCurrentElement() const
+    {
+        return currentElement;
+    }
     /// @brief 记录界面当前选中的条目。
-    void setCurrentElement(const Feature &elem) { currentElement = elem; }
+    void setCurrentElement(const Feature &elem)
+    {
+        currentElement = elem;
+    }
     /// @brief 回收站条目。
-    const Feature &getTrashElement() const { return trashElement; }
+    const Feature &getTrashElement() const
+    {
+        return trashElement;
+    }
 
     /**
      * @brief 登记一个已下载的文件到素材库。
@@ -230,8 +282,7 @@ public:
      * @param pContentSource 内容来源描述。
      * @param pTitle 标题（用于命名）。
      */
-    void addDownloadedFile(const QUrl &sourceUrl, const QByteArray &pData, const QString pContentSource,
-                           const QString pTitle);
+    void addDownloadedFile(const QUrl &sourceUrl, const QByteArray &pData, const QString pContentSource, const QString pTitle);
 
     /// @brief 移动条目到目标文件夹，返回移动后的条目。
     Feature moveItemToFolder(const QUrl &url, const Feature &destination);
@@ -332,16 +383,16 @@ private slots:
     void startThread();
 
 private:
-    FeaturesItemDelegate *itemDelegate;         ///< 素材条目绘制委托
-    FeaturesPathItemDelegate *pathItemDelegate; ///< 路径条目绘制委托
+    FeaturesItemDelegate     *itemDelegate;        ///< 素材条目绘制委托
+    FeaturesPathItemDelegate *pathItemDelegate;    ///< 路径条目绘制委托
 
-    FeaturesModel *featuresModel;                  ///< 素材模型
-    FeaturesProxyModel *featuresProxyModel;        ///< 素材排序/过滤代理
+    FeaturesModel            *featuresModel;       ///< 素材模型
+    FeaturesProxyModel       *featuresProxyModel;  ///< 素材排序/过滤代理
     FeaturesSearchProxyModel *featuresSearchModel; ///< 搜索代理
-    FeaturesPathProxyModel *featuresPathModel;     ///< 路径代理
+    FeaturesPathProxyModel   *featuresPathModel;   ///< 路径代理
 
-    QAbstractItemModel *curListModel; ///< 当前列表使用的模型
-    FeaturesComputingThread mCThread; ///< 后台扫描线程
+    QAbstractItemModel     *curListModel;          ///< 当前列表使用的模型
+    FeaturesComputingThread mCThread;              ///< 后台扫描线程
 
 private:
     /// @brief 生成缩略图。
@@ -351,12 +402,11 @@ private:
     /// @brief 保存收藏列表。
     void saveFavoriteList();
     /// @brief 为目标条目生成不冲突的名称。
-    QString uniqNameForFeature(const Feature &feature, const QString &pName = "Imported",
-                               const QString &pExtention = "") const;
+    QString uniqNameForFeature(const Feature &feature, const QString &pName = "Imported", const QString &pExtention = "") const;
     /// @brief 规范化名称（去除非法字符等）。
     QString adjustName(const QString &str);
 
-    QList<Feature> *featuresList; ///< 素材条目列表
+    QList<Feature> *featuresList;       ///< 素材条目列表
 
     QUrl mUserAudioDirectoryPath;       ///< 用户音频目录
     QUrl mUserVideoDirectoryPath;       ///< 用户视频目录
@@ -364,26 +414,26 @@ private:
     QUrl mUserInteractiveDirectoryPath; ///< 用户交互内容目录
     QUrl mUserAnimationDirectoryPath;   ///< 用户动画目录
 
-    QString libraryPath;            ///< 素材库路径
-    QUrl mLibPicturesDirectoryPath; ///< 内置图片目录
-    QUrl mLibAudiosDirectoryPath;   ///< 内置音频目录
-    QUrl mLibVideosDirectoryPath;   ///< 内置视频目录
-    QUrl mLibShapesDirectoryPath;   ///< 内置形状目录
+    QString libraryPath;                ///< 素材库路径
+    QUrl    mLibPicturesDirectoryPath;  ///< 内置图片目录
+    QUrl    mLibAudiosDirectoryPath;    ///< 内置音频目录
+    QUrl    mLibVideosDirectoryPath;    ///< 内置视频目录
+    QUrl    mLibShapesDirectoryPath;    ///< 内置形状目录
 
-    QUrl trashDirectoryPath; ///< 回收站目录
+    QUrl trashDirectoryPath;            ///< 回收站目录
 
-    int mLastItemOffsetIndex; ///< 上一次插入的偏移索引
-    Feature currentElement;   ///< 当前选中条目
+    int     mLastItemOffsetIndex;       ///< 上一次插入的偏移索引
+    Feature currentElement;             ///< 当前选中条目
 
-    Feature rootElement;         ///< 根节点
-    Feature favoriteElement;     ///< 收藏节点
-    Feature audiosElement;       ///< 音频节点
-    Feature moviesElement;       ///< 视频节点
-    Feature picturesElement;     ///< 图片节点
-    Feature applicationsElement; ///< 应用节点
-    Feature shapesElement;       ///< 形状节点
+    Feature rootElement;                ///< 根节点
+    Feature favoriteElement;            ///< 收藏节点
+    Feature audiosElement;              ///< 音频节点
+    Feature moviesElement;              ///< 视频节点
+    Feature picturesElement;            ///< 图片节点
+    Feature applicationsElement;        ///< 应用节点
+    Feature shapesElement;              ///< 形状节点
 
-    QSet<QUrl> *favoriteSet; ///< 收藏集合
+    QSet<QUrl> *favoriteSet;            ///< 收藏集合
 
 public:
     Feature trashElement; ///< 回收站节点

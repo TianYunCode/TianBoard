@@ -15,14 +15,14 @@
 #include <QTabWidget>
 #include <QLineEdit>
 
-
 /**
  * @brief 网页标签栏：在 QTabBar 上增加 Alt+数字 切页、右键菜单与向外拖拽网址。
  *
  * 自身不创建标签页，只发出 newTab/cloneTab/closeTab 等信号，由 TabWidget 执行。
  * 拖拽时把标签页 URL 放入 QMimeData 并标记 action=tab-reordering 以便外部识别。
  */
-class TabBar : public QTabBar {
+class TabBar : public QTabBar
+{
     Q_OBJECT;
 
 public:
@@ -74,7 +74,6 @@ private:
 
 #include <QtWebEngineWidgets>
 
-
 class WebView;
 
 /**
@@ -83,7 +82,8 @@ class WebView;
  * 一个映射器对应一个 WebAction（后退、前进、刷新、停止）。addChild 收集每个标签页
  * 页面动作，updateCurrent 在切页时把根动作的勾选/可用状态同步到当前页面动作。
  */
-class WebActionMapper : public QObject {
+class WebActionMapper : public QObject
+{
     Q_OBJECT;
 
 public:
@@ -123,7 +123,6 @@ private:
     QWebEnginePage::WebAction mWebAction;
 };
 
-
 /**
  * @brief 网页标签页容器：每个标签页由 WebView 与 UrlLineEdit 成对组成，地址栏独占一个堆叠区。
  *
@@ -131,7 +130,8 @@ private:
  * 加载进度、标题、图标、URL 变化转发给窗口，并通过 WebActionMapper 统一维护前进/后退
  * 等动作状态。关闭最后一个标签页时会自动补一个新页，保证窗口始终有内容。
  */
-class TabWidget : public QTabWidget {
+class TabWidget : public QTabWidget
+{
     Q_OBJECT
 
 signals:
@@ -182,16 +182,23 @@ public:
     bool restoreState(const QByteArray &state);
 
     /** @brief 返回标签栏。 */
-    TabBar *tabBar() { return mTabBar; }
+    TabBar *tabBar()
+    {
+        return mTabBar;
+    }
 
     /** @brief 返回地址栏堆叠控件。 */
-    QStackedWidget *lineEdits() { return mLineEdits; }
+    QStackedWidget *lineEdits()
+    {
+        return mLineEdits;
+    }
 
     /**
      * @brief 设置地址栏堆叠区可见性。
      * @note 当前实现先显示再隐藏，实际效果总是隐藏，保持原行为不做改动。
      */
-    void setLineEditStackVisible(bool visible) {
+    void setLineEditStackVisible(bool visible)
+    {
         mLineEdits->setVisible(visible);
         mLineEdits->hide();
     }

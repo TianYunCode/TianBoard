@@ -14,7 +14,6 @@
 class BrowserWindow;
 class QWebEngineDownloadRequest;
 
-
 /**
  * @brief 网页标签页的页面对象：处理导航策略、控制台输出与新窗口创建。
  *
@@ -22,7 +21,8 @@ class QWebEngineDownloadRequest;
  * mailto 链接交给系统邮件程序。WebView 在鼠标事件里把修饰键与按键记录到本对象，
  * 供 acceptNavigationRequest 判断。
  */
-class WebPage : public QWebEnginePage {
+class WebPage : public QWebEnginePage
+{
     Q_OBJECT;
 
 public:
@@ -32,8 +32,8 @@ public:
     BrowserWindow *mainWindow();
 
     /** @brief 把 JavaScript 控制台消息转发到 qDebug。 */
-    void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message,
-                                  int lineNumber, const QString &sourceID) override;
+    void javaScriptConsoleMessage(
+        QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID) override;
 
 protected:
     /**
@@ -61,14 +61,18 @@ private:
  * 继承 WebTrapWebView 获得捕获模式能力。下载不交给 WebEngine 落盘，而是转给
  * BrowserWindow 的下载管理器；PDF 请求先询问用户是下载还是并入当前文档。
  */
-class WebView : public WebTrapWebView {
+class WebView : public WebTrapWebView
+{
     Q_OBJECT
 
 public:
     /** @brief 构造视图，创建 WebPage 并绑定加载与下载信号。 */
     WebView(QWidget *parent = 0);
     /** @brief 返回本视图的页面对象。 */
-    WebPage *webPage() const { return mPage; }
+    WebPage *webPage() const
+    {
+        return mPage;
+    }
 
     /** @brief 加载 URL，同时记录为初始地址以便页面为空时回退显示。 */
     void load(const QUrl &url);
@@ -76,7 +80,10 @@ public:
     QUrl url() const;
 
     /** @brief 返回当前加载进度（0-100）。 */
-    inline int progress() const { return mProgress; }
+    inline int progress() const
+    {
+        return mProgress;
+    }
 
 protected:
     /** @brief 记录修饰键与按键后交给基类，供新标签页导航判断。 */

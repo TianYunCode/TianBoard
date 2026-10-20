@@ -13,31 +13,34 @@
 #include "whiteboard/GraphicsWidgetItem.h"
 #include "whiteboard/GraphicsDelegateFrame.h"
 
-
 GraphicsWidgetItemDelegate::GraphicsWidgetItemDelegate(GraphicsWidgetItem *pDelegated, int widgetType)
-    : GraphicsItemDelegate(pDelegated, 0, GF_COMMON | GF_RESPECT_RATIO), freezeAction(0), setAsToolAction(0) {
+    : GraphicsItemDelegate(pDelegated, 0, GF_COMMON | GF_RESPECT_RATIO), freezeAction(0), setAsToolAction(0)
+{
     mWidgetType = widgetType;
 }
 
-
-GraphicsWidgetItemDelegate::~GraphicsWidgetItemDelegate() {
+GraphicsWidgetItemDelegate::~GraphicsWidgetItemDelegate()
+{
     // 刻意留空
 }
 
-
-void GraphicsWidgetItemDelegate::pin() {
+void GraphicsWidgetItemDelegate::pin()
+{
     Application::boardController->moveGraphicsWidgetToControlView(delegated());
 }
 
-
-void GraphicsWidgetItemDelegate::updateMenuActionState() {
+void GraphicsWidgetItemDelegate::updateMenuActionState()
+{
     GraphicsItemDelegate::updateMenuActionState();
 
     if (freezeAction)
+    {
         freezeAction->setChecked(delegated()->isFrozen());
+    }
 }
 
-void GraphicsWidgetItemDelegate::decorateMenu(QMenu *menu) {
+void GraphicsWidgetItemDelegate::decorateMenu(QMenu *menu)
+{
     GraphicsItemDelegate::decorateMenu(menu);
 
     freezeAction = menu->addAction(tr("Frozen"), this, SLOT(freeze(bool)));
@@ -49,7 +52,8 @@ void GraphicsWidgetItemDelegate::decorateMenu(QMenu *menu) {
 
     freezeAction->setCheckable(true);
 
-    if (delegated()->canBeTool()) {
+    if (delegated()->canBeTool())
+    {
         setAsToolAction = mMenu->addAction(tr("Transform as Tool "), this, SLOT(pin()));
         QIcon pinIcon;
         pinIcon.addPixmap(QPixmap(":/images/unpin.svg"), QIcon::Normal, QIcon::On);
@@ -58,16 +62,19 @@ void GraphicsWidgetItemDelegate::decorateMenu(QMenu *menu) {
     }
 }
 
-
-void GraphicsWidgetItemDelegate::freeze(bool frozen) {
-    if (frozen) {
+void GraphicsWidgetItemDelegate::freeze(bool frozen)
+{
+    if (frozen)
+    {
         delegated()->freeze();
-    } else {
+    }
+    else
+    {
         delegated()->unFreeze();
     }
 }
 
-
-GraphicsWidgetItem *GraphicsWidgetItemDelegate::delegated() {
+GraphicsWidgetItem *GraphicsWidgetItemDelegate::delegated()
+{
     return static_cast<GraphicsWidgetItem *>(mDelegated);
 }

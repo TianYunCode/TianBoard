@@ -10,18 +10,19 @@
 #include "core/DisplayManager.h"
 #include "core/LanguageManager.h"
 
-
 #include "ui/MainWindowUi.h"
 
 // 这一大段 setupUi/retranslateUi 由原生 Designer 表单逐条移植而来，动作名与资源
 // 路径沿用 .ui 中的命名，方便和翻译文件、样式表对应。
-void MainWindowUi::setupUi(QMainWindow *mw) {
+void MainWindowUi::setupUi(QMainWindow *mw)
+{
     if (mw->objectName().isEmpty())
+    {
         mw->setObjectName("MainWindow");
+    }
     mw->resize(1342, 223);
     QIcon icon;
-    icon.addFile(QString::fromUtf8(":/images/TianBoardIcon.svg"), QSize(), QIcon::Mode::Normal,
-                 QIcon::State::Off);
+    icon.addFile(QString::fromUtf8(":/images/TianBoardIcon.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     mw->setWindowIcon(icon);
     mw->setIconSize(QSize(32, 32));
     mw->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -31,80 +32,68 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionStylus->setCheckable(true);
     actionStylus->setChecked(true);
     QIcon icon1;
-    icon1.addFile(QString::fromUtf8(":/images/toolbar/stylus.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon1.addFile(QString::fromUtf8(":/images/toolbar/stylus.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionStylus->setIcon(icon1);
     actionBackgrounds = new QAction(mw);
     actionBackgrounds->setObjectName("actionBackgrounds");
     actionBackgrounds->setCheckable(true);
     QIcon icon2;
-    icon2.addFile(QString::fromUtf8(":/images/toolbar/background.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon2.addFile(QString::fromUtf8(":/images/toolbar/background.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionBackgrounds->setIcon(icon2);
     actionUndo = new QAction(mw);
     actionUndo->setObjectName("actionUndo");
     QIcon icon3;
-    icon3.addFile(QString::fromUtf8(":/images/toolbar/undoOn.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon3.addFile(QString::fromUtf8(":/images/toolbar/undoOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionUndo->setIcon(icon3);
     actionRedo = new QAction(mw);
     actionRedo->setObjectName("actionRedo");
     QIcon icon4;
-    icon4.addFile(QString::fromUtf8(":/images/toolbar/redoOn.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon4.addFile(QString::fromUtf8(":/images/toolbar/redoOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionRedo->setIcon(icon4);
     actionBack = new QAction(mw);
     actionBack->setObjectName("actionBack");
     QIcon icon5;
-    icon5.addFile(QString::fromUtf8(":/images/toolbar/previousPageOn.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon5.addFile(QString::fromUtf8(":/images/toolbar/previousPageOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionBack->setIcon(icon5);
     actionForward = new QAction(mw);
     actionForward->setObjectName("actionForward");
     QIcon icon6;
-    icon6.addFile(QString::fromUtf8(":/images/toolbar/nextPageOn.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon6.addFile(QString::fromUtf8(":/images/toolbar/nextPageOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionForward->setIcon(icon6);
     actionDocument = new QAction(mw);
     actionDocument->setObjectName("actionDocument");
     actionDocument->setCheckable(false);
     QIcon icon7;
-    icon7.addFile(QString::fromUtf8(":/images/toolbar/documents.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon7.addFile(QString::fromUtf8(":/images/toolbar/documents.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDocument->setIcon(icon7);
     actionWeb = new QAction(mw);
     actionWeb->setObjectName("actionWeb");
     QIcon icon8;
-    icon8.addFile(QString::fromUtf8(":/images/toolbar/web.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon8.addFile(QString::fromUtf8(":/images/toolbar/web.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWeb->setIcon(icon8);
     actionLineSmall = new QAction(mw);
     actionLineSmall->setObjectName("actionLineSmall");
     actionLineSmall->setCheckable(true);
     actionLineSmall->setChecked(true);
     QIcon icon9;
-    icon9.addFile(QString::fromUtf8(":/images/toolbar/smallPen.png"), QSize(), QIcon::Mode::Normal,
-                  QIcon::State::Off);
+    icon9.addFile(QString::fromUtf8(":/images/toolbar/smallPen.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionLineSmall->setIcon(icon9);
     actionLineMedium = new QAction(mw);
     actionLineMedium->setObjectName("actionLineMedium");
     actionLineMedium->setCheckable(true);
     QIcon icon10;
-    icon10.addFile(QString::fromUtf8(":/images/toolbar/mediumPen.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon10.addFile(QString::fromUtf8(":/images/toolbar/mediumPen.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionLineMedium->setIcon(icon10);
     actionLineLarge = new QAction(mw);
     actionLineLarge->setObjectName("actionLineLarge");
     actionLineLarge->setCheckable(true);
     QIcon icon11;
-    icon11.addFile(QString::fromUtf8(":/images/toolbar/largePen.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon11.addFile(QString::fromUtf8(":/images/toolbar/largePen.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionLineLarge->setIcon(icon11);
     actionQuit = new QAction(mw);
     actionQuit->setObjectName("actionQuit");
     QIcon icon12;
-    icon12.addFile(QString::fromUtf8(":/images/toolbar/quitOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon12.addFile(QString::fromUtf8(":/images/toolbar/quitOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionQuit->setIcon(icon12);
     actionQuit->setShortcutContext(Qt::WindowShortcut);
     actionQuit->setMenuRole(QAction::NoRole);
@@ -112,29 +101,25 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionEraserSmall->setObjectName("actionEraserSmall");
     actionEraserSmall->setCheckable(true);
     QIcon icon13;
-    icon13.addFile(QString::fromUtf8(":/images/toolbar/smallEraser.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon13.addFile(QString::fromUtf8(":/images/toolbar/smallEraser.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionEraserSmall->setIcon(icon13);
     actionEraserMedium = new QAction(mw);
     actionEraserMedium->setObjectName("actionEraserMedium");
     actionEraserMedium->setCheckable(true);
     actionEraserMedium->setChecked(true);
     QIcon icon14;
-    icon14.addFile(QString::fromUtf8(":/images/toolbar/mediumEraser.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon14.addFile(QString::fromUtf8(":/images/toolbar/mediumEraser.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionEraserMedium->setIcon(icon14);
     actionEraserLarge = new QAction(mw);
     actionEraserLarge->setObjectName("actionEraserLarge");
     actionEraserLarge->setCheckable(true);
     QIcon icon15;
-    icon15.addFile(QString::fromUtf8(":/images/toolbar/largeEraser.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon15.addFile(QString::fromUtf8(":/images/toolbar/largeEraser.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionEraserLarge->setIcon(icon15);
     actionColor0 = new QAction(mw);
     actionColor0->setObjectName("actionColor0");
     QIcon icon16;
-    icon16.addFile(QString::fromUtf8(":/images/toolbar/color.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon16.addFile(QString::fromUtf8(":/images/toolbar/color.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionColor0->setIcon(icon16);
     actionColor1 = new QAction(mw);
     actionColor1->setObjectName("actionColor1");
@@ -151,136 +136,114 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionWebBack = new QAction(mw);
     actionWebBack->setObjectName("actionWebBack");
     QIcon icon17;
-    icon17.addFile(QString::fromUtf8(":/images/toolbar/previous.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon17.addFile(QString::fromUtf8(":/images/toolbar/previous.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWebBack->setIcon(icon17);
     actionWebForward = new QAction(mw);
     actionWebForward->setObjectName("actionWebForward");
     QIcon icon18;
-    icon18.addFile(QString::fromUtf8(":/images/toolbar/next.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon18.addFile(QString::fromUtf8(":/images/toolbar/next.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWebForward->setIcon(icon18);
     actionWebReload = new QAction(mw);
     actionWebReload->setObjectName("actionWebReload");
     QIcon icon19;
-    icon19.addFile(QString::fromUtf8(":/images/toolbar/reload.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon19.addFile(QString::fromUtf8(":/images/toolbar/reload.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWebReload->setIcon(icon19);
     actionHome = new QAction(mw);
     actionHome->setObjectName("actionHome");
     QIcon icon20;
-    icon20.addFile(QString::fromUtf8(":/images/toolbar/home.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon20.addFile(QString::fromUtf8(":/images/toolbar/home.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionHome->setIcon(icon20);
     actionBoard = new QAction(mw);
     actionBoard->setObjectName("actionBoard");
     QIcon icon23;
-    icon23.addFile(QString::fromUtf8(":/images/toolbar/board.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon23.addFile(QString::fromUtf8(":/images/toolbar/board.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionBoard->setIcon(icon23);
     actionErase = new QAction(mw);
     actionErase->setObjectName("actionErase");
     actionErase->setCheckable(true);
     QIcon icon24;
-    icon24.addFile(QString::fromUtf8(":/images/toolbar/clearPage.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon24.addFile(QString::fromUtf8(":/images/toolbar/clearPage.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionErase->setIcon(icon24);
     actionPreferences = new QAction(mw);
     actionPreferences->setObjectName("actionPreferences");
     QIcon icon25;
-    icon25.addFile(QString::fromUtf8(":/images/toolbar/settings.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon25.addFile(QString::fromUtf8(":/images/toolbar/settings.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionPreferences->setIcon(icon25);
     actionMenu = new QAction(mw);
     actionMenu->setObjectName("actionMenu");
     QIcon icon27;
-    icon27.addFile(QString::fromUtf8(":/images/toolbar/menu.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon27.addFile(QString::fromUtf8(":/images/toolbar/menu.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionMenu->setIcon(icon27);
     actionDesktop = new QAction(mw);
     actionDesktop->setObjectName("actionDesktop");
     QIcon icon28;
-    icon28.addFile(QString::fromUtf8(":/images/toolbar/display.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon28.addFile(QString::fromUtf8(":/images/toolbar/display.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDesktop->setIcon(icon28);
     actionWebBigger = new QAction(mw);
     actionWebBigger->setObjectName("actionWebBigger");
     QIcon icon29;
-    icon29.addFile(QString::fromUtf8(":/images/stylusPalette/zoomInOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon29.addFile(QString::fromUtf8(":/images/stylusPalette/zoomInOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWebBigger->setIcon(icon29);
     actionWebSmaller = new QAction(mw);
     actionWebSmaller->setObjectName("actionWebSmaller");
     QIcon icon30;
-    icon30.addFile(QString::fromUtf8(":/images/stylusPalette/zoomOutOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon30.addFile(QString::fromUtf8(":/images/stylusPalette/zoomOutOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWebSmaller->setIcon(icon30);
     actionNewFolder = new QAction(mw);
     actionNewFolder->setObjectName("actionNewFolder");
     QIcon icon31;
-    icon31.addFile(QString::fromUtf8(":/images/toolbar/newFolder.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon31.addFile(QString::fromUtf8(":/images/toolbar/newFolder.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionNewFolder->setIcon(icon31);
     actionNewDocument = new QAction(mw);
     actionNewDocument->setObjectName("actionNewDocument");
     QIcon icon32;
-    icon32.addFile(QString::fromUtf8(":/images/toolbar/newDocument.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon32.addFile(QString::fromUtf8(":/images/toolbar/newDocument.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionNewDocument->setIcon(icon32);
     actionImport = new QAction(mw);
     actionImport->setObjectName("actionImport");
     QIcon icon33;
-    icon33.addFile(QString::fromUtf8(":/images/toolbar/import.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon33.addFile(QString::fromUtf8(":/images/toolbar/import.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionImport->setIcon(icon33);
     actionExport = new QAction(mw);
     actionExport->setObjectName("actionExport");
     QIcon icon34;
-    icon34.addFile(QString::fromUtf8(":/images/toolbar/export.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon34.addFile(QString::fromUtf8(":/images/toolbar/export.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionExport->setIcon(icon34);
     actionOpen = new QAction(mw);
     actionOpen->setObjectName("actionOpen");
     QIcon icon35;
-    icon35.addFile(QString::fromUtf8(":/images/toolbar/open.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon35.addFile(QString::fromUtf8(":/images/toolbar/open.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionOpen->setIcon(icon35);
     actionDuplicate = new QAction(mw);
     actionDuplicate->setObjectName("actionDuplicate");
     QIcon icon36;
-    icon36.addFile(QString::fromUtf8(":/images/toolbar/duplicate.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon36.addFile(QString::fromUtf8(":/images/toolbar/duplicate.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDuplicate->setIcon(icon36);
     actionDelete = new QAction(mw);
     actionDelete->setObjectName("actionDelete");
     QIcon icon37;
-    icon37.addFile(QString::fromUtf8(":/images/toolbar/deleteDocument.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon37.addFile(QString::fromUtf8(":/images/toolbar/deleteDocument.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDelete->setIcon(icon37);
     actionAddToWorkingDocument = new QAction(mw);
     actionAddToWorkingDocument->setObjectName("actionAddToWorkingDocument");
     QIcon icon38;
-    icon38.addFile(QString::fromUtf8(":/images/toolbar/addToWorkingDoc.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon38.addFile(QString::fromUtf8(":/images/toolbar/addToWorkingDoc.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionAddToWorkingDocument->setIcon(icon38);
     actionDocumentAdd = new QAction(mw);
     actionDocumentAdd->setObjectName("actionDocumentAdd");
     QIcon icon39;
-    icon39.addFile(QString::fromUtf8(":/images/toolbar/addToPage.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon39.addFile(QString::fromUtf8(":/images/toolbar/addToPage.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDocumentAdd->setIcon(icon39);
     actionRename = new QAction(mw);
     actionRename->setObjectName("actionRename");
     QIcon icon40;
-    icon40.addFile(QString::fromUtf8(":/images/toolbar/rename.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon40.addFile(QString::fromUtf8(":/images/toolbar/rename.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionRename->setIcon(icon40);
     actionRename->setMenuRole(QAction::TextHeuristicRole);
     actionDocumentTools = new QAction(mw);
     actionDocumentTools->setObjectName("actionDocumentTools");
     QIcon icon41;
-    icon41.addFile(QString::fromUtf8(":/images/toolbar/tools.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon41.addFile(QString::fromUtf8(":/images/toolbar/tools.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDocumentTools->setIcon(icon41);
     actionWebTools = new QAction(mw);
     actionWebTools->setObjectName("actionWebTools");
@@ -313,129 +276,104 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionCut = new QAction(mw);
     actionCut->setObjectName("actionCut");
     QIcon icon42;
-    icon42.addFile(QString::fromUtf8(":/images/toolbar/cut.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon42.addFile(QString::fromUtf8(":/images/toolbar/cut.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionCut->setIcon(icon42);
     actionCut->setShortcutContext(Qt::ApplicationShortcut);
     actionCopy = new QAction(mw);
     actionCopy->setObjectName("actionCopy");
     QIcon icon43;
-    icon43.addFile(QString::fromUtf8(":/images/toolbar/copy.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon43.addFile(QString::fromUtf8(":/images/toolbar/copy.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionCopy->setIcon(icon43);
     actionCopy->setShortcutContext(Qt::ApplicationShortcut);
     actionPaste = new QAction(mw);
     actionPaste->setObjectName("actionPaste");
     QIcon icon44;
-    icon44.addFile(QString::fromUtf8(":/images/toolbar/paste.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon44.addFile(QString::fromUtf8(":/images/toolbar/paste.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionPaste->setIcon(icon44);
     actionPaste->setShortcutContext(Qt::ApplicationShortcut);
     actionPaste->setMenuRole(QAction::TextHeuristicRole);
     actionSleep = new QAction(mw);
     actionSleep->setObjectName("actionSleep");
     QIcon icon45;
-    icon45.addFile(QString::fromUtf8(":/images/extraPalette/blackout.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon45.addFile(QString::fromUtf8(":/images/extraPalette/blackoutOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon45.addFile(QString::fromUtf8(":/images/extraPalette/blackout.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon45.addFile(QString::fromUtf8(":/images/extraPalette/blackoutOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionSleep->setIcon(icon45);
     actionVirtualKeyboard = new QAction(mw);
     actionVirtualKeyboard->setObjectName("actionVirtualKeyboard");
     actionVirtualKeyboard->setCheckable(true);
     QIcon icon46;
-    icon46.addFile(QString::fromUtf8(":/images/extraPalette/keyboard.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon46.addFile(QString::fromUtf8(":/images/extraPalette/keyboardOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon46.addFile(QString::fromUtf8(":/images/extraPalette/keyboard.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon46.addFile(QString::fromUtf8(":/images/extraPalette/keyboardOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionVirtualKeyboard->setIcon(icon46);
     actionPlainLightBackground = new QAction(mw);
     actionPlainLightBackground->setObjectName("actionPlainLightBackground");
     actionPlainLightBackground->setCheckable(true);
     QIcon icon47;
-    icon47.addFile(QString::fromUtf8(":/images/backgroundPalette/background1.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
-    icon47.addFile(QString::fromUtf8(":/images/backgroundPalette/background1On.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon47.addFile(QString::fromUtf8(":/images/backgroundPalette/background1.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon47.addFile(QString::fromUtf8(":/images/backgroundPalette/background1On.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionPlainLightBackground->setIcon(icon47);
     actionCrossedLightBackground = new QAction(mw);
     actionCrossedLightBackground->setObjectName("actionCrossedLightBackground");
     actionCrossedLightBackground->setCheckable(true);
     QIcon icon48;
-    icon48.addFile(QString::fromUtf8(":/images/backgroundPalette/background2.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
-    icon48.addFile(QString::fromUtf8(":/images/backgroundPalette/background2On.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon48.addFile(QString::fromUtf8(":/images/backgroundPalette/background2.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon48.addFile(QString::fromUtf8(":/images/backgroundPalette/background2On.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionCrossedLightBackground->setIcon(icon48);
     actionRuledLightBackground = new QAction(mw);
     actionRuledLightBackground->setObjectName("actionRuledLightBackground");
     actionRuledLightBackground->setCheckable(true);
     QIcon icon49;
-    icon49.addFile(QString::fromUtf8(":/images/backgroundPalette/background5.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
-    icon49.addFile(QString::fromUtf8(":/images/backgroundPalette/background5On.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon49.addFile(QString::fromUtf8(":/images/backgroundPalette/background5.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon49.addFile(QString::fromUtf8(":/images/backgroundPalette/background5On.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionRuledLightBackground->setIcon(icon49);
     actionPlainDarkBackground = new QAction(mw);
     actionPlainDarkBackground->setObjectName("actionPlainDarkBackground");
     actionPlainDarkBackground->setCheckable(true);
     QIcon icon50;
-    icon50.addFile(QString::fromUtf8(":/images/backgroundPalette/background3.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
-    icon50.addFile(QString::fromUtf8(":/images/backgroundPalette/background3On.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon50.addFile(QString::fromUtf8(":/images/backgroundPalette/background3.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon50.addFile(QString::fromUtf8(":/images/backgroundPalette/background3On.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionPlainDarkBackground->setIcon(icon50);
     actionCrossedDarkBackground = new QAction(mw);
     actionCrossedDarkBackground->setObjectName("actionCrossedDarkBackground");
     actionCrossedDarkBackground->setCheckable(true);
     QIcon icon51;
-    icon51.addFile(QString::fromUtf8(":/images/backgroundPalette/background4.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
-    icon51.addFile(QString::fromUtf8(":/images/backgroundPalette/background4On.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon51.addFile(QString::fromUtf8(":/images/backgroundPalette/background4.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon51.addFile(QString::fromUtf8(":/images/backgroundPalette/background4On.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionCrossedDarkBackground->setIcon(icon51);
     actionRuledDarkBackground = new QAction(mw);
     actionRuledDarkBackground->setObjectName("actionRuledDarkBackground");
     actionRuledDarkBackground->setCheckable(true);
     QIcon icon52;
-    icon52.addFile(QString::fromUtf8(":/images/backgroundPalette/background6.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
-    icon52.addFile(QString::fromUtf8(":/images/backgroundPalette/background6On.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon52.addFile(QString::fromUtf8(":/images/backgroundPalette/background6.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon52.addFile(QString::fromUtf8(":/images/backgroundPalette/background6On.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionRuledDarkBackground->setIcon(icon52);
     actionRecording = new QAction(mw);
     actionRecording->setObjectName("actionRecording");
     actionRecording->setCheckable(true);
     QIcon icon53;
-    icon53.addFile(QString::fromUtf8(":/images/toolbar/record.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon53.addFile(QString::fromUtf8(":/images/toolbar/record.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionRecording->setIcon(icon53);
     actionRecordingStart = new QAction(mw);
     actionRecordingStart->setObjectName("actionRecordingStart");
     actionRecordingStart->setCheckable(true);
     QIcon icon54;
-    icon54.addFile(QString::fromUtf8(":/images/toolbar/record.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon54.addFile(QString::fromUtf8(":/images/toolbar/stop.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon54.addFile(QString::fromUtf8(":/images/toolbar/record.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon54.addFile(QString::fromUtf8(":/images/toolbar/stop.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionRecordingStart->setIcon(icon54);
     actionEraseItems = new QAction(mw);
     actionEraseItems->setObjectName("actionEraseItems");
     QIcon icon55;
-    icon55.addFile(QString::fromUtf8(":/images/erasePalette/eraseItem.svg"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon55.addFile(QString::fromUtf8(":/images/erasePalette/eraseItem.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionEraseItems->setIcon(icon55);
     actionEraseAnnotations = new QAction(mw);
     actionEraseAnnotations->setObjectName("actionEraseAnnotations");
     QIcon icon56;
-    icon56.addFile(QString::fromUtf8(":/images/erasePalette/eraseAnnotation.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
+    icon56.addFile(QString::fromUtf8(":/images/erasePalette/eraseAnnotation.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionEraseAnnotations->setIcon(icon56);
     actionClearPage = new QAction(mw);
     actionClearPage->setObjectName("actionClearPage");
     QIcon icon57;
-    icon57.addFile(QString::fromUtf8(":/images/erasePalette/eraseAll.svg"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon57.addFile(QString::fromUtf8(":/images/erasePalette/eraseAll.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionClearPage->setIcon(icon57);
     actionAdd = new QAction(mw);
     actionAdd->setObjectName("actionAdd");
@@ -445,118 +383,93 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionPen->setCheckable(true);
     actionPen->setChecked(true);
     QIcon icon58;
-    icon58.addFile(QString::fromUtf8(":/images/stylusPalette/pen.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon58.addFile(QString::fromUtf8(":/images/stylusPalette/penOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon58.addFile(QString::fromUtf8(":/images/stylusPalette/pen.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon58.addFile(QString::fromUtf8(":/images/stylusPalette/penOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionPen->setIcon(icon58);
     actionEraser = new QAction(mw);
     actionEraser->setObjectName("actionEraser");
     actionEraser->setCheckable(true);
     QIcon icon59;
-    icon59.addFile(QString::fromUtf8(":/images/stylusPalette/eraser.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon59.addFile(QString::fromUtf8(":/images/stylusPalette/eraserOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon59.addFile(QString::fromUtf8(":/images/stylusPalette/eraser.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon59.addFile(QString::fromUtf8(":/images/stylusPalette/eraserOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionEraser->setIcon(icon59);
     actionMarker = new QAction(mw);
     actionMarker->setObjectName("actionMarker");
     actionMarker->setCheckable(true);
     QIcon icon60;
-    icon60.addFile(QString::fromUtf8(":/images/stylusPalette/marker.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon60.addFile(QString::fromUtf8(":/images/stylusPalette/markerOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon60.addFile(QString::fromUtf8(":/images/stylusPalette/marker.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon60.addFile(QString::fromUtf8(":/images/stylusPalette/markerOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionMarker->setIcon(icon60);
     actionSelector = new QAction(mw);
     actionSelector->setObjectName("actionSelector");
     actionSelector->setCheckable(true);
     QIcon icon61;
-    icon61.addFile(QString::fromUtf8(":/images/stylusPalette/arrow.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon61.addFile(QString::fromUtf8(":/images/stylusPalette/arrowOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon61.addFile(QString::fromUtf8(":/images/stylusPalette/arrow.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon61.addFile(QString::fromUtf8(":/images/stylusPalette/arrowOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionSelector->setIcon(icon61);
     actionHand = new QAction(mw);
     actionHand->setObjectName("actionHand");
     actionHand->setCheckable(true);
     QIcon icon62;
-    icon62.addFile(QString::fromUtf8(":/images/stylusPalette/hand.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon62.addFile(QString::fromUtf8(":/images/stylusPalette/handOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon62.addFile(QString::fromUtf8(":/images/stylusPalette/hand.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon62.addFile(QString::fromUtf8(":/images/stylusPalette/handOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionHand->setIcon(icon62);
     actionZoomIn = new QAction(mw);
     actionZoomIn->setObjectName("actionZoomIn");
     actionZoomIn->setCheckable(true);
     QIcon icon63;
-    icon63.addFile(QString::fromUtf8(":/images/stylusPalette/zoomIn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon63.addFile(QString::fromUtf8(":/images/stylusPalette/zoomInOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon63.addFile(QString::fromUtf8(":/images/stylusPalette/zoomIn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon63.addFile(QString::fromUtf8(":/images/stylusPalette/zoomInOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionZoomIn->setIcon(icon63);
     actionZoomOut = new QAction(mw);
     actionZoomOut->setObjectName("actionZoomOut");
     actionZoomOut->setCheckable(true);
     QIcon icon64;
-    icon64.addFile(QString::fromUtf8(":/images/stylusPalette/zoomOut.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon64.addFile(QString::fromUtf8(":/images/stylusPalette/zoomOutOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon64.addFile(QString::fromUtf8(":/images/stylusPalette/zoomOut.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon64.addFile(QString::fromUtf8(":/images/stylusPalette/zoomOutOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionZoomOut->setIcon(icon64);
     actionPointer = new QAction(mw);
     actionPointer->setObjectName("actionPointer");
     actionPointer->setCheckable(true);
     QIcon icon65;
-    icon65.addFile(QString::fromUtf8(":/images/stylusPalette/laser.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon65.addFile(QString::fromUtf8(":/images/stylusPalette/laserOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon65.addFile(QString::fromUtf8(":/images/stylusPalette/laser.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon65.addFile(QString::fromUtf8(":/images/stylusPalette/laserOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionPointer->setIcon(icon65);
     actionLine = new QAction(mw);
     actionLine->setObjectName("actionLine");
     actionLine->setCheckable(true);
     QIcon icon66;
-    icon66.addFile(QString::fromUtf8(":/images/stylusPalette/line.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon66.addFile(QString::fromUtf8(":/images/stylusPalette/lineOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon66.addFile(QString::fromUtf8(":/images/stylusPalette/line.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon66.addFile(QString::fromUtf8(":/images/stylusPalette/lineOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionLine->setIcon(icon66);
     actionText = new QAction(mw);
     actionText->setObjectName("actionText");
     actionText->setCheckable(true);
     QIcon icon67;
-    icon67.addFile(QString::fromUtf8(":/images/stylusPalette/text.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon67.addFile(QString::fromUtf8(":/images/stylusPalette/textOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon67.addFile(QString::fromUtf8(":/images/stylusPalette/text.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon67.addFile(QString::fromUtf8(":/images/stylusPalette/textOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionText->setIcon(icon67);
     actionCapture = new QAction(mw);
     actionCapture->setObjectName("actionCapture");
     actionCapture->setCheckable(true);
     QIcon icon68;
-    icon68.addFile(QString::fromUtf8(":/images/stylusPalette/captureArea.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon68.addFile(QString::fromUtf8(":/images/stylusPalette/captureAreaOn.png"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon68.addFile(QString::fromUtf8(":/images/stylusPalette/captureArea.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon68.addFile(QString::fromUtf8(":/images/stylusPalette/captureAreaOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionCapture->setIcon(icon68);
     actionAddItemToCurrentPage = new QAction(mw);
     actionAddItemToCurrentPage->setObjectName("actionAddItemToCurrentPage");
     QIcon icon69;
-    icon69.addFile(QString::fromUtf8(":/images/addItemToCurrentPage.svg"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon69.addFile(QString::fromUtf8(":/images/addItemToCurrentPage.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionAddItemToCurrentPage->setIcon(icon69);
     actionAddItemToNewPage = new QAction(mw);
     actionAddItemToNewPage->setObjectName("actionAddItemToNewPage");
     QIcon icon70;
-    icon70.addFile(QString::fromUtf8(":/images/addItemToNewPage.svg"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon70.addFile(QString::fromUtf8(":/images/addItemToNewPage.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionAddItemToNewPage->setIcon(icon70);
     actionAddItemToLibrary = new QAction(mw);
     actionAddItemToLibrary->setObjectName("actionAddItemToLibrary");
     QIcon icon71;
-    icon71.addFile(QString::fromUtf8(":/images/addItemToLibrary.svg"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon71.addFile(QString::fromUtf8(":/images/addItemToLibrary.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionAddItemToLibrary->setIcon(icon71);
     actionPages = new QAction(mw);
     actionPages->setObjectName("actionPages");
@@ -576,8 +489,7 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionRecordingPause->setCheckable(true);
     actionRecordingPause->setEnabled(false);
     QIcon icon72;
-    icon72.addFile(QString::fromUtf8(":/images/toolbar/pause.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon72.addFile(QString::fromUtf8(":/images/toolbar/pause.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionRecordingPause->setIcon(icon72);
     actionRecordingConfig = new QAction(mw);
     actionRecordingConfig->setObjectName("actionRecordingConfig");
@@ -586,25 +498,20 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionWebTrap->setObjectName("actionWebTrap");
     actionWebTrap->setCheckable(true);
     QIcon icon73;
-    icon73.addFile(QString::fromUtf8(":/images/extraPalette/webTrap.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon73.addFile(QString::fromUtf8(":/images/extraPalette/webTrapEnabled.png"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::On);
+    icon73.addFile(QString::fromUtf8(":/images/extraPalette/webTrap.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon73.addFile(QString::fromUtf8(":/images/extraPalette/webTrapEnabled.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionWebTrap->setIcon(icon73);
     actionWebCustomCapture = new QAction(mw);
     actionWebCustomCapture->setObjectName("actionWebCustomCapture");
     QIcon icon74;
-    icon74.addFile(QString::fromUtf8(":/images/toolbar/captureArea.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon74.addFile(QString::fromUtf8(":/images/toolbar/captureArea.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionWebCustomCapture->setIcon(icon74);
     actionWebShowHideOnDisplay = new QAction(mw);
     actionWebShowHideOnDisplay->setObjectName("actionWebShowHideOnDisplay");
     actionWebShowHideOnDisplay->setCheckable(true);
     QIcon icon77;
-    icon77.addFile(QString::fromUtf8(":/images/toolbar/eyeClosed.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon77.addFile(QString::fromUtf8(":/images/toolbar/eyeOpened.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon77.addFile(QString::fromUtf8(":/images/toolbar/eyeClosed.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon77.addFile(QString::fromUtf8(":/images/toolbar/eyeOpened.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionWebShowHideOnDisplay->setIcon(icon77);
     actionWebShowHideOnDisplay->setAutoRepeat(false);
     actionWebShowHideOnDisplay->setMenuRole(QAction::TextHeuristicRole);
@@ -614,29 +521,24 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     actionHideApplication = new QAction(mw);
     actionHideApplication->setObjectName("actionHideApplication");
     QIcon icon79;
-    icon79.addFile(QString::fromUtf8(":/images/toolbar/hide.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
+    icon79.addFile(QString::fromUtf8(":/images/toolbar/hide.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionHideApplication->setIcon(icon79);
     actionPlay = new QAction(mw);
     actionPlay->setObjectName("actionPlay");
     actionPlay->setCheckable(true);
     QIcon icon80;
-    icon80.addFile(QString::fromUtf8(":/images/stylusPalette/handPlay.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::Off);
-    icon80.addFile(QString::fromUtf8(":/images/stylusPalette/handPlayOn.png"), QSize(), QIcon::Mode::Normal,
-                   QIcon::State::On);
+    icon80.addFile(QString::fromUtf8(":/images/stylusPalette/handPlay.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    icon80.addFile(QString::fromUtf8(":/images/stylusPalette/handPlayOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionPlay->setIcon(icon80);
     actionEraseBackground = new QAction(mw);
     actionEraseBackground->setObjectName("actionEraseBackground");
     QIcon icon81;
-    icon81.addFile(QString::fromUtf8(":/images/erasePalette/eraseBackground.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
+    icon81.addFile(QString::fromUtf8(":/images/erasePalette/eraseBackground.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionEraseBackground->setIcon(icon81);
     actionDefaultGridSize = new QAction(mw);
     actionDefaultGridSize->setObjectName("actionDefaultGridSize");
     QIcon icon83;
-    icon83.addFile(QString::fromUtf8(":/images/backgroundPalette/resetDefaultGridSize.svg"), QSize(),
-                   QIcon::Mode::Normal, QIcon::State::Off);
+    icon83.addFile(QString::fromUtf8(":/images/backgroundPalette/resetDefaultGridSize.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     actionDefaultGridSize->setIcon(icon83);
     centralwidget = new QWidget(mw);
     centralwidget->setObjectName("centralwidget");
@@ -726,7 +628,8 @@ void MainWindowUi::setupUi(QMainWindow *mw) {
     retranslateUi(mw);
 }
 
-void MainWindowUi::retranslateUi(QMainWindow *mw) {
+void MainWindowUi::retranslateUi(QMainWindow *mw)
+{
     mw->setWindowTitle(QCoreApplication::translate("MainWindow", "TianBoard", nullptr));
     actionStylus->setText(QCoreApplication::translate("MainWindow", "Stylus", nullptr));
     actionStylus->setIconText(QCoreApplication::translate("MainWindow", "Stylus", nullptr));
@@ -877,8 +780,7 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(tooltip)
     actionNewDocument->setText(QCoreApplication::translate("MainWindow", "New Document", nullptr));
 #if QT_CONFIG(tooltip)
-    actionNewDocument->setToolTip(
-        QCoreApplication::translate("MainWindow", "Create a New Document", nullptr));
+    actionNewDocument->setToolTip(QCoreApplication::translate("MainWindow", "Create a New Document", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionImport->setText(QCoreApplication::translate("MainWindow", "Import", nullptr));
 #if QT_CONFIG(tooltip)
@@ -897,8 +799,7 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(shortcut)
     actionDuplicate->setText(QCoreApplication::translate("MainWindow", "Duplicate", nullptr));
 #if QT_CONFIG(tooltip)
-    actionDuplicate->setToolTip(
-        QCoreApplication::translate("MainWindow", "Duplicate Selected Content", nullptr));
+    actionDuplicate->setToolTip(QCoreApplication::translate("MainWindow", "Duplicate Selected Content", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionDelete->setText(QCoreApplication::translate("MainWindow", "Delete", nullptr));
 #if QT_CONFIG(tooltip)
@@ -907,16 +808,13 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #if QT_CONFIG(shortcut)
     actionDelete->setShortcut(QCoreApplication::translate("MainWindow", "Del", nullptr));
 #endif // QT_CONFIG(shortcut)
-    actionAddToWorkingDocument->setText(
-        QCoreApplication::translate("MainWindow", "Add to Working Document", nullptr));
+    actionAddToWorkingDocument->setText(QCoreApplication::translate("MainWindow", "Add to Working Document", nullptr));
 #if QT_CONFIG(tooltip)
-    actionAddToWorkingDocument->setToolTip(
-        QCoreApplication::translate("MainWindow", "Add Selected Content to Open Document", nullptr));
+    actionAddToWorkingDocument->setToolTip(QCoreApplication::translate("MainWindow", "Add Selected Content to Open Document", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionDocumentAdd->setText(QCoreApplication::translate("MainWindow", "Add", nullptr));
 #if QT_CONFIG(tooltip)
-    actionDocumentAdd->setToolTip(
-        QCoreApplication::translate("MainWindow", "Add Content to Document", nullptr));
+    actionDocumentAdd->setToolTip(QCoreApplication::translate("MainWindow", "Add Content to Document", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionRename->setText(QCoreApplication::translate("MainWindow", "Rename", nullptr));
 #if QT_CONFIG(tooltip)
@@ -934,26 +832,21 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
     actionWidePageSize->setText(QCoreApplication::translate("MainWindow", "Wide Size (16/9)", nullptr));
     actionWidePageSize->setIconText(QCoreApplication::translate("MainWindow", "Wide Size (16/9)", nullptr));
 #if QT_CONFIG(tooltip)
-    actionWidePageSize->setToolTip(
-        QCoreApplication::translate("MainWindow", "Use Document Wide Size (16/9)", nullptr));
+    actionWidePageSize->setToolTip(QCoreApplication::translate("MainWindow", "Use Document Wide Size (16/9)", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionRegularPageSize->setText(QCoreApplication::translate("MainWindow", "Regular Size (4/3)", nullptr));
-    actionRegularPageSize->setIconText(
-        QCoreApplication::translate("MainWindow", "Regular Size (4/3)", nullptr));
+    actionRegularPageSize->setIconText(QCoreApplication::translate("MainWindow", "Regular Size (4/3)", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRegularPageSize->setToolTip(
-        QCoreApplication::translate("MainWindow", "Use Document Regular Size (4/3)", nullptr));
+    actionRegularPageSize->setToolTip(QCoreApplication::translate("MainWindow", "Use Document Regular Size (4/3)", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionCustomPageSize->setText(QCoreApplication::translate("MainWindow", "Custom Size", nullptr));
     actionCustomPageSize->setIconText(QCoreApplication::translate("MainWindow", "Custom Size", nullptr));
 #if QT_CONFIG(tooltip)
-    actionCustomPageSize->setToolTip(
-        QCoreApplication::translate("MainWindow", "Use Custom Document Size", nullptr));
+    actionCustomPageSize->setToolTip(QCoreApplication::translate("MainWindow", "Use Custom Document Size", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionStopLoading->setText(QCoreApplication::translate("MainWindow", "Stop Loading", nullptr));
 #if QT_CONFIG(tooltip)
-    actionStopLoading->setToolTip(
-        QCoreApplication::translate("MainWindow", "Stop Loading Web Page", nullptr));
+    actionStopLoading->setToolTip(QCoreApplication::translate("MainWindow", "Stop Loading Web Page", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionCut->setText(QCoreApplication::translate("MainWindow", "Cut", nullptr));
     actionCopy->setText(QCoreApplication::translate("MainWindow", "Copy", nullptr));
@@ -964,60 +857,45 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(tooltip)
     actionVirtualKeyboard->setText(QCoreApplication::translate("MainWindow", "Virtual Keyboard", nullptr));
 #if QT_CONFIG(tooltip)
-    actionVirtualKeyboard->setToolTip(
-        QCoreApplication::translate("MainWindow", "Display Virtual Keyboard", nullptr));
+    actionVirtualKeyboard->setToolTip(QCoreApplication::translate("MainWindow", "Display Virtual Keyboard", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionPlainLightBackground->setText(
-        QCoreApplication::translate("MainWindow", "Plain Light Background", nullptr));
+    actionPlainLightBackground->setText(QCoreApplication::translate("MainWindow", "Plain Light Background", nullptr));
     actionPlainLightBackground->setIconText(QCoreApplication::translate("MainWindow", "Light", nullptr));
 #if QT_CONFIG(tooltip)
-    actionPlainLightBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Plain Light Background", nullptr));
+    actionPlainLightBackground->setToolTip(QCoreApplication::translate("MainWindow", "Plain Light Background", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionCrossedLightBackground->setText(
-        QCoreApplication::translate("MainWindow", "Grid Light Background", nullptr));
+    actionCrossedLightBackground->setText(QCoreApplication::translate("MainWindow", "Grid Light Background", nullptr));
     actionCrossedLightBackground->setIconText(QCoreApplication::translate("MainWindow", "Light", nullptr));
 #if QT_CONFIG(tooltip)
-    actionCrossedLightBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Grid Light Background", nullptr));
+    actionCrossedLightBackground->setToolTip(QCoreApplication::translate("MainWindow", "Grid Light Background", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionRuledLightBackground->setText(
-        QCoreApplication::translate("MainWindow", "Ruled Light Background", nullptr));
+    actionRuledLightBackground->setText(QCoreApplication::translate("MainWindow", "Ruled Light Background", nullptr));
     actionRuledLightBackground->setIconText(QCoreApplication::translate("MainWindow", "Light", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRuledLightBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Ruled Light Background", nullptr));
+    actionRuledLightBackground->setToolTip(QCoreApplication::translate("MainWindow", "Ruled Light Background", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionPlainDarkBackground->setText(
-        QCoreApplication::translate("MainWindow", "Plain Dark Background", nullptr));
+    actionPlainDarkBackground->setText(QCoreApplication::translate("MainWindow", "Plain Dark Background", nullptr));
     actionPlainDarkBackground->setIconText(QCoreApplication::translate("MainWindow", "Dark", nullptr));
 #if QT_CONFIG(tooltip)
-    actionPlainDarkBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Plain Dark Background", nullptr));
+    actionPlainDarkBackground->setToolTip(QCoreApplication::translate("MainWindow", "Plain Dark Background", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionCrossedDarkBackground->setText(
-        QCoreApplication::translate("MainWindow", "Grid Dark Background", nullptr));
+    actionCrossedDarkBackground->setText(QCoreApplication::translate("MainWindow", "Grid Dark Background", nullptr));
     actionCrossedDarkBackground->setIconText(QCoreApplication::translate("MainWindow", "Dark", nullptr));
 #if QT_CONFIG(tooltip)
-    actionCrossedDarkBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Grid Dark Background", nullptr));
+    actionCrossedDarkBackground->setToolTip(QCoreApplication::translate("MainWindow", "Grid Dark Background", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionRuledDarkBackground->setText(
-        QCoreApplication::translate("MainWindow", "Ruled Dark Background", nullptr));
+    actionRuledDarkBackground->setText(QCoreApplication::translate("MainWindow", "Ruled Dark Background", nullptr));
     actionRuledDarkBackground->setIconText(QCoreApplication::translate("MainWindow", "Dark", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRuledDarkBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Ruled Dark Background", nullptr));
+    actionRuledDarkBackground->setToolTip(QCoreApplication::translate("MainWindow", "Ruled Dark Background", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionRecording->setText(QCoreApplication::translate("MainWindow", "Screen Recording", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRecording->setToolTip(
-        QCoreApplication::translate("MainWindow", "Record the Screen to Video", nullptr));
+    actionRecording->setToolTip(QCoreApplication::translate("MainWindow", "Record the Screen to Video", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionRecordingStart->setText(QCoreApplication::translate("MainWindow", "Record", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRecordingStart->setToolTip(
-        QCoreApplication::translate("MainWindow", "Start Screen Recording", nullptr));
+    actionRecordingStart->setToolTip(QCoreApplication::translate("MainWindow", "Start Screen Recording", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionEraseItems->setText(QCoreApplication::translate("MainWindow", "Erase Items", nullptr));
 #if QT_CONFIG(tooltip)
@@ -1025,8 +903,7 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(tooltip)
     actionEraseAnnotations->setText(QCoreApplication::translate("MainWindow", "Erase Annotations", nullptr));
 #if QT_CONFIG(tooltip)
-    actionEraseAnnotations->setToolTip(
-        QCoreApplication::translate("MainWindow", "Erase All Annotations", nullptr));
+    actionEraseAnnotations->setToolTip(QCoreApplication::translate("MainWindow", "Erase All Annotations", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionClearPage->setText(QCoreApplication::translate("MainWindow", "Clear Page", nullptr));
 #if QT_CONFIG(tooltip)
@@ -1056,8 +933,7 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(shortcut)
     actionSelector->setText(QCoreApplication::translate("MainWindow", "Selector", nullptr));
 #if QT_CONFIG(tooltip)
-    actionSelector->setToolTip(
-        QCoreApplication::translate("MainWindow", "Select And Modify Objects", nullptr));
+    actionSelector->setToolTip(QCoreApplication::translate("MainWindow", "Select And Modify Objects", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
     actionSelector->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+F", nullptr));
@@ -1091,26 +967,20 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(shortcut)
     actionCapture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
 #if QT_CONFIG(tooltip)
-    actionCapture->setToolTip(
-        QCoreApplication::translate("MainWindow", "Capture Part of the Screen", nullptr));
+    actionCapture->setToolTip(QCoreApplication::translate("MainWindow", "Capture Part of the Screen", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionAddItemToCurrentPage->setText(
-        QCoreApplication::translate("MainWindow", "Add To Current Page", nullptr));
-    actionAddItemToCurrentPage->setIconText(
-        QCoreApplication::translate("MainWindow", "Add To Current Page", nullptr));
+    actionAddItemToCurrentPage->setText(QCoreApplication::translate("MainWindow", "Add To Current Page", nullptr));
+    actionAddItemToCurrentPage->setIconText(QCoreApplication::translate("MainWindow", "Add To Current Page", nullptr));
 #if QT_CONFIG(tooltip)
-    actionAddItemToCurrentPage->setToolTip(
-        QCoreApplication::translate("MainWindow", "Add Item To Current Page", nullptr));
+    actionAddItemToCurrentPage->setToolTip(QCoreApplication::translate("MainWindow", "Add Item To Current Page", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionAddItemToNewPage->setText(QCoreApplication::translate("MainWindow", "Add To New Page", nullptr));
 #if QT_CONFIG(tooltip)
-    actionAddItemToNewPage->setToolTip(
-        QCoreApplication::translate("MainWindow", "Add Item To New Page", nullptr));
+    actionAddItemToNewPage->setToolTip(QCoreApplication::translate("MainWindow", "Add Item To New Page", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionAddItemToLibrary->setText(QCoreApplication::translate("MainWindow", "Add To Library", nullptr));
 #if QT_CONFIG(tooltip)
-    actionAddItemToLibrary->setToolTip(
-        QCoreApplication::translate("MainWindow", "Add Item To Library", nullptr));
+    actionAddItemToLibrary->setToolTip(QCoreApplication::translate("MainWindow", "Add Item To Library", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionPages->setText(QCoreApplication::translate("MainWindow", "Pages", nullptr));
 #if QT_CONFIG(tooltip)
@@ -1122,23 +992,19 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(tooltip)
     actionDuplicatePage->setText(QCoreApplication::translate("MainWindow", "Duplicate Page", nullptr));
 #if QT_CONFIG(tooltip)
-    actionDuplicatePage->setToolTip(
-        QCoreApplication::translate("MainWindow", "Duplicate the Current Page", nullptr));
+    actionDuplicatePage->setToolTip(QCoreApplication::translate("MainWindow", "Duplicate the Current Page", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionImportPage->setText(QCoreApplication::translate("MainWindow", "Import Page", nullptr));
 #if QT_CONFIG(tooltip)
-    actionImportPage->setToolTip(
-        QCoreApplication::translate("MainWindow", "Import an External Page", nullptr));
+    actionImportPage->setToolTip(QCoreApplication::translate("MainWindow", "Import an External Page", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionRecordingPause->setText(QCoreApplication::translate("MainWindow", "Pause", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRecordingPause->setToolTip(
-        QCoreApplication::translate("MainWindow", "Pause Screen Recording", nullptr));
+    actionRecordingPause->setToolTip(QCoreApplication::translate("MainWindow", "Pause Screen Recording", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionRecordingConfig->setText(QCoreApplication::translate("MainWindow", "Recording Config", nullptr));
 #if QT_CONFIG(tooltip)
-    actionRecordingConfig->setToolTip(
-        QCoreApplication::translate("MainWindow", "Configure Screen Recording", nullptr));
+    actionRecordingConfig->setToolTip(QCoreApplication::translate("MainWindow", "Configure Screen Recording", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionWebTrap->setText(QCoreApplication::translate("MainWindow", "Web Trap", nullptr));
 #if QT_CONFIG(tooltip)
@@ -1146,25 +1012,19 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(tooltip)
     actionWebCustomCapture->setText(QCoreApplication::translate("MainWindow", "Custom Capture", nullptr));
 #if QT_CONFIG(tooltip)
-    actionWebCustomCapture->setToolTip(
-        QCoreApplication::translate("MainWindow", "Capture Part of the Screen", nullptr));
+    actionWebCustomCapture->setToolTip(QCoreApplication::translate("MainWindow", "Capture Part of the Screen", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionWebShowHideOnDisplay->setText(
-        QCoreApplication::translate("MainWindow", "Show on Display", nullptr));
+    actionWebShowHideOnDisplay->setText(QCoreApplication::translate("MainWindow", "Show on Display", nullptr));
 #if QT_CONFIG(tooltip)
-    actionWebShowHideOnDisplay->setToolTip(
-        QCoreApplication::translate("MainWindow", "Show Main Screen on Display Screen", nullptr));
+    actionWebShowHideOnDisplay->setToolTip(QCoreApplication::translate("MainWindow", "Show Main Screen on Display Screen", nullptr));
 #endif // QT_CONFIG(tooltip)
-    actionEraseDesktopAnnotations->setText(
-        QCoreApplication::translate("MainWindow", "Erase Annotations", nullptr));
+    actionEraseDesktopAnnotations->setText(QCoreApplication::translate("MainWindow", "Erase Annotations", nullptr));
 #if QT_CONFIG(tooltip)
-    actionEraseDesktopAnnotations->setToolTip(
-        QCoreApplication::translate("MainWindow", "Erase all Annotations", nullptr));
+    actionEraseDesktopAnnotations->setToolTip(QCoreApplication::translate("MainWindow", "Erase all Annotations", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionHideApplication->setText(QCoreApplication::translate("MainWindow", "Hide TianBoard", nullptr));
 #if QT_CONFIG(tooltip)
-    actionHideApplication->setToolTip(
-        QCoreApplication::translate("MainWindow", "Hide TianBoard Application", nullptr));
+    actionHideApplication->setToolTip(QCoreApplication::translate("MainWindow", "Hide TianBoard Application", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
     actionHideApplication->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+H", nullptr));
@@ -1175,8 +1035,7 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
 #endif // QT_CONFIG(tooltip)
     actionEraseBackground->setText(QCoreApplication::translate("MainWindow", "Erase Background", nullptr));
 #if QT_CONFIG(tooltip)
-    actionEraseBackground->setToolTip(
-        QCoreApplication::translate("MainWindow", "Remove the backgound", nullptr));
+    actionEraseBackground->setToolTip(QCoreApplication::translate("MainWindow", "Remove the backgound", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionDefaultGridSize->setText(QCoreApplication::translate("MainWindow", "Reset grid size", nullptr));
 #if QT_CONFIG(tooltip)
@@ -1187,22 +1046,26 @@ void MainWindowUi::retranslateUi(QMainWindow *mw) {
     documentToolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "Documents", nullptr));
 }
 
-
-struct MainWindow::Private {
-    MainWindowUi ui;
+struct MainWindow::Private
+{
+    MainWindowUi    ui;
     QStackedLayout *stackedLayout{nullptr};
-    QWidget *boardWidget{nullptr};
-    QWidget *webWidget{nullptr};
-    QWidget *documentsWidget{nullptr};
+    QWidget        *boardWidget{nullptr};
+    QWidget        *webWidget{nullptr};
+    QWidget        *documentsWidget{nullptr};
     DownloadWidget *downloadWidget{nullptr};
 };
 
-MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent, flags), d(new Private) {
+MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent, flags), d(new Private)
+{
     d->ui.setupUi(this);
 
     // 换语言时把这套从旧 Designer 表单移植过来的文案重新取一遍词。
     connect(LanguageManager::instance(), &LanguageManager::languageChanged, this,
-            [this](const QString &) { d->ui.retranslateUi(this); });
+        [this](const QString &)
+        {
+            d->ui.retranslateUi(this);
+        });
 
     d->downloadWidget = new DownloadWidget();
     d->downloadWidget->setWindowModality(Qt::ApplicationModal);
@@ -1225,63 +1088,83 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(par
 
 MainWindow::~MainWindow() = default;
 
-MainWindowUi &MainWindow::ui() {
+MainWindowUi &MainWindow::ui()
+{
     return d->ui;
 }
 
-void MainWindow::addBoardWidget(QWidget *pWidget) {
-    if (!d->boardWidget) {
+void MainWindow::addBoardWidget(QWidget *pWidget)
+{
+    if (!d->boardWidget)
+    {
         d->boardWidget = pWidget;
         d->stackedLayout->addWidget(d->boardWidget);
     }
 }
 
-void MainWindow::switchToBoardWidget() {
+void MainWindow::switchToBoardWidget()
+{
     if (d->boardWidget)
+    {
         d->stackedLayout->setCurrentWidget(d->boardWidget);
+    }
 }
 
-void MainWindow::addWebWidget(QWidget *pWidget) {
-    if (!d->webWidget) {
+void MainWindow::addWebWidget(QWidget *pWidget)
+{
+    if (!d->webWidget)
+    {
         d->webWidget = pWidget;
         // BrowserWindow 关闭时 deleteLater()；不置空的话下一次 addWebWidget 会以为
         // 还挂着一个网页控件，switchToWebWidget 也会对已删除的对象 setCurrentWidget。
-        connect(pWidget, &QObject::destroyed, this, [this] { d->webWidget = nullptr; });
+        connect(pWidget, &QObject::destroyed, this,
+            [this]
+            {
+                d->webWidget = nullptr;
+            });
         d->stackedLayout->addWidget(d->webWidget);
     }
 }
 
-void MainWindow::switchToWebWidget() {
-    if (d->webWidget) {
-        qDebug() << "popped out from StackedLayout size height: " << d->webWidget->height()
-                 << " width: " << d->webWidget->width();
+void MainWindow::switchToWebWidget()
+{
+    if (d->webWidget)
+    {
+        qDebug() << "popped out from StackedLayout size height: " << d->webWidget->height() << " width: " << d->webWidget->width();
         d->stackedLayout->setCurrentWidget(d->webWidget);
     }
 }
 
-
-void MainWindow::addDocumentsWidget(QWidget *pWidget) {
-    if (!d->documentsWidget) {
+void MainWindow::addDocumentsWidget(QWidget *pWidget)
+{
+    if (!d->documentsWidget)
+    {
         d->documentsWidget = pWidget;
         d->stackedLayout->addWidget(d->documentsWidget);
     }
 }
 
-void MainWindow::switchToDocumentsWidget() {
+void MainWindow::switchToDocumentsWidget()
+{
     if (d->documentsWidget)
+    {
         d->stackedLayout->setCurrentWidget(d->documentsWidget);
+    }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event) {
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
     QMainWindow::keyPressEvent(event);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
+void MainWindow::closeEvent(QCloseEvent *event)
+{
     event->ignore();
     emit closeEvent_Signal(event);
 }
 
-void MainWindow::onExportDone() {
+void MainWindow::onExportDone()
+{
     // HACK：导出时打开文件保存对话框会让部分工具栏按钮被禁用，
     //       这里统一恢复，避免导出结束后界面停留在半禁用状态。
     d->ui.actionExport->setEnabled(true);
@@ -1293,7 +1176,8 @@ void MainWindow::onExportDone() {
     d->ui.actionDocumentAdd->setEnabled(true);
 }
 
-bool MainWindow::yesNoQuestion(QString windowTitle, QString text) {
+bool MainWindow::yesNoQuestion(QString windowTitle, QString text)
+{
     QMessageBox messageBox;
     messageBox.setParent(this);
     messageBox.setWindowTitle(windowTitle);
@@ -1307,7 +1191,8 @@ bool MainWindow::yesNoQuestion(QString windowTitle, QString text) {
     return messageBox.clickedButton() == yesButton;
 }
 
-void MainWindow::oneButtonMessageBox(QString windowTitle, QString text, QMessageBox::Icon type) {
+void MainWindow::oneButtonMessageBox(QString windowTitle, QString text, QMessageBox::Icon type)
+{
     QMessageBox messageBox;
     messageBox.setParent(this);
     messageBox.setWindowFlags(Qt::Dialog);
@@ -1318,18 +1203,22 @@ void MainWindow::oneButtonMessageBox(QString windowTitle, QString text, QMessage
     messageBox.exec();
 }
 
-void MainWindow::warning(QString windowTitle, QString text) {
+void MainWindow::warning(QString windowTitle, QString text)
+{
     oneButtonMessageBox(windowTitle, text, QMessageBox::Warning);
 }
 
-void MainWindow::information(QString windowTitle, QString text) {
+void MainWindow::information(QString windowTitle, QString text)
+{
     oneButtonMessageBox(windowTitle, text, QMessageBox::Information);
 }
 
-void MainWindow::showDownloadWidget() {
+void MainWindow::showDownloadWidget()
+{
     d->downloadWidget->show();
 }
 
-void MainWindow::hideDownloadWidget() {
+void MainWindow::hideDownloadWidget()
+{
     d->downloadWidget->hide();
 }

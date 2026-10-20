@@ -9,7 +9,6 @@
 
 #include <memory>
 
-
 /**
  * @brief 全屏黑屏遮罩窗口。
  *
@@ -17,7 +16,8 @@
  * DisplayManager::blackout() 在创建后调用 show()，并连接 activity() 以便在用户
  * 点击或按键时解除遮罩；对象设置了 WA_DeleteOnClose，由关闭动作自行销毁。
  */
-class BlackoutWidget : public QWidget {
+class BlackoutWidget : public QWidget
+{
     Q_OBJECT
 
 public:

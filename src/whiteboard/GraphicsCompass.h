@@ -13,7 +13,6 @@
 
 class GraphicsScene;
 
-
 /**
  * @brief 可移动、缩放、旋转的圆规图元，可用铅笔端在页面上画圆/弧。
  *
@@ -21,7 +20,8 @@ class GraphicsScene;
  * 拖动铅笔端进入绘制状态并生成笔画。绘制过程中的角度与半径读数会实时显示。
  * 生命周期归场景所有；仅 GUI 线程使用，绘制发生在场景 paint 流程。
  */
-class GraphicsCompass : public QObject, public QGraphicsRectItem, public Item {
+class GraphicsCompass : public QObject, public QGraphicsRectItem, public Item
+{
     Q_OBJECT
 
 public:
@@ -29,10 +29,16 @@ public:
     virtual ~GraphicsCompass();
 
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::CompassItemType };
+    enum
+    {
+        Type = GraphicsItemType::CompassItemType
+    };
 
     /// @brief 返回图元类型。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 创建一份圆规并复制几何参数。
     virtual Item *deepCopy() const;
@@ -130,52 +136,52 @@ private:
     /// @brief 两脚当前夹角（度）。
     qreal angleInDegrees() const;
 
-    QCursor mOuterCursor;             ///< 外框光标
-    QCursor mResizeCursor;            ///< 缩放光标
-    QCursor mDrawCursor;              ///< 绘制光标
-    bool mResizing;                   ///< 是否正在缩放
-    bool mRotating;                   ///< 是否正在旋转
-    bool mDrawing;                    ///< 是否正在绘制圆/弧
-    bool mShowButtons;                ///< 是否显示按钮
-    qreal mSpanAngleInDegrees;        ///< 两脚夹角（度）
-    QPointF mSceneArcStartPoint;      ///< 圆弧起点（场景坐标）
-    bool mDrewCircle;                 ///< 是否已画出闭合圆
-    QGraphicsSvgItem *mCloseSvgItem;  ///< 关闭按钮图元
-    QGraphicsSvgItem *mResizeSvgItem; ///< 缩放按钮图元
-    qreal mAntiScaleRatio;            ///< 反缩放系数
-    bool mDrewCenterCross;            ///< 是否已绘制针尖十字
+    QCursor           mOuterCursor;                               ///< 外框光标
+    QCursor           mResizeCursor;                              ///< 缩放光标
+    QCursor           mDrawCursor;                                ///< 绘制光标
+    bool              mResizing;                                  ///< 是否正在缩放
+    bool              mRotating;                                  ///< 是否正在旋转
+    bool              mDrawing;                                   ///< 是否正在绘制圆/弧
+    bool              mShowButtons;                               ///< 是否显示按钮
+    qreal             mSpanAngleInDegrees;                        ///< 两脚夹角（度）
+    QPointF           mSceneArcStartPoint;                        ///< 圆弧起点（场景坐标）
+    bool              mDrewCircle;                                ///< 是否已画出闭合圆
+    QGraphicsSvgItem *mCloseSvgItem;                              ///< 关闭按钮图元
+    QGraphicsSvgItem *mResizeSvgItem;                             ///< 缩放按钮图元
+    qreal             mAntiScaleRatio;                            ///< 反缩放系数
+    bool              mDrewCenterCross;                           ///< 是否已绘制针尖十字
 
-    static const int sNeedleLength = 12; ///< 针尖长度
-    static const int sNeedleWidth = 3;   ///< 针尖宽度
+    static const int sNeedleLength        = 12;                   ///< 针尖长度
+    static const int sNeedleWidth         = 3;                    ///< 针尖宽度
 
-    static const int sNeedleBaseLength = 9; ///< 针尖底座长度
-    static const int sNeedleBaseWidth = 9;  ///< 针尖底座宽度
+    static const int sNeedleBaseLength    = 9;                    ///< 针尖底座长度
+    static const int sNeedleBaseWidth     = 9;                    ///< 针尖底座宽度
 
-    static const int sNeedleArmLeftWidth = 12;  ///< 针臂左缘宽度
-    static const int sNeedleArmRigthWidth = 16; ///< 针臂右缘宽度
+    static const int sNeedleArmLeftWidth  = 12;                   ///< 针臂左缘宽度
+    static const int sNeedleArmRigthWidth = 16;                   ///< 针臂右缘宽度
 
-    static const int sPencilLength = 12; ///< 铅笔长度
-    static const int sPencilWidth = 2;   ///< 铅笔宽度
+    static const int sPencilLength        = 12;                   ///< 铅笔长度
+    static const int sPencilWidth         = 2;                    ///< 铅笔宽度
 
-    static const int sPencilBaseLength = 9; ///< 铅笔底座长度
-    static const int sPencilBaseWidth = 9;  ///< 铅笔底座宽度
+    static const int sPencilBaseLength    = 9;                    ///< 铅笔底座长度
+    static const int sPencilBaseWidth     = 9;                    ///< 铅笔底座宽度
 
-    static const int sPencilArmLeftWidth = 16;  ///< 铅笔臂左缘宽度
-    static const int sPencilArmRightWidth = 12; ///< 铅笔臂右缘宽度
+    static const int sPencilArmLeftWidth  = 16;                   ///< 铅笔臂左缘宽度
+    static const int sPencilArmRightWidth = 12;                   ///< 铅笔臂右缘宽度
 
-    static const int sCornerRadius = 2; ///< 圆角半径
+    static const int sCornerRadius        = 2;                    ///< 圆角半径
 
-    static const QRect sDefaultRect;                           ///< 新建圆规的默认几何
-    static const int sMinRadius;                               ///< 最小半径
-    static const int sDegreeToQtAngleUnit = 16;                ///< 度到 Qt 角度单位的换算系数
-    static const int sFillTransparency = 127;                  ///< 填充透明度
-    static const int sDrawTransparency = 192;                  ///< 前景透明度
-    static const QColor sLightBackgroundEdgeFillColor;         ///< 浅色背景边缘填充色
-    static const QColor sLightBackgroundMiddleFillColor;       ///< 浅色背景中部填充色
-    static const QColor sLightBackgroundDrawColor;             ///< 浅色背景前景色
-    static const QColor sDarkBackgroundEdgeFillColor;          ///< 深色背景边缘填充色
-    static const QColor sDarkBackgroundMiddleFillColor;        ///< 深色背景中部填充色
-    static const QColor sDarkBackgroundDrawColor;              ///< 深色背景前景色
-    static const int sDisplayRadiusOnPencilArmMinLength = 300; ///< 铅笔臂显示半径读数的最小臂长
-    static const int sDisplayRadiusUnitMinLength = 250;        ///< 显示半径单位的最小臂长
+    static const QRect  sDefaultRect;                             ///< 新建圆规的默认几何
+    static const int    sMinRadius;                               ///< 最小半径
+    static const int    sDegreeToQtAngleUnit = 16;                ///< 度到 Qt 角度单位的换算系数
+    static const int    sFillTransparency    = 127;               ///< 填充透明度
+    static const int    sDrawTransparency    = 192;               ///< 前景透明度
+    static const QColor sLightBackgroundEdgeFillColor;            ///< 浅色背景边缘填充色
+    static const QColor sLightBackgroundMiddleFillColor;          ///< 浅色背景中部填充色
+    static const QColor sLightBackgroundDrawColor;                ///< 浅色背景前景色
+    static const QColor sDarkBackgroundEdgeFillColor;             ///< 深色背景边缘填充色
+    static const QColor sDarkBackgroundMiddleFillColor;           ///< 深色背景中部填充色
+    static const QColor sDarkBackgroundDrawColor;                 ///< 深色背景前景色
+    static const int    sDisplayRadiusOnPencilArmMinLength = 300; ///< 铅笔臂显示半径读数的最小臂长
+    static const int    sDisplayRadiusUnitMinLength        = 250; ///< 显示半径单位的最小臂长
 };

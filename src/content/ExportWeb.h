@@ -17,7 +17,8 @@ class DocumentProxy;
  * 输出不是单文件，而是一个目录；完成后用系统浏览器打开 index.html。
  * 播放器页面来自资源 :www/TianBoard-web-player.html，与文档数据格式无关。
  */
-class ExportWeb : public ExportAdaptor {
+class ExportWeb : public ExportAdaptor
+{
     Q_OBJECT;
 
 public:

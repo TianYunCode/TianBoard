@@ -15,7 +15,8 @@
 
 #include "whiteboard/QPdfRenderer.h"
 
-class TestPdfRenderer : public QObject {
+class TestPdfRenderer : public QObject
+{
     Q_OBJECT
 
 private slots:
@@ -37,10 +38,11 @@ private slots:
 
 private:
     QTemporaryDir mDir;
-    QString mPdfPath;
+    QString       mPdfPath;
 };
 
-void TestPdfRenderer::initTestCase() {
+void TestPdfRenderer::initTestCase()
+{
     QVERIFY(mDir.isValid());
     mPdfPath = mDir.filePath(QStringLiteral("fixture.pdf"));
 
@@ -56,24 +58,24 @@ void TestPdfRenderer::initTestCase() {
         painter.setPen(Qt::black);
         painter.setFont(QFont(QStringLiteral("Arial"), 40));
 
-        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()), Qt::AlignCenter,
-                         QStringLiteral("PAGE ONE"));
+        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()), Qt::AlignCenter, QStringLiteral("PAGE ONE"));
 
         writer.newPage();
 
-        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()), Qt::AlignCenter,
-                         QStringLiteral("PAGE TWO"));
+        painter.drawText(writer.pageLayout().paintRectPixels(writer.resolution()), Qt::AlignCenter, QStringLiteral("PAGE TWO"));
     }
 }
 
-void TestPdfRenderer::reportsValidityAndPageCount() {
+void TestPdfRenderer::reportsValidityAndPageCount()
+{
     QPdfRenderer renderer(mPdfPath);
     QVERIFY2(renderer.isValid(), qPrintable(mPdfPath));
     QCOMPARE(renderer.pageCount(), 2);
     QVERIFY(renderer.title().contains(QStringLiteral("TianBoard")));
 }
 
-void TestPdfRenderer::outOfRangePagesAreEmpty() {
+void TestPdfRenderer::outOfRangePagesAreEmpty()
+{
     QPdfRenderer renderer(mPdfPath);
     QVERIFY(renderer.isValid());
 
@@ -82,7 +84,8 @@ void TestPdfRenderer::outOfRangePagesAreEmpty() {
     QVERIFY(renderer.pageSizeF(renderer.pageCount() + 1).isEmpty());
 }
 
-void TestPdfRenderer::pageSizeScalesPointsToPixels() {
+void TestPdfRenderer::pageSizeScalesPointsToPixels()
+{
     QPdfRenderer renderer(mPdfPath);
     renderer.setDPI(96);
 
@@ -96,12 +99,13 @@ void TestPdfRenderer::pageSizeScalesPointsToPixels() {
     QCOMPARE(renderer.pageSizeF(2).width(), size.width() * 2);
 }
 
-void TestPdfRenderer::rendersTheWholePage() {
+void TestPdfRenderer::rendersTheWholePage()
+{
     QPdfRenderer renderer(mPdfPath);
     renderer.setDPI(96);
 
     const QSizeF pageSize = renderer.pageSizeF(1);
-    QImage image(pageSize.toSize(), QImage::Format_ARGB32_Premultiplied);
+    QImage       image(pageSize.toSize(), QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::white);
 
     QPainter painter(&image);
@@ -109,25 +113,32 @@ void TestPdfRenderer::rendersTheWholePage() {
     painter.end();
 
     // 夹具两页除了居中的标题全是白的，所以整张图颜色一致就意味着什么都没画上去。
-    const QColor first = image.pixelColor(0, 0);
-    bool painted = false;
+    const QColor first   = image.pixelColor(0, 0);
+    bool         painted = false;
     for (int y = 0; y < image.height() && !painted; y += 7)
+    {
         for (int x = 0; x < image.width() && !painted; x += 7)
+        {
             if (image.pixelColor(x, y) != first)
+            {
                 painted = true;
+            }
+        }
+    }
 
     QVERIFY(painted);
 }
 
-void TestPdfRenderer::rendersOnlyTheRequestedBounds() {
+void TestPdfRenderer::rendersOnlyTheRequestedBounds()
+{
     QPdfRenderer renderer(mPdfPath);
     renderer.setDPI(96);
 
     const QSizeF pageSize = renderer.pageSizeF(1);
-    QImage image(pageSize.toSize(), QImage::Format_ARGB32_Premultiplied);
+    QImage       image(pageSize.toSize(), QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::white);
 
-    QPainter painter(&image);
+    QPainter     painter(&image);
     const QRectF lowerHalf(0, pageSize.height() / 2, pageSize.width(), pageSize.height() / 2);
     renderer.render(&painter, 1, lowerHalf);
     painter.end();
@@ -135,14 +146,21 @@ void TestPdfRenderer::rendersOnlyTheRequestedBounds() {
     // 标题在页面的垂直中部，所以没被请求的上半部分必须保持纯白，下半部分才会落墨。
     bool upperStillWhite = true;
     for (int y = 0; y < image.height() / 4 && upperStillWhite; ++y)
+    {
         for (int x = 0; x < image.width(); ++x)
+        {
             if (image.pixelColor(x, y) != QColor(Qt::white))
+            {
                 upperStillWhite = false;
+            }
+        }
+    }
 
     QVERIFY(upperStillWhite);
 }
 
-void TestPdfRenderer::damagedFileIsNotValid() {
+void TestPdfRenderer::damagedFileIsNotValid()
+{
     const QString broken = mDir.filePath(QStringLiteral("broken.pdf"));
     {
         QFile file(broken);

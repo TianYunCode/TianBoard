@@ -17,7 +17,8 @@
  * 若 setToBackground 为 true，撤销/重做还会同步切换页面背景对象。
  * 命令不拥有图形项；调用方需保证项在撤销栈存活期间仍然有效。
  */
-class GraphicsItemTransformUndoCommand : public UndoCommand {
+class GraphicsItemTransformUndoCommand : public UndoCommand
+{
 public:
     /**
      * @brief 构造命令并抓取项的当前状态。
@@ -28,13 +29,15 @@ public:
      * @param prevSize 变化前的尺寸，仅对 ResizableGraphicsItem 有效。
      * @param setToBackground 撤销/重做时是否同步切换背景状态。
      */
-    GraphicsItemTransformUndoCommand(QGraphicsItem *pItem, const QPointF &prevPos,
-                                     const QTransform &prevTransform, const qreal &prevZValue,
-                                     const QSizeF &prevSize = QSizeF(), bool setToBackground = false);
+    GraphicsItemTransformUndoCommand(QGraphicsItem *pItem, const QPointF &prevPos, const QTransform &prevTransform, const qreal &prevZValue,
+        const QSizeF &prevSize = QSizeF(), bool setToBackground = false);
     virtual ~GraphicsItemTransformUndoCommand();
 
     /** @brief 返回撤销命令类型。 */
-    virtual int getType() const { return UndoType::undotype_GRAPHICITEMTRANSFORM; }
+    virtual int getType() const
+    {
+        return UndoType::undotype_GRAPHICITEMTRANSFORM;
+    }
 
 protected:
     /** @brief 恢复位置、变换、z 值与尺寸；必要时取消背景。 */
@@ -44,12 +47,12 @@ protected:
 
 private:
     QGraphicsItem *mItem;
-    QTransform mPreviousTransform;
-    QTransform mCurrentTransform;
-    QPointF mPreviousPosition;
-    QPointF mCurrentPosition;
-    QSizeF mPreviousSize;
-    QSizeF mCurrentSize;
+    QTransform     mPreviousTransform;
+    QTransform     mCurrentTransform;
+    QPointF        mPreviousPosition;
+    QPointF        mCurrentPosition;
+    QSizeF         mPreviousSize;
+    QSizeF         mCurrentSize;
 
     qreal mPreviousZValue;
     qreal mCurrentZValue;

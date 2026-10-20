@@ -16,7 +16,8 @@
  * 由调用方（如 DownloadManager）创建并持有，本类不负责自身的销毁。
  * 线程约束：与所属线程的事件循环绑定，网络回调都在该线程触发。
  */
-class HttpGet : public QObject {
+class HttpGet : public QObject
+{
     Q_OBJECT
 
 public:
@@ -32,8 +33,7 @@ public:
      * @return 新建的 reply；其所有权仍在本对象。
      * @note 会先中止上一个未完成的请求。
      */
-    QNetworkReply *get(QUrl pUrl, QPointF pPoint = QPointF(0, 0), QSize pSize = QSize(0, 0),
-                       bool isBackground = false);
+    QNetworkReply *get(QUrl pUrl, QPointF pPoint = QPointF(0, 0), QSize pSize = QSize(0, 0), bool isBackground = false);
     // 中止当前请求并释放 reply；reply 只在请求对象自己的线程里被删除。
     /// 中止当前请求；没有进行中的请求时为空操作。
     void cancelRequest();
@@ -43,8 +43,7 @@ signals:
     /// 下载进度（字节）。
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     /// 请求结束；pData 为完整响应体，contentTypeHeader 为响应头中的类型。
-    void downloadFinished(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData,
-                          QPointF pPos, QSize pSize, bool isBackground);
+    void downloadFinished(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
     //        void downloadFinished(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData
     //                              , sDownloadFileDesc downlInfo);
 
@@ -57,14 +56,14 @@ private slots:
     void downloadProgressed(qint64 bytesReceived, qint64 bytesTotal);
 
 private:
-    QByteArray mDownloadedBytes;
+    QByteArray     mDownloadedBytes;
     QNetworkReply *mReply;
-    QPointF mPos;
-    QSize mSize;
+    QPointF        mPos;
+    QSize          mSize;
 
     bool mIsBackground;
-    int mRequestID;
-    int mRedirectionCount;
+    int  mRequestID;
+    int  mRedirectionCount;
     bool mIsSelfAborting;
     //        sDownloadFileDesc mDownloadInfo;
 };

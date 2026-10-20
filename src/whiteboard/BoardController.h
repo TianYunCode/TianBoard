@@ -31,7 +31,6 @@ class BoardPaletteManager;
 class Item;
 class GraphicsItem;
 
-
 /**
  * @brief 画板的核心控制器：协调控制视图与演示视图、活动场景、页面切换、
  * 缩放、调色板、工具、下载与自动保存。
@@ -43,14 +42,16 @@ class GraphicsItem;
  * 线程约束：构造、场景操作与 UI 更新都必须在 GUI 线程执行；下载完成回调
  * 经 Application 转发回本类槽函数后再触碰图元。
  */
-class BoardController : public DocumentContainer {
+class BoardController : public DocumentContainer
+{
     Q_OBJECT
 
 public:
     /// @brief 保存选项位标志。
-    enum SaveFlag {
-        sf_none = 0x0,        ///< 无额外选项
-        sf_showProgress = 0x1 ///< 显示保存进度提示
+    enum SaveFlag
+    {
+        sf_none         = 0x0, ///< 无额外选项
+        sf_showProgress = 0x1  ///< 显示保存进度提示
     };
     Q_DECLARE_FLAGS(SaveFlags, SaveFlag)
 
@@ -83,55 +84,94 @@ public:
     int currentPage();
 
     /// @brief 承载控制视图与调色板的容器控件。
-    QWidget *controlContainer() { return mControlContainer; }
+    QWidget *controlContainer()
+    {
+        return mControlContainer;
+    }
 
     /// @brief 控制视图（教师操作的视图）。
-    BoardView *controlView() { return mControlView; }
+    BoardView *controlView()
+    {
+        return mControlView;
+    }
 
     /// @brief 演示视图（投影/外接屏上的视图）。
-    BoardView *displayView() { return mDisplayView; }
+    BoardView *displayView()
+    {
+        return mDisplayView;
+    }
 
     /// @brief 当前活动场景（可写版本）。
-    GraphicsScene *activeScene() { return mActiveScene; }
+    GraphicsScene *activeScene()
+    {
+        return mActiveScene;
+    }
 
     /// @brief 设置深色背景下的画笔颜色，变化时发出 penColorChanged()。
-    void setPenColorOnDarkBackground(const QColor &pColor) {
+    void setPenColorOnDarkBackground(const QColor &pColor)
+    {
         if (mPenColorOnDarkBackground == pColor)
+        {
             return;
+        }
 
         mPenColorOnDarkBackground = pColor;
         emit penColorChanged();
     }
 
     /// @brief 设置浅色背景下的画笔颜色，变化时发出 penColorChanged()。
-    void setPenColorOnLightBackground(const QColor &pColor) {
+    void setPenColorOnLightBackground(const QColor &pColor)
+    {
         if (mPenColorOnLightBackground == pColor)
+        {
             return;
+        }
 
         mPenColorOnLightBackground = pColor;
         emit penColorChanged();
     }
 
     /// @brief 设置深色背景下的记号笔颜色。
-    void setMarkerColorOnDarkBackground(const QColor &pColor) { mMarkerColorOnDarkBackground = pColor; }
+    void setMarkerColorOnDarkBackground(const QColor &pColor)
+    {
+        mMarkerColorOnDarkBackground = pColor;
+    }
 
     /// @brief 设置浅色背景下的记号笔颜色。
-    void setMarkerColorOnLightBackground(const QColor &pColor) { mMarkerColorOnLightBackground = pColor; }
+    void setMarkerColorOnLightBackground(const QColor &pColor)
+    {
+        mMarkerColorOnLightBackground = pColor;
+    }
 
     /// @brief 深色背景下的画笔颜色。
-    QColor penColorOnDarkBackground() { return mPenColorOnDarkBackground; }
+    QColor penColorOnDarkBackground()
+    {
+        return mPenColorOnDarkBackground;
+    }
 
     /// @brief 浅色背景下的画笔颜色。
-    QColor penColorOnLightBackground() { return mPenColorOnLightBackground; }
+    QColor penColorOnLightBackground()
+    {
+        return mPenColorOnLightBackground;
+    }
 
     /// @brief 深色背景下的记号笔颜色。
-    QColor markerColorOnDarkBackground() { return mMarkerColorOnDarkBackground; }
+    QColor markerColorOnDarkBackground()
+    {
+        return mMarkerColorOnDarkBackground;
+    }
 
     /// @brief 浅色背景下的记号笔颜色。
-    QColor markerColorOnLightBackground() { return mMarkerColorOnLightBackground; }
+    QColor markerColorOnLightBackground()
+    {
+        return mMarkerColorOnLightBackground;
+    }
 
     /// @brief 系统 DPI 缩放因子，联动界面尺寸换算。
-    qreal systemScaleFactor() { return mSystemScaleFactor; }
+    qreal systemScaleFactor()
+    {
+        return mSystemScaleFactor;
+    }
     /// @brief 当前缩放比例（1.0 为原始大小）。
     qreal currentZoom();
     /// @brief 把当前视图位置记录到场景，供下次打开时恢复。
@@ -152,13 +192,15 @@ public:
      * @param pExtension 目标扩展名，默认 wgt。
      * @return 解包后入口文件的 URL。
      */
-    static QUrl expandWidgetToTempDir(const QByteArray &pZipedData,
-                                      const QString &pExtension = QString("wgt"));
+    static QUrl expandWidgetToTempDir(const QByteArray &pZipedData, const QString &pExtension = QString("wgt"));
 
     /// @brief 调整当前页尺寸并维护相关动作状态。
     void setPageSize(QSize newSize);
     /// @brief 调色板管理器。
-    BoardPaletteManager *paletteManager() { return mPaletteManager; }
+    BoardPaletteManager *paletteManager()
+    {
+        return mPaletteManager;
+    }
 
     /// @brief 切换遮罩（幕布）可见性并通知相关控件。
     void notifyCache(bool visible);
@@ -183,8 +225,7 @@ public:
      * @param forceReload 是否强制重新加载场景内容。
      * @param onImport 是否处于导入流程（影响提示与保存策略）。
      */
-    void setActiveDocumentScene(DocumentProxy *pDocumentProxy, int pSceneIndex = 0, bool forceReload = false,
-                                bool onImport = false);
+    void setActiveDocumentScene(DocumentProxy *pDocumentProxy, int pSceneIndex = 0, bool forceReload = false, bool onImport = false);
     /// @brief 在当前文档内切换页。
     void setActiveDocumentScene(int pSceneIndex);
 
@@ -198,12 +239,21 @@ public:
     void deleteScene(int index);
 
     /// @brief 遮罩（幕布）是否启用。
-    bool cacheIsVisible() { return mCacheWidgetIsEnabled; }
+    bool cacheIsVisible()
+    {
+        return mCacheWidgetIsEnabled;
+    }
 
     /// @brief “组合”动作的文本。
-    QString actionGroupText() { return mActionGroupText; }
+    QString actionGroupText()
+    {
+        return mActionGroupText;
+    }
     /// @brief “取消组合”动作的文本。
-    QString actionUngroupText() { return mActionUngroupText; }
+    QString actionUngroupText()
+    {
+        return mActionUngroupText;
+    }
 
 public slots:
     /// @brief 打开文档选择对话框。
@@ -266,15 +316,14 @@ public slots:
      * @param isBackground 是否作为页面背景插入。
      * @param internalData 数据是否来自内部（文档资源而非网络）。
      */
-    void downloadURL(const QUrl &url, QString contentSourceUrl = QString(),
-                     const QPointF &pPos = QPointF(0.0, 0.0), const QSize &pSize = QSize(),
-                     bool isBackground = false, bool internalData = false);
+    void downloadURL(const QUrl &url, QString contentSourceUrl = QString(), const QPointF &pPos = QPointF(0.0, 0.0), const QSize &pSize = QSize(),
+        bool isBackground = false, bool internalData = false);
     /**
      * @brief 下载完成后的回调：按内容类型创建图元并插入页面。
      * @return 新建的图元；失败或类型不支持时返回空指针。
      */
-    Item *downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pHeader, QByteArray pData,
-                           QPointF pPos, QSize pSize, bool isBackground = false, bool internalData = false);
+    Item *downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pHeader, QByteArray pData, QPointF pPos, QSize pSize,
+        bool isBackground = false, bool internalData = false);
     /// @brief 切换浅色/深色背景与背景样式。
     void changeBackground(bool isDark, PageBackground pageBackground);
     /// @brief 设置视图鼠标光标为指定工具的形状。
@@ -309,11 +358,9 @@ public slots:
      * @param bUseSource 是否按来源 URL 而非缓存数据处理。
      * @return 新建的视频图元。
      */
-    GraphicsMediaItem *addVideo(const QUrl &pUrl, bool startPlay, const QPointF &pos,
-                                bool bUseSource = false);
+    GraphicsMediaItem *addVideo(const QUrl &pUrl, bool startPlay, const QPointF &pos, bool bUseSource = false);
     /// @brief 插入音频图元，参数含义同 addVideo()。
-    GraphicsMediaItem *addAudio(const QUrl &pUrl, bool startPlay, const QPointF &pos,
-                                bool bUseSource = false);
+    GraphicsMediaItem *addAudio(const QUrl &pUrl, bool startPlay, const QPointF &pos, bool bUseSource = false);
     /// @brief 插入网页小部件。
     GraphicsWidgetItem *addWebWidget(const QUrl &pUrl, const QPointF &pos);
     /// @brief 根据外接屏数量与位置重新安排演示视图。
@@ -405,32 +452,32 @@ private:
     /// @brief 从设置读取自动保存间隔（毫秒）。
     int autosaveTimeoutFromSettings();
 
-    MainWindow *mMainWindow;                               ///< 主窗口，不持有所有权
-    GraphicsScene *mActiveScene;                           ///< 当前活动场景，归文档/场景所有
-    int mActiveSceneIndex;                                 ///< 活动场景索引
-    BoardPaletteManager *mPaletteManager;                  ///< 调色板管理器
-    MessageWindow *mMessageWindow;                         ///< 状态消息窗口
-    BoardView *mControlView;                               ///< 控制视图
-    BoardView *mDisplayView;                               ///< 演示视图
-    QWidget *mControlContainer;                            ///< 控制视图容器
-    QHBoxLayout *mControlLayout;                           ///< 控制视图布局
-    qreal mZoomFactor;                                     ///< 当前缩放比例
-    bool mIsClosing;                                       ///< 是否正在关闭
-    QColor mPenColorOnDarkBackground;                      ///< 深色背景下的画笔颜色
-    QColor mPenColorOnLightBackground;                     ///< 浅色背景下的画笔颜色
-    QColor mMarkerColorOnDarkBackground;                   ///< 深色背景下的记号笔颜色
-    QColor mMarkerColorOnLightBackground;                  ///< 浅色背景下的记号笔颜色
-    qreal mSystemScaleFactor;                              ///< 系统缩放因子
-    bool mCleanupDone;                                     ///< 清理是否已完成，避免重复收尾
-    QMap<QAction *, QPair<QString, QString>> mActionTexts; ///< 动作文本缓存（快捷键提示/纯文本）
-    bool mCacheWidgetIsEnabled;                            ///< 遮罩是否启用
-    QGraphicsItem *mLastCreatedItem;                       ///< 最近创建的图元，供插入后选中
-    int mDeletingSceneIndex;                               ///< 正在删除的页索引
-    int mMovingSceneIndex;                                 ///< 正在移动的页索引
-    QString mActionGroupText;                              ///< “组合”动作文本
-    QString mActionUngroupText;                            ///< “取消组合”动作文本
+    MainWindow                              *mMainWindow;                   ///< 主窗口，不持有所有权
+    GraphicsScene                           *mActiveScene;                  ///< 当前活动场景，归文档/场景所有
+    int                                      mActiveSceneIndex;             ///< 活动场景索引
+    BoardPaletteManager                     *mPaletteManager;               ///< 调色板管理器
+    MessageWindow                           *mMessageWindow;                ///< 状态消息窗口
+    BoardView                               *mControlView;                  ///< 控制视图
+    BoardView                               *mDisplayView;                  ///< 演示视图
+    QWidget                                 *mControlContainer;             ///< 控制视图容器
+    QHBoxLayout                             *mControlLayout;                ///< 控制视图布局
+    qreal                                    mZoomFactor;                   ///< 当前缩放比例
+    bool                                     mIsClosing;                    ///< 是否正在关闭
+    QColor                                   mPenColorOnDarkBackground;     ///< 深色背景下的画笔颜色
+    QColor                                   mPenColorOnLightBackground;    ///< 浅色背景下的画笔颜色
+    QColor                                   mMarkerColorOnDarkBackground;  ///< 深色背景下的记号笔颜色
+    QColor                                   mMarkerColorOnLightBackground; ///< 浅色背景下的记号笔颜色
+    qreal                                    mSystemScaleFactor;            ///< 系统缩放因子
+    bool                                     mCleanupDone;                  ///< 清理是否已完成，避免重复收尾
+    QMap<QAction *, QPair<QString, QString>> mActionTexts;                  ///< 动作文本缓存（快捷键提示/纯文本）
+    bool                                     mCacheWidgetIsEnabled;         ///< 遮罩是否启用
+    QGraphicsItem                           *mLastCreatedItem;              ///< 最近创建的图元，供插入后选中
+    int                                      mDeletingSceneIndex;           ///< 正在删除的页索引
+    int                                      mMovingSceneIndex;             ///< 正在移动的页索引
+    QString                                  mActionGroupText;              ///< “组合”动作文本
+    QString                                  mActionUngroupText;            ///< “取消组合”动作文本
 
-    QTimer *mAutosaveTimer; ///< 自动保存定时器
+    QTimer *mAutosaveTimer;                                                 ///< 自动保存定时器
 
 public slots:
     /// @brief 工具按钮双击：切换回上一次使用的工具。

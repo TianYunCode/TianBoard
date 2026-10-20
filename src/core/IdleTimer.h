@@ -17,7 +17,8 @@ class QEvent;
  * 且没有等待光标时隐藏指针；对象生命周期由父对象管理。
  * 线程约束：依赖 GUI 事件循环与定时器，只能在 GUI 线程使用。
  */
-class IdleTimer : public QObject {
+class IdleTimer : public QObject
+{
     Q_OBJECT
 
 public:
@@ -33,5 +34,5 @@ protected:
 
 private:
     QDateTime mLastInputEventTime;
-    bool mCursorIsHidden;
+    bool      mCursorIsHidden;
 };

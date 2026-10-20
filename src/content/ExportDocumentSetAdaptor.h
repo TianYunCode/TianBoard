@@ -25,7 +25,8 @@ class DocumentTreeModel;
  * 导入端还原出层级。入口 persist() 从当前选中的树节点或给定 DocumentProxy 出发，
  * 通过 DocumentTreeModel 遍历；与 MetadataDcSubsetAdaptor 无直接关系，仅原样搬运目录。
  */
-class ExportDocumentSetAdaptor : public ExportAdaptor {
+class ExportDocumentSetAdaptor : public ExportAdaptor
+{
     Q_OBJECT
 
 public:

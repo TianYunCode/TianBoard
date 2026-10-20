@@ -24,7 +24,8 @@ class GraphicsScene;
  *
  * 非 QObject，只能在 GUI 线程使用。
  */
-class GraphicsStroke {
+class GraphicsStroke
+{
     friend class GraphicsPolygonItem;
 
 public:
@@ -61,7 +62,10 @@ public:
     QList<QPair<QPointF, qreal>> addPoint(const QPointF &point, qreal width, bool interpolate = false);
 
     /// @brief 插值后实际落画的点列（坐标 + 笔宽）
-    const QList<QPair<QPointF, qreal>> &points() { return mDrawnPoints; }
+    const QList<QPair<QPointF, qreal>> &points()
+    {
+        return mDrawnPoints;
+    }
 
     /// @brief 生成简化后的新笔迹（点数少于 3 返回 NULL）；新笔迹的多边形未入场景
     GraphicsStroke *simplify();

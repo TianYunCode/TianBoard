@@ -21,7 +21,8 @@
  * 章节标记不能随帧即时写入（此时文件尚未定型），先缓存在 mChapters，关闭时用元数据编辑器重开文件写入。
  * 线程约束：所有方法都在 GUI 线程调用；音频样本经排队连接从 waveIn 回调线程送回 GUI 线程后再写入。
  */
-class WindowsMediaFile : public QObject {
+class WindowsMediaFile : public QObject
+{
     Q_OBJECT;
 
 public:
@@ -41,8 +42,7 @@ public:
      * @param bitsPerPixel 输入位深，编码器固定使用 32。
      * @return 任一步失败返回 false，错误文本见 lastErrorMessage()。
      */
-    bool init(const QString &videoFileName, const QString &profileData, int pFramesPerSecond, int pixelWidth,
-              int pixelHeight, int bitsPerPixel);
+    bool init(const QString &videoFileName, const QString &profileData, int pFramesPerSecond, int pixelWidth, int pixelHeight, int bitsPerPixel);
 
     /**
      * @brief 结束写入、写章节标记并释放 COM 资源。
@@ -62,7 +62,10 @@ public:
     void startNewChapter(const QString &pLabel, long timestamp);
 
     /** @brief 最近一次失败的错误文本。 */
-    QString lastErrorMessage() const { return mLastErrorMessage; }
+    QString lastErrorMessage() const
+    {
+        return mLastErrorMessage;
+    }
 
 public slots:
     /**
@@ -84,20 +87,21 @@ private:
     void releaseWMObjects();
 
     /** @brief 毫秒转 100 ns 样本时间单位，WM 的时间戳基准。 */
-    QWORD msToSampleTime(long ms) {
+    QWORD msToSampleTime(long ms)
+    {
         QWORD qwordMs = ms;
         return (qwordMs * 10000);
     }
 
-    IWMProfile *mWMProfile;
-    IWMWriter *mWMWriter;
+    IWMProfile        *mWMProfile;
+    IWMWriter         *mWMWriter;
     IWMWriterPushSink *mPushSink;
 
     IWMInputMediaProps *mWMInputVideoProps;
     IWMInputMediaProps *mWMInputAudioProps;
-    IWMProfileManager *mWMProfileManager;
+    IWMProfileManager  *mWMProfileManager;
 
-    HDC mWMhDC;
+    HDC   mWMhDC;
     DWORD mVideoInputIndex;
     DWORD mAudioInputIndex;
     DWORD mFramesPerSecond;
@@ -105,9 +109,10 @@ private:
     QString mLastErrorMessage;
 
     /** @brief 待写入的章节标记。 */
-    struct MarkerInfo {
+    struct MarkerInfo
+    {
         QString label;
-        long timestamp;
+        long    timestamp;
     };
 
     QList<MarkerInfo> mChapters;

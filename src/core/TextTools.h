@@ -12,10 +12,15 @@
  *
  * 详细说明：纯静态类，不需要实例；所有函数无状态、可在任意线程调用。
  */
-class TextTools {
+class TextTools
+{
 public:
-    TextTools() {}
-    virtual ~TextTools() {}
+    TextTools()
+    {
+    }
+    virtual ~TextTools()
+    {
+    }
 
     /// 删除字符串中的所有 NUL 字符。
     static QString cleanHtmlCData(const QString &_html);

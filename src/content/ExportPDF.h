@@ -16,7 +16,8 @@ class DocumentProxy;
  * 页面尺寸取场景的 sceneSize，按屏幕 DPI 换算成点；渲染期间临时把背景改为纯白、
  * 切到非屏幕高质量渲染，结束后恢复，避免污染屏幕上正在显示的场景。
  */
-class ExportPDF : public ExportAdaptor {
+class ExportPDF : public ExportAdaptor
+{
     Q_OBJECT
 
 public:

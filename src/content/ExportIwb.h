@@ -19,7 +19,8 @@ class DocumentProxy;
  * 转换细节与格式兼容性全部由 IwbDocumentAdaptor 承担；本类只负责选路径、等待光标、
  * 状态栏提示，并把转换器累积的错误列表通过 exportWarnings 上报。
  */
-class ExportIwb : public ExportAdaptor {
+class ExportIwb : public ExportAdaptor
+{
     Q_OBJECT
 
 public:

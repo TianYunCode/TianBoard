@@ -23,14 +23,16 @@ class GraphicsTextItem;
  *
  * @note 隐藏“混合”态时（mHideMixed），循环上限降到 MAX_KIND-1，setKind(k_mixed) 会被忽略。
  */
-class AlignTextButton : public DelegateButton {
+class AlignTextButton : public DelegateButton
+{
     Q_OBJECT
 
 public:
     /// @brief 可循环的状态数，不含 k_mixed；配合 mHideMixed 使用。
     static const int MAX_KIND = 3;
     /// @brief 按钮所处（或即将切到）的对齐状态。
-    enum kind_t {
+    enum kind_t
+    {
         k_left = 0, ///< 左对齐
         k_center,   ///< 居中
         k_right,    ///< 右对齐
@@ -44,14 +46,17 @@ public:
      * @param parent 父图元。
      * @param section 按钮贴在委托边框的哪一侧。
      */
-    AlignTextButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent = 0,
-                    Qt::WindowFrameSection section = Qt::TopLeftSection);
+    AlignTextButton(
+        const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent = 0, Qt::WindowFrameSection section = Qt::TopLeftSection);
     virtual ~AlignTextButton();
 
     /// @brief 切到指定状态；mHideMixed 时拒绝 k_mixed。
     void setKind(int pKind);
     /// @brief 当前状态。
-    int kind() { return mKind; }
+    int kind()
+    {
+        return mKind;
+    }
 
     /// @brief 前进到下一个状态并立即生效。
     void setNextKind();
@@ -59,14 +64,22 @@ public:
     int nextKind() const;
 
     /// @brief 是否参与“混合”态；隐藏后循环只在三种对齐之间转。
-    void setMixedButtonVisible(bool v = true) { mHideMixed = !v; }
+    void setMixedButtonVisible(bool v = true)
+    {
+        mHideMixed = !v;
+    }
     /// @brief 当前是否允许显示混合状态。
-    bool isMixedButtonVisible() { return !mHideMixed; }
+    bool isMixedButtonVisible()
+    {
+        return !mHideMixed;
+    }
 
 private:
     /// @brief 按状态取对应的渲染器，未知状态返回空指针。
-    QSvgRenderer *rndFromKind(int pknd) {
-        switch (pknd) {
+    QSvgRenderer *rndFromKind(int pknd)
+    {
+        switch (pknd)
+        {
             case k_left:
                 return lft;
                 break;
@@ -85,15 +98,18 @@ private:
     }
 
     /// @brief 当前状态正在用的渲染器。
-    QSvgRenderer *curRnd() { return rndFromKind(mKind); }
+    QSvgRenderer *curRnd()
+    {
+        return rndFromKind(mKind);
+    }
 
     QPointer<QSvgRenderer> lft;  ///< 左对齐图标
     QPointer<QSvgRenderer> cntr; ///< 居中图标
     QPointer<QSvgRenderer> rght; ///< 右对齐图标
     QPointer<QSvgRenderer> mxd;  ///< 混合态图标
 
-    int mKind;       ///< 当前对齐状态
-    bool mHideMixed; ///< 是否禁用混合态
+    int  mKind;                  ///< 当前对齐状态
+    bool mHideMixed;             ///< 是否禁用混合态
 };
 
 /**
@@ -111,11 +127,16 @@ private:
  * @note 按钮由 createControls() 建立；未建立时 titleBarWidth() 返回 0。
  * @note 线程约束：只在 GUI 线程操作，字体与颜色对话框是模态的，会挡住画板交互。
  */
-class GraphicsTextItemDelegate : public GraphicsItemDelegate {
+class GraphicsTextItemDelegate : public GraphicsItemDelegate
+{
     Q_OBJECT
 
     /// @brief 改字号的两条路子：按步长加减，或按倍数缩放。
-    enum textChangeMode { changeSize = 0, scaleSize };
+    enum textChangeMode
+    {
+        changeSize = 0,
+        scaleSize
+    };
 
 public:
     /**
@@ -172,10 +193,10 @@ private:
     DelegateButton *mIncreaseSizeButton; ///< 增大字号
     DelegateButton *mAlignButton;        ///< 对齐循环按钮（AlignTextButton）
 
-    int mLastFontPixelSize; ///< 上次用过的像素字号，-1 表示还没有记录
+    int mLastFontPixelSize;              ///< 上次用过的像素字号，-1 表示还没有记录
 
-    static const int sMinPixelSize; ///< 像素字号下限，再小就不给减
-    static const int sMinPointSize; ///< 磅值下限，再小就不给减
+    static const int sMinPixelSize;      ///< 像素字号下限，再小就不给减
+    static const int sMinPointSize;      ///< 磅值下限，再小就不给减
 
 private:
     /// @brief 过滤字体对话框的字体列表，深色背景下补一份可读的样式。
@@ -192,18 +213,21 @@ private:
     void restoreTextCursorFormats();
 
     /// @brief 按当前设置拼出新建文本用的默认字体。
-    QFont createDefaultFont();
+    QFont    createDefaultFont();
     QAction *mEditableAction; ///< “可编辑”菜单项，勾选态跟随图元状态
 
     /// @brief 一次按钮拖动期间的选区快照，用于松开时合成一条撤销命令。
-    struct selectionData_t {
-        selectionData_t() : mButtonIsPressed(false) {}
-        bool mButtonIsPressed;           ///< 按钮是否仍处于按下状态
-        int position;                    ///< 光标位置
-        int anchor;                      ///< 选区锚点
-        QString html;                    ///< 改动前的整段 HTML
-        QTextDocumentFragment selection; ///< 改动前的选区内容
-        QList<QTextBlockFormat> fmts;    ///< 改动前各段落的块格式
+    struct selectionData_t
+    {
+        selectionData_t() : mButtonIsPressed(false)
+        {
+        }
+        bool                    mButtonIsPressed; ///< 按钮是否仍处于按下状态
+        int                     position;         ///< 光标位置
+        int                     anchor;           ///< 选区锚点
+        QString                 html;             ///< 改动前的整段 HTML
+        QTextDocumentFragment   selection;        ///< 改动前的选区内容
+        QList<QTextBlockFormat> fmts;             ///< 改动前各段落的块格式
 
     } mSelectionData;
 

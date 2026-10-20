@@ -26,7 +26,8 @@ class DocumentTreeModel;
  * 线程约束：全部操作都访问文件系统与 GUI 模型，只能在 GUI 线程调用；
  * documentFilePath() 例外地只解析路径，供工作线程准备复制目标。
  */
-class PersistenceManager : public QObject {
+class PersistenceManager : public QObject
+{
     Q_OBJECT
 
 private:
@@ -75,9 +76,8 @@ public:
      * @param promptDialogIfExists 重名时是否询问替换。
      * @return 新建的文档代理。
      */
-    virtual DocumentProxy *createDocument(const QString &pGroupName = "", const QString &pName = "",
-                                          bool withEmptyPage = true, QString directory = QString(),
-                                          int pageCount = 0, bool promptDialogIfExists = false);
+    virtual DocumentProxy *createDocument(const QString &pGroupName = "", const QString &pName = "", bool withEmptyPage = true,
+        QString directory = QString(), int pageCount = 0, bool promptDialogIfExists = false);
 
     /**
      * @brief createDocument 的别名，供需要明确语义的调用点使用。
@@ -89,9 +89,8 @@ public:
      * @param promptDialogIfExists 重名时是否询问替换。
      * @return 新建的文档代理。
      */
-    virtual DocumentProxy *createNewDocument(const QString &pGroupName = "", const QString &pName = "",
-                                             bool withEmptyPage = true, QString directory = QString(),
-                                             int pageCount = 0, bool promptDialogIfExists = false);
+    virtual DocumentProxy *createNewDocument(const QString &pGroupName = "", const QString &pName = "", bool withEmptyPage = true,
+        QString directory = QString(), int pageCount = 0, bool promptDialogIfExists = false);
 
     /**
      * @brief 把已存在的目录注册为文档（用于打开外部文档包）。
@@ -103,10 +102,8 @@ public:
      * @param promptDialogIfExists 重名时是否询问替换。
      * @return 文档代理；目录无效时为空。
      */
-    virtual DocumentProxy *createDocumentFromDir(const QString &pDocumentDirectory,
-                                                 const QString &pGroupName = "", const QString &pName = "",
-                                                 bool withEmptyPage = false, bool addTitlePage = false,
-                                                 bool promptDialogIfExists = false);
+    virtual DocumentProxy *createDocumentFromDir(const QString &pDocumentDirectory, const QString &pGroupName = "", const QString &pName = "",
+        bool withEmptyPage = false, bool addTitlePage = false, bool promptDialogIfExists = false);
 
     /// 把文档元数据写回磁盘。
     virtual DocumentProxy *persistDocumentMetadata(DocumentProxy *pDocumentProxy);
@@ -146,8 +143,7 @@ public:
      * @param pScene 页面场景。
      * @param pSceneIndex 页面下标。
      */
-    virtual void persistDocumentScene(DocumentProxy *pDocumentProxy, GraphicsScene *pScene,
-                                      const int pSceneIndex);
+    virtual void persistDocumentScene(DocumentProxy *pDocumentProxy, GraphicsScene *pScene, const int pSceneIndex);
 
     /**
      * @brief 在指定下标创建一个新的空白页面。
@@ -156,8 +152,7 @@ public:
      * @param useUndoRedoStack 是否把操作记入撤销栈。
      * @return 新页面场景，所有权归场景缓存。
      */
-    virtual GraphicsScene *createDocumentSceneAt(DocumentProxy *pDocumentProxy, int index,
-                                                 bool useUndoRedoStack = true);
+    virtual GraphicsScene *createDocumentSceneAt(DocumentProxy *pDocumentProxy, int index, bool useUndoRedoStack = true);
 
     /**
      * @brief 把一个已有场景插入文档的指定下标。
@@ -166,8 +161,7 @@ public:
      * @param index 插入位置。
      * @param persist 是否立即写盘。
      */
-    virtual void insertDocumentSceneAt(DocumentProxy *pDocumentProxy, GraphicsScene *scene, int index,
-                                       bool persist = true);
+    virtual void insertDocumentSceneAt(DocumentProxy *pDocumentProxy, GraphicsScene *scene, int index, bool persist = true);
 
     /**
      * @brief 移动页面。
@@ -185,14 +179,15 @@ public:
      */
     virtual GraphicsScene *loadDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex);
     /// 返回已缓存的页面场景；未缓存时为空，不会触发加载。
-    GraphicsScene *getDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex) {
+    GraphicsScene *getDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex)
+    {
         return mSceneCache.value(pDocumentProxy, sceneIndex);
     }
     /// 文档代理被替换后，把缓存中的键迁移到新代理。
     void reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument);
 
     //        QList<QPointer<DocumentProxy> > documentProxies;
-    DocumentTreeNode *mDocumentTreeStructure;
+    DocumentTreeNode  *mDocumentTreeStructure;
     DocumentTreeModel *mDocumentTreeStructureModel;
 
     /// 扫描仓库中所有 SVG 页面文件。
@@ -238,7 +233,10 @@ public:
     QDialog::DialogCode processInteractiveReplacementDialog(DocumentProxy *pProxy);
 
     /// 返回文档包的固定子目录名列表。
-    QStringList documentSubDirectories() { return mDocumentSubDirectories; }
+    QStringList documentSubDirectories()
+    {
+        return mDocumentSubDirectories;
+    }
 
     /// 判断文档是否没有任何页面。
     virtual bool isEmpty(DocumentProxy *pDocumentProxy);
@@ -253,8 +251,7 @@ public:
      * @param destinationPath 输出：文档包内的相对路径。
      * @return 成功返回 true。
      */
-    bool addGraphicsWidgetToDocument(DocumentProxy *mDocumentProxy, QString path, QUuid objectUuid,
-                                     QString &destinationPath);
+    bool addGraphicsWidgetToDocument(DocumentProxy *mDocumentProxy, QString path, QUuid objectUuid, QString &destinationPath);
     // 只解析并准备文档包内的目标路径（含建子目录），不搬运数据；失败返回空串。
     // 拆开是为了让大文件复制能离开 GUI 线程，而文档状态仍只在主线程读取。
     /**
@@ -265,8 +262,7 @@ public:
      * @param suffix 文件扩展名（不含点）。
      * @return 绝对路径；文档无效时为空串。
      */
-    QString documentFilePath(DocumentProxy *pDocumentProxy, const QString &subdir, const QUuid &objectUuid,
-                             const QString &suffix);
+    QString documentFilePath(DocumentProxy *pDocumentProxy, const QString &subdir, const QUuid &objectUuid, const QString &suffix);
     /**
      * @brief 把文件复制进文档包。
      * @param pDocumentProxy 目标文档。
@@ -277,8 +273,8 @@ public:
      * @param data 非空时改为从内存写入。
      * @return 成功返回 true。
      */
-    bool addFileToDocument(DocumentProxy *pDocumentProxy, QString path, const QString &subdir,
-                           QUuid objectUuid, QString &destinationPath, QByteArray *data = NULL);
+    bool addFileToDocument(
+        DocumentProxy *pDocumentProxy, QString path, const QString &subdir, QUuid objectUuid, QString &destinationPath, QByteArray *data = NULL);
 
     /// 判断文档是否可能包含视频（用于界面提示）。
     bool mayHaveVideo(DocumentProxy *pDocumentProxy);
@@ -336,12 +332,12 @@ private:
 
     QString xmlFolderStructureFilename;
 
-    SceneCache mSceneCache;
+    SceneCache  mSceneCache;
     QStringList mDocumentSubDirectories;
-    QMutex mDeletedListMutex;
-    bool mHasPurgedDocuments;
-    QString mDocumentRepositoryPath;
-    QString mFoldersXmlStorageName;
+    QMutex      mDeletedListMutex;
+    bool        mHasPurgedDocuments;
+    QString     mDocumentRepositoryPath;
+    QString     mFoldersXmlStorageName;
 
 private slots:
     /// 文档仓库路径设置变化后重建结构。

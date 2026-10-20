@@ -6,59 +6,69 @@
 #include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsItemDelegate.h"
 
-
-GraphicsPDFItem::GraphicsPDFItem(PDFRenderer *renderer, int pageNumber, QGraphicsItem *parent)
-    : PdfPageItem(renderer, pageNumber, parent) {
-    setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object); //deprecated
+GraphicsPDFItem::GraphicsPDFItem(PDFRenderer *renderer, int pageNumber, QGraphicsItem *parent) : PdfPageItem(renderer, pageNumber, parent)
+{
+    setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object); // deprecated
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::BackgroundItem)); // 必须设好图层类型，Z 值才会被分到正确的层
+        QVariant(itemLayerType::BackgroundItem));                    // 必须设好图层类型，Z 值才会被分到正确的层
 
     setDelegate(new GraphicsItemDelegate(this, 0, GF_COMMON));
 }
 
+GraphicsPDFItem::~GraphicsPDFItem()
+{
+}
 
-GraphicsPDFItem::~GraphicsPDFItem() {}
-
-
-QVariant GraphicsPDFItem::itemChange(GraphicsItemChange change, const QVariant &value) {
+QVariant GraphicsPDFItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
     QVariant newValue = Delegate()->itemChange(change, value);
     return PdfPageItem::itemChange(change, newValue);
 }
 
-void GraphicsPDFItem::setUuid(const QUuid &pUuid) {
+void GraphicsPDFItem::setUuid(const QUuid &pUuid)
+{
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
-void GraphicsPDFItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    if (Delegate()->mousePressEvent(event)) {
+void GraphicsPDFItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (Delegate()->mousePressEvent(event))
+    {
         // 刻意留空
-    } else {
+    }
+    else
+    {
         PdfPageItem::mousePressEvent(event);
     }
 }
 
-
-void GraphicsPDFItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-    if (Delegate()->mouseMoveEvent(event)) {
+void GraphicsPDFItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (Delegate()->mouseMoveEvent(event))
+    {
         // 刻意留空
-    } else {
+    }
+    else
+    {
         PdfPageItem::mouseMoveEvent(event);
     }
 }
 
-
-void GraphicsPDFItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+void GraphicsPDFItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
     Delegate()->mouseReleaseEvent(event);
     PdfPageItem::mouseReleaseEvent(event);
 }
 
-void GraphicsPDFItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void GraphicsPDFItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
     PdfPageItem::paint(painter, option, widget);
     Delegate()->postpaint(painter, option, widget);
 }
 
-Item *GraphicsPDFItem::deepCopy() const {
+Item *GraphicsPDFItem::deepCopy() const
+{
     GraphicsPDFItem *copy = new GraphicsPDFItem(mRenderer, mPageNumber, parentItem());
 
     copy->setUuid(this->uuid()); // 小部件是不可变的，直接复用这份参数没问题
@@ -68,9 +78,11 @@ Item *GraphicsPDFItem::deepCopy() const {
     return copy;
 }
 
-void GraphicsPDFItem::copyItemParameters(Item *copy) const {
+void GraphicsPDFItem::copyItemParameters(Item *copy) const
+{
     GraphicsPDFItem *cp = dynamic_cast<GraphicsPDFItem *>(copy);
-    if (cp) {
+    if (cp)
+    {
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
         cp->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -81,24 +93,28 @@ void GraphicsPDFItem::copyItemParameters(Item *copy) const {
     }
 }
 
-void GraphicsPDFItem::setRenderingQuality(RenderingQuality pRenderingQuality) {
+void GraphicsPDFItem::setRenderingQuality(RenderingQuality pRenderingQuality)
+{
     Item::setRenderingQuality(pRenderingQuality);
 
-    if (pRenderingQuality == RenderingQualityHigh) {
+    if (pRenderingQuality == RenderingQualityHigh)
+    {
         setCacheMode(QGraphicsItem::NoCache);
-    } else {
+    }
+    else
+    {
         setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     }
 }
 
-
-GraphicsScene *GraphicsPDFItem::scene() {
+GraphicsScene *GraphicsPDFItem::scene()
+{
     return qobject_cast<GraphicsScene *>(QGraphicsItem::scene());
 }
 
-
-GraphicsPixmapItem *GraphicsPDFItem::toPixmapItem() const {
-    QPixmap pixmap(mRenderer->pageSizeF(mPageNumber).toSize());
+GraphicsPixmapItem *GraphicsPDFItem::toPixmapItem() const
+{
+    QPixmap  pixmap(mRenderer->pageSizeF(mPageNumber).toSize());
     QPainter painter(&pixmap);
     mRenderer->render(&painter, mPageNumber);
 

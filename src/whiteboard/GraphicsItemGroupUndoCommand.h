@@ -18,7 +18,8 @@ class GraphicsGroupContainerItem;
  * redo 再次把缓存的子项加入组合并显示、聚焦。
  * 命令不拥有组合与子项，它们由场景管理；组合被解散后仍保留对象以便重做。
  */
-class GraphicsItemGroupUndoCommand : public UndoCommand {
+class GraphicsItemGroupUndoCommand : public UndoCommand
+{
 public:
     /**
      * @brief 构造命令并记录组合的子项。
@@ -29,7 +30,10 @@ public:
     virtual ~GraphicsItemGroupUndoCommand();
 
     /** @brief 返回撤销命令类型。 */
-    virtual int getType() const { return UndoType::undotype_GRAPHICSGROUPITEM; }
+    virtual int getType() const
+    {
+        return UndoType::undotype_GRAPHICSGROUPITEM;
+    }
 
 protected:
     /** @brief 解散组合，并重新选中原来的子项。 */
@@ -38,9 +42,9 @@ protected:
     virtual void redo();
 
 private:
-    GraphicsScene *mScene;
+    GraphicsScene              *mScene;
     GraphicsGroupContainerItem *mGroup;
-    QList<QGraphicsItem *> mItems;
+    QList<QGraphicsItem *>      mItems;
 
     bool mFirstRedo;
 };

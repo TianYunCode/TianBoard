@@ -12,13 +12,13 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 
-
-const QColor GraphicsCurtainItem::sDrawColor = Qt::white;
-const QColor GraphicsCurtainItem::sDarkBackgroundDrawColor = Qt::black;
-const QColor GraphicsCurtainItem::sOpaqueControlColor = QColor(191, 191, 191, 255);
+const QColor GraphicsCurtainItem::sDrawColor                        = Qt::white;
+const QColor GraphicsCurtainItem::sDarkBackgroundDrawColor          = Qt::black;
+const QColor GraphicsCurtainItem::sOpaqueControlColor               = QColor(191, 191, 191, 255);
 const QColor GraphicsCurtainItem::sDarkBackgroundOpaqueControlColor = QColor(63, 63, 63, 255);
 
-GraphicsCurtainItem::GraphicsCurtainItem(QGraphicsItem *parent) : QGraphicsRectItem(parent) {
+GraphicsCurtainItem::GraphicsCurtainItem(QGraphicsItem *parent) : QGraphicsRectItem(parent)
+{
     GraphicsCurtainItemDelegate *delegate = new GraphicsCurtainItemDelegate(this, 0);
     delegate->init();
     setDelegate(delegate);
@@ -35,69 +35,85 @@ GraphicsCurtainItem::GraphicsCurtainItem(QGraphicsItem *parent) : QGraphicsRectI
     this->setAcceptHoverEvents(true);
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::Curtain)); // 必须设置：场景按图层类型分配 z 值
+        QVariant(itemLayerType::Curtain)); // 必须设置：场景按图层类型分配 z 值
 }
 
-GraphicsCurtainItem::~GraphicsCurtainItem() {}
+GraphicsCurtainItem::~GraphicsCurtainItem()
+{
+}
 
-QVariant GraphicsCurtainItem::itemChange(GraphicsItemChange change, const QVariant &value) {
+QVariant GraphicsCurtainItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
     QVariant newValue = value;
 
-    if (Delegate()) {
+    if (Delegate())
+    {
         newValue = Delegate()->itemChange(change, value);
     }
 
     return QGraphicsRectItem::itemChange(change, newValue);
 }
 
-void GraphicsCurtainItem::setUuid(const QUuid &pUuid) {
+void GraphicsCurtainItem::setUuid(const QUuid &pUuid)
+{
     Item::setUuid(pUuid);
     setData(GraphicsItemData::ItemUuid,
-            QVariant(pUuid)); // 把 UUID 同时存入图形项数据，便于场景快速操作项
+        QVariant(pUuid)); // 把 UUID 同时存入图形项数据，便于场景快速操作项
 }
 
-void GraphicsCurtainItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    if (Delegate()->mousePressEvent(event)) {
+void GraphicsCurtainItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (Delegate()->mousePressEvent(event))
+    {
         // 有意为空：委托已消费该事件，无需再走基类逻辑
-    } else {
+    }
+    else
+    {
         QGraphicsRectItem::mousePressEvent(event);
     }
 }
 
-void GraphicsCurtainItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-    if (Delegate()->mouseMoveEvent(event)) {
+void GraphicsCurtainItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (Delegate()->mouseMoveEvent(event))
+    {
         // 有意为空：委托已消费该事件，无需再走基类逻辑
-    } else {
+    }
+    else
+    {
         QGraphicsRectItem::mouseMoveEvent(event);
     }
 }
 
-void GraphicsCurtainItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+void GraphicsCurtainItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
     Delegate()->mouseReleaseEvent(event);
     QGraphicsRectItem::mouseReleaseEvent(event);
 }
 
-
-void GraphicsCurtainItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void GraphicsCurtainItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
     QColor color = drawColor();
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-    if (widget == Application::boardController->controlView()->viewport()) {
+    if (widget == Application::boardController->controlView()->viewport())
+    {
         color = Settings::paletteColor;
-        if (!Application::applicationController->displayManager()->hasDisplay()) {
+        if (!Application::applicationController->displayManager()->hasDisplay())
+        {
             color = opaqueControlColor();
         }
     }
 
     // 不绘制系统橡皮筋选中框，自定义选中效果由 DelegateFrame 负责
-    QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
-    styleOption.state &= ~QStyle::State_Selected;
+    QStyleOptionGraphicsItem styleOption  = QStyleOptionGraphicsItem(*option);
+    styleOption.state                    &= ~QStyle::State_Selected;
 
     painter->fillRect(rect(), color);
     Delegate()->postpaint(painter, option, widget);
 }
 
-
-Item *GraphicsCurtainItem::deepCopy() const {
+Item *GraphicsCurtainItem::deepCopy() const
+{
     GraphicsCurtainItem *copy = new GraphicsCurtainItem();
 
     copyItemParameters(copy);
@@ -105,9 +121,11 @@ Item *GraphicsCurtainItem::deepCopy() const {
     return copy;
 }
 
-void GraphicsCurtainItem::copyItemParameters(Item *copy) const {
+void GraphicsCurtainItem::copyItemParameters(Item *copy) const
+{
     GraphicsCurtainItem *cp = dynamic_cast<GraphicsCurtainItem *>(copy);
-    if (cp) {
+    if (cp)
+    {
         cp->setRect(this->rect());
         cp->setPos(this->pos());
         cp->setBrush(this->brush());
@@ -120,18 +138,19 @@ void GraphicsCurtainItem::copyItemParameters(Item *copy) const {
     }
 }
 
-QColor GraphicsCurtainItem::drawColor() const {
+QColor GraphicsCurtainItem::drawColor() const
+{
     GraphicsScene *pScene = static_cast<GraphicsScene *>(QGraphicsRectItem::scene());
     return pScene->isDarkBackground() ? sDarkBackgroundDrawColor : sDrawColor;
 }
 
-
-QColor GraphicsCurtainItem::opaqueControlColor() const {
+QColor GraphicsCurtainItem::opaqueControlColor() const
+{
     GraphicsScene *pScene = static_cast<GraphicsScene *>(QGraphicsRectItem::scene());
     return pScene->isDarkBackground() ? sDarkBackgroundOpaqueControlColor : sOpaqueControlColor;
 }
 
-
-void GraphicsCurtainItem::triggerRemovedSignal() {
+void GraphicsCurtainItem::triggerRemovedSignal()
+{
     emit removed();
 }

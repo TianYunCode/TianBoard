@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QWidget>
 
 /**
@@ -15,7 +14,8 @@
  * MessageWindow 创建，放在提示文字左侧；只在显示加载类消息时通过
  * startAnimation() 启动，消息隐藏时停止。
  */
-class SpinningWheel : public QWidget {
+class SpinningWheel : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -39,5 +39,5 @@ protected:
 
 private:
     QAtomicInt mPosition; ///< 当前相位（对 12 取模），用原子变量避免线程告警。
-    int mTimerID;         ///< 动画定时器 id，0 表示未运行。
+    int        mTimerID;  ///< 动画定时器 id，0 表示未运行。
 };

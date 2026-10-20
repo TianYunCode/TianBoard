@@ -16,15 +16,19 @@
 #include <memory>
 
 /** 动作条按钮的图标尺寸。 */
-#define BUTTON_SIZE 24
+#define BUTTON_SIZE      24
 /** 动作条固定高度。 */
 #define ACTIONBAR_HEIGHT 42
 
 class FeaturesMimeData;
 
 /** 动作条当前展示的按钮集合。 */
-typedef enum { eButtonSet_Default, eButtonSet_Properties, eButtonSet_Favorite } eButtonSet;
-
+typedef enum
+{
+    eButtonSet_Default,
+    eButtonSet_Properties,
+    eButtonSet_Favorite
+} eButtonSet;
 
 /**
  * @brief 资源库动作条上的图标按钮，直接绑定一个 QAction。
@@ -32,7 +36,8 @@ typedef enum { eButtonSet_Default, eButtonSet_Properties, eButtonSet_Favorite } 
  * FeaturesActionBar 为收藏、分享、删除、返回、新建文件夹等动作各创建一个实例；
  * 按钮同时充当拖放目标，动作条通过 childAt() 判断落点是否为某个按钮。
  */
-class ActionButton : public QToolButton {
+class ActionButton : public QToolButton
+{
 public:
     /**
      * @brief 构造按钮并绑定动作。
@@ -45,7 +50,14 @@ public:
 };
 
 /** 资源库动作条所处的界面状态，决定显示哪些按钮。 */
-enum FeaturesActionBarState { IN_ROOT, IN_FOLDER, IN_PROPERTIES, IN_FAVORITE, IN_TRASH };
+enum FeaturesActionBarState
+{
+    IN_ROOT,
+    IN_FOLDER,
+    IN_PROPERTIES,
+    IN_FAVORITE,
+    IN_TRASH
+};
 
 /**
  * @brief 资源库底部动作条：搜索框、新建文件夹、收藏、删除、返回等操作。
@@ -55,7 +67,8 @@ enum FeaturesActionBarState { IN_ROOT, IN_FOLDER, IN_PROPERTIES, IN_FAVORITE, IN
  * 拖到删除按钮移入回收站，拖到收藏按钮加入收藏，拖到取消收藏按钮移出收藏。
  * 扫描资源库期间由 FeaturesWidget 调用 lockIt()/unlockIt() 整体禁用。
  */
-class FeaturesActionBar : public QWidget {
+class FeaturesActionBar : public QWidget
+{
     Q_OBJECT
 public:
     /**
@@ -64,8 +77,7 @@ public:
      * @param parent 父控件
      * @param name 对象名
      */
-    FeaturesActionBar(FeaturesController *controller, QWidget *parent = 0,
-                      const char *name = "FeaturesActionBar");
+    FeaturesActionBar(FeaturesController *controller, QWidget *parent = 0, const char *name = "FeaturesActionBar");
     ~FeaturesActionBar();
 
     /**

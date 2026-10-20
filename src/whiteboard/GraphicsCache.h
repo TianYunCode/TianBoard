@@ -12,11 +12,11 @@
 #include "utils/Enums.h"
 
 /// @brief 遮罩孔洞的形状。
-typedef enum {
+typedef enum
+{
     eMaskShape_Circle,  ///< 圆形孔洞
     eMaskShap_Rectangle ///< 矩形孔洞
 } eMaskShape;
-
 
 /**
  * @brief 覆盖整页的遮罩图元，用奇偶填充在遮罩上挖出跟随鼠标的孔洞。
@@ -28,17 +28,24 @@ typedef enum {
  * 生命周期：归场景所有（作为场景图元），静态表不持有所有权。
  * 线程约束：鼠标事件与绘制都在 GUI 线程。
  */
-class GraphicsCache : public QGraphicsRectItem, public Item {
+class GraphicsCache : public QGraphicsRectItem, public Item
+{
 public:
     /// @brief 取得场景对应的遮罩实例，不存在时创建。
     static GraphicsCache *instance(GraphicsScene *scene);
     ~GraphicsCache();
 
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::cacheItemType };
+    enum
+    {
+        Type = GraphicsItemType::cacheItemType
+    };
 
     /// @brief 返回图元类型。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 复制遮罩参数；遮罩是场景级单例，副本使用同一场景。
     virtual Item *deepCopy() const;
@@ -72,14 +79,14 @@ protected:
 private:
     static QMap<GraphicsScene *, GraphicsCache *> sInstances; ///< 场景到遮罩实例的映射
 
-    QColor mMaskColor;     ///< 遮罩颜色
-    eMaskShape mMaskShape; ///< 孔洞形状
-    int mShapeWidth;       ///< 孔洞半径
-    bool mDrawMask;        ///< 是否正在显示孔洞
-    QPointF mShapePos;     ///< 孔洞中心（本地坐标）
-    int mOldShapeWidth;    ///< 上一次的孔洞半径，用于计算刷新区域
-    QPointF mOldShapePos;  ///< 上一次的孔洞中心，用于计算刷新区域
-    GraphicsScene *mScene; ///< 所属场景，不持有所有权
+    QColor         mMaskColor;                                ///< 遮罩颜色
+    eMaskShape     mMaskShape;                                ///< 孔洞形状
+    int            mShapeWidth;                               ///< 孔洞半径
+    bool           mDrawMask;                                 ///< 是否正在显示孔洞
+    QPointF        mShapePos;                                 ///< 孔洞中心（本地坐标）
+    int            mOldShapeWidth;                            ///< 上一次的孔洞半径，用于计算刷新区域
+    QPointF        mOldShapePos;                              ///< 上一次的孔洞中心，用于计算刷新区域
+    GraphicsScene *mScene;                                    ///< 所属场景，不持有所有权
 
     GraphicsCache(GraphicsScene *scene);
 

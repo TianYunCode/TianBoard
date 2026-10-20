@@ -9,7 +9,6 @@ class QGraphicsSceneDragDropEvent;
 class GraphicsScene;
 class GraphicsWidgetItem;
 
-
 /**
  * @brief 把拖放到网页小部件上的内容接入画板的抽象接口。
  *
@@ -20,9 +19,10 @@ class GraphicsWidgetItem;
  * 所有权：工厂创建的对象自己认父对象（跟随场景回收），调用方不接管所有权。
  * 线程约束：拖放事件在 GUI 线程派发。
  */
-class IBoardDropHandler {
+class IBoardDropHandler
+{
 public:
-    virtual ~IBoardDropHandler() = default;
+    virtual ~IBoardDropHandler()                                      = default;
 
     /// @brief 处理落在网页小部件上的拖放事件；事件对象归 Qt 所有，不得保存。
     virtual void processDropEvent(QGraphicsSceneDragDropEvent *event) = 0;

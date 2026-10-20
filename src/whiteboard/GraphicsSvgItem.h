@@ -30,7 +30,8 @@ class GraphicsPixmapItem;
  * 所有权与生命周期：图元归场景所有，委托由 GraphicsItem 基类析构时释放，
  * 渲染器以图元为父对象随之回收；仅在 GUI 线程使用。
  */
-class GraphicsSvgItem : public QGraphicsSvgItem, public Item, public GraphicsItem {
+class GraphicsSvgItem : public QGraphicsSvgItem, public Item, public GraphicsItem
+{
 public:
     /**
      * @brief 从磁盘上的 SVG 文件构造。
@@ -58,13 +59,22 @@ public:
     QByteArray fileData() const;
 
     /// @brief 替换 SVG 原始字节；只影响之后的拷贝与保存，不会重新加载渲染器。
-    void setFileData(const QByteArray &pFileData) { mFileData = pFileData; }
+    void setFileData(const QByteArray &pFileData)
+    {
+        mFileData = pFileData;
+    }
 
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::SvgItemType };
+    enum
+    {
+        Type = GraphicsItemType::SvgItemType
+    };
 
     /// @brief 返回图元类型，供 qgraphicsitem_cast 与场景分派使用。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 用同一份 SVG 数据新建图元并复制几何与层级参数；返回值归调用方。
     virtual Item *deepCopy() const;

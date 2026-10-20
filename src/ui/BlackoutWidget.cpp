@@ -2,19 +2,22 @@
 
 #include "ui/BlackoutWidget.h"
 
-
-struct BlackoutWidget::Private {
+struct BlackoutWidget::Private
+{
     QGridLayout *gridLayout{nullptr};
     QToolButton *iconButton{nullptr};
-    QLabel *labelClickToReturn{nullptr};
+    QLabel      *labelClickToReturn{nullptr};
 };
 
-BlackoutWidget::BlackoutWidget(QWidget *parent) : QWidget(parent), d(new Private) {
+BlackoutWidget::BlackoutWidget(QWidget *parent) : QWidget(parent), d(new Private)
+{
     // 关闭即销毁：DisplayManager::unBlackout() 只调用 close()，不再手动 delete。
     setAttribute(Qt::WA_DeleteOnClose);
 
     if (objectName().isEmpty())
+    {
         setObjectName("BlackoutWidget");
+    }
     resize(723, 838);
 
     // 用调色板而不是样式表涂黑，避免与全局样式表冲突。
@@ -44,8 +47,7 @@ BlackoutWidget::BlackoutWidget(QWidget *parent) : QWidget(parent), d(new Private
     d->labelClickToReturn->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
     QPalette labelPalette;
     labelPalette.setBrush(QPalette::WindowText, QBrush(QColor(255, 255, 255, 255), Qt::SolidPattern));
-    labelPalette.setBrush(QPalette::Disabled, QPalette::WindowText,
-                          QBrush(QColor(113, 113, 113, 255), Qt::SolidPattern));
+    labelPalette.setBrush(QPalette::Disabled, QPalette::WindowText, QBrush(QColor(113, 113, 113, 255), Qt::SolidPattern));
     d->labelClickToReturn->setPalette(labelPalette);
     QFont font;
     font.setPointSize(20);
@@ -62,30 +64,36 @@ BlackoutWidget::BlackoutWidget(QWidget *parent) : QWidget(parent), d(new Private
 
 BlackoutWidget::~BlackoutWidget() = default;
 
-void BlackoutWidget::setReturnControlsVisible(bool visible) {
+void BlackoutWidget::setReturnControlsVisible(bool visible)
+{
     d->iconButton->setVisible(visible);
     d->labelClickToReturn->setVisible(visible);
 }
 
-void BlackoutWidget::mousePressEvent(QMouseEvent *event) {
+void BlackoutWidget::mousePressEvent(QMouseEvent *event)
+{
     Q_UNUSED(event);
     doActivity();
 }
 
-
-void BlackoutWidget::keyPressEvent(QKeyEvent *event) {
+void BlackoutWidget::keyPressEvent(QKeyEvent *event)
+{
     // 已被上层处理（例如全局快捷键）的按键不再重复响应。
-    if (!event->isAccepted()) {
-        if (event->key() == Qt::Key_B) {
+    if (!event->isAccepted())
+    {
+        if (event->key() == Qt::Key_B)
+        {
             doActivity();
             event->accept();
-        } else {
+        }
+        else
+        {
             event->ignore();
         }
     }
 }
 
-
-void BlackoutWidget::doActivity() {
+void BlackoutWidget::doActivity()
+{
     emit activity();
 }

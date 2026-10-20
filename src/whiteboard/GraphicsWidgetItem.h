@@ -22,8 +22,10 @@ class GraphicsScene;
 /**
  * @brief 小部件包的种类，由 FileSystemUtils::mimeTypeFromFileName() 得到的 MIME 决定。
  */
-struct WidgetType {
-    enum Enum {
+struct WidgetType
+{
+    enum Enum
+    {
         Web = 0, ///< W3C 小部件（.widget + config.xml）
         Apple,   ///< Apple 桌面小部件（.wdgt + Info.plist）
         Other    ///< 认不出来，按普通 HTML 处理
@@ -48,10 +50,8 @@ struct WidgetType {
  *
  * @note 线程约束：只能在 GUI 线程创建与操作。
  */
-class GraphicsWidgetItem : public QGraphicsWidget,
-                           public Item,
-                           public ResizableGraphicsItem,
-                           public GraphicsItem {
+class GraphicsWidgetItem : public QGraphicsWidget, public Item, public ResizableGraphicsItem, public GraphicsItem
+{
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem);
 
@@ -65,10 +65,16 @@ public:
     ~GraphicsWidgetItem();
 
     /// @brief 图元类型标识，供 qgraphicsitem_cast 与分组判定使用。
-    enum { Type = GraphicsItemType::GraphicsWidgetItemType };
+    enum
+    {
+        Type = GraphicsItemType::GraphicsWidgetItemType
+    };
 
     /// @brief 返回 Type。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 把最小尺寸设为名义尺寸并按可缩放与否配置委托边框的操作模式。
     virtual void initialize();
@@ -87,7 +93,10 @@ public:
     /// @brief 小部件包目录的 URL。
     QUrl widgetUrl();
     /// @brief 改指到另一个小部件包目录。
-    void widgetUrl(QUrl url) { mWidgetUrl = url; }
+    void widgetUrl(QUrl url)
+    {
+        mWidgetUrl = url;
+    }
     /// @brief 入口 HTML 的文件名（不含目录）。
     QString mainHtmlFileName();
 
@@ -173,27 +182,28 @@ public slots:
 
 protected:
     /// @brief config.xml 的 roles 属性用到的位标志，表示小部件声明支持哪些平台。
-    enum OSType {
+    enum OSType
+    {
         type_NONE = 0, // 0000
-        type_WIN = 1,  // 0001
-        type_MAC = 2,  // 0010
+        type_WIN  = 1, // 0001
+        type_MAC  = 2, // 0010
         type_UNIX = 4, // 0100
-        type_ALL = 7   // 0111
+        type_ALL  = 7  // 0111
     };
 
-    bool mFirstReleaseAfterMove;         ///< 刚做完整体移动，本次松开不算“结束拖动”
-    bool mInitialLoadDone;               ///< 首次加载是否完成；当前没有任何路径把它置真
-    bool mIsFreezable;                   ///< config.xml 允许冻结时才真正拍快照
-    bool mIsResizable;                   ///< 是否允许用户拖动边角缩放
-    bool mMouseIsPressed;                ///< 左键是否仍按在小部件上
-    int mCanBeContent;                   ///< roles 解析出的“可作内容”平台位标志
-    int mCanBeTool;                      ///< roles 解析出的“可作工具”平台位标志
-    QSize mNominalSize;                  ///< 小部件声明的原始尺寸
-    QString mMainHtmlFileName;           ///< 入口 HTML 的文件名
-    QUrl mMainHtmlUrl;                   ///< 入口 HTML 的完整地址
-    QUrl mWidgetUrl;                     ///< 小部件包目录
-    QMap<QString, QString> mDatastore;   ///< 随文档持久化的脚本存储
-    QMap<QString, QString> mPreferences; ///< 仅本会话有效的脚本配置
+    bool                   mFirstReleaseAfterMove; ///< 刚做完整体移动，本次松开不算“结束拖动”
+    bool                   mInitialLoadDone;       ///< 首次加载是否完成；当前没有任何路径把它置真
+    bool                   mIsFreezable;           ///< config.xml 允许冻结时才真正拍快照
+    bool                   mIsResizable;           ///< 是否允许用户拖动边角缩放
+    bool                   mMouseIsPressed;        ///< 左键是否仍按在小部件上
+    int                    mCanBeContent;          ///< roles 解析出的“可作内容”平台位标志
+    int                    mCanBeTool;             ///< roles 解析出的“可作工具”平台位标志
+    QSize                  mNominalSize;           ///< 小部件声明的原始尺寸
+    QString                mMainHtmlFileName;      ///< 入口 HTML 的文件名
+    QUrl                   mMainHtmlUrl;           ///< 入口 HTML 的完整地址
+    QUrl                   mWidgetUrl;             ///< 小部件包目录
+    QMap<QString, QString> mDatastore;             ///< 随文档持久化的脚本存储
+    QMap<QString, QString> mPreferences;           ///< 仅本会话有效的脚本配置
 
     virtual bool event(QEvent *event);
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
@@ -207,14 +217,14 @@ protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 private:
-    bool mIsFrozen;                  ///< 是否冻在位图状态
-    bool mIsTakingSnapshot;          ///< 正在拍快照，避免 paint 递归重入
-    bool mShouldMoveWidget;          ///< 本次按下是否应当整体拖动图元
-    IBoardDropHandler *mDropHandler; ///< 脚本与拖放门面，以场景为父对象，不由本图元释放
-    QPixmap mSnapshot;               ///< 冻结用的位图缓存
-    QPointF mLastMousePos;           ///< 上一次鼠标位置，按场景坐标记
-    QUrl mOwnFolder;                 ///< 解包后的工作目录
-    QUrl mSnapshotFilePath;          ///< 快照落盘位置
+    bool               mIsFrozen;         ///< 是否冻在位图状态
+    bool               mIsTakingSnapshot; ///< 正在拍快照，避免 paint 递归重入
+    bool               mShouldMoveWidget; ///< 本次按下是否应当整体拖动图元
+    IBoardDropHandler *mDropHandler;      ///< 脚本与拖放门面，以场景为父对象，不由本图元释放
+    QPixmap            mSnapshot;         ///< 冻结用的位图缓存
+    QPointF            mLastMousePos;     ///< 上一次鼠标位置，按场景坐标记
+    QUrl               mOwnFolder;        ///< 解包后的工作目录
+    QUrl               mSnapshotFilePath; ///< 快照落盘位置
 };
 
 /**
@@ -223,7 +233,8 @@ private:
  * 元数据从二进制 Info.plist 里按字节位置抠出来（MainHTML、尺寸、图标），没有走 plist
  * 解析器；包内是 HTML 片段而非完整页面，因此用一份内置的包装页承载。
  */
-class GraphicsAppleWidgetItem : public GraphicsWidgetItem {
+class GraphicsAppleWidgetItem : public GraphicsWidgetItem
+{
     Q_OBJECT
 
 public:
@@ -237,7 +248,7 @@ public:
     virtual void setUuid(const QUuid &pUuid);
     /// @brief 复制出一个同包的 Apple 小部件。
     virtual Item *deepCopy() const;
-    QRectF boundingRect() const override;
+    QRectF        boundingRect() const override;
 };
 
 /**
@@ -247,26 +258,32 @@ public:
  * 内容再经 NPAPI 包装页承载（Qt6 下已无插件接口，见 docs/code-suspicions.md）。
  * 脚本通道（消息、存储）由 api 层的门面通过 IBoardDropHandler 接上。
  */
-class GraphicsWebWidgetItem : public GraphicsWidgetItem {
+class GraphicsWebWidgetItem : public GraphicsWidgetItem
+{
     Q_OBJECT
 
 public:
     /// @brief config.xml 里一条 preference 的值与其只读标志。
-    class PreferenceValue {
+    class PreferenceValue
+    {
     public:
-        PreferenceValue() {}
+        PreferenceValue()
+        {
+        }
 
-        PreferenceValue(const QString &pValue, bool pReadonly) {
-            value = pValue;
+        PreferenceValue(const QString &pValue, bool pReadonly)
+        {
+            value    = pValue;
             readonly = pReadonly;
         }
 
-        bool readonly; ///< 小部件声明该 preference 不允许脚本改写
-        QString value; ///< 当前值
+        bool    readonly; ///< 小部件声明该 preference 不允许脚本改写
+        QString value;    ///< 当前值
     };
 
     /// @brief config.xml 里的作者与版本等元信息。
-    class Metadata {
+    class Metadata
+    {
     public:
         QString id;          ///< 小部件标识
         QString name;        ///< 显示名
@@ -291,7 +308,7 @@ public:
     QMap<QString, PreferenceValue> preferences();
     /// @brief 解析到的作者与版本信息。
     Metadata metadatas() const;
-    QRectF boundingRect() const override;
+    QRectF   boundingRect() const override;
 
     /// @brief 冻结态包装页在磁盘上的路径。
     static QString freezedWidgetFilePath();
@@ -300,27 +317,23 @@ public:
     /// @brief 该 MIME 类型是否备有 NPAPI 包装模板。
     static bool hasNPAPIWrapper(const QString &pMimeType);
     /// @brief 为需要插件的内容生成包装页，返回可加载的 URL。
-    static QString createNPAPIWrapper(const QString &url, const QString &pMimeType = QString(),
-                                      const QSize &sizeHint = QSize(300, 150),
-                                      const QString &pName = QString());
+    static QString createNPAPIWrapper(
+        const QString &url, const QString &pMimeType = QString(), const QSize &sizeHint = QSize(300, 150), const QString &pName = QString());
     /// @brief 在指定目录里写出 NPAPI 包装页。
-    static QString createNPAPIWrapperInDir(const QString &url, const QDir &pDir,
-                                           const QString &pMimeType = QString(),
-                                           const QSize &sizeHint = QSize(300, 150),
-                                           const QString &pName = QString());
+    static QString createNPAPIWrapperInDir(const QString &url, const QDir &pDir, const QString &pMimeType = QString(),
+        const QSize &sizeHint = QSize(300, 150), const QString &pName = QString());
     /// @brief 在指定目录里写出一段 HTML 作为包装页，返回其路径。
-    static QString createHtmlWrapperInDir(const QString &html, const QDir &pDir, const QSize &sizeHint,
-                                          const QString &pName);
+    static QString createHtmlWrapperInDir(const QString &html, const QDir &pDir, const QSize &sizeHint, const QString &pName);
 
     Metadata mMetadatas; ///< 解析到的元信息，公开以便脚本门面与导出直接取用
 
 private:
-    static void loadNPAPIWrappersTemplates();
+    static void    loadNPAPIWrappersTemplates();
     static QString textForSubElementByLocale(QDomElement rootElement, QString subTagName, QLocale locale);
 
     QMap<QString, PreferenceValue> mPreferences;
 
-    static bool sTemplateLoaded;
-    static QString sNPAPIWrappperConfigTemplate;
+    static bool                   sTemplateLoaded;
+    static QString                sNPAPIWrappperConfigTemplate;
     static QMap<QString, QString> sNPAPIWrapperTemplates;
 };

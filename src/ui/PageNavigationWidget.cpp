@@ -4,14 +4,9 @@
 #include "whiteboard/BoardController.h"
 #include "utils/Globals.h"
 
-
 PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
-    : DockPaletteWidget(parent),
-      mNavigator(NULL),
-      mLayout(NULL),
-      mHLayout(NULL),
-      mPageNbr(NULL),
-      mClock(NULL) {
+    : DockPaletteWidget(parent), mNavigator(NULL), mLayout(NULL), mHLayout(NULL), mPageNbr(NULL), mClock(NULL)
+{
     setObjectName(name);
     setName("PageNavigator");
     setVisibleState(true);
@@ -32,7 +27,7 @@ PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
     mLayout->addLayout(mHLayout, 0);
 
     mPageNbr = new QLabel(this);
-    mClock = new QLabel(this);
+    mClock   = new QLabel(this);
     mHLayout->addWidget(mPageNbr);
     mHLayout->addWidget(mClock);
 
@@ -49,52 +44,65 @@ PageNavigationWidget::PageNavigationWidget(QWidget *parent, const char *name)
     // 秒级刷新但只显示时分，去掉格式里的秒字段以免每秒跳动。
     mTimeFormat = mTimeFormat.remove(":ss");
     mTimeFormat = mTimeFormat.remove(":s");
-    mTimerID = startTimer(1000);
+    mTimerID    = startTimer(1000);
 }
 
-PageNavigationWidget::~PageNavigationWidget() {
+PageNavigationWidget::~PageNavigationWidget()
+{
     killTimer(mTimerID);
 
-    if (NULL != mClock) {
+    if (NULL != mClock)
+    {
         delete mClock;
         mClock = NULL;
     }
-    if (NULL != mPageNbr) {
+    if (NULL != mPageNbr)
+    {
         delete mPageNbr;
         mPageNbr = NULL;
     }
-    if (NULL != mHLayout) {
+    if (NULL != mHLayout)
+    {
         delete mHLayout;
         mHLayout = NULL;
     }
-    if (NULL != mLayout) {
+    if (NULL != mLayout)
+    {
         delete mLayout;
         mLayout = NULL;
     }
-    if (NULL != mNavigator) {
+    if (NULL != mNavigator)
+    {
         delete mNavigator;
         mNavigator = NULL;
     }
 }
 
-void PageNavigationWidget::timerEvent(QTimerEvent *event) {
+void PageNavigationWidget::timerEvent(QTimerEvent *event)
+{
     Q_UNUSED(event);
     updateTime();
 }
 
-void PageNavigationWidget::updateTime() {
+void PageNavigationWidget::updateTime()
+{
     if (mClock)
+    {
         mClock->setText(QLocale::system().toString(QTime::currentTime(), mTimeFormat));
+    }
 }
 
-void PageNavigationWidget::setPageNumber(int current, int total) {
+void PageNavigationWidget::setPageNumber(int current, int total)
+{
     mPageNbr->setText(QString("%1 / %2").arg(current).arg(total));
 }
 
-int PageNavigationWidget::customMargin() {
+int PageNavigationWidget::customMargin()
+{
     return 5;
 }
 
-int PageNavigationWidget::border() {
+int PageNavigationWidget::border()
+{
     return 5;
 }

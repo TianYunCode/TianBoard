@@ -16,26 +16,31 @@ THIRD_PARTY_WARNINGS_DISABLE
 #include "quazipfileinfo.h"
 THIRD_PARTY_WARNINGS_ENABLE
 
+ImportDocumentSetAdaptor::ImportDocumentSetAdaptor(QObject *parent) : ImportAdaptor(parent)
+{
+}
 
-ImportDocumentSetAdaptor::ImportDocumentSetAdaptor(QObject *parent) : ImportAdaptor(parent) {}
+ImportDocumentSetAdaptor::~ImportDocumentSetAdaptor()
+{
+}
 
-ImportDocumentSetAdaptor::~ImportDocumentSetAdaptor() {}
-
-
-QStringList ImportDocumentSetAdaptor::supportedExtentions() {
+QStringList ImportDocumentSetAdaptor::supportedExtentions()
+{
     return QStringList("tbx");
 }
 
-
-QString ImportDocumentSetAdaptor::importFileFilter() {
+QString ImportDocumentSetAdaptor::importFileFilter()
+{
     return tr("TianBoard Document Set (*.tbx)");
 }
 
-QFileInfoList ImportDocumentSetAdaptor::importData(const QString &zipFile, const QString &destination) {
-    QString tmpDir;
-    int i = 0;
+QFileInfoList ImportDocumentSetAdaptor::importData(const QString &zipFile, const QString &destination)
+{
+    QString       tmpDir;
+    int           i = 0;
     QFileInfoList result;
-    do {
+    do
+    {
         tmpDir = QDir::tempPath() + "/TianBoard_tmpImport_" + QString::number(i++);
     } while (QFileInfo(tmpDir).exists());
 
@@ -43,23 +48,24 @@ QFileInfoList ImportDocumentSetAdaptor::importData(const QString &zipFile, const
 
     QFile fZipFile(zipFile);
 
-    if (!extractFileToDir(fZipFile, tmpDir)) {
+    if (!extractFileToDir(fZipFile, tmpDir))
+    {
         FileSystemUtils::deleteDir(tmpDir);
         return QFileInfoList();
     }
 
     QDir tDir(tmpDir);
 
-    foreach (QFileInfo readDir,
-             tDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden, QDir::Name)) {
+    foreach (QFileInfo readDir, tDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden, QDir::Name))
+    {
         QString newFileName = readDir.fileName();
-        if (QFileInfo(destination + "/" + readDir.fileName()).exists()) {
-            newFileName =
-                QFileInfo(PersistenceManager::persistenceManager()->generateUniqueDocumentPath(tmpDir))
-                    .fileName();
+        if (QFileInfo(destination + "/" + readDir.fileName()).exists())
+        {
+            newFileName = QFileInfo(PersistenceManager::persistenceManager()->generateUniqueDocumentPath(tmpDir)).fileName();
         }
         QString newFilePath = destination + "/" + newFileName;
-        if (FileSystemUtils::copy(readDir.absoluteFilePath(), newFilePath)) {
+        if (FileSystemUtils::copy(readDir.absoluteFilePath(), newFilePath))
+        {
             result.append(QFileInfo(newFilePath));
         }
     }
@@ -69,75 +75,90 @@ QFileInfoList ImportDocumentSetAdaptor::importData(const QString &zipFile, const
     return result;
 }
 
-
-bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QString &pDir) {
-    QDir rootDir(pDir);
+bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QString &pDir)
+{
+    QDir   rootDir(pDir);
     QuaZip zip(pZipFile.fileName());
 
-    if (!zip.open(QuaZip::mdUnzip)) {
+    if (!zip.open(QuaZip::mdUnzip))
+    {
         qWarning() << "Import failed. Cause zip.open(): " << zip.getZipError();
         return false;
     }
 
     zip.setFileNameCodec("UTF-8");
     QuaZipFileInfo info;
-    QuaZipFile file(&zip);
+    QuaZipFile     file(&zip);
 
     QFile out;
-    char c;
+    char  c;
 
     QString documentRoot = QFileInfo(pDir).absoluteFilePath();
-    for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile()) {
-        if (!zip.getCurrentFileInfo(&info)) {
+    for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile())
+    {
+        if (!zip.getCurrentFileInfo(&info))
+        {
             qWarning() << "Import failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
             return false;
         }
 
-        if (!file.open(QIODevice::ReadOnly)) {
+        if (!file.open(QIODevice::ReadOnly))
+        {
             qWarning() << "Import failed. Cause: file.open(): " << zip.getZipError();
             return false;
         }
 
-        if (file.getZipError() != UNZ_OK) {
+        if (file.getZipError() != UNZ_OK)
+        {
             qWarning() << "Import failed. Cause: file.getFileName(): " << zip.getZipError();
             return false;
         }
 
-        QString actFileName = file.getActualFileName();
-        QString newFileName = documentRoot + "/" + actFileName;
+        QString   actFileName = file.getActualFileName();
+        QString   newFileName = documentRoot + "/" + actFileName;
         QFileInfo newFileInfo(newFileName);
         if (!rootDir.mkpath(newFileInfo.absolutePath()))
+        {
             return false;
+        }
 
         out.setFileName(newFileName);
         if (!out.open(QIODevice::WriteOnly))
+        {
             return false;
+        }
 
         QByteArray outFileContent = file.readAll();
-        if (out.write(outFileContent) == -1) {
+        if (out.write(outFileContent) == -1)
+        {
             qWarning() << "Import failed. Cause: Unable to write file";
             out.close();
             return false;
         }
 
         while (file.getChar(&c))
+        {
             out.putChar(c);
+        }
 
         out.close();
 
-        if (file.getZipError() != UNZ_OK) {
+        if (file.getZipError() != UNZ_OK)
+        {
             qWarning() << "Import failed. Cause: " << zip.getZipError();
             return false;
         }
 
-        if (!file.atEnd()) {
+        if (!file.atEnd())
+        {
             qWarning() << "Import failed. Cause: read all but not EOF";
             return false;
         }
 
         file.close();
 
-        if (file.getZipError() != UNZ_OK) {
+        if (file.getZipError() != UNZ_OK)
+        {
             qWarning() << "Import failed. Cause: file.close(): " << file.getZipError();
             return false;
         }
@@ -145,7 +166,8 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
 
     zip.close();
 
-    if (zip.getZipError() != UNZ_OK) {
+    if (zip.getZipError() != UNZ_OK)
+    {
         qWarning() << "Import failed. Cause: zip.close(): " << zip.getZipError();
         return false;
     }

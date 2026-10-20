@@ -11,7 +11,6 @@
 
 #include <memory>
 
-
 /**
  * @brief 单条下载项：一个下载任务的 UI 与网络状态机。
  *
@@ -19,7 +18,8 @@
  * 两者都隐藏表示成功完成。“重试”会重新发起 QNetworkRequest 并复用本控件。
  * 下载项由 WebDownloadManager 创建，父对象是管理器，删除由列表模型负责。
  */
-class DownloadItem : public QWidget {
+class DownloadItem : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -30,8 +30,7 @@ public:
      * @param parent 父控件。
      * @param customDownloadPath 自定义下载目录，空则用设置或桌面。
      */
-    DownloadItem(QNetworkReply *reply = 0, bool requestFileName = false, QWidget *parent = 0,
-                 QString customDownloadPath = QString());
+    DownloadItem(QNetworkReply *reply = 0, bool requestFileName = false, QWidget *parent = 0, QString customDownloadPath = QString());
     /** @brief 析构；网络回复随父对象销毁。 */
     ~DownloadItem() override;
     /** @brief 进度条可见即视为正在下载。 */
@@ -123,14 +122,16 @@ class DownloadModel;
  * 下载请求统一经 NetworkAccessManager 重新抓取，再交给 DownloadItem；设置通过
  * AutoSaver 延迟保存。列表模型 DownloadModel 直接引用本类的 mDownloads。
  */
-class WebDownloadManager : public QDialog {
+class WebDownloadManager : public QDialog
+{
     Q_OBJECT
     Q_PROPERTY(RemovePolicy removePolicy READ removePolicy WRITE setRemovePolicy)
     Q_ENUMS(RemovePolicy)
 
 public:
     /** @brief 下载记录移除策略。 */
-    enum RemovePolicy {
+    enum RemovePolicy
+    {
         Never,              ///< 从不自动移除
         Exit,               ///< 退出程序时移除
         SuccessFullDownload ///< 下载成功后移除
@@ -157,15 +158,15 @@ public slots:
     void download(const QNetworkRequest &request, bool requestFileName = false);
 
     /** @brief 以 URL 发起下载。 */
-    inline void download(const QUrl &url, bool requestFileName = false) {
+    inline void download(const QUrl &url, bool requestFileName = false)
+    {
         download(QNetworkRequest(url), requestFileName);
     }
 
     /**
      * @brief 处理 WebEngine 无法直接渲染的内容：按原 URL 重新下载。
      */
-    void handleUnsupportedContent(QNetworkReply *reply, bool requestFileName = false,
-                                  QString customDownloadPath = QString());
+    void handleUnsupportedContent(QNetworkReply *reply, bool requestFileName = false, QString customDownloadPath = QString());
 
     /** @brief 移除所有已结束的下载项。 */
     void cleanup();
@@ -176,8 +177,7 @@ private slots:
     /** @brief 下载项状态变化时刷新图标、行高并按策略移除。 */
     void updateRow();
     /** @brief 为网络回复创建下载项。 */
-    void processDownloadedContent(QNetworkReply *reply, bool requestFileName,
-                                  QString customDownloadPath = QString());
+    void processDownloadedContent(QNetworkReply *reply, bool requestFileName, QString customDownloadPath = QString());
 
 private:
     /** @brief 把下载项加入列表与模型。 */
@@ -215,7 +215,8 @@ private:
  * 数据本身保存在 WebDownloadManager::mDownloads 中，本模型只转发行数与删除；
  * 因此与管理器强绑定，由管理器创建。
  */
-class DownloadModel : public QAbstractListModel {
+class DownloadModel : public QAbstractListModel
+{
     friend class WebDownloadManager;
     Q_OBJECT
 

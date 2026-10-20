@@ -12,13 +12,13 @@
 
 class SearchButton;
 
-
 /**
  * @brief 行编辑框右侧的清除按钮：有文本时显示，点击清空输入。
  *
  * 由 ExLineEdit 创建，自绘一个带叉的圆形按钮；可见性由 textChanged 槽跟随文本变化。
  */
-class ClearButton : public QAbstractButton {
+class ClearButton : public QAbstractButton
+{
     Q_OBJECT;
 
 public:
@@ -39,7 +39,8 @@ public slots:
  * 继承 ExLineEdit，复用其内嵌 QLineEdit 与左侧部件布局。当前网页地址栏实际使用
  * UrlLineEdit；本类提供搜索框能力，可由外部设置菜单与占位文本。
  */
-class SearchLineEdit : public ExLineEdit {
+class SearchLineEdit : public ExLineEdit
+{
     Q_OBJECT;
     Q_PROPERTY(QString inactiveText READ inactiveText WRITE setInactiveText)
 

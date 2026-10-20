@@ -33,7 +33,8 @@ class RightPalette;
  * 工具栏与属性面板都浮在透明画布上，位置由桌面工具栏与右侧栏宽度共同决定。
  * 线程约束：全部操作在 GUI 线程；截图期间会先隐藏工具栏，抓完再恢复。
  */
-class DesktopAnnotationController : public QObject {
+class DesktopAnnotationController : public QObject
+{
     Q_OBJECT
 
 public:
@@ -101,7 +102,7 @@ protected:
     /** @brief 抓取光标所在屏幕的当前画面，用于区域/全屏截图。 */
     QPixmap getScreenPixmap();
 
-    BoardView *mTransparentDrawingView;
+    BoardView     *mTransparentDrawingView;
     GraphicsScene *mTransparentDrawingScene;
 
 private slots:
@@ -172,16 +173,16 @@ private:
     /** @brief 切换指定属性面板的可见性（内部转调对应的 toggled 槽）。 */
     void togglePropertyPalette(ActionPalette *palette);
 
-    DesktopPalette *mDesktopPalette;
-    DesktopPenPalette *mDesktopPenPalette;
+    DesktopPalette       *mDesktopPalette;
+    DesktopPenPalette    *mDesktopPenPalette;
     DesktopMarkerPalette *mDesktopMarkerPalette;
     DesktopEraserPalette *mDesktopEraserPalette;
 
     RightPalette *mRightPalette;
 
-    QTime mPenHoldTimer;
-    QTime mMarkerHoldTimer;
-    QTime mEraserHoldTimer;
+    QTime  mPenHoldTimer;
+    QTime  mMarkerHoldTimer;
+    QTime  mEraserHoldTimer;
     QTimer mHoldTimerPen;
     QTimer mHoldTimerMarker;
     QTimer mHoldTimerEraser;

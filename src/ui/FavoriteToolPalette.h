@@ -11,7 +11,6 @@
 
 #include "ui/ActionPalette.h"
 
-
 /**
  * @brief 收藏工具调色板：以 4 列图标网格展示可拖放到白板的工具和应用。
  *
@@ -19,7 +18,8 @@
  * 时把工具的 URL 交给 BoardController::downloadURL()，由下载器加载到当前页。
  * 类本身不在调色板管理器里实例化，保留给需要“收藏工具”入口的调用方使用。
  */
-class FavoriteToolPalette : public ActionPalette {
+class FavoriteToolPalette : public ActionPalette
+{
     Q_OBJECT
 
 public:

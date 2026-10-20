@@ -25,96 +25,88 @@
 
 #include "recording/RecordingPalette.h"
 
-
 // 录屏只保留 Windows 一套实现：Windows Media 写视频、waveIn 采音频。
 // 平台差异靠文件名与 platform/ 模块区分，这里不使用条件编译。
 #include "recording/WindowsMediaVideoEncoder.h"
 #include "recording/WaveRecorder.h"
 
-
 RecordingController *RecordingController::sInstance = 0;
 
-unsigned int RecordingController::sBackgroundColor = 0x00000000; // BBGGRRAA
-
+unsigned int RecordingController::sBackgroundColor  = 0x00000000; // BBGGRRAA
 
 RecordingController::RecordingController(QObject *pParent)
-    : QObject(pParent),
-      mVideoEncoder(0),
-      mIsGrabbing(false),
-      mInitialized(false),
-      mVideoFramesPerSecondAtStart(10),
-      mVideoFrameSizeAtStart(1024, 768),
-      mVideoBitsPerSecondAtStart(1700000),
-      mSourceWidget(0),
-      mSourceScene(0),
-      mScreenGrabingTimerEventID(0),
-      mRecordingProgressTimerEventID(0),
-      mRecordingPalette(0),
-      mRecordingState(Stopped),
-      mApplicationIsClosing(false),
-      mRecordingTimestampOffset(0),
-      mDefaultAudioInputDeviceAction(0),
-      mNoAudioInputDeviceAction(0),
-      mSmallVideoSizeAction(0),
-      mMediumVideoSizeAction(0),
-      mFullVideoSizeAction(0) {
-    connect(Application::applicationController, &ApplicationController::mainModeChanged, this,
-            &RecordingController::applicationMainModeChanged);
+    : QObject(pParent), mVideoEncoder(0), mIsGrabbing(false), mInitialized(false), mVideoFramesPerSecondAtStart(10),
+      mVideoFrameSizeAtStart(1024, 768), mVideoBitsPerSecondAtStart(1700000), mSourceWidget(0), mSourceScene(0), mScreenGrabingTimerEventID(0),
+      mRecordingProgressTimerEventID(0), mRecordingPalette(0), mRecordingState(Stopped), mApplicationIsClosing(false), mRecordingTimestampOffset(0),
+      mDefaultAudioInputDeviceAction(0), mNoAudioInputDeviceAction(0), mSmallVideoSizeAction(0), mMediumVideoSizeAction(0), mFullVideoSizeAction(0)
+{
+    connect(Application::applicationController, &ApplicationController::mainModeChanged, this, &RecordingController::applicationMainModeChanged);
 
-    connect(Application::applicationController, &ApplicationController::desktopMode, this,
-            &RecordingController::applicationDesktopMode);
+    connect(Application::applicationController, &ApplicationController::desktopMode, this, &RecordingController::applicationDesktopMode);
 
-    connect(Application::webController, &WebController::activeWebPageChanged, this,
-            &RecordingController::webActiveWebPageChanged);
+    connect(Application::webController, &WebController::activeWebPageChanged, this, &RecordingController::webActiveWebPageChanged);
 
-    connect(Application::app(), &QApplication::lastWindowClosed, this,
-            &RecordingController::applicationAboutToQuit);
+    connect(Application::app(), &QApplication::lastWindowClosed, this, &RecordingController::applicationAboutToQuit);
 }
 
-
-RecordingController::~RecordingController() {
+RecordingController::~RecordingController()
+{
     // 刻意留空
 }
 
-
-void RecordingController::applicationAboutToQuit() {
+void RecordingController::applicationAboutToQuit()
+{
     mApplicationIsClosing = true;
 
-    if (mRecordingState == Recording || mRecordingState == Paused) {
+    if (mRecordingState == Recording || mRecordingState == Paused)
+    {
         stop();
     }
 }
 
-
-void RecordingController::groupActionTriggered(QAction *action) {
+void RecordingController::groupActionTriggered(QAction *action)
+{
     Q_UNUSED(action);
     updateActionState();
 }
 
-
-void RecordingController::actionToggled(bool checked) {
+void RecordingController::actionToggled(bool checked)
+{
     Q_UNUSED(checked);
     updateActionState();
 }
 
-
-void RecordingController::updateActionState() {
+void RecordingController::updateActionState()
+{
     if (mSmallVideoSizeAction && mSmallVideoSizeAction->isChecked())
+    {
         Settings::settings()->recordingVideoSize->set("Small");
+    }
     else if (mFullVideoSizeAction && mFullVideoSizeAction->isChecked())
+    {
         Settings::settings()->recordingVideoSize->set("Full");
+    }
     else
+    {
         Settings::settings()->recordingVideoSize->reset();
+    }
 
     Settings::settings()->recordingAudioRecordingDevice->reset();
 
     if (mDefaultAudioInputDeviceAction && mDefaultAudioInputDeviceAction->isChecked())
+    {
         Settings::settings()->recordingAudioRecordingDevice->set("Default");
+    }
     else if (mNoAudioInputDeviceAction && mNoAudioInputDeviceAction->isChecked())
+    {
         Settings::settings()->recordingAudioRecordingDevice->set("None");
-    else {
-        foreach (QAction *action, mAudioInputDevicesActions) {
-            if (action->isChecked()) {
+    }
+    else
+    {
+        foreach (QAction *action, mAudioInputDevicesActions)
+        {
+            if (action->isChecked())
+            {
                 Settings::settings()->recordingAudioRecordingDevice->set(action->text());
                 break;
             }
@@ -122,76 +114,80 @@ void RecordingController::updateActionState() {
     }
 }
 
-
-void RecordingController::setSourceWidget(QWidget *pWidget) {
-    if (mSourceWidget != pWidget) {
-        if (mSourceWidget == VirtualDesktop::instance()) {
+void RecordingController::setSourceWidget(QWidget *pWidget)
+{
+    if (mSourceWidget != pWidget)
+    {
+        if (mSourceWidget == VirtualDesktop::instance())
+        {
             killTimer(mScreenGrabingTimerEventID);
             mScreenGrabingTimerEventID = 0;
-        } else if (mSourceWidget) {
+        }
+        else if (mSourceWidget)
+        {
             mSourceWidget->removeEventFilter(this);
         }
 
         mSourceWidget = pWidget;
-        mInitialized = false;
+        mInitialized  = false;
         mViewToVideoTransform.reset();
         mLatestCapture.fill(sBackgroundColor);
 
-        if (mSourceWidget) {
+        if (mSourceWidget)
+        {
             QSizeF sourceWidgetSize(mSourceWidget->size());
 
             if (mSourceWidget == VirtualDesktop::instance())
+            {
                 sourceWidgetSize =
-                    VirtualDesktop::instance()
-                        ->availableGeometry(
-                            Application::applicationController->displayManager()->controleScreenIndex())
-                        .size();
+                    VirtualDesktop::instance()->availableGeometry(Application::applicationController->displayManager()->controleScreenIndex()).size();
+            }
 
             QSizeF videoFrameSize(mVideoFrameSizeAtStart);
 
             // 取较小的缩放比，保证整个源画面都能装进视频画布且不变形。
             qreal scaleHorizontal = videoFrameSize.width() / sourceWidgetSize.width();
-            qreal scaleVertical = videoFrameSize.height() / sourceWidgetSize.height();
+            qreal scaleVertical   = videoFrameSize.height() / sourceWidgetSize.height();
 
-            qreal scale = qMin(scaleHorizontal, scaleVertical);
+            qreal scale           = qMin(scaleHorizontal, scaleVertical);
 
             mViewToVideoTransform.scale(scale, scale);
 
             BoardView *bv = qobject_cast<BoardView *>(mSourceWidget);
 
             // 白板源按场景渲染并跟随活动页/背景变化；网页与桌面源按控件重绘或定时抓屏。
-            if (bv) {
-                connect(Application::boardController, &BoardController::activeSceneChanged, this,
-                        &RecordingController::activeSceneChanged);
-                connect(Application::boardController, &BoardController::backgroundChanged, this,
-                        &RecordingController::sceneBackgroundChanged);
-                connect(Application::boardController, &BoardController::controlViewportChanged, this,
-                        &RecordingController::activeSceneChanged);
+            if (bv)
+            {
+                connect(Application::boardController, &BoardController::activeSceneChanged, this, &RecordingController::activeSceneChanged);
+                connect(Application::boardController, &BoardController::backgroundChanged, this, &RecordingController::sceneBackgroundChanged);
+                connect(Application::boardController, &BoardController::controlViewportChanged, this, &RecordingController::activeSceneChanged);
 
                 activeSceneChanged();
-            } else {
+            }
+            else
+            {
                 QSizeF scaledWidgetSize = sourceWidgetSize * scale;
 
                 // 非白板源四周留出的空白在视频里显示为背景色，这里把控件居中。
-                int offsetX = (videoFrameSize.width() - scaledWidgetSize.width()) / 2;
-                int offsetY = (videoFrameSize.height() - scaledWidgetSize.height()) / 2;
+                int offsetX             = (videoFrameSize.width() - scaledWidgetSize.width()) / 2;
+                int offsetY             = (videoFrameSize.height() - scaledWidgetSize.height()) / 2;
 
                 mViewToVideoTransform.translate(offsetX / scale, offsetY / scale);
 
-                disconnect(Application::boardController, &BoardController::activeSceneChanged, this,
-                           &RecordingController::activeSceneChanged);
-                disconnect(Application::boardController, &BoardController::backgroundChanged, this,
-                           &RecordingController::sceneBackgroundChanged);
-                disconnect(Application::boardController, &BoardController::controlViewportChanged, this,
-                           &RecordingController::activeSceneChanged);
+                disconnect(Application::boardController, &BoardController::activeSceneChanged, this, &RecordingController::activeSceneChanged);
+                disconnect(Application::boardController, &BoardController::backgroundChanged, this, &RecordingController::sceneBackgroundChanged);
+                disconnect(Application::boardController, &BoardController::controlViewportChanged, this, &RecordingController::activeSceneChanged);
 
                 mSourceScene = 0;
 
                 startNextChapter();
 
-                if (mSourceWidget == VirtualDesktop::instance()) {
+                if (mSourceWidget == VirtualDesktop::instance())
+                {
                     mScreenGrabingTimerEventID = startTimer(1000 / mVideoFramesPerSecondAtStart);
-                } else {
+                }
+                else
+                {
                     mSourceWidget->installEventFilter(this);
                 }
             }
@@ -199,34 +195,42 @@ void RecordingController::setSourceWidget(QWidget *pWidget) {
     }
 }
 
-
-RecordingController *RecordingController::instance() {
+RecordingController *RecordingController::instance()
+{
     if (!sInstance)
+    {
         sInstance = new RecordingController(Application::staticMemoryCleaner);
+    }
 
     return sInstance;
 }
 
-
-void RecordingController::start() {
-    if (mRecordingState == Stopped) {
-        mInitialized = false;
+void RecordingController::start()
+{
+    if (mRecordingState == Stopped)
+    {
+        mInitialized              = false;
         // 上一段录制暂停过的话这里还留着旧偏移；不清零会让新录制的首帧时间戳变负。
         mRecordingTimestampOffset = 0;
-        mTimeAtPaused = QTime();
+        mTimeAtPaused             = QTime();
 
         QSize recommendedSize(1024, 768);
 
         int fullBitRate = Settings::settings()->recordingWindowsMediaBitsPerSecond->get().toInt();
 
-        if (mSmallVideoSizeAction && mSmallVideoSizeAction->isChecked()) {
-            recommendedSize = QSize(640, 480);
+        if (mSmallVideoSizeAction && mSmallVideoSizeAction->isChecked())
+        {
+            recommendedSize            = QSize(640, 480);
             mVideoBitsPerSecondAtStart = fullBitRate / 4;
-        } else if (mMediumVideoSizeAction && mMediumVideoSizeAction->isChecked()) {
-            recommendedSize = QSize(1024, 768);
+        }
+        else if (mMediumVideoSizeAction && mMediumVideoSizeAction->isChecked())
+        {
+            recommendedSize            = QSize(1024, 768);
             mVideoBitsPerSecondAtStart = fullBitRate / 2;
-        } else if (mFullVideoSizeAction && mFullVideoSizeAction->isChecked()) {
-            recommendedSize = Application::boardController->controlView()->size();
+        }
+        else if (mFullVideoSizeAction && mFullVideoSizeAction->isChecked())
+        {
+            recommendedSize            = Application::boardController->controlView()->size();
             mVideoBitsPerSecondAtStart = fullBitRate;
         }
 
@@ -234,39 +238,45 @@ void RecordingController::start() {
         scaledboardSize.scale(recommendedSize, Qt::KeepAspectRatio);
 
         // 视频宽高必须是 4 的倍数，否则编码器可能拒绝该媒体类型；向下取整到 4 的倍数。
-        int width = scaledboardSize.width();
+        int width  = scaledboardSize.width();
         int height = scaledboardSize.height();
 
         if (width % 4 != 0)
+        {
             width = ((width / 4) * 4);
+        }
 
         if (height % 4 != 0)
+        {
             height = ((height / 4) * 4);
+        }
 
         mVideoFrameSizeAtStart = QSize(width, height);
 
         applicationMainModeChanged(Application::applicationController->displayMode());
 
-        mVideoEncoder = new WindowsMediaVideoEncoder(this); //deleted on stop
+        mVideoEncoder = new WindowsMediaVideoEncoder(this); // deleted on stop
 
-        if (mVideoEncoder) {
-            connect(mVideoEncoder, &AbstractVideoEncoder::encodingStatus, this,
-                    &RecordingController::encodingStatus);
-            connect(mVideoEncoder, &AbstractVideoEncoder::encodingFinished, this,
-                    &RecordingController::encodingFinished);
+        if (mVideoEncoder)
+        {
+            connect(mVideoEncoder, &AbstractVideoEncoder::encodingStatus, this, &RecordingController::encodingStatus);
+            connect(mVideoEncoder, &AbstractVideoEncoder::encodingFinished, this, &RecordingController::encodingFinished);
 
-            if (mRecordingPalette) {
-                connect(mVideoEncoder, &AbstractVideoEncoder::audioLevelChanged, mRecordingPalette,
-                        &RecordingPalette::audioLevelChanged);
+            if (mRecordingPalette)
+            {
+                connect(mVideoEncoder, &AbstractVideoEncoder::audioLevelChanged, mRecordingPalette, &RecordingPalette::audioLevelChanged);
             }
 
             mVideoEncoder->setRecordAudio(!mNoAudioInputDeviceAction->isChecked());
 
             QString recordingDevice = "";
 
-            if (!mNoAudioInputDeviceAction->isChecked() && !mDefaultAudioInputDeviceAction->isChecked()) {
-                foreach (QAction *audioDevice, mAudioInputDevicesActions) {
-                    if (audioDevice->isChecked()) {
+            if (!mNoAudioInputDeviceAction->isChecked() && !mDefaultAudioInputDeviceAction->isChecked())
+            {
+                foreach (QAction *audioDevice, mAudioInputDevicesActions)
+                {
+                    if (audioDevice->isChecked())
+                    {
                         recordingDevice = audioDevice->text();
                         break;
                     }
@@ -279,7 +289,7 @@ void RecordingController::start() {
             mVideoEncoder->setVideoSize(mVideoFrameSizeAtStart);
             mVideoEncoder->setVideoBitsPerSecond(mVideoBitsPerSecondAtStart);
 
-            mPartNumber = 0;
+            mPartNumber    = 0;
 
             mRecordingPath = Settings::settings()->userRecordingDirectory();
 
@@ -288,40 +298,49 @@ void RecordingController::start() {
             QString videoFileName;
 
             // 文件名带时间戳与计算机名，便于同一目录下多次录制后区分来源。
-            videoFileName = mRecordingPath + "/" + "Recording-" +
-                            QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + "-" +
+            videoFileName = mRecordingPath + "/" + "Recording-" + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + "-" +
                             PlatformUtils::computerName() + "." + mVideoEncoder->videoFileExtension();
 
             videoFileName = FileSystemUtils::nextAvailableFileName(videoFileName, " ");
 
             mVideoEncoder->setVideoFileName(videoFileName);
 
-            mLatestCapture = QImage(mVideoFrameSizeAtStart, QImage::Format_RGB32); //0xffRRGGBB
+            mLatestCapture                 = QImage(mVideoFrameSizeAtStart, QImage::Format_RGB32); // 0xffRRGGBB
 
-            mRecordStartTime = QTime::currentTime();
+            mRecordStartTime               = QTime::currentTime();
 
             mRecordingProgressTimerEventID = startTimer(100);
 
-            if (mVideoEncoder->start()) {
+            if (mVideoEncoder->start())
+            {
                 applicationMainModeChanged(Application::applicationController->displayMode());
 
                 setRecordingState(Recording);
 
-                if (mSourceScene) {
+                if (mSourceScene)
+                {
                     processScenePaintEvent();
-                } else if (mSourceWidget) {
+                }
+                else if (mSourceWidget)
+                {
                     processWidgetPaintEvent();
                 }
-            } else {
+            }
+            else
+            {
                 // 启动失败：applicationMainModeChanged() 已经打开了抓屏（定时器/事件过滤器），
                 // 进度定时器也已启动，编码器同样要回收；否则下一次重试会再叠一份。
-                if (mScreenGrabingTimerEventID != 0) {
+                if (mScreenGrabingTimerEventID != 0)
+                {
                     killTimer(mScreenGrabingTimerEventID);
                     mScreenGrabingTimerEventID = 0;
                 }
                 if (mSourceWidget)
+                {
                     mSourceWidget->removeEventFilter(this);
-                if (mRecordingProgressTimerEventID != 0) {
+                }
+                if (mRecordingProgressTimerEventID != 0)
+                {
                     killTimer(mRecordingProgressTimerEventID);
                     mRecordingProgressTimerEventID = 0;
                 }
@@ -329,30 +348,37 @@ void RecordingController::start() {
                 Application::mainWindow->ui().actionRecordingStart->setChecked(false);
                 Application::showMessage(tr("Failed to start encoder ..."), false);
             }
-        } else {
+        }
+        else
+        {
             Application::showMessage(tr("No screen recording encoder available..."), false);
         }
     }
 }
 
-void RecordingController::pause() {
-    if (mVideoEncoder && mRecordingState == Recording && mVideoEncoder->canPause()) {
+void RecordingController::pause()
+{
+    if (mVideoEncoder && mRecordingState == Recording && mVideoEncoder->canPause())
+    {
         sendLatestPixmapToEncoder();
 
         mTimeAtPaused = QTime::currentTime();
 
-        if (mVideoEncoder->pause()) {
+        if (mVideoEncoder->pause())
+        {
             setRecordingState(Paused);
         }
     }
 }
 
-
-void RecordingController::unpause() {
-    if (mVideoEncoder && mRecordingState == Paused && mVideoEncoder->canPause()) {
+void RecordingController::unpause()
+{
+    if (mVideoEncoder && mRecordingState == Paused && mVideoEncoder->canPause())
+    {
         // 先算出暂停了多久：视频与音频的时间戳都要跳过这一段，否则恢复后音画错位。
         const long pausedMs = static_cast<long>(mTimeAtPaused.msecsTo(QTime::currentTime()));
-        if (mVideoEncoder->unpause(pausedMs)) {
+        if (mVideoEncoder->unpause(pausedMs))
+        {
             mRecordingTimestampOffset += pausedMs;
             sendLatestPixmapToEncoder();
 
@@ -361,16 +387,20 @@ void RecordingController::unpause() {
     }
 }
 
-
-void RecordingController::stop() {
-    if ((mRecordingState == Recording || mRecordingState == Paused) && mVideoEncoder) {
-        if (mScreenGrabingTimerEventID != 0) {
+void RecordingController::stop()
+{
+    if ((mRecordingState == Recording || mRecordingState == Paused) && mVideoEncoder)
+    {
+        if (mScreenGrabingTimerEventID != 0)
+        {
             killTimer(mScreenGrabingTimerEventID);
             mScreenGrabingTimerEventID = 0;
         }
 
         if (mRecordingProgressTimerEventID != 0)
+        {
             killTimer(mRecordingProgressTimerEventID);
+        }
 
         sendLatestPixmapToEncoder();
 
@@ -380,45 +410,54 @@ void RecordingController::stop() {
     }
 }
 
-
-bool RecordingController::eventFilter(QObject *obj, QEvent *event) {
+bool RecordingController::eventFilter(QObject *obj, QEvent *event)
+{
     // Paint 事件只累积区域；队列由空变非空时挂一个按帧率延时的抓取，
     // 把这一帧内的多次重绘合并成一次 render，顺便避开 render() 自身触发的重入。
-    if (mRecordingState == Recording && !mIsGrabbing && event->type() == QEvent::Paint) {
+    if (mRecordingState == Recording && !mIsGrabbing && event->type() == QEvent::Paint)
+    {
         QPaintEvent *paintEvent = static_cast<QPaintEvent *>(event);
 
         mWidgetRepaintRectQueue.enqueue(paintEvent->rect());
 
         if (mWidgetRepaintRectQueue.length() == 1)
-            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this,
-                               &RecordingController::processWidgetPaintEvent);
+        {
+            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this, &RecordingController::processWidgetPaintEvent);
+        }
     }
 
     return QObject::eventFilter(obj, event);
 }
 
-
-void RecordingController::processWidgetPaintEvent() {
+void RecordingController::processWidgetPaintEvent()
+{
     if (mRecordingState != Recording)
+    {
         return;
+    }
 
     QRect repaintRect;
 
     // 首帧或换源后必须整幅重绘，因为 mLatestCapture 里没有可复用的旧内容。
-    if (!mInitialized) {
+    if (!mInitialized)
+    {
         mWidgetRepaintRectQueue.clear();
         repaintRect = mSourceWidget->geometry();
 
         mLatestCapture.fill(sBackgroundColor);
 
         mInitialized = true;
-    } else {
-        while (mWidgetRepaintRectQueue.size() > 0) {
+    }
+    else
+    {
+        while (mWidgetRepaintRectQueue.size() > 0)
+        {
             repaintRect = repaintRect.united(mWidgetRepaintRectQueue.dequeue());
         }
     }
 
-    if (!repaintRect.isNull()) {
+    if (!repaintRect.isNull())
+    {
         mIsGrabbing = true;
 
         QPainter p(&mLatestCapture);
@@ -435,10 +474,11 @@ void RecordingController::processWidgetPaintEvent() {
     }
 }
 
-
-void RecordingController::activeSceneChanged() {
+void RecordingController::activeSceneChanged()
+{
     // 活动页切换后旧场景可能被销毁，先断掉旧连接，再把渲染区域入队并写章节标记。
-    if (mSourceScene) {
+    if (mSourceScene)
+    {
         disconnect(mSourceScene, &QGraphicsScene::changed, this, &RecordingController::sceneChanged);
     }
 
@@ -451,7 +491,8 @@ void RecordingController::activeSceneChanged() {
     startNextChapter();
 
     BoardView *bv = qobject_cast<BoardView *>(mSourceWidget);
-    if (bv) {
+    if (bv)
+    {
         QRectF viewportRect = bv->mapToScene(bv->geometry()).boundingRect();
         mSceneRepaintRectQueue.enqueue(viewportRect);
     }
@@ -459,85 +500,106 @@ void RecordingController::activeSceneChanged() {
     processScenePaintEvent();
 }
 
-void RecordingController::sceneBackgroundChanged() {
+void RecordingController::sceneBackgroundChanged()
+{
     BoardView *bv = qobject_cast<BoardView *>(mSourceWidget);
 
-    if (bv) {
+    if (bv)
+    {
         mInitialized = false;
     }
 
     processScenePaintEvent();
 }
 
-
-long RecordingController::elapsedRecordingMs() {
-    QTime now = QTime::currentTime();
-    long msFromStart = mRecordStartTime.msecsTo(now);
+long RecordingController::elapsedRecordingMs()
+{
+    QTime now         = QTime::currentTime();
+    long  msFromStart = mRecordStartTime.msecsTo(now);
 
     return msFromStart - mRecordingTimestampOffset;
 }
 
-
-void RecordingController::startNextChapter() {
-    if (mVideoEncoder) {
+void RecordingController::startNextChapter()
+{
+    if (mVideoEncoder)
+    {
         // 每次换源或换页都记一个“Part N”章节，时间戳取当前有效录制时长。
         ++mPartNumber;
         mVideoEncoder->newChapter(tr("Part %1").arg(mPartNumber), elapsedRecordingMs());
     }
 }
 
-
-void RecordingController::sceneChanged(const QList<QRectF> &region) {
+void RecordingController::sceneChanged(const QList<QRectF> &region)
+{
     if (mRecordingState != Recording)
+    {
         return;
+    }
 
     bool shouldRepaint = (mSceneRepaintRectQueue.length() == 0);
 
-    BoardView *bv = qobject_cast<BoardView *>(mSourceWidget);
-    if (bv) {
+    BoardView *bv      = qobject_cast<BoardView *>(mSourceWidget);
+    if (bv)
+    {
         QRectF viewportRect = bv->mapToScene(QRect(0, 0, bv->width(), bv->height())).boundingRect();
-        foreach (const QRectF rect, region) {
+        foreach (const QRectF rect, region)
+        {
             QRectF maxRect = rect.intersected(viewportRect);
             mSceneRepaintRectQueue.enqueue(maxRect);
         }
 
         if (shouldRepaint)
-            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this,
-                               &RecordingController::processScenePaintEvent);
+        {
+            QTimer::singleShot(1000.0 / mVideoFramesPerSecondAtStart, this, &RecordingController::processScenePaintEvent);
+        }
     }
 }
 
-
-void RecordingController::processScenePaintEvent() {
+void RecordingController::processScenePaintEvent()
+{
     if (mRecordingState != Recording)
+    {
         return;
+    }
 
     BoardView *bv = qobject_cast<BoardView *>(mSourceWidget);
 
     if (!bv)
+    {
         return;
+    }
 
     QRectF repaintRect;
 
-    if (!mInitialized) {
+    if (!mInitialized)
+    {
         mSceneRepaintRectQueue.clear();
         repaintRect = bv->mapToScene(QRect(0, 0, bv->width(), bv->height())).boundingRect();
 
         if (bv->scene()->isDarkBackground())
+        {
             mLatestCapture.fill(Qt::black);
+        }
         else
+        {
             mLatestCapture.fill(Qt::white);
+        }
 
         mLatestCapture.fill(Qt::white);
 
         mInitialized = true;
-    } else {
-        while (mSceneRepaintRectQueue.size() > 0) {
+    }
+    else
+    {
+        while (mSceneRepaintRectQueue.size() > 0)
+        {
             repaintRect = repaintRect.united(mSceneRepaintRectQueue.dequeue());
         }
     }
 
-    if (!repaintRect.isNull()) {
+    if (!repaintRect.isNull())
+    {
         GraphicsScene *scene = bv->scene();
 
         QPainter p(&mLatestCapture);
@@ -554,9 +616,13 @@ void RecordingController::processScenePaintEvent() {
         p.setClipRect(repaintRect);
 
         if (scene->isDarkBackground())
+        {
             p.fillRect(repaintRect, Qt::black);
+        }
         else
+        {
             p.fillRect(repaintRect, Qt::white);
+        }
 
         // 录制上下文只画固定背景到工具层之间的条目，界面装饰不会进视频；画完立即恢复屏幕上下文。
         scene->setRenderingContext(GraphicsScene::Recording);
@@ -569,59 +635,73 @@ void RecordingController::processScenePaintEvent() {
     }
 }
 
-
-void RecordingController::applicationMainModeChanged(ApplicationController::MainMode pMode) {
-    if (pMode == ApplicationController::Internet) {
+void RecordingController::applicationMainModeChanged(ApplicationController::MainMode pMode)
+{
+    if (pMode == ApplicationController::Internet)
+    {
         setSourceWidget(Application::webController->controlView());
-    } else {
+    }
+    else
+    {
         setSourceWidget(Application::boardController->controlView());
     }
 }
 
-
-void RecordingController::applicationDesktopMode(bool displayed) {
+void RecordingController::applicationDesktopMode(bool displayed)
+{
     Q_UNUSED(displayed);
 
-    if (displayed) {
+    if (displayed)
+    {
         setSourceWidget(VirtualDesktop::instance());
-    } else {
+    }
+    else
+    {
         applicationMainModeChanged(Application::applicationController->displayMode());
     }
 }
 
-
-void RecordingController::webActiveWebPageChanged(WebView *pWebView) {
-    if (Application::applicationController->displayMode() == ApplicationController::Internet) {
+void RecordingController::webActiveWebPageChanged(WebView *pWebView)
+{
+    if (Application::applicationController->displayMode() == ApplicationController::Internet)
+    {
         setSourceWidget(pWebView);
     }
 }
 
-
-void RecordingController::encodingStatus(const QString &pStatus) {
+void RecordingController::encodingStatus(const QString &pStatus)
+{
     Application::showMessage(pStatus, true);
 }
 
-
-void RecordingController::encodingFinished(bool ok) {
-    if (mVideoEncoder) {
-        if (ok) {
-            if (!mApplicationIsClosing) {
+void RecordingController::encodingFinished(bool ok)
+{
+    if (mVideoEncoder)
+    {
+        if (ok)
+        {
+            if (!mApplicationIsClosing)
+            {
                 QString location;
 
                 if (mRecordingPath == QStandardPaths::writableLocation(QStandardPaths::DesktopLocation))
+                {
                     location = tr("on your desktop ...");
-                else {
+                }
+                else
+                {
                     QDir dir(mRecordingPath);
                     location = tr("in folder %1").arg(mRecordingPath);
                 }
 
                 Application::showMessage(tr("Screen recording created %1").arg(location), false);
             }
-        } else {
+        }
+        else
+        {
             qWarning() << mVideoEncoder->lastErrorMessage();
 
-            Application::showMessage(tr("Screen recording error (%1)").arg(mVideoEncoder->lastErrorMessage()),
-                                     false);
+            Application::showMessage(tr("Screen recording error (%1)").arg(mVideoEncoder->lastErrorMessage()), false);
         }
 
         // 编码器已经发完 encodingFinished，回收它并把状态机送回 Stopped，界面据此恢复操作。
@@ -631,50 +711,53 @@ void RecordingController::encodingFinished(bool ok) {
     }
 }
 
-
-void RecordingController::sendLatestPixmapToEncoder() {
+void RecordingController::sendLatestPixmapToEncoder()
+{
     if (mVideoEncoder)
+    {
         mVideoEncoder->newPixmap(mLatestCapture, elapsedRecordingMs());
+    }
 }
 
-void RecordingController::timerEvent(QTimerEvent *event) {
-    if (mRecordingState == Recording && event->timerId() == mScreenGrabingTimerEventID &&
-        mSourceWidget == VirtualDesktop::instance()) {
+void RecordingController::timerEvent(QTimerEvent *event)
+{
+    if (mRecordingState == Recording && event->timerId() == mScreenGrabingTimerEventID && mSourceWidget == VirtualDesktop::instance())
+    {
         // 桌面源没有可过滤的控件重绘，只能按帧率整屏抓取，再缩放贴进视频画布的对应位置。
-        VirtualDesktop *dtop = VirtualDesktop::instance();
-        QRect dtopRect = dtop->screenGeometry(Application::controlScreenIndex());
-        QScreen *screen = Application::controlScreen();
+        VirtualDesktop *dtop     = VirtualDesktop::instance();
+        QRect           dtopRect = dtop->screenGeometry(Application::controlScreenIndex());
+        QScreen        *screen   = Application::controlScreen();
 
-        QPixmap desktop = VirtualDesktop::grabScreen(screen, dtopRect);
+        QPixmap desktop          = VirtualDesktop::grabScreen(screen, dtopRect);
 
         {
             QPainter p(&mLatestCapture);
 
-            if (!mInitialized) {
+            if (!mInitialized)
+            {
                 mLatestCapture.fill(sBackgroundColor);
                 mInitialized = true;
             }
 
-            QRectF targetRect =
-                mViewToVideoTransform.mapRect(QRectF(0, 0, desktop.width(), desktop.height()));
+            QRectF targetRect = mViewToVideoTransform.mapRect(QRectF(0, 0, desktop.width(), desktop.height()));
 
             p.setRenderHints(QPainter::Antialiasing);
             p.setRenderHints(QPainter::SmoothPixmapTransform);
             p.drawPixmap(targetRect.left(), targetRect.top(),
-                         desktop.scaled(targetRect.width(), targetRect.height(), Qt::KeepAspectRatio,
-                                        Qt::SmoothTransformation));
+                desktop.scaled(targetRect.width(), targetRect.height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
 
         sendLatestPixmapToEncoder();
     }
 
-    if (mRecordingProgressTimerEventID == event->timerId() && mRecordingState == Recording) {
+    if (mRecordingProgressTimerEventID == event->timerId() && mRecordingState == Recording)
+    {
         emit recordingProgressChanged(elapsedRecordingMs());
     }
 }
 
-
-QStringList RecordingController::audioRecordingDevices() {
+QStringList RecordingController::audioRecordingDevices()
+{
     QStringList devices;
 
     devices = WaveRecorder::waveInDevices();
@@ -682,110 +765,121 @@ QStringList RecordingController::audioRecordingDevices() {
     return devices;
 }
 
-
-void RecordingController::recordToggled(bool record) {
+void RecordingController::recordToggled(bool record)
+{
     if ((mRecordingState == Stopped) && record)
+    {
         start();
+    }
     else
+    {
         stop();
+    }
 }
 
-void RecordingController::pauseToggled(bool paused) {
+void RecordingController::pauseToggled(bool paused)
+{
     if ((mRecordingState == Recording) && paused)
+    {
         pause();
+    }
     else
+    {
         unpause();
+    }
 }
 
-
-void RecordingController::toggleRecordingPalette(bool visible) {
-    if (!mRecordingPalette) {
+void RecordingController::toggleRecordingPalette(bool visible)
+{
+    if (!mRecordingPalette)
+    {
         mRecordingPalette = new RecordingPalette(Application::mainWindow);
 
         mRecordingPalette->adjustSizeAndPosition();
         mRecordingPalette->setCustomPosition(true);
 
-        int left =
-            Application::boardController->controlView()->width() * 0.75 - mRecordingPalette->width() / 2;
+        int left = Application::boardController->controlView()->width() * 0.75 - mRecordingPalette->width() / 2;
 
-        int top = Application::boardController->controlView()->height() - mRecordingPalette->height() -
-                  Settings::boardMargin;
+        int top  = Application::boardController->controlView()->height() - mRecordingPalette->height() - Settings::boardMargin;
 
         QPoint controlViewPoint(left, top);
-        QPoint mainWindowsPoint =
-            Application::boardController->controlView()->mapTo(Application::mainWindow, controlViewPoint);
+        QPoint mainWindowsPoint = Application::boardController->controlView()->mapTo(Application::mainWindow, controlViewPoint);
 
         mRecordingPalette->move(mainWindowsPoint);
 
-        connect(Application::mainWindow->ui().actionRecordingStart, &QAction::triggered, this,
-                &RecordingController::recordToggled);
+        connect(Application::mainWindow->ui().actionRecordingStart, &QAction::triggered, this, &RecordingController::recordToggled);
 
-        connect(Application::mainWindow->ui().actionRecordingPause, &QAction::toggled, this,
-                &RecordingController::pauseToggled);
+        connect(Application::mainWindow->ui().actionRecordingPause, &QAction::toggled, this, &RecordingController::pauseToggled);
 
-        connect(this, &RecordingController::recordingStateChanged, mRecordingPalette,
-                &RecordingPalette::recordingStateChanged);
-        connect(this, &RecordingController::recordingProgressChanged, mRecordingPalette,
-                &RecordingPalette::recordingProgressChanged);
+        connect(this, &RecordingController::recordingStateChanged, mRecordingPalette, &RecordingPalette::recordingStateChanged);
+        connect(this, &RecordingController::recordingProgressChanged, mRecordingPalette, &RecordingPalette::recordingProgressChanged);
     }
 
     mRecordingPalette->setVisible(visible);
 }
 
-
-void RecordingController::setRecordingState(RecordingState pRecordingState) {
-    if (mRecordingState != pRecordingState) {
+void RecordingController::setRecordingState(RecordingState pRecordingState)
+{
+    if (mRecordingState != pRecordingState)
+    {
         mRecordingState = pRecordingState;
         emit recordingStateChanged(mRecordingState);
     }
 }
 
-
-QList<QAction *> RecordingController::audioRecordingDevicesActions() {
-    if (mAudioInputDevicesActions.length() == 0) {
-        QString settingsDevice = Settings::settings()->recordingAudioRecordingDevice->get().toString();
+QList<QAction *> RecordingController::audioRecordingDevicesActions()
+{
+    if (mAudioInputDevicesActions.length() == 0)
+    {
+        QString settingsDevice         = Settings::settings()->recordingAudioRecordingDevice->get().toString();
 
         mDefaultAudioInputDeviceAction = new QAction(tr("Default Audio Input"), this);
-        QAction *checkedAction = mDefaultAudioInputDeviceAction;
+        QAction *checkedAction         = mDefaultAudioInputDeviceAction;
 
-        mNoAudioInputDeviceAction = new QAction(tr("No Audio Recording"), this);
+        mNoAudioInputDeviceAction      = new QAction(tr("No Audio Recording"), this);
 
         if (settingsDevice == "None")
+        {
             checkedAction = mNoAudioInputDeviceAction;
+        }
 
         mAudioInputDevicesActions << mNoAudioInputDeviceAction;
         mAudioInputDevicesActions << mDefaultAudioInputDeviceAction;
 
-        foreach (QString audioDevice, audioRecordingDevices()) {
+        foreach (QString audioDevice, audioRecordingDevices())
+        {
             QAction *act = new QAction(audioDevice, this);
             act->setCheckable(true);
             mAudioInputDevicesActions << act;
             if (settingsDevice == audioDevice)
+            {
                 checkedAction = act;
+            }
         }
 
         QActionGroup *audioInputActionGroup = new QActionGroup(this);
         audioInputActionGroup->setExclusive(true);
 
-        foreach (QAction *action, mAudioInputDevicesActions) {
+        foreach (QAction *action, mAudioInputDevicesActions)
+        {
             audioInputActionGroup->addAction(action);
             action->setCheckable(true);
         }
         checkedAction->setChecked(true);
 
-        connect(audioInputActionGroup, qOverload<QAction *>(&QActionGroup::triggered), this,
-                &RecordingController::groupActionTriggered);
+        connect(audioInputActionGroup, qOverload<QAction *>(&QActionGroup::triggered), this, &RecordingController::groupActionTriggered);
     }
 
     return mAudioInputDevicesActions;
 }
 
-
-QList<QAction *> RecordingController::videoSizeActions() {
-    if (mVideoSizesActions.length() == 0) {
-        mSmallVideoSizeAction = new QAction(tr("Small"), this);
+QList<QAction *> RecordingController::videoSizeActions()
+{
+    if (mVideoSizesActions.length() == 0)
+    {
+        mSmallVideoSizeAction  = new QAction(tr("Small"), this);
         mMediumVideoSizeAction = new QAction(tr("Medium"), this);
-        mFullVideoSizeAction = new QAction(tr("Full"), this);
+        mFullVideoSizeAction   = new QAction(tr("Full"), this);
 
         mVideoSizesActions << mSmallVideoSizeAction;
         mVideoSizesActions << mMediumVideoSizeAction;
@@ -794,7 +888,8 @@ QList<QAction *> RecordingController::videoSizeActions() {
         QActionGroup *videoSizeActionGroup = new QActionGroup(this);
         videoSizeActionGroup->setExclusive(true);
 
-        foreach (QAction *videoSizeAction, mVideoSizesActions) {
+        foreach (QAction *videoSizeAction, mVideoSizesActions)
+        {
             videoSizeAction->setCheckable(true);
             videoSizeActionGroup->addAction(videoSizeAction);
         }
@@ -802,23 +897,30 @@ QList<QAction *> RecordingController::videoSizeActions() {
         QString videoSize = Settings::settings()->recordingVideoSize->get().toString();
 
         if (videoSize == "Small")
+        {
             mSmallVideoSizeAction->setChecked(true);
+        }
         else if (videoSize == "Full")
+        {
             mFullVideoSizeAction->setChecked(true);
+        }
         else
+        {
             mMediumVideoSizeAction->setChecked(true);
+        }
 
-        connect(videoSizeActionGroup, qOverload<QAction *>(&QActionGroup::triggered), this,
-                &RecordingController::groupActionTriggered);
+        connect(videoSizeActionGroup, qOverload<QAction *>(&QActionGroup::triggered), this, &RecordingController::groupActionTriggered);
     }
 
     return mVideoSizesActions;
 }
 
-
-QList<QAction *> RecordingController::publicationActions() {
-    if (mPublicationActions.length() == 0) {
-        foreach (QAction *publicationAction, mPublicationActions) {
+QList<QAction *> RecordingController::publicationActions()
+{
+    if (mPublicationActions.length() == 0)
+    {
+        foreach (QAction *publicationAction, mPublicationActions)
+        {
             connect(publicationAction, &QAction::toggled, this, &RecordingController::actionToggled);
         }
     }

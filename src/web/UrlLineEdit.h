@@ -16,14 +16,14 @@
 
 class ClearButton;
 
-
 /**
  * @brief 增强行编辑框：在 QLineEdit 左右两侧各放一个附加部件（左侧图标、右侧清除按钮）。
  *
  * 把内嵌 QLineEdit 的焦点、输入法、尺寸策略转发到自身，使外部可把整个控件当作行编辑框
  * 使用。地址栏、搜索框都基于它；部件不拥有左侧部件的创建逻辑，setLeftWidget 会删除旧部件。
  */
-class ExLineEdit : public QWidget {
+class ExLineEdit : public QWidget
+{
     Q_OBJECT;
 
 public:
@@ -81,7 +81,6 @@ private:
     std::unique_ptr<Private> d;
 };
 
-
 class WebView;
 
 /**
@@ -90,7 +89,8 @@ class WebView;
  * 与一个 WebView 绑定（setWebView），显示其当前地址，并在加载进度变化时触发重绘。
  * 左侧部件初始为空容器，标签页加载出 favicon 后由 TabWidget 替换为图标标签。
  */
-class UrlLineEdit : public ExLineEdit {
+class UrlLineEdit : public ExLineEdit
+{
     Q_OBJECT;
 
 public:

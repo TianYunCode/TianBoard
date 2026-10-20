@@ -8,7 +8,8 @@
 
 #include "utils/StringUtils.h"
 
-class TestStringUtils : public QObject {
+class TestStringUtils : public QObject
+{
     Q_OBJECT
 
 private slots:
@@ -22,21 +23,21 @@ private slots:
     void sortByLastDigit();
 };
 
-void TestStringUtils::canonicalUuidDropsBraces() {
+void TestStringUtils::canonicalUuidDropsBraces()
+{
     // Qt 6 把 QUuid 输出成小写；RFC 4122 的标准形式本来也是小写，所以写入端发出的
     // 是小写文本，读取端比较时就不能区分大小写。
     QUuid uuid("{1B4D2F6E-7A11-4C3B-9E0D-5F8A2C3D4E5F}");
-    QCOMPARE(StringUtils::toCanonicalUuid(uuid).toUpper(),
-             QStringLiteral("1B4D2F6E-7A11-4C3B-9E0D-5F8A2C3D4E5F"));
+    QCOMPARE(StringUtils::toCanonicalUuid(uuid).toUpper(), QStringLiteral("1B4D2F6E-7A11-4C3B-9E0D-5F8A2C3D4E5F"));
     QVERIFY(!StringUtils::toCanonicalUuid(uuid).startsWith('{'));
 
     // 场景没有 uuid 时，写入端拿到的是默认构造的 QUuid；
     // 文档里仍必须留下一个语法合法的 nil uuid。
-    QCOMPARE(StringUtils::toCanonicalUuid(QUuid()).toUpper(),
-             QStringLiteral("00000000-0000-0000-0000-000000000000"));
+    QCOMPARE(StringUtils::toCanonicalUuid(QUuid()).toUpper(), QStringLiteral("00000000-0000-0000-0000-000000000000"));
 }
 
-void TestStringUtils::utcIsoDateTimeRoundTrip() {
+void TestStringUtils::utcIsoDateTimeRoundTrip()
+{
     const QDateTime dt = QDateTime(QDate(2026, 3, 5), QTime(7, 8, 9), Qt::UTC);
 
     QCOMPARE(StringUtils::toUtcIsoDateTime(dt), QStringLiteral("2026-03-05T07:08:09Z"));
@@ -47,7 +48,8 @@ void TestStringUtils::utcIsoDateTimeRoundTrip() {
     QCOMPARE(back.toMSecsSinceEpoch(), dt.toMSecsSinceEpoch());
 }
 
-void TestStringUtils::netxDigitizedName() {
+void TestStringUtils::netxDigitizedName()
+{
     QCOMPARE(StringUtils::netxDigitizedName(QStringLiteral("Page 1")), QStringLiteral("Page 2"));
     QCOMPARE(StringUtils::netxDigitizedName(QStringLiteral("Untitled 9")), QStringLiteral("Untitled 10"));
 
@@ -55,7 +57,8 @@ void TestStringUtils::netxDigitizedName() {
     QCOMPARE(StringUtils::netxDigitizedName(QStringLiteral("Notes")), QStringLiteral("Notes 1"));
 }
 
-void TestStringUtils::sortByLastDigit() {
+void TestStringUtils::sortByLastDigit()
+{
     const QStringList names{
         QStringLiteral("page.10.png"),
         QStringLiteral("page.2.png"),

@@ -22,7 +22,8 @@ class GraphicsPixmapItem;
  * 渲染器与页面数据由 PdfPageItem 持有；本类不额外拥有渲染资源。
  * z 值遵循场景分配的页面层级，通常位于背景之上、手写内容之下。
  */
-class GraphicsPDFItem : public PdfPageItem, public Item, public GraphicsItem {
+class GraphicsPDFItem : public PdfPageItem, public Item, public GraphicsItem
+{
     Q_OBJECT
 public:
     /**
@@ -34,10 +35,16 @@ public:
     GraphicsPDFItem(PDFRenderer *renderer, int pageNumber, QGraphicsItem *parent = 0);
     virtual ~GraphicsPDFItem();
 
-    enum { Type = GraphicsItemType::PDFItemType };
+    enum
+    {
+        Type = GraphicsItemType::PDFItemType
+    };
 
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /** @brief 深拷贝当前页图形项。 */
     virtual Item *deepCopy() const;
@@ -55,7 +62,10 @@ public:
     virtual GraphicsPixmapItem *toPixmapItem() const;
 
     /** @brief PDF 页没有外部内容源，空实现。 */
-    virtual void clearSource() { ; }
+    virtual void clearSource()
+    {
+        ;
+    }
     /** @brief 设置 UUID 并写入图形项数据。 */
     virtual void setUuid(const QUuid &pUuid);
 

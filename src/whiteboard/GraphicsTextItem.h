@@ -34,10 +34,8 @@ class GraphicsScene;
  * @note 线程约束：只能在 GUI 线程创建与操作；undoCommandAdded 依赖 QTextDocument 的
  *       信号，因此文档生命周期必须不长于图元。
  */
-class GraphicsTextItem : public QGraphicsTextItem,
-                         public Item,
-                         public ResizableGraphicsItem,
-                         public GraphicsItem {
+class GraphicsTextItem : public QGraphicsTextItem, public Item, public ResizableGraphicsItem, public GraphicsItem
+{
     Q_OBJECT
 
 public:
@@ -50,10 +48,16 @@ public:
     virtual ~GraphicsTextItem();
 
     /// @brief 图元类型标识，供 qgraphicsitem_cast 与分组判定使用。
-    enum { Type = GraphicsItemType::TextItemType };
+    enum
+    {
+        Type = GraphicsItemType::TextItemType
+    };
 
     /// @brief 返回 Type。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 深拷贝出一个内容、字体、颜色与尺寸都相同的新图元（不含选中状态）。
     virtual Item *deepCopy() const;
@@ -96,23 +100,34 @@ public:
     static QColor lastUsedTextColor;
 
     /// @brief 深色背景下用哪个字色。
-    QColor colorOnDarkBackground() const { return mColorOnDarkBackground; }
+    QColor colorOnDarkBackground() const
+    {
+        return mColorOnDarkBackground;
+    }
 
     /// @brief 记下深色背景下的字色（不立即改显示）。
-    void setColorOnDarkBackground(QColor pColorOnDarkBackground) {
+    void setColorOnDarkBackground(QColor pColorOnDarkBackground)
+    {
         mColorOnDarkBackground = pColorOnDarkBackground;
     }
 
     /// @brief 浅色背景下用哪个字色。
-    QColor colorOnLightBackground() const { return mColorOnLightBackground; }
+    QColor colorOnLightBackground() const
+    {
+        return mColorOnLightBackground;
+    }
 
     /// @brief 记下浅色背景下的字色（不立即改显示）。
-    void setColorOnLightBackground(QColor pColorOnLightBackground) {
+    void setColorOnLightBackground(QColor pColorOnLightBackground)
+    {
         mColorOnLightBackground = pColorOnLightBackground;
     }
 
     /// @brief 文本没有外部来源，为满足 Item 契约保留的空实现。
-    virtual void clearSource() { ; }
+    virtual void clearSource()
+    {
+        ;
+    }
     /// @brief 设置 UUID，同时写进图元数据，供场景按 UUID 找回图元。
     virtual void setUuid(const QUuid &pUuid);
     /// @brief 进出编辑态：true 给编辑器交互，false 退为仅鼠标可选。
@@ -153,10 +168,10 @@ private:
 
     qreal mTextHeight;
 
-    int mMultiClickState;
+    int   mMultiClickState;
     QTime mLastMousePressTime;
 
     QColor mColorOnDarkBackground;
     QColor mColorOnLightBackground;
-    bool isActivatedTextEditor;
+    bool   isActivatedTextEditor;
 };

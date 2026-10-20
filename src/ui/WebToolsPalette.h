@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <memory>
 
 #include "ui/ActionPalette.h"
@@ -17,7 +16,8 @@
  * 还有虚拟键盘）。由 WebController 在第一次进入网页模式时创建，并登记到
  * BoardPaletteManager 作为当前网页工具面板，之后反复显示/隐藏。
  */
-class WebToolsPalette : public ActionPalette {
+class WebToolsPalette : public ActionPalette
+{
     Q_OBJECT
 
 public:

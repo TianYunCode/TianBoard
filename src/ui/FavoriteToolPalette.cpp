@@ -9,11 +9,12 @@
 
 #include "ui/MainWindow.h"
 
+struct FavoriteToolPalette::Private
+{
+};
 
-struct FavoriteToolPalette::Private {};
-
-FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
-    : ActionPalette(Qt::Horizontal, parent), d(new Private) {
+FavoriteToolPalette::FavoriteToolPalette(QWidget *parent) : ActionPalette(Qt::Horizontal, parent), d(new Private)
+{
     QWidget *container = new QWidget(this);
     container->setStyleSheet("QWidget {background-color: transparent}");
 
@@ -27,12 +28,16 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
     // 没设置过就按“全部内置工具”兜底（这条设置从来没有写方，行为不变）。
     QStringList favoritesToolUris = Settings::settings()->favoritesNativeToolUris->get().toStringList();
     if (favoritesToolUris.isEmpty())
+    {
         favoritesToolUris = ToolsManager::manager()->allToolIDs();
+    }
 
-    foreach (QString uri, favoritesToolUris) {
+    foreach (QString uri, favoritesToolUris)
+    {
         ToolsManager::ToolDescriptor desc = ToolsManager::manager()->toolByID(uri);
 
-        if (desc.label.length() > 0 && !desc.icon.isNull()) {
+        if (desc.label.length() > 0 && !desc.icon.isNull())
+        {
             QAction *action = new QAction(desc.label + " " + desc.version, this);
             action->setData(QUrl(desc.id));
             action->setIcon(desc.icon);
@@ -42,16 +47,17 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
         }
     }
 
-    QDir favoritesDir(Settings::settings()->userInteractiveFavoritesDirectory());
-    QStringList favoritesSubDirs = favoritesDir.entryList(
-        QStringList(), QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Name);
+    QDir        favoritesDir(Settings::settings()->userInteractiveFavoritesDirectory());
+    QStringList favoritesSubDirs = favoritesDir.entryList(QStringList(), QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Name);
     QStringList appPathes;
 
-    foreach (QString subDirName, favoritesSubDirs) {
+    foreach (QString subDirName, favoritesSubDirs)
+    {
         appPathes << favoritesDir.path() + "/" + subDirName;
     }
 
-    foreach (QString widgetPath, appPathes) {
+    foreach (QString widgetPath, appPathes)
+    {
         QAction *action = new QAction(GraphicsWidgetItem::widgetName(QUrl::fromLocalFile(widgetPath)), this);
         action->setData(QUrl::fromLocalFile(widgetPath));
         action->setIcon(QIcon(GraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(widgetPath))));
@@ -60,17 +66,21 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
         toolsActions << action;
     }
 
-
-    if (toolsActions.size() < 4) {
+    if (toolsActions.size() < 4)
+    {
         QStringList toolsIDs = ToolsManager::manager()->allToolIDs();
 
         foreach (QString id, favoritesToolUris)
+        {
             toolsIDs.removeAll(id);
+        }
 
-        while (toolsIDs.size() > 0 && toolsActions.size() < 4) {
+        while (toolsIDs.size() > 0 && toolsActions.size() < 4)
+        {
             ToolsManager::ToolDescriptor desc = ToolsManager::manager()->toolByID(toolsIDs.takeFirst());
 
-            if (desc.label.length() > 0) {
+            if (desc.label.length() > 0)
+            {
                 QAction *action = new QAction(desc.label + " " + desc.version, this);
                 action->setData(QUrl(desc.id));
                 action->setIcon(desc.icon);
@@ -84,7 +94,8 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
     int i = 0;
 
     // 固定四列排布，行列位置由动作序号推算。
-    foreach (QAction *action, toolsActions) {
+    foreach (QAction *action, toolsActions)
+    {
         ActionPaletteButton *button = createPaletteButton(action, container);
         gridLayout->addWidget(button, i / 4, i % 4);
         appendAction(action);
@@ -98,14 +109,16 @@ FavoriteToolPalette::FavoriteToolPalette(QWidget *parent)
     groupActions();
 }
 
-
-void FavoriteToolPalette::addFavorite() {
+void FavoriteToolPalette::addFavorite()
+{
     // 多个动作共用同一个槽，只能通过 sender() 反查是哪个工具被点击。
     QAction *action = qobject_cast<QAction *>(sender());
 
-    if (action) {
+    if (action)
+    {
         QVariant widgetPathVar = action->data();
-        if (!widgetPathVar.isNull()) {
+        if (!widgetPathVar.isNull())
+        {
             Application::boardController->downloadURL(widgetPathVar.toUrl());
         }
     }

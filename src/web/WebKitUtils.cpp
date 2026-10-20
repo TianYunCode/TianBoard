@@ -2,19 +2,22 @@
 
 #include "web/WebKitUtils.h"
 
-
-WebKitUtils::WebKitUtils() {
+WebKitUtils::WebKitUtils()
+{
     // 刻意留空
 }
 
-WebKitUtils::~WebKitUtils() {
+WebKitUtils::~WebKitUtils()
+{
     // 刻意留空
 }
 
-QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage *frame) {
+QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage *frame)
+{
     QList<WebKitUtils::HtmlObject> htmlObjects;
 
-    if (frame) {
+    if (frame)
+    {
         frame->runJavaScript("window.document.getElementsByTagName('embed').length");
 
         /* bool ok;

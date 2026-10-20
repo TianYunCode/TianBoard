@@ -18,12 +18,14 @@ class QTranslator;
  * 源文本是英文，所以 "en" 不依赖任何 .qm —— 选中它等价于把翻译器摘掉。
  * 线程约束：GUI 线程专用，语言切换会触发所有窗口重新翻译。
  */
-class LanguageManager : public QObject {
+class LanguageManager : public QObject
+{
     Q_OBJECT
 
 public:
     /// 一种可选语言。
-    struct Language {
+    struct Language
+    {
         QString code; ///< 语言代码，如 "en"、"fr"
         QString name; ///< 用于界面显示的本地化名称
     };
@@ -42,7 +44,10 @@ public:
     QString displayName(const QString &code) const;
 
     /// 返回当前生效的语言代码。
-    QString currentLanguage() const { return mCurrentLanguage; }
+    QString currentLanguage() const
+    {
+        return mCurrentLanguage;
+    }
 
     /**
      * @brief 切换到指定语言并安装对应翻译器。
@@ -62,7 +67,7 @@ signals:
 
 private:
     explicit LanguageManager(QObject *parent = nullptr);
-    LanguageManager(const LanguageManager &) = delete;
+    LanguageManager(const LanguageManager &)            = delete;
     LanguageManager &operator=(const LanguageManager &) = delete;
 
     /**
@@ -78,6 +83,6 @@ private:
 
     QTranslator *mApplicationTranslator;
     QTranslator *mQtTranslator;
-    QString mCurrentLanguage;
-    bool mInstalled;
+    QString      mCurrentLanguage;
+    bool         mInstalled;
 };

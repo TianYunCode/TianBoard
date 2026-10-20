@@ -7,18 +7,11 @@
 #include "whiteboard/DrawingController.h"
 #include "whiteboard/GraphicsScene.h"
 
-
-const QRect GraphicsTriangle::sDefaultRect = QRect(0, 0, 800, 400);
+const QRect                         GraphicsTriangle::sDefaultRect        = QRect(0, 0, 800, 400);
 const GraphicsTriangle::Orientation GraphicsTriangle::sDefaultOrientation = GraphicsTriangle::BottomLeft;
 
 GraphicsTriangle::GraphicsTriangle()
-    : AbstractDrawRuler(),
-      QGraphicsPolygonItem(),
-      angle(0),
-      mResizing1(false),
-      mResizing2(false),
-      mRotating(false),
-      mShouldPaintInnerTriangle(true)
+    : AbstractDrawRuler(), QGraphicsPolygonItem(), angle(0), mResizing1(false), mResizing2(false), mRotating(false), mShouldPaintInnerTriangle(true)
 
 {
     setRect(sDefaultRect, sDefaultOrientation);
@@ -39,58 +32,61 @@ GraphicsTriangle::GraphicsTriangle()
     mRotateSvgItem->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
 
     setData(GraphicsItemData::itemLayerType,
-            QVariant(itemLayerType::CppTool)); // 必须设好图层类型，Z 值才会被分到正确的层
+        QVariant(itemLayerType::CppTool)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlag(QGraphicsItem::ItemIsSelectable, false);
 
     updateResizeCursor();
 }
 
-
-void GraphicsTriangle::updateResizeCursor() {
-    QPixmap pix(":/images/cursors/resize.png");
+void GraphicsTriangle::updateResizeCursor()
+{
+    QPixmap    pix(":/images/cursors/resize.png");
     QTransform itemTransform = sceneTransform();
-    QRectF itemRect = boundingRect();
+    QRectF     itemRect      = boundingRect();
 
-    QPointF topLeft = itemTransform.map(itemRect.topLeft());
-    QPointF topRight = itemTransform.map(itemRect.topRight());
-    QPointF bottomLeft = itemTransform.map(itemRect.bottomLeft());
+    QPointF topLeft          = itemTransform.map(itemRect.topLeft());
+    QPointF topRight         = itemTransform.map(itemRect.topRight());
+    QPointF bottomLeft       = itemTransform.map(itemRect.bottomLeft());
 
     QLineF topLine(topLeft, topRight);
     QLineF leftLine(topLeft, bottomLeft);
 
-    qreal angle = topLine.angle();
+    qreal      angle = topLine.angle();
     QTransform tr1;
     tr1.rotate(-angle);
-    mResizeCursor1 =
-        QCursor(pix.transformed(tr1, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
+    mResizeCursor1 = QCursor(pix.transformed(tr1, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
 
-    angle = leftLine.angle();
+    angle          = leftLine.angle();
     QTransform tr2;
     tr2.rotate(-angle);
-    mResizeCursor2 =
-        QCursor(pix.transformed(tr2, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
+    mResizeCursor2 = QCursor(pix.transformed(tr2, Qt::SmoothTransformation), pix.width() / 2, pix.height() / 2);
 }
 
+GraphicsTriangle::~GraphicsTriangle()
+{
+}
 
-GraphicsTriangle::~GraphicsTriangle() {}
-
-Item *GraphicsTriangle::deepCopy(void) const {
+Item *GraphicsTriangle::deepCopy(void) const
+{
     GraphicsTriangle *copy = new GraphicsTriangle();
 
     copyItemParameters(copy);
     return copy;
 }
 
-void GraphicsTriangle::copyItemParameters(Item *copy) const {
+void GraphicsTriangle::copyItemParameters(Item *copy) const
+{
     GraphicsTriangle *cp = dynamic_cast<GraphicsTriangle *>(copy);
-    if (cp) {
+    if (cp)
+    {
         cp->setPos(this->pos());
         cp->setPolygon(this->polygon());
         cp->setTransform(this->transform());
     }
 }
 
-void GraphicsTriangle::setRect(qreal x, qreal y, qreal w, qreal h, Orientation orientation) {
+void GraphicsTriangle::setRect(qreal x, qreal y, qreal w, qreal h, Orientation orientation)
+{
     QPolygonF polygon;
     polygon << QPointF(x, y) << QPoint(x, y + h) << QPoint(x + w, y + h);
     setPolygon(polygon);
@@ -104,7 +100,8 @@ void GraphicsTriangle::setRect(qreal x, qreal y, qreal w, qreal h, Orientation o
     setOrientation(orientation);
 }
 
-void GraphicsTriangle::setOrientation(Orientation orientation) {
+void GraphicsTriangle::setOrientation(Orientation orientation)
+{
     mOrientation = orientation;
 
     calculatePoints(bounds_rect);
@@ -114,24 +111,26 @@ void GraphicsTriangle::setOrientation(Orientation orientation) {
     setPolygon(polygon);
 }
 
-
-QRectF GraphicsTriangle::bounding_Rect() const {
+QRectF GraphicsTriangle::bounding_Rect() const
+{
     QRectF bounds = QRectF(0, 0, 0, 0);
     bounds.setX(bounds_rect.x());
     bounds.setY(bounds_rect.y());
     bounds.setWidth(bounds_rect.width());
     bounds.setHeight(bounds_rect.height());
 
-
     return bounds;
 }
 
-GraphicsScene *GraphicsTriangle::scene() const {
+GraphicsScene *GraphicsTriangle::scene() const
+{
     return static_cast<GraphicsScene *>(QGraphicsPolygonItem::scene());
 }
 
-void GraphicsTriangle::calculatePoints(const QRectF &r) {
-    switch (mOrientation) {
+void GraphicsTriangle::calculatePoints(const QRectF &r)
+{
+    switch (mOrientation)
+    {
         case BottomLeft:
             A1.setX(r.left());
             A1.setY(r.top());
@@ -166,11 +165,12 @@ void GraphicsTriangle::calculatePoints(const QRectF &r) {
             break;
     }
 
-    C = sqrt(rect().width() * rect().width() + rect().height() * rect().height());
+    C       = sqrt(rect().width() * rect().width() + rect().height() * rect().height());
     qreal L = (C * d + rect().width() * d) / rect().height();
     qreal K = (C * d + rect().height() * d) / rect().width();
 
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
             A2.setX(r.left() + d);
             A2.setY(r.top() + K);
@@ -206,30 +206,40 @@ void GraphicsTriangle::calculatePoints(const QRectF &r) {
     }
 
     bool paintInnerTriangle = true;
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
             if (B2.x() > C2.x() || B2.y() < A2.y())
+            {
                 paintInnerTriangle = false;
+            }
             break;
         case TopLeft:
             if (B2.x() > C2.x() || B2.y() > A2.y())
+            {
                 paintInnerTriangle = false;
+            }
             break;
         case TopRight:
             if (B2.x() < C2.x() || B2.y() > A2.y())
+            {
                 paintInnerTriangle = false;
+            }
             break;
         case BottomRight:
             if (B2.x() < C2.x() || B2.y() < A2.y())
+            {
                 paintInnerTriangle = false;
+            }
             break;
     }
     mShouldPaintInnerTriangle = paintInnerTriangle;
 
-    W1 = rect().height() * d / C;
-    H1 = rect().width() * d / C;
+    W1                        = rect().height() * d / C;
+    H1                        = rect().width() * d / C;
 
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
             CC.setX(r.right() - L + W1);
             CC.setY(r.bottom() - d - H1);
@@ -249,12 +259,14 @@ void GraphicsTriangle::calculatePoints(const QRectF &r) {
     }
 }
 
-void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
+void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
     painter->setPen(Qt::NoPen);
 
     QPolygonF polygon;
 
-    if (mShouldPaintInnerTriangle) {
+    if (mShouldPaintInnerTriangle)
+    {
         QLinearGradient gradient1(QPointF(A1.x(), 0), QPointF(A2.x(), 0));
         gradient1.setColorAt(0, edgeFillColor());
         gradient1.setColorAt(1, middleFillColor());
@@ -279,7 +291,6 @@ void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         painter->drawPolygon(polygon);
         polygon.clear();
 
-
         painter->setBrush(Qt::NoBrush);
         painter->setPen(drawColor());
 
@@ -291,7 +302,8 @@ void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         painter->drawPolygon(polygon);
     }
 
-    else {
+    else
+    {
         QLinearGradient gradient(QPointF(A1.x(), 0), QPointF(C1.x(), 0));
         gradient.setColorAt(0, edgeFillColor());
         gradient.setColorAt(1, middleFillColor());
@@ -302,11 +314,9 @@ void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         polygon.clear();
     }
 
-
     paintGraduations(painter);
 
-    mAntiScaleRatio =
-        1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);
 
@@ -321,24 +331,31 @@ void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     mVFlipSvgItem->setPos(vFlipRect().topLeft());
     mRotateSvgItem->setPos(rotateRect().topLeft());
 
-    if (mShowButtons || mResizing1 || mResizing2) {
+    if (mShowButtons || mResizing1 || mResizing2)
+    {
         painter->setBrush(QColor(0, 0, 0));
         if (mShowButtons || mResizing1)
+        {
             painter->drawPolygon(resize1Polygon());
+        }
         if (mShowButtons || mResizing2)
+        {
             painter->drawPolygon(resize2Polygon());
+        }
     }
 }
 
-QPainterPath GraphicsTriangle::shape() const {
+QPainterPath GraphicsTriangle::shape() const
+{
     QPainterPath tShape;
-    QPolygonF tPolygon;
+    QPolygonF    tPolygon;
 
     tPolygon << A1 << B1 << C1;
     tShape.addPolygon(tPolygon);
     tPolygon.clear();
 
-    if (mShouldPaintInnerTriangle) {
+    if (mShouldPaintInnerTriangle)
+    {
         tPolygon << A2 << B2 << C2;
         tShape.addPolygon(tPolygon);
         tPolygon.clear();
@@ -347,37 +364,43 @@ QPainterPath GraphicsTriangle::shape() const {
     return tShape;
 }
 
-void GraphicsTriangle::paintGraduations(QPainter *painter) {
+void GraphicsTriangle::paintGraduations(QPainter *painter)
+{
     const int SEPARATOR = 5;
-    qreal kx = (mOrientation == TopLeft || mOrientation == BottomLeft) ? 1 : -1;
-    qreal ky = (mOrientation == BottomLeft || mOrientation == BottomRight) ? 1 : -1;
+    qreal     kx        = (mOrientation == TopLeft || mOrientation == BottomLeft) ? 1 : -1;
+    qreal     ky        = (mOrientation == BottomLeft || mOrientation == BottomRight) ? 1 : -1;
 
     painter->save();
     painter->setFont(font());
     QFontMetricsF fontMetrics(painter->font());
 
     // 让“一厘米”与背景网格宽度一致（无论网格是否显示）。
-    sPixelsPerCentimeter = Application::boardController->activeScene()->backgroundGridSize();
-    double pixelsPerMillimeter = sPixelsPerCentimeter / 10.0;
+    sPixelsPerCentimeter           = Application::boardController->activeScene()->backgroundGridSize();
+    double pixelsPerMillimeter     = sPixelsPerCentimeter / 10.0;
 
     // 一厘米太窄时只显示每 5 个数字与每 5 毫米刻度，避免文字重叠。
-    double numbersWidth = fontMetrics.horizontalAdvance("00");
-    bool shouldDisplayAllNumbers = (numbersWidth <= (sPixelsPerCentimeter - 5));
+    double numbersWidth            = fontMetrics.horizontalAdvance("00");
+    bool   shouldDisplayAllNumbers = (numbersWidth <= (sPixelsPerCentimeter - 5));
 
-    for (int millimeters = 0;
-         millimeters < (rect().width() - sLeftEdgeMargin - sRoundingRadius) / pixelsPerMillimeter;
-         millimeters++) {
-        double graduationX = rotationCenter().x() + kx * pixelsPerMillimeter * millimeters;
+    for (int millimeters = 0; millimeters < (rect().width() - sLeftEdgeMargin - sRoundingRadius) / pixelsPerMillimeter; millimeters++)
+    {
+        double graduationX      = rotationCenter().x() + kx * pixelsPerMillimeter * millimeters;
         double graduationHeight = 0;
 
         if (millimeters % GeometryUtils::millimetersPerCentimeter == 0)
+        {
             graduationHeight = GeometryUtils::centimeterGraduationHeight;
+        }
 
         else if (millimeters % GeometryUtils::millimetersPerHalfCentimeter == 0)
+        {
             graduationHeight = GeometryUtils::halfCentimeterGraduationHeight;
+        }
 
         else
+        {
             graduationHeight = GeometryUtils::millimeterGraduationHeight;
+        }
 
         qreal requiredSpace = graduationHeight + SEPARATOR;
         /*     B____C
@@ -388,7 +411,8 @@ void GraphicsTriangle::paintGraduations(QPainter *painter) {
         */
 
         qreal AD;
-        switch (mOrientation) {
+        switch (mOrientation)
+        {
             case BottomLeft:
                 AD = QLineF(rect().bottomRight(), QPointF(graduationX, rotationCenter().y())).length();
                 break;
@@ -408,52 +432,56 @@ void GraphicsTriangle::paintGraduations(QPainter *painter) {
         qreal DE = AD * BC / AB, availableSpace = DE;
 
         if (availableSpace < requiredSpace)
+        {
             break;
+        }
 
         if (shouldDisplayAllNumbers || millimeters % GeometryUtils::millimetersPerHalfCentimeter == 0)
-            painter->drawLine(QLineF(graduationX, rotationCenter().y(), graduationX,
-                                     rotationCenter().y() - ky * graduationHeight));
+        {
+            painter->drawLine(QLineF(graduationX, rotationCenter().y(), graduationX, rotationCenter().y() - ky * graduationHeight));
+        }
 
         if ((shouldDisplayAllNumbers && millimeters % GeometryUtils::millimetersPerCentimeter == 0) ||
-            millimeters % (GeometryUtils::millimetersPerCentimeter * 5) == 0) {
-            QString text = QString("%1").arg((int)(millimeters / GeometryUtils::millimetersPerCentimeter));
-            qreal textWidth = fontMetrics.horizontalAdvance(text);
-            qreal textHeight = fontMetrics.tightBoundingRect(text).height();
+            millimeters % (GeometryUtils::millimetersPerCentimeter * 5) == 0)
+        {
+            QString text       = QString("%1").arg((int)(millimeters / GeometryUtils::millimetersPerCentimeter));
+            qreal   textWidth  = fontMetrics.horizontalAdvance(text);
+            qreal   textHeight = fontMetrics.tightBoundingRect(text).height();
 
-            requiredSpace = graduationHeight + textHeight + textWidth + SEPARATOR;
+            requiredSpace      = graduationHeight + textHeight + textWidth + SEPARATOR;
 
-            if (requiredSpace <= availableSpace) {
-                int textY =
-                    (ky > 0) ? rotationCenter().y() - SEPARATOR - GeometryUtils::centimeterGraduationHeight -
-                                   textHeight
-                             : rotationCenter().y() + SEPARATOR + GeometryUtils::centimeterGraduationHeight;
-                painter->drawText(QRectF(graduationX - textWidth / 2, textY, textWidth, textHeight),
-                                  Qt::AlignVCenter, text);
+            if (requiredSpace <= availableSpace)
+            {
+                int textY = (ky > 0) ? rotationCenter().y() - SEPARATOR - GeometryUtils::centimeterGraduationHeight - textHeight
+                                     : rotationCenter().y() + SEPARATOR + GeometryUtils::centimeterGraduationHeight;
+                painter->drawText(QRectF(graduationX - textWidth / 2, textY, textWidth, textHeight), Qt::AlignVCenter, text);
             }
         }
     }
     painter->restore();
 }
 
-
-void GraphicsTriangle::rotateAroundCenter(qreal angle) {
+void GraphicsTriangle::rotateAroundCenter(qreal angle)
+{
     qreal oldAngle = this->angle;
-    this->angle = angle;
+    this->angle    = angle;
     QTransform transform;
     rotateAroundCenter(transform, rotationCenter());
     setTransform(transform, true);
     this->angle = oldAngle + angle; // 存的是累加后的绝对角度：三角板在翻转状态下要靠它算回真实朝向
 }
 
-void GraphicsTriangle::rotateAroundCenter(QTransform &transform, QPointF center) {
+void GraphicsTriangle::rotateAroundCenter(QTransform &transform, QPointF center)
+{
     transform.translate(center.x(), center.y());
     transform.rotate(angle);
     transform.translate(-center.x(), -center.y());
 }
 
-
-QPointF GraphicsTriangle::rotationCenter() const {
-    switch (mOrientation) {
+QPointF GraphicsTriangle::rotationCenter() const
+{
+    switch (mOrientation)
+    {
         case BottomLeft:
         case TopLeft:
             return B1 + QPointF(sLeftEdgeMargin, 0);
@@ -464,28 +492,30 @@ QPointF GraphicsTriangle::rotationCenter() const {
     return QPointF(0, 0);
 }
 
-QRectF GraphicsTriangle::closeButtonRect() const {
-    switch (mOrientation) {
+QRectF GraphicsTriangle::closeButtonRect() const
+{
+    switch (mOrientation)
+    {
         case BottomLeft:
-            return QRectF(B2.x() - mCloseSvgItem->boundingRect().width() - 5,
-                          B2.y() - mCloseSvgItem->boundingRect().height() - 5,
-                          mCloseSvgItem->boundingRect().width(), mCloseSvgItem->boundingRect().height());
+            return QRectF(B2.x() - mCloseSvgItem->boundingRect().width() - 5, B2.y() - mCloseSvgItem->boundingRect().height() - 5,
+                mCloseSvgItem->boundingRect().width(), mCloseSvgItem->boundingRect().height());
         case TopLeft:
-            return QRectF(B2.x() - mCloseSvgItem->boundingRect().width() - 5, B2.y() + 5,
-                          mCloseSvgItem->boundingRect().width(), mCloseSvgItem->boundingRect().height());
+            return QRectF(B2.x() - mCloseSvgItem->boundingRect().width() - 5, B2.y() + 5, mCloseSvgItem->boundingRect().width(),
+                mCloseSvgItem->boundingRect().height());
         case TopRight:
-            return QRectF(B2.x() + 5, B2.y() + 5, mCloseSvgItem->boundingRect().width(),
-                          mCloseSvgItem->boundingRect().height());
+            return QRectF(B2.x() + 5, B2.y() + 5, mCloseSvgItem->boundingRect().width(), mCloseSvgItem->boundingRect().height());
         case BottomRight:
-            return QRectF(B2.x() + 5, B2.y() - mCloseSvgItem->boundingRect().height() - 5,
-                          mCloseSvgItem->boundingRect().width(), mCloseSvgItem->boundingRect().height());
+            return QRectF(B2.x() + 5, B2.y() - mCloseSvgItem->boundingRect().height() - 5, mCloseSvgItem->boundingRect().width(),
+                mCloseSvgItem->boundingRect().height());
     }
     return QRectF(0, 0, 0, 0);
 }
 
-QPolygonF GraphicsTriangle::resize1Polygon() const {
+QPolygonF GraphicsTriangle::resize1Polygon() const
+{
     qreal x1, y1;
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
             x1 = -1;
             y1 = -1;
@@ -503,17 +533,18 @@ QPolygonF GraphicsTriangle::resize1Polygon() const {
             y1 = -1;
             break;
     }
-    QPointF P1(C1.x() + x1 * sArrowLength, C1.y());
-    QPointF P2(C1.x() + x1 * sArrowLength * rect().width() / C,
-               C1.y() + y1 * sArrowLength * rect().height() / C);
+    QPointF   P1(C1.x() + x1 * sArrowLength, C1.y());
+    QPointF   P2(C1.x() + x1 * sArrowLength * rect().width() / C, C1.y() + y1 * sArrowLength * rect().height() / C);
     QPolygonF p;
     p << C1 << P1 << P2;
     return p;
 }
 
-QPolygonF GraphicsTriangle::resize2Polygon() const {
+QPolygonF GraphicsTriangle::resize2Polygon() const
+{
     qreal x1, y1;
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
             x1 = 1;
             y1 = 1;
@@ -531,59 +562,60 @@ QPolygonF GraphicsTriangle::resize2Polygon() const {
             y1 = 1;
             break;
     }
-    QPointF P1(A1.x(), A1.y() + y1 * sArrowLength);
-    QPointF P2(A1.x() + x1 * sArrowLength * rect().width() / C,
-               A1.y() + y1 * sArrowLength * rect().height() / C);
+    QPointF   P1(A1.x(), A1.y() + y1 * sArrowLength);
+    QPointF   P2(A1.x() + x1 * sArrowLength * rect().width() / C, A1.y() + y1 * sArrowLength * rect().height() / C);
     QPolygonF p;
     p << A1 << P1 << P2;
     return p;
 }
 
-QRectF GraphicsTriangle::hFlipRect() const {
+QRectF GraphicsTriangle::hFlipRect() const
+{
     qreal dy = mVFlipSvgItem->boundingRect().height() + mCloseSvgItem->boundingRect().height() + 10;
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
-            return QRectF(B2.x() - mHFlipSvgItem->boundingRect().width() - 5,
-                          B2.y() - mHFlipSvgItem->boundingRect().height() - 5 - dy,
-                          mHFlipSvgItem->boundingRect().width(), mHFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() - mHFlipSvgItem->boundingRect().width() - 5, B2.y() - mHFlipSvgItem->boundingRect().height() - 5 - dy,
+                mHFlipSvgItem->boundingRect().width(), mHFlipSvgItem->boundingRect().height());
         case TopLeft:
-            return QRectF(B2.x() - mHFlipSvgItem->boundingRect().width() - 5, B2.y() + 5 + dy,
-                          mHFlipSvgItem->boundingRect().width(), mHFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() - mHFlipSvgItem->boundingRect().width() - 5, B2.y() + 5 + dy, mHFlipSvgItem->boundingRect().width(),
+                mHFlipSvgItem->boundingRect().height());
         case TopRight:
-            return QRectF(B2.x() + 5, B2.y() + 5 + dy, mHFlipSvgItem->boundingRect().width(),
-                          mHFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() + 5, B2.y() + 5 + dy, mHFlipSvgItem->boundingRect().width(), mHFlipSvgItem->boundingRect().height());
         case BottomRight:
-            return QRectF(B2.x() + 5, B2.y() - mHFlipSvgItem->boundingRect().height() - 5 - dy,
-                          mHFlipSvgItem->boundingRect().width(), mHFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() + 5, B2.y() - mHFlipSvgItem->boundingRect().height() - 5 - dy, mHFlipSvgItem->boundingRect().width(),
+                mHFlipSvgItem->boundingRect().height());
     }
     return QRectF(0, 0, 0, 0);
 }
 
-QRectF GraphicsTriangle::vFlipRect() const {
+QRectF GraphicsTriangle::vFlipRect() const
+{
     qreal dy = mCloseSvgItem->boundingRect().height() + 5;
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
-            return QRectF(B2.x() - mVFlipSvgItem->boundingRect().width() - 5,
-                          B2.y() - mVFlipSvgItem->boundingRect().height() - 5 - dy,
-                          mVFlipSvgItem->boundingRect().width(), mVFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() - mVFlipSvgItem->boundingRect().width() - 5, B2.y() - mVFlipSvgItem->boundingRect().height() - 5 - dy,
+                mVFlipSvgItem->boundingRect().width(), mVFlipSvgItem->boundingRect().height());
         case TopLeft:
-            return QRectF(B2.x() - mVFlipSvgItem->boundingRect().width() - 5, B2.y() + 5 + dy,
-                          mVFlipSvgItem->boundingRect().width(), mVFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() - mVFlipSvgItem->boundingRect().width() - 5, B2.y() + 5 + dy, mVFlipSvgItem->boundingRect().width(),
+                mVFlipSvgItem->boundingRect().height());
         case TopRight:
-            return QRectF(B2.x() + 5, B2.y() + 5 + dy, mVFlipSvgItem->boundingRect().width(),
-                          mVFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() + 5, B2.y() + 5 + dy, mVFlipSvgItem->boundingRect().width(), mVFlipSvgItem->boundingRect().height());
         case BottomRight:
-            return QRectF(B2.x() + 5, B2.y() - mVFlipSvgItem->boundingRect().height() - 5 - dy,
-                          mVFlipSvgItem->boundingRect().width(), mVFlipSvgItem->boundingRect().height());
+            return QRectF(B2.x() + 5, B2.y() - mVFlipSvgItem->boundingRect().height() - 5 - dy, mVFlipSvgItem->boundingRect().width(),
+                mVFlipSvgItem->boundingRect().height());
     }
     return QRectF(0, 0, 0, 0);
 }
 
-QRectF GraphicsTriangle::rotateRect() const {
+QRectF GraphicsTriangle::rotateRect() const
+{
     QPointF p(C2);
-    qreal buttonsX = vFlipRect().left();
+    qreal   buttonsX = vFlipRect().left();
 
-    switch (mOrientation) {
+    switch (mOrientation)
+    {
         case BottomLeft:
             p = QPointF(qMax(p.x() + 20, buttonsX), p.y() + 5);
             break;
@@ -591,8 +623,7 @@ QRectF GraphicsTriangle::rotateRect() const {
             p = QPointF(qMax(p.x() + 20, buttonsX), p.y() - 5 - mRotateSvgItem->boundingRect().height());
             break;
         case TopRight:
-            p = QPointF(qMin(p.x() - 20 - mRotateSvgItem->boundingRect().width(), buttonsX),
-                        p.y() - 5 - mRotateSvgItem->boundingRect().height());
+            p = QPointF(qMin(p.x() - 20 - mRotateSvgItem->boundingRect().width(), buttonsX), p.y() - 5 - mRotateSvgItem->boundingRect().height());
             break;
         case BottomRight:
             p = QPointF(qMin(p.x() - 20 - mRotateSvgItem->boundingRect().width(), buttonsX), p.y() + 5);
@@ -601,33 +632,43 @@ QRectF GraphicsTriangle::rotateRect() const {
     return QRectF(p, QSizeF(mRotateSvgItem->boundingRect().size()));
 }
 
-QCursor GraphicsTriangle::resizeCursor1() const {
+QCursor GraphicsTriangle::resizeCursor1() const
+{
     return mResizeCursor1;
 }
 
-QCursor GraphicsTriangle::resizeCursor2() const {
+QCursor GraphicsTriangle::resizeCursor2() const
+{
     return mResizeCursor2;
 }
 
-QCursor GraphicsTriangle::flipCursor() const {
+QCursor GraphicsTriangle::flipCursor() const
+{
     return Qt::ArrowCursor;
 }
 
-
-void GraphicsTriangle::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+void GraphicsTriangle::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
     lastRect = rect().toRect();
-    lastPos = sceneTransform().inverted().map(event->screenPos());
+    lastPos  = sceneTransform().inverted().map(event->screenPos());
 
-    if (resize1Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill)) {
+    if (resize1Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill))
+    {
         mResizing1 = true;
         event->accept();
-    } else if (resize2Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill)) {
+    }
+    else if (resize2Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill))
+    {
         mResizing2 = true;
         event->accept();
-    } else if (rotateRect().contains(event->pos())) {
+    }
+    else if (rotateRect().contains(event->pos()))
+    {
         mRotating = true;
         event->accept();
-    } else {
+    }
+    else
+    {
         QGraphicsItem::mousePressEvent(event);
     }
     mShowButtons = false;
@@ -638,53 +679,68 @@ void GraphicsTriangle::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     update();
 }
 
-void GraphicsTriangle::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-    if (!mResizing1 && !mResizing2 && !mRotating) {
+void GraphicsTriangle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (!mResizing1 && !mResizing2 && !mRotating)
+    {
         QGraphicsItem::mouseMoveEvent(event);
-    } else {
+    }
+    else
+    {
         QPoint currPos = sceneTransform().inverted().map(event->screenPos());
 
-        if (mResizing1) {
-            if (mOrientation == TopLeft || mOrientation == BottomLeft) {
+        if (mResizing1)
+        {
+            if (mOrientation == TopLeft || mOrientation == BottomLeft)
+            {
                 int deltaX = currPos.x() - lastPos.x();
                 if (lastRect.width() + deltaX < sMinWidth)
+                {
                     deltaX = sMinWidth - lastRect.width();
+                }
 
-                setRect(QRectF(lastRect.left(), lastRect.top(), lastRect.width() + deltaX, lastRect.height()),
-                        mOrientation);
-            } else {
+                setRect(QRectF(lastRect.left(), lastRect.top(), lastRect.width() + deltaX, lastRect.height()), mOrientation);
+            }
+            else
+            {
                 int deltaX = lastPos.x() - currPos.x();
                 if (lastRect.width() + deltaX < sMinWidth)
+                {
                     deltaX = sMinWidth - lastRect.width();
+                }
 
-                setRect(QRectF(lastRect.left() - deltaX, lastRect.top(), lastRect.width() + deltaX,
-                               lastRect.height()),
-                        mOrientation);
+                setRect(QRectF(lastRect.left() - deltaX, lastRect.top(), lastRect.width() + deltaX, lastRect.height()), mOrientation);
             }
         }
 
         // 第二缩放手柄：按朝向决定纵向拉伸的方向。
-        if (mResizing2) {
-            if (mOrientation == BottomRight || mOrientation == BottomLeft) {
+        if (mResizing2)
+        {
+            if (mOrientation == BottomRight || mOrientation == BottomLeft)
+            {
                 int deltaY = lastPos.y() - currPos.y();
                 if (lastRect.height() + deltaY < sMinHeight)
+                {
                     deltaY = sMinHeight - lastRect.height();
+                }
 
-                setRect(QRectF(lastRect.left(), lastRect.top() - deltaY, lastRect.width(),
-                               lastRect.height() + deltaY),
-                        mOrientation);
-            } else {
+                setRect(QRectF(lastRect.left(), lastRect.top() - deltaY, lastRect.width(), lastRect.height() + deltaY), mOrientation);
+            }
+            else
+            {
                 int deltaY = currPos.y() - lastPos.y();
                 if (lastRect.height() + deltaY < sMinHeight)
+                {
                     deltaY = sMinHeight - lastRect.height();
+                }
 
-                setRect(QRectF(lastRect.left(), lastRect.top(), lastRect.width(), lastRect.height() + deltaY),
-                        mOrientation);
+                setRect(QRectF(lastRect.left(), lastRect.top(), lastRect.width(), lastRect.height() + deltaY), mOrientation);
             }
         }
 
         // 旋转：用当前与上一帧相对中心的极角差更新角度。
-        if (mRotating) {
+        if (mRotating)
+        {
             QLineF currentLine(rotationCenter(), event->pos());
             QLineF lastLine(rotationCenter(), event->lastPos());
             rotateAroundCenter(currentLine.angleTo(lastLine));
@@ -694,19 +750,28 @@ void GraphicsTriangle::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     }
 }
 
-void GraphicsTriangle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    if (mResizing1 || mResizing2 || mRotating) {
+void GraphicsTriangle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (mResizing1 || mResizing2 || mRotating)
+    {
         if (mRotating)
+        {
             updateResizeCursor();
+        }
         mResizing1 = false;
         mResizing2 = false;
-        mRotating = false;
+        mRotating  = false;
         event->accept();
-    } else if (closeButtonRect().contains(event->pos())) {
+    }
+    else if (closeButtonRect().contains(event->pos()))
+    {
         hide();
         event->accept();
-    } else if (hFlipRect().contains(event->pos())) {
-        switch (mOrientation) {
+    }
+    else if (hFlipRect().contains(event->pos()))
+    {
+        switch (mOrientation)
+        {
             case BottomLeft:
                 setOrientation(BottomRight);
                 break;
@@ -720,8 +785,11 @@ void GraphicsTriangle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                 setOrientation(TopLeft);
                 break;
         }
-    } else if (vFlipRect().contains(event->pos())) {
-        switch (mOrientation) {
+    }
+    else if (vFlipRect().contains(event->pos()))
+    {
+        switch (mOrientation)
+        {
             case BottomLeft:
                 setOrientation(TopLeft);
                 break;
@@ -735,19 +803,25 @@ void GraphicsTriangle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                 setOrientation(BottomRight);
                 break;
         }
-    } else {
+    }
+    else
+    {
         QGraphicsItem::mouseReleaseEvent(event);
     }
     mShowButtons = true;
     update();
     if (scene())
+    {
         scene()->setModified(true);
+    }
 }
 
-void GraphicsTriangle::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
+void GraphicsTriangle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
-    if (currentTool == StylusTool::Selector || currentTool == StylusTool::Play) {
+    if (currentTool == StylusTool::Selector || currentTool == StylusTool::Play)
+    {
         mCloseSvgItem->setParentItem(this);
 
         mShowButtons = true;
@@ -757,31 +831,45 @@ void GraphicsTriangle::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
         mRotateSvgItem->setVisible(contains(rotateRect()));
 
         if (resize1Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill))
+        {
             setCursor(resizeCursor1());
+        }
         else if (resize2Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill))
+        {
             setCursor(resizeCursor2());
+        }
         else if (closeButtonRect().contains(event->pos()))
+        {
             setCursor(closeCursor());
+        }
         else if (hFlipRect().contains(event->pos()) || vFlipRect().contains(event->pos()))
+        {
             setCursor(flipCursor());
+        }
         else if (rotateRect().contains(event->pos()))
+        {
             setCursor(rotateCursor());
+        }
         else
+        {
             setCursor(moveCursor());
+        }
 
         event->accept();
         update();
-
-    } else if (DrawingController::drawingController()->isDrawingTool()) {
+    }
+    else if (DrawingController::drawingController()->isDrawingTool())
+    {
         setCursor(drawRulerLineCursor());
         DrawingController::drawingController()->mActiveRuler = this;
         event->accept();
     }
 }
 
-void GraphicsTriangle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
+void GraphicsTriangle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
     mResizing1 = mResizing2 = mRotating = false;
-    mShowButtons = false;
+    mShowButtons                        = false;
     setCursor(Qt::ArrowCursor);
     mCloseSvgItem->setVisible(false);
     mVFlipSvgItem->setVisible(false);
@@ -792,50 +880,74 @@ void GraphicsTriangle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     update();
 }
 
-void GraphicsTriangle::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
+void GraphicsTriangle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
-    if (currentTool == StylusTool::Selector || currentTool == StylusTool::Play) {
+    if (currentTool == StylusTool::Selector || currentTool == StylusTool::Play)
+    {
         mCloseSvgItem->setVisible(mShowButtons);
         mVFlipSvgItem->setVisible(mShowButtons && contains(vFlipRect()));
         mHFlipSvgItem->setVisible(mShowButtons && contains(hFlipRect()));
         mRotateSvgItem->setVisible(mShowButtons && contains(rotateRect()));
 
         if (resize1Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill))
+        {
             setCursor(resizeCursor1());
+        }
         else if (resize2Polygon().containsPoint(event->pos().toPoint(), Qt::OddEvenFill))
+        {
             setCursor(resizeCursor2());
+        }
         else if (closeButtonRect().contains(event->pos()))
+        {
             setCursor(closeCursor());
+        }
         else if (hFlipRect().contains(event->pos()) || vFlipRect().contains(event->pos()))
+        {
             setCursor(flipCursor());
+        }
         else if (rotateRect().contains(event->pos()))
+        {
             setCursor(rotateCursor());
+        }
         else
+        {
             setCursor(moveCursor());
+        }
 
         event->accept();
-    } else if (DrawingController::drawingController()->isDrawingTool()) {
+    }
+    else if (DrawingController::drawingController()->isDrawingTool())
+    {
         event->accept();
     }
 }
-void GraphicsTriangle::StartLine(const QPointF &scenePos, qreal width) {
+void GraphicsTriangle::StartLine(const QPointF &scenePos, qreal width)
+{
     Q_UNUSED(width);
     QPointF itemPos = mapFromScene(scenePos);
-    mStrokeWidth = DrawingController::drawingController()->currentToolWidth();
+    mStrokeWidth    = DrawingController::drawingController()->currentToolWidth();
 
     qreal y;
 
-    if (mOrientation == 0 || mOrientation == 1) {
+    if (mOrientation == 0 || mOrientation == 1)
+    {
         y = rect().y() + rect().height() + mStrokeWidth / 2;
-    } else if (mOrientation == 2 || mOrientation == 3) {
+    }
+    else if (mOrientation == 2 || mOrientation == 3)
+    {
         y = rect().y() - mStrokeWidth / 2;
     }
 
     if (itemPos.x() < rect().x() + sLeftEdgeMargin)
+    {
         itemPos.setX(rect().x() + sLeftEdgeMargin);
+    }
     if (itemPos.x() > rect().x() + rect().width() - sLeftEdgeMargin)
+    {
         itemPos.setX(rect().x() + rect().width() - sLeftEdgeMargin);
+    }
 
     itemPos.setY(y);
     itemPos = mapToScene(itemPos);
@@ -844,29 +956,36 @@ void GraphicsTriangle::StartLine(const QPointF &scenePos, qreal width) {
     scene()->drawLineTo(itemPos, mStrokeWidth, true);
 }
 
-void GraphicsTriangle::DrawLine(const QPointF &scenePos, qreal width) {
+void GraphicsTriangle::DrawLine(const QPointF &scenePos, qreal width)
+{
     Q_UNUSED(width);
     QPointF itemPos = mapFromScene(scenePos);
 
     qreal y;
 
-    if (mOrientation == 0 || mOrientation == 1) {
+    if (mOrientation == 0 || mOrientation == 1)
+    {
         y = rect().y() + rect().height() + mStrokeWidth / 2;
-    } else if (mOrientation == 2 || mOrientation == 3) {
+    }
+    else if (mOrientation == 2 || mOrientation == 3)
+    {
         y = rect().y() - mStrokeWidth / 2;
     }
 
     if (itemPos.x() < rect().x() + sLeftEdgeMargin)
+    {
         itemPos.setX(rect().x() + sLeftEdgeMargin);
+    }
     if (itemPos.x() > rect().x() + rect().width() - sLeftEdgeMargin)
+    {
         itemPos.setX(rect().x() + rect().width() - sLeftEdgeMargin);
+    }
 
     itemPos.setY(y);
     itemPos = mapToScene(itemPos);
 
     // 非记号笔工具使用带笔锋的线条，记号笔保持普通线条。
-    scene()->drawLineTo(itemPos, mStrokeWidth,
-                        DrawingController::drawingController()->stylusTool() != StylusTool::Marker);
+    scene()->drawLineTo(itemPos, mStrokeWidth, DrawingController::drawingController()->stylusTool() != StylusTool::Marker);
 }
 
 /**
@@ -874,7 +993,8 @@ void GraphicsTriangle::DrawLine(const QPointF &scenePos, qreal width) {
  *
  * 任一顶点在三角形内即返回 true；strict 为 true 时要求矩形的全部角点都在内部。
  */
-bool GraphicsTriangle::contains(const QRectF &rect, bool strict) {
+bool GraphicsTriangle::contains(const QRectF &rect, bool strict)
+{
     QPolygonF poly;
     poly << A1 << B1 << C1 << A1;
 
@@ -886,14 +1006,21 @@ bool GraphicsTriangle::contains(const QRectF &rect, bool strict) {
 
     bool inside = path.contains(rect.bottomLeft());
 
-    foreach (QPointF p, points) {
+    foreach (QPointF p, points)
+    {
         if (strict)
+        {
             inside = inside && path.contains(p);
+        }
         else
+        {
             inside = inside || path.contains(p);
+        }
     }
 
     return inside;
 }
 
-void GraphicsTriangle::EndLine() {}
+void GraphicsTriangle::EndLine()
+{
+}

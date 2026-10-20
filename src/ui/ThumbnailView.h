@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QGraphicsView>
 #include <QLabel>
 #include <QHBoxLayout>
@@ -22,7 +21,8 @@ class GraphicsScene;
  * 和滚动条，作为文档列表里的缩略预览。由 DraggableThumbnailView 通过
  * setWidget 嵌入到图形场景中，本身不处理交互。
  */
-class ThumbnailView : public QGraphicsView {
+class ThumbnailView : public QGraphicsView
+{
     Q_OBJECT
 
 public:

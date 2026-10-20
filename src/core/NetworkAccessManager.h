@@ -14,7 +14,8 @@
  * 所有网络模块应通过它取 reply，以共享连接与缓存。线程约束：GUI 线程专用，
  * 认证对话框直接以活动窗口为父窗口弹出。
  */
-class NetworkAccessManager : public QNetworkAccessManager {
+class NetworkAccessManager : public QNetworkAccessManager
+{
     Q_OBJECT
 
 public:
@@ -29,8 +30,7 @@ public:
 
 protected:
     /// 为每个请求开启 HTTP 流水线，然后交给基类创建 reply。
-    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req,
-                                         QIODevice *outgoingData = 0);
+    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData = 0);
 
 private:
     QList<QString> sslTrustedHostList;

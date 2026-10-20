@@ -11,7 +11,6 @@
 
 class GraphicsScene;
 
-
 /**
  * @brief 文档页缩略图视图，DocumentsWidget 右侧的页面列表。
  *
@@ -20,7 +19,8 @@ class GraphicsScene;
  * 拖拽过程中在目标位置画一条灰色插入线，靠近边缘时自动滚动，释放后通过
  * sceneDropped() 通知控制器移动页面。关闭拖拽时只保留选择行为。
  */
-class DocumentThumbnailWidget : public ThumbnailWidget {
+class DocumentThumbnailWidget : public ThumbnailWidget
+{
     Q_OBJECT
 
 public:
@@ -56,8 +56,7 @@ public slots:
      * @note 先删除拖放插入线，再交给基类重建内容。
      */
     virtual void setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsItems, const QList<QUrl> &pItemPaths,
-                                  const QStringList pLabels = QStringList(),
-                                  const QString &pMimeType = QString(""));
+        const QStringList pLabels = QStringList(), const QString &pMimeType = QString(""));
 
 signals:
     /**

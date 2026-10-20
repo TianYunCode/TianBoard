@@ -12,7 +12,6 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
 
-
 /**
  * @brief 背景设置浮动调色板：上方是背景动作按钮，下方是网格尺寸滑块与复位按钮。
  *
@@ -20,7 +19,8 @@
  * 与背景切换动作连接起来；面板作用于 BoardController 当前活动场景
  * （GraphicsScene）的背景网格。显示时会按当前场景的深浅色调整标签文字颜色。
  */
-class BackgroundPalette : public ActionPalette {
+class BackgroundPalette : public ActionPalette
+{
     Q_OBJECT
 
 public:

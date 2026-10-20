@@ -14,7 +14,6 @@
 class DelegateButton;
 class GraphicsItemDelegate;
 
-
 /**
  * @brief 围绕选中图元的可交互边框：绘制描边、放置删除/复制/层级/旋转等按钮，
  * 并在拖动时整体移动或旋转被选图元。
@@ -25,13 +24,22 @@ class GraphicsItemDelegate;
  *
  * 线程约束：所有交互、绘制与撤销操作都在 GUI 线程。
  */
-class SelectionFrame : public QObject, public QGraphicsRectItem {
+class SelectionFrame : public QObject, public QGraphicsRectItem
+{
     Q_OBJECT
 
 public:
-    enum { om_idle, om_moving, om_rotating } mOperationMode; ///< 当前鼠标操作模式（空闲/移动/旋转）
+    enum
+    {
+        om_idle,
+        om_moving,
+        om_rotating
+    } mOperationMode; ///< 当前鼠标操作模式（空闲/移动/旋转）
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::SelectionFrameType };
+    enum
+    {
+        Type = GraphicsItemType::SelectionFrameType
+    };
 
     SelectionFrame();
 
@@ -43,9 +51,15 @@ public:
     QPainterPath shape() const;
 
     /// @brief 设置边框画刷。
-    void setLocalBrush(const QBrush &pBrush) { mLocalBrush = pBrush; }
+    void setLocalBrush(const QBrush &pBrush)
+    {
+        mLocalBrush = pBrush;
+    }
     /// @brief 当前边框画刷。
-    QBrush localBrush() const { return mLocalBrush; }
+    QBrush localBrush() const
+    {
+        return mLocalBrush;
+    }
     /**
      * @brief 根据一组图元重建选中框：合并包围区域、汇总能力标志并放置按钮。
      * @param pGraphicsItems 当前选中的图元集合；其中任一图元被锁定时整框视为锁定。
@@ -57,9 +71,15 @@ public:
     /// @brief 按当前缩放反向缩放选中框，保持视觉厚度恒定。
     void updateScale();
     /// @brief 包围矩形是否为空（无有效选中内容）。
-    bool isEmpty() const { return this->rect().isEmpty(); }
+    bool isEmpty() const
+    {
+        return this->rect().isEmpty();
+    }
     /// @brief 返回图元类型。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
 protected:
     /// @brief 记录按下位置，并根据命中的按钮决定进入移动还是旋转模式。
@@ -71,7 +91,10 @@ protected:
 
 private slots:
     /// @brief 由场景的缩放通知更新反缩放系数。
-    void setAntiScaleRatio(qreal pAntiscaleRatio) { mAntiscaleRatio = pAntiscaleRatio; }
+    void setAntiScaleRatio(qreal pAntiscaleRatio)
+    {
+        mAntiscaleRatio = pAntiscaleRatio;
+    }
     /// @brief 缩放变化时重算反缩放系数与按钮位置。
     void onZoomChanged(qreal pZoom);
     /// @brief 删除所有被选图元（可撤销）。
@@ -99,7 +122,10 @@ private:
     /// @brief 把所有按钮从选中框上摘下并隐藏。
     void clearButtons();
     /// @brief 边框厚度按反缩放后的像素值。
-    inline int adjThickness() const { return mThickness * mAntiscaleRatio; }
+    inline int adjThickness() const
+    {
+        return mThickness * mAntiscaleRatio;
+    }
     /// @brief 把场景转换为 GraphicsScene。
     inline GraphicsScene *graphicsScene();
     /// @brief 用角度文本生成并设置旋转光标。
@@ -114,25 +140,25 @@ private:
     QList<QGraphicsItem *> enclosedGraphicsItems();
 
 private:
-    int mThickness;                              ///< 边框基准厚度
-    qreal mAntiscaleRatio;                       ///< 反缩放系数
-    QList<GraphicsItemDelegate *> mEnclosedtems; ///< 被选图元的委托列表
-    QBrush mLocalBrush;                          ///< 边框画刷
+    int                           mThickness;      ///< 边框基准厚度
+    qreal                         mAntiscaleRatio; ///< 反缩放系数
+    QList<GraphicsItemDelegate *> mEnclosedtems;   ///< 被选图元的委托列表
+    QBrush                        mLocalBrush;     ///< 边框画刷
 
-    QPointF mPressedPos;          ///< 按下位置
-    QPointF mLastMovedPos;        ///< 上一次移动位置
-    QPointF mLastTranslateOffset; ///< 上一次累计平移量，避免重复位移
-    qreal mRotationAngle;         ///< 当前累计旋转角度（调试用）
+    QPointF mPressedPos;                           ///< 按下位置
+    QPointF mLastMovedPos;                         ///< 上一次移动位置
+    QPointF mLastTranslateOffset;                  ///< 上一次累计平移量，避免重复位移
+    qreal   mRotationAngle;                        ///< 当前累计旋转角度（调试用）
 
-    bool mIsLocked; ///< 选中集合中是否有锁定图元
+    bool mIsLocked;                                ///< 选中集合中是否有锁定图元
 
-    QList<DelegateButton *> mButtons; ///< 当前显示的按钮
+    QList<DelegateButton *> mButtons;              ///< 当前显示的按钮
 
-    DelegateButton *mDeleteButton;     ///< 删除按钮
-    DelegateButton *mDuplicateButton;  ///< 复制按钮
-    DelegateButton *mZOrderUpButton;   ///< 层级上移按钮
-    DelegateButton *mZOrderDownButton; ///< 层级下移按钮
-    DelegateButton *mGroupButton;      ///< 组合按钮
+    DelegateButton *mDeleteButton;                 ///< 删除按钮
+    DelegateButton *mDuplicateButton;              ///< 复制按钮
+    DelegateButton *mZOrderUpButton;               ///< 层级上移按钮
+    DelegateButton *mZOrderDownButton;             ///< 层级下移按钮
+    DelegateButton *mGroupButton;                  ///< 组合按钮
 
-    DelegateButton *mRotateButton; ///< 旋转按钮
+    DelegateButton *mRotateButton;                 ///< 旋转按钮
 };

@@ -18,19 +18,18 @@
 
 #include "ui/MainWindow.h"
 
-
 #include "web/ChaseWidget.h"
 #include "web/WebDownloadManager.h"
 #include "web/TabWidget.h"
 #include "web/WebView.h"
 
-
 WebDownloadManager *BrowserWindow::sWebDownloadManager = 0;
 
-struct BrowserWindow::Private {
-    QToolBar *mWebToolBar{nullptr};
+struct BrowserWindow::Private
+{
+    QToolBar    *mWebToolBar{nullptr};
     ChaseWidget *mChaseWidget{nullptr};
-    TabWidget *mTabWidget{nullptr};
+    TabWidget   *mTabWidget{nullptr};
 
     MainWindow *mMainWindow{nullptr};
 
@@ -38,9 +37,10 @@ struct BrowserWindow::Private {
     QMenu *mHistoryForwardMenu{nullptr};
 };
 
-BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(parent), d(new Private) {
-    d->mTabWidget = new TabWidget(this);
-    d->mMainWindow = mainWindow;
+BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(parent), d(new Private)
+{
+    d->mTabWidget                       = new TabWidget(this);
+    d->mMainWindow                      = mainWindow;
 
     // 所有标签页共用默认 profile，属性只需设置一次，之后新建的页面都会继承。
     QWebEngineSettings *defaultSettings = QWebEngineProfile::defaultProfile()->settings();
@@ -49,7 +49,6 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(
 
     setupMenu();
     setupToolBar();
-
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setSpacing(0);
@@ -61,16 +60,17 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(
 
     connect(d->mTabWidget, &TabWidget::loadPage, this, &BrowserWindow::loadPage);
 
-
     connect(d->mTabWidget, &TabWidget::setCurrentTitle, this, &BrowserWindow::slotUpdateWindowTitle);
 
     connect(d->mTabWidget, &TabWidget::loadProgress, this, &BrowserWindow::slotLoadProgress);
 
+    connect(d->mTabWidget, &TabWidget::loadFinished, this,
+        [this](bool)
+        {
+            emit activeViewPageChanged();
+        });
 
-    connect(d->mTabWidget, &TabWidget::loadFinished, this, [this](bool) { emit activeViewPageChanged(); });
-
-    connect(d->mTabWidget, &TabWidget::geometryChangeRequested, this,
-            &BrowserWindow::geometryChangeRequested);
+    connect(d->mTabWidget, &TabWidget::geometryChangeRequested, this, &BrowserWindow::geometryChangeRequested);
 
     slotUpdateWindowTitle();
 
@@ -81,38 +81,45 @@ BrowserWindow::BrowserWindow(QWidget *parent, MainWindow *mainWindow) : QWidget(
     connect(d->mTabWidget, &QTabWidget::currentChanged, this, &BrowserWindow::tabCurrentChanged);
 }
 
-
-BrowserWindow::~BrowserWindow() {
+BrowserWindow::~BrowserWindow()
+{
     // 下载管理器在 webBrowserInstance() 里被 setParent 到本窗口，会随窗口一起销毁；
     // 静态指针不清空的话，下一次 downloadManager() 会返回悬空对象。
-    if (sWebDownloadManager && sWebDownloadManager->parent() == this) {
+    if (sWebDownloadManager && sWebDownloadManager->parent() == this)
+    {
         sWebDownloadManager = nullptr;
     }
 
-    if (d->mTabWidget) {
+    if (d->mTabWidget)
+    {
         delete d->mTabWidget;
         d->mTabWidget = NULL;
     }
 }
 
-WebDownloadManager *BrowserWindow::downloadManager() {
-    if (!sWebDownloadManager) {
+WebDownloadManager *BrowserWindow::downloadManager()
+{
+    if (!sWebDownloadManager)
+    {
         sWebDownloadManager = new WebDownloadManager(Application::mainWindow);
     }
     return sWebDownloadManager;
 }
 
-QSize BrowserWindow::sizeHint() const {
+QSize BrowserWindow::sizeHint() const
+{
     QRect desktopRect = VirtualDesktop::instance()->screenGeometry(Application::controlScreenIndex());
-    QSize size = desktopRect.size() * qreal(0.9);
+    QSize size        = desktopRect.size() * qreal(0.9);
     return size;
 }
 
-void BrowserWindow::setupMenu() {
+void BrowserWindow::setupMenu()
+{
     new QShortcut(QKeySequence(Qt::Key_F6), this, this, &BrowserWindow::slotSwapFocus);
 }
 
-void BrowserWindow::setupToolBar() {
+void BrowserWindow::setupToolBar()
+{
     d->mWebToolBar = d->mMainWindow->ui().webToolBar;
 
     d->mTabWidget->addWebAction(d->mMainWindow->ui().actionWebBack, QWebEnginePage::Back);
@@ -136,214 +143,287 @@ void BrowserWindow::setupToolBar() {
     d->mWebToolBar->insertWidget(d->mMainWindow->ui().actionWebBigger, d->mChaseWidget);
     d->mWebToolBar->insertSeparator(d->mMainWindow->ui().actionWebBigger);
 
-    connect(d->mMainWindow->ui().actionHome, &QAction::triggered, this, [this] { slotHome(); });
+    connect(d->mMainWindow->ui().actionHome, &QAction::triggered, this,
+        [this]
+        {
+            slotHome();
+        });
 
-    connect(d->mMainWindow->ui().actionWebBigger, &QAction::triggered, this, [this] { slotViewZoomIn(); });
-    connect(d->mMainWindow->ui().actionWebSmaller, &QAction::triggered, this, [this] { slotViewZoomOut(); });
+    connect(d->mMainWindow->ui().actionWebBigger, &QAction::triggered, this,
+        [this]
+        {
+            slotViewZoomIn();
+        });
+    connect(d->mMainWindow->ui().actionWebSmaller, &QAction::triggered, this,
+        [this]
+        {
+            slotViewZoomOut();
+        });
 
     d->mWebToolBar->show();
 }
 
 // 历史菜单挂在后退/前进按钮上：按钮本体仍是"后退一步"，旁边的小箭头展开历史列表。
-void BrowserWindow::attachHistoryMenu(QAction *action, QMenu *menu) {
+void BrowserWindow::attachHistoryMenu(QAction *action, QMenu *menu)
+{
     const QList<QWidget *> widgets = action->associatedWidgets();
-    for (QWidget *widget : widgets) {
+    for (QWidget *widget : widgets)
+    {
         QToolButton *button = qobject_cast<QToolButton *>(widget);
-        if (button && !button->menu()) {
+        if (button && !button->menu())
+        {
             button->setMenu(menu);
             button->setPopupMode(QToolButton::MenuButtonPopup);
         }
     }
 }
 
-QUrl BrowserWindow::guessUrlFromString(const QString &string) {
+QUrl BrowserWindow::guessUrlFromString(const QString &string)
+{
     QString urlStr = string.trimmed();
     QRegExp test(QLatin1String("^[a-zA-Z]+\\:.*"));
 
     // 先看是否已经带协议头；带协议但没写域名后缀时补 .com，再由 QUrl 宽容解析。
     bool hasSchema = test.exactMatch(urlStr);
-    if (hasSchema) {
+    if (hasSchema)
+    {
         int dotCount = urlStr.count(".");
 
-        if (dotCount == 0 && !urlStr.contains(".com")) {
+        if (dotCount == 0 && !urlStr.contains(".com"))
+        {
             urlStr += ".com";
         }
 
         QUrl url = QUrl::fromEncoded(urlStr.toUtf8(), QUrl::TolerantMode);
-        if (url.isValid()) {
+        if (url.isValid())
+        {
             return url;
         }
     }
 
     // 也可能是本地文件路径，存在就转成本地文件 URL。
-    if (QFile::exists(urlStr)) {
+    if (QFile::exists(urlStr))
+    {
         QFileInfo info(urlStr);
         return QUrl::fromLocalFile(info.absoluteFilePath());
     }
 
     // 没有协议头时按“主机名”猜测，默认补 http://。
-    if (!hasSchema) {
-        QString schema = "http";
+    if (!hasSchema)
+    {
+        QString schema  = "http";
 
         QString guessed = schema + "://" + urlStr;
 
-        int dotCount = guessed.count(".");
+        int dotCount    = guessed.count(".");
 
-        if (dotCount == 0 && !urlStr.contains(".com")) {
+        if (dotCount == 0 && !urlStr.contains(".com"))
+        {
             guessed += ".com";
         }
 
         QUrl url = QUrl::fromEncoded(guessed.toUtf8(), QUrl::TolerantMode);
 
         if (url.isValid())
+        {
             return url;
+        }
     }
 
     // 最后退回 QUrl 自己的宽容解析；仍没有协议时补 http://，避免地址栏输入被当成相对路径。
     QUrl url = QUrl::fromEncoded(string.toUtf8(), QUrl::TolerantMode);
 
     if (url.scheme().isEmpty())
+    {
         url = QUrl::fromEncoded("http://" + string.toUtf8(), QUrl::TolerantMode);
+    }
 
     return url;
 }
 
-void BrowserWindow::loadUrl(const QUrl &url) {
+void BrowserWindow::loadUrl(const QUrl &url)
+{
     if (!currentTabWebView() || !url.isValid())
+    {
         return;
+    }
 
     d->mTabWidget->currentLineEdit()->setText(url.toString());
     d->mTabWidget->loadUrlInCurrentTab(url);
 }
 
-void BrowserWindow::loadUrlInNewTab(const QUrl &url) {
+void BrowserWindow::loadUrlInNewTab(const QUrl &url)
+{
     if (!url.isValid())
+    {
         return;
+    }
 
     d->mTabWidget->newTab();
     loadUrl(url);
 }
 
-WebView *BrowserWindow::createNewTab() {
+WebView *BrowserWindow::createNewTab()
+{
     return d->mTabWidget->newTab();
 }
 
-void BrowserWindow::slotFileSaveAs() {
+void BrowserWindow::slotFileSaveAs()
+{
     downloadManager()->download(currentTabWebView()->url(), true);
 }
 
-void BrowserWindow::slotUpdateStatusbar(const QString &string) {
+void BrowserWindow::slotUpdateStatusbar(const QString &string)
+{
     Q_UNUSED(string);
 }
 
-void BrowserWindow::slotUpdateWindowTitle(const QString &title) {
+void BrowserWindow::slotUpdateWindowTitle(const QString &title)
+{
     Q_UNUSED(title);
 }
 
-void BrowserWindow::closeEvent(QCloseEvent *event) {
+void BrowserWindow::closeEvent(QCloseEvent *event)
+{
     // 关闭只做延迟销毁：WebEngine 页面还在处理事件，立即 delete 容易在回调里重入。
     event->accept();
     deleteLater();
 }
 
-void BrowserWindow::slotViewZoomIn() {
+void BrowserWindow::slotViewZoomIn()
+{
     WebView *currentWebView = currentTabWebView();
 
     if (!currentWebView)
+    {
         return;
+    }
 
     currentWebView->setZoomFactor(currentWebView->zoomFactor() + 0.1);
 }
 
-void BrowserWindow::slotViewZoomOut() {
+void BrowserWindow::slotViewZoomOut()
+{
     WebView *currentWebView = currentTabWebView();
 
     if (!currentWebView)
+    {
         return;
+    }
 
     currentWebView->setZoomFactor(currentWebView->zoomFactor() - 0.1);
 }
 
-void BrowserWindow::slotViewResetZoom() {
+void BrowserWindow::slotViewResetZoom()
+{
     if (!currentTabWebView())
+    {
         return;
+    }
     currentTabWebView()->setZoomFactor(1.0);
 }
 
-void BrowserWindow::slotViewZoomTextOnly(bool enable) {
+void BrowserWindow::slotViewZoomTextOnly(bool enable)
+{
     if (!currentTabWebView())
+    {
         return;
-    currentTabWebView()->page()->profile()->settings()->setAttribute(QWebEngineSettings::AutoLoadIconsForPage,
-                                                                     enable);
+    }
+    currentTabWebView()->page()->profile()->settings()->setAttribute(QWebEngineSettings::AutoLoadIconsForPage, enable);
 }
 
-void BrowserWindow::slotHome() {
+void BrowserWindow::slotHome()
+{
     loadPage(Settings::settings()->webHomePage->get().toString());
 }
 
-void BrowserWindow::slotSwapFocus() {
+void BrowserWindow::slotSwapFocus()
+{
     if (currentTabWebView()->hasFocus())
+    {
         d->mTabWidget->currentLineEdit()->setFocus();
+    }
     else
+    {
         currentTabWebView()->setFocus();
+    }
 }
 
-void BrowserWindow::loadPage(const QString &page) {
+void BrowserWindow::loadPage(const QString &page)
+{
     QUrl url = guessUrlFromString(page);
     loadUrl(url);
 }
 
-TabWidget *BrowserWindow::tabWidget() const {
+TabWidget *BrowserWindow::tabWidget() const
+{
     return d->mTabWidget;
 }
 
-WebView *BrowserWindow::currentTabWebView() const {
+WebView *BrowserWindow::currentTabWebView() const
+{
     return d->mTabWidget->currentWebView();
 }
 
-void BrowserWindow::slotLoadProgress(int progress) {
+void BrowserWindow::slotLoadProgress(int progress)
+{
     if (d->mChaseWidget)
+    {
         d->mChaseWidget->setAnimated(progress > 0 && progress < 100);
+    }
 }
 
-void BrowserWindow::geometryChangeRequested(const QRect &geometry) {
+void BrowserWindow::geometryChangeRequested(const QRect &geometry)
+{
     setGeometry(geometry);
 }
 
-void BrowserWindow::tabCurrentChanged(int index) {
+void BrowserWindow::tabCurrentChanged(int index)
+{
     QWidget *current = d->mTabWidget->widget(index);
 
     emit activeViewChange(current);
     emit activeViewPageChanged();
 }
 
-WebView *BrowserWindow::paintWidget() {
+WebView *BrowserWindow::paintWidget()
+{
     return d->mTabWidget->currentWebView();
 }
 
-void BrowserWindow::showTabAtTop(bool attop) {
+void BrowserWindow::showTabAtTop(bool attop)
+{
     if (attop)
+    {
         d->mTabWidget->setTabPosition(QTabWidget::North);
+    }
     else
+    {
         d->mTabWidget->setTabPosition(QTabWidget::South);
+    }
 }
 
-void BrowserWindow::aboutToShowBackMenu() {
+void BrowserWindow::aboutToShowBackMenu()
+{
     d->mHistoryBackMenu->clear();
     if (!currentTabWebView())
+    {
         return;
+    }
     QWebEngineHistory *history = currentTabWebView()->history();
 
-    int historyCount = history->count();
-    int historyLimit =
-        history->backItems(historyCount).count() - Settings::settings()->historyLimit->get().toReal();
+    int historyCount           = history->count();
+    int historyLimit           = history->backItems(historyCount).count() - Settings::settings()->historyLimit->get().toReal();
     if (historyLimit < 0)
+    {
         historyLimit = 0;
+    }
 
-    for (int i = history->backItems(historyCount).count() - 1; i >= historyLimit; --i) {
+    for (int i = history->backItems(historyCount).count() - 1; i >= historyLimit; --i)
+    {
         QWebEngineHistoryItem item = history->backItems(historyCount).at(i);
 
-        QAction *action = new QAction(this);
+        QAction *action            = new QAction(this);
         // 用负偏移表示后退几步，openActionUrl 据此调用 backItems(-offset)。
         action->setData(-1 * (historyCount - i - 1));
 
@@ -359,21 +439,27 @@ void BrowserWindow::aboutToShowBackMenu() {
     d->mHistoryBackMenu->addAction(action);
 }
 
-void BrowserWindow::aboutToShowForwardMenu() {
+void BrowserWindow::aboutToShowForwardMenu()
+{
     d->mHistoryForwardMenu->clear();
     if (!currentTabWebView())
+    {
         return;
-    QWebEngineHistory *history = currentTabWebView()->history();
-    int historyCount = history->count();
+    }
+    QWebEngineHistory *history      = currentTabWebView()->history();
+    int                historyCount = history->count();
 
-    int historyLimit = history->forwardItems(historyCount).count();
+    int historyLimit                = history->forwardItems(historyCount).count();
     if (historyLimit > Settings::settings()->historyLimit->get().toReal())
+    {
         historyLimit = Settings::settings()->historyLimit->get().toReal();
+    }
 
-    for (int i = 0; i < historyLimit; ++i) {
+    for (int i = 0; i < historyLimit; ++i)
+    {
         QWebEngineHistoryItem item = history->forwardItems(historyCount).at(i);
 
-        QAction *action = new QAction(this);
+        QAction *action            = new QAction(this);
         // 用正偏移表示前进几步，openActionUrl 据此调用 forwardItems(count - offset + 1)。
         action->setData(historyCount - i);
 
@@ -389,17 +475,23 @@ void BrowserWindow::aboutToShowForwardMenu() {
     d->mHistoryForwardMenu->addAction(action);
 }
 
-void BrowserWindow::openActionUrl(QAction *action) {
+void BrowserWindow::openActionUrl(QAction *action)
+{
     QWebEngineHistory *history = currentTabWebView()->history();
 
-    if (action->data() == "clear") {
+    if (action->data() == "clear")
+    {
         history->clear();
         return;
     }
 
     int offset = action->data().toInt();
     if (offset < 0)
+    {
         history->goToItem(history->backItems(-1 * offset).first());
+    }
     else if (offset > 0)
+    {
         history->goToItem(history->forwardItems(history->count() - offset + 1).back());
+    }
 }

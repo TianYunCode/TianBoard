@@ -18,7 +18,8 @@ class RightPalette;
  * 由 DesktopAnnotationController 创建，父控件为透明绘图层视图；面板自身不保存工具状态，
  * 选择结果通过 DrawingController 的全局信号回写，然后自动 close()。
  */
-class DesktopPropertyPalette : public PropertyPalette {
+class DesktopPropertyPalette : public PropertyPalette
+{
     Q_OBJECT
 
 public:
@@ -39,13 +40,16 @@ protected:
  * 按钮来自主窗口的共享动作，面板只负责摆放到桌面工具栏旁；父工具栏收起时断开按钮的释放信号，
  * 展开时重新连接，避免重复触发。
  */
-class DesktopPenPalette : public DesktopPropertyPalette {
+class DesktopPenPalette : public DesktopPropertyPalette
+{
     Q_OBJECT
 public:
     /** @brief 构造面板并连接颜色、线宽选择控件。 */
     DesktopPenPalette(QWidget *parent, RightPalette *rightPalette);
     /** @brief 析构；子控件随父子关系回收。 */
-    virtual ~DesktopPenPalette() {}
+    virtual ~DesktopPenPalette()
+    {
+    }
 public slots:
     /** @brief 父工具栏收起时断开按钮释放信号。 */
     void onParentMinimized();
@@ -60,21 +64,27 @@ private slots:
 /**
  * @brief 橡皮属性面板：橡皮宽度选择与“清除桌面批注”动作。
  */
-class DesktopEraserPalette : public DesktopPropertyPalette {
+class DesktopEraserPalette : public DesktopPropertyPalette
+{
 public:
     /** @brief 构造面板并装配橡皮宽度按钮与清除动作。 */
     DesktopEraserPalette(QWidget *parent, RightPalette *rightPalette);
     /** @brief 析构；子控件随父子关系回收。 */
-    virtual ~DesktopEraserPalette() {}
+    virtual ~DesktopEraserPalette()
+    {
+    }
 };
 
 /**
  * @brief 标记属性面板：颜色与线宽选择，选完即关闭。
  */
-class DesktopMarkerPalette : public DesktopPropertyPalette {
+class DesktopMarkerPalette : public DesktopPropertyPalette
+{
 public:
     /** @brief 构造面板并连接颜色、线宽选择控件。 */
     DesktopMarkerPalette(QWidget *parent, RightPalette *rightPalette);
     /** @brief 析构；子控件随父子关系回收。 */
-    virtual ~DesktopMarkerPalette() {}
+    virtual ~DesktopMarkerPalette()
+    {
+    }
 };

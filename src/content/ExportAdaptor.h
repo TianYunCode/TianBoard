@@ -20,7 +20,8 @@ class DocumentProxy;
  * @note 子类必须实现 exportName() 与 persist()；persistsDocument() 默认返回 false，
  *       仅表示“该格式不支持无交互写出”。
  */
-class ExportAdaptor : public QObject {
+class ExportAdaptor : public QObject
+{
     Q_OBJECT
 
 public:
@@ -31,26 +32,42 @@ public:
     /** @brief 返回展示给用户的导出格式名称，同时作为菜单项文案。 */
     virtual QString exportName() = 0;
     /** @brief 返回带点的扩展名（如 ".pdf"），用于补全文件名。 */
-    virtual QString exportExtention() { return ""; }
+    virtual QString exportExtention()
+    {
+        return "";
+    }
     /** @brief 交互式导出入口：询问位置并写出文档。 */
     virtual void persist(DocumentProxy *pDocument) = 0;
     /** @brief 把文档无交互地写到 filename；成功返回 true。 */
     virtual bool persistsDocument(DocumentProxy *pDocument, const QString &filename);
     /** @brief 判断当前选中的树节点能否使用本导出器；默认不可用。 */
-    virtual bool associatedActionactionAvailableFor(const QModelIndex &selectedIndex) {
+    virtual bool associatedActionactionAvailableFor(const QModelIndex &selectedIndex)
+    {
         Q_UNUSED(selectedIndex);
         return false;
     }
     /** @brief 返回与导出器绑定的菜单/工具栏动作，未绑定时为 0。 */
-    QAction *associatedAction() { return mAssociatedAction; }
+    QAction *associatedAction()
+    {
+        return mAssociatedAction;
+    }
     /** @brief 绑定外部创建的动作，导出器不持有其所有权。 */
-    void setAssociatedAction(QAction *pAssociatedAction) { mAssociatedAction = pAssociatedAction; }
+    void setAssociatedAction(QAction *pAssociatedAction)
+    {
+        mAssociatedAction = pAssociatedAction;
+    }
 
     /** @brief 控制是否向状态栏输出导出进度。 */
-    virtual void setVerbose(bool verbose) { mIsVerbose = verbose; }
+    virtual void setVerbose(bool verbose)
+    {
+        mIsVerbose = verbose;
+    }
 
     /** @brief 当前是否输出导出进度。 */
-    virtual bool isVerbose() const { return mIsVerbose; }
+    virtual bool isVerbose() const
+    {
+        return mIsVerbose;
+    }
 
 signals:
     /** @brief 导出过程中的警告；由注册导出器的界面层决定如何展示。 */
@@ -68,6 +85,6 @@ protected:
     /** @brief 若错误列表非空则通过 exportWarnings 信号上报。 */
     void reportErrorsList(const QList<QString> &errorsList);
 
-    bool mIsVerbose;
+    bool     mIsVerbose;
     QAction *mAssociatedAction;
 };

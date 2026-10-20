@@ -50,12 +50,12 @@
 #include "whiteboard/GraphicsTriangle.h"
 #include "whiteboard/GraphicsProtractor.h"
 
-
-struct BoardView::Private {
+struct BoardView::Private
+{
     BoardController *mController{nullptr};
 
-    int mStartLayer{0};
-    int mEndLayer{0};
+    int  mStartLayer{0};
+    int  mEndLayer{0};
     bool mFilterZIndex{false};
 
     bool mTabletStylusIsPressed{false};
@@ -63,9 +63,9 @@ struct BoardView::Private {
 
     bool mPendingStylusReleaseEvent{false};
 
-    bool mMouseButtonIsPressed{false};
+    bool    mMouseButtonIsPressed{false};
     QPointF mPreviousPoint;
-    QPoint mMouseDownPos;
+    QPoint  mMouseDownPos;
 
     bool mPenPressureSensitive{false};
     bool mMarkerPressureSensitive{false};
@@ -77,18 +77,18 @@ struct BoardView::Private {
     bool mVirtualKeyboardActive{false};
     bool mOkOnWidget{false};
 
-    bool mWidgetMoved{false};
-    QPointF mLastPressedMousePos;
+    bool           mWidgetMoved{false};
+    QPointF        mLastPressedMousePos;
     QGraphicsItem *movingItem{nullptr};
-    QMouseEvent *suspendedMousePressEvent{nullptr};
+    QMouseEvent   *suspendedMousePressEvent{nullptr};
 
-    bool moveRubberBand{false};
+    bool        moveRubberBand{false};
     RubberBand *mRubberBand{nullptr};
 
     QList<QGraphicsItem *> mRubberedItems;
-    QSet<QGraphicsItem *> mJustSelectedItems;
+    QSet<QGraphicsItem *>  mJustSelectedItems;
 
-    int mLongPressInterval{0};
+    int    mLongPressInterval{0};
     QTimer mLongPressTimer;
 
     bool mIsDragInProgress{false};
@@ -98,18 +98,18 @@ struct BoardView::Private {
     bool mRubberBandInPlayMode{false};
 };
 
-BoardView::BoardView(BoardController *pController, QWidget *pParent, bool isControl, bool isDesktop)
-    : QGraphicsView(pParent), d(new Private) {
-    d->mController = pController;
-    d->mIsCreatingTextZone = false;
-    d->mIsCreatingSceneGrabZone = false;
-    d->mOkOnWidget = false;
-    d->suspendedMousePressEvent = NULL;
-    d->mLongPressInterval = 1000;
-    d->mIsDragInProgress = false;
+BoardView::BoardView(BoardController *pController, QWidget *pParent, bool isControl, bool isDesktop) : QGraphicsView(pParent), d(new Private)
+{
+    d->mController                 = pController;
+    d->mIsCreatingTextZone         = false;
+    d->mIsCreatingSceneGrabZone    = false;
+    d->mOkOnWidget                 = false;
+    d->suspendedMousePressEvent    = NULL;
+    d->mLongPressInterval          = 1000;
+    d->mIsDragInProgress           = false;
     d->mMultipleSelectionIsEnabled = false;
-    d->bIsControl = isControl;
-    d->bIsDesktop = isDesktop;
+    d->bIsControl                  = isControl;
+    d->bIsDesktop                  = isDesktop;
 
     init();
 
@@ -119,21 +119,21 @@ BoardView::BoardView(BoardController *pController, QWidget *pParent, bool isCont
     d->mLongPressTimer.setSingleShot(true);
 }
 
-BoardView::BoardView(BoardController *pController, int pStartLayer, int pEndLayer, QWidget *pParent,
-                     bool isControl, bool isDesktop)
-    : QGraphicsView(pParent), d(new Private) {
-    d->mController = pController;
-    d->suspendedMousePressEvent = NULL;
-    d->mLongPressInterval = 1000;
-    d->mIsDragInProgress = false;
+BoardView::BoardView(BoardController *pController, int pStartLayer, int pEndLayer, QWidget *pParent, bool isControl, bool isDesktop)
+    : QGraphicsView(pParent), d(new Private)
+{
+    d->mController                 = pController;
+    d->suspendedMousePressEvent    = NULL;
+    d->mLongPressInterval          = 1000;
+    d->mIsDragInProgress           = false;
     d->mMultipleSelectionIsEnabled = false;
-    d->bIsControl = isControl;
-    d->bIsDesktop = isDesktop;
+    d->bIsControl                  = isControl;
+    d->bIsDesktop                  = isDesktop;
 
     init();
 
-    d->mStartLayer = pStartLayer;
-    d->mEndLayer = pEndLayer;
+    d->mStartLayer   = pStartLayer;
+    d->mEndLayer     = pEndLayer;
 
     d->mFilterZIndex = true;
 
@@ -141,25 +141,24 @@ BoardView::BoardView(BoardController *pController, int pStartLayer, int pEndLaye
     d->mLongPressTimer.setSingleShot(true);
 }
 
-BoardView::~BoardView() {
-    if (d->suspendedMousePressEvent) {
+BoardView::~BoardView()
+{
+    if (d->suspendedMousePressEvent)
+    {
         delete d->suspendedMousePressEvent;
         d->suspendedMousePressEvent = NULL;
     }
 }
 
-void BoardView::init() {
-    connect(Settings::settings()->boardPenPressureSensitive, SIGNAL(changed(QVariant)), this,
-            SLOT(settingChanged(QVariant)));
+void BoardView::init()
+{
+    connect(Settings::settings()->boardPenPressureSensitive, SIGNAL(changed(QVariant)), this, SLOT(settingChanged(QVariant)));
 
-    connect(Settings::settings()->boardMarkerPressureSensitive, SIGNAL(changed(QVariant)), this,
-            SLOT(settingChanged(QVariant)));
+    connect(Settings::settings()->boardMarkerPressureSensitive, SIGNAL(changed(QVariant)), this, SLOT(settingChanged(QVariant)));
 
-    connect(Settings::settings()->boardUseHighResTabletEvent, SIGNAL(changed(QVariant)), this,
-            SLOT(settingChanged(QVariant)));
+    connect(Settings::settings()->boardUseHighResTabletEvent, SIGNAL(changed(QVariant)), this, SLOT(settingChanged(QVariant)));
 
-    setOptimizationFlags(QGraphicsView::IndirectPainting |
-                         QGraphicsView::DontSavePainterState); // 打开 BoardView 的自绘过滤
+    setOptimizationFlags(QGraphicsView::IndirectPainting | QGraphicsView::DontSavePainterState); // 打开 BoardView 的自绘过滤
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setWindowFlags(Qt::FramelessWindowHint);
     setFrameStyle(QFrame::NoFrame);
@@ -168,15 +167,15 @@ void BoardView::init() {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAcceptDrops(true);
 
-    d->mTabletStylusIsPressed = false;
-    d->mMouseButtonIsPressed = false;
+    d->mTabletStylusIsPressed     = false;
+    d->mMouseButtonIsPressed      = false;
     d->mPendingStylusReleaseEvent = false;
 
     setCacheMode(QGraphicsView::CacheBackground);
 
-    d->mUsingTabletEraser = false;
-    d->mIsCreatingTextZone = false;
-    d->mRubberBand = 0;
+    d->mUsingTabletEraser     = false;
+    d->mIsCreatingTextZone    = false;
+    d->mRubberBand            = 0;
 
     d->mVirtualKeyboardActive = false;
 
@@ -184,22 +183,27 @@ void BoardView::init() {
 
     unsetCursor();
 
-    d->movingItem = NULL;
+    d->movingItem   = NULL;
     d->mWidgetMoved = false;
 }
 
-GraphicsScene *BoardView::scene() {
+GraphicsScene *BoardView::scene()
+{
     return qobject_cast<GraphicsScene *>(QGraphicsView::scene());
 }
 
-void BoardView::keyPressEvent(QKeyEvent *event) {
+void BoardView::keyPressEvent(QKeyEvent *event)
+{
     QApplication::sendEvent(scene(), event);
 
-    if (!event->isAccepted()) {
-        switch (event->key()) {
+    if (!event->isAccepted())
+    {
+        switch (event->key())
+        {
             case Qt::Key_Up:
             case Qt::Key_PageUp:
-            case Qt::Key_Left: {
+            case Qt::Key_Left:
+            {
                 d->mController->previousScene();
                 break;
             }
@@ -207,71 +211,85 @@ void BoardView::keyPressEvent(QKeyEvent *event) {
             case Qt::Key_Down:
             case Qt::Key_PageDown:
             case Qt::Key_Right:
-            case Qt::Key_Space: {
+            case Qt::Key_Space:
+            {
                 d->mController->nextScene();
                 break;
             }
 
-            case Qt::Key_Home: {
+            case Qt::Key_Home:
+            {
                 d->mController->firstScene();
                 break;
             }
-            case Qt::Key_End: {
+            case Qt::Key_End:
+            {
                 d->mController->lastScene();
                 break;
             }
-            case Qt::Key_Insert: {
+            case Qt::Key_Insert:
+            {
                 d->mController->addScene();
                 break;
             }
             case Qt::Key_Control:
-            case Qt::Key_Shift: {
+            case Qt::Key_Shift:
+            {
                 setMultiselection(true);
-            } break;
+            }
+            break;
         }
-
 
         if (event->modifiers() & Qt::ControlModifier) // 只留 ctrl/cmd，其余修饰键不该触发画板手势
         {
-            switch (event->key()) {
+            switch (event->key())
+            {
                 case Qt::Key_Plus:
-                case Qt::Key_I: {
+                case Qt::Key_I:
+                {
                     d->mController->zoomIn();
                     event->accept();
                     break;
                 }
                 case Qt::Key_Minus:
-                case Qt::Key_O: {
+                case Qt::Key_O:
+                {
                     d->mController->zoomOut();
                     event->accept();
                     break;
                 }
-                case Qt::Key_0: {
+                case Qt::Key_0:
+                {
                     d->mController->zoomRestore();
                     event->accept();
                     break;
                 }
-                case Qt::Key_Left: {
+                case Qt::Key_Left:
+                {
                     d->mController->handScroll(-100, 0);
                     event->accept();
                     break;
                 }
-                case Qt::Key_Right: {
+                case Qt::Key_Right:
+                {
                     d->mController->handScroll(100, 0);
                     event->accept();
                     break;
                 }
-                case Qt::Key_Up: {
+                case Qt::Key_Up:
+                {
                     d->mController->handScroll(0, -100);
                     event->accept();
                     break;
                 }
-                case Qt::Key_Down: {
+                case Qt::Key_Down:
+                {
                     d->mController->handScroll(0, 100);
                     event->accept();
                     break;
                 }
-                default: {
+                default:
+                {
                     // 刻意留空
                 }
             }
@@ -279,29 +297,39 @@ void BoardView::keyPressEvent(QKeyEvent *event) {
     }
 
     if (event->isAccepted())
+    {
         setMultiselection(false);
+    }
 }
 
-
-void BoardView::keyReleaseEvent(QKeyEvent *event) {
+void BoardView::keyReleaseEvent(QKeyEvent *event)
+{
     if (Qt::Key_Shift == event->key() || Qt::Key_Control == event->key())
+    {
         setMultiselection(false);
+    }
 
     QGraphicsView::keyReleaseEvent(event);
 }
 
-bool BoardView::event(QEvent *e) {
-    if (e->type() == QEvent::Gesture) {
+bool BoardView::event(QEvent *e)
+{
+    if (e->type() == QEvent::Gesture)
+    {
         QGestureEvent *gestureEvent = dynamic_cast<QGestureEvent *>(e);
-        if (gestureEvent) {
+        if (gestureEvent)
+        {
             QSwipeGesture *swipe = dynamic_cast<QSwipeGesture *>(gestureEvent->gesture(Qt::SwipeGesture));
-            if (swipe) {
-                if (swipe->horizontalDirection() == QSwipeGesture::Left) {
+            if (swipe)
+            {
+                if (swipe->horizontalDirection() == QSwipeGesture::Left)
+                {
                     d->mController->previousScene();
                     gestureEvent->setAccepted(swipe, true);
                 }
 
-                if (swipe->horizontalDirection() == QSwipeGesture::Right) {
+                if (swipe->horizontalDirection() == QSwipeGesture::Right)
+                {
                     d->mController->nextScene();
                     gestureEvent->setAccepted(swipe, true);
                 }
@@ -312,24 +340,32 @@ bool BoardView::event(QEvent *e) {
     return QGraphicsView::event(e);
 }
 
-void BoardView::tabletEvent(QTabletEvent *event) {
-    if (!d->mUseHighResTabletEvent) {
+void BoardView::tabletEvent(QTabletEvent *event)
+{
+    if (!d->mUseHighResTabletEvent)
+    {
         event->setAccepted(false);
         return;
     }
 
-    DrawingController *dc = DrawingController::drawingController();
+    DrawingController *dc        = DrawingController::drawingController();
 
-    QPointF tabletPos = event->pos();
+    QPointF          tabletPos   = event->pos();
     StylusTool::Enum currentTool = (StylusTool::Enum)dc->stylusTool();
 
-    if (event->type() == QEvent::TabletPress || event->type() == QEvent::TabletEnterProximity) {
-        if (event->pointerType() == QPointingDevice::PointerType::Eraser) {
+    if (event->type() == QEvent::TabletPress || event->type() == QEvent::TabletEnterProximity)
+    {
+        if (event->pointerType() == QPointingDevice::PointerType::Eraser)
+        {
             dc->setStylusTool(StylusTool::Eraser);
             d->mUsingTabletEraser = true;
-        } else {
+        }
+        else
+        {
             if (d->mUsingTabletEraser && currentTool == StylusTool::Eraser)
+            {
                 dc->setStylusTool(dc->latestDrawingTool());
+            }
 
             d->mUsingTabletEraser = false;
         }
@@ -337,33 +373,42 @@ void BoardView::tabletEvent(QTabletEvent *event) {
 
     QPointF scenePos = viewportTransform().inverted().map(tabletPos);
 
-    qreal pressure = 1.0;
+    qreal pressure   = 1.0;
     if (((currentTool == StylusTool::Pen || currentTool == StylusTool::Line) && d->mPenPressureSensitive) ||
         (currentTool == StylusTool::Marker && d->mMarkerPressureSensitive))
+    {
         pressure = event->pressure();
-    else {
+    }
+    else
+    {
         event->setAccepted(false);
         return;
     }
 
     bool acceptEvent = true;
 
-    switch (event->type()) {
-        case QEvent::TabletPress: {
+    switch (event->type())
+    {
+        case QEvent::TabletPress:
+        {
             d->mTabletStylusIsPressed = true;
             scene()->inputDevicePress(scenePos, pressure);
 
             break;
         }
-        case QEvent::TabletMove: {
+        case QEvent::TabletMove:
+        {
             if (d->mTabletStylusIsPressed)
+            {
                 scene()->inputDeviceMove(scenePos, pressure);
+            }
 
             acceptEvent = false;
 
             break;
         }
-        case QEvent::TabletRelease: {
+        case QEvent::TabletRelease:
+        {
             StylusTool::Enum currentTool = (StylusTool::Enum)dc->stylusTool();
             scene()->setToolCursor(currentTool);
             setToolCursor(currentTool);
@@ -372,85 +417,112 @@ void BoardView::tabletEvent(QTabletEvent *event) {
 
             d->mPendingStylusReleaseEvent = false;
 
-            d->mTabletStylusIsPressed = false;
-            d->mMouseButtonIsPressed = false;
+            d->mTabletStylusIsPressed     = false;
+            d->mMouseButtonIsPressed      = false;
 
             break;
         }
-        default: {
+        default:
+        {
             // 刻意留空
         }
     }
 
-
     event->setAccepted(acceptEvent);
 }
 
-bool BoardView::itemIsLocked(QGraphicsItem *item) {
+bool BoardView::itemIsLocked(QGraphicsItem *item)
+{
     if (!item)
+    {
         return false;
+    }
 
     return item->data(GraphicsItemData::ItemLocked).toBool();
 }
 
-bool BoardView::itemHaveParentWithType(QGraphicsItem *item, int type) {
+bool BoardView::itemHaveParentWithType(QGraphicsItem *item, int type)
+{
     if (!item)
+    {
         return false;
+    }
 
     if (type == item->type())
+    {
         return true;
+    }
 
     return itemHaveParentWithType(item->parentItem(), type);
 }
 
-bool BoardView::isBoardItem(QGraphicsItem *item) {
+bool BoardView::isBoardItem(QGraphicsItem *item)
+{
     if ((GraphicsItemType::UserTypesCount > item->type()) && (item->type() > QGraphicsItem::UserType))
+    {
         return true;
+    }
 
     return false;
 }
 
-bool BoardView::isCppTool(QGraphicsItem *item) {
-    return (item->type() == GraphicsItemType::CompassItemType ||
-            item->type() == GraphicsItemType::RulerItemType ||
-            item->type() == GraphicsItemType::ProtractorItemType ||
-            item->type() == GraphicsItemType::TriangleItemType ||
+bool BoardView::isCppTool(QGraphicsItem *item)
+{
+    return (item->type() == GraphicsItemType::CompassItemType || item->type() == GraphicsItemType::RulerItemType ||
+            item->type() == GraphicsItemType::ProtractorItemType || item->type() == GraphicsItemType::TriangleItemType ||
             item->type() == GraphicsItemType::CurtainItemType);
 }
 
-void BoardView::handleItemsSelection(QGraphicsItem *item) {
-    if (item) {
+void BoardView::handleItemsSelection(QGraphicsItem *item)
+{
+    if (item)
+    {
         if (item->parentItem() && GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type())
+        {
             return;
+        }
 
         if (DelegateButton::Type == item->type())
+        {
             return;
+        }
 
         if (QGraphicsSvgItem::Type == item->type())
+        {
             return;
+        }
 
         if (GraphicsDelegateFrame::Type == item->type())
+        {
             return;
+        }
 
-        if (!isMultipleSelectionEnabled()) {
-            if ((GraphicsItemType::UserTypesCount > item->type()) &&
-                (item->type() > QGraphicsItem::UserType)) {
+        if (!isMultipleSelectionEnabled())
+        {
+            if ((GraphicsItemType::UserTypesCount > item->type()) && (item->type() > QGraphicsItem::UserType))
+            {
                 scene()->deselectAllItemsExcept(item);
             }
         }
     }
 }
 
-bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item) {
+bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item)
+{
     if (!item)
+    {
         return true;
+    }
 
     if (item == scene()->backgroundObject())
+    {
         return false;
+    }
 
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
-    switch (item->type()) {
+    switch (item->type())
+    {
         case GraphicsProtractor::Type:
         case GraphicsRuler::Type:
         case GraphicsTriangle::Type:
@@ -459,16 +531,24 @@ bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item) {
             return true;
         case GraphicsDelegateFrame::Type:
             if (currentTool == StylusTool::Play)
+            {
                 return false;
+            }
             return true;
         case GraphicsPixmapItem::Type:
         case GraphicsSvgItem::Type:
             if (currentTool == StylusTool::Play)
+            {
                 return true;
+            }
             if (item->isSelected())
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         case DelegateButton::Type:
             return true;
 
@@ -479,23 +559,33 @@ bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item) {
 
         case GraphicsTextItem::Type:
             if (currentTool == StylusTool::Play)
+            {
                 return true;
+            }
             if ((currentTool == StylusTool::Selector) && item->isSelected())
+            {
                 return true;
-            if ((currentTool == StylusTool::Selector) && item->parentItem() &&
-                item->parentItem()->isSelected())
+            }
+            if ((currentTool == StylusTool::Selector) && item->parentItem() && item->parentItem()->isSelected())
+            {
                 return true;
+            }
             if (currentTool != StylusTool::Selector)
+            {
                 return false;
+            }
             break;
 
         case GraphicsItemType::StrokeItemType:
             if (currentTool == StylusTool::Play || currentTool == StylusTool::Selector)
+            {
                 return true;
+            }
             break;
 
         case GraphicsGroupContainerItem::Type:
-            if (currentTool == StylusTool::Play) {
+            if (currentTool == StylusTool::Play)
+            {
                 d->movingItem = NULL;
                 return true;
             }
@@ -506,11 +596,17 @@ bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item) {
 
         case GraphicsWidgetItem::Type:
             if (currentTool == StylusTool::Selector && item->parentItem() && item->parentItem()->isSelected())
+            {
                 return true;
+            }
             if (currentTool == StylusTool::Selector && item->isSelected())
+            {
                 return true;
+            }
             if (currentTool == StylusTool::Play)
+            {
                 return true;
+            }
             return false;
             break;
     }
@@ -518,24 +614,34 @@ bool BoardView::itemShouldReceiveMousePressEvent(QGraphicsItem *item) {
     return !isBoardItem(item);
 }
 
-bool BoardView::itemShouldReceiveSuspendedMousePressEvent(QGraphicsItem *item) {
+bool BoardView::itemShouldReceiveSuspendedMousePressEvent(QGraphicsItem *item)
+{
     if (!item)
+    {
         return false;
+    }
 
     if (item == scene()->backgroundObject())
+    {
         return false;
+    }
 
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
-    switch (item->type()) {
+    switch (item->type())
+    {
         case GraphicsPixmapItem::Type:
         case GraphicsSvgItem::Type:
         case GraphicsTextItem::Type:
         case GraphicsWidgetItem::Type:
             if (currentTool == StylusTool::Selector && !item->isSelected() && item->parentItem())
+            {
                 return true;
+            }
             if (currentTool == StylusTool::Selector && item->isSelected())
+            {
                 return true;
+            }
             break;
 
         case DelegateButton::Type:
@@ -548,43 +654,62 @@ bool BoardView::itemShouldReceiveSuspendedMousePressEvent(QGraphicsItem *item) {
     return false;
 }
 
-bool BoardView::itemShouldBeMoved(QGraphicsItem *item) {
+bool BoardView::itemShouldBeMoved(QGraphicsItem *item)
+{
     if (!item)
+    {
         return false;
+    }
 
     if (item == scene()->backgroundObject())
+    {
         return false;
+    }
 
     if (!(d->mMouseButtonIsPressed || d->mTabletStylusIsPressed))
+    {
         return false;
+    }
 
     if (d->movingItem->data(GraphicsItemData::ItemLocked).toBool())
+    {
         return false;
+    }
 
-    if (d->movingItem->parentItem() &&
-        GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type() &&
-        !d->movingItem->isSelected() && d->movingItem->parentItem()->isSelected())
+    if (d->movingItem->parentItem() && GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type() && !d->movingItem->isSelected() &&
+        d->movingItem->parentItem()->isSelected())
+    {
         return false;
+    }
 
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
-    switch (item->type()) {
+    switch (item->type())
+    {
         case GraphicsCurtainItem::Type:
         case GraphicsGroupContainerItem::Type:
             return true;
 
         case GraphicsWidgetItem::Type:
             if (currentTool == StylusTool::Selector && item->isSelected())
+            {
                 return false;
+            }
             if (currentTool == StylusTool::Play)
+            {
                 return false;
+            }
 
         case GraphicsSvgItem::Type:
         case GraphicsPixmapItem::Type:
             if (currentTool == StylusTool::Play || !item->isSelected())
+            {
                 return true;
+            }
             if (item->isSelected())
+            {
                 return false;
+            }
         case GraphicsMediaItem::Type:
         case GraphicsVideoItem::Type:
         case GraphicsAudioItem::Type:
@@ -598,146 +723,195 @@ bool BoardView::itemShouldBeMoved(QGraphicsItem *item) {
     return false;
 }
 
-
-QGraphicsItem *BoardView::determineItemToPress(QGraphicsItem *item) {
-    if (item) {
+QGraphicsItem *BoardView::determineItemToPress(QGraphicsItem *item)
+{
+    if (item)
+    {
         StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
-        if (StylusTool::Selector == currentTool && item->parentItem() &&
-            GraphicsGroupContainerItem::Type == item->parentItem()->type() &&
+        if (StylusTool::Selector == currentTool && item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type() &&
             !item->parentItem()->isSelected())
+        {
             return item->parentItem();
+        }
 
         if (item->parentItem() && GraphicsStrokesGroup::Type == item->parentItem()->type())
+        {
             return determineItemToPress(item->parentItem());
+        }
     }
 
     return item;
 }
 
-QGraphicsItem *BoardView::determineItemToMove(QGraphicsItem *item) {
-    if (item) {
+QGraphicsItem *BoardView::determineItemToMove(QGraphicsItem *item)
+{
+    if (item)
+    {
         StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
         if ((StylusTool::Play == currentTool) && (GraphicsWidgetItem::Type == item->type()))
+        {
             return item;
+        }
 
-        if (item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type()) {
+        if (item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type())
+        {
             if (StylusTool::Play == currentTool && item->parentItem()->isSelected())
+            {
                 return item->parentItem();
+            }
 
             if (GraphicsStrokesGroup::Type == item->type())
+            {
                 return item->parentItem();
+            }
 
             if (item->parentItem()->isSelected())
+            {
                 return item;
+            }
 
             if (item->isSelected())
+            {
                 return NULL;
+            }
 
             return item->parentItem();
         }
 
         if (item->parentItem() && GraphicsStrokesGroup::Type == item->parentItem()->type())
+        {
             return determineItemToMove(item->parentItem());
+        }
     }
 
     return item;
 }
 
-void BoardView::handleItemMousePress(QMouseEvent *event) {
+void BoardView::handleItemMousePress(QMouseEvent *event)
+{
     d->mLastPressedMousePos = mapToScene(event->pos());
 
-    d->movingItem = determineItemToPress(d->movingItem);
+    d->movingItem           = determineItemToPress(d->movingItem);
     handleItemsSelection(d->movingItem);
 
     if (isMultipleSelectionEnabled())
+    {
         return;
+    }
 
-    if (itemShouldReceiveMousePressEvent(d->movingItem)) {
+    if (itemShouldReceiveMousePressEvent(d->movingItem))
+    {
         QGraphicsView::mousePressEvent(event);
 
-        QGraphicsItem *item =
-            determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), transform()));
+        QGraphicsItem *item = determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), transform()));
 
         if (item && (item->type() == QGraphicsProxyWidget::Type) && item->parentObject() &&
-            item->parentObject()->type() != QGraphicsProxyWidget::Type) {
+            item->parentObject()->type() != QGraphicsProxyWidget::Type)
+        {
             QList<QGraphicsItem *> children = item->childItems();
 
             for (QList<QGraphicsItem *>::iterator it = children.begin(); it != children.end(); ++it)
+            {
                 if ((*it)->pos().x() < 0 || (*it)->pos().y() < 0)
+                {
                     (*it)->setPos(0, item->boundingRect().size().height());
+                }
+            }
         }
-    } else {
-        if (d->movingItem) {
+    }
+    else
+    {
+        if (d->movingItem)
+        {
             GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem *>(d->movingItem);
             if (graphicsItem)
+            {
                 graphicsItem->Delegate()->startUndoStep();
+            }
 
             d->movingItem->clearFocus();
         }
 
-        if (d->suspendedMousePressEvent) {
+        if (d->suspendedMousePressEvent)
+        {
             delete d->suspendedMousePressEvent;
             d->suspendedMousePressEvent = NULL;
         }
 
-        if (itemShouldReceiveSuspendedMousePressEvent(d->movingItem)) {
-            d->suspendedMousePressEvent = new QMouseEvent(event->type(), event->pos(), event->button(),
-                                                          event->buttons(), event->modifiers());
+        if (itemShouldReceiveSuspendedMousePressEvent(d->movingItem))
+        {
+            d->suspendedMousePressEvent = new QMouseEvent(event->type(), event->pos(), event->button(), event->buttons(), event->modifiers());
         }
     }
 }
 
-void BoardView::handleItemMouseMove(QMouseEvent *event) {
+void BoardView::handleItemMouseMove(QMouseEvent *event)
+{
     d->movingItem = determineItemToMove(d->movingItem);
 
-    if (d->movingItem && itemShouldBeMoved(d->movingItem) &&
-        (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed)) {
+    if (d->movingItem && itemShouldBeMoved(d->movingItem) && (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed))
+    {
         QPointF scenePos = mapToScene(event->pos());
-        QPointF newPos = d->movingItem->pos() + scenePos - d->mLastPressedMousePos;
+        QPointF newPos   = d->movingItem->pos() + scenePos - d->mLastPressedMousePos;
         d->movingItem->setPos(newPos);
         d->mLastPressedMousePos = scenePos;
-        d->mWidgetMoved = true;
+        d->mWidgetMoved         = true;
         event->accept();
-    } else {
+    }
+    else
+    {
         QPointF posBeforeMove;
         QPointF posAfterMove;
 
         if (d->movingItem)
+        {
             posBeforeMove = d->movingItem->pos();
+        }
 
         QGraphicsView::mouseMoveEvent(event);
 
         if (d->movingItem)
+        {
             posAfterMove = d->movingItem->pos();
+        }
 
         d->mWidgetMoved = ((posAfterMove - posBeforeMove).manhattanLength() != 0);
 
         if (d->movingItem && d->mWidgetMoved && GraphicsWebWidgetItem::Type == d->movingItem->type())
+        {
             d->movingItem->setPos(posBeforeMove);
+        }
     }
 }
 
-void BoardView::rubberItems() {
+void BoardView::rubberItems()
+{
     if (d->mRubberBand)
+    {
         d->mRubberedItems = items(d->mRubberBand->geometry());
+    }
 
-    foreach (QGraphicsItem *item, d->mRubberedItems) {
+    foreach (QGraphicsItem *item, d->mRubberedItems)
+    {
         if (item->parentItem() && GraphicsGroupContainerItem::Type == item->parentItem()->type())
+        {
             d->mRubberedItems.removeOne(item);
+        }
     }
 }
 
-void BoardView::moveRubberedItems(QPointF movingVector) {
+void BoardView::moveRubberedItems(QPointF movingVector)
+{
     QRectF invalidateRect = scene()->itemsBoundingRect();
 
-    foreach (QGraphicsItem *item, d->mRubberedItems) {
-        if (item->type() == GraphicsWebWidgetItem::Type || item->type() == GraphicsPixmapItem::Type ||
-            item->type() == GraphicsMediaItem::Type || item->type() == GraphicsVideoItem::Type ||
-            item->type() == GraphicsAudioItem::Type || item->type() == GraphicsSvgItem::Type ||
-            item->type() == GraphicsTextItem::Type || item->type() == GraphicsStrokesGroup::Type ||
-            item->type() == GraphicsGroupContainerItem::Type) {
+    foreach (QGraphicsItem *item, d->mRubberedItems)
+    {
+        if (item->type() == GraphicsWebWidgetItem::Type || item->type() == GraphicsPixmapItem::Type || item->type() == GraphicsMediaItem::Type ||
+            item->type() == GraphicsVideoItem::Type || item->type() == GraphicsAudioItem::Type || item->type() == GraphicsSvgItem::Type ||
+            item->type() == GraphicsTextItem::Type || item->type() == GraphicsStrokesGroup::Type || item->type() == GraphicsGroupContainerItem::Type)
+        {
             item->setPos(item->pos() + movingVector);
         }
     }
@@ -745,51 +919,66 @@ void BoardView::moveRubberedItems(QPointF movingVector) {
     scene()->invalidate(invalidateRect);
 }
 
-void BoardView::setMultiselection(bool enable) {
+void BoardView::setMultiselection(bool enable)
+{
     d->mMultipleSelectionIsEnabled = enable;
 }
 
-bool BoardView::isMultipleSelectionEnabled() {
+bool BoardView::isMultipleSelectionEnabled()
+{
     return d->mMultipleSelectionIsEnabled;
 }
 
-void BoardView::longPressEvent() {
+void BoardView::longPressEvent()
+{
     DrawingController *drawingController = DrawingController::drawingController();
-    StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
+    StylusTool::Enum   currentTool       = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
     disconnect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardView::longPressEvent);
 
-    if (StylusTool::Selector == currentTool) {
+    if (StylusTool::Selector == currentTool)
+    {
         drawingController->setStylusTool(StylusTool::Play);
-    } else if (currentTool == StylusTool::Play) {
+    }
+    else if (currentTool == StylusTool::Play)
+    {
         drawingController->setStylusTool(StylusTool::Selector);
-    } else if (StylusTool::Eraser == currentTool) {
+    }
+    else if (StylusTool::Eraser == currentTool)
+    {
         Application::boardController->paletteManager()->toggleErasePalette(true);
     }
 }
 
-void BoardView::mousePressEvent(QMouseEvent *event) {
-    if (!d->bIsControl && !d->bIsDesktop) {
+void BoardView::mousePressEvent(QMouseEvent *event)
+{
+    if (!d->bIsControl && !d->bIsDesktop)
+    {
         event->ignore();
         return;
     }
 
     d->mIsDragInProgress = false;
 
-    if (isAbsurdPoint(event->pos())) {
+    if (isAbsurdPoint(event->pos()))
+    {
         event->accept();
         return;
     }
 
     d->mMouseDownPos = event->pos();
-    d->movingItem = scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform());
+    d->movingItem    = scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform());
 
-    if (event->button() == Qt::LeftButton && isInteractive()) {
+    if (event->button() == Qt::LeftButton && isInteractive())
+    {
         int currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
         if (!d->mTabletStylusIsPressed)
+        {
             d->mMouseButtonIsPressed = true;
+        }
 
-        switch (currentTool) {
+        switch (currentTool)
+        {
             case StylusTool::ZoomIn:
                 d->mController->zoomIn(mapToScene(event->pos()));
                 event->accept();
@@ -808,54 +997,70 @@ void BoardView::mousePressEvent(QMouseEvent *event) {
 
             case StylusTool::Selector:
             case StylusTool::Play:
-                if (d->bIsDesktop) {
+                if (d->bIsDesktop)
+                {
                     event->ignore();
                     return;
                 }
 
                 if (scene()->backgroundObject() == d->movingItem)
+                {
                     d->movingItem = NULL;
+                }
 
                 connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardView::longPressEvent);
                 if (!d->movingItem && !d->mController->cacheIsVisible())
+                {
                     d->mLongPressTimer.start();
+                }
 
                 handleItemMousePress(event);
                 event->accept();
                 break;
 
-            case StylusTool::Text: {
-                int frameWidth = Settings::settings()->objectFrameWidth;
+            case StylusTool::Text:
+            {
+                int    frameWidth = Settings::settings()->objectFrameWidth;
                 QRectF fuzzyRect(0, 0, frameWidth * 4, frameWidth * 4);
                 fuzzyRect.moveCenter(mapToScene(d->mMouseDownPos));
 
-                GraphicsTextItem *foundTextItem = 0;
+                GraphicsTextItem              *foundTextItem = 0;
                 QListIterator<QGraphicsItem *> it(scene()->items(fuzzyRect));
 
                 while (it.hasNext() && !foundTextItem)
+                {
                     foundTextItem = qgraphicsitem_cast<GraphicsTextItem *>(it.next());
+                }
 
-                if (foundTextItem) {
+                if (foundTextItem)
+                {
                     d->mIsCreatingTextZone = false;
                     QGraphicsView::mousePressEvent(event);
-                } else {
+                }
+                else
+                {
                     scene()->deselectAllItems();
 
                     if (!d->mRubberBand)
+                    {
                         d->mRubberBand = new RubberBand(QRubberBand::Rectangle, this);
+                    }
                     d->mRubberBand->setGeometry(QRect(d->mMouseDownPos, QSize()));
                     d->mRubberBand->show();
                     d->mIsCreatingTextZone = true;
 
                     event->accept();
                 }
-            } break;
+            }
+            break;
 
             case StylusTool::Capture:
                 scene()->deselectAllItems();
 
                 if (!d->mRubberBand)
+                {
                     d->mRubberBand = new RubberBand(QRubberBand::Rectangle, this);
+                }
 
                 d->mRubberBand->setGeometry(QRect(d->mMouseDownPos, QSize()));
                 d->mRubberBand->show();
@@ -865,72 +1070,84 @@ void BoardView::mousePressEvent(QMouseEvent *event) {
                 break;
 
             default:
-                if (DrawingController::drawingController()->mActiveRuler == NULL) {
+                if (DrawingController::drawingController()->mActiveRuler == NULL)
+                {
                     viewport()->setCursor(QCursor(Qt::BlankCursor));
                 }
-                if (scene() && !d->mTabletStylusIsPressed) {
-                    if (currentTool == StylusTool::Eraser) {
+                if (scene() && !d->mTabletStylusIsPressed)
+                {
+                    if (currentTool == StylusTool::Eraser)
+                    {
                         connect(&d->mLongPressTimer, &QTimer::timeout, this, &BoardView::longPressEvent);
                         d->mLongPressTimer.start();
                     }
-                    scene()->inputDevicePress(
-                        mapToScene(GeometryUtils::pointConstrainedInRect(event->pos(), rect())));
+                    scene()->inputDevicePress(mapToScene(GeometryUtils::pointConstrainedInRect(event->pos(), rect())));
                 }
                 event->accept();
         }
     }
 }
 
-
-void BoardView::mouseMoveEvent(QMouseEvent *event) {
+void BoardView::mouseMoveEvent(QMouseEvent *event)
+{
     // 位移未超过系统拖拽阈值时忽略，避免手抖被误判成拖动。
-    if (!d->mIsDragInProgress && ((mapToScene(event->pos()) - d->mLastPressedMousePos).manhattanLength() <
-                                  QApplication::startDragDistance())) {
+    if (!d->mIsDragInProgress && ((mapToScene(event->pos()) - d->mLastPressedMousePos).manhattanLength() < QApplication::startDragDistance()))
+    {
         return;
     }
 
     d->mIsDragInProgress = true;
-    d->mWidgetMoved = true;
+    d->mWidgetMoved      = true;
     d->mLongPressTimer.stop();
 
-    if (isAbsurdPoint(event->pos())) {
+    if (isAbsurdPoint(event->pos()))
+    {
         event->accept();
         return;
     }
 
     if ((DrawingController::drawingController()->isDrawingTool()) && !d->mMouseButtonIsPressed)
+    {
         QGraphicsView::mouseMoveEvent(event);
+    }
 
     int currentTool = static_cast<int>(DrawingController::drawingController()->stylusTool());
-    switch (currentTool) {
-        case StylusTool::Hand: {
-            if (!d->mMouseButtonIsPressed && !d->mTabletStylusIsPressed) {
+    switch (currentTool)
+    {
+        case StylusTool::Hand:
+        {
+            if (!d->mMouseButtonIsPressed && !d->mTabletStylusIsPressed)
+            {
                 break;
             }
             QPointF eventPosition = event->localPos();
-            qreal dx = eventPosition.x() - d->mPreviousPoint.x();
-            qreal dy = eventPosition.y() - d->mPreviousPoint.y();
+            qreal   dx            = eventPosition.x() - d->mPreviousPoint.x();
+            qreal   dy            = eventPosition.y() - d->mPreviousPoint.y();
             d->mController->handScroll(dx, dy);
             d->mPreviousPoint = eventPosition;
             event->accept();
-        } break;
+        }
+        break;
 
         case StylusTool::Selector:
-        case StylusTool::Play: {
-            if (d->bIsDesktop) {
+        case StylusTool::Play:
+        {
+            if (d->bIsDesktop)
+            {
                 event->ignore();
                 return;
             }
 
-            bool rubberMove = (currentTool != (StylusTool::Play)) &&
-                              (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed) && !d->movingItem;
+            bool rubberMove = (currentTool != (StylusTool::Play)) && (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed) && !d->movingItem;
 
-            if (rubberMove) {
+            if (rubberMove)
+            {
                 QRect bandRect(d->mMouseDownPos, event->pos());
 
                 bandRect = bandRect.normalized();
 
-                if (!d->mRubberBand) {
+                if (!d->mRubberBand)
+                {
                     d->mRubberBand = new RubberBand(QRubberBand::Rectangle, this);
                 }
                 d->mRubberBand->setGeometry(bandRect);
@@ -938,27 +1155,32 @@ void BoardView::mouseMoveEvent(QMouseEvent *event) {
 
                 // 框选：先撤销上一帧已不在框内的选中项，再增量选中框内可被选择的图元。
                 QList<QGraphicsItem *> rubberItems = items(bandRect);
-                foreach (QGraphicsItem *item, d->mJustSelectedItems) {
-                    if (!rubberItems.contains(item)) {
+                foreach (QGraphicsItem *item, d->mJustSelectedItems)
+                {
+                    if (!rubberItems.contains(item))
+                    {
                         item->setSelected(false);
                         d->mJustSelectedItems.remove(item);
                     }
                 }
 
                 int counter = 0;
-                if (currentTool == StylusTool::Selector) {
-                    foreach (QGraphicsItem *item, items(bandRect)) {
+                if (currentTool == StylusTool::Selector)
+                {
+                    foreach (QGraphicsItem *item, items(bandRect))
+                    {
                         if (item->type() == GraphicsItemType::PolygonItemType && item->parentItem())
+                        {
                             item = item->parentItem();
+                        }
 
-                        if (item->type() == GraphicsWebWidgetItem::Type ||
-                            item->type() == GraphicsPixmapItem::Type ||
-                            item->type() == GraphicsVideoItem::Type ||
-                            item->type() == GraphicsAudioItem::Type ||
+                        if (item->type() == GraphicsWebWidgetItem::Type || item->type() == GraphicsPixmapItem::Type ||
+                            item->type() == GraphicsVideoItem::Type || item->type() == GraphicsAudioItem::Type ||
                             item->type() == GraphicsSvgItem::Type || item->type() == GraphicsTextItem::Type ||
-                            item->type() == GraphicsStrokesGroup::Type ||
-                            item->type() == GraphicsGroupContainerItem::Type) {
-                            if (!d->mJustSelectedItems.contains(item)) {
+                            item->type() == GraphicsStrokesGroup::Type || item->type() == GraphicsGroupContainerItem::Type)
+                        {
+                            if (!d->mJustSelectedItems.contains(item))
+                            {
                                 counter++;
                                 item->setSelected(true);
                                 d->mJustSelectedItems.insert(item);
@@ -968,115 +1190,152 @@ void BoardView::mouseMoveEvent(QMouseEvent *event) {
                 }
             }
             handleItemMouseMove(event);
-        } break;
+        }
+        break;
 
         case StylusTool::Text:
-        case StylusTool::Capture: {
-            if (d->mRubberBand && (d->mIsCreatingTextZone || d->mIsCreatingSceneGrabZone)) {
+        case StylusTool::Capture:
+        {
+            if (d->mRubberBand && (d->mIsCreatingTextZone || d->mIsCreatingSceneGrabZone))
+            {
                 d->mRubberBand->setGeometry(QRect(d->mMouseDownPos, event->pos()).normalized());
                 event->accept();
-            } else
+            }
+            else
+            {
                 QGraphicsView::mouseMoveEvent(event);
-
-        } break;
+            }
+        }
+        break;
 
         default:
-            if (!d->mTabletStylusIsPressed && scene()) {
-                scene()->inputDeviceMove(
-                    mapToScene(GeometryUtils::pointConstrainedInRect(event->pos(), rect())),
-                    d->mMouseButtonIsPressed);
+            if (!d->mTabletStylusIsPressed && scene())
+            {
+                scene()->inputDeviceMove(mapToScene(GeometryUtils::pointConstrainedInRect(event->pos(), rect())), d->mMouseButtonIsPressed);
             }
             event->accept();
     }
 }
 
-void BoardView::mouseReleaseEvent(QMouseEvent *event) {
+void BoardView::mouseReleaseEvent(QMouseEvent *event)
+{
     StylusTool::Enum currentTool = (StylusTool::Enum)DrawingController::drawingController()->stylusTool();
 
     setToolCursor(currentTool);
     // 先把设备释放传播给场景，确保笔画/橡皮状态收尾。
     if (scene())
+    {
         scene()->inputDeviceRelease();
+    }
 
-    if (currentTool == StylusTool::Selector) {
-        if (d->bIsDesktop) {
+    if (currentTool == StylusTool::Selector)
+    {
+        if (d->bIsDesktop)
+        {
             event->ignore();
             return;
         }
 
         GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem *>(d->movingItem);
         if (graphicsItem)
+        {
             graphicsItem->Delegate()->commitUndoStep();
+        }
 
         bool bReleaseIsNeed = true;
-        if (d->movingItem != determineItemToPress(scene()->itemAt(
-                                 this->mapToScene(event->localPos().toPoint()), QTransform()))) {
-            d->movingItem = NULL;
+        if (d->movingItem != determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform())))
+        {
+            d->movingItem  = NULL;
             bReleaseIsNeed = false;
         }
-        if (d->mWidgetMoved) {
+        if (d->mWidgetMoved)
+        {
             d->mWidgetMoved = false;
-            d->movingItem = NULL;
-        } else if (d->movingItem &&
-                   (!isCppTool(d->movingItem) || GraphicsCurtainItem::Type == d->movingItem->type())) {
-            if (d->suspendedMousePressEvent) {
-                QGraphicsView::mousePressEvent(
-                    d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
+            d->movingItem   = NULL;
+        }
+        else if (d->movingItem && (!isCppTool(d->movingItem) || GraphicsCurtainItem::Type == d->movingItem->type()))
+        {
+            if (d->suspendedMousePressEvent)
+            {
+                QGraphicsView::mousePressEvent(d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
                 d->movingItem = NULL;
                 delete d->suspendedMousePressEvent;
                 d->suspendedMousePressEvent = NULL;
-                bReleaseIsNeed = true;
-            } else {
+                bReleaseIsNeed              = true;
+            }
+            else
+            {
                 if (isBoardItem(d->movingItem) && DelegateButton::Type != d->movingItem->type() &&
-                    GraphicsDelegateFrame::Type != d->movingItem->type() &&
-                    GraphicsCache::Type != d->movingItem->type() &&
-                    !(!isMultipleSelectionEnabled() && d->movingItem->parentItem() &&
-                      GraphicsWidgetItem::Type == d->movingItem->type() &&
-                      GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type())) {
+                    GraphicsDelegateFrame::Type != d->movingItem->type() && GraphicsCache::Type != d->movingItem->type() &&
+                    !(!isMultipleSelectionEnabled() && d->movingItem->parentItem() && GraphicsWidgetItem::Type == d->movingItem->type() &&
+                        GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type()))
+                {
                     bReleaseIsNeed = false;
                     if (d->movingItem->isSelected() && isMultipleSelectionEnabled())
+                    {
                         d->movingItem->setSelected(false);
-                    else if (d->movingItem->parentItem() && d->movingItem->parentItem()->isSelected() &&
-                             isMultipleSelectionEnabled())
+                    }
+                    else if (d->movingItem->parentItem() && d->movingItem->parentItem()->isSelected() && isMultipleSelectionEnabled())
+                    {
                         d->movingItem->parentItem()->setSelected(false);
-                    else {
+                    }
+                    else
+                    {
                         if (d->movingItem->isSelected())
+                        {
                             bReleaseIsNeed = true;
+                        }
 
-                        GraphicsTextItem *textItem = dynamic_cast<GraphicsTextItem *>(d->movingItem);
+                        GraphicsTextItem  *textItem  = dynamic_cast<GraphicsTextItem *>(d->movingItem);
                         GraphicsMediaItem *movieItem = dynamic_cast<GraphicsMediaItem *>(d->movingItem);
                         if (textItem)
+                        {
                             textItem->setSelected(true);
+                        }
                         else if (movieItem)
+                        {
                             movieItem->setSelected(true);
+                        }
                         else
+                        {
                             d->movingItem->setSelected(true);
+                        }
                     }
                 }
             }
-        } else
+        }
+        else
+        {
             bReleaseIsNeed = true;
+        }
 
-        if (bReleaseIsNeed) {
+        if (bReleaseIsNeed)
+        {
             QGraphicsView::mouseReleaseEvent(event);
         }
-    } else if (currentTool == StylusTool::Text) {
+    }
+    else if (currentTool == StylusTool::Text)
+    {
         bool bReleaseIsNeed = true;
-        if (d->movingItem != determineItemToPress(scene()->itemAt(
-                                 this->mapToScene(event->localPos().toPoint()), QTransform()))) {
-            d->movingItem = NULL;
+        if (d->movingItem != determineItemToPress(scene()->itemAt(this->mapToScene(event->localPos().toPoint()), QTransform())))
+        {
+            d->movingItem  = NULL;
             bReleaseIsNeed = false;
         }
 
         GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem *>(d->movingItem);
         if (graphicsItem)
+        {
             graphicsItem->Delegate()->commitUndoStep();
+        }
 
-        if (d->mWidgetMoved) {
+        if (d->mWidgetMoved)
+        {
             d->mWidgetMoved = false;
-            d->movingItem = NULL;
-            if (scene() && d->mRubberBand && d->mIsCreatingTextZone) {
-                QRect rubberRect = d->mRubberBand->geometry();
+            d->movingItem   = NULL;
+            if (scene() && d->mRubberBand && d->mIsCreatingTextZone)
+            {
+                QRect rubberRect           = d->mRubberBand->geometry();
 
                 GraphicsTextItem *textItem = scene()->addTextHtml("", mapToScene(rubberRect.topLeft()));
                 event->accept();
@@ -1088,105 +1347,131 @@ void BoardView::mouseReleaseEvent(QMouseEvent *event) {
                 textItem->setTextWidth(0);
                 textItem->setFocus();
             }
-        } else if (d->movingItem &&
-                   (!isCppTool(d->movingItem) || GraphicsCurtainItem::Type == d->movingItem->type())) {
-            if (d->suspendedMousePressEvent) {
-                QGraphicsView::mousePressEvent(
-                    d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
+        }
+        else if (d->movingItem && (!isCppTool(d->movingItem) || GraphicsCurtainItem::Type == d->movingItem->type()))
+        {
+            if (d->suspendedMousePressEvent)
+            {
+                QGraphicsView::mousePressEvent(d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
                 d->movingItem = NULL;
                 delete d->suspendedMousePressEvent;
                 d->suspendedMousePressEvent = NULL;
-                bReleaseIsNeed = true;
-            } else {
-                if (isBoardItem(d->movingItem) && DelegateButton::Type != d->movingItem->type() &&
-                    QGraphicsSvgItem::Type != d->movingItem->type() &&
-                    GraphicsDelegateFrame::Type != d->movingItem->type() &&
-                    GraphicsCache::Type != d->movingItem->type() &&
-                    !(!isMultipleSelectionEnabled() && d->movingItem->parentItem() &&
-                      GraphicsWidgetItem::Type == d->movingItem->type() &&
-                      GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type())) {
+                bReleaseIsNeed              = true;
+            }
+            else
+            {
+                if (isBoardItem(d->movingItem) && DelegateButton::Type != d->movingItem->type() && QGraphicsSvgItem::Type != d->movingItem->type() &&
+                    GraphicsDelegateFrame::Type != d->movingItem->type() && GraphicsCache::Type != d->movingItem->type() &&
+                    !(!isMultipleSelectionEnabled() && d->movingItem->parentItem() && GraphicsWidgetItem::Type == d->movingItem->type() &&
+                        GraphicsGroupContainerItem::Type == d->movingItem->parentItem()->type()))
+                {
                     bReleaseIsNeed = false;
                     if (d->movingItem->isSelected() && isMultipleSelectionEnabled())
+                    {
                         d->movingItem->setSelected(false);
-                    else if (d->movingItem->parentItem() && d->movingItem->parentItem()->isSelected() &&
-                             isMultipleSelectionEnabled())
+                    }
+                    else if (d->movingItem->parentItem() && d->movingItem->parentItem()->isSelected() && isMultipleSelectionEnabled())
+                    {
                         d->movingItem->parentItem()->setSelected(false);
-                    else {
+                    }
+                    else
+                    {
                         if (d->movingItem->isSelected())
+                        {
                             bReleaseIsNeed = true;
+                        }
 
                         d->movingItem->setSelected(true);
                     }
                 }
             }
-        } else
+        }
+        else
+        {
             bReleaseIsNeed = true;
+        }
 
-        if (bReleaseIsNeed) {
+        if (bReleaseIsNeed)
+        {
             QGraphicsView::mouseReleaseEvent(event);
         }
-    } else if (currentTool == StylusTool::Play) {
-        if (d->bIsDesktop) {
+    }
+    else if (currentTool == StylusTool::Play)
+    {
+        if (d->bIsDesktop)
+        {
             event->ignore();
             return;
         }
 
         // mWidgetMoved 可能在没有 movingItem 的情况下被置真（Play 工具点空白后
         // 收到 isAbsurdPoint 的移动事件时会提前 return），这里必须判空。
-        if (d->mWidgetMoved && d->movingItem) {
+        if (d->mWidgetMoved && d->movingItem)
+        {
             d->movingItem->setSelected(false);
-            d->movingItem = NULL;
+            d->movingItem   = NULL;
             d->mWidgetMoved = false;
-        } else {
-            if (d->suspendedMousePressEvent) {
-                QGraphicsView::mousePressEvent(
-                    d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
+        }
+        else
+        {
+            if (d->suspendedMousePressEvent)
+            {
+                QGraphicsView::mousePressEvent(d->suspendedMousePressEvent); // 挂起的按下事件仍由 Qt 的事件循环释放，这里不能 delete
                 d->movingItem = NULL;
                 delete d->suspendedMousePressEvent;
                 d->suspendedMousePressEvent = NULL;
             }
         }
         QGraphicsView::mouseReleaseEvent(event);
-    } else if (currentTool == StylusTool::Capture) {
-        if (scene() && d->mRubberBand && d->mIsCreatingSceneGrabZone &&
-            d->mRubberBand->geometry().width() > 16) {
-            QRect rect = d->mRubberBand->geometry();
-            QPointF sceneTopLeft = mapToScene(rect.topLeft());
+    }
+    else if (currentTool == StylusTool::Capture)
+    {
+        if (scene() && d->mRubberBand && d->mIsCreatingSceneGrabZone && d->mRubberBand->geometry().width() > 16)
+        {
+            QRect   rect             = d->mRubberBand->geometry();
+            QPointF sceneTopLeft     = mapToScene(rect.topLeft());
             QPointF sceneBottomRight = mapToScene(rect.bottomRight());
-            QRectF sceneRect(sceneTopLeft, sceneBottomRight);
+            QRectF  sceneRect(sceneTopLeft, sceneBottomRight);
 
             d->mController->grabScene(sceneRect);
 
             event->accept();
-        } else {
+        }
+        else
+        {
             QGraphicsView::mouseReleaseEvent(event);
         }
 
         d->mIsCreatingSceneGrabZone = false;
-    } else {
-        if (d->mPendingStylusReleaseEvent || d->mMouseButtonIsPressed) {
+    }
+    else
+    {
+        if (d->mPendingStylusReleaseEvent || d->mMouseButtonIsPressed)
+        {
             event->accept();
         }
     }
 
-
-    if (d->mRubberBand) {
+    if (d->mRubberBand)
+    {
         d->mRubberBand->hide();
         delete d->mRubberBand;
         d->mRubberBand = NULL;
     }
 
-    d->mMouseButtonIsPressed = false;
+    d->mMouseButtonIsPressed      = false;
     d->mPendingStylusReleaseEvent = false;
-    d->mTabletStylusIsPressed = false;
-    d->movingItem = NULL;
+    d->mTabletStylusIsPressed     = false;
+    d->movingItem                 = NULL;
 
     d->mLongPressTimer.stop();
     emit mouseReleased();
 }
 
-void BoardView::forcedTabletRelease() {
-    if (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed || d->mPendingStylusReleaseEvent) {
+void BoardView::forcedTabletRelease()
+{
+    if (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed || d->mPendingStylusReleaseEvent)
+    {
         qDebug() << "dirty mouse/tablet state:";
         qDebug() << "mMouseButtonIsPressed =" << d->mMouseButtonIsPressed;
         qDebug() << "mTabletStylusIsPressed = " << d->mTabletStylusIsPressed;
@@ -1195,64 +1480,77 @@ void BoardView::forcedTabletRelease() {
 
         scene()->inputDeviceRelease();
 
-        d->mMouseButtonIsPressed = false;
-        d->mTabletStylusIsPressed = false;
+        d->mMouseButtonIsPressed      = false;
+        d->mTabletStylusIsPressed     = false;
         d->mPendingStylusReleaseEvent = false;
     }
 }
 
-void BoardView::mouseDoubleClickEvent(QMouseEvent *event) {
+void BoardView::mouseDoubleClickEvent(QMouseEvent *event)
+{
     // 双击按两次单击处理，避免进入 Qt 的默认双击语义。
     mousePressEvent(event);
 }
 
-void BoardView::wheelEvent(QWheelEvent *wheelEvent) {
+void BoardView::wheelEvent(QWheelEvent *wheelEvent)
+{
     QList<QGraphicsItem *> selItemsList = scene()->selectedItems();
     // 没有选中项时滚轮不做特殊处理。
-    if (selItemsList.count() > 0) {
+    if (selItemsList.count() > 0)
+    {
         // 当前只考虑第一个选中图元。
-        QGraphicsItem *selItem = selItemsList[0];
+        QGraphicsItem *selItem           = selItemsList[0];
 
         // 只有滚轮位于选中图元上方时才缩放，否则交给基类。
-        QPointF scenePos = mapToScene(wheelEvent->position().toPoint());
+        QPointF                scenePos  = mapToScene(wheelEvent->position().toPoint());
         QList<QGraphicsItem *> itemsList = scene()->items(scenePos);
 
-        bool isSelectedAndMouseHower = itemsList.contains(selItem);
-        if (isSelectedAndMouseHower) {
+        bool isSelectedAndMouseHower     = itemsList.contains(selItem);
+        if (isSelectedAndMouseHower)
+        {
             QGraphicsView::wheelEvent(wheelEvent);
             wheelEvent->accept();
         }
     }
 }
 
-void BoardView::leaveEvent(QEvent *event) {
+void BoardView::leaveEvent(QEvent *event)
+{
     if (scene())
+    {
         scene()->leaveEvent(event);
+    }
 
     d->mJustSelectedItems.clear();
 
     QGraphicsView::leaveEvent(event);
 }
 
-bool BoardView::shouldDisplayItem(QGraphicsItem *item) {
+bool BoardView::shouldDisplayItem(QGraphicsItem *item)
+{
     bool ok;
-    int itemLayerType = item->data(GraphicsItemData::ItemLayerType).toInt(&ok);
+    int  itemLayerType = item->data(GraphicsItemData::ItemLayerType).toInt(&ok);
     return (ok && (itemLayerType >= d->mStartLayer && itemLayerType <= d->mEndLayer));
 }
 
-void BoardView::drawItems(QPainter *painter, int numItems, QGraphicsItem *items[],
-                          const QStyleOptionGraphicsItem options[]) {
+void BoardView::drawItems(QPainter *painter, int numItems, QGraphicsItem *items[], const QStyleOptionGraphicsItem options[])
+{
     if (!d->mFilterZIndex)
+    {
         QGraphicsView::drawItems(painter, numItems, items, options);
-    else {
-        int count = 0;
+    }
+    else
+    {
+        int count                                 = 0;
 
-        QGraphicsItem **itemsFiltered = new QGraphicsItem *[numItems];
+        QGraphicsItem           **itemsFiltered   = new QGraphicsItem *[numItems];
         QStyleOptionGraphicsItem *optionsFiltered = new QStyleOptionGraphicsItem[numItems];
 
-        for (int i = 0; i < numItems; i++) {
-            if (shouldDisplayItem(items[i])) {
-                itemsFiltered[count] = items[i];
+        for (int i = 0; i < numItems; i++)
+        {
+            if (shouldDisplayItem(items[i]))
+            {
+                itemsFiltered[count]   = items[i];
                 optionsFiltered[count] = options[i];
                 count++;
             }
@@ -1265,31 +1563,38 @@ void BoardView::drawItems(QPainter *painter, int numItems, QGraphicsItem *items[
     }
 }
 
-
-void BoardView::dragMoveEvent(QDragMoveEvent *event) {
+void BoardView::dragMoveEvent(QDragMoveEvent *event)
+{
     QGraphicsView::dragMoveEvent(event);
     event->acceptProposedAction();
 }
 
-void BoardView::dropEvent(QDropEvent *event) {
+void BoardView::dropEvent(QDropEvent *event)
+{
     QGraphicsItem *onItem = itemAt(event->pos().x(), event->pos().y());
-    if (onItem && onItem->type() == GraphicsWidgetItem::Type) {
+    if (onItem && onItem->type() == GraphicsWidgetItem::Type)
+    {
         QGraphicsView::dropEvent(event);
-    } else {
-        if (!event->source() || qobject_cast<ThumbnailWidget *>(event->source()) ||
-            qobject_cast<QWebEngineView *>(event->source()) || qobject_cast<QListView *>(event->source())) {
+    }
+    else
+    {
+        if (!event->source() || qobject_cast<ThumbnailWidget *>(event->source()) || qobject_cast<QWebEngineView *>(event->source()) ||
+            qobject_cast<QListView *>(event->source()))
+        {
             d->mController->processMimeData(event->mimeData(), mapToScene(event->pos()));
             event->acceptProposedAction();
         }
     }
     // 素材库条目可能在事件处理期间被模型删除；统一改为复制，避免拖放变成移动。
-    if (event->dropAction() == Qt::MoveAction) {
+    if (event->dropAction() == Qt::MoveAction)
+    {
         event->setDropAction(Qt::CopyAction);
     }
 }
 
-void BoardView::resizeEvent(QResizeEvent *event) {
-    const qreal maxWidth = width() * 10;
+void BoardView::resizeEvent(QResizeEvent *event)
+{
+    const qreal maxWidth  = width() * 10;
     const qreal maxHeight = height() * 10;
 
     setSceneRect(-(maxWidth / 2), -(maxHeight / 2), maxWidth, maxHeight);
@@ -1298,29 +1603,40 @@ void BoardView::resizeEvent(QResizeEvent *event) {
     emit resized(event);
 }
 
-void BoardView::drawBackground(QPainter *painter, const QRectF &rect) {
-    if (testAttribute(Qt::WA_TranslucentBackground)) {
+void BoardView::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    if (testAttribute(Qt::WA_TranslucentBackground))
+    {
         QGraphicsView::drawBackground(painter, rect);
         return;
     }
 
     bool darkBackground = scene() && scene()->isDarkBackground();
 
-    if (darkBackground) {
+    if (darkBackground)
+    {
         painter->fillRect(rect, QBrush(QColor(Qt::black)));
-    } else {
+    }
+    else
+    {
         painter->fillRect(rect, QBrush(QColor(Qt::white)));
     }
 
-    if (transform().m11() > 0.5) {
+    if (transform().m11() > 0.5)
+    {
         QColor bgCrossColor;
 
         if (darkBackground)
+        {
             bgCrossColor = QColor(Settings::settings()->boardCrossColorDarkBackground->get().toString());
+        }
         else
+        {
             bgCrossColor = QColor(Settings::settings()->boardCrossColorLightBackground->get().toString());
+        }
 
-        if (transform().m11() < 0.7) {
+        if (transform().m11() < 0.7)
+        {
             int alpha = 255 * transform().m11() / 2;
             bgCrossColor.setAlpha(alpha); // 缩小后十字线显得过粗，按缩放比例淡一些压住视觉重量
         }
@@ -1329,46 +1645,56 @@ void BoardView::drawBackground(QPainter *painter, const QRectF &rect) {
 
         painter->setPen(bgCrossColor);
 
-        if (scene() && scene()->pageBackground() == PageBackground::crossed) {
+        if (scene() && scene()->pageBackground() == PageBackground::crossed)
+        {
             qreal firstY = ((int)(rect.y() / gridSize)) * gridSize;
 
-            for (qreal yPos = firstY; yPos < rect.y() + rect.height(); yPos += gridSize) {
+            for (qreal yPos = firstY; yPos < rect.y() + rect.height(); yPos += gridSize)
+            {
                 painter->drawLine(rect.x(), yPos, rect.x() + rect.width(), yPos);
             }
 
             qreal firstX = ((int)(rect.x() / gridSize)) * gridSize;
 
-            for (qreal xPos = firstX; xPos < rect.x() + rect.width(); xPos += gridSize) {
+            for (qreal xPos = firstX; xPos < rect.x() + rect.width(); xPos += gridSize)
+            {
                 painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
             }
         }
 
-        if (scene() && scene()->pageBackground() == PageBackground::ruled) {
+        if (scene() && scene()->pageBackground() == PageBackground::ruled)
+        {
             qreal firstY = ((int)(rect.y() / gridSize)) * gridSize;
 
-            for (qreal yPos = firstY; yPos < rect.y() + rect.height(); yPos += gridSize) {
+            for (qreal yPos = firstY; yPos < rect.y() + rect.height(); yPos += gridSize)
+            {
                 painter->drawLine(rect.x(), yPos, rect.x() + rect.width(), yPos);
             }
         }
     }
 
-    if (!d->mFilterZIndex && scene()) {
+    if (!d->mFilterZIndex && scene())
+    {
         QSize pageNominalSize = scene()->nominalSize();
 
-        if (pageNominalSize.isValid()) {
+        if (pageNominalSize.isValid())
+        {
             qreal penWidth = 8.0 / transform().m11();
 
-            QRectF pageRect(pageNominalSize.width() / -2, pageNominalSize.height() / -2,
-                            pageNominalSize.width(), pageNominalSize.height());
+            QRectF pageRect(pageNominalSize.width() / -2, pageNominalSize.height() / -2, pageNominalSize.width(), pageNominalSize.height());
 
             pageRect.adjust(-penWidth / 2, -penWidth / 2, penWidth / 2, penWidth / 2);
 
             QColor docSizeColor;
 
             if (darkBackground)
+            {
                 docSizeColor = Settings::documentSizeMarkColorDarkBackground;
+            }
             else
+            {
                 docSizeColor = Settings::documentSizeMarkColorLightBackground;
+            }
 
             QPen pen(docSizeColor);
             pen.setWidth(penWidth);
@@ -1378,42 +1704,48 @@ void BoardView::drawBackground(QPainter *painter, const QRectF &rect) {
     }
 }
 
-void BoardView::settingChanged(QVariant newValue) {
+void BoardView::settingChanged(QVariant newValue)
+{
     Q_UNUSED(newValue);
 
-    d->mPenPressureSensitive = Settings::settings()->boardPenPressureSensitive->get().toBool();
+    d->mPenPressureSensitive    = Settings::settings()->boardPenPressureSensitive->get().toBool();
     d->mMarkerPressureSensitive = Settings::settings()->boardMarkerPressureSensitive->get().toBool();
-    d->mUseHighResTabletEvent = Settings::settings()->boardUseHighResTabletEvent->get().toBool();
+    d->mUseHighResTabletEvent   = Settings::settings()->boardUseHighResTabletEvent->get().toBool();
 }
 
-void BoardView::virtualKeyboardActivated(bool b) {
+void BoardView::virtualKeyboardActivated(bool b)
+{
     PlatformUtils::setWindowNonActivableFlag(this, b);
     d->mVirtualKeyboardActive = b;
     setInteractive(!b);
 }
 
-
 // 远程桌面在链路较差时可能送来坐标离谱的鼠标事件，需要用屏幕范围过滤。
 
-bool BoardView::isAbsurdPoint(QPoint point) {
-    VirtualDesktop *desktop = VirtualDesktop::instance();
-    bool isValidPoint = false;
+bool BoardView::isAbsurdPoint(QPoint point)
+{
+    VirtualDesktop *desktop      = VirtualDesktop::instance();
+    bool            isValidPoint = false;
 
-    for (int i = 0; i < desktop->numScreens(); i++) {
+    for (int i = 0; i < desktop->numScreens(); i++)
+    {
         QRect screenRect = desktop->screenGeometry(i);
-        isValidPoint = isValidPoint || screenRect.contains(mapToGlobal(point));
+        isValidPoint     = isValidPoint || screenRect.contains(mapToGlobal(point));
     }
 
     return !isValidPoint;
 }
 
-void BoardView::focusOutEvent(QFocusEvent *event) {
+void BoardView::focusOutEvent(QFocusEvent *event)
+{
     Q_UNUSED(event);
 }
 
-void BoardView::setToolCursor(int tool) {
+void BoardView::setToolCursor(int tool)
+{
     QWidget *controlViewport = viewport();
-    switch (tool) {
+    switch (tool)
+    {
         case StylusTool::Pen:
             controlViewport->setCursor(Resources::resources()->penCursor);
             break;
@@ -1457,11 +1789,15 @@ void BoardView::setToolCursor(int tool) {
     }
 }
 
-
-bool BoardView::hasSelectedParents(QGraphicsItem *item) {
+bool BoardView::hasSelectedParents(QGraphicsItem *item)
+{
     if (item->isSelected())
+    {
         return true;
+    }
     if (item->parentItem() == NULL)
+    {
         return false;
+    }
     return hasSelectedParents(item->parentItem());
 }

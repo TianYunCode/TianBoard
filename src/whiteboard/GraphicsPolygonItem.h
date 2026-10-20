@@ -24,7 +24,8 @@ class GraphicsStroke;
  * 也可作为组合的子项存在；这两种父子关系会影响坐标变换。
  * 对象拥有其 GraphicsStroke（通过 clearStroke 释放），但不拥有 strokesGroup。
  */
-class GraphicsPolygonItem : public QGraphicsPolygonItem, public Item {
+class GraphicsPolygonItem : public QGraphicsPolygonItem, public Item
+{
 public:
     /**
      * @brief 构造空多边形项。
@@ -62,7 +63,10 @@ public:
     /** @brief 设置所属的笔迹组，并处理与组合的父子关系。 */
     void setStrokesGroup(GraphicsStrokesGroup *group);
     /** @brief 返回所属的笔迹组，可能为空。 */
-    GraphicsStrokesGroup *strokesGroup() const { return mpGroup; }
+    GraphicsStrokesGroup *strokesGroup() const
+    {
+        return mpGroup;
+    }
     /** @brief 设置填充色。 */
     void setColor(const QColor &color);
 
@@ -77,11 +81,14 @@ public:
      * @param pi 要减去的多边形。
      * @note 仅当包围盒相交时才计算，结果变化后不再是原始线段。
      */
-    inline void subtract(GraphicsPolygonItem *pi) {
-        if (boundingRect().intersects(pi->boundingRect())) {
+    inline void subtract(GraphicsPolygonItem *pi)
+    {
+        if (boundingRect().intersects(pi->boundingRect()))
+        {
             QPolygonF subtractedPolygon = polygon().subtracted(pi->polygon());
 
-            if (polygon() != subtractedPolygon) {
+            if (polygon() != subtractedPolygon)
+            {
                 mIsNominalLine = false;
                 QGraphicsPolygonItem::setPolygon(subtractedPolygon);
             }
@@ -92,22 +99,31 @@ public:
      * @brief 直接从本多边形中减去另一多边形，不做包围盒预判。
      * @param pi 要减去的多边形。
      */
-    inline void subtractIntersecting(GraphicsPolygonItem *pi) {
+    inline void subtractIntersecting(GraphicsPolygonItem *pi)
+    {
         QPolygonF subtractedPolygon = polygon().subtracted(pi->polygon());
 
-        if (polygon() != subtractedPolygon) {
+        if (polygon() != subtractedPolygon)
+        {
             mIsNominalLine = false;
             QGraphicsPolygonItem::setPolygon(subtractedPolygon);
         }
     }
 
-    enum { Type = GraphicsItemType::PolygonItemType };
+    enum
+    {
+        Type = GraphicsItemType::PolygonItemType
+    };
 
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /** @brief 替换多边形并标记为已编辑（不再是原始线段）。 */
-    void setPolygon(const QPolygonF pPolygon) {
+    void setPolygon(const QPolygonF pPolygon)
+    {
         mIsNominalLine = false;
         QGraphicsPolygonItem::setPolygon(pPolygon);
     }
@@ -119,28 +135,48 @@ public:
     virtual void copyItemParameters(Item *copy) const;
 
     /** @brief 返回生成该多边形的原始线段。 */
-    QLineF originalLine() { return mOriginalLine; }
+    QLineF originalLine()
+    {
+        return mOriginalLine;
+    }
     /** @brief 返回原始线宽。 */
-    qreal originalWidth() { return mOriginalWidth; }
+    qreal originalWidth()
+    {
+        return mOriginalWidth;
+    }
     /** @brief 是否仍为未编辑的原始线段。 */
-    bool isNominalLine() { return mIsNominalLine; }
+    bool isNominalLine()
+    {
+        return mIsNominalLine;
+    }
 
     /** @brief 设置是否视为原始线段（影响后续擦除与重绘方式）。 */
-    void setNominalLine(bool isNominalLine) { mIsNominalLine = isNominalLine; }
+    void setNominalLine(bool isNominalLine)
+    {
+        mIsNominalLine = isNominalLine;
+    }
 
     /** @brief 返回深色背景上的替代颜色。 */
-    QColor colorOnDarkBackground() const { return mColorOnDarkBackground; }
+    QColor colorOnDarkBackground() const
+    {
+        return mColorOnDarkBackground;
+    }
 
     /** @brief 设置深色背景上的替代颜色。 */
-    void setColorOnDarkBackground(QColor pColorOnDarkBackground) {
+    void setColorOnDarkBackground(QColor pColorOnDarkBackground)
+    {
         mColorOnDarkBackground = pColorOnDarkBackground;
     }
 
     /** @brief 返回浅色背景上的替代颜色。 */
-    QColor colorOnLightBackground() const { return mColorOnLightBackground; }
+    QColor colorOnLightBackground() const
+    {
+        return mColorOnLightBackground;
+    }
 
     /** @brief 设置浅色背景上的替代颜色。 */
-    void setColorOnLightBackground(QColor pColorOnLightBackground) {
+    void setColorOnLightBackground(QColor pColorOnLightBackground)
+    {
         mColorOnLightBackground = pColorOnLightBackground;
     }
 
@@ -159,12 +195,12 @@ private:
     bool mHasAlpha;
 
     QLineF mOriginalLine;
-    qreal mOriginalWidth;
-    bool mIsNominalLine;
+    qreal  mOriginalWidth;
+    bool   mIsNominalLine;
 
     QColor mColorOnDarkBackground;
     QColor mColorOnLightBackground;
 
-    GraphicsStroke *mStroke;
+    GraphicsStroke       *mStroke;
     GraphicsStrokesGroup *mpGroup;
 };

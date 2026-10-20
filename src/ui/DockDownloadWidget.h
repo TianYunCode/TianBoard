@@ -11,7 +11,6 @@
 #include "ui/DockPaletteWidget.h"
 #include "ui/DownloadWidget.h"
 
-
 /**
  * @brief 下载面板：把 DownloadWidget 包成右侧 DockPalette 的一个标签页。
  *
@@ -19,7 +18,8 @@
  * 调色板管理器显示该标签页。只在 Board 模式可见，内部下载列表由 DownloadWidget
  * 直接连接 DownloadManager 维护。
  */
-class DockDownloadWidget : public DockPaletteWidget {
+class DockDownloadWidget : public DockPaletteWidget
+{
     Q_OBJECT
 public:
     /**
@@ -35,9 +35,12 @@ public:
      * @param mode 当前界面模式
      * @return mode 为 Board 时返回 true
      */
-    bool visibleInMode(DockWidgetMode mode) { return mode == DockWidgetMode::Board; }
+    bool visibleInMode(DockWidgetMode mode)
+    {
+        return mode == DockWidgetMode::Board;
+    }
 
 private:
-    QVBoxLayout *mpLayout;
+    QVBoxLayout    *mpLayout;
     DownloadWidget *mpDLWidget;
 };

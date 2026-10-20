@@ -8,7 +8,8 @@
 
 #include "utils/GeometryUtils.h"
 
-class TestGeometryUtils : public QObject {
+class TestGeometryUtils : public QObject
+{
     Q_OBJECT
 
 private slots:
@@ -22,7 +23,8 @@ private slots:
     void quadraticBezierSampling();
 };
 
-void TestGeometryUtils::pointConstrainedInRectClamps() {
+void TestGeometryUtils::pointConstrainedInRectClamps()
+{
     const QRectF rect(10, 20, 100, 50);
 
     QCOMPARE(GeometryUtils::pointConstrainedInRect(QPointF(5, 5), rect), QPointF(10, 20));
@@ -33,7 +35,8 @@ void TestGeometryUtils::pointConstrainedInRectClamps() {
     QCOMPARE(GeometryUtils::pointConstrainedInRect(QPointF(1, 2), QRectF(7, 8, 0, 0)), QPointF(7, 8));
 }
 
-void TestGeometryUtils::pointConstrainedInRectIntegerOverload() {
+void TestGeometryUtils::pointConstrainedInRectIntegerOverload()
+{
     const QRect rect(10, 20, 100, 50);
 
     QCOMPARE(GeometryUtils::pointConstrainedInRect(QPoint(-30, 0), rect), QPoint(10, 20));
@@ -41,7 +44,8 @@ void TestGeometryUtils::pointConstrainedInRectIntegerOverload() {
     QCOMPARE(GeometryUtils::pointConstrainedInRect(QPoint(40, 30), rect), QPoint(40, 30));
 }
 
-void TestGeometryUtils::angleAtMiddlePoint() {
+void TestGeometryUtils::angleAtMiddlePoint()
+{
     // 中间那个点是直角顶点。
     // 结果要落在 acos(1e-16) 这类浮点噪声之内仍然算正确。
     QVERIFY(qAbs(GeometryUtils::angle(QPointF(0, 0), QPointF(0, 1), QPointF(1, 1)) - 90.0) < 1e-9);
@@ -56,9 +60,9 @@ void TestGeometryUtils::angleAtMiddlePoint() {
     QVERIFY(qAbs(degenerate - 180.0) < 1e-9);
 }
 
-void TestGeometryUtils::quadraticBezierSampling() {
-    const QList<QPointF> points =
-        GeometryUtils::quadraticBezier(QPointF(0, 0), QPointF(50, 100), QPointF(100, 0), 10);
+void TestGeometryUtils::quadraticBezierSampling()
+{
+    const QList<QPointF> points = GeometryUtils::quadraticBezier(QPointF(0, 0), QPointF(50, 100), QPointF(100, 0), 10);
 
     // nPoints 请求的是 nPoints + 1 个采样点，其中第一个与最后一个正好是曲线的两个端点。
     QCOMPARE(points.size(), 11);

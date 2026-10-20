@@ -2,22 +2,25 @@
 
 #include <QtWidgets>
 
-
-struct ProxyDialog::Private {
-    QGridLayout *gridLayout{nullptr};
-    QLabel *iconLabel{nullptr};
-    QLabel *introLabel{nullptr};
-    QLabel *usernameLabel{nullptr};
-    QLineEdit *userNameLineEdit{nullptr};
-    QLabel *passwordLabel{nullptr};
-    QLineEdit *passwordLineEdit{nullptr};
+struct ProxyDialog::Private
+{
+    QGridLayout      *gridLayout{nullptr};
+    QLabel           *iconLabel{nullptr};
+    QLabel           *introLabel{nullptr};
+    QLabel           *usernameLabel{nullptr};
+    QLineEdit        *userNameLineEdit{nullptr};
+    QLabel           *passwordLabel{nullptr};
+    QLineEdit        *passwordLineEdit{nullptr};
     QDialogButtonBox *buttonBox{nullptr};
-    QCheckBox *saveCredentials{nullptr};
+    QCheckBox        *saveCredentials{nullptr};
 };
 
-ProxyDialog::ProxyDialog(QWidget *parent) : QDialog(parent), d(new Private) {
+ProxyDialog::ProxyDialog(QWidget *parent) : QDialog(parent), d(new Private)
+{
     if (objectName().isEmpty())
+    {
         setObjectName("ProxyDialog");
+    }
     resize(369, 161);
 
     d->gridLayout = new QGridLayout(this);
@@ -67,8 +70,7 @@ ProxyDialog::ProxyDialog(QWidget *parent) : QDialog(parent), d(new Private) {
     // 移植自 Designer 表单的占位文字 "ICON" 不适合作为提示图形，
     // 这里换成主题提供的标准问号图标。
     d->iconLabel->setText(QString());
-    d->iconLabel->setPixmap(
-        style()->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this).pixmap(32, 32));
+    d->iconLabel->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this).pixmap(32, 32));
 
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, qOverload<>(&QDialog::accept));
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, qOverload<>(&QDialog::reject));
@@ -76,26 +78,32 @@ ProxyDialog::ProxyDialog(QWidget *parent) : QDialog(parent), d(new Private) {
 
 ProxyDialog::~ProxyDialog() = default;
 
-void ProxyDialog::setIntroText(const QString &text) {
+void ProxyDialog::setIntroText(const QString &text)
+{
     d->introLabel->setText(text);
 }
 
-void ProxyDialog::setUserName(const QString &userName) {
+void ProxyDialog::setUserName(const QString &userName)
+{
     d->userNameLineEdit->setText(userName);
 }
 
-void ProxyDialog::setPassword(const QString &password) {
+void ProxyDialog::setPassword(const QString &password)
+{
     d->passwordLineEdit->setText(password);
 }
 
-QString ProxyDialog::userName() const {
+QString ProxyDialog::userName() const
+{
     return d->userNameLineEdit->text();
 }
 
-QString ProxyDialog::password() const {
+QString ProxyDialog::password() const
+{
     return d->passwordLineEdit->text();
 }
 
-bool ProxyDialog::shouldSaveCredentials() const {
+bool ProxyDialog::shouldSaveCredentials() const
+{
     return d->saveCredentials->isChecked();
 }

@@ -18,7 +18,8 @@ class GraphicsScene;
  * 通过 SvgSubsetAdaptor 加载场景并就地补生成；写回前会检查场景是否修改过，
  * 避免每次保存都重绘全部页面。
  */
-class ThumbnailAdaptor {
+class ThumbnailAdaptor
+{
     Q_DECLARE_TR_FUNCTIONS(ThumbnailAdaptor)
 
 public:
@@ -26,8 +27,7 @@ public:
     static QUrl thumbnailUrl(DocumentProxy *proxy, int pageIndex);
 
     /** @brief 渲染并保存缩略图；场景未修改且文件存在时跳过，overrideModified 可强制重写。 */
-    static void persistScene(DocumentProxy *proxy, GraphicsScene *pScene, int pageIndex,
-                             bool overrideModified = false);
+    static void persistScene(DocumentProxy *proxy, GraphicsScene *pScene, int pageIndex, bool overrideModified = false);
 
     /** @brief 读取某页缩略图，调用方负责 delete；缺失时触发批量补生成。 */
     static const QPixmap *get(DocumentProxy *proxy, int index);
@@ -38,5 +38,7 @@ private:
     /** @brief 扫描所有页面，为缺少缩略图的页面各加载一次场景并生成。 */
     static void generateMissingThumbnails(DocumentProxy *proxy);
 
-    ThumbnailAdaptor() {}
+    ThumbnailAdaptor()
+    {
+    }
 };

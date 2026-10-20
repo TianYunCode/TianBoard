@@ -10,14 +10,14 @@
 
 #include "whiteboard/GraphicsTextItem.h"
 
-
 /**
  * @brief 文本项编辑撤销命令的适配器。
  *
  * 文本项内部使用 QTextDocument 的撤销栈，本命令把一次外部撤销/重做转发给文档，
  * 从而与全局撤销栈保持同步。使用 QPointer 持有文本项，项被销毁后命令自动失效。
  */
-class GraphicsTextItemUndoCommand : public UndoCommand {
+class GraphicsTextItemUndoCommand : public UndoCommand
+{
 public:
     /**
      * @brief 构造命令。
@@ -27,7 +27,10 @@ public:
     virtual ~GraphicsTextItemUndoCommand();
 
     /** @brief 返回撤销命令类型。 */
-    virtual int getType() const { return UndoType::undotype_GRAPHICTEXTITEM; };
+    virtual int getType() const
+    {
+        return UndoType::undotype_GRAPHICTEXTITEM;
+    };
 
 protected:
     /** @brief 调用文档的 undo()。 */

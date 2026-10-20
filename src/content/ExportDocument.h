@@ -19,7 +19,8 @@ class DocumentProxy;
  * 压缩过程通过 ProcessingProgressListener 回报进度。文档目录的结构由
  * PersistenceManager 决定，这里不做任何转换，只做打包。
  */
-class ExportDocument : public ExportAdaptor, public ProcessingProgressListener {
+class ExportDocument : public ExportAdaptor, public ProcessingProgressListener
+{
     Q_OBJECT
 
 public:

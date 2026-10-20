@@ -27,7 +27,8 @@ class GraphicsCurtainItem;
  *
  * 委托不拥有被委托的图形项，其生命周期由图形项负责；框架与按钮由基类统一管理。
  */
-class GraphicsCurtainItemDelegate : public GraphicsItemDelegate {
+class GraphicsCurtainItemDelegate : public GraphicsItemDelegate
+{
     Q_OBJECT
 
 public:

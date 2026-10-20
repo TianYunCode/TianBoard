@@ -10,7 +10,6 @@
 
 #include "whiteboard/PDFRenderer.h"
 
-
 /**
  * @brief 在场景中显示 PDF 的一页，绘制委托给共享的 PDFRenderer。
  *
@@ -18,7 +17,8 @@
  * 使用设备坐标缓存（DeviceCoordinateCache），缩放后按新的像素尺寸重新渲染。
  * 生命周期归场景所有，仅在 GUI 线程绘制。
  */
-class PdfPageItem : public QObject, public QGraphicsItem {
+class PdfPageItem : public QObject, public QGraphicsItem
+{
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem);
 
@@ -38,13 +38,22 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     /// @brief 当前页码。
-    int pageNumber() const { return mPageNumber; }
+    int pageNumber() const
+    {
+        return mPageNumber;
+    }
     /// @brief 所属文档的标识。
-    QUuid fileUuid() const { return mRenderer->fileUuid(); }
+    QUuid fileUuid() const
+    {
+        return mRenderer->fileUuid();
+    }
     /// @brief 所属文档的原始字节。
-    QByteArray fileData() const { return mRenderer->fileData(); }
+    QByteArray fileData() const
+    {
+        return mRenderer->fileData();
+    }
 
 protected:
-    PDFRenderer *mRenderer; ///< 共享渲染器，不持有所有权
-    int mPageNumber;        ///< 页码，从 1 开始
+    PDFRenderer *mRenderer;   ///< 共享渲染器，不持有所有权
+    int          mPageNumber; ///< 页码，从 1 开始
 };

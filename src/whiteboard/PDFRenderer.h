@@ -15,7 +15,6 @@
 
 class QPainter;
 
-
 /**
  * @brief PDF 文档渲染的抽象接口，同一份文档在应用内按 UUID 共享。
  *
@@ -23,7 +22,8 @@ class QPainter;
  * sRenderers 移除并自删，因此除 attach/detach 外不要 delete 本类实例。
  * 渲染结果与 Qt 的 QPdfDocument 一样偏向 GUI 线程使用，不要在后台线程调用。
  */
-class PDFRenderer : public QObject {
+class PDFRenderer : public QObject
+{
     Q_OBJECT
 
 public:
@@ -34,15 +34,14 @@ public:
      * @param importingFile 是否处于导入流程，交由具体实现解释。
      * @note 首次创建会读取整个文件内容并缓存，并按主屏 DPI 设置渲染精度。
      */
-    static PDFRenderer *rendererForUuid(const QUuid &uuid, const QString &filename,
-                                        bool importingFile = false);
+    static PDFRenderer *rendererForUuid(const QUuid &uuid, const QString &filename, bool importingFile = false);
     virtual ~PDFRenderer();
 
     /// @brief 文档是否可渲染。
-    virtual bool isValid() const = 0;
+    virtual bool isValid() const                   = 0;
 
     /// @brief 页数；无效文档返回 0。
-    virtual int pageCount() const = 0;
+    virtual int pageCount() const                  = 0;
 
     /// @brief 指定页（从 1 开始）的尺寸，单位为按 DPI 缩放后的像素。
     virtual QSizeF pageSizeF(int pageNumber) const = 0;
@@ -51,7 +50,7 @@ public:
     virtual int pageRotation(int pageNumber) const = 0;
 
     /// @brief 文档标题元数据。
-    virtual QString title() const = 0;
+    virtual QString title() const                  = 0;
 
     /// @brief 增加引用计数，页面图元创建时调用。
     void attach();
@@ -59,12 +58,21 @@ public:
     void detach();
 
     /// @brief 文档标识。
-    QUuid fileUuid() const { return mFileUuid; }
+    QUuid fileUuid() const
+    {
+        return mFileUuid;
+    }
     /// @brief 文档原始字节，供保存/另存时复用。
-    QByteArray fileData() const { return mFileData; }
+    QByteArray fileData() const
+    {
+        return mFileData;
+    }
 
     /// @brief 设置渲染 DPI，影响 pageSizeF 与位图尺寸。
-    void setDPI(int desiredDPI) { this->dpiForRendering = desiredDPI; }
+    void setDPI(int desiredDPI)
+    {
+        this->dpiForRendering = desiredDPI;
+    }
 
 public slots:
     /**
@@ -78,7 +86,7 @@ public slots:
 private:
     QAtomicInt mRefCount; ///< 引用计数，attach/detach 维护
     QByteArray mFileData; ///< 文档字节缓存
-    QUuid mFileUuid;      ///< 文档标识
+    QUuid      mFileUuid; ///< 文档标识
 
     void setRefCount(const QAtomicInt &refCount);
     void setFileData(const QByteArray &fileData);

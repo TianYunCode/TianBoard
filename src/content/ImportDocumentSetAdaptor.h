@@ -17,7 +17,8 @@ class DocumentProxy;
  * PersistenceManager 生成唯一目录名，避免覆盖已有文档。导入结果是一组目录，
  * 由调用方决定如何刷新文档树。
  */
-class ImportDocumentSetAdaptor : public ImportAdaptor {
+class ImportDocumentSetAdaptor : public ImportAdaptor
+{
     Q_OBJECT
 
 public:

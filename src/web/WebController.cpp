@@ -27,54 +27,55 @@
 #include "ui/CustomCaptureWindow.h"
 #include "whiteboard/BoardPaletteManager.h"
 
-
 WebController::WebController(MainWindow *mainWindow)
-    : QObject(mainWindow->centralWidget()),
-      mMainWindow(mainWindow),
-      mCurrentWebBrowser(0),
-      mBrowserWidget(0),
-      mToolsCurrentPalette(0) {}
+    : QObject(mainWindow->centralWidget()), mMainWindow(mainWindow), mCurrentWebBrowser(0), mBrowserWidget(0), mToolsCurrentPalette(0)
+{
+}
 
-
-WebController::~WebController() {
+WebController::~WebController()
+{
     // 浏览器窗口与工具面板都由主窗口的控件树持有，随父对象销毁，这里无需手动释放。
 }
 
-void WebController::webBrowserInstance() {
+void WebController::webBrowserInstance()
+{
     QString webHomePage = Settings::settings()->webHomePage->get().toString();
-    QUrl currentUrl = BrowserWindow::guessUrlFromString(webHomePage);
+    QUrl    currentUrl  = BrowserWindow::guessUrlFromString(webHomePage);
 
-    if (Settings::settings()->webUseExternalBrowser->get().toBool()) {
+    if (Settings::settings()->webUseExternalBrowser->get().toBool())
+    {
         QDesktopServices::openUrl(currentUrl);
-    } else {
+    }
+    else
+    {
         // 浏览器窗口懒创建：首次进入网页模式才构建，之后复用同一个实例。
-        if (!mCurrentWebBrowser) {
+        if (!mCurrentWebBrowser)
+        {
             mCurrentWebBrowser = new BrowserWindow(mMainWindow->centralWidget(), mMainWindow);
 
             // closeEvent 里是 deleteLater()，窗口没了 mCurrentWebBrowser/mBrowserWidget
             // 必须跟着置空，否则下次进入网页模式会把悬空指针当活对象用。
-            connect(mCurrentWebBrowser, &QObject::destroyed, this, [this] {
-                mCurrentWebBrowser = nullptr;
-                mBrowserWidget = nullptr;
-            });
+            connect(mCurrentWebBrowser, &QObject::destroyed, this,
+                [this]
+                {
+                    mCurrentWebBrowser = nullptr;
+                    mBrowserWidget     = nullptr;
+                });
 
             mMainWindow->addWebWidget(mCurrentWebBrowser);
 
-            connect(mCurrentWebBrowser, &BrowserWindow::activeViewChange, this,
-                    &WebController::setSourceWidget);
+            connect(mCurrentWebBrowser, &BrowserWindow::activeViewChange, this, &WebController::setSourceWidget);
 
             BrowserWindow::downloadManager()->setParent(mCurrentWebBrowser, Qt::Tool);
 
-            Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().webToolBar,
-                                                                 mMainWindow->ui().actionBoard, 32);
+            Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().webToolBar, mMainWindow->ui().actionBoard, 32);
             Application::app()->decorateActionMenu(mMainWindow->ui().actionMenu);
 
             showTabAtTop(Settings::settings()->appToolBarPositionedAtTop->get().toBool());
 
             adaptToolBar();
 
-            connect(mCurrentWebBrowser, &BrowserWindow::activeViewPageChanged, this,
-                    &WebController::activePageChanged);
+            connect(mCurrentWebBrowser, &BrowserWindow::activeViewPageChanged, this, &WebController::activePageChanged);
 
             mCurrentWebBrowser->loadUrl(currentUrl);
 
@@ -94,33 +95,41 @@ void WebController::webBrowserInstance() {
     }
 }
 
-void WebController::show() {
+void WebController::show()
+{
     webBrowserInstance();
 }
 
-void WebController::setSourceWidget(QWidget *pWidget) {
+void WebController::setSourceWidget(QWidget *pWidget)
+{
     mBrowserWidget = pWidget;
     Application::applicationController->setMirrorSourceWidget(pWidget);
 }
 
-void WebController::activePageChanged() {
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+void WebController::activePageChanged()
+{
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
+    {
         mMainWindow->ui().actionWebTrap->setChecked(false);
 
         emit activeWebPageChanged(mCurrentWebBrowser->currentTabWebView());
     }
 }
 
-void WebController::setupPalettes() {
-    if (!mToolsCurrentPalette) {
+void WebController::setupPalettes()
+{
+    if (!mToolsCurrentPalette)
+    {
         mToolsCurrentPalette = new WebToolsPalette(Application::mainWindow);
         Application::boardController->paletteManager()->setCurrentWebToolsPalette(mToolsCurrentPalette);
 
         connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this,
-                [this] { customCapture(); });
+            [this]
+            {
+                customCapture();
+            });
 
-        connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this,
-                &WebController::toogleMirroring);
+        connect(mMainWindow->ui().actionWebShowHideOnDisplay, &QAction::toggled, this, &WebController::toogleMirroring);
         // 网页元素捕获在 Qt6 移植中尚未恢复（命中测试依赖旧 WebKit 的 DOM 接口），
         // 先禁用，避免用户点亮一个只会改变光标、什么都不捕获的按钮。
         mMainWindow->ui().actionWebTrap->setEnabled(false);
@@ -129,9 +138,10 @@ void WebController::setupPalettes() {
         mToolsCurrentPalette->hide();
         mToolsCurrentPalette->adjustSizeAndPosition();
 
-        if (controlView()) {
+        if (controlView())
+        {
             int left = controlView()->width() - 20 - mToolsCurrentPalette->width();
-            int top = (controlView()->height() - mToolsCurrentPalette->height()) / 2;
+            int top  = (controlView()->height() - mToolsCurrentPalette->height()) / 2;
             mToolsCurrentPalette->setCustomPosition(true);
             mToolsCurrentPalette->move(left, top);
         }
@@ -141,14 +151,16 @@ void WebController::setupPalettes() {
     }
 }
 
-
-void WebController::toggleWebTrap(bool checked) {
+void WebController::toggleWebTrap(bool checked)
+{
     if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
+    {
         mCurrentWebBrowser->currentTabWebView()->setIsTrapping(checked);
+    }
 }
 
-
-void WebController::customCapture() {
+void WebController::customCapture()
+{
     mToolsCurrentPalette->setVisible(false);
     qApp->processEvents();
 
@@ -156,104 +168,123 @@ void WebController::customCapture() {
 
     customCaptureWindow.show();
 
-    if (customCaptureWindow.execute(getScreenPixmap()) == QDialog::Accepted) {
+    if (customCaptureWindow.execute(getScreenPixmap()) == QDialog::Accepted)
+    {
         QPixmap selectedPixmap = customCaptureWindow.getSelectedPixmap();
-        emit imageCaptured(selectedPixmap, false, mCurrentWebBrowser->currentTabWebView()->url());
+        emit    imageCaptured(selectedPixmap, false, mCurrentWebBrowser->currentTabWebView()->url());
     }
 
     mToolsCurrentPalette->setVisible(true);
 }
 
-
-void WebController::toogleMirroring(bool checked) {
+void WebController::toogleMirroring(bool checked)
+{
     Application::applicationController->mirroringEnabled(checked);
 }
 
-
-QPixmap WebController::getScreenPixmap() {
-    VirtualDesktop *desktop = VirtualDesktop::instance();
+QPixmap WebController::getScreenPixmap()
+{
+    VirtualDesktop *desktop        = VirtualDesktop::instance();
     // 抓取鼠标当前所在的那块屏幕，而不是固定抓主屏。
-    const QPoint cursorPos = QCursor::pos();
-    const QRect primaryScreenRect = desktop->screenGeometry(cursorPos);
+    const QPoint cursorPos         = QCursor::pos();
+    const QRect  primaryScreenRect = desktop->screenGeometry(cursorPos);
 
     return VirtualDesktop::grabScreen(QGuiApplication::screenAt(cursorPos), primaryScreenRect);
 }
 
-
-void WebController::screenLayoutChanged() {
-    bool hasDisplay =
-        (Application::applicationController && Application::applicationController->displayManager() &&
-         Application::applicationController->displayManager()->hasDisplay());
+void WebController::screenLayoutChanged()
+{
+    bool hasDisplay = (Application::applicationController && Application::applicationController->displayManager() &&
+                       Application::applicationController->displayManager()->hasDisplay());
 
     Application::mainWindow->ui().actionWebShowHideOnDisplay->setVisible(hasDisplay);
 }
 
-
-void WebController::closing() {
+void WebController::closing()
+{
     // 浏览器窗口由主窗口统一销毁，关闭流程里没有需要额外释放的资源。
 }
 
-
-void WebController::adaptToolBar() {
+void WebController::adaptToolBar()
+{
     bool highResolution = mMainWindow->width() > 1024;
 
     mMainWindow->ui().actionWebReload->setVisible(highResolution);
     mMainWindow->ui().actionStopLoading->setVisible(highResolution);
 }
 
-
-void WebController::showTabAtTop(bool attop) {
+void WebController::showTabAtTop(bool attop)
+{
     if (mCurrentWebBrowser)
+    {
         mCurrentWebBrowser->showTabAtTop(attop);
+    }
 }
 
-void WebController::loadUrl(const QUrl &url) {
+void WebController::loadUrl(const QUrl &url)
+{
     Application::applicationController->showInternet();
     if (Settings::settings()->webUseExternalBrowser->get().toBool())
+    {
 
         QDesktopServices::openUrl(url);
+    }
     else
+    {
         mCurrentWebBrowser->loadUrlInNewTab(url);
+    }
 }
 
-
-QWebEngineView *WebController::createNewTab() {
+QWebEngineView *WebController::createNewTab()
+{
     if (mCurrentWebBrowser)
+    {
         Application::applicationController->showInternet();
+    }
 
     return mCurrentWebBrowser->createNewTab();
 }
 
-
-void WebController::copy() {
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+void WebController::copy()
+{
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
+    {
         QWebEngineView *webView = mCurrentWebBrowser->currentTabWebView();
-        QAction *act = webView->pageAction(QWebEnginePage::Copy);
+        QAction        *act     = webView->pageAction(QWebEnginePage::Copy);
         if (act)
+        {
             act->trigger();
+        }
     }
 }
 
-
-void WebController::paste() {
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+void WebController::paste()
+{
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
+    {
         QWebEngineView *webView = mCurrentWebBrowser->currentTabWebView();
-        QAction *act = webView->pageAction(QWebEnginePage::Paste);
+        QAction        *act     = webView->pageAction(QWebEnginePage::Paste);
         if (act)
+        {
             act->trigger();
+        }
     }
 }
 
-
-void WebController::cut() {
-    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView()) {
+void WebController::cut()
+{
+    if (mCurrentWebBrowser && mCurrentWebBrowser->currentTabWebView())
+    {
         QWebEngineView *webView = mCurrentWebBrowser->currentTabWebView();
-        QAction *act = webView->pageAction(QWebEnginePage::Cut);
+        QAction        *act     = webView->pageAction(QWebEnginePage::Cut);
         if (act)
+        {
             act->trigger();
+        }
     }
 }
 
-void WebController::triggerWebTools(bool checked) {
+void WebController::triggerWebTools(bool checked)
+{
     mToolsCurrentPalette->setVisible(checked);
 }

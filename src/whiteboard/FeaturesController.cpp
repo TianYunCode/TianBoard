@@ -21,61 +21,67 @@
 #include "ui/FeaturesWidget.h"
 
 const QString FeaturesController::virtualRootName = "root";
-const QString FeaturesController::rootPath = "/" + virtualRootName;
+const QString FeaturesController::rootPath        = "/" + virtualRootName;
 
-const QString FeaturesController::appPath = rootPath + "/Applications";
-const QString FeaturesController::audiosPath = rootPath + "/Audios";
-const QString FeaturesController::moviesPath = rootPath + "/Movies";
-const QString FeaturesController::picturesPath = rootPath + "/Pictures";
-const QString FeaturesController::flashPath = rootPath + "/Animations";
-const QString FeaturesController::interactPath = rootPath + "/Interactivities";
-const QString FeaturesController::shapesPath = rootPath + "/Shapes";
-const QString FeaturesController::trashPath = rootPath + "/Trash";
-const QString FeaturesController::favoritePath = rootPath + "/Favorites";
+const QString FeaturesController::appPath         = rootPath + "/Applications";
+const QString FeaturesController::audiosPath      = rootPath + "/Audios";
+const QString FeaturesController::moviesPath      = rootPath + "/Movies";
+const QString FeaturesController::picturesPath    = rootPath + "/Pictures";
+const QString FeaturesController::flashPath       = rootPath + "/Animations";
+const QString FeaturesController::interactPath    = rootPath + "/Interactivities";
+const QString FeaturesController::shapesPath      = rootPath + "/Shapes";
+const QString FeaturesController::trashPath       = rootPath + "/Trash";
+const QString FeaturesController::favoritePath    = rootPath + "/Favorites";
 
-
-void FeaturesComputingThread::scanFS(const QUrl &currentPath, const QString &currVirtualPath,
-                                     const QSet<QUrl> &pFavoriteSet) {
+void FeaturesComputingThread::scanFS(const QUrl &currentPath, const QString &currVirtualPath, const QSet<QUrl> &pFavoriteSet)
+{
     QFileInfoList fileInfoList = FileSystemUtils::allElementsInDirectory(currentPath.toLocalFile());
 
     QFileInfoList::iterator fileInfo;
-    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1) {
-        if (abort) {
+    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1)
+    {
+        if (abort)
+        {
             return;
         }
 
-        QString fullFileName = fileInfo->absoluteFilePath();
-        FeatureElementType featureType = FeaturesController::fileTypeFromUrl(fullFileName);
-        QString fileName = fileInfo->fileName();
+        QString            fullFileName = fileInfo->absoluteFilePath();
+        FeatureElementType featureType  = FeaturesController::fileTypeFromUrl(fullFileName);
+        QString            fileName     = fileInfo->fileName();
 
-        QImage icon = FeaturesController::getIcon(fullFileName, featureType);
+        QImage icon                     = FeaturesController::getIcon(fullFileName, featureType);
 
         if (fullFileName.contains(".thumbnail."))
+        {
             continue;
+        }
 
-        Feature testFeature(currVirtualPath + "/" + fileName, icon, fileName,
-                            QUrl::fromLocalFile(fullFileName), featureType);
+        Feature testFeature(currVirtualPath + "/" + fileName, icon, fileName, QUrl::fromLocalFile(fullFileName), featureType);
 
         emit sendFeature(testFeature);
         emit featureSent();
         emit scanPath(fullFileName);
 
-        if (pFavoriteSet.find(QUrl::fromLocalFile(fullFileName)) != pFavoriteSet.end()) {
+        if (pFavoriteSet.find(QUrl::fromLocalFile(fullFileName)) != pFavoriteSet.end())
+        {
             // TODO：favoritePath 应由控制器下发，或改成公开静态成员。
-            emit sendFeature(Feature(FeaturesController::favoritePath + "/" + fileName, icon, fileName,
-                                     QUrl::fromLocalFile(fullFileName), featureType));
+            emit sendFeature(
+                Feature(FeaturesController::favoritePath + "/" + fileName, icon, fileName, QUrl::fromLocalFile(fullFileName), featureType));
         }
 
-        if (featureType == FEATURE_FOLDER) {
+        if (featureType == FEATURE_FOLDER)
+        {
             scanFS(QUrl::fromLocalFile(fullFileName), currVirtualPath + "/" + fileName, pFavoriteSet);
         }
     }
 }
 
-void FeaturesComputingThread::scanAll(QList<QPair<QUrl, Feature>> pScanningData,
-                                      const QSet<QUrl> &pFavoriteSet) {
-    for (int i = 0; i < pScanningData.count(); i++) {
-        if (abort) {
+void FeaturesComputingThread::scanAll(QList<QPair<QUrl, Feature>> pScanningData, const QSet<QUrl> &pFavoriteSet)
+{
+    for (int i = 0; i < pScanningData.count(); i++)
+    {
+        if (abort)
+        {
             return;
         }
         QPair<QUrl, Feature> curPair = pScanningData.at(i);
@@ -85,21 +91,25 @@ void FeaturesComputingThread::scanAll(QList<QPair<QUrl, Feature>> pScanningData,
     }
 }
 
-int FeaturesComputingThread::featuresCount(const QUrl &pPath) {
-    int noItems = 0;
+int FeaturesComputingThread::featuresCount(const QUrl &pPath)
+{
+    int noItems                = 0;
 
     QFileInfoList fileInfoList = FileSystemUtils::allElementsInDirectory(pPath.toLocalFile());
 
     QFileInfoList::iterator fileInfo;
-    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1) {
-        QString fullFileName = fileInfo->absoluteFilePath();
-        FeatureElementType featureType = FeaturesController::fileTypeFromUrl(fullFileName);
+    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1)
+    {
+        QString            fullFileName = fileInfo->absoluteFilePath();
+        FeatureElementType featureType  = FeaturesController::fileTypeFromUrl(fullFileName);
 
-        if (featureType != FEATURE_INVALID && !fullFileName.contains(".thumbnail.")) {
+        if (featureType != FEATURE_INVALID && !fullFileName.contains(".thumbnail."))
+        {
             noItems++;
         }
 
-        if (featureType == FEATURE_FOLDER) {
+        if (featureType == FEATURE_FOLDER)
+        {
             noItems += featuresCount(QUrl::fromLocalFile(fullFileName));
         }
     }
@@ -107,47 +117,57 @@ int FeaturesComputingThread::featuresCount(const QUrl &pPath) {
     return noItems;
 }
 
-int FeaturesComputingThread::featuresCountAll(QList<QPair<QUrl, Feature>> pScanningData) {
+int FeaturesComputingThread::featuresCountAll(QList<QPair<QUrl, Feature>> pScanningData)
+{
     int noItems = 0;
-    for (int i = 0; i < pScanningData.count(); i++) {
-        QPair<QUrl, Feature> curPair = pScanningData.at(i);
-        noItems += featuresCount(curPair.first);
+    for (int i = 0; i < pScanningData.count(); i++)
+    {
+        QPair<QUrl, Feature> curPair  = pScanningData.at(i);
+        noItems                      += featuresCount(curPair.first);
     }
 
     return noItems;
 }
 
-FeaturesComputingThread::FeaturesComputingThread(QObject *parent) : QThread(parent) {
+FeaturesComputingThread::FeaturesComputingThread(QObject *parent) : QThread(parent)
+{
     restart = false;
-    abort = false;
+    abort   = false;
 }
 
-void FeaturesComputingThread::compute(const QList<QPair<QUrl, Feature>> &pScanningData,
-                                      QSet<QUrl> *pFavoritesSet) {
+void FeaturesComputingThread::compute(const QList<QPair<QUrl, Feature>> &pScanningData, QSet<QUrl> *pFavoritesSet)
+{
     QMutexLocker curLocker(&mMutex);
 
     mScanningData = pScanningData;
-    mFavoriteSet = *pFavoritesSet;
+    mFavoriteSet  = *pFavoritesSet;
 
-    if (!isRunning()) {
+    if (!isRunning())
+    {
         start(LowPriority);
-    } else {
+    }
+    else
+    {
         restart = true;
         mWaitCondition.wakeOne();
     }
 }
 
-void FeaturesComputingThread::run() {
-    forever {
+void FeaturesComputingThread::run()
+{
+    forever
+    {
         mMutex.lock();
-        QList<QPair<QUrl, Feature>> searchData = mScanningData;
-        QSet<QUrl> favoriteSet = mFavoriteSet;
+        QList<QPair<QUrl, Feature>> searchData  = mScanningData;
+        QSet<QUrl>                  favoriteSet = mFavoriteSet;
         mMutex.unlock();
 
-        if (abort) {
+        if (abort)
+        {
             return;
         }
-        if (restart) {
+        if (restart)
+        {
             break;
         }
 
@@ -160,7 +180,8 @@ void FeaturesComputingThread::run() {
         emit scanFinished();
 
         mMutex.lock();
-        if (!abort) {
+        if (!abort)
+        {
             mWaitCondition.wait(&mMutex);
         }
         restart = false;
@@ -168,7 +189,8 @@ void FeaturesComputingThread::run() {
     }
 }
 
-FeaturesComputingThread::~FeaturesComputingThread() {
+FeaturesComputingThread::~FeaturesComputingThread()
+{
     mMutex.lock();
     abort = true;
     mWaitCondition.wakeOne();
@@ -177,114 +199,126 @@ FeaturesComputingThread::~FeaturesComputingThread() {
     wait();
 }
 
-Feature::Feature(const QString &url, const QImage &icon, const QString &name, const QUrl &realPath,
-                 FeatureElementType type)
-    : mThumbnail(icon), mDisplayName(name), mPath(realPath), elementType(type) {
-    mName = getNameFromVirtualPath(url);
+Feature::Feature(const QString &url, const QImage &icon, const QString &name, const QUrl &realPath, FeatureElementType type)
+    : mThumbnail(icon), mDisplayName(name), mPath(realPath), elementType(type)
+{
+    mName      = getNameFromVirtualPath(url);
     virtualDir = getVirtualDirFromVirtualPath(url);
 }
 
-Feature::~Feature() {}
+Feature::~Feature()
+{
+}
 
-QString Feature::getNameFromVirtualPath(const QString &pVirtPath) {
+QString Feature::getNameFromVirtualPath(const QString &pVirtPath)
+{
     QString result;
-    int slashPos = pVirtPath.lastIndexOf("/");
-    if (slashPos != -1) {
+    int     slashPos = pVirtPath.lastIndexOf("/");
+    if (slashPos != -1)
+    {
         result = pVirtPath.right(pVirtPath.count() - slashPos - 1);
-    } else {
+    }
+    else
+    {
         qDebug() << "Feature: incorrect virtual path parameter specified";
     }
 
     return result;
 }
 
-QString Feature::getVirtualDirFromVirtualPath(const QString &pVirtPath) {
+QString Feature::getVirtualDirFromVirtualPath(const QString &pVirtPath)
+{
     QString result;
-    int slashPos = pVirtPath.lastIndexOf("/");
-    if (slashPos != -1) {
+    int     slashPos = pVirtPath.lastIndexOf("/");
+    if (slashPos != -1)
+    {
         result = pVirtPath.left(slashPos);
-    } else {
+    }
+    else
+    {
         qDebug() << "Feature: incorrect virtual path parameter specified";
     }
 
     return result;
 }
 
-QString Feature::getUrl() const {
+QString Feature::getUrl() const
+{
     if (elementType == FEATURE_INTERNAL)
+    {
         return getFullPath().toString();
+    }
 
     return getFullPath().toLocalFile();
 }
 
-bool Feature::operator==(const Feature &f) const {
-    return virtualDir == f.getVirtualPath() && mName == f.getName() && mPath == f.getFullPath() &&
-           elementType == f.getType();
+bool Feature::operator==(const Feature &f) const
+{
+    return virtualDir == f.getVirtualPath() && mName == f.getName() && mPath == f.getFullPath() && elementType == f.getType();
 }
 
-bool Feature::operator!=(const Feature &f) const {
+bool Feature::operator!=(const Feature &f) const
+{
     return !(*this == f);
 }
 
-bool Feature::isFolder() const {
-    return elementType == FEATURE_CATEGORY || elementType == FEATURE_TRASH ||
-           elementType == FEATURE_FAVORITE || elementType == FEATURE_FOLDER || elementType == FEATURE_SEARCH;
+bool Feature::isFolder() const
+{
+    return elementType == FEATURE_CATEGORY || elementType == FEATURE_TRASH || elementType == FEATURE_FAVORITE || elementType == FEATURE_FOLDER ||
+           elementType == FEATURE_SEARCH;
 }
 
-bool Feature::allowedCopy() const {
+bool Feature::allowedCopy() const
+{
     return isFolder() && elementType != FEATURE_CATEGORY && elementType != FEATURE_SEARCH;
 }
 
-bool Feature::isDeletable() const {
-    return elementType == FEATURE_ITEM || elementType == FEATURE_AUDIO || elementType == FEATURE_VIDEO ||
-           elementType == FEATURE_IMAGE || elementType == FEATURE_FLASH ||
+bool Feature::isDeletable() const
+{
+    return elementType == FEATURE_ITEM || elementType == FEATURE_AUDIO || elementType == FEATURE_VIDEO || elementType == FEATURE_IMAGE ||
+           elementType == FEATURE_FLASH ||
            elementType == FEATURE_FOLDER
-           // TODO: 这是临时补丁，库条目的权限机制需要重新设计
-           || getVirtualPath().startsWith("/root/Applications/Web");
+        // TODO: 这是临时补丁，库条目的权限机制需要重新设计
+        || getVirtualPath().startsWith("/root/Applications/Web");
 }
 
-bool Feature::inTrash() const {
-    return getFullPath().toLocalFile().startsWith(
-        QUrl::fromLocalFile(Settings::userTrashDirPath()).toLocalFile());
+bool Feature::inTrash() const
+{
+    return getFullPath().toLocalFile().startsWith(QUrl::fromLocalFile(Settings::userTrashDirPath()).toLocalFile());
 }
 
-FeaturesController::FeaturesController(QWidget *pParentWidget)
-    : QObject(pParentWidget), featuresList(0), mLastItemOffsetIndex(0) {
+FeaturesController::FeaturesController(QWidget *pParentWidget) : QObject(pParentWidget), featuresList(0), mLastItemOffsetIndex(0)
+{
     // 从设置读取用户目录与内置素材库目录。
-    mUserAudioDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userAudioDirectory());
-    mUserVideoDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userVideoDirectory());
-    mUserPicturesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userImageDirectory());
+    mUserAudioDirectoryPath       = QUrl::fromLocalFile(Settings::settings()->userAudioDirectory());
+    mUserVideoDirectoryPath       = QUrl::fromLocalFile(Settings::settings()->userVideoDirectory());
+    mUserPicturesDirectoryPath    = QUrl::fromLocalFile(Settings::settings()->userImageDirectory());
     mUserInteractiveDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userInteractiveDirectory());
-    mUserAnimationDirectoryPath = QUrl::fromLocalFile(Settings::settings()->userAnimationDirectory());
+    mUserAnimationDirectoryPath   = QUrl::fromLocalFile(Settings::settings()->userAnimationDirectory());
 
-    mLibPicturesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationImageLibraryDirectory());
-    mLibAudiosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationAudiosLibraryDirectory());
-    mLibVideosDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationVideosLibraryDirectory());
-    mLibShapesDirectoryPath = QUrl::fromLocalFile(Settings::settings()->applicationShapeLibraryDirectory());
-    trashDirectoryPath = QUrl::fromLocalFile(Settings::userTrashDirPath());
+    mLibPicturesDirectoryPath     = QUrl::fromLocalFile(Settings::settings()->applicationImageLibraryDirectory());
+    mLibAudiosDirectoryPath       = QUrl::fromLocalFile(Settings::settings()->applicationAudiosLibraryDirectory());
+    mLibVideosDirectoryPath       = QUrl::fromLocalFile(Settings::settings()->applicationVideosLibraryDirectory());
+    mLibShapesDirectoryPath       = QUrl::fromLocalFile(Settings::settings()->applicationShapeLibraryDirectory());
+    trashDirectoryPath            = QUrl::fromLocalFile(Settings::userTrashDirPath());
 
-    rootElement = Feature(rootPath, QImage(":images/libpalette/home.png"), "root", QUrl());
-    audiosElement = Feature(audiosPath, QImage(":images/libpalette/AudiosCategory.svg"), tr("Audios"),
-                            mUserAudioDirectoryPath, FEATURE_CATEGORY);
-    moviesElement = Feature(moviesPath, QImage(":images/libpalette/MoviesCategory.svg"), tr("Movies"),
-                            mUserVideoDirectoryPath, FEATURE_CATEGORY);
-    picturesElement = Feature(picturesPath, QImage(":images/libpalette/PicturesCategory.svg"), tr("Pictures"),
-                              mUserPicturesDirectoryPath, FEATURE_CATEGORY);
-    applicationsElement = Feature(appPath, QImage(":images/libpalette/ApplicationsCategory.svg"),
-                                  tr("Applications"), mUserInteractiveDirectoryPath, FEATURE_CATEGORY);
-    shapesElement = Feature(shapesPath, QImage(":images/libpalette/ShapesCategory.svg"), tr("Shapes"),
-                            mLibShapesDirectoryPath, FEATURE_CATEGORY);
-    favoriteElement = Feature(favoritePath, QImage(":images/libpalette/FavoritesCategory.svg"),
-                              tr("Favorites"), QUrl("favorites"), FEATURE_FAVORITE);
+    rootElement                   = Feature(rootPath, QImage(":images/libpalette/home.png"), "root", QUrl());
+    audiosElement = Feature(audiosPath, QImage(":images/libpalette/AudiosCategory.svg"), tr("Audios"), mUserAudioDirectoryPath, FEATURE_CATEGORY);
+    moviesElement = Feature(moviesPath, QImage(":images/libpalette/MoviesCategory.svg"), tr("Movies"), mUserVideoDirectoryPath, FEATURE_CATEGORY);
+    picturesElement =
+        Feature(picturesPath, QImage(":images/libpalette/PicturesCategory.svg"), tr("Pictures"), mUserPicturesDirectoryPath, FEATURE_CATEGORY);
+    applicationsElement =
+        Feature(appPath, QImage(":images/libpalette/ApplicationsCategory.svg"), tr("Applications"), mUserInteractiveDirectoryPath, FEATURE_CATEGORY);
+    shapesElement   = Feature(shapesPath, QImage(":images/libpalette/ShapesCategory.svg"), tr("Shapes"), mLibShapesDirectoryPath, FEATURE_CATEGORY);
+    favoriteElement = Feature(favoritePath, QImage(":images/libpalette/FavoritesCategory.svg"), tr("Favorites"), QUrl("favorites"), FEATURE_FAVORITE);
 
-    trashElement = Feature(trashPath, QImage(":images/libpalette/TrashCategory.svg"), tr("Trash"),
-                           trashDirectoryPath, FEATURE_TRASH);
+    trashElement    = Feature(trashPath, QImage(":images/libpalette/TrashCategory.svg"), tr("Trash"), trashDirectoryPath, FEATURE_TRASH);
 
-    featuresList = new QList<Feature>();
+    featuresList    = new QList<Feature>();
 
     scanFS();
 
-    featuresModel = new FeaturesModel(featuresList, this);
+    featuresModel      = new FeaturesModel(featuresList, this);
 
     featuresProxyModel = new FeaturesProxyModel(this);
     featuresProxyModel->setFilterFixedString(rootPath);
@@ -299,107 +333,112 @@ FeaturesController::FeaturesController(QWidget *pParentWidget)
     featuresPathModel->setPath(rootPath);
     featuresPathModel->setSourceModel(featuresModel);
 
-    connect(featuresModel, &FeaturesModel::dataRestructured, featuresProxyModel,
-            &QSortFilterProxyModel::invalidate);
+    connect(featuresModel, &FeaturesModel::dataRestructured, featuresProxyModel, &QSortFilterProxyModel::invalidate);
     connect(&mCThread, &FeaturesComputingThread::sendFeature, featuresModel, &FeaturesModel::addItem);
-    connect(&mCThread, &FeaturesComputingThread::featureSent, this,
-            &FeaturesController::featureAddedFromThread);
+    connect(&mCThread, &FeaturesComputingThread::featureSent, this, &FeaturesController::featureAddedFromThread);
     connect(&mCThread, &FeaturesComputingThread::scanStarted, this, &FeaturesController::scanStarted);
     connect(&mCThread, &FeaturesComputingThread::scanFinished, this, &FeaturesController::scanFinished);
-    connect(&mCThread, &FeaturesComputingThread::maxFilesCountEvaluated, this,
-            &FeaturesController::maxFilesCountEvaluated);
+    connect(&mCThread, &FeaturesComputingThread::maxFilesCountEvaluated, this, &FeaturesController::maxFilesCountEvaluated);
     connect(&mCThread, &FeaturesComputingThread::scanCategory, this, &FeaturesController::scanCategory);
     connect(&mCThread, &FeaturesComputingThread::scanPath, this, &FeaturesController::scanPath);
 
     QTimer::singleShot(0, this, &FeaturesController::startThread);
 }
 
-void FeaturesController::startThread() {
+void FeaturesController::startThread()
+{
     QList<QPair<QUrl, Feature>> computingData;
 
-    computingData << QPair<QUrl, Feature>(mLibAudiosDirectoryPath, audiosElement)
-                  << QPair<QUrl, Feature>(mLibVideosDirectoryPath, moviesElement)
+    computingData << QPair<QUrl, Feature>(mLibAudiosDirectoryPath, audiosElement) << QPair<QUrl, Feature>(mLibVideosDirectoryPath, moviesElement)
                   << QPair<QUrl, Feature>(mLibPicturesDirectoryPath, picturesElement)
 
                   << QPair<QUrl, Feature>(mUserInteractiveDirectoryPath, applicationsElement)
-                  << QPair<QUrl, Feature>(mUserAudioDirectoryPath, audiosElement)
-                  << QPair<QUrl, Feature>(mUserPicturesDirectoryPath, picturesElement)
+                  << QPair<QUrl, Feature>(mUserAudioDirectoryPath, audiosElement) << QPair<QUrl, Feature>(mUserPicturesDirectoryPath, picturesElement)
                   << QPair<QUrl, Feature>(mUserVideoDirectoryPath, moviesElement)
 
-                  << QPair<QUrl, Feature>(mLibShapesDirectoryPath, shapesElement)
-                  << QPair<QUrl, Feature>(trashDirectoryPath, trashElement);
+                  << QPair<QUrl, Feature>(mLibShapesDirectoryPath, shapesElement) << QPair<QUrl, Feature>(trashDirectoryPath, trashElement);
 
     mCThread.compute(computingData, favoriteSet);
 }
 
-void FeaturesController::scanFS() {
+void FeaturesController::scanFS()
+{
     featuresList->clear();
     featuresList->append(rootElement);
 
-    *featuresList << audiosElement << moviesElement << picturesElement << applicationsElement << shapesElement
-                  << favoriteElement << trashElement;
+    *featuresList << audiosElement << moviesElement << picturesElement << applicationsElement << shapesElement << favoriteElement << trashElement;
 
     // 读取收藏列表，随后把收藏项一并放进模型。
     loadFavoriteList();
 
     QList<ToolsManager::ToolDescriptor> tools = ToolsManager::manager()->allTools();
 
-    foreach (ToolsManager::ToolDescriptor tool, tools) {
-        featuresList->append(Feature(appPath + "/" + tool.label, tool.icon.toImage(), tool.label,
-                                     QUrl(tool.id), FEATURE_INTERNAL));
-        if (favoriteSet->find(QUrl(tool.id)) != favoriteSet->end()) {
-            featuresList->append(Feature(favoritePath + "/" + tool.label, tool.icon.toImage(), tool.label,
-                                         QUrl(tool.id), FEATURE_INTERNAL));
+    foreach (ToolsManager::ToolDescriptor tool, tools)
+    {
+        featuresList->append(Feature(appPath + "/" + tool.label, tool.icon.toImage(), tool.label, QUrl(tool.id), FEATURE_INTERNAL));
+        if (favoriteSet->find(QUrl(tool.id)) != favoriteSet->end())
+        {
+            featuresList->append(Feature(favoritePath + "/" + tool.label, tool.icon.toImage(), tool.label, QUrl(tool.id), FEATURE_INTERNAL));
         }
     }
 }
-void FeaturesController::fileSystemScan(const QUrl &currentPath, const QString &currVirtualPath) {
+void FeaturesController::fileSystemScan(const QUrl &currentPath, const QString &currVirtualPath)
+{
     QFileInfoList fileInfoList = FileSystemUtils::allElementsInDirectory(currentPath.toLocalFile());
 
     QFileInfoList::iterator fileInfo;
-    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1) {
-        QString fullFileName = fileInfo->absoluteFilePath();
-        FeatureElementType featureType = fileTypeFromUrl(fullFileName);
-        QString fileName = fileInfo->fileName();
+    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1)
+    {
+        QString            fullFileName = fileInfo->absoluteFilePath();
+        FeatureElementType featureType  = fileTypeFromUrl(fullFileName);
+        QString            fileName     = fileInfo->fileName();
 
-        QImage icon = getIcon(fullFileName, featureType);
+        QImage icon                     = getIcon(fullFileName, featureType);
 
         if (fullFileName.contains(".thumbnail."))
+        {
             continue;
+        }
 
-        Feature testFeature(currVirtualPath + "/" + fileName, icon, fileName,
-                            QUrl::fromLocalFile(fullFileName), featureType);
+        Feature testFeature(currVirtualPath + "/" + fileName, icon, fileName, QUrl::fromLocalFile(fullFileName), featureType);
 
         featuresList->append(testFeature);
 
-        if (favoriteSet->find(QUrl::fromLocalFile(fullFileName)) != favoriteSet->end()) {
-            featuresList->append(Feature(favoritePath + "/" + fileName, icon, fileName,
-                                         QUrl::fromLocalFile(fullFileName), featureType));
+        if (favoriteSet->find(QUrl::fromLocalFile(fullFileName)) != favoriteSet->end())
+        {
+            featuresList->append(Feature(favoritePath + "/" + fileName, icon, fileName, QUrl::fromLocalFile(fullFileName), featureType));
         }
 
-        if (featureType == FEATURE_FOLDER) {
+        if (featureType == FEATURE_FOLDER)
+        {
             fileSystemScan(QUrl::fromLocalFile(fullFileName), currVirtualPath + "/" + fileName);
         }
     }
 }
 
-int FeaturesController::featuresCount(const QUrl &currPath) {
-    int noItems = 0;
+int FeaturesController::featuresCount(const QUrl &currPath)
+{
+    int noItems                = 0;
 
     QFileInfoList fileInfoList = FileSystemUtils::allElementsInDirectory(currPath.toLocalFile());
 
     QFileInfoList::iterator fileInfo;
-    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1) {
-        QString fullFileName = fileInfo->absoluteFilePath();
-        FeatureElementType featureType = fileTypeFromUrl(fullFileName);
+    for (fileInfo = fileInfoList.begin(); fileInfo != fileInfoList.end(); fileInfo += 1)
+    {
+        QString            fullFileName = fileInfo->absoluteFilePath();
+        FeatureElementType featureType  = fileTypeFromUrl(fullFileName);
 
-        if (featureType != FEATURE_INVALID && !fullFileName.contains(".thumbnail.")) {
+        if (featureType != FEATURE_INVALID && !fullFileName.contains(".thumbnail."))
+        {
             noItems++;
-        } else {
+        }
+        else
+        {
             continue;
         }
 
-        if (featureType == FEATURE_FOLDER) {
+        if (featureType == FEATURE_FOLDER)
+        {
             noItems += featuresCount(QUrl::fromLocalFile(fullFileName));
         }
     }
@@ -407,15 +446,18 @@ int FeaturesController::featuresCount(const QUrl &currPath) {
     return noItems;
 }
 
-void FeaturesController::loadFavoriteList() {
+void FeaturesController::loadFavoriteList()
+{
     favoriteSet = new QSet<QUrl>();
     QFile file(Settings::userDataDirectory() + "/favorites.dat");
-    if (file.exists()) {
+    if (file.exists())
+    {
         file.open(QIODevice::ReadOnly);
         QDataStream in(&file);
-        int elementsNumber;
+        int         elementsNumber;
         in >> elementsNumber;
-        for (int i = 0; i < elementsNumber; ++i) {
+        for (int i = 0; i < elementsNumber; ++i)
+        {
             QUrl path;
             in >> path;
             favoriteSet->insert(path);
@@ -423,46 +465,53 @@ void FeaturesController::loadFavoriteList() {
     }
 }
 
-void FeaturesController::saveFavoriteList() {
+void FeaturesController::saveFavoriteList()
+{
     QFile file(Settings::userDataDirectory() + "/favorites.dat");
     file.resize(0);
     file.open(QIODevice::WriteOnly);
     QDataStream out(&file);
     out << favoriteSet->size();
-    for (QSet<QUrl>::iterator it = favoriteSet->begin(); it != favoriteSet->end(); ++it) {
+    for (QSet<QUrl>::iterator it = favoriteSet->begin(); it != favoriteSet->end(); ++it)
+    {
         out << (*it);
     }
     file.close();
 }
 
-QString FeaturesController::uniqNameForFeature(const Feature &feature, const QString &pName,
-                                               const QString &pExtention) const {
+QString FeaturesController::uniqNameForFeature(const Feature &feature, const QString &pName, const QString &pExtention) const
+{
     Q_ASSERT(featuresList);
 
     QStringList resultList;
-    QString parentVirtualPath = feature.getFullVirtualPath();
-    QString resultName;
+    QString     parentVirtualPath = feature.getFullVirtualPath();
+    QString     resultName;
 
     qDebug() << "start";
-    foreach (Feature curFeature, *featuresList) {
-        if (curFeature.getFullVirtualPath().startsWith(feature.getFullVirtualPath())) {
+    foreach (Feature curFeature, *featuresList)
+    {
+        if (curFeature.getFullVirtualPath().startsWith(feature.getFullVirtualPath()))
+        {
             QString curResultName = curFeature.getFullVirtualPath();
-            if (!parentVirtualPath.endsWith("/")) {
+            if (!parentVirtualPath.endsWith("/"))
+            {
                 parentVirtualPath.append("/");
             }
             // 去掉虚拟路径前缀，只保留相对部分。
             int i = curResultName.indexOf(feature.getFullVirtualPath());
-            if (i != -1) {
-                curResultName = curResultName.right(curFeature.getFullVirtualPath().count() - i -
-                                                    parentVirtualPath.count());
+            if (i != -1)
+            {
+                curResultName = curResultName.right(curFeature.getFullVirtualPath().count() - i - parentVirtualPath.count());
             }
             // 仍含分隔符说明是目录，不作为文件名参与重名判断。
             i = curResultName.indexOf("/");
-            if (i != -1) {
+            if (i != -1)
+            {
                 curResultName = "";
             }
 
-            if (!curResultName.isEmpty()) {
+            if (!curResultName.isEmpty())
+            {
                 resultList.append(curResultName);
             }
 
@@ -470,13 +519,17 @@ QString FeaturesController::uniqNameForFeature(const Feature &feature, const QSt
         }
     }
 
-    if (!resultList.contains(pName + pExtention, Qt::CaseInsensitive)) {
+    if (!resultList.contains(pName + pExtention, Qt::CaseInsensitive))
+    {
         resultName = pName + pExtention;
-
-    } else {
-        for (int i = 0; i < 16777215; i++) {
+    }
+    else
+    {
+        for (int i = 0; i < 16777215; i++)
+        {
             QString probeName = pName + "_" + QString::number(i) + pExtention;
-            if (!resultList.contains(probeName, Qt::CaseInsensitive)) {
+            if (!resultList.contains(probeName, Qt::CaseInsensitive))
+            {
                 resultName = probeName;
                 break;
             }
@@ -487,107 +540,154 @@ QString FeaturesController::uniqNameForFeature(const Feature &feature, const QSt
     return resultName;
 }
 
-QString FeaturesController::adjustName(const QString &str) {
-    if (str.isNull()) {
+QString FeaturesController::adjustName(const QString &str)
+{
+    if (str.isNull())
+    {
         return QString();
     }
 
-    QString resultStr = str;
+    QString            resultStr = str;
     QRegularExpression invalidSymbols("[/\\s:?*|<>\"]+");
 
     return resultStr.replace(invalidSymbols, "_");
 }
 
-void FeaturesController::addToFavorite(const QUrl &path) {
+void FeaturesController::addToFavorite(const QUrl &path)
+{
     QString filePath = fileNameFromUrl(path);
-    if (favoriteSet->find(path) == favoriteSet->end()) {
-        QFileInfo fileInfo(filePath);
-        QString fileName = fileInfo.fileName();
-        FeatureElementType type = fileTypeFromUrl(filePath);
-        Feature elem(favoritePath + "/" + fileName, getIcon(filePath, type), fileName, path,
-                     fileTypeFromUrl(filePath));
+    if (favoriteSet->find(path) == favoriteSet->end())
+    {
+        QFileInfo          fileInfo(filePath);
+        QString            fileName = fileInfo.fileName();
+        FeatureElementType type     = fileTypeFromUrl(filePath);
+        Feature            elem(favoritePath + "/" + fileName, getIcon(filePath, type), fileName, path, fileTypeFromUrl(filePath));
         favoriteSet->insert(path);
         saveFavoriteList();
 
         if (!elem.getVirtualPath().isEmpty() && !elem.getVirtualPath().isNull())
+        {
             featuresModel->addItem(elem);
+        }
     }
 }
 
-void FeaturesController::removeFromFavorite(const QUrl &path, bool deleteManualy) {
-    if (favoriteSet->find(path) != favoriteSet->end()) {
+void FeaturesController::removeFromFavorite(const QUrl &path, bool deleteManualy)
+{
+    if (favoriteSet->find(path) != favoriteSet->end())
+    {
         favoriteSet->erase(favoriteSet->find(path));
         saveFavoriteList();
     }
 
-    if (deleteManualy) {
+    if (deleteManualy)
+    {
         featuresModel->deleteFavoriteItem(path.toString());
     }
 }
 
-QString FeaturesController::fileNameFromUrl(const QUrl &url) {
+QString FeaturesController::fileNameFromUrl(const QUrl &url)
+{
     QString fileName = url.toString();
     if (fileName.contains("tianboardtool://"))
+    {
         return fileName;
+    }
     return url.toLocalFile();
 }
 
-
-FeatureElementType FeaturesController::fileTypeFromUrl(const QString &path) {
+FeatureElementType FeaturesController::fileTypeFromUrl(const QString &path)
+{
     QFileInfo fileInfo(path);
 
     if (path.contains("tianboardtool://"))
+    {
         return FEATURE_INTERNAL;
+    }
 
-    if (!fileInfo.exists()) {
+    if (!fileInfo.exists())
+    {
         return FEATURE_INVALID;
     }
 
-    FeatureElementType fileType = FEATURE_INVALID;
-    QString fileName = fileInfo.fileName();
-    QString mimeString = FileSystemUtils::mimeTypeFromFileName(fileName);
+    FeatureElementType fileType   = FEATURE_INVALID;
+    QString            fileName   = fileInfo.fileName();
+    QString            mimeString = FileSystemUtils::mimeTypeFromFileName(fileName);
 
-    if (mimeString.contains("application")) {
-        if (mimeString.contains("application/search")) {
+    if (mimeString.contains("application"))
+    {
+        if (mimeString.contains("application/search"))
+        {
             fileType = FEATURE_SEARCH;
-        } else if (mimeString.contains("application/x-shockwave-flash")) {
+        }
+        else if (mimeString.contains("application/x-shockwave-flash"))
+        {
             fileType = FEATURE_FLASH;
-        } else {
+        }
+        else
+        {
             fileType = FEATURE_INTERACTIVE;
         }
-    } else if (mimeString.contains("audio")) {
+    }
+    else if (mimeString.contains("audio"))
+    {
         fileType = FEATURE_AUDIO;
-    } else if (mimeString.contains("video")) {
+    }
+    else if (mimeString.contains("video"))
+    {
         fileType = FEATURE_VIDEO;
-    } else if (mimeString.contains("image")) {
+    }
+    else if (mimeString.contains("image"))
+    {
         fileType = FEATURE_IMAGE;
-    } else if (fileInfo.isDir()) {
+    }
+    else if (fileInfo.isDir())
+    {
         fileType = FEATURE_FOLDER;
-    } else {
+    }
+    else
+    {
         fileType = FEATURE_INVALID;
     }
 
     return fileType;
 }
 
-QImage FeaturesController::getIcon(const QString &path, FeatureElementType pFType = FEATURE_INVALID) {
-    if (pFType == FEATURE_FOLDER) {
+QImage FeaturesController::getIcon(const QString &path, FeatureElementType pFType = FEATURE_INVALID)
+{
+    if (pFType == FEATURE_FOLDER)
+    {
         return QImage(":images/libpalette/folder.svg");
-    } else if (pFType == FEATURE_INTERACTIVE || pFType == FEATURE_SEARCH) {
+    }
+    else if (pFType == FEATURE_INTERACTIVE || pFType == FEATURE_SEARCH)
+    {
         return QImage(GraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(path)));
-    } else if (pFType == FEATURE_INTERNAL) {
+    }
+    else if (pFType == FEATURE_INTERNAL)
+    {
         return QImage(ToolsManager::manager()->iconFromToolId(path));
-    } else if (pFType == FEATURE_FLASH) {
+    }
+    else if (pFType == FEATURE_FLASH)
+    {
         return QImage(":images/libpalette/FlashIcon.svg");
-    } else if (pFType == FEATURE_AUDIO) {
+    }
+    else if (pFType == FEATURE_AUDIO)
+    {
         return QImage(":images/libpalette/soundIcon.svg");
-    } else if (pFType == FEATURE_VIDEO) {
+    }
+    else if (pFType == FEATURE_VIDEO)
+    {
         return QImage(":images/libpalette/movieIcon.svg");
-    } else if (pFType == FEATURE_IMAGE) {
+    }
+    else if (pFType == FEATURE_IMAGE)
+    {
         QImage pix(path);
-        if (pix.isNull()) {
+        if (pix.isNull())
+        {
             pix = QImage(":images/libpalette/notFound.png");
-        } else {
+        }
+        else
+        {
             pix = pix.scaledToWidth(qMin(Settings::maxThumbnailWidth, pix.width()));
         }
         return pix;
@@ -596,35 +696,46 @@ QImage FeaturesController::getIcon(const QString &path, FeatureElementType pFTyp
     return QImage(":images/libpalette/notFound.png");
 }
 
-bool FeaturesController::isDeletable(const QUrl &url) {
+bool FeaturesController::isDeletable(const QUrl &url)
+{
     FeatureElementType type = fileTypeFromUrl(fileNameFromUrl(url));
     return type == FEATURE_AUDIO || type == FEATURE_VIDEO || type == FEATURE_IMAGE || type == FEATURE_ITEM;
 }
 
-QString FeaturesController::categoryNameForVirtualPath(const QString &str) {
+QString FeaturesController::categoryNameForVirtualPath(const QString &str)
+{
     QString result;
-    int ind = str.lastIndexOf("/");
-    if (ind != -1) {
+    int     ind = str.lastIndexOf("/");
+    if (ind != -1)
+    {
         result = str.right(str.count() - ind - 1);
     }
     return result;
 }
 
-QImage FeaturesController::createThumbnail(const QString &path) {
+QImage FeaturesController::createThumbnail(const QString &path)
+{
     QString thumbnailPath = path;
-    QString mimetype = FileSystemUtils::mimeTypeFromFileName(path);
+    QString mimetype      = FileSystemUtils::mimeTypeFromFileName(path);
 
-    if (mimetype.contains("audio")) {
+    if (mimetype.contains("audio"))
+    {
         thumbnailPath = ":images/libpalette/soundIcon.svg";
-    } else if (mimetype.contains("video")) {
+    }
+    else if (mimetype.contains("video"))
+    {
         thumbnailPath = ":images/libpalette/movieIcon.svg";
-    } else {
+    }
+    else
+    {
         QImage pix(path);
-        if (!pix.isNull()) {
+        if (!pix.isNull())
+        {
             pix = pix.scaledToWidth(qMin(Settings::maxThumbnailWidth, pix.width()), Qt::SmoothTransformation);
             return pix;
-
-        } else {
+        }
+        else
+        {
             thumbnailPath = ":images/libpalette/notFound.png";
         }
     }
@@ -632,60 +743,67 @@ QImage FeaturesController::createThumbnail(const QString &path) {
     return QImage(thumbnailPath);
 }
 
-void FeaturesController::importImage(const QImage &image, const QString &fileName) {
+void FeaturesController::importImage(const QImage &image, const QString &fileName)
+{
     importImage(image, currentElement, fileName);
 }
 
-
-void FeaturesController::importImage(const QImage &image, const Feature &destination,
-                                     const QString &fileName) {
+void FeaturesController::importImage(const QImage &image, const Feature &destination, const QString &fileName)
+{
     QString mFileName = fileName;
     QString filePath;
     Feature dest = destination;
-    if (mFileName.isNull()) {
-        QDateTime now = QDateTime::currentDateTime();
+    if (mFileName.isNull())
+    {
+        QDateTime  now          = QDateTime::currentDateTime();
         static int imageCounter = 0;
-        mFileName = tr("ImportedImage") + "-" + now.toString("dd-MM-yyyy hh-mm-ss");
+        mFileName               = tr("ImportedImage") + "-" + now.toString("dd-MM-yyyy hh-mm-ss");
 
-        filePath = dest.getFullPath().toLocalFile() + "/" + mFileName;
+        filePath                = dest.getFullPath().toLocalFile() + "/" + mFileName;
 
         if (QFile::exists(filePath + ".png"))
+        {
             mFileName += QString("-[%1]").arg(++imageCounter);
+        }
         else
+        {
             imageCounter = 0;
+        }
 
         mFileName += ".png";
     }
 
-
-    if (!destination.getFullVirtualPath().startsWith(picturesElement.getFullVirtualPath(),
-                                                     Qt::CaseInsensitive)) {
+    if (!destination.getFullVirtualPath().startsWith(picturesElement.getFullVirtualPath(), Qt::CaseInsensitive))
+    {
         dest = picturesElement;
     }
 
     filePath = dest.getFullPath().toLocalFile() + "/" + mFileName;
     image.save(filePath);
 
-    QImage thumb = createThumbnail(filePath);
-    Feature resultItem = Feature(dest.getFullVirtualPath() + "/" + mFileName, thumb, mFileName,
-                                 QUrl::fromLocalFile(filePath), FEATURE_ITEM);
+    QImage  thumb      = createThumbnail(filePath);
+    Feature resultItem = Feature(dest.getFullVirtualPath() + "/" + mFileName, thumb, mFileName, QUrl::fromLocalFile(filePath), FEATURE_ITEM);
 
     featuresModel->addItem(resultItem);
 }
 
-QStringList FeaturesController::getFileNamesInFolders() {
+QStringList FeaturesController::getFileNamesInFolders()
+{
     QStringList strList;
 
     Q_ASSERT(curListModel);
 
-    for (int i = 0; i < curListModel->rowCount(QModelIndex()); i++) {
+    for (int i = 0; i < curListModel->rowCount(QModelIndex()); i++)
+    {
         QModelIndex ind = curListModel->index(i, 0);
-        if (!ind.isValid()) {
+        if (!ind.isValid())
+        {
             qDebug() << "incorrect model index catched";
             continue;
         }
         Feature curFeature = curListModel->data(ind, Qt::UserRole + 1).value<Feature>();
-        if (curFeature.getType() == FEATURE_FOLDER) {
+        if (curFeature.getType() == FEATURE_FOLDER)
+        {
             strList << QFileInfo(curFeature.getFullPath().toLocalFile()).fileName();
         }
     }
@@ -693,128 +811,147 @@ QStringList FeaturesController::getFileNamesInFolders() {
     return strList;
 }
 
-void FeaturesController::addNewFolder(QString name) {
+void FeaturesController::addNewFolder(QString name)
+{
     QString path = currentElement.getFullPath().toLocalFile() + "/" + name;
 
-    if ("/root" == currentElement.getFullVirtualPath()) {
+    if ("/root" == currentElement.getFullVirtualPath())
+    {
         return;
     }
 
-    if (!QFileInfo(path).exists()) {
+    if (!QFileInfo(path).exists())
+    {
         QDir().mkpath(path);
     }
-    Feature newFeatureFolder =
-        Feature(currentElement.getFullVirtualPath() + "/" + name, QImage(":images/libpalette/folder.svg"),
-                name, QUrl::fromLocalFile(path), FEATURE_FOLDER);
+    Feature newFeatureFolder = Feature(
+        currentElement.getFullVirtualPath() + "/" + name, QImage(":images/libpalette/folder.svg"), name, QUrl::fromLocalFile(path), FEATURE_FOLDER);
 
     featuresModel->addItem(newFeatureFolder);
     featuresProxyModel->invalidate();
 }
 
-void FeaturesController::addItemToPage(const Feature &item) {
+void FeaturesController::addItemToPage(const Feature &item)
+{
     Application::boardController->downloadURL(item.getFullPath());
 }
 
-void FeaturesController::addItemAsBackground(const Feature &item) {
+void FeaturesController::addItemAsBackground(const Feature &item)
+{
     Application::boardController->downloadURL(item.getFullPath(), QString(), QPointF(), QSize(), true);
 }
 
-Feature FeaturesController::getDestinationFeatureForUrl(const QUrl &url) {
+Feature FeaturesController::getDestinationFeatureForUrl(const QUrl &url)
+{
     QString mimetype = FileSystemUtils::mimeTypeFromFileName(url.toString());
     return getDestinationFeatureForMimeType(mimetype);
 }
 
-Feature FeaturesController::getDestinationFeatureForMimeType(const QString &pMmimeType) {
+Feature FeaturesController::getDestinationFeatureForMimeType(const QString &pMmimeType)
+{
     if (pMmimeType.contains("audio"))
+    {
         return audiosElement;
+    }
     if (pMmimeType.contains("video"))
+    {
         return moviesElement;
+    }
     else if (pMmimeType.contains("image") || pMmimeType.isEmpty())
+    {
         return picturesElement;
+    }
     return Feature();
 }
 
-void FeaturesController::addDownloadedFile(const QUrl &sourceUrl, const QByteArray &pData,
-                                           const QString pContentSource, const QString pTitle) {
+void FeaturesController::addDownloadedFile(const QUrl &sourceUrl, const QByteArray &pData, const QString pContentSource, const QString pTitle)
+{
     Feature dest = getDestinationFeatureForMimeType(pContentSource);
 
     if (dest == Feature())
+    {
         return;
+    }
 
     QString fileName;
     QString filePath;
 
     // 图片：由字节解码后统一另存为 jpg。
-    if (dest == picturesElement) {
+    if (dest == picturesElement)
+    {
         QString UniqName = uniqNameForFeature(dest, adjustName(pTitle), ".jpg");
-        fileName = !UniqName.isNull()
-                       ? UniqName
-                       : tr("ImportedImage") + "-" +
-                             QDateTime::currentDateTime().toString("dd-MM-yyyy hh-mm-ss") + ".jpg";
+        fileName = !UniqName.isNull() ? UniqName : tr("ImportedImage") + "-" + QDateTime::currentDateTime().toString("dd-MM-yyyy hh-mm-ss") + ".jpg";
 
         filePath = dest.getFullPath().toLocalFile() + "/" + fileName;
 
         QImage::fromData(pData).save(filePath);
 
-        Feature downloadedFeature =
-            Feature(dest.getFullVirtualPath() + "/" + fileName, getIcon(filePath, fileTypeFromUrl(filePath)),
-                    fileName, QUrl::fromLocalFile(filePath), FEATURE_ITEM);
-        if (downloadedFeature != Feature()) {
+        Feature downloadedFeature = Feature(dest.getFullVirtualPath() + "/" + fileName, getIcon(filePath, fileTypeFromUrl(filePath)), fileName,
+            QUrl::fromLocalFile(filePath), FEATURE_ITEM);
+        if (downloadedFeature != Feature())
+        {
             featuresModel->addItem(downloadedFeature);
         }
-
-    } else {
+    }
+    else
+    {
         fileName = QFileInfo(sourceUrl.toString()).fileName();
         filePath = dest.getFullPath().toLocalFile() + "/" + fileName;
 
         QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly)) {
+        if (file.open(QIODevice::WriteOnly))
+        {
             file.write(pData);
             file.close();
 
-            Feature downloadedFeature = Feature(dest.getFullVirtualPath() + "/" + fileName,
-                                                getIcon(filePath, fileTypeFromUrl(filePath)), fileName,
-                                                QUrl::fromLocalFile(filePath), FEATURE_ITEM);
-            if (downloadedFeature != Feature()) {
+            Feature downloadedFeature = Feature(dest.getFullVirtualPath() + "/" + fileName, getIcon(filePath, fileTypeFromUrl(filePath)), fileName,
+                QUrl::fromLocalFile(filePath), FEATURE_ITEM);
+            if (downloadedFeature != Feature())
+            {
                 featuresModel->addItem(downloadedFeature);
             }
         }
     }
 }
 
-Feature FeaturesController::moveItemToFolder(const QUrl &url, const Feature &destination) {
+Feature FeaturesController::moveItemToFolder(const QUrl &url, const Feature &destination)
+{
     QString sourcePath = url.toLocalFile();
 
     Q_ASSERT(QFileInfo(sourcePath).exists());
 
     Feature possibleDest = getDestinationFeatureForUrl(url);
 
-    Feature dest = destination;
+    Feature dest         = destination;
 
-    if (destination != trashElement && !destination.getFullVirtualPath().startsWith(
-                                           possibleDest.getFullVirtualPath(), Qt::CaseInsensitive)) {
+    if (destination != trashElement && !destination.getFullVirtualPath().startsWith(possibleDest.getFullVirtualPath(), Qt::CaseInsensitive))
+    {
         dest = possibleDest;
     }
 
-    QString name = QFileInfo(sourcePath).fileName();
-    QString destPath = dest.getFullPath().toLocalFile();
+    QString name            = QFileInfo(sourcePath).fileName();
+    QString destPath        = dest.getFullPath().toLocalFile();
     QString destVirtualPath = dest.getFullVirtualPath();
-    QString newFullPath = destPath + "/" + name;
-    if (sourcePath.compare(newFullPath, Qt::CaseInsensitive)) {
+    QString newFullPath     = destPath + "/" + name;
+    if (sourcePath.compare(newFullPath, Qt::CaseInsensitive))
+    {
         QFile(sourcePath).copy(newFullPath);
         deleteItem(url);
     }
 
-    QImage thumb = getIcon(newFullPath);
+    QImage thumb            = getIcon(newFullPath);
 
     FeatureElementType type = FEATURE_ITEM;
     if (FileSystemUtils::mimeTypeFromFileName(newFullPath).contains("application"))
+    {
         type = FEATURE_INTERACTIVE;
+    }
     Feature newElement(destVirtualPath + "/" + name, thumb, name, QUrl::fromLocalFile(newFullPath), type);
     return newElement;
 }
 
-void FeaturesController::rescanModel() {
+void FeaturesController::rescanModel()
+{
     featuresModel->removeRows(0, featuresList->count());
 
     // 目前整体重扫；后续可只扫描目标目录做增量更新以提升性能。
@@ -822,7 +959,8 @@ void FeaturesController::rescanModel() {
     refreshModels();
 }
 
-void FeaturesController::siftElements(const QString &pSiftValue) {
+void FeaturesController::siftElements(const QString &pSiftValue)
+{
     featuresProxyModel->setFilterFixedString(pSiftValue);
     featuresProxyModel->invalidate();
 
@@ -830,27 +968,36 @@ void FeaturesController::siftElements(const QString &pSiftValue) {
     featuresPathModel->invalidate();
 }
 
-Feature FeaturesController::getFeature(const QModelIndex &index, const QString &listName) {
+Feature FeaturesController::getFeature(const QModelIndex &index, const QString &listName)
+{
     QAbstractItemModel *model = 0;
-    if (listName == FeaturesWidget::objNamePathList) {
+    if (listName == FeaturesWidget::objNamePathList)
+    {
         model = featuresPathModel;
-    } else if (listName == FeaturesWidget::objNameFeatureList) {
+    }
+    else if (listName == FeaturesWidget::objNameFeatureList)
+    {
         model = curListModel;
     }
 
-    if (model) {
+    if (model)
+    {
         return model->data(index, Qt::UserRole + 1).value<Feature>();
     }
 
     return Feature();
 }
 
-void FeaturesController::searchStarted(const QString &pattern, QListView *pOnView) {
-    if (pattern.isEmpty()) {
+void FeaturesController::searchStarted(const QString &pattern, QListView *pOnView)
+{
+    if (pattern.isEmpty())
+    {
         pOnView->setModel(featuresProxyModel);
         featuresProxyModel->invalidate();
         curListModel = featuresProxyModel;
-    } else if (pattern.size() > 1) {
+    }
+    else if (pattern.size() > 1)
+    {
         featuresSearchModel->setFilterWildcard("*" + pattern + "*");
         pOnView->setModel(featuresSearchModel);
         featuresSearchModel->invalidate();
@@ -858,123 +1005,146 @@ void FeaturesController::searchStarted(const QString &pattern, QListView *pOnVie
     }
 }
 
-void FeaturesController::refreshModels() {
+void FeaturesController::refreshModels()
+{
     featuresProxyModel->invalidate();
     featuresSearchModel->invalidate();
     featuresPathModel->invalidate();
 }
 
-Feature FeaturesController::copyItemToFolder(const QUrl &url, const Feature &destination) {
+Feature FeaturesController::copyItemToFolder(const QUrl &url, const Feature &destination)
+{
     QString sourcePath = url.toLocalFile();
 
     Q_ASSERT(QFileInfo(sourcePath).exists());
 
     Feature possibleDest = getDestinationFeatureForUrl(url);
 
-    Feature dest = destination;
+    Feature dest         = destination;
 
-    if (destination != trashElement && !destination.getFullVirtualPath().startsWith(
-                                           possibleDest.getFullVirtualPath(), Qt::CaseInsensitive)) {
+    if (destination != trashElement && !destination.getFullVirtualPath().startsWith(possibleDest.getFullVirtualPath(), Qt::CaseInsensitive))
+    {
         dest = possibleDest;
     }
 
-    QString name = QFileInfo(sourcePath).fileName();
-    QString destPath = dest.getFullPath().toLocalFile();
+    QString name            = QFileInfo(sourcePath).fileName();
+    QString destPath        = dest.getFullPath().toLocalFile();
     QString destVirtualPath = dest.getFullVirtualPath();
-    QString newFullPath = destPath + "/" + name;
+    QString newFullPath     = destPath + "/" + name;
     if (!sourcePath.compare(newFullPath, Qt::CaseInsensitive))
+    {
         QFile(sourcePath).copy(newFullPath);
+    }
 
-    QImage thumb = getIcon(newFullPath);
+    QImage thumb            = getIcon(newFullPath);
 
     FeatureElementType type = FEATURE_ITEM;
     if (FileSystemUtils::mimeTypeFromFileName(newFullPath).contains("application"))
+    {
         type = FEATURE_INTERACTIVE;
+    }
     Feature newElement(destVirtualPath + "/" + name, thumb, name, QUrl::fromLocalFile(newFullPath), type);
     return newElement;
 }
 
-void FeaturesController::moveExternalData(const QUrl &url, const Feature &destination) {
+void FeaturesController::moveExternalData(const QUrl &url, const Feature &destination)
+{
     QString sourcePath = url.toLocalFile();
 
     Q_ASSERT(QFileInfo(sourcePath).exists());
 
     Feature possibleDest = getDestinationFeatureForUrl(url);
 
-    Feature dest = destination;
+    Feature dest         = destination;
 
-    if (destination != trashElement && destination != Feature()) {
+    if (destination != trashElement && destination != Feature())
+    {
         dest = possibleDest;
     }
 
     FeatureElementType type = fileTypeFromUrl(sourcePath);
 
-    if (type == FEATURE_FOLDER) {
+    if (type == FEATURE_FOLDER)
+    {
         return;
     }
 
-    QString name = QFileInfo(sourcePath).fileName();
-    QString destPath = dest.getFullPath().toLocalFile();
+    QString name            = QFileInfo(sourcePath).fileName();
+    QString destPath        = dest.getFullPath().toLocalFile();
     QString destVirtualPath = dest.getFullVirtualPath();
-    QString newFullPath = destPath + "/" + name;
+    QString newFullPath     = destPath + "/" + name;
 
-    if (!sourcePath.compare(newFullPath, Qt::CaseInsensitive) ||
-        !FileSystemUtils::copy(sourcePath, newFullPath)) {
+    if (!sourcePath.compare(newFullPath, Qt::CaseInsensitive) || !FileSystemUtils::copy(sourcePath, newFullPath))
+    {
         return;
     }
 
     Q_ASSERT(QFileInfo(newFullPath).exists());
 
-    QImage thumb = getIcon(newFullPath, type);
+    QImage  thumb = getIcon(newFullPath, type);
     Feature newElement(destVirtualPath + "/" + name, thumb, name, QUrl::fromLocalFile(newFullPath), type);
 
     featuresModel->addItem(newElement);
 }
 
-void FeaturesController::deleteItem(const QUrl &url) {
+void FeaturesController::deleteItem(const QUrl &url)
+{
     QString path = url.toLocalFile();
     Q_ASSERT(QFileInfo(path).exists());
 
     QString thumbnailPath = FileSystemUtils::thumbnailPath(path);
-    if (thumbnailPath.length() && QFileInfo(thumbnailPath).exists()) {
-        if (QFileInfo(thumbnailPath).isFile()) {
+    if (thumbnailPath.length() && QFileInfo(thumbnailPath).exists())
+    {
+        if (QFileInfo(thumbnailPath).isFile())
+        {
             QFile::remove(thumbnailPath);
-        } else if (QFileInfo(thumbnailPath).isDir()) {
-            if (!FileSystemUtils::deleteDir(thumbnailPath)) {
+        }
+        else if (QFileInfo(thumbnailPath).isDir())
+        {
+            if (!FileSystemUtils::deleteDir(thumbnailPath))
+            {
                 qDebug() << "Not able to delete directory";
             }
         }
     }
-    if (QFileInfo(path).isFile()) {
+    if (QFileInfo(path).isFile())
+    {
         QFile::remove(path);
-
-    } else if (QFileInfo(path).isDir()) {
+    }
+    else if (QFileInfo(path).isDir())
+    {
         FileSystemUtils::deleteDir(path);
     }
 }
 
-void FeaturesController::deleteItem(const Feature &pFeature) {
+void FeaturesController::deleteItem(const Feature &pFeature)
+{
     QUrl sourceUrl = pFeature.getFullPath();
     featuresModel->deleteItem(pFeature);
     deleteItem(sourceUrl);
 }
 
-bool FeaturesController::isTrash(const QUrl &url) {
+bool FeaturesController::isTrash(const QUrl &url)
+{
     return url.toLocalFile().startsWith(trashDirectoryPath.toLocalFile());
 }
-void FeaturesController::moveToTrash(Feature feature, bool deleteManualy) {
+void FeaturesController::moveToTrash(Feature feature, bool deleteManualy)
+{
     featuresModel->moveData(feature, trashElement, Qt::MoveAction, deleteManualy);
     removeFromFavorite(feature.getFullPath());
     featuresModel->deleteFavoriteItem(FeaturesController::fileNameFromUrl(feature.getFullPath()));
 }
 
-FeaturesController::~FeaturesController() {
-    if (featuresList) {
+FeaturesController::~FeaturesController()
+{
+    if (featuresList)
+    {
         delete featuresList;
     }
 }
 
-void FeaturesController::assignFeaturesListView(FeaturesListView *pList) {
+void FeaturesController::assignFeaturesListView(FeaturesListView *pList)
+{
     pList->setDragDropMode(QAbstractItemView::DragDrop);
     pList->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
@@ -982,8 +1152,7 @@ void FeaturesController::assignFeaturesListView(FeaturesListView *pList) {
     pList->setViewMode(QListView::IconMode);
 
     pList->setIconSize(QSize(FeaturesWidget::defaultThumbnailSize, FeaturesWidget::defaultThumbnailSize));
-    pList->setGridSize(
-        QSize(FeaturesWidget::defaultThumbnailSize + 20, FeaturesWidget::defaultThumbnailSize + 20));
+    pList->setGridSize(QSize(FeaturesWidget::defaultThumbnailSize + 20, FeaturesWidget::defaultThumbnailSize + 20));
 
     itemDelegate = new FeaturesItemDelegate(this, pList);
     pList->setItemDelegate(itemDelegate);
@@ -992,12 +1161,11 @@ void FeaturesController::assignFeaturesListView(FeaturesListView *pList) {
     curListModel = featuresProxyModel;
 }
 
-void FeaturesController::assignPathListView(FeaturesListView *pList) {
+void FeaturesController::assignPathListView(FeaturesListView *pList)
+{
     pList->setViewMode(QListView::IconMode);
-    pList->setIconSize(
-        QSize(FeaturesWidget::defaultThumbnailSize - 10, FeaturesWidget::defaultThumbnailSize - 10));
-    pList->setGridSize(
-        QSize(FeaturesWidget::defaultThumbnailSize + 0, FeaturesWidget::defaultThumbnailSize - 10));
+    pList->setIconSize(QSize(FeaturesWidget::defaultThumbnailSize - 10, FeaturesWidget::defaultThumbnailSize - 10));
+    pList->setGridSize(QSize(FeaturesWidget::defaultThumbnailSize + 0, FeaturesWidget::defaultThumbnailSize - 10));
     pList->setFixedHeight(60);
     pList->setSelectionMode(QAbstractItemView::NoSelection);
     pList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

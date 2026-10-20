@@ -35,19 +35,28 @@
 
 #include "model/DocumentProxy.h"
 
-
-static bool lessThan(DocumentTreeNode *lValue, DocumentTreeNode *rValue) {
+static bool lessThan(DocumentTreeNode *lValue, DocumentTreeNode *rValue)
+{
     // 目录永远排在文档之前；目录之间按名称升序。
-    if (lValue->nodeType() == DocumentTreeNode::Catalog) {
-        if (rValue->nodeType() == DocumentTreeNode::Catalog) {
+    if (lValue->nodeType() == DocumentTreeNode::Catalog)
+    {
+        if (rValue->nodeType() == DocumentTreeNode::Catalog)
+        {
             return lValue->nodeName() < rValue->nodeName();
-        } else {
+        }
+        else
+        {
             return true;
         }
-    } else {
-        if (rValue->nodeType() == DocumentTreeNode::Catalog) {
+    }
+    else
+    {
+        if (rValue->nodeType() == DocumentTreeNode::Catalog)
+        {
             return false;
-        } else {
+        }
+        else
+        {
             Q_ASSERT(lValue->proxyData());
             Q_ASSERT(rValue->proxyData());
 
@@ -62,24 +71,18 @@ static bool lessThan(DocumentTreeNode *lValue, DocumentTreeNode *rValue) {
     return false;
 }
 
-
-DocumentReplaceDialog::DocumentReplaceDialog(const QString &pIncommingName, const QStringList &pFileList,
-                                             QWidget *parent, Qt::WindowFlags pFlags)
-    : QDialog(parent, pFlags),
-      mFileNameList(pFileList),
-      mIncommingName(pIncommingName),
-      acceptText(tr("Accept")),
-      replaceText(tr("Replace")),
-      cancelText(tr("Cancel")),
-      mLabelText(0) {
+DocumentReplaceDialog::DocumentReplaceDialog(const QString &pIncommingName, const QStringList &pFileList, QWidget *parent, Qt::WindowFlags pFlags)
+    : QDialog(parent, pFlags), mFileNameList(pFileList), mIncommingName(pIncommingName), acceptText(tr("Accept")), replaceText(tr("Replace")),
+      cancelText(tr("Cancel")), mLabelText(0)
+{
     this->setStyleSheet("background:white;");
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout  = new QVBoxLayout(this);
 
     QVBoxLayout *labelLayout = new QVBoxLayout();
 
-    mLabelText = new QLabel(labelTextWithName(pIncommingName), this);
-    mLineEdit = new QLineEdit(this);
+    mLabelText               = new QLabel(labelTextWithName(pIncommingName), this);
+    mLineEdit                = new QLineEdit(this);
     mLineEdit->setText(pIncommingName);
     mLineEdit->selectedText();
 
@@ -88,7 +91,7 @@ DocumentReplaceDialog::DocumentReplaceDialog(const QString &pIncommingName, cons
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
 
-    acceptButton = new QPushButton(acceptText, this);
+    acceptButton              = new QPushButton(acceptText, this);
     QPushButton *cancelButton = new QPushButton(cancelText, this);
     buttonLayout->addWidget(acceptButton);
     buttonLayout->addWidget(cancelButton);
@@ -105,16 +108,19 @@ DocumentReplaceDialog::DocumentReplaceDialog(const QString &pIncommingName, cons
     reactOnTextChanged(mIncommingName);
 }
 
-void DocumentReplaceDialog::setRegexp(const QRegularExpression &pRegExp) {
+void DocumentReplaceDialog::setRegexp(const QRegularExpression &pRegExp)
+{
     mValidator->setRegularExpression(pRegExp);
 }
-bool DocumentReplaceDialog::validString(const QString &pStr) {
+bool DocumentReplaceDialog::validString(const QString &pStr)
+{
     Q_UNUSED(pStr);
     return mLineEdit->hasAcceptableInput();
 }
 
-void DocumentReplaceDialog::setFileNameAndList(const QString &fileName, const QStringList &pLst) {
-    mFileNameList = pLst;
+void DocumentReplaceDialog::setFileNameAndList(const QString &fileName, const QStringList &pLst)
+{
+    mFileNameList  = pLst;
     mIncommingName = fileName;
     mLabelText->setText(labelTextWithName(fileName));
     mLineEdit->setText(fileName);
@@ -122,67 +128,81 @@ void DocumentReplaceDialog::setFileNameAndList(const QString &fileName, const QS
     mLineEdit->selectedText();
 }
 
-QString DocumentReplaceDialog::labelTextWithName(const QString &documentName) const {
+QString DocumentReplaceDialog::labelTextWithName(const QString &documentName) const
+{
     return tr("The name %1 is allready used.\nKeeping this name will replace the document.\nProviding a new "
               "name will create a new document.")
         .arg(documentName);
 }
 
-void DocumentReplaceDialog::accept() {
+void DocumentReplaceDialog::accept()
+{
     QDialog::accept();
 }
-void DocumentReplaceDialog::reject() {
+void DocumentReplaceDialog::reject()
+{
     mLineEdit->clear();
     emit closeDialog();
 
     QDialog::reject();
 }
 
-void DocumentReplaceDialog::reactOnTextChanged(const QString &pStr) {
-    if (!validString(pStr)) {
+void DocumentReplaceDialog::reactOnTextChanged(const QString &pStr)
+{
+    if (!validString(pStr))
+    {
         acceptButton->setEnabled(false);
         mLineEdit->setStyleSheet("background:#FFB3C8;");
         acceptButton->setEnabled(false);
-
-    } else if (mFileNameList.contains(pStr.trimmed(), Qt::CaseSensitive)) {
+    }
+    else if (mFileNameList.contains(pStr.trimmed(), Qt::CaseSensitive))
+    {
         // 同级已有同名文档：允许确认，但语义改为“替换”，用红底提示风险。
         acceptButton->setEnabled(true);
         mLineEdit->setStyleSheet("background:#FFB3C8;");
         acceptButton->setText(replaceText);
-
-    } else {
+    }
+    else
+    {
         acceptButton->setEnabled(true);
         mLineEdit->setStyleSheet("background:white;");
         acceptButton->setText(acceptText);
     }
 }
 
-DocumentTreeNode::DocumentTreeNode(Type pType, const QString &pName, const QString &pDisplayName,
-                                   DocumentProxy *pProxy)
-    : mType(pType), mName(pName), mDisplayName(pDisplayName), mProxy(pProxy) {
-    if (pDisplayName.isEmpty()) {
+DocumentTreeNode::DocumentTreeNode(Type pType, const QString &pName, const QString &pDisplayName, DocumentProxy *pProxy)
+    : mType(pType), mName(pName), mDisplayName(pDisplayName), mProxy(pProxy)
+{
+    if (pDisplayName.isEmpty())
+    {
         mDisplayName = mName;
     }
     mParent = 0;
 }
 
-void DocumentTreeNode::addChild(DocumentTreeNode *pChild) {
-    if (pChild) {
-        mChildren += pChild;
-        pChild->mParent = this;
+void DocumentTreeNode::addChild(DocumentTreeNode *pChild)
+{
+    if (pChild)
+    {
+        mChildren       += pChild;
+        pChild->mParent  = this;
     }
 }
 
-void DocumentTreeNode::insertChild(int pIndex, DocumentTreeNode *pChild) {
-    if (pChild) {
+void DocumentTreeNode::insertChild(int pIndex, DocumentTreeNode *pChild)
+{
+    if (pChild)
+    {
         mChildren.insert(pIndex, pChild);
         pChild->mParent = this;
     }
 }
 
-void DocumentTreeNode::moveChild(DocumentTreeNode *child, int index, DocumentTreeNode *newParent) {
+void DocumentTreeNode::moveChild(DocumentTreeNode *child, int index, DocumentTreeNode *newParent)
+{
     int childIndex = mChildren.indexOf(child);
-    if (childIndex == -1) {
+    if (childIndex == -1)
+    {
         return;
     }
 
@@ -190,13 +210,16 @@ void DocumentTreeNode::moveChild(DocumentTreeNode *child, int index, DocumentTre
     mChildren.removeAt(childIndex);
 }
 
-void DocumentTreeNode::removeChild(int index) {
-    if (index < 0 || index > mChildren.count() - 1) {
+void DocumentTreeNode::removeChild(int index)
+{
+    if (index < 0 || index > mChildren.count() - 1)
+    {
         return;
     }
 
     DocumentTreeNode *curChild = mChildren[index];
-    while (curChild->mChildren.count()) {
+    while (curChild->mChildren.count())
+    {
         curChild->removeChild(0);
     }
 
@@ -204,44 +227,54 @@ void DocumentTreeNode::removeChild(int index) {
     delete curChild;
 }
 
-DocumentTreeNode *DocumentTreeNode::clone() {
-    return new DocumentTreeNode(this->mType, this->mName, this->mDisplayName,
-                                this->mProxy ? new DocumentProxy(*this->mProxy) : 0);
+DocumentTreeNode *DocumentTreeNode::clone()
+{
+    return new DocumentTreeNode(this->mType, this->mName, this->mDisplayName, this->mProxy ? new DocumentProxy(*this->mProxy) : 0);
 }
 
-QString DocumentTreeNode::dirPathInHierarchy() {
-    QString result;
+QString DocumentTreeNode::dirPathInHierarchy()
+{
+    QString           result;
     DocumentTreeNode *curNode = this;
     // 只拼接第二层以下的目录名：顶层是“我的文档/回收站”这类固定入口，
     // 它们不参与文档的分组路径，否则虚拟路径会多出一段。
-    while (curNode->parentNode() && !curNode->isTopLevel()) {
+    while (curNode->parentNode() && !curNode->isTopLevel())
+    {
         result.prepend(curNode->parentNode()->nodeName() + "/");
         curNode = curNode->parentNode();
     }
 
-    if (result.endsWith("/")) {
+    if (result.endsWith("/"))
+    {
         result.truncate(result.count() - 1);
     }
 
     return result;
 }
 
-DocumentTreeNode::~DocumentTreeNode() {
-    foreach (DocumentTreeNode *curChildren, mChildren) {
+DocumentTreeNode::~DocumentTreeNode()
+{
+    foreach (DocumentTreeNode *curChildren, mChildren)
+    {
         delete (curChildren);
         curChildren = 0;
     }
     if (mProxy)
+    {
         delete mProxy;
+    }
 }
 
-bool DocumentTreeNode::findNode(DocumentTreeNode *node) {
+bool DocumentTreeNode::findNode(DocumentTreeNode *node)
+{
     DocumentTreeNode *parent = node->parentNode();
 
-    bool hasFound = false;
+    bool hasFound            = false;
 
-    while (parent) {
-        if (parent == this) {
+    while (parent)
+    {
+        if (parent == this)
+        {
             hasFound = true;
             break;
         }
@@ -252,67 +285,74 @@ bool DocumentTreeNode::findNode(DocumentTreeNode *node) {
     return hasFound;
 }
 
-DocumentTreeNode *DocumentTreeNode::nextSibling() {
-    DocumentTreeNode *parent = this->parentNode();
+DocumentTreeNode *DocumentTreeNode::nextSibling()
+{
+    DocumentTreeNode *parent      = this->parentNode();
     DocumentTreeNode *nextSibling = NULL;
 
-    int myIndex = parent->children().indexOf(this);
-    int indexOfNextSibling = myIndex + 1;
+    int myIndex                   = parent->children().indexOf(this);
+    int indexOfNextSibling        = myIndex + 1;
 
-    if (indexOfNextSibling < parent->children().size()) {
+    if (indexOfNextSibling < parent->children().size())
+    {
         nextSibling = parent->children().at(indexOfNextSibling);
     }
 
     return nextSibling;
 }
 
-DocumentTreeNode *DocumentTreeNode::previousSibling() {
-    DocumentTreeNode *parent = this->parentNode();
+DocumentTreeNode *DocumentTreeNode::previousSibling()
+{
+    DocumentTreeNode *parent          = this->parentNode();
     DocumentTreeNode *previousSibling = NULL;
 
-    int myIndex = parent->children().indexOf(this);
-    int indexOfPreviousSibling = myIndex - 1;
+    int myIndex                       = parent->children().indexOf(this);
+    int indexOfPreviousSibling        = myIndex - 1;
 
-    if (indexOfPreviousSibling >= 0) {
+    if (indexOfPreviousSibling >= 0)
+    {
         previousSibling = parent->children().at(indexOfPreviousSibling);
     }
 
     return previousSibling;
 }
 
+DocumentTreeModel::DocumentTreeModel(QObject *parent) : QAbstractItemModel(parent), mRootNode(0)
+{
+    DocumentTreeNode *rootNode   = new DocumentTreeNode(DocumentTreeNode::Catalog, "root");
 
-DocumentTreeModel::DocumentTreeModel(QObject *parent) : QAbstractItemModel(parent), mRootNode(0) {
-    DocumentTreeNode *rootNode = new DocumentTreeNode(DocumentTreeNode::Catalog, "root");
+    QString trashName            = Settings::trashedDocumentGroupNamePrefix;
 
-    QString trashName = Settings::trashedDocumentGroupNamePrefix;
-
-    DocumentTreeNode *myDocsNode = new DocumentTreeNode(
-        DocumentTreeNode::Catalog, PersistenceManager::myDocumentsName, tr("My documents"));
+    DocumentTreeNode *myDocsNode = new DocumentTreeNode(DocumentTreeNode::Catalog, PersistenceManager::myDocumentsName, tr("My documents"));
     rootNode->addChild(myDocsNode);
     DocumentTreeNode *trashNode = new DocumentTreeNode(DocumentTreeNode::Catalog, trashName, tr("Trash"));
     rootNode->addChild(trashNode);
 
     setRootNode(rootNode);
 
-    mRoot = index(0, 0, QModelIndex());
-    mMyDocuments = index(0, 0, QModelIndex());
-    mTrash = index(1, 0, QModelIndex());
+    mRoot           = index(0, 0, QModelIndex());
+    mMyDocuments    = index(0, 0, QModelIndex());
+    mTrash          = index(1, 0, QModelIndex());
     mAscendingOrder = true;
 }
 
-QModelIndex DocumentTreeModel::index(int row, int column, const QModelIndex &parent) const {
-    if (!mRootNode || row < 0 || column < 0) {
+QModelIndex DocumentTreeModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if (!mRootNode || row < 0 || column < 0)
+    {
         return QModelIndex();
     }
 
     // 无效父索引代表根节点；据此定位第 row 个子节点，并把节点指针作为 internalPointer。
     DocumentTreeNode *nodeParent = nodeFromIndex(parent);
-    if (!nodeParent || row > nodeParent->children().count() - 1) {
+    if (!nodeParent || row > nodeParent->children().count() - 1)
+    {
         return QModelIndex();
     }
 
     DocumentTreeNode *requiredNode = nodeParent->children().at(row);
-    if (!requiredNode) {
+    if (!requiredNode)
+    {
         return QModelIndex();
     }
 
@@ -321,74 +361,93 @@ QModelIndex DocumentTreeModel::index(int row, int column, const QModelIndex &par
     return resIndex;
 }
 
-QModelIndex DocumentTreeModel::parent(const QModelIndex &child) const {
+QModelIndex DocumentTreeModel::parent(const QModelIndex &child) const
+{
     DocumentTreeNode *nodeChild = nodeFromIndex(child);
-    if (!nodeChild) {
+    if (!nodeChild)
+    {
         return QModelIndex();
     }
 
     DocumentTreeNode *nodeParent = nodeChild->parentNode();
-    if (!nodeParent) {
+    if (!nodeParent)
+    {
         return QModelIndex();
     }
 
     // 根节点本身不暴露给视图：父节点是根时返回无效索引，使两个固定入口成为顶层。
     DocumentTreeNode *nodePreParent = nodeParent->parentNode();
-    if (!nodePreParent) {
+    if (!nodePreParent)
+    {
         return QModelIndex();
     }
 
-    int row = nodePreParent->children().indexOf(nodeParent);
+    int row              = nodePreParent->children().indexOf(nodeParent);
 
     QModelIndex resIndex = createIndex(row, 0, nodeParent);
 
     return resIndex;
 }
 
-int DocumentTreeModel::rowCount(const QModelIndex &parent) const {
-    if (parent.column() > 0) {
+int DocumentTreeModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.column() > 0)
+    {
         return 0;
     }
 
     DocumentTreeNode *nodeParent = nodeFromIndex(parent);
-    if (!nodeParent) {
+    if (!nodeParent)
+    {
         return 0;
     }
 
     return nodeParent->children().count();
 }
 
-int DocumentTreeModel::columnCount(const QModelIndex &parent) const {
+int DocumentTreeModel::columnCount(const QModelIndex &parent) const
+{
     Q_UNUSED(parent)
 
     return 3;
 }
 
-QVariant DocumentTreeModel::data(const QModelIndex &index, int role) const {
-    if (!index.isValid()) {
+QVariant DocumentTreeModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+    {
         return QVariant();
     }
 
     DocumentTreeNode *dataNode = nodeFromIndex(index);
 
     if (!dataNode)
+    {
         return QVariant();
+    }
 
-
-    if (role == Qt::DisplayRole) {
-        if (index.column() == 0) {
+    if (role == Qt::DisplayRole)
+    {
+        if (index.column() == 0)
+        {
             return dataNode->displayName();
-        } else {
+        }
+        else
+        {
             DocumentProxy *proxy = proxyForIndex(index);
 
-            QString displayText = "";
+            QString displayText  = "";
 
-            if (proxy) {
+            if (proxy)
+            {
                 QDateTime d;
 
-                if (index.column() == 1) {
+                if (index.column() == 1)
+                {
                     d = proxy->documentDate();
-                } else if (index.column() == 2) {
+                }
+                else if (index.column() == 2)
+                {
                     d = proxy->lastUpdate();
                 }
 
@@ -399,40 +458,55 @@ QVariant DocumentTreeModel::data(const QModelIndex &index, int role) const {
         }
     }
 
-    if (role == DocumentTreeModel::CreationDate) {
+    if (role == DocumentTreeModel::CreationDate)
+    {
         return findNodeDate(dataNode, Settings::documentDate);
     }
 
-    if (role == DocumentTreeModel::UpdateDate) {
+    if (role == DocumentTreeModel::UpdateDate)
+    {
         return findNodeDate(dataNode, Settings::documentUpdatedAt);
     }
 
-    if (role == Qt::BackgroundRole) {
-        if (isConstant(index)) {
+    if (role == Qt::BackgroundRole)
+    {
+        if (isConstant(index))
+        {
             return QBrush(0xD9DFEB);
         }
 
-        if (mHighLighted.isValid() && index == mHighLighted) {
+        if (mHighLighted.isValid() && index == mHighLighted)
+        {
             return QBrush(0x6682B5);
         }
     }
 
-    if (role == Qt::UserRole + 1) {
+    if (role == Qt::UserRole + 1)
+    {
         return QVariant::fromValue(dataNode);
     }
 
-    if (index.column() == 0) {
-        switch (role) {
+    if (index.column() == 0)
+    {
+        switch (role)
+        {
             case (Qt::DecorationRole):
-                if (mCurrentNode && mCurrentNode == dataNode) {
+                if (mCurrentNode && mCurrentNode == dataNode)
+                {
                     return QIcon(":images/currentDocument.png");
-                } else {
-                    if (index == trashIndex()) {
+                }
+                else
+                {
+                    if (index == trashIndex())
+                    {
                         return QIcon(":images/trash.png");
-                    } else if (isConstant(index)) {
+                    }
+                    else if (isConstant(index))
+                    {
                         return QIcon(":images/libpalette/ApplicationsCategory.svg");
                     }
-                    switch (static_cast<int>(dataNode->nodeType())) {
+                    switch (static_cast<int>(dataNode->nodeType()))
+                    {
                         case DocumentTreeNode::Catalog:
                             return QIcon(":images/folder.png");
                         case DocumentTreeNode::Document:
@@ -441,14 +515,16 @@ QVariant DocumentTreeModel::data(const QModelIndex &index, int role) const {
                 }
                 break;
             case (Qt::FontRole):
-                if (isConstant(index)) {
+                if (isConstant(index))
+                {
                     QFont font;
                     font.setBold(true);
                     return font;
                 }
                 break;
             case (Qt::ForegroundRole):
-                if (isConstant(index)) {
+                if (isConstant(index))
+                {
                     return QColor(Qt::darkGray);
                 }
                 break;
@@ -458,10 +534,13 @@ QVariant DocumentTreeModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 }
 
-bool DocumentTreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-    switch (role) {
+bool DocumentTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    switch (role)
+    {
         case Qt::EditRole:
-            if (!index.isValid() || value.toString().isEmpty()) {
+            if (!index.isValid() || value.toString().isEmpty())
+            {
                 return false;
             }
             setNewName(index, value.toString());
@@ -470,18 +549,23 @@ bool DocumentTreeModel::setData(const QModelIndex &index, const QVariant &value,
     return QAbstractItemModel::setData(index, value, role);
 }
 
-Qt::ItemFlags DocumentTreeModel::flags(const QModelIndex &index) const {
-    Qt::ItemFlags resultFlags = QAbstractItemModel::flags(index);
-    DocumentTreeNode *indexNode = nodeFromIndex(index);
+Qt::ItemFlags DocumentTreeModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags     resultFlags = QAbstractItemModel::flags(index);
+    DocumentTreeNode *indexNode   = nodeFromIndex(index);
 
-    if (index.isValid()) {
-        if (!indexNode->isRoot() && !isConstant(index)) {
-            if (!inTrash(index)) {
+    if (index.isValid())
+    {
+        if (!indexNode->isRoot() && !isConstant(index))
+        {
+            if (!inTrash(index))
+            {
                 resultFlags |= Qt::ItemIsEditable;
             }
             resultFlags |= Qt::ItemIsDragEnabled;
         }
-        if (indexNode->nodeType() == DocumentTreeNode::Catalog) {
+        if (indexNode->nodeType() == DocumentTreeNode::Catalog)
+        {
             resultFlags |= Qt::ItemIsDropEnabled;
         }
     }
@@ -489,31 +573,44 @@ Qt::ItemFlags DocumentTreeModel::flags(const QModelIndex &index) const {
     return resultFlags;
 }
 
-QDateTime DocumentTreeModel::findNodeDate(DocumentTreeNode *node, QString type) const {
-    if (type == Settings::documentDate) {
+QDateTime DocumentTreeModel::findNodeDate(DocumentTreeNode *node, QString type) const
+{
+    if (type == Settings::documentDate)
+    {
         return findCatalogCreationDate(node);
-    } else if (type == Settings::documentUpdatedAt) {
+    }
+    else if (type == Settings::documentUpdatedAt)
+    {
         return findCatalogUpdatedDate(node);
     }
 
     return QDateTime();
 }
 
-QDateTime DocumentTreeModel::findCatalogUpdatedDate(DocumentTreeNode *node) const {
+QDateTime DocumentTreeModel::findCatalogUpdatedDate(DocumentTreeNode *node) const
+{
     DocumentProxy *proxy = node->proxyData();
 
-    if (proxy) {
+    if (proxy)
+    {
         return proxy->metaData(Settings::documentUpdatedAt).toDateTime();
-    } else if (node->children().size() > 0) {
+    }
+    else if (node->children().size() > 0)
+    {
         QDateTime d = findCatalogUpdatedDate(node->children().at(0));
 
-        for (int i = 1; i < node->children().size(); i++) {
+        for (int i = 1; i < node->children().size(); i++)
+        {
             QDateTime dChild = findCatalogUpdatedDate(node->children().at(i));
 
-            if (dChild != QDateTime()) {
-                if (mAscendingOrder) {
+            if (dChild != QDateTime())
+            {
+                if (mAscendingOrder)
+                {
                     d = qMin(d, dChild);
-                } else {
+                }
+                else
+                {
                     d = qMax(d, dChild);
                 }
             }
@@ -525,21 +622,30 @@ QDateTime DocumentTreeModel::findCatalogUpdatedDate(DocumentTreeNode *node) cons
     return QDateTime();
 }
 
-QDateTime DocumentTreeModel::findCatalogCreationDate(DocumentTreeNode *node) const {
+QDateTime DocumentTreeModel::findCatalogCreationDate(DocumentTreeNode *node) const
+{
     DocumentProxy *proxy = node->proxyData();
 
-    if (proxy) {
+    if (proxy)
+    {
         return proxy->metaData(Settings::documentDate).toDateTime();
-    } else if (node->children().size() > 0) {
+    }
+    else if (node->children().size() > 0)
+    {
         QDateTime d = findCatalogCreationDate(node->children().at(0));
 
-        for (int i = 1; i < node->children().size(); i++) {
+        for (int i = 1; i < node->children().size(); i++)
+        {
             QDateTime dChild = findCatalogCreationDate(node->children().at(i));
 
-            if (dChild != QDateTime()) {
-                if (mAscendingOrder) {
+            if (dChild != QDateTime())
+            {
+                if (mAscendingOrder)
+                {
                     d = qMin(d, dChild);
-                } else {
+                }
+                else
+                {
                     d = qMax(d, dChild);
                 }
             }
@@ -551,19 +657,23 @@ QDateTime DocumentTreeModel::findCatalogCreationDate(DocumentTreeNode *node) con
     return QDateTime();
 }
 
-QStringList DocumentTreeModel::mimeTypes() const {
+QStringList DocumentTreeModel::mimeTypes() const
+{
     QStringList types;
     types << "text/uri-list" << "image/png" << "image/tiff" << "image/gif" << "image/jpeg";
     return types;
 }
 
-QMimeData *DocumentTreeModel::mimeData(const QModelIndexList &indexes) const {
+QMimeData *DocumentTreeModel::mimeData(const QModelIndexList &indexes) const
+{
     DocumentTreeMimeData *mimeData = new DocumentTreeMimeData();
-    QList<QModelIndex> indexList;
-    QList<QUrl> urlList;
+    QList<QModelIndex>    indexList;
+    QList<QUrl>           urlList;
 
-    foreach (QModelIndex index, indexes) {
-        if (index.isValid()) {
+    foreach (QModelIndex index, indexes)
+    {
+        if (index.isValid())
+        {
             indexList.append(index);
             urlList.append(QUrl());
         }
@@ -575,17 +685,20 @@ QMimeData *DocumentTreeModel::mimeData(const QModelIndexList &indexes) const {
     return mimeData;
 }
 
-bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
-                                     const QModelIndex &parent) {
-    if (action == Qt::IgnoreAction) {
+bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (action == Qt::IgnoreAction)
+    {
         return false;
     }
 
-    if (data->hasFormat(Application::mimeTypeBoardPage)) {
-        DocumentTreeNode *curNode = nodeFromIndex(index(row - 1, column, parent));
-        DocumentProxy *targetDocProxy = curNode->proxyData();
-        const MimeData *mimeValue = qobject_cast<const MimeData *>(data);
-        if (!targetDocProxy || !mimeValue || !mimeValue->items().count()) {
+    if (data->hasFormat(Application::mimeTypeBoardPage))
+    {
+        DocumentTreeNode *curNode        = nodeFromIndex(index(row - 1, column, parent));
+        DocumentProxy    *targetDocProxy = curNode->proxyData();
+        const MimeData   *mimeValue      = qobject_cast<const MimeData *>(data);
+        if (!targetDocProxy || !mimeValue || !mimeValue->items().count())
+        {
             qDebug() << "an error ocured while parsing " << Application::mimeTypeBoardPage;
             return false;
         }
@@ -594,13 +707,13 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
 
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-        foreach (MimeDataItem sourceItem, mimeValue->items()) {
+        foreach (MimeDataItem sourceItem, mimeValue->items())
+        {
             DocumentProxy *fromProxy = sourceItem.documentProxy();
-            int fromIndex = sourceItem.sceneIndex();
-            int toIndex = targetDocProxy->pageCount();
+            int            fromIndex = sourceItem.sceneIndex();
+            int            toIndex   = targetDocProxy->pageCount();
 
-            PersistenceManager::persistenceManager()->copyDocumentScene(fromProxy, fromIndex, targetDocProxy,
-                                                                        toIndex);
+            PersistenceManager::persistenceManager()->copyDocumentScene(fromProxy, fromIndex, targetDocProxy, toIndex);
         }
 
         QApplication::restoreOverrideCursor();
@@ -611,29 +724,34 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
     }
 
     const DocumentTreeMimeData *mimeData = qobject_cast<const DocumentTreeMimeData *>(data);
-    if (!mimeData) {
+    if (!mimeData)
+    {
         qDebug() << "Incorrect mimeData, only internal one supported";
         return false;
     }
 
-    if (!parent.isValid()) {
+    if (!parent.isValid())
+    {
         return false;
     }
 
     DocumentTreeNode *newParentNode = nodeFromIndex(parent);
 
-    if (!newParentNode) {
+    if (!newParentNode)
+    {
         qDebug() << "incorrect incoming parent node;";
         return false;
     }
 
     QList<QModelIndex> incomingIndexes = mimeData->indexes();
 
-    foreach (QModelIndex curIndex, incomingIndexes) {
-        if (curIndex.column() == 0) {
-            QModelIndex clonedTopLevel =
-                copyIndexToNewParent(curIndex, parent, action == Qt::MoveAction ? aReference : aContentCopy);
-            if (nodeFromIndex(curIndex) == mCurrentNode && action == Qt::MoveAction) {
+    foreach (QModelIndex curIndex, incomingIndexes)
+    {
+        if (curIndex.column() == 0)
+        {
+            QModelIndex clonedTopLevel = copyIndexToNewParent(curIndex, parent, action == Qt::MoveAction ? aReference : aContentCopy);
+            if (nodeFromIndex(curIndex) == mCurrentNode && action == Qt::MoveAction)
+            {
                 emit currentIndexMoved(clonedTopLevel, curIndex);
             }
         }
@@ -647,21 +765,28 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
     return true;
 }
 
-bool DocumentTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
+bool DocumentTreeModel::removeRows(int row, int count, const QModelIndex &parent)
+{
     if (row < 0 || row + count > rowCount(parent))
+    {
         return false;
+    }
 
     beginRemoveRows(parent, row, row + count - 1);
 
     DocumentTreeNode *parentNode = nodeFromIndex(parent);
-    for (int i = row; i < row + count; i++) {
-        DocumentTreeNode *curChildNode = parentNode->children().at(i);
-        QModelIndex curChildIndex = parent.sibling(i, 0);
-        if (curChildNode) {
+    for (int i = row; i < row + count; i++)
+    {
+        DocumentTreeNode *curChildNode  = parentNode->children().at(i);
+        QModelIndex       curChildIndex = parent.sibling(i, 0);
+        if (curChildNode)
+        {
             // 先自底向上清空子树，保证每个被删节点都在模型的 begin/endRemoveRows 范围内；
             // 注意每删一个子节点，剩余兄弟的行号会前移。
-            if (rowCount(curChildIndex)) {
-                while (rowCount(curChildIndex)) {
+            if (rowCount(curChildIndex))
+            {
+                while (rowCount(curChildIndex))
+                {
                     removeRows(0, 1, curChildIndex);
                 }
             }
@@ -674,16 +799,24 @@ bool DocumentTreeModel::removeRows(int row, int count, const QModelIndex &parent
     return true;
 }
 
-bool DocumentTreeModel::containsDocuments(const QModelIndex &index) {
-    for (int i = 0; i < rowCount(index); i++) {
+bool DocumentTreeModel::containsDocuments(const QModelIndex &index)
+{
+    for (int i = 0; i < rowCount(index); i++)
+    {
         QModelIndex child = this->index(i, 0, index);
-        if (isCatalog(child)) {
-            if (containsDocuments(child)) {
+        if (isCatalog(child))
+        {
+            if (containsDocuments(child))
+            {
                 return true;
             }
-        } else if (isDocument(child)) {
+        }
+        else if (isDocument(child))
+        {
             return true;
-        } else {
+        }
+        else
+        {
             qDebug() << "Who the hell are you ?";
         }
     }
@@ -691,41 +824,59 @@ bool DocumentTreeModel::containsDocuments(const QModelIndex &index) {
     return false;
 }
 
-QModelIndex DocumentTreeModel::indexForNode(DocumentTreeNode *pNode) const {
-    if (pNode == 0) {
+QModelIndex DocumentTreeModel::indexForNode(DocumentTreeNode *pNode) const
+{
+    if (pNode == 0)
+    {
         return QModelIndex();
     }
 
     return pIndexForNode(QModelIndex(), pNode);
 }
 
-QPersistentModelIndex DocumentTreeModel::persistentIndexForNode(DocumentTreeNode *pNode) {
+QPersistentModelIndex DocumentTreeModel::persistentIndexForNode(DocumentTreeNode *pNode)
+{
     return QPersistentModelIndex(indexForNode(pNode));
 }
 
-DocumentTreeNode *DocumentTreeModel::findProxy(DocumentProxy *pSearch, DocumentTreeNode *pParent) const {
-    foreach (DocumentTreeNode *curNode, pParent->children()) {
-        if (DocumentTreeNode::Catalog != curNode->nodeType()) {
+DocumentTreeNode *DocumentTreeModel::findProxy(DocumentProxy *pSearch, DocumentTreeNode *pParent) const
+{
+    foreach (DocumentTreeNode *curNode, pParent->children())
+    {
+        if (DocumentTreeNode::Catalog != curNode->nodeType())
+        {
             if (curNode->proxyData()->theSameDocument(pSearch))
+            {
                 return curNode;
-        } else if (curNode->children().count()) {
+            }
+        }
+        else if (curNode->children().count())
+        {
             DocumentTreeNode *recursiveDescendResult = findProxy(pSearch, curNode);
             if (recursiveDescendResult)
+            {
                 return findProxy(pSearch, curNode);
+            }
         }
     }
 
     return 0;
 }
 
-QModelIndex DocumentTreeModel::pIndexForNode(const QModelIndex &parent, DocumentTreeNode *pNode) const {
-    for (int i = 0; i < rowCount(parent); i++) {
+QModelIndex DocumentTreeModel::pIndexForNode(const QModelIndex &parent, DocumentTreeNode *pNode) const
+{
+    for (int i = 0; i < rowCount(parent); i++)
+    {
         QModelIndex curIndex = index(i, 0, parent);
-        if (curIndex.internalPointer() == pNode) {
+        if (curIndex.internalPointer() == pNode)
+        {
             return curIndex;
-        } else if (rowCount(curIndex) > 0) {
+        }
+        else if (rowCount(curIndex) > 0)
+        {
             QModelIndex recursiveDescendIndex = pIndexForNode(curIndex, pNode);
-            if (recursiveDescendIndex.isValid()) {
+            if (recursiveDescendIndex.isValid())
+            {
                 return recursiveDescendIndex;
             }
         }
@@ -733,64 +884,66 @@ QModelIndex DocumentTreeModel::pIndexForNode(const QModelIndex &parent, Document
     return QModelIndex();
 }
 
-void DocumentTreeModel::copyIndexToNewParent(const QModelIndexList &list, const QModelIndex &newParent,
-                                             eCopyMode pMode) {
-    for (int i = 0; i < list.size(); i++) {
-        if (list.at(i).column() == 0) {
+void DocumentTreeModel::copyIndexToNewParent(const QModelIndexList &list, const QModelIndex &newParent, eCopyMode pMode)
+{
+    for (int i = 0; i < list.size(); i++)
+    {
+        if (list.at(i).column() == 0)
+        {
             copyIndexToNewParent(list.at(i), newParent, pMode);
         }
     }
 }
 
-QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex &source,
-                                                              const QModelIndex &newParent, eCopyMode pMode) {
+QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex &source, const QModelIndex &newParent, eCopyMode pMode)
+{
     DocumentTreeNode *nodeParent = nodeFromIndex(newParent);
     DocumentTreeNode *nodeSource = nodeFromIndex(source);
 
-    if (!nodeParent || !nodeSource) {
+    if (!nodeParent || !nodeSource)
+    {
         return QModelIndex();
     }
 
     DocumentTreeNode *clonedNodeSource = 0;
-    switch (static_cast<int>(pMode)) {
+    switch (static_cast<int>(pMode))
+    {
         case aReference:
             // 按引用复制：只克隆节点与代理的元数据，底层页面数据仍指向同一目录。
             clonedNodeSource = nodeSource->clone();
-            if (mNewDocuments.contains(nodeSource->proxyData())) { // 新文档的引用关系也要一并迁移
+            if (mNewDocuments.contains(nodeSource->proxyData()))
+            { // 新文档的引用关系也要一并迁移
                 mNewDocuments << clonedNodeSource->proxyData();
 
-                PersistenceManager::persistenceManager()->reassignDocProxy(clonedNodeSource->proxyData(),
-                                                                           nodeSource->proxyData());
+                PersistenceManager::persistenceManager()->reassignDocProxy(clonedNodeSource->proxyData(), nodeSource->proxyData());
             }
             break;
 
         case aContentCopy:
             // 按内容复制：让持久化层真正复制一份文档目录，再给新代理盖新的更新时间。
             DocumentProxy *duplicatedProxy = 0;
-            if (nodeSource->nodeType() == DocumentTreeNode::Document && nodeSource->proxyData()) {
-                duplicatedProxy =
-                    PersistenceManager::persistenceManager()->duplicateDocument(nodeSource->proxyData());
-                duplicatedProxy->setMetaData(Settings::documentUpdatedAt,
-                                             StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+            if (nodeSource->nodeType() == DocumentTreeNode::Document && nodeSource->proxyData())
+            {
+                duplicatedProxy = PersistenceManager::persistenceManager()->duplicateDocument(nodeSource->proxyData());
+                duplicatedProxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
                 MetadataDcSubsetAdaptor::persist(duplicatedProxy);
             }
-            clonedNodeSource = new DocumentTreeNode(nodeSource->nodeType(), nodeSource->nodeName(),
-                                                    nodeSource->displayName(), duplicatedProxy);
+            clonedNodeSource = new DocumentTreeNode(nodeSource->nodeType(), nodeSource->nodeName(), nodeSource->displayName(), duplicatedProxy);
             break;
     }
 
     // 复制到同一层级或按内容复制时，同级可能出现重名，需要补数字后缀；
     // 移入回收站则保留原名，避免用户在回收站里看到一堆“副本”。
     QString newName = clonedNodeSource->nodeName();
-    if ((source.parent() != newParent || pMode != aReference) &&
-        (newParent != trashIndex() || !inTrash(newParent))) {
+    if ((source.parent() != newParent || pMode != aReference) && (newParent != trashIndex() || !inTrash(newParent)))
+    {
         newName = adjustNameForParentIndex(newName, newParent);
         clonedNodeSource->setNodeName(newName);
     }
 
-    if (clonedNodeSource->proxyData()) {
-        clonedNodeSource->proxyData()->setMetaData(Settings::documentGroupName,
-                                                   virtualPathForIndex(newParent));
+    if (clonedNodeSource->proxyData())
+    {
+        clonedNodeSource->proxyData()->setMetaData(Settings::documentGroupName, virtualPathForIndex(newParent));
         clonedNodeSource->proxyData()->setMetaData(Settings::documentName, newName);
         PersistenceManager::persistenceManager()->persistDocumentMetadata(clonedNodeSource->proxyData());
     }
@@ -800,8 +953,10 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
     QPersistentModelIndex newParentIndex = createIndex(rowCount(newParent), 0, clonedNodeSource);
 
     // 目录复制要递归处理整棵子树，让每个后代都按同一模式重新挂载。
-    if (rowCount(source)) {
-        for (int i = 0; i < rowCount(source); i++) {
+    if (rowCount(source))
+    {
+        for (int i = 0; i < rowCount(source); i++)
+        {
             QModelIndex curNewParentIndexChild = source.sibling(i, 0);
             copyIndexToNewParent(curNewParentIndexChild, newParentIndex, pMode);
         }
@@ -810,24 +965,30 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
     return newParentIndex;
 }
 
-void DocumentTreeModel::moveIndexes(const QModelIndexList &source, const QModelIndex &destination) {
+void DocumentTreeModel::moveIndexes(const QModelIndexList &source, const QModelIndex &destination)
+{
     QModelIndex destinationParent = destination;
-    while (!isCatalog(destinationParent)) {
+    while (!isCatalog(destinationParent))
+    {
         destinationParent = destinationParent.parent();
     }
 
     DocumentTreeNode *newParentNode = nodeFromIndex(destinationParent);
 
-    for (int i = 0; i < source.size(); i++) {
+    for (int i = 0; i < source.size(); i++)
+    {
         DocumentTreeNode *sourceNode = nodeFromIndex(source.at(i));
-        QModelIndex s = source.at(i);
+        QModelIndex       s          = source.at(i);
 
         if (newParentNode == sourceNode->parentNode() || sourceNode->findNode(newParentNode))
+        {
             continue;
+        }
 
-        if (s.internalId() != destinationParent.internalId()) {
+        if (s.internalId() != destinationParent.internalId())
+        {
             int sourceIndex = source.at(i).row();
-            int destIndex = positionForParent(sourceNode, newParentNode);
+            int destIndex   = positionForParent(sourceNode, newParentNode);
 
             // 每个 beginMoveRows 必须有自己的 endMoveRows：多选移动时只在最外面 end 一次，
             // 前面的 rowsAboutToBeMoved 就没有对应的 rowsMoved，代理模型与持久索引会错位。
@@ -840,168 +1001,201 @@ void DocumentTreeModel::moveIndexes(const QModelIndexList &source, const QModelI
     }
 }
 
-void DocumentTreeModel::moveIndex(const QModelIndex &what, const QModelIndex &destination) {
+void DocumentTreeModel::moveIndex(const QModelIndex &what, const QModelIndex &destination)
+{
     QModelIndexList list;
     list.push_back(what);
     moveIndexes(list, destination);
 }
 
-void DocumentTreeModel::setCurrentDocument(DocumentProxy *pDocument) {
+void DocumentTreeModel::setCurrentDocument(DocumentProxy *pDocument)
+{
     DocumentTreeNode *testCurNode = findProxy(pDocument, mRootNode);
 
-    if (testCurNode) {
+    if (testCurNode)
+    {
         setCurrentNode(testCurNode);
     }
 }
 
-QModelIndex DocumentTreeModel::indexForProxy(DocumentProxy *pSearch) const {
+QModelIndex DocumentTreeModel::indexForProxy(DocumentProxy *pSearch) const
+{
     DocumentTreeNode *proxy = findProxy(pSearch, mRootNode);
-    if (!proxy) {
+    if (!proxy)
+    {
         return QModelIndex();
     }
 
     return indexForNode(proxy);
 }
 
-void DocumentTreeModel::setRootNode(DocumentTreeNode *pRoot) {
+void DocumentTreeModel::setRootNode(DocumentTreeNode *pRoot)
+{
     // 所有权随指针转移；这里不调用 reset()，因为构造期视图尚未挂到模型上。
     mRootNode = pRoot;
 }
 
-DocumentProxy *DocumentTreeModel::proxyForIndex(const QModelIndex &pIndex) const {
+DocumentProxy *DocumentTreeModel::proxyForIndex(const QModelIndex &pIndex) const
+{
     DocumentTreeNode *node = nodeFromIndex(pIndex);
-    if (!node) {
+    if (!node)
+    {
         return 0;
     }
 
     return node->proxyData();
 }
 
-QString DocumentTreeModel::virtualDirForIndex(const QModelIndex &pIndex) const {
-    QString result;
+QString DocumentTreeModel::virtualDirForIndex(const QModelIndex &pIndex) const
+{
+    QString           result;
     DocumentTreeNode *curNode = nodeFromIndex(pIndex);
     // 与 DocumentTreeNode::dirPathInHierarchy 一样，跳过顶层固定入口，只保留用户目录层级。
-    while (curNode->parentNode() && !curNode->isTopLevel()) {
+    while (curNode->parentNode() && !curNode->isTopLevel())
+    {
         result.prepend(curNode->parentNode()->nodeName() + "/");
         curNode = curNode->parentNode();
     }
 
-    if (result.endsWith("/")) {
+    if (result.endsWith("/"))
+    {
         result.truncate(result.count() - 1);
     }
 
     return result;
 }
 
-QString DocumentTreeModel::virtualPathForIndex(const QModelIndex &pIndex) const {
+QString DocumentTreeModel::virtualPathForIndex(const QModelIndex &pIndex) const
+{
     DocumentTreeNode *curNode = nodeFromIndex(pIndex);
     Q_ASSERT(curNode);
 
     return virtualDirForIndex(pIndex) + "/" + curNode->nodeName();
 }
 
-QStringList DocumentTreeModel::nodeNameList(const QModelIndex &pIndex) const {
+QStringList DocumentTreeModel::nodeNameList(const QModelIndex &pIndex) const
+{
     QStringList result;
 
     DocumentTreeNode *catalog = nodeFromIndex(pIndex);
-    if (catalog->nodeType() != DocumentTreeNode::Catalog) {
+    if (catalog->nodeType() != DocumentTreeNode::Catalog)
+    {
         return QStringList();
     }
 
-    foreach (DocumentTreeNode *curNode, catalog->children()) {
+    foreach (DocumentTreeNode *curNode, catalog->children())
+    {
         result << curNode->nodeName();
     }
 
     return result;
 }
 
-bool DocumentTreeModel::newNodeAllowed(const QModelIndex &pSelectedIndex) const {
-    if (!pSelectedIndex.isValid()) {
+bool DocumentTreeModel::newNodeAllowed(const QModelIndex &pSelectedIndex) const
+{
+    if (!pSelectedIndex.isValid())
+    {
         return false;
     }
 
-    if (inTrash(pSelectedIndex) || pSelectedIndex == trashIndex()) {
+    if (inTrash(pSelectedIndex) || pSelectedIndex == trashIndex())
+    {
         return false;
     }
 
     return true;
 }
 
-QModelIndex DocumentTreeModel::goTo(const QString &dir) {
+QModelIndex DocumentTreeModel::goTo(const QString &dir)
+{
     QStringList pathList = dir.split("/", Qt::SkipEmptyParts);
 
-    if (pathList.isEmpty()) {
+    if (pathList.isEmpty())
+    {
         return myDocumentsIndex();
     }
 
-    if (pathList.first() != PersistenceManager::myDocumentsName &&
-        pathList.first() != Settings::trashedDocumentGroupNamePrefix &&
-        pathList.first() != PersistenceManager::modelsName) {
+    if (pathList.first() != PersistenceManager::myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix &&
+        pathList.first() != PersistenceManager::modelsName)
+    {
         pathList.prepend(PersistenceManager::myDocumentsName);
     }
 
     QModelIndex parentIndex;
 
     bool searchingNode = true;
-    while (!pathList.isEmpty()) {
+    while (!pathList.isEmpty())
+    {
         QString curLevelName = pathList.takeFirst();
-        if (searchingNode) {
+        if (searchingNode)
+        {
             searchingNode = false;
-            for (int i = 0; i < rowCount(parentIndex); ++i) {
+            for (int i = 0; i < rowCount(parentIndex); ++i)
+            {
                 QModelIndex curChildIndex = index(i, 0, parentIndex);
-                if (nodeFromIndex(curChildIndex)->nodeName() == curLevelName) {
+                if (nodeFromIndex(curChildIndex)->nodeName() == curLevelName)
+                {
                     searchingNode = true;
-                    parentIndex = curChildIndex;
+                    parentIndex   = curChildIndex;
                     break;
                 }
             }
         }
 
-        if (!searchingNode) {
+        if (!searchingNode)
+        {
             DocumentTreeNode *newChild = new DocumentTreeNode(DocumentTreeNode::Catalog, curLevelName);
-            parentIndex = addNode(newChild, parentIndex);
+            parentIndex                = addNode(newChild, parentIndex);
         }
     }
 
     return parentIndex;
 }
 
-bool DocumentTreeModel::inTrash(const QModelIndex &index) const {
+bool DocumentTreeModel::inTrash(const QModelIndex &index) const
+{
     return isDescendantOf(index, trashIndex());
 }
 
-bool DocumentTreeModel::inMyDocuments(const QModelIndex &index) const {
+bool DocumentTreeModel::inMyDocuments(const QModelIndex &index) const
+{
     return isDescendantOf(index, myDocumentsIndex());
 }
 
-void DocumentTreeModel::addDocument(DocumentProxy *pProxyData, const QModelIndex &pParent) {
-    if (!pProxyData) {
+void DocumentTreeModel::addDocument(DocumentProxy *pProxyData, const QModelIndex &pParent)
+{
+    if (!pProxyData)
+    {
         return;
     }
-    QString docName = pProxyData->metaData(Settings::documentName).toString();
+    QString docName      = pProxyData->metaData(Settings::documentName).toString();
     QString docGroupName = pProxyData->metaData(Settings::documentGroupName).toString();
 
-    if (docName.isEmpty()) {
+    if (docName.isEmpty())
+    {
         return;
     }
 
-    QModelIndex lParent = pParent;
-    DocumentTreeNode *freeNode =
-        new DocumentTreeNode(DocumentTreeNode::Document, docName, QString(), pProxyData);
-    if (!pParent.isValid()) {
+    QModelIndex       lParent  = pParent;
+    DocumentTreeNode *freeNode = new DocumentTreeNode(DocumentTreeNode::Document, docName, QString(), pProxyData);
+    if (!pParent.isValid())
+    {
         lParent = goTo(docGroupName);
     }
 
     addNode(freeNode, lParent);
 }
 
-void DocumentTreeModel::addNewDocument(DocumentProxy *pProxyData, const QModelIndex &pParent) {
+void DocumentTreeModel::addNewDocument(DocumentProxy *pProxyData, const QModelIndex &pParent)
+{
     addDocument(pProxyData, pParent);
     mNewDocuments << pProxyData;
 }
 
-QModelIndex DocumentTreeModel::addCatalog(const QString &pName, const QModelIndex &pParent) {
-    if (pName.isEmpty() || !pParent.isValid()) {
+QModelIndex DocumentTreeModel::addCatalog(const QString &pName, const QModelIndex &pParent)
+{
+    if (pName.isEmpty() || !pParent.isValid())
+    {
         return QModelIndex();
     }
 
@@ -1009,8 +1203,10 @@ QModelIndex DocumentTreeModel::addCatalog(const QString &pName, const QModelInde
     return addNode(catalogNode, pParent);
 }
 
-void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newName) {
-    if (!index.isValid()) {
+void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newName)
+{
+    if (!index.isValid())
+    {
         return;
     }
 
@@ -1019,30 +1215,37 @@ void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newN
     // 目录重命名时，需要把新的虚拟路径同步给所有子孙。这里借用内部分隔符
     // “+!##s”把“目录路径 + 子项名”拼成一个字符串传给递归调用，避免为此增加额外参数；
     // 用户输入中的 '/' 会先被替换成 '-'，防止目录名破坏层级。
-    QString magicSeparator = "+!##s";
-    if (isCatalog(index)) {
+    QString magicSeparator      = "+!##s";
+    if (isCatalog(index))
+    {
         QString fullNewName = newName;
         fullNewName.replace('/', '-');
-        if (!newName.contains(magicSeparator)) {
+        if (!newName.contains(magicSeparator))
+        {
             indexNode->setNodeName(fullNewName);
             QString virtualDir = virtualDirForIndex(index);
             fullNewName.prepend(virtualDir.isEmpty() ? "" : virtualDir + magicSeparator);
         }
-        for (int i = 0; i < rowCount(index); i++) {
+        for (int i = 0; i < rowCount(index); i++)
+        {
             QModelIndex subIndex = this->index(i, 0, index);
             setNewName(subIndex, fullNewName + magicSeparator + subIndex.data().toString());
         }
-
-    } else if (isDocument(index)) {
+    }
+    else if (isDocument(index))
+    {
         Q_ASSERT(indexNode->proxyData());
 
         int prefixIndex = newName.lastIndexOf(magicSeparator);
-        if (prefixIndex != -1) {
+        if (prefixIndex != -1)
+        {
             // 带分隔符说明这是目录重命名递归下来的结果：只更新文档的分组路径，
             // 文档自身名称由分隔符后的最后一段保持不变。
             QString newDocumentGroupName = newName.left(prefixIndex).replace(magicSeparator, "/");
             indexNode->proxyData()->setMetaData(Settings::documentGroupName, newDocumentGroupName);
-        } else {
+        }
+        else
+        {
             indexNode->setNodeName(newName);
             indexNode->proxyData()->setMetaData(Settings::documentName, newName);
         }
@@ -1051,57 +1254,67 @@ void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newN
     }
 }
 
-QString DocumentTreeModel::adjustNameForParentIndex(const QString &pName, const QModelIndex &pIndex) {
-    int i = 0;
-    QString newName = pName;
+QString DocumentTreeModel::adjustNameForParentIndex(const QString &pName, const QModelIndex &pIndex)
+{
+    int         i            = 0;
+    QString     newName      = pName;
     QStringList siblingNames = nodeNameList(pIndex);
-    while (siblingNames.contains(newName)) {
+    while (siblingNames.contains(newName))
+    {
         newName = pName + " " + QVariant(++i).toString();
     }
 
     return newName;
 }
 
-void DocumentTreeModel::fixNodeName(const QModelIndex &source, const QModelIndex &dest) {
+void DocumentTreeModel::fixNodeName(const QModelIndex &source, const QModelIndex &dest)
+{
     // 跨层移动后目标层可能已有同名条目，需要补后缀；移入回收站时保留原名。
     DocumentTreeNode *srcNode = nodeFromIndex(source);
     Q_ASSERT(srcNode);
 
     QString newName = srcNode->nodeName();
-    if (source.parent() != dest && (dest != trashIndex() || !inTrash(dest))) {
+    if (source.parent() != dest && (dest != trashIndex() || !inTrash(dest)))
+    {
         newName = adjustNameForParentIndex(newName, dest);
         srcNode->setNodeName(newName);
         nodeFromIndex(source)->setNodeName(newName);
     }
 }
 
-void DocumentTreeModel::updateIndexNameBindings(DocumentTreeNode *nd) {
+void DocumentTreeModel::updateIndexNameBindings(DocumentTreeNode *nd)
+{
     Q_ASSERT(nd);
 
-    if (nd->nodeType() == DocumentTreeNode::Catalog) {
-        foreach (DocumentTreeNode *lnd, nd->children()) {
+    if (nd->nodeType() == DocumentTreeNode::Catalog)
+    {
+        foreach (DocumentTreeNode *lnd, nd->children())
+        {
             updateIndexNameBindings(lnd);
         }
-    } else if (nd->proxyData()) {
-        nd->proxyData()->setMetaData(Settings::documentGroupName,
-                                     virtualPathForIndex(indexForNode(nd->parentNode())));
+    }
+    else if (nd->proxyData())
+    {
+        nd->proxyData()->setMetaData(Settings::documentGroupName, virtualPathForIndex(indexForNode(nd->parentNode())));
         nd->proxyData()->setMetaData(Settings::documentName, nd->nodeName());
-        nd->proxyData()->setMetaData(Settings::documentUpdatedAt,
-                                     StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        nd->proxyData()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         PersistenceManager::persistenceManager()->persistDocumentMetadata(nd->proxyData());
     }
 }
 
-bool DocumentTreeModel::isDescendantOf(const QModelIndex &pPossibleDescendant,
-                                       const QModelIndex &pPossibleAncestor) const {
-    if (!pPossibleDescendant.isValid()) {
+bool DocumentTreeModel::isDescendantOf(const QModelIndex &pPossibleDescendant, const QModelIndex &pPossibleAncestor) const
+{
+    if (!pPossibleDescendant.isValid())
+    {
         return false;
     }
 
     QModelIndex ancestor = pPossibleDescendant;
-    while (ancestor.parent().isValid()) {
+    while (ancestor.parent().isValid())
+    {
         ancestor = ancestor.parent();
-        if (ancestor == pPossibleAncestor) {
+        if (ancestor == pPossibleAncestor)
+        {
             return true;
         }
     }
@@ -1109,15 +1322,15 @@ bool DocumentTreeModel::isDescendantOf(const QModelIndex &pPossibleDescendant,
     return false;
 }
 
-QModelIndex DocumentTreeModel::addNode(DocumentTreeNode *pFreeNode, const QModelIndex &pParent,
-                                       eAddItemMode pMode) {
+QModelIndex DocumentTreeModel::addNode(DocumentTreeNode *pFreeNode, const QModelIndex &pParent, eAddItemMode pMode)
+{
     DocumentTreeNode *tstParent = nodeFromIndex(pParent);
 
-    if (!pParent.isValid() || tstParent->nodeType() != DocumentTreeNode::Catalog) {
+    if (!pParent.isValid() || tstParent->nodeType() != DocumentTreeNode::Catalog)
+    {
         return QModelIndex();
     }
-    int newIndex =
-        pMode == aDetectPosition ? positionForParent(pFreeNode, tstParent) : tstParent->children().size();
+    int newIndex = pMode == aDetectPosition ? positionForParent(pFreeNode, tstParent) : tstParent->children().size();
     // 视图正在监听模型，插入必须包在 begin/endInsertRows 之间，
     // 否则代理模型无法维护行映射，后续索引会全部错位。
     beginInsertRows(pParent, newIndex, newIndex);
@@ -1127,47 +1340,58 @@ QModelIndex DocumentTreeModel::addNode(DocumentTreeNode *pFreeNode, const QModel
     return createIndex(newIndex, 0, pFreeNode);
 }
 
-int DocumentTreeModel::positionForParent(DocumentTreeNode *pFreeNode, DocumentTreeNode *pParentNode) {
+int DocumentTreeModel::positionForParent(DocumentTreeNode *pFreeNode, DocumentTreeNode *pParentNode)
+{
     Q_ASSERT(pFreeNode);
     Q_ASSERT(pParentNode);
     Q_ASSERT(pParentNode->nodeType() == DocumentTreeNode::Catalog);
 
-    int c = -1;
+    int c          = -1;
     int childCount = pParentNode->children().count();
     // 找到第一个“比新节点大”的现有子节点位置；都不大于则追加到末尾。
-    while (c <= childCount) {
-        if (++c == childCount || lessThan(pFreeNode, pParentNode->children().at(c))) {
+    while (c <= childCount)
+    {
+        if (++c == childCount || lessThan(pFreeNode, pParentNode->children().at(c)))
+        {
             break;
         }
     }
     return c == -1 ? childCount : c;
 }
 
-DocumentTreeNode *DocumentTreeModel::nodeFromIndex(const QModelIndex &pIndex) const {
-    if (pIndex.isValid()) {
+DocumentTreeNode *DocumentTreeModel::nodeFromIndex(const QModelIndex &pIndex) const
+{
+    if (pIndex.isValid())
+    {
         return static_cast<DocumentTreeNode *>(pIndex.internalPointer());
-    } else {
+    }
+    else
+    {
         return mRootNode;
     }
 }
 
-bool DocumentTreeModel::nodeLessThan(const DocumentTreeNode *firstIndex,
-                                     const DocumentTreeNode *secondIndex) {
+bool DocumentTreeModel::nodeLessThan(const DocumentTreeNode *firstIndex, const DocumentTreeNode *secondIndex)
+{
     return firstIndex->nodeName() < secondIndex->nodeName();
 }
 
-DocumentTreeModel::~DocumentTreeModel() {
+DocumentTreeModel::~DocumentTreeModel()
+{
     // 整棵树（含各节点的 DocumentProxy）由根节点递归释放。
     delete mRootNode;
 }
 
-DocumentTreeView::DocumentTreeView(QWidget *parent) : QTreeView(parent) {
+DocumentTreeView::DocumentTreeView(QWidget *parent) : QTreeView(parent)
+{
     setObjectName("DocumentTreeView");
     setRootIsDecorated(true);
 }
 
-void DocumentTreeView::setSelectedAndExpanded(const QModelIndex &pIndex, bool pExpand, bool pEdit) {
-    if (!pIndex.isValid()) {
+void DocumentTreeView::setSelectedAndExpanded(const QModelIndex &pIndex, bool pExpand, bool pEdit)
+{
+    if (!pIndex.isValid())
+    {
         return;
     }
 
@@ -1179,55 +1403,65 @@ void DocumentTreeView::setSelectedAndExpanded(const QModelIndex &pIndex, bool pE
     // "index from wrong model passed to mapToSource"。
     const QModelIndex viewIndex = proxy ? proxy->mapFromSource(pIndex) : pIndex;
 
-    if (!viewIndex.isValid()) {
+    if (!viewIndex.isValid())
+    {
         return;
     }
 
     clearSelection();
 
-    QItemSelectionModel::SelectionFlags sel =
-        pExpand ? QItemSelectionModel::Select : QItemSelectionModel::Deselect;
+    QItemSelectionModel::SelectionFlags sel = pExpand ? QItemSelectionModel::Select : QItemSelectionModel::Deselect;
 
     setCurrentIndex(pExpand ? viewIndex : QModelIndex());
 
     selectionModel()->select(viewIndex, QItemSelectionModel::Rows | sel);
 
-    for (QModelIndex parent = viewIndex.parent(); parent.isValid(); parent = parent.parent()) {
+    for (QModelIndex parent = viewIndex.parent(); parent.isValid(); parent = parent.parent())
+    {
         setExpanded(parent, pExpand);
     }
 
     scrollTo(viewIndex, QAbstractItemView::PositionAtCenter);
 
     if (pEdit)
+    {
         edit(viewIndex);
+    }
 }
 
-void DocumentTreeView::hSliderRangeChanged(int min, int max) {
+void DocumentTreeView::hSliderRangeChanged(int min, int max)
+{
     Q_UNUSED(min);
     Q_UNUSED(max);
 
     QScrollBar *hScroller = horizontalScrollBar();
-    if (hScroller) {
+    if (hScroller)
+    {
         hScroller->triggerAction(QAbstractSlider::SliderToMaximum);
     }
 }
 
-void DocumentTreeView::dragEnterEvent(QDragEnterEvent *event) {
+void DocumentTreeView::dragEnterEvent(QDragEnterEvent *event)
+{
     QTreeView::dragEnterEvent(event);
     event->accept();
     event->acceptProposedAction();
 }
 
-void DocumentTreeView::dragLeaveEvent(QDragLeaveEvent *event) {
+void DocumentTreeView::dragLeaveEvent(QDragLeaveEvent *event)
+{
     Q_UNUSED(event);
 
     DocumentTreeModel *docModel = 0;
 
     SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
 
-    if (proxy) {
+    if (proxy)
+    {
         docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
-    } else {
+    }
+    else
+    {
         docModel = dynamic_cast<DocumentTreeModel *>(model());
     }
 
@@ -1235,33 +1469,42 @@ void DocumentTreeView::dragLeaveEvent(QDragLeaveEvent *event) {
     update();
 }
 
-void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event) {
+void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event)
+{
     QModelIndex index;
-    if (selectedIndexes().count() > 0) {
+    if (selectedIndexes().count() > 0)
+    {
         index = selectedIndexes().first();
     }
 
     bool acceptIt = isAcceptable(index, indexAt(event->pos()));
 
-    if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage)) {
+    if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
+    {
         SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
 
         DocumentTreeModel *docModel = 0;
 
-        if (proxy) {
+        if (proxy)
+        {
             docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
-        } else {
+        }
+        else
+        {
             docModel = dynamic_cast<DocumentTreeModel *>(model());
         }
 
         QModelIndex targetIndex = mapIndexToSource(indexAt(event->pos()));
 
-        if (!docModel || !docModel->isDocument(targetIndex) || docModel->inTrash(targetIndex)) {
+        if (!docModel || !docModel->isDocument(targetIndex) || docModel->inTrash(targetIndex))
+        {
             event->ignore();
             event->setDropAction(Qt::IgnoreAction);
             docModel->setHighLighted(QModelIndex());
             acceptIt = false;
-        } else {
+        }
+        else
+        {
             docModel->setHighLighted(targetIndex);
             acceptIt = true;
         }
@@ -1272,33 +1515,38 @@ void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event) {
     event->setAccepted(acceptIt);
 }
 
-void DocumentTreeView::dropEvent(QDropEvent *event) {
+void DocumentTreeView::dropEvent(QDropEvent *event)
+{
     event->ignore();
     event->setDropAction(Qt::IgnoreAction);
     DocumentTreeModel *docModel = 0;
 
     SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
-    if (proxy) {
+    if (proxy)
+    {
         docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
     }
 
-    QModelIndex targetIndex = mapIndexToSource(indexAt(event->pos()));
-    QModelIndexList dropIndex = mapIndexesToSource(selectedIndexes());
+    QModelIndex     targetIndex = mapIndexToSource(indexAt(event->pos()));
+    QModelIndexList dropIndex   = mapIndexesToSource(selectedIndexes());
 
-    bool isBoardPage = event->mimeData()->hasFormat(Application::mimeTypeBoardPage);
+    bool isBoardPage            = event->mimeData()->hasFormat(Application::mimeTypeBoardPage);
 
-    bool targetIsInTrash = docModel->inTrash(targetIndex) || docModel->trashIndex() == targetIndex;
-    bool targetIsInMyDocuments =
-        docModel->inMyDocuments(targetIndex) || docModel->myDocumentsIndex() == targetIndex;
+    bool targetIsInTrash        = docModel->inTrash(targetIndex) || docModel->trashIndex() == targetIndex;
+    bool targetIsInMyDocuments  = docModel->inMyDocuments(targetIndex) || docModel->myDocumentsIndex() == targetIndex;
 
     if (!targetIsInMyDocuments && !targetIsInTrash)
+    {
         return;
+    }
 
-    if (isBoardPage) {
+    if (isBoardPage)
+    {
         DocumentProxy *targetDocProxy = docModel->proxyData(targetIndex);
 
-        const MimeData *mimeValue = qobject_cast<const MimeData *>(event->mimeData());
-        if (!targetDocProxy || !mimeValue || !mimeValue->items().count()) {
+        const MimeData *mimeValue     = qobject_cast<const MimeData *>(event->mimeData());
+        if (!targetDocProxy || !mimeValue || !mimeValue->items().count())
+        {
             qDebug() << "an error ocured while parsing " << Application::mimeTypeBoardPage;
             QTreeView::dropEvent(event);
             return;
@@ -1310,79 +1558,82 @@ void DocumentTreeView::dropEvent(QDropEvent *event) {
 
         // 页面拖到某份文档上：逐页深拷贝场景，并把场景引用的相对文件一并复制过去，
         // 然后按当前页数追加到目标文档末尾。
-        foreach (MimeDataItem sourceItem, mimeValue->items()) {
+        foreach (MimeDataItem sourceItem, mimeValue->items())
+        {
             DocumentProxy *fromProxy = sourceItem.documentProxy();
-            int fromIndex = sourceItem.sceneIndex();
-            int toIndex = targetDocProxy->pageCount();
+            int            fromIndex = sourceItem.sceneIndex();
+            int            toIndex   = targetDocProxy->pageCount();
 
             count++;
 
-            Application::applicationController->showMessage(tr("Copying page %1/%2").arg(count).arg(total),
-                                                            true);
+            Application::applicationController->showMessage(tr("Copying page %1/%2").arg(count).arg(total), true);
 
-            GraphicsScene *scene = PersistenceManager::persistenceManager()->loadDocumentScene(
-                sourceItem.documentProxy(), sourceItem.sceneIndex());
-            if (scene) {
-                GraphicsScene *sceneClone = scene->sceneDeepCopy();
+            GraphicsScene *scene = PersistenceManager::persistenceManager()->loadDocumentScene(sourceItem.documentProxy(), sourceItem.sceneIndex());
+            if (scene)
+            {
+                GraphicsScene *sceneClone     = scene->sceneDeepCopy();
 
                 DocumentProxy *targetDocProxy = docModel->proxyForIndex(targetIndex);
 
                 // 场景里的图片/音视频是相对路径，必须随场景一起搬到目标文档目录，
                 // 否则复制出的页会丢资源。
-                foreach (QUrl relativeFile, scene->relativeDependencies()) {
-                    QString source = scene->document()->persistencePath() + "/" + relativeFile.toString();
-                    QString target = targetDocProxy->persistencePath() + "/" + relativeFile.toString();
+                foreach (QUrl relativeFile, scene->relativeDependencies())
+                {
+                    QString source        = scene->document()->persistencePath() + "/" + relativeFile.toString();
+                    QString target        = targetDocProxy->persistencePath() + "/" + relativeFile.toString();
 
-                    QString sourceDecoded = scene->document()->persistencePath() + "/" +
-                                            relativeFile.toString(QUrl::DecodeReserved);
-                    QString targetDecoded =
-                        targetDocProxy->persistencePath() + "/" + relativeFile.toString(QUrl::DecodeReserved);
+                    QString sourceDecoded = scene->document()->persistencePath() + "/" + relativeFile.toString(QUrl::DecodeReserved);
+                    QString targetDecoded = targetDocProxy->persistencePath() + "/" + relativeFile.toString(QUrl::DecodeReserved);
 
                     if (QFileInfo(source).isDir())
+                    {
                         FileSystemUtils::copyDir(source, target);
-                    else {
+                    }
+                    else
+                    {
                         QFileInfo fi(targetDecoded);
-                        QDir d = fi.dir();
+                        QDir      d = fi.dir();
                         d.mkpath(d.absolutePath());
                         QFile::copy(sourceDecoded, targetDecoded);
                     }
                 }
 
-                PersistenceManager::persistenceManager()->insertDocumentSceneAt(targetDocProxy, sceneClone,
-                                                                                targetDocProxy->pageCount());
+                PersistenceManager::persistenceManager()->insertDocumentSceneAt(targetDocProxy, sceneClone, targetDocProxy->pageCount());
 
-                QString thumbTmp(fromProxy->persistencePath() +
-                                 FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", fromIndex));
-                QString thumbTo(targetDocProxy->persistencePath() +
-                                FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", toIndex));
+                QString thumbTmp(fromProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", fromIndex));
+                QString thumbTo(targetDocProxy->persistencePath() + FileSystemUtils::digitFileFormat("/page%1.thumbnail.jpg", toIndex));
 
                 QFile::remove(thumbTo);
                 QFile::copy(thumbTmp, thumbTo);
 
                 Q_ASSERT(QFileInfo(thumbTmp).exists());
                 Q_ASSERT(QFileInfo(thumbTo).exists());
-                const QPixmap *pix = new QPixmap(thumbTmp);
+                const QPixmap      *pix  = new QPixmap(thumbTmp);
                 DocumentController *ctrl = Application::documentController;
                 ctrl->addPixmapAt(pix, toIndex);
                 ctrl->TreeViewSelectionChanged(ctrl->firstSelectedTreeIndex(), QModelIndex());
             }
 
             QApplication::restoreOverrideCursor();
-            Application::applicationController->showMessage(tr("%1 pages copied", "", total).arg(total),
-                                                            false);
+            Application::applicationController->showMessage(tr("%1 pages copied", "", total).arg(total), false);
 
             docModel->setHighLighted(QModelIndex());
         }
-
-    } else {
-        if (targetIsInTrash) {
+    }
+    else
+    {
+        if (targetIsInTrash)
+        {
             // 拖到回收站等同删除，先确认；确认后走与删除命令相同的移入回收站流程。
-            if (!Application::mainWindow->yesNoQuestion(
-                    tr("Remove Item"), tr("Are you sure you want to remove the selected item(s) ?")))
+            if (!Application::mainWindow->yesNoQuestion(tr("Remove Item"), tr("Are you sure you want to remove the selected item(s) ?")))
+            {
                 return;
+            }
 
             Application::documentController->moveIndexesToTrash(dropIndex, docModel);
-        } else {
+        }
+        else
+        {
             docModel->moveIndexes(dropIndex, targetIndex);
         }
     }
@@ -1394,53 +1645,64 @@ void DocumentTreeView::dropEvent(QDropEvent *event) {
     Application::documentController->updateActions();
 }
 
-void DocumentTreeView::paintEvent(QPaintEvent *event) {
+void DocumentTreeView::paintEvent(QPaintEvent *event)
+{
     QTreeView::paintEvent(event);
 }
 
-void DocumentTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end) {
+void DocumentTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
     QTreeView::rowsAboutToBeRemoved(parent, start, end);
 }
 
-bool DocumentTreeView::isAcceptable(const QModelIndex &dragIndex, const QModelIndex &atIndex) {
+bool DocumentTreeView::isAcceptable(const QModelIndex &dragIndex, const QModelIndex &atIndex)
+{
     QModelIndex dragIndexSource = mapIndexToSource(dragIndex);
-    QModelIndex atIndexSource = mapIndexToSource(atIndex);
+    QModelIndex atIndexSource   = mapIndexToSource(atIndex);
 
-    if (!dragIndexSource.isValid()) {
+    if (!dragIndexSource.isValid())
+    {
         return false;
     }
 
     return true;
 }
 
-Qt::DropAction DocumentTreeView::acceptableAction(const QModelIndex &dragIndex, const QModelIndex &atIndex) {
+Qt::DropAction DocumentTreeView::acceptableAction(const QModelIndex &dragIndex, const QModelIndex &atIndex)
+{
     return Qt::MoveAction;
 }
 
-void DocumentTreeView::updateIndexEnvirons(const QModelIndex &index) {
-    QRect updateRect = visualRect(index);
-    const int multipler = 3;
+void DocumentTreeView::updateIndexEnvirons(const QModelIndex &index)
+{
+    QRect     updateRect = visualRect(index);
+    const int multipler  = 3;
     updateRect.adjust(0, -updateRect.height() * multipler, 0, updateRect.height() * multipler);
     update(updateRect);
 }
 
-QModelIndex DocumentTreeView::mapIndexToSource(const QModelIndex &index) {
+QModelIndex DocumentTreeView::mapIndexToSource(const QModelIndex &index)
+{
     SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
 
-    if (proxy) {
+    if (proxy)
+    {
         return proxy->mapToSource(index);
     }
 
     return index;
 }
 
-QModelIndexList DocumentTreeView::mapIndexesToSource(const QModelIndexList &indexes) {
+QModelIndexList DocumentTreeView::mapIndexesToSource(const QModelIndexList &indexes)
+{
     SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
 
-    if (proxy) {
+    if (proxy)
+    {
         QModelIndexList list;
 
-        for (int i = 0; i < indexes.size(); i++) {
+        for (int i = 0; i < indexes.size(); i++)
+        {
             list.push_back(proxy->mapToSource(indexes.at(i)));
         }
 
@@ -1450,11 +1712,15 @@ QModelIndexList DocumentTreeView::mapIndexesToSource(const QModelIndexList &inde
     return indexes;
 }
 
-DocumentTreeItemDelegate::DocumentTreeItemDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+DocumentTreeItemDelegate::DocumentTreeItemDelegate(QObject *parent) : QStyledItemDelegate(parent)
+{
+}
 
-void DocumentTreeItemDelegate::commitAndCloseEditor() {
+void DocumentTreeItemDelegate::commitAndCloseEditor()
+{
     QLineEdit *lineEditor = qobject_cast<QLineEdit *>(sender());
-    if (lineEditor) {
+    if (lineEditor)
+    {
         // 重命名后文档可能改变排序位置，提交数据后请求控制器重新排序；
         // 编辑器本身由视图在 commitData 后关闭，这里不重复发 closeEditor。
         emit commitData(lineEditor);
@@ -1462,38 +1728,45 @@ void DocumentTreeItemDelegate::commitAndCloseEditor() {
     }
 }
 
-void DocumentTreeItemDelegate::processChangedText(const QString &str) const {
+void DocumentTreeItemDelegate::processChangedText(const QString &str) const
+{
     QLineEdit *editor = qobject_cast<QLineEdit *>(sender());
-    if (!editor) {
+    if (!editor)
+    {
         return;
     }
 
-    if (!validateString(str)) {
+    if (!validateString(str))
+    {
         editor->setStyleSheet("background-color: #FFB3C8;");
-    } else {
+    }
+    else
+    {
         editor->setStyleSheet("background-color: #FFFFFF;");
     }
 }
 
-bool DocumentTreeItemDelegate::validateString(const QString &str) const {
+bool DocumentTreeItemDelegate::validateString(const QString &str) const
+{
     return !mExistingFileNames.contains(str);
 }
 
-QWidget *DocumentTreeItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                                                const QModelIndex &index) const {
+QWidget *DocumentTreeItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
     Q_UNUSED(option);
 
-    if (index.column() == 0) {
+    if (index.column() == 0)
+    {
         mExistingFileNames.clear();
         const DocumentTreeModel *indexModel = qobject_cast<const DocumentTreeModel *>(index.model());
-        if (indexModel) {
+        if (indexModel)
+        {
             mExistingFileNames = indexModel->nodeNameList(index.parent());
             mExistingFileNames.removeOne(index.data().toString());
         }
 
         QLineEdit *nameEditor = new QLineEdit(parent);
-        connect(nameEditor, &QLineEdit::editingFinished, this,
-                &DocumentTreeItemDelegate::commitAndCloseEditor);
+        connect(nameEditor, &QLineEdit::editingFinished, this, &DocumentTreeItemDelegate::commitAndCloseEditor);
         connect(nameEditor, &QLineEdit::textChanged, this, &DocumentTreeItemDelegate::processChangedText);
         return nameEditor;
     }
@@ -1502,89 +1775,87 @@ QWidget *DocumentTreeItemDelegate::createEditor(QWidget *parent, const QStyleOpt
     return 0;
 }
 
-void DocumentTreeItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
-    if (index.column() == 0) {
+void DocumentTreeItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    if (index.column() == 0)
+    {
         QLineEdit *lineEditor = qobject_cast<QLineEdit *>(editor);
         lineEditor->setText(index.data().toString());
         lineEditor->selectAll();
     }
 }
 
-void DocumentTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                            const QModelIndex &index) const {
+void DocumentTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
     QLineEdit *lineEditor = qobject_cast<QLineEdit *>(editor);
-    if (validateString(lineEditor->text())) {
+    if (validateString(lineEditor->text()))
+    {
         model->setData(index, lineEditor->text());
     }
 }
 
-void DocumentTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                                     const QModelIndex &index) const {
+void DocumentTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
     QStyledItemDelegate::paint(painter, option, index);
 }
 
 DocumentController::DocumentController(MainWindow *mainWindow)
-    : DocumentContainer(mainWindow->centralWidget()),
-      mSelectionType(None),
-      mParentWidget(mainWindow->centralWidget()),
-      mBoardController(Application::boardController),
-      mDocumentsView(0),
-      mMainWindow(mainWindow),
-      mDocumentWidget(0),
-      mIsClosing(false),
-      mToolsPalette(0),
-      mToolsPalettePositionned(false),
-      mDocumentTrashGroupName(tr("Trash")),
-      mDefaultDocumentGroupName(tr("Untitled Documents")),
-      mCurrentIndexMoved(false) {
+    : DocumentContainer(mainWindow->centralWidget()), mSelectionType(None), mParentWidget(mainWindow->centralWidget()),
+      mBoardController(Application::boardController), mDocumentsView(0), mMainWindow(mainWindow), mDocumentWidget(0), mIsClosing(false),
+      mToolsPalette(0), mToolsPalettePositionned(false), mDocumentTrashGroupName(tr("Trash")), mDefaultDocumentGroupName(tr("Untitled Documents")),
+      mCurrentIndexMoved(false)
+{
     setupViews();
     setupToolbar();
     connect(this, &DocumentController::exportDone, mMainWindow, &MainWindow::onExportDone);
-    connect(this, &DocumentContainer::documentThumbnailsUpdated, this,
-            &DocumentController::refreshDocumentThumbnailsView);
-    connect(this, &DocumentController::reorderDocumentsRequested, this,
-            &DocumentController::reorderDocuments);
+    connect(this, &DocumentContainer::documentThumbnailsUpdated, this, &DocumentController::refreshDocumentThumbnailsView);
+    connect(this, &DocumentController::reorderDocumentsRequested, this, &DocumentController::reorderDocuments);
 }
 
-DocumentController::~DocumentController() {
+DocumentController::~DocumentController()
+{
     // mDocumentsView 挂在 mDocumentWidget 的控件树里，随该容器一起由 Qt 销毁，
     // 这里不能再次 delete。
 }
 
-void DocumentController::createNewDocument() {
-    PersistenceManager *pManager = PersistenceManager::persistenceManager();
-    DocumentTreeModel *docModel = pManager->mDocumentTreeStructureModel;
-    QModelIndex selectedIndex = firstSelectedTreeIndex();
+void DocumentController::createNewDocument()
+{
+    PersistenceManager *pManager      = PersistenceManager::persistenceManager();
+    DocumentTreeModel  *docModel      = pManager->mDocumentTreeStructureModel;
+    QModelIndex         selectedIndex = firstSelectedTreeIndex();
 
     if (!selectedIndex.isValid())
+    {
         selectedIndex = docModel->myDocumentsIndex();
+    }
 
-    QString groupName = docModel->isCatalog(selectedIndex) ? docModel->virtualPathForIndex(selectedIndex)
-                                                           : docModel->virtualDirForIndex(selectedIndex);
+    QString groupName =
+        docModel->isCatalog(selectedIndex) ? docModel->virtualPathForIndex(selectedIndex) : docModel->virtualDirForIndex(selectedIndex);
 
     DocumentProxy *document = pManager->createDocument(groupName);
     selectDocument(document, true, false, true);
 
     if (document)
+    {
         pManager->mDocumentTreeStructureModel->markDocumentAsNew(document);
+    }
 }
 
-void DocumentController::selectDocument(DocumentProxy *proxy, bool setAsCurrentDocument, const bool onImport,
-                                        const bool editMode) {
-    if (proxy == NULL) {
+void DocumentController::selectDocument(DocumentProxy *proxy, bool setAsCurrentDocument, const bool onImport, const bool editMode)
+{
+    if (proxy == NULL)
+    {
         setDocument(NULL);
         return;
     }
 
-    if (setAsCurrentDocument) {
+    if (setAsCurrentDocument)
+    {
         PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->setCurrentDocument(proxy);
-        QModelIndex indexCurrentDoc =
-            PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->indexForProxy(proxy);
+        QModelIndex indexCurrentDoc = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->indexForProxy(proxy);
         mDocumentsView->documentTreeView()->setSelectedAndExpanded(indexCurrentDoc, true, editMode);
 
-        if (proxy !=
-            mBoardController
-                ->selectedDocument()) // 只有目标文档与画板上那份不同才重新装载，避免把当前文档再读一遍
+        if (proxy != mBoardController->selectedDocument()) // 只有目标文档与画板上那份不同才重新装载，避免把当前文档再读一遍
         {
             mBoardController->setActiveDocumentScene(proxy, 0, true, onImport);
         }
@@ -1594,68 +1865,76 @@ void DocumentController::selectDocument(DocumentProxy *proxy, bool setAsCurrentD
     setDocument(proxy);
 }
 
-void DocumentController::createNewDocumentGroup() {
-    PersistenceManager *pManager = PersistenceManager::persistenceManager();
-    DocumentTreeModel *docModel = pManager->mDocumentTreeStructureModel;
-    QModelIndex selectedIndex = firstSelectedTreeIndex();
-    if (!selectedIndex.isValid()) {
+void DocumentController::createNewDocumentGroup()
+{
+    PersistenceManager *pManager      = PersistenceManager::persistenceManager();
+    DocumentTreeModel  *docModel      = pManager->mDocumentTreeStructureModel;
+    QModelIndex         selectedIndex = firstSelectedTreeIndex();
+    if (!selectedIndex.isValid())
+    {
         selectedIndex = docModel->myDocumentsIndex();
     }
     QModelIndex parentIndex = docModel->isCatalog(selectedIndex) ? selectedIndex : selectedIndex.parent();
 
-    QString newFolderName = docModel->adjustNameForParentIndex(tr("New Folder"), parentIndex);
+    QString newFolderName   = docModel->adjustNameForParentIndex(tr("New Folder"), parentIndex);
 
-    QModelIndex newIndex = docModel->addCatalog(newFolderName, parentIndex);
+    QModelIndex newIndex    = docModel->addCatalog(newFolderName, parentIndex);
     mDocumentsView->documentTreeView()->setSelectedAndExpanded(newIndex, true, true);
 }
 
-
-DocumentProxy *DocumentController::selectedDocumentProxy() {
-    return PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->proxyForIndex(
-        firstSelectedTreeIndex());
+DocumentProxy *DocumentController::selectedDocumentProxy()
+{
+    return PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->proxyForIndex(firstSelectedTreeIndex());
 }
 
-QList<DocumentProxy *> DocumentController::selectedProxies() {
+QList<DocumentProxy *> DocumentController::selectedProxies()
+{
     QList<DocumentProxy *> result;
 
-    foreach (QModelIndex curIndex,
-             mapIndexesToSource(mDocumentsView->documentTreeView()->selectionModel()->selectedIndexes())) {
-        result << PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->proxyForIndex(
-            curIndex);
+    foreach (QModelIndex curIndex, mapIndexesToSource(mDocumentsView->documentTreeView()->selectionModel()->selectedIndexes()))
+    {
+        result << PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->proxyForIndex(curIndex);
     }
 
     return result;
 }
 
-QModelIndexList DocumentController::selectedTreeIndexes() {
+QModelIndexList DocumentController::selectedTreeIndexes()
+{
     return mapIndexesToSource(mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0));
 }
 
-DocumentProxy *DocumentController::firstSelectedTreeProxy() {
+DocumentProxy *DocumentController::firstSelectedTreeProxy()
+{
     return selectedProxies().count() ? selectedProxies().first() : 0;
 }
 
-void DocumentController::TreeViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous) {
+void DocumentController::TreeViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous)
+{
     Q_UNUSED(previous)
 
-    DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+    DocumentTreeModel *docModel         = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    QModelIndex current_index = mapIndexToSource(current);
+    QModelIndex current_index           = mapIndexToSource(current);
 
     // 多选时不显示任何页面的缩略图：把代理留空即可让缩略图区清空，
     // 避免用户误以为当前显示的页面属于整个选择。
     DocumentProxy *currentDocumentProxy = 0;
 
-    if (current_index.isValid() &&
-        mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0).size() == 1) {
+    if (current_index.isValid() && mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0).size() == 1)
+    {
         currentDocumentProxy = docModel->proxyData(current_index);
         setDocument(currentDocumentProxy, false);
     }
 
-    if (mCurrentIndexMoved) {
-        if (docModel->isDocument(current_index)) {
+    if (mCurrentIndexMoved)
+    {
+        if (docModel->isDocument(current_index))
+        {
             docModel->setCurrentDocument(currentDocumentProxy);
-        } else if (docModel->isCatalog(current_index)) {
+        }
+        else if (docModel->isCatalog(current_index))
+        {
             docModel->setCurrentDocument(0);
         }
         mCurrentIndexMoved = false;
@@ -1664,25 +1943,28 @@ void DocumentController::TreeViewSelectionChanged(const QModelIndex &current, co
     itemSelectionChanged(docModel->isCatalog(current_index) ? Folder : Document);
 }
 
-QModelIndex DocumentController::mapIndexToSource(const QModelIndex &index) {
-    SortFilterProxyModel *proxy =
-        dynamic_cast<SortFilterProxyModel *>(mDocumentsView->documentTreeView()->model());
+QModelIndex DocumentController::mapIndexToSource(const QModelIndex &index)
+{
+    SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(mDocumentsView->documentTreeView()->model());
 
-    if (proxy) {
+    if (proxy)
+    {
         return proxy->mapToSource(index);
     }
 
     return index;
 }
 
-QModelIndexList DocumentController::mapIndexesToSource(const QModelIndexList &indexes) {
-    SortFilterProxyModel *proxy =
-        dynamic_cast<SortFilterProxyModel *>(mDocumentsView->documentTreeView()->model());
+QModelIndexList DocumentController::mapIndexesToSource(const QModelIndexList &indexes)
+{
+    SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(mDocumentsView->documentTreeView()->model());
 
-    if (proxy) {
+    if (proxy)
+    {
         QModelIndexList list;
 
-        for (int i = 0; i < indexes.size(); i++) {
+        for (int i = 0; i < indexes.size(); i++)
+        {
             list.push_back(proxy->mapToSource(indexes.at(i)));
         }
 
@@ -1692,51 +1974,65 @@ QModelIndexList DocumentController::mapIndexesToSource(const QModelIndexList &in
     return indexes;
 }
 
-void DocumentController::TreeViewSelectionChanged(const QItemSelection &selected,
-                                                  const QItemSelection &deselected) {
+void DocumentController::TreeViewSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
     Q_UNUSED(deselected)
 
     int nbIndexes = selected.indexes().count();
 
-    if (nbIndexes) {
+    if (nbIndexes)
+    {
         QModelIndexList list = mDocumentsView->documentTreeView()->selectionModel()->selectedRows();
 
         // 多选时逐项处理；若某项的祖先也在选择中则跳过，
         // 因为祖先项的处理已经覆盖整棵子树。
-        if (list.count() > 1) {
-            for (int i = 0; i < list.count(); i++) {
-                QModelIndex newSelectedRow = list.at(i);
-                QModelIndex parent = newSelectedRow.parent();
-                bool isParentIsSelected = false;
-                while (parent.isValid()) {
+        if (list.count() > 1)
+        {
+            for (int i = 0; i < list.count(); i++)
+            {
+                QModelIndex newSelectedRow     = list.at(i);
+                QModelIndex parent             = newSelectedRow.parent();
+                bool        isParentIsSelected = false;
+                while (parent.isValid())
+                {
                     isParentIsSelected |= (list.indexOf(parent) != -1);
 
                     if (isParentIsSelected)
+                    {
                         break;
+                    }
 
                     parent = parent.parent();
                 }
 
                 if (!isParentIsSelected)
+                {
                     TreeViewSelectionChanged(newSelectedRow, QModelIndex());
+                }
                 else
+                {
                     mDocumentsView->documentTreeView()->selectionModel()->select(
                         newSelectedRow, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
+                }
             }
-        } else {
+        }
+        else
+        {
             TreeViewSelectionChanged(selected.indexes().at(0), QModelIndex());
         }
     }
 }
 
-void DocumentController::itemSelectionChanged(LastSelectedElementType newSelection) {
+void DocumentController::itemSelectionChanged(LastSelectedElementType newSelection)
+{
     mSelectionType = newSelection;
     updateActions();
 }
 
-
-void DocumentController::setupViews() {
-    if (!mDocumentWidget) {
+void DocumentController::setupViews()
+{
+    if (!mDocumentWidget)
+    {
         mDocumentWidget = new QWidget(mMainWindow->centralWidget());
         mMainWindow->addDocumentsWidget(mDocumentWidget);
 
@@ -1754,32 +2050,29 @@ void DocumentController::setupViews() {
         mDocumentsView->documentZoomSlider()->setValue(thumbWidth);
         mDocumentsView->thumbnailWidget()->setThumbnailWidth(thumbWidth);
 
-        connect(mDocumentsView->documentZoomSlider(), &QSlider::valueChanged, this,
-                &DocumentController::documentZoomSliderValueChanged);
+        connect(mDocumentsView->documentZoomSlider(), &QSlider::valueChanged, this, &DocumentController::documentZoomSliderValueChanged);
 
-        connect(mMainWindow->ui().actionOpen, &QAction::triggered, this,
-                &DocumentController::openSelectedItem);
-        connect(mMainWindow->ui().actionNewFolder, &QAction::triggered, this,
-                &DocumentController::createNewDocumentGroup);
-        connect(mMainWindow->ui().actionNewDocument, &QAction::triggered, this,
-                &DocumentController::createNewDocument);
+        connect(mMainWindow->ui().actionOpen, &QAction::triggered, this, &DocumentController::openSelectedItem);
+        connect(mMainWindow->ui().actionNewFolder, &QAction::triggered, this, &DocumentController::createNewDocumentGroup);
+        connect(mMainWindow->ui().actionNewDocument, &QAction::triggered, this, &DocumentController::createNewDocument);
 
         connect(mMainWindow->ui().actionImport, &QAction::triggered, this, &DocumentController::importFile);
 
-        QMenu *addMenu = new QMenu(mDocumentWidget);
+        QMenu *addMenu           = new QMenu(mDocumentWidget);
         mAddFolderOfImagesAction = addMenu->addAction(tr("Add Folder of Images"));
-        mAddImagesAction = addMenu->addAction(tr("Add Images"));
+        mAddImagesAction         = addMenu->addAction(tr("Add Images"));
         mAddFileToDocumentAction = addMenu->addAction(tr("Add Pages from File"));
 
         connect(mAddFolderOfImagesAction, &QAction::triggered, this, &DocumentController::addFolderOfImages);
-        connect(mAddFileToDocumentAction, &QAction::triggered, this,
-                qOverload<>(&DocumentController::addFileToDocument));
+        connect(mAddFileToDocumentAction, &QAction::triggered, this, qOverload<>(&DocumentController::addFileToDocument));
         connect(mAddImagesAction, &QAction::triggered, this, &DocumentController::addImages);
 
-        foreach (QWidget *menuWidget, mMainWindow->ui().actionDocumentAdd->associatedWidgets()) {
+        foreach (QWidget *menuWidget, mMainWindow->ui().actionDocumentAdd->associatedWidgets())
+        {
             QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
 
-            if (tb && !tb->menu()) {
+            if (tb && !tb->menu())
+            {
                 tb->setObjectName("buttonMenu");
                 tb->setPopupMode(QToolButton::InstantPopup);
 
@@ -1793,22 +2086,25 @@ void DocumentController::setupViews() {
             }
         }
 
-        QMenu *exportMenu = new QMenu(mDocumentWidget);
+        QMenu *exportMenu                = new QMenu(mDocumentWidget);
 
         DocumentManager *documentManager = DocumentManager::documentManager();
-        for (int i = 0; i < documentManager->supportedExportAdaptors().length(); i++) {
-            ExportAdaptor *adaptor = documentManager->supportedExportAdaptors()[i];
-            QAction *currentExportAction = exportMenu->addAction(adaptor->exportName());
+        for (int i = 0; i < documentManager->supportedExportAdaptors().length(); i++)
+        {
+            ExportAdaptor *adaptor             = documentManager->supportedExportAdaptors()[i];
+            QAction       *currentExportAction = exportMenu->addAction(adaptor->exportName());
             currentExportAction->setData(i);
             connect(currentExportAction, &QAction::triggered, this, &DocumentController::exportDocument);
             exportMenu->addAction(currentExportAction);
             adaptor->setAssociatedAction(currentExportAction);
         }
 
-        foreach (QWidget *menuWidget, mMainWindow->ui().actionExport->associatedWidgets()) {
+        foreach (QWidget *menuWidget, mMainWindow->ui().actionExport->associatedWidgets())
+        {
             QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
 
-            if (tb && !tb->menu()) {
+            if (tb && !tb->menu())
+            {
                 tb->setObjectName("buttonMenu");
                 tb->setPopupMode(QToolButton::InstantPopup);
 
@@ -1818,29 +2114,27 @@ void DocumentController::setupViews() {
 
         mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
 
-        connect(mMainWindow->ui().actionDelete, &QAction::triggered, this,
-                &DocumentController::deleteSelectedItem);
-        connect(mMainWindow->ui().actionDuplicate, &QAction::triggered, this,
-                &DocumentController::duplicateSelectedItem);
-        connect(mMainWindow->ui().actionRename, &QAction::triggered, this,
-                &DocumentController::renameSelectedItem);
-        connect(mMainWindow->ui().actionAddToWorkingDocument, &QAction::triggered, this,
-                &DocumentController::addToDocument);
+        connect(mMainWindow->ui().actionDelete, &QAction::triggered, this, &DocumentController::deleteSelectedItem);
+        connect(mMainWindow->ui().actionDuplicate, &QAction::triggered, this, &DocumentController::duplicateSelectedItem);
+        connect(mMainWindow->ui().actionRename, &QAction::triggered, this, &DocumentController::renameSelectedItem);
+        connect(mMainWindow->ui().actionAddToWorkingDocument, &QAction::triggered, this, &DocumentController::addToDocument);
 
         DocumentTreeModel *model = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-        mSortFilterProxyModel = new SortFilterProxyModel();
+        mSortFilterProxyModel    = new SortFilterProxyModel();
 
         mSortFilterProxyModel->setSourceModel(model);
 
         // 排序依据与方向来自用户设置，界面控件也要回填成同样的状态。
-        int sortKind = Settings::settings()->documentSortKind->get().toInt();
+        int sortKind  = Settings::settings()->documentSortKind->get().toInt();
         int sortOrder = Settings::settings()->documentSortOrder->get().toInt();
 
         // 下拉框与排序按钮反映当前设置，避免首次打开时界面与真实排序不一致。
         mDocumentsView->sortKind()->setCurrentIndex(sortKind);
         if (sortOrder == DocumentController::DESC)
+        {
             mDocumentsView->sortOrder()->setChecked(true);
+        }
 
         mDocumentsView->documentTreeView()->setModel(mSortFilterProxyModel);
 
@@ -1854,8 +2148,8 @@ void DocumentController::setupViews() {
         mDocumentsView->documentTreeView()->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
         mDocumentsView->documentTreeView()->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
-        const int splitterLeftSize = Settings::settings()->documentSplitterLeftSize->get().toInt();
-        const int splitterRightSize = Settings::settings()->documentSplitterRightSize->get().toInt();
+        const int  splitterLeftSize  = Settings::settings()->documentSplitterLeftSize->get().toInt();
+        const int  splitterRightSize = Settings::settings()->documentSplitterRightSize->get().toInt();
         QList<int> splitterSizes;
         splitterSizes.append(splitterLeftSize);
         splitterSizes.append(splitterRightSize);
@@ -1866,37 +2160,26 @@ void DocumentController::setupViews() {
 
         sortDocuments(sortKind, sortOrder);
 
-        connect(mDocumentsView->sortKind(), &QComboBox::activated, this,
-                &DocumentController::onSortKindChanged);
-        connect(mDocumentsView->sortOrder(), &QToolButton::toggled, this,
-                &DocumentController::onSortOrderChanged);
+        connect(mDocumentsView->sortKind(), &QComboBox::activated, this, &DocumentController::onSortKindChanged);
+        connect(mDocumentsView->sortOrder(), &QToolButton::toggled, this, &DocumentController::onSortOrderChanged);
 
-        connect(mDocumentsView->splitter(), &QSplitter::splitterMoved, this,
-                &DocumentController::onSplitterMoved);
+        connect(mDocumentsView->splitter(), &QSplitter::splitterMoved, this, &DocumentController::onSplitterMoved);
 
-        connect(mDocumentsView->documentTreeView()->selectionModel(), &QItemSelectionModel::selectionChanged,
-                this,
-                qOverload<const QItemSelection &, const QItemSelection &>(
-                    &DocumentController::TreeViewSelectionChanged));
-        connect(PersistenceManager::persistenceManager()->mDocumentTreeStructureModel,
-                &DocumentTreeModel::currentIndexMoved, this, &DocumentController::currentIndexMoved);
+        connect(mDocumentsView->documentTreeView()->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            qOverload<const QItemSelection &, const QItemSelection &>(&DocumentController::TreeViewSelectionChanged));
+        connect(PersistenceManager::persistenceManager()->mDocumentTreeStructureModel, &DocumentTreeModel::currentIndexMoved, this,
+            &DocumentController::currentIndexMoved);
 
-        connect(mDocumentsView->thumbnailWidget(), &DocumentThumbnailWidget::sceneDropped, this,
-                &DocumentController::moveSceneToIndex);
-        connect(mDocumentsView->thumbnailWidget(), &ThumbnailWidget::resized, this,
-                &DocumentController::thumbnailViewResized);
-        connect(mDocumentsView->thumbnailWidget(), &ThumbnailWidget::mouseDoubleClick, this,
-                &DocumentController::thumbnailPageDoubleClicked);
-        connect(mDocumentsView->thumbnailWidget(), &ThumbnailWidget::mouseClick, this,
-                &DocumentController::pageClicked);
+        connect(mDocumentsView->thumbnailWidget(), &DocumentThumbnailWidget::sceneDropped, this, &DocumentController::moveSceneToIndex);
+        connect(mDocumentsView->thumbnailWidget(), &ThumbnailWidget::resized, this, &DocumentController::thumbnailViewResized);
+        connect(mDocumentsView->thumbnailWidget(), &ThumbnailWidget::mouseDoubleClick, this, &DocumentController::thumbnailPageDoubleClicked);
+        connect(mDocumentsView->thumbnailWidget(), &ThumbnailWidget::mouseClick, this, &DocumentController::pageClicked);
 
-        connect(mDocumentsView->thumbnailWidget()->scene(), &QGraphicsScene::selectionChanged, this,
-                &DocumentController::pageSelectionChanged);
+        connect(mDocumentsView->thumbnailWidget()->scene(), &QGraphicsScene::selectionChanged, this, &DocumentController::pageSelectionChanged);
 
-        connect(PersistenceManager::persistenceManager(), &PersistenceManager::documentSceneCreated, this,
-                &DocumentController::documentSceneChanged);
-        connect(PersistenceManager::persistenceManager(), &PersistenceManager::documentSceneWillBeDeleted,
-                this, &DocumentController::documentSceneChanged);
+        connect(PersistenceManager::persistenceManager(), &PersistenceManager::documentSceneCreated, this, &DocumentController::documentSceneChanged);
+        connect(PersistenceManager::persistenceManager(), &PersistenceManager::documentSceneWillBeDeleted, this,
+            &DocumentController::documentSceneChanged);
 
         mDocumentsView->thumbnailWidget()->setBackgroundBrush(Settings::documentViewLightColor);
 
@@ -1907,54 +2190,68 @@ void DocumentController::setupViews() {
     }
 }
 
-void DocumentController::refreshDateColumns() {
-    if (Settings::settings()->documentSortKind->get().toInt() == DocumentController::Alphabetical) {
-        if (!Settings::settings()->showDateColumnOnAlphabeticalSort->get().toBool()) {
+void DocumentController::refreshDateColumns()
+{
+    if (Settings::settings()->documentSortKind->get().toInt() == DocumentController::Alphabetical)
+    {
+        if (!Settings::settings()->showDateColumnOnAlphabeticalSort->get().toBool())
+        {
             mDocumentsView->documentTreeView()->hideColumn(1);
             mDocumentsView->documentTreeView()->hideColumn(2);
-        } else {
+        }
+        else
+        {
             mDocumentsView->documentTreeView()->showColumn(1);
             mDocumentsView->documentTreeView()->hideColumn(2);
         }
     }
 }
 
-void DocumentController::reorderDocuments() {
-    int kindIndex = mDocumentsView->sortKind()->currentIndex();
-    int orderIndex =
-        mDocumentsView->sortOrder()->isChecked() ? DocumentController::DESC : DocumentController::ASC;
+void DocumentController::reorderDocuments()
+{
+    int kindIndex  = mDocumentsView->sortKind()->currentIndex();
+    int orderIndex = mDocumentsView->sortOrder()->isChecked() ? DocumentController::DESC : DocumentController::ASC;
 
     sortDocuments(kindIndex, orderIndex);
 }
 
-void DocumentController::sortDocuments(int kind, int order) {
+void DocumentController::sortDocuments(int kind, int order)
+{
     Qt::SortOrder sortOrder = Qt::AscendingOrder;
     if (order == DocumentController::DESC)
+    {
         sortOrder = Qt::DescendingOrder;
+    }
 
-    if (kind == DocumentController::CreationDate) {
+    if (kind == DocumentController::CreationDate)
+    {
         mSortFilterProxyModel->setSortRole(DocumentTreeModel::CreationDate);
         mSortFilterProxyModel->sort(1, sortOrder);
         mDocumentsView->documentTreeView()->showColumn(1);
         mDocumentsView->documentTreeView()->hideColumn(2);
-    } else if (kind == DocumentController::UpdateDate) {
+    }
+    else if (kind == DocumentController::UpdateDate)
+    {
         mSortFilterProxyModel->setSortRole(DocumentTreeModel::UpdateDate);
         mSortFilterProxyModel->sort(2, sortOrder);
         mDocumentsView->documentTreeView()->hideColumn(1);
         mDocumentsView->documentTreeView()->showColumn(2);
-    } else {
+    }
+    else
+    {
         mSortFilterProxyModel->setSortRole(Qt::DisplayRole);
         mSortFilterProxyModel->sort(0, sortOrder);
-        if (!Settings::settings()->showDateColumnOnAlphabeticalSort->get().toBool()) {
+        if (!Settings::settings()->showDateColumnOnAlphabeticalSort->get().toBool())
+        {
             mDocumentsView->documentTreeView()->hideColumn(1);
             mDocumentsView->documentTreeView()->hideColumn(2);
         }
     }
 }
 
-
-void DocumentController::onSortOrderChanged(bool order) {
-    int kindIndex = mDocumentsView->sortKind()->currentIndex();
+void DocumentController::onSortOrderChanged(bool order)
+{
+    int kindIndex  = mDocumentsView->sortKind()->currentIndex();
     int orderIndex = order ? DocumentController::DESC : DocumentController::ASC;
 
     sortDocuments(kindIndex, orderIndex);
@@ -1962,34 +2259,35 @@ void DocumentController::onSortOrderChanged(bool order) {
     Settings::settings()->documentSortOrder->setInt(orderIndex);
 }
 
-void DocumentController::onSortKindChanged(int index) {
-    int orderIndex =
-        mDocumentsView->sortOrder()->isChecked() ? DocumentController::DESC : DocumentController::ASC;
+void DocumentController::onSortKindChanged(int index)
+{
+    int orderIndex = mDocumentsView->sortOrder()->isChecked() ? DocumentController::DESC : DocumentController::ASC;
 
     sortDocuments(index, orderIndex);
 
     Settings::settings()->documentSortKind->setInt(index);
 }
 
-void DocumentController::onSplitterMoved(int size, int index) {
+void DocumentController::onSplitterMoved(int size, int index)
+{
     Q_UNUSED(index);
     Settings::settings()->documentSplitterLeftSize->setInt(size);
     Settings::settings()->documentSplitterRightSize->setInt(controlView()->size().width() - size);
 }
 
-QWidget *DocumentController::controlView() {
+QWidget *DocumentController::controlView()
+{
     return mDocumentWidget;
 }
 
-
-void DocumentController::setupToolbar() {
-    Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().documentToolBar,
-                                                         mMainWindow->ui().actionBoard);
-    connect(mMainWindow->ui().actionDocumentTools, &QAction::triggered, this,
-            &DocumentController::toggleDocumentToolsPalette);
+void DocumentController::setupToolbar()
+{
+    Application::app()->insertSpaceToToolbarBeforeAction(mMainWindow->ui().documentToolBar, mMainWindow->ui().actionBoard);
+    connect(mMainWindow->ui().actionDocumentTools, &QAction::triggered, this, &DocumentController::toggleDocumentToolsPalette);
 }
 
-void DocumentController::setupPalettes() {
+void DocumentController::setupPalettes()
+{
     mToolsPalette = new DocumentToolsPalette(controlView());
 
     mToolsPalette->hide();
@@ -1997,12 +2295,14 @@ void DocumentController::setupPalettes() {
     bool showToolsPalette = !mToolsPalette->isEmpty();
     mMainWindow->ui().actionDocumentTools->setVisible(showToolsPalette);
 
-    if (showToolsPalette) {
+    if (showToolsPalette)
+    {
         mMainWindow->ui().actionDocumentTools->trigger();
     }
 }
 
-void DocumentController::show() {
+void DocumentController::show()
+{
     selectDocument(mBoardController->selectedDocument());
 
     // 看板可能在文档模式不可见期间改过页面，重新加载一次保证缩略图与磁盘一致。
@@ -2011,35 +2311,43 @@ void DocumentController::show() {
     updateActions();
 
     if (!mToolsPalette)
+    {
         setupPalettes();
+    }
 }
 
-
-void DocumentController::hide() {
+void DocumentController::hide()
+{
     // 离开文档模式不需要额外处理：缩略图与选择状态保留，下次 show() 会刷新。
 }
 
-
-void DocumentController::openSelectedItem() {
+void DocumentController::openSelectedItem()
+{
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     QList<QGraphicsItem *> selectedItems = mDocumentsView->thumbnailWidget()->selectedItems();
 
-    if (selectedItems.count() > 0) {
+    if (selectedItems.count() > 0)
+    {
         SceneThumbnailPixmap *thumb = dynamic_cast<SceneThumbnailPixmap *>(selectedItems.last());
 
-        if (thumb) {
+        if (thumb)
+        {
             DocumentProxy *proxy = thumb->proxy();
 
-            if (proxy && isOKToOpenDocument(proxy)) {
+            if (proxy && isOKToOpenDocument(proxy))
+            {
                 mBoardController->setActiveDocumentScene(proxy, thumb->sceneIndex());
                 Application::applicationController->showBoard();
             }
         }
-    } else {
+    }
+    else
+    {
         DocumentProxy *proxy = selectedDocumentProxy();
 
-        if (proxy && isOKToOpenDocument(proxy)) {
+        if (proxy && isOKToOpenDocument(proxy))
+        {
             mBoardController->setActiveDocumentScene(proxy);
             Application::applicationController->showBoard();
         }
@@ -2048,29 +2356,36 @@ void DocumentController::openSelectedItem() {
     QApplication::restoreOverrideCursor();
 }
 
-void DocumentController::duplicateSelectedItem() {
+void DocumentController::duplicateSelectedItem()
+{
     if (Application::applicationController->displayMode() != ApplicationController::Document)
+    {
         return;
+    }
 
-    if (mSelectionType == Page) {
+    if (mSelectionType == Page)
+    {
         QList<QGraphicsItem *> selectedItems = mDocumentsView->thumbnailWidget()->selectedItems();
-        QList<int> selectedSceneIndexes;
-        foreach (QGraphicsItem *item, selectedItems) {
+        QList<int>             selectedSceneIndexes;
+        foreach (QGraphicsItem *item, selectedItems)
+        {
             SceneThumbnailPixmap *thumb = dynamic_cast<SceneThumbnailPixmap *>(item);
-            if (thumb) {
+            if (thumb)
+            {
                 DocumentProxy *proxy = thumb->proxy();
 
-                if (proxy) {
+                if (proxy)
+                {
                     int sceneIndex = thumb->sceneIndex();
                     selectedSceneIndexes << sceneIndex;
                 }
             }
         }
-        if (selectedSceneIndexes.count() > 0) {
+        if (selectedSceneIndexes.count() > 0)
+        {
             duplicatePages(selectedSceneIndexes);
             emit documentThumbnailsUpdated(this);
-            selectedDocument()->setMetaData(Settings::documentUpdatedAt,
-                                            StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+            selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
             MetadataDcSubsetAdaptor::persist(selectedDocument());
             int selectedThumbnail = selectedSceneIndexes.last() + selectedSceneIndexes.size();
             mDocumentsView->thumbnailWidget()->selectItemAt(selectedThumbnail);
@@ -2080,16 +2395,17 @@ void DocumentController::duplicateSelectedItem() {
             mBoardController->setActiveDocumentScene(selectedThumbnail);
             mBoardController->reloadThumbnails();
         }
-    } else {
-        DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-        QModelIndex selectedIndex = firstSelectedTreeIndex();
+    }
+    else
+    {
+        DocumentTreeModel *docModel      = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+        QModelIndex        selectedIndex = firstSelectedTreeIndex();
 
         Q_ASSERT(!docModel->isConstant(selectedIndex) && !docModel->inTrash(selectedIndex));
 
         showMessage(tr("Duplicating Document %1").arg(""), true);
 
-        docModel->copyIndexToNewParent(selectedIndex, selectedIndex.parent(),
-                                       DocumentTreeModel::aContentCopy);
+        docModel->copyIndexToNewParent(selectedIndex, selectedIndex.parent(), DocumentTreeModel::aContentCopy);
 
         showMessage(tr("Document %1 copied").arg(""), false);
     }
@@ -2097,26 +2413,33 @@ void DocumentController::duplicateSelectedItem() {
     emit reorderDocumentsRequested();
 }
 
-void DocumentController::deleteSelectedItem() {
+void DocumentController::deleteSelectedItem()
+{
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    if (!Application::mainWindow->yesNoQuestion(tr("Remove Item"),
-                                                tr("Are you sure you want to remove the selected item(s) ?")))
+    if (!Application::mainWindow->yesNoQuestion(tr("Remove Item"), tr("Are you sure you want to remove the selected item(s) ?")))
+    {
         return;
+    }
 
     QModelIndexList indexes = selectedTreeIndexes();
 
-    if (indexes.size() > 1) {
+    if (indexes.size() > 1)
+    {
         deleteMultipleItems(indexes, docModel);
-    } else if (indexes.size() == 1) {
+    }
+    else if (indexes.size() == 1)
+    {
         deleteSingleItem(indexes.at(0), docModel);
     }
 
     updateActions();
 }
 
-void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTreeModel *docModel) {
-    if (mSelectionType == Page) {
+void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTreeModel *docModel)
+{
+    if (mSelectionType == Page)
+    {
         deletePages(mDocumentsView->thumbnailWidget()->selectedItems());
         return;
     }
@@ -2127,70 +2450,86 @@ void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTr
     // 用 QPersistentModelIndex 保存选择：每删/移走一项，后面索引的行号会被自动校正，
     // 不会拿着过期的 row 去 removeRow。
     QList<QPersistentModelIndex> pending;
-    QSet<QPersistentModelIndex> selected;
+    QSet<QPersistentModelIndex>  selected;
     pending.reserve(indexes.size());
-    foreach (const QModelIndex &index, indexes) {
+    foreach (const QModelIndex &index, indexes)
+    {
         QPersistentModelIndex persistent(index);
-        if (persistent.isValid()) {
+        if (persistent.isValid())
+        {
             pending.append(persistent);
             selected.insert(persistent);
         }
     }
 
-    for (const QPersistentModelIndex &persistent : pending) {
-        if (!persistent.isValid()) {
+    for (const QPersistentModelIndex &persistent : pending)
+    {
+        if (!persistent.isValid())
+        {
             continue;
         }
 
         // 祖先也被选中时跳过：处理祖先时已经把整棵子树搬走或删掉了。
         bool ancestorSelected = false;
-        for (QModelIndex ancestor = persistent.parent(); ancestor.isValid(); ancestor = ancestor.parent()) {
-            if (selected.contains(QPersistentModelIndex(ancestor))) {
+        for (QModelIndex ancestor = persistent.parent(); ancestor.isValid(); ancestor = ancestor.parent())
+        {
+            if (selected.contains(QPersistentModelIndex(ancestor)))
+            {
                 ancestorSelected = true;
                 break;
             }
         }
-        if (ancestorSelected) {
+        if (ancestorSelected)
+        {
             continue;
         }
 
         const QModelIndex index = persistent;
-        switch (deletionTypeForSelection(mSelectionType, index, docModel)) {
+        switch (deletionTypeForSelection(mSelectionType, index, docModel))
+        {
             case DeletePage:
                 deletePages(mDocumentsView->thumbnailWidget()->selectedItems());
                 break;
             case MoveToTrash:
                 moveIndexesToTrash(QModelIndexList{index}, docModel);
                 break;
-            case CompleteDelete: {
+            case CompleteDelete:
+            {
                 DocumentProxy *newProxy = docModel->proxyData(index);
-                if (newProxy) {
+                if (newProxy)
+                {
                     pureSetDocument(newProxy);
                 }
                 emit documentThumbnailsUpdated(this);
                 deleteIndexAndAssociatedData(index);
                 break;
             }
-            case EmptyFolder: {
-                if (index ==
-                    docModel->myDocumentsIndex()) { //清空“我的文档”：所有条目移入回收站，随后补一个空白文档
-                    while (docModel->rowCount(index)) {
+            case EmptyFolder:
+            {
+                if (index == docModel->myDocumentsIndex())
+                { // 清空“我的文档”：所有条目移入回收站，随后补一个空白文档
+                    while (docModel->rowCount(index))
+                    {
                         QModelIndex subIndex = docModel->index(0, 0, index);
-                        if (!subIndex.isValid()) {
+                        if (!subIndex.isValid())
+                        {
                             break;
                         }
                         docModel->moveIndex(subIndex, docModel->trashIndex());
                     }
                     createEmptyDocument();
-                } else {
-                    DocumentTreeNode *currentNode = docModel->nodeFromIndex(index);
-                    bool deleteCurrentScene =
-                        currentNode->findNode(docModel->nodeFromIndex(docModel->currentIndex()));
+                }
+                else
+                {
+                    DocumentTreeNode *currentNode        = docModel->nodeFromIndex(index);
+                    bool              deleteCurrentScene = currentNode->findNode(docModel->nodeFromIndex(docModel->currentIndex()));
 
-                    emptyFolder(index, MoveToTrash); //Empty constant folder
+                    emptyFolder(index, MoveToTrash); // Empty constant folder
 
                     if (deleteCurrentScene)
+                    {
                         createEmptyDocument();
+                    }
                 }
                 break;
             }
@@ -2203,23 +2542,28 @@ void DocumentController::deleteMultipleItems(QModelIndexList indexes, DocumentTr
     }
 }
 
-void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTreeModel *docModel) {
+void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTreeModel *docModel)
+{
     DeletionType deletionForSelection = deletionTypeForSelection(mSelectionType, currentIndex, docModel);
 
-    switch (deletionForSelection) {
-        case DeletePage: {
+    switch (deletionForSelection)
+    {
+        case DeletePage:
+        {
             deletePages(mDocumentsView->thumbnailWidget()->selectedItems());
             break;
         }
-        case MoveToTrash: {
+        case MoveToTrash:
+        {
             moveToTrash(currentIndex, docModel);
             break;
         }
-        case CompleteDelete: {
-            DocumentTreeModel *docModel =
-                PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-            DocumentProxy *newProxy = docModel->proxyData(currentIndex);
-            if (newProxy) {
+        case CompleteDelete:
+        {
+            DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+            DocumentProxy     *newProxy = docModel->proxyData(currentIndex);
+            if (newProxy)
+            {
                 pureSetDocument(newProxy);
             }
             emit documentThumbnailsUpdated(this);
@@ -2227,54 +2571,65 @@ void DocumentController::deleteSingleItem(QModelIndex currentIndex, DocumentTree
 
             break;
         }
-        case EmptyFolder: {
-            if (currentIndex ==
-                docModel->myDocumentsIndex()) { //清空“我的文档”：所有条目移入回收站，随后补一个空白文档
+        case EmptyFolder:
+        {
+            if (currentIndex == docModel->myDocumentsIndex())
+            { // 清空“我的文档”：所有条目移入回收站，随后补一个空白文档
                 int startInd = 0;
                 // 每次总删第 0 行：移走一项后后面的行号自动前移，直到目录为空。
-                while (docModel->rowCount(currentIndex)) {
+                while (docModel->rowCount(currentIndex))
+                {
                     QModelIndex testSubINdecurrentIndex = docModel->index(startInd, 0, currentIndex);
-                    if (!testSubINdecurrentIndex.isValid()) {
+                    if (!testSubINdecurrentIndex.isValid())
+                    {
                         break;
                     }
                     docModel->moveIndex(testSubINdecurrentIndex, docModel->trashIndex());
                 }
                 // 走到这里说明当前场景已被移走，补一份空白文档让看板有内容可显示。
                 createEmptyDocument();
-            } else {
+            }
+            else
+            {
                 // 先判断当前场景是否位于将被清空的目录里，清空后需要新建空白文档顶替。
-                DocumentTreeNode *currentNode = docModel->nodeFromIndex(currentIndex);
-                bool deleteCurrentScene =
-                    currentNode->findNode(docModel->nodeFromIndex(docModel->currentIndex()));
+                DocumentTreeNode *currentNode        = docModel->nodeFromIndex(currentIndex);
+                bool              deleteCurrentScene = currentNode->findNode(docModel->nodeFromIndex(docModel->currentIndex()));
 
-                emptyFolder(currentIndex, MoveToTrash); //清空普通目录：内容移入回收站
+                emptyFolder(currentIndex, MoveToTrash); // 清空普通目录：内容移入回收站
 
                 if (deleteCurrentScene)
+                {
                     createEmptyDocument();
+                }
             }
 
             break;
         }
-        case EmptyTrash: {
+        case EmptyTrash:
+        {
             emptyFolder(currentIndex, CompleteDelete); // Empty trash folder
             break;
         }
     }
 }
 
-void DocumentController::moveIndexesToTrash(const QModelIndexList &list, DocumentTreeModel *docModel) {
-    QModelIndex currentScene = docModel->indexForNode(docModel->currentNode());
+void DocumentController::moveIndexesToTrash(const QModelIndexList &list, DocumentTreeModel *docModel)
+{
+    QModelIndex currentScene                = docModel->indexForNode(docModel->currentNode());
 
     // 判断当前文档是否在待移走的集合里：先看它自身是否被选中，
     // 再看它是否位于某个被选中的目录之下。
-    QItemSelectionModel *selectionModel = mDocumentsView->documentTreeView()->selectionModel();
-    bool deleteCurrentScene = selectionModel->isSelected(mSortFilterProxyModel->mapFromSource(currentScene));
+    QItemSelectionModel *selectionModel     = mDocumentsView->documentTreeView()->selectionModel();
+    bool                 deleteCurrentScene = selectionModel->isSelected(mSortFilterProxyModel->mapFromSource(currentScene));
 
-    if (!deleteCurrentScene) {
-        for (int i = 0; i < list.size(); i++) {
+    if (!deleteCurrentScene)
+    {
+        for (int i = 0; i < list.size(); i++)
+        {
             deleteCurrentScene = docModel->isDescendantOf(currentScene, list.at(i));
 
-            if (deleteCurrentScene) {
+            if (deleteCurrentScene)
+            {
                 break;
             }
         }
@@ -2282,108 +2637,145 @@ void DocumentController::moveIndexesToTrash(const QModelIndexList &list, Documen
 
     QModelIndex proxyMapCurentScene = mSortFilterProxyModel->mapFromSource(currentScene);
 
-    if (deleteCurrentScene) {
+    if (deleteCurrentScene)
+    {
         QModelIndex sibling = findPreviousSiblingNotSelected(proxyMapCurentScene, selectionModel);
 
-        if (sibling.isValid()) {
+        if (sibling.isValid())
+        {
             QModelIndex sourceSibling = mSortFilterProxyModel->mapToSource(sibling);
 
-            DocumentProxy *proxy = docModel->proxyForIndex(sourceSibling);
+            DocumentProxy *proxy      = docModel->proxyForIndex(sourceSibling);
 
-            if (proxy) {
+            if (proxy)
+            {
                 selectDocument(proxy, true);
 
                 deleteCurrentScene = false;
             }
-        } else {
+        }
+        else
+        {
             sibling = findNextSiblingNotSelected(proxyMapCurentScene, selectionModel);
 
-            if (sibling.isValid()) {
+            if (sibling.isValid())
+            {
                 QModelIndex sourceSibling = mSortFilterProxyModel->mapToSource(sibling);
 
-                DocumentProxy *proxy = docModel->proxyForIndex(sourceSibling);
+                DocumentProxy *proxy      = docModel->proxyForIndex(sourceSibling);
 
-                if (proxy) {
+                if (proxy)
+                {
                     selectDocument(proxy, true);
 
                     deleteCurrentScene = false;
                 }
             }
         }
-    } else {
+    }
+    else
+    {
         DocumentProxy *proxy = docModel->proxyForIndex(currentScene);
         selectDocument(proxy, true);
     }
 
     docModel->moveIndexes(list, docModel->trashIndex());
 
-    if (deleteCurrentScene) {
+    if (deleteCurrentScene)
+    {
         // 当前文档已被移入回收站且没有可回落的兄弟项，补一份空白文档。
         createEmptyDocument();
     }
 }
 
-QModelIndex DocumentController::findPreviousSiblingNotSelected(const QModelIndex &index,
-                                                               QItemSelectionModel *selectionModel) {
+QModelIndex DocumentController::findPreviousSiblingNotSelected(const QModelIndex &index, QItemSelectionModel *selectionModel)
+{
     QModelIndex sibling = index.sibling(index.row() - 1, 0);
 
-    if (sibling.isValid()) {
-        if (!parentIsSelected(sibling, selectionModel) && !selectionModel->isSelected(sibling)) {
+    if (sibling.isValid())
+    {
+        if (!parentIsSelected(sibling, selectionModel) && !selectionModel->isSelected(sibling))
+        {
             QModelIndex model = mSortFilterProxyModel->mapToSource(sibling);
 
-            if (PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->isCatalog(model)) {
+            if (PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->isCatalog(model))
+            {
                 return findPreviousSiblingNotSelected(sibling, selectionModel);
-            } else {
+            }
+            else
+            {
                 return sibling;
             }
-        } else {
+        }
+        else
+        {
             return findPreviousSiblingNotSelected(sibling, selectionModel);
         }
-    } else {
+    }
+    else
+    {
         // 没有上一个兄弟项时退到父级继续查找，直到顶层；父级无效说明已经找遍。
         QModelIndex parent = index.model()->parent(index);
 
-        if (parent.isValid()) {
+        if (parent.isValid())
+        {
             return findPreviousSiblingNotSelected(parent, selectionModel);
-        } else {
+        }
+        else
+        {
             return QModelIndex();
         }
     }
 }
 
-QModelIndex DocumentController::findNextSiblingNotSelected(const QModelIndex &index,
-                                                           QItemSelectionModel *selectionModel) {
+QModelIndex DocumentController::findNextSiblingNotSelected(const QModelIndex &index, QItemSelectionModel *selectionModel)
+{
     QModelIndex sibling = index.sibling(index.row() + 1, 0);
 
-    if (sibling.isValid()) {
-        if (!parentIsSelected(sibling, selectionModel) && !selectionModel->isSelected(sibling)) {
+    if (sibling.isValid())
+    {
+        if (!parentIsSelected(sibling, selectionModel) && !selectionModel->isSelected(sibling))
+        {
             QModelIndex model = mSortFilterProxyModel->mapToSource(sibling);
 
-            if (PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->isCatalog(model)) {
+            if (PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->isCatalog(model))
+            {
                 return findNextSiblingNotSelected(sibling, selectionModel);
-            } else {
+            }
+            else
+            {
                 return sibling;
             }
-        } else {
+        }
+        else
+        {
             return findNextSiblingNotSelected(sibling, selectionModel);
         }
-    } else {
+    }
+    else
+    {
         // 没有下一个兄弟项时退到父级继续查找，直到顶层；父级无效说明已经找遍。
         QModelIndex parent = index.parent();
 
-        if (parent.isValid()) {
+        if (parent.isValid())
+        {
             return findNextSiblingNotSelected(parent, selectionModel);
-        } else {
+        }
+        else
+        {
             return QModelIndex();
         }
     }
 }
 
-bool DocumentController::parentIsSelected(const QModelIndex &child, QItemSelectionModel *selectionModel) {
+bool DocumentController::parentIsSelected(const QModelIndex &child, QItemSelectionModel *selectionModel)
+{
     QModelIndex parent = child.parent();
 
-    while (parent.isValid()) {
-        if (selectionModel->isSelected(parent)) {
+    while (parent.isValid())
+    {
+        if (selectionModel->isSelected(parent))
+        {
             return true;
         }
 
@@ -2393,69 +2785,91 @@ bool DocumentController::parentIsSelected(const QModelIndex &child, QItemSelecti
     return false;
 }
 
-void DocumentController::moveToTrash(QModelIndex &index, DocumentTreeModel *docModel) {
+void DocumentController::moveToTrash(QModelIndex &index, DocumentTreeModel *docModel)
+{
     QModelIndexList list;
     list.push_back(index);
     moveIndexesToTrash(list, docModel);
 }
 
-void DocumentController::deleteDocumentsInFolderOlderThan(const QModelIndex &index, const int days) {
+void DocumentController::deleteDocumentsInFolderOlderThan(const QModelIndex &index, const int days)
+{
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
     QModelIndexList list;
-    for (int i = 0; i < docModel->rowCount(index); i++) {
+    for (int i = 0; i < docModel->rowCount(index); i++)
+    {
         list << docModel->index(i, 0, index);
     }
 
-    foreach (QModelIndex child, list) {
+    foreach (QModelIndex child, list)
+    {
         DocumentProxy *documentProxy = docModel->proxyForIndex(child);
 
-        if (documentProxy) {
-            if (documentProxy->lastUpdate().date() < QDateTime::currentDateTime().addDays(-days).date()) {
+        if (documentProxy)
+        {
+            if (documentProxy->lastUpdate().date() < QDateTime::currentDateTime().addDays(-days).date())
+            {
                 PersistenceManager::persistenceManager()->deleteDocument(documentProxy);
             }
-        } else {
-            if (docModel->isCatalog(child)) {
+        }
+        else
+        {
+            if (docModel->isCatalog(child))
+            {
                 deleteDocumentsInFolderOlderThan(child, days);
             }
         }
     }
 }
 
-void DocumentController::deleteEmptyFolders(const QModelIndex &index) {
+void DocumentController::deleteEmptyFolders(const QModelIndex &index)
+{
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
     QModelIndexList list;
-    for (int i = 0; i < docModel->rowCount(index); i++) {
+    for (int i = 0; i < docModel->rowCount(index); i++)
+    {
         list << docModel->index(i, 0, index);
     }
 
-    if (list.length() > 0) {
-        foreach (QModelIndex child, list) {
-            if (docModel->isCatalog(child)) {
-                if (!docModel->containsDocuments(child)) {
+    if (list.length() > 0)
+    {
+        foreach (QModelIndex child, list)
+        {
+            if (docModel->isCatalog(child))
+            {
+                if (!docModel->containsDocuments(child))
+                {
                     deleteIndexAndAssociatedData(child);
                 }
             }
         }
-    } else {
-        if (docModel->isCatalog(index)) {
+    }
+    else
+    {
+        if (docModel->isCatalog(index))
+        {
             deleteIndexAndAssociatedData(index);
         }
     }
 }
 
-void DocumentController::emptyFolder(const QModelIndex &index, DeletionType pDeletionType) {
+void DocumentController::emptyFolder(const QModelIndex &index, DeletionType pDeletionType)
+{
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-    if (!docModel->isCatalog(index)) {
+    if (!docModel->isCatalog(index))
+    {
         return;
     }
     // 始终删除第 0 行：每移走/删掉一项，剩余条目的行号都会前移，直到目录清空。
-    while (docModel->rowCount(index)) {
+    while (docModel->rowCount(index))
+    {
         QModelIndex subIndex = docModel->index(0, 0, index);
-        switch (pDeletionType) {
+        switch (pDeletionType)
+        {
             case MoveToTrash:
                 docModel->moveIndex(subIndex, docModel->trashIndex());
                 break;
@@ -2471,19 +2885,24 @@ void DocumentController::emptyFolder(const QModelIndex &index, DeletionType pDel
     QApplication::restoreOverrideCursor();
 }
 
-void DocumentController::deleteIndexAndAssociatedData(const QModelIndex &pIndex) {
+void DocumentController::deleteIndexAndAssociatedData(const QModelIndex &pIndex)
+{
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
     // 自底向上删除：先清空子树，保证删除目录时其下每份文档都走到 deleteDocument。
-    while (docModel->rowCount(pIndex)) {
+    while (docModel->rowCount(pIndex))
+    {
         QModelIndex subIndex = docModel->index(0, 0, pIndex);
         deleteIndexAndAssociatedData(subIndex);
     }
 
-    if (pIndex.column() == 0) {
-        if (docModel->isDocument(pIndex)) {
+    if (pIndex.column() == 0)
+    {
+        if (docModel->isDocument(pIndex))
+        {
             DocumentProxy *proxyData = docModel->proxyData(pIndex);
 
-            if (proxyData) {
+            if (proxyData)
+            {
                 PersistenceManager::persistenceManager()->deleteDocument(proxyData);
             }
         }
@@ -2492,69 +2911,79 @@ void DocumentController::deleteIndexAndAssociatedData(const QModelIndex &pIndex)
     docModel->removeRow(pIndex.row(), pIndex.parent());
 }
 
-void DocumentController::exportDocument() {
-    QAction *currentExportAction = qobject_cast<QAction *>(sender());
-    QVariant actionData = currentExportAction->data();
-    ExportAdaptor *selectedExportAdaptor =
-        DocumentManager::documentManager()->supportedExportAdaptors()[actionData.toInt()];
+void DocumentController::exportDocument()
+{
+    QAction       *currentExportAction   = qobject_cast<QAction *>(sender());
+    QVariant       actionData            = currentExportAction->data();
+    ExportAdaptor *selectedExportAdaptor = DocumentManager::documentManager()->supportedExportAdaptors()[actionData.toInt()];
 
-    DocumentProxy *proxy = firstSelectedTreeProxy();
+    DocumentProxy *proxy                 = firstSelectedTreeProxy();
 
     selectedExportAdaptor->persist(proxy);
     emit exportDone();
 }
 
-void DocumentController::exportDocumentSet() {}
+void DocumentController::exportDocumentSet()
+{
+}
 
-void DocumentController::documentZoomSliderValueChanged(int value) {
+void DocumentController::documentZoomSliderValueChanged(int value)
+{
     mDocumentsView->thumbnailWidget()->setThumbnailWidth(value);
 
     Settings::settings()->documentThumbnailWidth->set(value);
 }
 
-void DocumentController::importFile() {
+void DocumentController::importFile()
+{
     DocumentManager *docManager = DocumentManager::documentManager();
 
-    QString defaultPath = Settings::settings()->lastImportFilePath->get().toString();
+    QString defaultPath         = Settings::settings()->lastImportFilePath->get().toString();
     if (defaultPath.isDetached())
+    {
         defaultPath = Settings::settings()->userDocumentDirectory();
-    QString filePath = QFileDialog::getOpenFileName(mParentWidget, tr("Open Supported File"), defaultPath,
-                                                    docManager->importFileFilter());
+    }
+    QString filePath = QFileDialog::getOpenFileName(mParentWidget, tr("Open Supported File"), defaultPath, docManager->importFileFilter());
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
     QFileInfo fileInfo(filePath);
 
-    if (fileInfo.suffix().toLower() == "tbx") {
+    if (fileInfo.suffix().toLower() == "tbx")
+    {
         PersistenceManager::persistenceManager()->createDocumentProxiesStructure(
             docManager->importUbx(filePath, Settings::userDocumentDirectory()), true);
-
-    } else {
+    }
+    else
+    {
         Settings::settings()->lastImportFilePath->set(QVariant(fileInfo.absolutePath()));
 
-        if (filePath.length() > 0) {
+        if (filePath.length() > 0)
+        {
             DocumentProxy *createdDocument = 0;
             QApplication::processEvents();
             QFile selectedFile(filePath);
 
-            DocumentTreeModel *docModel =
-                PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+            DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-            QModelIndex selectedIndex = firstSelectedTreeIndex();
-            QString groupName = "";
-            if (selectedIndex.isValid()) {
-                groupName = docModel->isCatalog(selectedIndex) ? docModel->virtualPathForIndex(selectedIndex)
-                                                               : docModel->virtualDirForIndex(selectedIndex);
+            QModelIndex selectedIndex   = firstSelectedTreeIndex();
+            QString     groupName       = "";
+            if (selectedIndex.isValid())
+            {
+                groupName =
+                    docModel->isCatalog(selectedIndex) ? docModel->virtualPathForIndex(selectedIndex) : docModel->virtualDirForIndex(selectedIndex);
             }
 
             showMessage(tr("Importing file %1...").arg(fileInfo.baseName()), true);
 
             createdDocument = docManager->importFile(selectedFile, groupName);
 
-            if (createdDocument) {
+            if (createdDocument)
+            {
                 selectDocument(createdDocument, true, true, true);
-
-            } else {
+            }
+            else
+            {
                 showMessage(tr("Failed to import file ... "));
             }
         }
@@ -2563,31 +2992,34 @@ void DocumentController::importFile() {
     QApplication::restoreOverrideCursor();
 }
 
-void DocumentController::addFolderOfImages() {
+void DocumentController::addFolderOfImages()
+{
     DocumentProxy *document = selectedDocumentProxy();
 
-    if (document) {
+    if (document)
+    {
         QString defaultPath = Settings::settings()->lastImportFolderPath->get().toString();
 
-        QString imagesDir = QFileDialog::getExistingDirectory(
-            mParentWidget, tr("Import all Images from Folder"), defaultPath);
-        QDir parentImageDir(imagesDir);
+        QString imagesDir   = QFileDialog::getExistingDirectory(mParentWidget, tr("Import all Images from Folder"), defaultPath);
+        QDir    parentImageDir(imagesDir);
         parentImageDir.cdUp();
 
         Settings::settings()->lastImportFolderPath->set(QVariant(parentImageDir.absolutePath()));
 
-        if (imagesDir.length() > 0) {
+        if (imagesDir.length() > 0)
+        {
             QDir dir(imagesDir);
 
-            int importedImageNumber =
-                DocumentManager::documentManager()->addImageDirToDocument(dir, document);
+            int importedImageNumber = DocumentManager::documentManager()->addImageDirToDocument(dir, document);
 
-            if (importedImageNumber == 0) {
+            if (importedImageNumber == 0)
+            {
                 showMessage(tr("Folder does not contain any image files"));
                 Application::applicationController->showDocument();
-            } else {
-                document->setMetaData(Settings::documentUpdatedAt,
-                                      StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+            }
+            else
+            {
+                document->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
                 MetadataDcSubsetAdaptor::persist(document);
                 reloadThumbnails();
             }
@@ -2595,27 +3027,29 @@ void DocumentController::addFolderOfImages() {
     }
 }
 
-
-void DocumentController::addFileToDocument() {
+void DocumentController::addFileToDocument()
+{
     DocumentProxy *document = selectedDocumentProxy();
 
-    if (document) {
+    if (document)
+    {
         addFileToDocument(document);
         reloadThumbnails();
     }
 }
 
-DocumentProxyTreeItem *DocumentController::findDocument(DocumentProxy *proxy) {
+DocumentProxyTreeItem *DocumentController::findDocument(DocumentProxy *proxy)
+{
     // 旧树条目类型已不在文档视图中使用，这里保留选中行为并返回空。
     selectDocument(proxy);
     return NULL;
 }
 
-bool DocumentController::addFileToDocument(DocumentProxy *document) {
+bool DocumentController::addFileToDocument(DocumentProxy *document)
+{
     QString defaultPath = Settings::settings()->lastImportFilePath->get().toString();
-    QString filePath =
-        QFileDialog::getOpenFileName(mParentWidget, tr("Open Supported File"), defaultPath,
-                                     DocumentManager::documentManager()->importFileFilter(true));
+    QString filePath    = QFileDialog::getOpenFileName(
+        mParentWidget, tr("Open Supported File"), defaultPath, DocumentManager::documentManager()->importFileFilter(true));
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
@@ -2625,9 +3059,9 @@ bool DocumentController::addFileToDocument(DocumentProxy *document) {
 
     bool success = false;
 
-    if (filePath.length() > 0) {
-        QApplication::
-            processEvents(); // 前面几行刚 processEvents 过一次，这里是否真有必要再来一次没把握；先保持原样?
+    if (filePath.length() > 0)
+    {
+        QApplication::processEvents(); // 前面几行刚 processEvents 过一次，这里是否真有必要再来一次没把握；先保持原样?
         QFile selectedFile(filePath);
 
         showMessage(tr("Importing file %1...").arg(fileInfo.baseName()), true);
@@ -2636,11 +3070,13 @@ bool DocumentController::addFileToDocument(DocumentProxy *document) {
         fileNames << filePath;
         success = DocumentManager::documentManager()->addFilesToDocument(document, fileNames);
 
-        if (success) {
-            document->setMetaData(Settings::documentUpdatedAt,
-                                  StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        if (success)
+        {
+            document->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
             MetadataDcSubsetAdaptor::persist(document);
-        } else {
+        }
+        else
+        {
             showMessage(tr("Failed to import file ... "));
         }
     }
@@ -2650,11 +3086,11 @@ bool DocumentController::addFileToDocument(DocumentProxy *document) {
     return success;
 }
 
-
-void DocumentController::moveSceneToIndex(DocumentProxy *proxy, int source, int target) {
-    if (DocumentContainer::movePageToIndex(source, target)) {
-        proxy->setMetaData(Settings::documentUpdatedAt,
-                           StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+void DocumentController::moveSceneToIndex(DocumentProxy *proxy, int source, int target)
+{
+    if (DocumentContainer::movePageToIndex(source, target))
+    {
+        proxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         MetadataDcSubsetAdaptor::persist(proxy);
 
         mDocumentsView->thumbnailWidget()->hightlightItem(target);
@@ -2664,59 +3100,75 @@ void DocumentController::moveSceneToIndex(DocumentProxy *proxy, int source, int 
     }
 }
 
-
-void DocumentController::thumbnailViewResized() {
+void DocumentController::thumbnailViewResized()
+{
     int maxWidth = qMin(Settings::maxThumbnailWidth, mDocumentsView->thumbnailWidget()->width());
 
     mDocumentsView->documentZoomSlider()->setMaximum(maxWidth);
 }
 
-
-void DocumentController::pageSelectionChanged() {
+void DocumentController::pageSelectionChanged()
+{
     if (mIsClosing)
+    {
         return;
+    }
 
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    bool pageSelected = mDocumentsView->thumbnailWidget()->selectedItems().count() > 0;
-    bool docSelected = docModel->isDocument(firstSelectedTreeIndex());
-    bool folderSelected = docModel->isCatalog(firstSelectedTreeIndex());
+    bool pageSelected           = mDocumentsView->thumbnailWidget()->selectedItems().count() > 0;
+    bool docSelected            = docModel->isDocument(firstSelectedTreeIndex());
+    bool folderSelected         = docModel->isCatalog(firstSelectedTreeIndex());
 
     if (pageSelected)
+    {
         itemSelectionChanged(Page);
+    }
     else if (docSelected)
+    {
         itemSelectionChanged(Document);
+    }
     else if (folderSelected)
+    {
         itemSelectionChanged(Folder);
+    }
     else
+    {
         itemSelectionChanged(None);
+    }
 
     updateActions();
 }
 
-void DocumentController::documentSceneChanged(DocumentProxy *proxy, int pSceneIndex) {
+void DocumentController::documentSceneChanged(DocumentProxy *proxy, int pSceneIndex)
+{
     Q_UNUSED(pSceneIndex);
 
-    if (proxy == selectedDocumentProxy()) {
+    if (proxy == selectedDocumentProxy())
+    {
         reloadThumbnails();
     }
 
     QModelIndexList sel = mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0);
 
     QModelIndex selection;
-    if (sel.count() > 0) {
+    if (sel.count() > 0)
+    {
         selection = sel.first();
     }
 
     TreeViewSelectionChanged(selection, QModelIndex());
 }
 
-void DocumentController::thumbnailPageDoubleClicked(QGraphicsItem *item, int index) {
-    DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-    QModelIndex selectedIndex = firstSelectedTreeIndex();
+void DocumentController::thumbnailPageDoubleClicked(QGraphicsItem *item, int index)
+{
+    DocumentTreeModel *docModel      = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+    QModelIndex        selectedIndex = firstSelectedTreeIndex();
 
-    if (selectedIndex.isValid()) {
-        if (docModel->inTrash(selectedIndex)) {
+    if (selectedIndex.isValid())
+    {
+        if (docModel->inTrash(selectedIndex))
+        {
             return;
         }
     }
@@ -2724,9 +3176,11 @@ void DocumentController::thumbnailPageDoubleClicked(QGraphicsItem *item, int ind
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     SceneThumbnailPixmap *thumb = qgraphicsitem_cast<SceneThumbnailPixmap *>(item);
 
-    if (thumb) {
+    if (thumb)
+    {
         DocumentProxy *proxy = thumb->proxy();
-        if (proxy && isOKToOpenDocument(proxy)) {
+        if (proxy && isOKToOpenDocument(proxy))
+        {
             mBoardController->setActiveDocumentScene(proxy, index);
             Application::applicationController->showBoard();
         }
@@ -2735,45 +3189,46 @@ void DocumentController::thumbnailPageDoubleClicked(QGraphicsItem *item, int ind
     QApplication::restoreOverrideCursor();
 }
 
-
-void DocumentController::pageClicked(QGraphicsItem *item, int index) {
+void DocumentController::pageClicked(QGraphicsItem *item, int index)
+{
     Q_UNUSED(item);
     Q_UNUSED(index);
 
     pageSelectionChanged();
 }
 
-
-void DocumentController::addToDocument() {
+void DocumentController::addToDocument()
+{
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     QList<QGraphicsItem *> selectedItems = mDocumentsView->thumbnailWidget()->selectedItems();
 
-    if (selectedItems.count() > 0) {
+    if (selectedItems.count() > 0)
+    {
         int oldActiveSceneIndex = mBoardController->activeSceneIndex();
 
         QList<QPair<DocumentProxy *, int>> pageInfoList;
 
-        foreach (QGraphicsItem *item, selectedItems) {
+        foreach (QGraphicsItem *item, selectedItems)
+        {
             SceneThumbnailPixmap *thumb = dynamic_cast<SceneThumbnailPixmap *>(item);
 
-            if (thumb && thumb->proxy()) {
+            if (thumb && thumb->proxy())
+            {
                 QPair<DocumentProxy *, int> pageInfo(thumb->proxy(), thumb->sceneIndex());
                 pageInfoList << pageInfo;
             }
         }
 
-        for (int i = 0; i < pageInfoList.length(); i++) {
+        for (int i = 0; i < pageInfoList.length(); i++)
+        {
             mBoardController->addScene(pageInfoList.at(i).first, pageInfoList.at(i).second, false);
         }
 
-        int newActiveSceneIndex = selectedItems.count() == mBoardController->selectedDocument()->pageCount()
-                                      ? 0
-                                      : oldActiveSceneIndex + 1;
+        int newActiveSceneIndex = selectedItems.count() == mBoardController->selectedDocument()->pageCount() ? 0 : oldActiveSceneIndex + 1;
         mDocumentsView->thumbnailWidget()->selectItemAt(newActiveSceneIndex, false);
         selectDocument(mBoardController->selectedDocument());
-        mBoardController->selectedDocument()->setMetaData(
-            Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        mBoardController->selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         MetadataDcSubsetAdaptor::persist(mBoardController->selectedDocument());
         mBoardController->reloadThumbnails();
 
@@ -2786,38 +3241,47 @@ void DocumentController::addToDocument() {
     QApplication::restoreOverrideCursor();
 }
 
-void DocumentController::renameSelectedItem() {
-    if (mDocumentsView->documentTreeView()->currentIndex().isValid()) {
+void DocumentController::renameSelectedItem()
+{
+    if (mDocumentsView->documentTreeView()->currentIndex().isValid())
+    {
         mDocumentsView->documentTreeView()->edit(mDocumentsView->documentTreeView()->currentIndex());
     }
 }
 
-bool DocumentController::isOKToOpenDocument(DocumentProxy *proxy) {
+bool DocumentController::isOKToOpenDocument(DocumentProxy *proxy)
+{
     QString docVersion = proxy->metaData(Settings::documentVersion).toString();
 
     // 这里曾经写死一份 "1.1"/"1.2" 白名单，而读写器早就在往每个文档盖 4.8.0，
     // 结果自己存的文档也被判成“比本程序还新”，每次打开都弹一次丢失警告。
     // 现在拿真正的版本序比：只有确实更新于当前格式版本时才问。
-    if (docVersion.isEmpty() || !(Version(docVersion) > Version(Settings::currentFileVersion))) {
+    if (docVersion.isEmpty() || !(Version(docVersion) > Version(Settings::currentFileVersion)))
+    {
         return true;
-    } else {
+    }
+    else
+    {
         if (Application::mainWindow->yesNoQuestion(
-                tr("Open Document"),
-                tr("The document '%1' has been generated with a newer version of TianBoard (%2). By opening "
-                   "it, you may lose some information. Do you want to proceed?")
-                    .arg(proxy->metaData(Settings::documentName).toString())
-                    .arg(docVersion))) {
+                tr("Open Document"), tr("The document '%1' has been generated with a newer version of TianBoard (%2). By opening "
+                                        "it, you may lose some information. Do you want to proceed?")
+                                         .arg(proxy->metaData(Settings::documentName).toString())
+                                         .arg(docVersion)))
+        {
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
 }
 
-
-void DocumentController::showMessage(const QString &message, bool showSpinningWheel) {
-    if (mMessageWindow) {
-        int margin = Settings::boardMargin;
+void DocumentController::showMessage(const QString &message, bool showSpinningWheel)
+{
+    if (mMessageWindow)
+    {
+        int margin    = Settings::boardMargin;
 
         QRect newSize = mDocumentsView->thumbnailWidget()->geometry();
 
@@ -2827,45 +3291,49 @@ void DocumentController::showMessage(const QString &message, bool showSpinningWh
     }
 }
 
-
-void DocumentController::hideMessage() {
+void DocumentController::hideMessage()
+{
     if (mMessageWindow)
+    {
         mMessageWindow->hideMessage();
+    }
 }
 
-
-void DocumentController::addImages() {
+void DocumentController::addImages()
+{
     DocumentProxy *document = selectedDocumentProxy();
 
-    if (document) {
+    if (document)
+    {
         QString defaultPath = Settings::settings()->lastImportFolderPath->get().toString();
 
         QString extensions;
 
-        foreach (QString ext, Settings::settings()->imageFileExtensions) {
+        foreach (QString ext, Settings::settings()->imageFileExtensions)
+        {
             extensions += " *.";
             extensions += ext;
         }
 
         QStringList images =
-            QFileDialog::getOpenFileNames(mParentWidget, tr("Add all Images to Document"), defaultPath,
-                                          tr("All Images (%1)").arg(extensions));
+            QFileDialog::getOpenFileNames(mParentWidget, tr("Add all Images to Document"), defaultPath, tr("All Images (%1)").arg(extensions));
 
-        if (images.length() > 0) {
+        if (images.length() > 0)
+        {
             QFileInfo firstImage(images.at(0));
 
-            Settings::settings()->lastImportFolderPath->set(
-                QVariant(firstImage.absoluteDir().absolutePath()));
+            Settings::settings()->lastImportFolderPath->set(QVariant(firstImage.absoluteDir().absolutePath()));
 
-            int importedImageNumber =
-                DocumentManager::documentManager()->addFilesToDocument(document, images);
+            int importedImageNumber = DocumentManager::documentManager()->addFilesToDocument(document, images);
 
-            if (importedImageNumber == 0) {
+            if (importedImageNumber == 0)
+            {
                 Application::showMessage(tr("Selection does not contain any image files!"));
                 Application::applicationController->showDocument();
-            } else {
-                document->setMetaData(Settings::documentUpdatedAt,
-                                      StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+            }
+            else
+            {
+                document->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
                 MetadataDcSubsetAdaptor::persist(document);
                 reloadThumbnails();
             }
@@ -2873,11 +3341,13 @@ void DocumentController::addImages() {
     }
 }
 
-void DocumentController::toggleDocumentToolsPalette() {
-    if (!mToolsPalette->isVisible() && !mToolsPalettePositionned) {
+void DocumentController::toggleDocumentToolsPalette()
+{
+    if (!mToolsPalette->isVisible() && !mToolsPalettePositionned)
+    {
         mToolsPalette->adjustSizeAndPosition();
         int left = controlView()->width() - 20 - mToolsPalette->width();
-        int top = (controlView()->height() - mToolsPalette->height()) / 2;
+        int top  = (controlView()->height() - mToolsPalette->height()) / 2;
 
         mToolsPalette->setCustomPosition(true);
         mToolsPalette->move(left, top);
@@ -2889,46 +3359,73 @@ void DocumentController::toggleDocumentToolsPalette() {
     mToolsPalette->setVisible(!visible);
 }
 
-
-void DocumentController::focusChanged(QWidget *old, QWidget *current) {
+void DocumentController::focusChanged(QWidget *old, QWidget *current)
+{
     DocumentTreeModel *treeModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    if (current == mDocumentsView->thumbnailWidget()) {
+    if (current == mDocumentsView->thumbnailWidget())
+    {
         if (mDocumentsView->thumbnailWidget()->selectedItems().count() > 0)
+        {
             mSelectionType = Page;
+        }
         else
+        {
             mSelectionType = None;
-    } else if (current == mDocumentsView->documentTreeView()) {
+        }
+    }
+    else if (current == mDocumentsView->documentTreeView())
+    {
         if (treeModel->isDocument(firstSelectedTreeIndex()))
+        {
             mSelectionType = Document;
+        }
         else if (treeModel->isCatalog(firstSelectedTreeIndex()))
+        {
             mSelectionType = Folder;
+        }
         else
+        {
             mSelectionType = None;
-    } else if (current == mDocumentsView->documentZoomSlider()) {
+        }
+    }
+    else if (current == mDocumentsView->documentZoomSlider())
+    {
         if (mDocumentsView->thumbnailWidget()->selectedItems().count() > 0)
+        {
             mSelectionType = Page;
+        }
         else
+        {
             mSelectionType = None;
-    } else {
-        if (old != mDocumentsView->thumbnailWidget() && old != mDocumentsView->documentTreeView() &&
-            old != mDocumentsView->documentZoomSlider()) {
+        }
+    }
+    else
+    {
+        if (old != mDocumentsView->thumbnailWidget() && old != mDocumentsView->documentTreeView() && old != mDocumentsView->documentZoomSlider())
+        {
             if (current && (current->metaObject()->className() != QPushButton::staticMetaObject.className()))
+            {
                 mSelectionType = None;
+            }
         }
     }
 }
 
-void DocumentController::updateActions() {
+void DocumentController::updateActions()
+{
     if (mIsClosing)
+    {
         return;
+    }
 
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    QModelIndexList list = mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0);
+    QModelIndexList list        = mDocumentsView->documentTreeView()->selectionModel()->selectedRows(0);
 
     // 多选时只保留“删除”可用：重命名、复制、导出等操作都需要唯一目标。
-    if (list.count() > 1) {
+    if (list.count() > 1)
+    {
         mMainWindow->ui().actionNewDocument->setEnabled(false);
         mMainWindow->ui().actionNewFolder->setEnabled(false);
         mMainWindow->ui().actionExport->setEnabled(false);
@@ -2946,62 +3443,73 @@ void DocumentController::updateActions() {
 
     mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
 
-    QModelIndex selectedIndex = firstSelectedTreeIndex();
+    QModelIndex    selectedIndex = firstSelectedTreeIndex();
     DocumentProxy *selectedProxy = docModel->proxyData(selectedIndex);
-    int pageCount = -1;
-    if (selectedProxy) {
+    int            pageCount     = -1;
+    if (selectedProxy)
+    {
         pageCount = selectedProxy->pageCount();
     }
 
-    bool pageSelected = false;
+    bool pageSelected  = false;
     bool groupSelected = false;
-    bool docSelected = false;
+    bool docSelected   = false;
 
-    if (mSelectionType == Page) {
+    if (mSelectionType == Page)
+    {
         pageSelected = true;
-    } else {
-        if (docModel->isDocument(firstSelectedTreeIndex())) {
+    }
+    else
+    {
+        if (docModel->isDocument(firstSelectedTreeIndex()))
+        {
             docSelected = true;
-        } else if (docModel->isCatalog(firstSelectedTreeIndex())) {
+        }
+        else if (docModel->isCatalog(firstSelectedTreeIndex()))
+        {
             groupSelected = true;
         }
     }
 
-    bool trashSelected =
-        docModel->inTrash(selectedIndex) || selectedIndex == docModel->trashIndex() ? true : false;
+    bool trashSelected = docModel->inTrash(selectedIndex) || selectedIndex == docModel->trashIndex() ? true : false;
 
     mMainWindow->ui().actionNewDocument->setEnabled(docModel->newNodeAllowed(selectedIndex));
     mMainWindow->ui().actionNewFolder->setEnabled(docModel->newNodeAllowed(selectedIndex));
-    mMainWindow->ui().actionExport->setEnabled((docSelected || pageSelected || groupSelected) &&
-                                               !trashSelected);
+    mMainWindow->ui().actionExport->setEnabled((docSelected || pageSelected || groupSelected) && !trashSelected);
     updateExportSubActions(selectedIndex);
 
     bool firstSceneSelected = false;
 
-    if (docSelected) {
+    if (docSelected)
+    {
         mMainWindow->ui().actionDuplicate->setEnabled(!trashSelected);
-
-    } else if (pageSelected) {
+    }
+    else if (pageSelected)
+    {
         QList<QGraphicsItem *> selection = mDocumentsView->thumbnailWidget()->selectedItems();
-        if (pageCount == 1) {
-            mMainWindow->ui().actionDuplicate->setEnabled(
-                !trashSelected && pageCanBeDuplicated(DocumentContainer::pageFromSceneIndex(0)));
-
-        } else {
-            for (int i = 0; i < selection.count() && !firstSceneSelected; i += 1) {
-                if (qgraphicsitem_cast<SceneThumbnailPixmap *>(selection.at(i))->sceneIndex() == 0) {
-                    mMainWindow->ui().actionDuplicate->setEnabled(
-                        !trashSelected && pageCanBeDuplicated(DocumentContainer::pageFromSceneIndex(0)));
+        if (pageCount == 1)
+        {
+            mMainWindow->ui().actionDuplicate->setEnabled(!trashSelected && pageCanBeDuplicated(DocumentContainer::pageFromSceneIndex(0)));
+        }
+        else
+        {
+            for (int i = 0; i < selection.count() && !firstSceneSelected; i += 1)
+            {
+                if (qgraphicsitem_cast<SceneThumbnailPixmap *>(selection.at(i))->sceneIndex() == 0)
+                {
+                    mMainWindow->ui().actionDuplicate->setEnabled(!trashSelected && pageCanBeDuplicated(DocumentContainer::pageFromSceneIndex(0)));
                     firstSceneSelected = true;
                     break;
                 }
             }
-            if (!firstSceneSelected) {
+            if (!firstSceneSelected)
+            {
                 mMainWindow->ui().actionDuplicate->setEnabled(!trashSelected);
             }
         }
-
-    } else {
+    }
+    else
+    {
         mMainWindow->ui().actionDuplicate->setEnabled(false);
     }
 
@@ -3014,7 +3522,8 @@ void DocumentController::updateActions() {
     DeletionType deletionForSelection = deletionTypeForSelection(mSelectionType, selectedIndex, docModel);
     mMainWindow->ui().actionDelete->setEnabled(deletionForSelection != NoDeletion);
 
-    switch (static_cast<int>(deletionForSelection)) {
+    switch (static_cast<int>(deletionForSelection))
+    {
         case MoveToTrash:
         case DeletePage:
             mMainWindow->ui().actionDelete->setIcon(QIcon(":/images/trash.png"));
@@ -3038,24 +3547,28 @@ void DocumentController::updateActions() {
     mMainWindow->ui().actionImport->setEnabled(!trashSelected);
 }
 
-void DocumentController::updateExportSubActions(const QModelIndex &selectedIndex) {
+void DocumentController::updateExportSubActions(const QModelIndex &selectedIndex)
+{
     DocumentManager *documentManager = DocumentManager::documentManager();
-    for (int i = 0; i < documentManager->supportedExportAdaptors().length(); i++) {
+    for (int i = 0; i < documentManager->supportedExportAdaptors().length(); i++)
+    {
         ExportAdaptor *adaptor = documentManager->supportedExportAdaptors()[i];
-        if (adaptor->associatedAction()) {
-            adaptor->associatedAction()->setEnabled(
-                adaptor->associatedActionactionAvailableFor(selectedIndex));
+        if (adaptor->associatedAction())
+        {
+            adaptor->associatedAction()->setEnabled(adaptor->associatedActionactionAvailableFor(selectedIndex));
         }
     }
 }
 
-void DocumentController::currentIndexMoved(const QModelIndex &newIndex, const QModelIndex &PreviousIndex) {
+void DocumentController::currentIndexMoved(const QModelIndex &newIndex, const QModelIndex &PreviousIndex)
+{
     Q_UNUSED(newIndex);
     Q_UNUSED(PreviousIndex);
 
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-    DocumentProxy *newProxy = docModel->proxyData(newIndex);
-    if (newProxy) {
+    DocumentProxy     *newProxy = docModel->proxyData(newIndex);
+    if (newProxy)
+    {
         DocumentProxy *cp = new DocumentProxy(*newProxy); // 不能直接交 newProxy：模型随后销毁它，必须先拷一份
         pureSetDocument(cp);
         mBoardController->pureSetDocument(cp);
@@ -3064,17 +3577,22 @@ void DocumentController::currentIndexMoved(const QModelIndex &newIndex, const QM
     mCurrentIndexMoved = true;
 }
 
-void DocumentController::deletePages(QList<QGraphicsItem *> itemsToDelete) {
-    if (itemsToDelete.count() > 0) {
-        QList<int> sceneIndexes;
+void DocumentController::deletePages(QList<QGraphicsItem *> itemsToDelete)
+{
+    if (itemsToDelete.count() > 0)
+    {
+        QList<int>     sceneIndexes;
         DocumentProxy *proxy = 0;
 
-        foreach (QGraphicsItem *item, itemsToDelete) {
+        foreach (QGraphicsItem *item, itemsToDelete)
+        {
             SceneThumbnailPixmap *thumb = dynamic_cast<SceneThumbnailPixmap *>(item);
 
-            if (thumb) {
+            if (thumb)
+            {
                 proxy = thumb->proxy();
-                if (proxy) {
+                if (proxy)
+                {
                     sceneIndexes.append(thumb->sceneIndex());
                 }
             }
@@ -3082,15 +3600,17 @@ void DocumentController::deletePages(QList<QGraphicsItem *> itemsToDelete) {
         DocumentContainer::deletePages(sceneIndexes);
         emit Application::boardController->documentThumbnailsUpdated(this);
 
-        proxy->setMetaData(Settings::documentUpdatedAt,
-                           StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
+        proxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         MetadataDcSubsetAdaptor::persist(proxy);
 
         int minIndex = proxy->pageCount() - 1;
         foreach (int i, sceneIndexes)
+        {
             minIndex = qMin(i, minIndex);
+        }
 
-        if (mBoardController->activeSceneIndex() > minIndex) {
+        if (mBoardController->activeSceneIndex() > minIndex)
+        {
             mBoardController->setActiveSceneIndex(minIndex);
         }
 
@@ -3101,64 +3621,92 @@ void DocumentController::deletePages(QList<QGraphicsItem *> itemsToDelete) {
     }
 }
 
-int DocumentController::getSelectedItemIndex() {
+int DocumentController::getSelectedItemIndex()
+{
     QList<QGraphicsItem *> selectedItems = mDocumentsView->thumbnailWidget()->selectedItems();
 
-    if (selectedItems.count() > 0) {
+    if (selectedItems.count() > 0)
+    {
         SceneThumbnailPixmap *thumb = dynamic_cast<SceneThumbnailPixmap *>(selectedItems.last());
         return thumb->sceneIndex();
-    } else
+    }
+    else
+    {
         return -1;
+    }
 }
 
-bool DocumentController::pageCanBeMovedUp(int page) {
+bool DocumentController::pageCanBeMovedUp(int page)
+{
     return page >= 1;
 }
 
-bool DocumentController::pageCanBeMovedDown(int page) {
+bool DocumentController::pageCanBeMovedDown(int page)
+{
     return page < selectedDocument()->pageCount() - 1;
 }
 
-bool DocumentController::pageCanBeDuplicated(int page) {
+bool DocumentController::pageCanBeDuplicated(int page)
+{
     return page != 0;
 }
 
-bool DocumentController::pageCanBeDeleted(int page) {
+bool DocumentController::pageCanBeDeleted(int page)
+{
     return page != 0;
 }
 
-void DocumentController::setDocument(DocumentProxy *document, bool forceReload) {
+void DocumentController::setDocument(DocumentProxy *document, bool forceReload)
+{
     DocumentContainer::setDocument(document, forceReload);
 }
 
-QModelIndex DocumentController::firstSelectedTreeIndex() {
+QModelIndex DocumentController::firstSelectedTreeIndex()
+{
     return selectedTreeIndexes().count() ? selectedTreeIndexes().first() : QModelIndex();
 }
 
-DocumentController::DeletionType
-DocumentController::deletionTypeForSelection(LastSelectedElementType pTypeSelection,
-                                             const QModelIndex &selectedIndex,
-                                             DocumentTreeModel *docModel) const {
-    if (pTypeSelection == Page) {
-        if (!firstAndOnlySceneSelected()) {
+DocumentController::DeletionType DocumentController::deletionTypeForSelection(
+    LastSelectedElementType pTypeSelection, const QModelIndex &selectedIndex, DocumentTreeModel *docModel) const
+{
+    if (pTypeSelection == Page)
+    {
+        if (!firstAndOnlySceneSelected())
+        {
             return DeletePage;
         }
-    } else if (docModel->isConstant(selectedIndex)) {
-        if (selectedIndex == docModel->trashIndex()) {
+    }
+    else if (docModel->isConstant(selectedIndex))
+    {
+        if (selectedIndex == docModel->trashIndex())
+        {
             if (docModel->rowCount(selectedIndex) > 0)
+            {
                 return EmptyTrash;
+            }
             else
+            {
                 return NoDeletion;
+            }
         }
 
         if (selectedIndex.isValid())
+        {
             return EmptyFolder;
+        }
         else
+        {
             return NoDeletion;
-    } else if (pTypeSelection != None) {
-        if (docModel->inTrash(selectedIndex)) {
+        }
+    }
+    else if (pTypeSelection != None)
+    {
+        if (docModel->inTrash(selectedIndex))
+        {
             return CompleteDelete;
-        } else {
+        }
+        else
+        {
             return MoveToTrash;
         }
     }
@@ -3166,18 +3714,24 @@ DocumentController::deletionTypeForSelection(LastSelectedElementType pTypeSelect
     return NoDeletion;
 }
 
-bool DocumentController::firstAndOnlySceneSelected() const {
-    bool firstSceneSelected = false;
-    QList<QGraphicsItem *> selection = mDocumentsView->thumbnailWidget()->selectedItems();
-    for (int i = 0; i < selection.count() && !firstSceneSelected; i += 1) {
+bool DocumentController::firstAndOnlySceneSelected() const
+{
+    bool                   firstSceneSelected = false;
+    QList<QGraphicsItem *> selection          = mDocumentsView->thumbnailWidget()->selectedItems();
+    for (int i = 0; i < selection.count() && !firstSceneSelected; i += 1)
+    {
         SceneThumbnailPixmap *p = dynamic_cast<SceneThumbnailPixmap *>(selection.at(i));
-        if (p) {
+        if (p)
+        {
             int pageCount = p->proxy()->pageCount();
             if (pageCount > 1) // 页数大于 1 就不算“唯一的一页”
             {
                 return false;
-            } else {
-                if (p->sceneIndex() == 0) {
+            }
+            else
+            {
+                if (p->sceneIndex() == 0)
+                {
                     return true; // 只有一页且就是第 0 页
                 }
             }
@@ -3187,121 +3741,136 @@ bool DocumentController::firstAndOnlySceneSelected() const {
     return false;
 }
 
-void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *) {
-    DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-    DocumentProxy *currentDocumentProxy = selectedDocument();
+void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *)
+{
+    DocumentTreeModel *docModel             = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
+    DocumentProxy     *currentDocumentProxy = selectedDocument();
 
-    QModelIndex current = docModel->indexForProxy(currentDocumentProxy);
+    QModelIndex current                     = docModel->indexForProxy(currentDocumentProxy);
 
-    if (!current.isValid()) {
-        mDocumentsView->thumbnailWidget()->setGraphicsItems(QList<QGraphicsItem *>(), QList<QUrl>(),
-                                                            QStringList(), Application::mimeTypeBoardPage);
+    if (!current.isValid())
+    {
+        mDocumentsView->thumbnailWidget()->setGraphicsItems(QList<QGraphicsItem *>(), QList<QUrl>(), QStringList(), Application::mimeTypeBoardPage);
         return;
     }
 
     QList<const QPixmap *> thumbs;
 
-    if (currentDocumentProxy) {
+    if (currentDocumentProxy)
+    {
         ThumbnailAdaptor::load(currentDocumentProxy, thumbs);
     }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     QList<QGraphicsItem *> items;
-    QList<QUrl> itemsPath;
+    QList<QUrl>            itemsPath;
 
     QGraphicsPixmapItem *selection = 0;
 
     QStringList labels;
 
-    if (currentDocumentProxy) {
-        for (int i = 0; i < currentDocumentProxy->pageCount(); i++) {
-            const QPixmap *pix = thumbs.at(i);
-            QGraphicsPixmapItem *pixmapItem =
-                new SceneThumbnailPixmap(*pix, currentDocumentProxy, i); // 归场景（缩略图视图）所有，由它销毁
+    if (currentDocumentProxy)
+    {
+        for (int i = 0; i < currentDocumentProxy->pageCount(); i++)
+        {
+            const QPixmap       *pix        = thumbs.at(i);
+            QGraphicsPixmapItem *pixmapItem = new SceneThumbnailPixmap(*pix, currentDocumentProxy, i); // 归场景（缩略图视图）所有，由它销毁
 
-            if (currentDocumentProxy == mBoardController->selectedDocument() &&
-                mBoardController->activeSceneIndex() == i) {
+            if (currentDocumentProxy == mBoardController->selectedDocument() && mBoardController->activeSceneIndex() == i)
+            {
                 selection = pixmapItem;
             }
 
             items << pixmapItem;
             int pageIndex = pageFromSceneIndex(i);
             if (pageIndex)
+            {
                 labels << tr("Page %1").arg(pageIndex);
+            }
             else
+            {
                 labels << tr("Title page");
+            }
 
             itemsPath.append(
-                QUrl::fromLocalFile(currentDocumentProxy->persistencePath() +
-                                    QString("/pages/%1").arg(DocumentContainer::pageFromSceneIndex(i))));
+                QUrl::fromLocalFile(currentDocumentProxy->persistencePath() + QString("/pages/%1").arg(DocumentContainer::pageFromSceneIndex(i))));
         }
     }
 
-    mDocumentsView->thumbnailWidget()->setGraphicsItems(items, itemsPath, labels,
-                                                        Application::mimeTypeBoardPage);
+    mDocumentsView->thumbnailWidget()->setGraphicsItems(items, itemsPath, labels, Application::mimeTypeBoardPage);
 
     // ThumbnailAdaptor::get() 返回 new 出来的 QPixmap，SceneThumbnailPixmap 只是按值拷贝；
     // 不在这里释放的话，每刷新一次缩略图就泄漏 pageCount 个 QPixmap。
     qDeleteAll(thumbs);
     thumbs.clear();
 
-    if (docModel->inTrash(current)) {
+    if (docModel->inTrash(current))
+    {
         mDocumentsView->thumbnailWidget()->setDragEnabled(false);
-    } else {
+    }
+    else
+    {
         mDocumentsView->thumbnailWidget()->setDragEnabled(true);
     }
 
     mDocumentsView->thumbnailWidget()->ensureVisible(0, 0, 10, 10);
 
-    if (selection) {
-        disconnect(mDocumentsView->thumbnailWidget()->scene(), &QGraphicsScene::selectionChanged, this,
-                   &DocumentController::pageSelectionChanged);
+    if (selection)
+    {
+        disconnect(mDocumentsView->thumbnailWidget()->scene(), &QGraphicsScene::selectionChanged, this, &DocumentController::pageSelectionChanged);
         SceneThumbnailPixmap *currentScene = dynamic_cast<SceneThumbnailPixmap *>(selection);
         if (currentScene)
+        {
             mDocumentsView->thumbnailWidget()->hightlightItem(currentScene->sceneIndex());
-        connect(mDocumentsView->thumbnailWidget()->scene(), &QGraphicsScene::selectionChanged, this,
-                &DocumentController::pageSelectionChanged);
+        }
+        connect(mDocumentsView->thumbnailWidget()->scene(), &QGraphicsScene::selectionChanged, this, &DocumentController::pageSelectionChanged);
     }
 
     QApplication::restoreOverrideCursor();
 }
 
-void DocumentController::createEmptyDocument() {
+void DocumentController::createEmptyDocument()
+{
     PersistenceManager *pManager = PersistenceManager::persistenceManager();
-    DocumentTreeModel *docModel = pManager->mDocumentTreeStructureModel;
+    DocumentTreeModel  *docModel = pManager->mDocumentTreeStructureModel;
 
-    QString groupName = docModel->virtualPathForIndex(docModel->myDocumentsIndex());
+    QString groupName            = docModel->virtualPathForIndex(docModel->myDocumentsIndex());
 
-    DocumentProxy *document = pManager->createDocument(groupName);
+    DocumentProxy *document      = pManager->createDocument(groupName);
     selectDocument(document);
 
     if (document)
+    {
         pManager->mDocumentTreeStructureModel->markDocumentAsNew(document);
+    }
 }
 
-void DocumentController::collapseAll() {
+void DocumentController::collapseAll()
+{
     // 折叠期间关闭动画：动画会访问即将失效的 viewport 状态，在大量条目上容易出问题。
     mDocumentsView->documentTreeView()->setAnimated(false);
 
     mDocumentsView->documentTreeView()->collapseAll();
 
-    QPersistentModelIndex myDocumentIndex =
-        PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->myDocumentsIndex();
+    QPersistentModelIndex myDocumentIndex = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel->myDocumentsIndex();
 
-    SortFilterProxyModel *proxy =
-        dynamic_cast<SortFilterProxyModel *>(mDocumentsView->documentTreeView()->model());
+    SortFilterProxyModel *proxy           = dynamic_cast<SortFilterProxyModel *>(mDocumentsView->documentTreeView()->model());
 
-    if (proxy) {
+    if (proxy)
+    {
         mDocumentsView->documentTreeView()->setExpanded(proxy->mapFromSource(myDocumentIndex), true);
-    } else {
+    }
+    else
+    {
         mDocumentsView->documentTreeView()->setExpanded(myDocumentIndex, true);
     }
 
     mDocumentsView->documentTreeView()->setAnimated(true);
 }
 
-void DocumentController::expandAll() {
+void DocumentController::expandAll()
+{
     mDocumentsView->documentTreeView()->setAnimated(false);
 
     mDocumentsView->documentTreeView()->expandAll();

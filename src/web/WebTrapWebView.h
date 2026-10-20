@@ -11,7 +11,6 @@
 
 #include <memory>
 
-
 /**
  * @brief 可捕获网页元素的 WebEngine 视图：捕获模式下高亮并拾取鼠标下的内容。
  *
@@ -19,7 +18,8 @@
  * 捕获模式的命中测试尚未在当前 Qt6 移植中恢复，因此 highliteElementAtPos 只会重置状态，
  * trapElementAtPos 为空实现；WebController 也据此禁用了捕获动作。
  */
-class WebTrapWebView : public QWebEngineView {
+class WebTrapWebView : public QWebEngineView
+{
     Q_OBJECT;
 
 public:
@@ -95,7 +95,8 @@ protected:
     QString potentialEmbedCodeAtPos(const QPoint &pos);
 
     /** @brief 捕获内容的类型分类。 */
-    enum WebContentType {
+    enum WebContentType
+    {
         Unknown = 0,   ///< 未知
         Image,         ///< 图片
         Input,         ///< 输入框中的代码
@@ -114,7 +115,8 @@ private:
  *
  * 当前捕获模式的遮罩创建逻辑尚未启用，本类仅在后续恢复捕获时使用。
  */
-class WebTrapMouseEventMask : public QWidget {
+class WebTrapMouseEventMask : public QWidget
+{
 public:
     /**
      * @brief 构造遮罩并绑定目标视图。

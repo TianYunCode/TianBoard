@@ -13,7 +13,8 @@
 
 #include "platform/CredentialStore.h"
 
-class TestCredentialStore : public QObject {
+class TestCredentialStore : public QObject
+{
     Q_OBJECT
 
 private slots:
@@ -36,13 +37,15 @@ private:
     QString target() const;
 };
 
-QString TestCredentialStore::target() const {
+QString TestCredentialStore::target() const
+{
     // 每次运行用自己的 PID 当 target，避免和别的进程/别的用例互相踩；
     // 收尾时 cleanupTestCase() 会把它删掉。
     return QStringLiteral("TianBoard/Test/%1").arg(QCoreApplication::applicationPid());
 }
 
-void TestCredentialStore::roundTripKeepsUnicode() {
+void TestCredentialStore::roundTripKeepsUnicode()
+{
     CredentialStore::write(target(), QStringLiteral("tester"), QStringLiteral("sésame 密码 😀"));
 
     const ProxyCredentials stored = CredentialStore::read(target());
@@ -50,14 +53,16 @@ void TestCredentialStore::roundTripKeepsUnicode() {
     QCOMPARE(stored.password, QStringLiteral("sésame 密码 😀"));
 }
 
-void TestCredentialStore::unknownTargetReadsAsEmpty() {
+void TestCredentialStore::unknownTargetReadsAsEmpty()
+{
     const ProxyCredentials missing = CredentialStore::read(QStringLiteral("TianBoard/Test/no-such-target"));
     QVERIFY(missing.userName.isEmpty());
     QVERIFY(missing.password.isEmpty());
     QVERIFY(missing.isEmpty());
 }
 
-void TestCredentialStore::overwriteReplacesThePreviousSecret() {
+void TestCredentialStore::overwriteReplacesThePreviousSecret()
+{
     CredentialStore::write(target(), QStringLiteral("first"), QStringLiteral("one"));
     CredentialStore::write(target(), QStringLiteral("second"), QStringLiteral("two"));
 
@@ -66,7 +71,8 @@ void TestCredentialStore::overwriteReplacesThePreviousSecret() {
     QCOMPARE(stored.password, QStringLiteral("two"));
 }
 
-void TestCredentialStore::userNameWithoutSecret() {
+void TestCredentialStore::userNameWithoutSecret()
+{
     CredentialStore::write(target(), QStringLiteral("only-user"), QString());
 
     const ProxyCredentials stored = CredentialStore::read(target());
@@ -74,14 +80,16 @@ void TestCredentialStore::userNameWithoutSecret() {
     QVERIFY(stored.password.isEmpty());
 }
 
-void TestCredentialStore::clearingBothRemovesTheCredential() {
+void TestCredentialStore::clearingBothRemovesTheCredential()
+{
     CredentialStore::write(target(), QStringLiteral("user"), QStringLiteral("secret"));
     CredentialStore::write(target(), QString(), QString());
 
     QVERIFY(CredentialStore::read(target()).isEmpty());
 }
 
-void TestCredentialStore::oversizedSecretIsNotStored() {
+void TestCredentialStore::oversizedSecretIsNotStored()
+{
     // CRED_MAX_CREDENTIAL_BLOB_SIZE 是 5*512 = 2560 字节，即 1280 个 UTF-16 单元。
     // 超出的必须在写入前拒绝，而不是让 CredWrite 悄悄失败、界面上却显示"已保存"。
     const QString tooLong(1500, QLatin1Char('x'));
@@ -92,7 +100,8 @@ void TestCredentialStore::oversizedSecretIsNotStored() {
     QCOMPARE(CredentialStore::read(target()).password, QStringLiteral("original"));
 }
 
-void TestCredentialStore::cleanupTestCase() {
+void TestCredentialStore::cleanupTestCase()
+{
     CredentialStore::write(target(), QString(), QString());
 }
 

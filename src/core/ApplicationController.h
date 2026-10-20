@@ -33,7 +33,8 @@ class RightPalette;
  * 并把它挂在 staticMemoryCleaner 下；视图与主窗口都由外部传入，本类只使用、不拥有。
  * 线程约束：QObject 亲和于 GUI 线程，所有槽与信号都只能在 GUI 线程收发。
  */
-class ApplicationController : public QObject {
+class ApplicationController : public QObject
+{
     Q_OBJECT
 
 public:
@@ -45,14 +46,19 @@ public:
      * @param parent 父对象，用于生命周期管理。
      * @param rightPalette 画板右侧调色板，用于切换模式时的显隐。
      */
-    ApplicationController(BoardView *pControlView, BoardView *pDisplayView, MainWindow *pMainWindow,
-                          QObject *parent, RightPalette *rightPalette);
+    ApplicationController(BoardView *pControlView, BoardView *pDisplayView, MainWindow *pMainWindow, QObject *parent, RightPalette *rightPalette);
     virtual ~ApplicationController();
 
     /// 画板视图的初始水平滚动位置。
-    int initialHScroll() { return mInitialHScroll; }
+    int initialHScroll()
+    {
+        return mInitialHScroll;
+    }
     /// 画板视图的初始垂直滚动位置。
-    int initialVScroll() { return mInitialVScroll; }
+    int initialVScroll()
+    {
+        return mInitialVScroll;
+    }
 
     /// 按当前模式与工具栏设置调整工具栏内容。
     void adaptToolBar();
@@ -127,10 +133,16 @@ public:
     void importFile(const QString &pFilePath);
 
     /// 返回多屏管理器，调用方不得取得所有权。
-    DisplayManager *displayManager() { return mDisplayManager; }
+    DisplayManager *displayManager()
+    {
+        return mDisplayManager;
+    }
 
     /// 返回桌面批注控制器，调用方不得取得所有权。
-    DesktopAnnotationController *uninotesController() { return mUninoteController; }
+    DesktopAnnotationController *uninotesController()
+    {
+        return mUninoteController;
+    }
 
     /**
      * @brief 返回桌面批注模式下可承载画板调色板的宿主窗口。
@@ -144,7 +156,8 @@ public:
     void desktopDrawingResized();
 
     /// 应用的主显示模式。
-    enum MainMode {
+    enum MainMode
+    {
         Board = 0,  ///< 画板模式
         Internet,   ///< 内嵌浏览器模式
         Document,   ///< 文档库模式
@@ -152,11 +165,16 @@ public:
     };
 
     /// 返回当前主显示模式。
-    MainMode displayMode() { return mMainMode; }
-
+    MainMode displayMode()
+    {
+        return mMainMode;
+    }
 
     /// 桌面批注是否正显示在前台。
-    bool isShowingDesktop() { return mIsShowingDesktop; }
+    bool isShowingDesktop()
+    {
+        return mIsShowingDesktop;
+    }
 
 signals:
     /// 主显示模式发生变化。
@@ -239,7 +257,6 @@ private:
 
     /// 多屏管理器，由本类持有。
     DisplayManager *mDisplayManager;
-
 
     bool mIsShowingDesktop;
 };

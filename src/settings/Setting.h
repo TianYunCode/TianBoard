@@ -16,7 +16,8 @@ class Settings;
  * 因此修改会进入待落盘队列。生命周期由 Settings 构造时分配并持有，随 Settings 销毁。
  * set() 在值变化时发出 changed()，读取发生在 GUI 线程。
  */
-class Setting : public QObject {
+class Setting : public QObject
+{
     Q_OBJECT
 
 public:
@@ -36,16 +37,28 @@ public:
     virtual QVariant reset();
 
     /** @brief 返回所属配置域。 */
-    virtual QString domain() const { return mDomain; }
+    virtual QString domain() const
+    {
+        return mDomain;
+    }
 
     /** @brief 返回配置键名。 */
-    virtual QString key() const { return mKey; }
+    virtual QString key() const
+    {
+        return mKey;
+    }
 
     /** @brief 返回 domain/key 组合后的完整路径。 */
-    virtual QString path() const { return mPath; }
+    virtual QString path() const
+    {
+        return mPath;
+    }
 
     /** @brief 返回默认值。 */
-    virtual QVariant defaultValue() const { return mDefaultValue; }
+    virtual QVariant defaultValue() const
+    {
+        return mDefaultValue;
+    }
 
 public slots:
     /** @brief 以 bool 语义写入。 */
@@ -60,11 +73,11 @@ signals:
     void changed(QVariant newValue);
 
 protected:
-    Settings *mOwner;       ///< 所属配置注册表，不拥有所有权。
-    QString mDomain;        ///< 配置域。
-    QString mKey;           ///< 配置键名。
-    QString mPath;          ///< 完整配置路径。
-    QVariant mDefaultValue; ///< 默认值。
+    Settings *mOwner;        ///< 所属配置注册表，不拥有所有权。
+    QString   mDomain;       ///< 配置域。
+    QString   mKey;          ///< 配置键名。
+    QString   mPath;         ///< 完整配置路径。
+    QVariant  mDefaultValue; ///< 默认值。
 };
 
 /**
@@ -73,15 +86,15 @@ protected:
  * 在 Setting 基础上把 QVariant 解释成颜色列表，并可按索引改色、统一改透明度。
  * 由 Settings 持有，供钢笔/荧光笔/网格的配色使用。
  */
-class ColorListSetting : public Setting {
+class ColorListSetting : public Setting
+{
     Q_OBJECT
 
 public:
     /** @brief 构造空的颜色列表设置。 */
     ColorListSetting(Settings *parent = 0);
     /** @brief 构造颜色列表设置，pAlpha 为统一透明度。 */
-    ColorListSetting(Settings *owner, const QString &pDomain, const QString &pKey,
-                     const QVariant &pDefaultValue, qreal pAlpha = 1.0);
+    ColorListSetting(Settings *owner, const QString &pDomain, const QString &pKey, const QVariant &pDefaultValue, qreal pAlpha = 1.0);
 
     /** @brief 析构。 */
     virtual ~ColorListSetting();
@@ -100,5 +113,5 @@ public:
 
 protected:
     QList<QColor> mColors; ///< 解析后的颜色列表。
-    qreal mAlpha;          ///< 统一透明度。
+    qreal         mAlpha;  ///< 统一透明度。
 };

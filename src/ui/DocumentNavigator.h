@@ -20,7 +20,6 @@
 /** 没有选中页时传给滚动槽的下标。 */
 #define NO_PAGESELECTED -1
 
-
 /**
  * @brief 页面缩略图导航视图。
  *
@@ -29,7 +28,8 @@
  * 单页更新和当前页变化信号，自行重建场景。长按缩略图可发起拖拽以调整页序，
  * 单击则切换当前页。视图的 QGraphicsScene 归本类所有，析构时删除。
  */
-class DocumentNavigator : public QGraphicsView {
+class DocumentNavigator : public QGraphicsView
+{
     Q_OBJECT
 public:
     /**

@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -24,7 +23,8 @@ class SpinningWheel;
  * （控制容器、文档缩略图）下方，用于提示“正在加载/保存”等短消息；显示后
  * 若不带转圈会在约 1 秒内逐级降低透明度并自动隐藏。它只是提示，不接收输入。
  */
-class MessageWindow : public FloatingPalette {
+class MessageWindow : public FloatingPalette
+{
     Q_OBJECT
 
 public:

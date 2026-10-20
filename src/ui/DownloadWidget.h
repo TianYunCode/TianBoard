@@ -18,8 +18,11 @@
 #include <memory>
 
 /** 下载列表的列：文件名与右侧的关闭图标。 */
-typedef enum { eItemColumn_Desc, eItemColumn_Close } eItemColumn;
-
+typedef enum
+{
+    eItemColumn_Desc,
+    eItemColumn_Close
+} eItemColumn;
 
 /**
  * @brief 在树控件第二行绘制下载进度的委托。
@@ -28,7 +31,8 @@ typedef enum { eItemColumn_Desc, eItemColumn_Close } eItemColumn;
  * 只存进度数据，由本委托画成进度条。委托不拥有数据，生命周期由 DownloadWidget
  * 的私有结构持有。
  */
-class DownloadProgressDelegate : public QItemDelegate {
+class DownloadProgressDelegate : public QItemDelegate
+{
     Q_OBJECT
 public:
     /**
@@ -48,7 +52,8 @@ protected:
  * 控件直接连接 DownloadManager 的信号刷新列表：每个下载占两行（名称行和进度行），
  * 点击名称行的关闭图标可取消单个下载，底部 Cancel 取消全部下载。
  */
-class DownloadWidget : public QWidget {
+class DownloadWidget : public QWidget
+{
     Q_OBJECT
 public:
     /**

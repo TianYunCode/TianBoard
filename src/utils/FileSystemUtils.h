@@ -20,7 +20,8 @@ class ProcessingProgressListener;
  * 所有函数都是静态的，便于测试；失败时返回 false 或空字符串，不抛异常。
  * 临时目录的登记表是进程级静态状态，因此只能从主线程调用。
  */
-class FileSystemUtils : public QObject {
+class FileSystemUtils : public QObject
+{
     Q_OBJECT
 
 public:
@@ -41,7 +42,10 @@ public:
     static QString applicationResourcesDirectory();
 
     /** @brief 默认临时目录名，取应用名。 */
-    static QString defaultTempDirName() { return QCoreApplication::applicationName(); }
+    static QString defaultTempDirName()
+    {
+        return QCoreApplication::applicationName();
+    }
     /** @brief 默认临时目录的完整路径。 */
     static QString defaultTempDirPath();
     /**
@@ -49,8 +53,7 @@ public:
      * @param templateString 目录名前缀，默认为应用名。
      * @param autoDeleteOnExit 为 true 时在进程退出时自动删除。
      */
-    static QString createTempDir(const QString &templateString = defaultTempDirName(),
-                                 bool autoDeleteOnExit = true);
+    static QString createTempDir(const QString &templateString = defaultTempDirName(), bool autoDeleteOnExit = true);
     /** @brief 清理上次异常退出遗留的同前缀临时目录。 */
     static void cleanupGhostTempFolders(const QString &templateString = defaultTempDirName());
 
@@ -122,8 +125,8 @@ public:
      * @param pRootDocumentFolder 为 true 时按根文档目录布局写入。
      * @param progressListener 可为空，用于回报进度。
      */
-    static bool compressDirInZip(const QDir &pDir, const QString &pDestDir, QuaZipFile *pOutZipFile,
-                                 bool pRootDocumentFolder, ProcessingProgressListener *progressListener = 0);
+    static bool compressDirInZip(const QDir &pDir, const QString &pDestDir, QuaZipFile *pOutZipFile, bool pRootDocumentFolder,
+        ProcessingProgressListener *progressListener = 0);
 
     /** @brief 把 zip 解压到目标目录，成功返回 true。 */
     static bool expandZipToDir(const QFile &pZipFile, const QDir &pTargetDir);
@@ -143,13 +146,18 @@ private:
  *
  * 由调用方实现，用于把已处理数量与总数反馈给界面；回调在执行压缩的线程中触发。
  */
-class ProcessingProgressListener {
+class ProcessingProgressListener
+{
 public:
     /** @brief 构造空接口。 */
-    ProcessingProgressListener() {}
+    ProcessingProgressListener()
+    {
+    }
 
     /** @brief 虚析构，允许经基类指针释放。 */
-    virtual ~ProcessingProgressListener() {}
+    virtual ~ProcessingProgressListener()
+    {
+    }
 
     /** @brief 进度回调；pOpType 为操作描述，pCurrent/pTotal 为当前与总数。 */
     virtual void processing(const QString &pOpType, int pCurrent, int pTotal) = 0;

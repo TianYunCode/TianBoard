@@ -13,11 +13,12 @@
 #include "ui/Resources.h"
 #include "ui/IconButton.h"
 
+struct WebToolsPalette::Private
+{
+};
 
-struct WebToolsPalette::Private {};
-
-WebToolsPalette::WebToolsPalette(QWidget *parent)
-    : ActionPalette(Qt::TopRightCorner, parent), d(new Private) {
+WebToolsPalette::WebToolsPalette(QWidget *parent) : ActionPalette(Qt::TopRightCorner, parent), d(new Private)
+{
     QList<QAction *> actions;
 
     actions << Application::mainWindow->ui().actionWebCustomCapture;
@@ -26,14 +27,16 @@ WebToolsPalette::WebToolsPalette(QWidget *parent)
 
     // 虚拟键盘只在支持软键盘的平台出现，避免桌面端多出一个无效按钮。
     if (PlatformUtils::hasVirtualKeyboard())
+    {
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
+    }
 
     setActions(actions);
     setButtonIconSize(QSize(42, 42));
     adjustSizeAndPosition();
 }
 
-
-WebToolsPalette::~WebToolsPalette() {
+WebToolsPalette::~WebToolsPalette()
+{
     // 刻意留空
 }

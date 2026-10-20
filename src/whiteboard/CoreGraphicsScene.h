@@ -9,7 +9,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 
-
 /**
  * @brief QGraphicsScene 的轻量基类，提供“先移出场景、再择机删除”的延迟删除语义。
  *
@@ -19,7 +18,8 @@
  *
  * 线程约束：与 Qt 图形视图一致，只在 GUI 线程访问。
  */
-class CoreGraphicsScene : public QGraphicsScene {
+class CoreGraphicsScene : public QGraphicsScene
+{
 public:
     CoreGraphicsScene(QObject *parent = 0);
     virtual ~CoreGraphicsScene();
@@ -48,13 +48,19 @@ public:
     void addItemToDeletion(QGraphicsItem *item);
 
     /// @brief 场景自上次保存后是否被修改。
-    bool isModified() const { return mIsModified; }
+    bool isModified() const
+    {
+        return mIsModified;
+    }
 
     /// @brief 设置脏标记，通常在内容变更或保存完成后调用。
-    void setModified(bool pModified) { mIsModified = pModified; }
+    void setModified(bool pModified)
+    {
+        mIsModified = pModified;
+    }
 
 private:
     QSet<QGraphicsItem *> mItemsToDelete; ///< 已移出场景但尚未释放的图元
 
-    bool mIsModified; ///< 内容脏标记
+    bool mIsModified;                     ///< 内容脏标记
 };

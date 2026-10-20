@@ -11,18 +11,20 @@
 #include <QLabel>
 #include <QApplication>
 
-
-struct ExLineEdit::Private {
-    QWidget *mLeftWidget{nullptr};
-    QLineEdit *mLineEdit{nullptr};
+struct ExLineEdit::Private
+{
+    QWidget     *mLeftWidget{nullptr};
+    QLineEdit   *mLineEdit{nullptr};
     ClearButton *mClearButton{nullptr};
 };
 
-struct UrlLineEdit::Private {
+struct UrlLineEdit::Private
+{
     WebView *mWebView{nullptr};
 };
 
-ExLineEdit::ExLineEdit(QWidget *parent) : QWidget(parent), d(new Private) {
+ExLineEdit::ExLineEdit(QWidget *parent) : QWidget(parent), d(new Private)
+{
     d->mLineEdit = new QLineEdit(this);
 
     setFocusPolicy(d->mLineEdit->focusPolicy());
@@ -46,7 +48,11 @@ ExLineEdit::ExLineEdit(QWidget *parent) : QWidget(parent), d(new Private) {
 
     // 右侧清除按钮：点击清空文本，文本变化时由 ClearButton 自己控制显隐
     d->mClearButton = new ClearButton(this);
-    connect(d->mClearButton, &QAbstractButton::clicked, d->mLineEdit, [this] { d->mLineEdit->clear(); });
+    connect(d->mClearButton, &QAbstractButton::clicked, d->mLineEdit,
+        [this]
+        {
+            d->mLineEdit->clear();
+        });
     connect(d->mLineEdit, &QLineEdit::textChanged, d->mClearButton, &ClearButton::textChanged);
 
     d->mClearButton->hide();
@@ -54,34 +60,39 @@ ExLineEdit::ExLineEdit(QWidget *parent) : QWidget(parent), d(new Private) {
 
 ExLineEdit::~ExLineEdit() = default;
 
-void ExLineEdit::setLeftWidget(QWidget *widget) {
+void ExLineEdit::setLeftWidget(QWidget *widget)
+{
     delete d->mLeftWidget;
     d->mLeftWidget = widget;
 
     updateGeometries();
 }
 
-QWidget *ExLineEdit::leftWidget() const {
+QWidget *ExLineEdit::leftWidget() const
+{
     return d->mLeftWidget;
 }
 
-QLineEdit *ExLineEdit::lineEdit() const {
+QLineEdit *ExLineEdit::lineEdit() const
+{
     return d->mLineEdit;
 }
 
-void ExLineEdit::resizeEvent(QResizeEvent *event) {
+void ExLineEdit::resizeEvent(QResizeEvent *event)
+{
     Q_ASSERT(d->mLeftWidget);
     updateGeometries();
     QWidget::resizeEvent(event);
 }
 
-void ExLineEdit::updateGeometries() {
+void ExLineEdit::updateGeometries()
+{
     QStyleOptionFrame panel;
     initStyleOption(&panel);
 
     QRect rect = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
 
-    int width = rect.width();
+    int width  = rect.width();
 
     // 左侧图标固定 32x32，行编辑框从图标右侧开始，清除按钮贴右边缘。
     d->mLeftWidget->setGeometry(0, -4, 32, 32);
@@ -91,82 +102,94 @@ void ExLineEdit::updateGeometries() {
     d->mClearButton->setGeometry(this->width() - this->height() - 2, 0, this->height(), this->height());
 }
 
-void ExLineEdit::initStyleOption(QStyleOptionFrame *option) const {
+void ExLineEdit::initStyleOption(QStyleOptionFrame *option) const
+{
     option->initFrom(this);
-    option->rect = contentsRect();
-    option->lineWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, option, this);
-    option->midLineWidth = 0;
-    option->state |= QStyle::State_Sunken;
+    option->rect          = contentsRect();
+    option->lineWidth     = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, option, this);
+    option->midLineWidth  = 0;
+    option->state        |= QStyle::State_Sunken;
     if (d->mLineEdit->isReadOnly())
+    {
         option->state |= QStyle::State_ReadOnly;
+    }
 #ifdef QT_KEYPAD_NAVIGATION
     if (hasEditFocus())
+    {
         option->state |= QStyle::State_HasEditFocus;
+    }
 #endif
     option->features = QStyleOptionFrame::None;
 }
 
-QSize ExLineEdit::sizeHint() const {
+QSize ExLineEdit::sizeHint() const
+{
     d->mLineEdit->setFrame(true);
     QSize size = d->mLineEdit->sizeHint();
     d->mLineEdit->setFrame(false);
     return size;
 }
 
-void ExLineEdit::focusInEvent(QFocusEvent *event) {
+void ExLineEdit::focusInEvent(QFocusEvent *event)
+{
     d->mLineEdit->event(event);
     QWidget::focusInEvent(event);
 }
 
-void ExLineEdit::focusOutEvent(QFocusEvent *event) {
+void ExLineEdit::focusOutEvent(QFocusEvent *event)
+{
     d->mLineEdit->event(event);
 
-    if (d->mLineEdit->completer()) {
+    if (d->mLineEdit->completer())
+    {
         // QLineEdit::setCompleter() 内部已经把 highlighted 连到它自己的补全回写槽，
         // 这里只需要补“回车选中”那一路
-        connect(d->mLineEdit->completer(), qOverload<const QString &>(&QCompleter::activated), d->mLineEdit,
-                &QLineEdit::setText);
+        connect(d->mLineEdit->completer(), qOverload<const QString &>(&QCompleter::activated), d->mLineEdit, &QLineEdit::setText);
     }
     QWidget::focusOutEvent(event);
 }
 
-void ExLineEdit::keyPressEvent(QKeyEvent *event) {
+void ExLineEdit::keyPressEvent(QKeyEvent *event)
+{
     d->mLineEdit->event(event);
     QWidget::keyPressEvent(event);
 }
 
-bool ExLineEdit::event(QEvent *event) {
+bool ExLineEdit::event(QEvent *event)
+{
     if (event->type() == QEvent::ShortcutOverride)
+    {
         return d->mLineEdit->event(event);
+    }
 
     return QWidget::event(event);
 }
 
-
-void ExLineEdit::paintEvent(QPaintEvent *) {
+void ExLineEdit::paintEvent(QPaintEvent *)
+{
     // 不绘制自身背景，完全依赖样式表与内嵌行编辑框，避免出现双边框。
 }
 
-
-QVariant ExLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const {
+QVariant ExLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
+{
     return d->mLineEdit->inputMethodQuery(property);
 }
 
-
-void ExLineEdit::inputMethodEvent(QInputMethodEvent *e) {
+void ExLineEdit::inputMethodEvent(QInputMethodEvent *e)
+{
     d->mLineEdit->event(e);
 }
 
-
-void ExLineEdit::setVisible(bool pVisible) {
+void ExLineEdit::setVisible(bool pVisible)
+{
     QWidget::setVisible(pVisible);
     d->mLineEdit->setVisible(pVisible);
     d->mClearButton->setVisible(pVisible);
     d->mLeftWidget->setVisible(pVisible);
 }
 
-
-class UrlIconLabel : public QLabel {
+class UrlIconLabel : public QLabel
+{
 public:
     UrlIconLabel(QWidget *parent);
 
@@ -180,21 +203,26 @@ private:
     QPoint m_dragStartPos;
 };
 
-UrlIconLabel::UrlIconLabel(QWidget *parent) : QLabel(parent), m_webView(0) {
+UrlIconLabel::UrlIconLabel(QWidget *parent) : QLabel(parent), m_webView(0)
+{
     setMinimumWidth(16);
     setMinimumHeight(16);
 }
 
-void UrlIconLabel::mousePressEvent(QMouseEvent *event) {
+void UrlIconLabel::mousePressEvent(QMouseEvent *event)
+{
     if (event->button() == Qt::LeftButton)
+    {
         m_dragStartPos = event->pos();
+    }
     QLabel::mousePressEvent(event);
 }
 
-void UrlIconLabel::mouseMoveEvent(QMouseEvent *event) {
-    if (event->buttons() == Qt::LeftButton &&
-        (event->pos() - m_dragStartPos).manhattanLength() > QApplication::startDragDistance() && m_webView) {
-        QDrag *drag = new QDrag(this);
+void UrlIconLabel::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() == Qt::LeftButton && (event->pos() - m_dragStartPos).manhattanLength() > QApplication::startDragDistance() && m_webView)
+    {
+        QDrag     *drag     = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
         mimeData->setText(QString::fromUtf8(m_webView->url().toEncoded()));
         QList<QUrl> urls;
@@ -205,31 +233,38 @@ void UrlIconLabel::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
-UrlLineEdit::UrlLineEdit(QWidget *parent) : ExLineEdit(parent), d(new Private) {
+UrlLineEdit::UrlLineEdit(QWidget *parent) : ExLineEdit(parent), d(new Private)
+{
     setLeftWidget(new QWidget(this));
 }
 
 UrlLineEdit::~UrlLineEdit() = default;
 
-
-void UrlLineEdit::setWebView(WebView *pWebView) {
+void UrlLineEdit::setWebView(WebView *pWebView)
+{
     d->mWebView = pWebView;
 
     connect(pWebView, &QWebEngineView::urlChanged, this, &UrlLineEdit::webViewUrlChanged);
 
-    connect(pWebView, &QWebEngineView::loadProgress, this, [this] { update(); });
+    connect(pWebView, &QWebEngineView::loadProgress, this,
+        [this]
+        {
+            update();
+        });
 }
 
-
-void UrlLineEdit::webViewUrlChanged(const QUrl &url) {
+void UrlLineEdit::webViewUrlChanged(const QUrl &url)
+{
     lineEdit()->setText(url.toString());
     lineEdit()->setCursorPosition(0);
 }
 
-
-void UrlLineEdit::focusOutEvent(QFocusEvent *event) {
+void UrlLineEdit::focusOutEvent(QFocusEvent *event)
+{
     // 用户清空地址后离开时，把当前页面 URL 填回去，避免地址栏空着失去参考。
     if (lineEdit()->text().isEmpty() && d->mWebView)
+    {
         lineEdit()->setText(QString::fromUtf8(d->mWebView->url().toEncoded()));
+    }
     ExLineEdit::focusOutEvent(event);
 }

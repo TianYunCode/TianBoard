@@ -19,7 +19,6 @@
 /** 遮罩形状的最大边长（像素），同时作为尺寸滑块的上限。 */
 #define MAX_SHAPE_WIDTH 200
 
-
 /**
  * @brief 遮罩缓存属性面板，作为右侧 DockPalette 的一个标签页。
  *
@@ -28,7 +27,8 @@
  * 标记为 "Cache" 的 GraphicsCache 时，本页通过 showTab() 自动出现，关闭按钮会
  * 把该缓存从场景和静态缓存列表中移除。面板只在 Board 模式可见。
  */
-class CachePropertiesWidget : public DockPaletteWidget {
+class CachePropertiesWidget : public DockPaletteWidget
+{
     Q_OBJECT
 public:
     /**
@@ -44,7 +44,10 @@ public:
      * @param mode 当前界面模式
      * @return mode 为 Board 时返回 true
      */
-    bool visibleInMode(DockWidgetMode mode) { return mode == DockWidgetMode::Board; }
+    bool visibleInMode(DockWidgetMode mode)
+    {
+        return mode == DockWidgetMode::Board;
+    }
 
 public slots:
     /**
@@ -76,23 +79,23 @@ private slots:
     void onCacheEnabled();
 
 private:
-    QVBoxLayout *mpLayout;
-    QLabel *mpCachePropertiesLabel;
-    QLabel *mpColorLabel;
-    QLabel *mpShapeLabel;
-    QLabel *mpSizeLabel;
-    QPushButton *mpColor;
-    QPushButton *mpSquareButton;
-    QPushButton *mpCircleButton;
-    QPushButton *mpCloseButton;
-    QSlider *mpSizeSlider;
-    QHBoxLayout *mpColorLayout;
-    QHBoxLayout *mpShapeLayout;
-    QHBoxLayout *mpSizeLayout;
-    QHBoxLayout *mpCloseLayout;
-    QWidget *mpProperties;
-    QVBoxLayout *mpPropertiesLayout;
-    QColor mActualColor;
-    eMaskShape mActualShape;
+    QVBoxLayout   *mpLayout;
+    QLabel        *mpCachePropertiesLabel;
+    QLabel        *mpColorLabel;
+    QLabel        *mpShapeLabel;
+    QLabel        *mpSizeLabel;
+    QPushButton   *mpColor;
+    QPushButton   *mpSquareButton;
+    QPushButton   *mpCircleButton;
+    QPushButton   *mpCloseButton;
+    QSlider       *mpSizeSlider;
+    QHBoxLayout   *mpColorLayout;
+    QHBoxLayout   *mpShapeLayout;
+    QHBoxLayout   *mpSizeLayout;
+    QHBoxLayout   *mpCloseLayout;
+    QWidget       *mpProperties;
+    QVBoxLayout   *mpPropertiesLayout;
+    QColor         mActualColor;
+    eMaskShape     mActualShape;
     GraphicsCache *mpCurrentCache;
 };

@@ -30,24 +30,28 @@ class QGraphicsVideoItem;
  * 播放器与音频输出由本类创建并拥有，析构时释放；画面层由视频子类创建，作为子项
  * 随本类销毁。媒体项通常作为组合的子项存在，选择框由委托管理。
  */
-class GraphicsMediaItem : public QObject,
-                          public Item,
-                          public GraphicsItem,
-                          public QGraphicsRectItem,
-                          public ResizableGraphicsItem {
+class GraphicsMediaItem : public QObject, public Item, public GraphicsItem, public QGraphicsRectItem, public ResizableGraphicsItem
+{
     Q_OBJECT
 
 public:
     /** @brief 媒体种类。 */
-    typedef enum {
+    typedef enum
+    {
         mediaType_Video, ///< 视频（带画面）
         mediaType_Audio  ///< 音频（仅控制条）
     } mediaType;
 
-    enum { Type = GraphicsItemType::MediaItemType };
+    enum
+    {
+        Type = GraphicsItemType::MediaItemType
+    };
 
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /**
      * @brief 根据文件扩展名创建音频或视频项。
@@ -71,13 +75,25 @@ public:
     /** @brief 返回所属的 GraphicsScene，失败时返回空。 */
     virtual GraphicsScene *scene();
     /** @brief 是否关联了一张用于替代显示（如封面）的图像。 */
-    bool hasLinkedImage() const { return haveLinkedImage; }
+    bool hasLinkedImage() const
+    {
+        return haveLinkedImage;
+    }
     /** @brief 返回媒体文件地址。 */
-    virtual QUrl mediaFileUrl() const { return mMediaFileUrl; }
+    virtual QUrl mediaFileUrl() const
+    {
+        return mMediaFileUrl;
+    }
     /** @brief 是否静音。 */
-    bool isMuted() const { return mMuted; }
+    bool isMuted() const
+    {
+        return mMuted;
+    }
     /** @brief 返回文档记录中的初始播放位置（毫秒）。 */
-    qint64 initialPos() const { return mInitialPos; }
+    qint64 initialPos() const
+    {
+        return mInitialPos;
+    }
 
     /** @brief 媒体是否支持拖动定位。 */
     bool isMediaSeekable() const;
@@ -89,9 +105,15 @@ public:
     /** @brief 返回播放器状态。 */
     QMediaPlayer::PlaybackState playerState() const;
     /** @brief 是否正在播放。 */
-    bool isPlaying() const { return (mMediaObject->playbackState() == QMediaPlayer::PlayingState); }
+    bool isPlaying() const
+    {
+        return (mMediaObject->playbackState() == QMediaPlayer::PlayingState);
+    }
     /** @brief 是否已暂停。 */
-    bool isPaused() const { return (mMediaObject->playbackState() == QMediaPlayer::PausedState); }
+    bool isPaused() const
+    {
+        return (mMediaObject->playbackState() == QMediaPlayer::PausedState);
+    }
     /** @brief 是否已停止。 */
     bool isStopped() const;
 
@@ -99,7 +121,10 @@ public:
     QRectF boundingRect() const;
 
     /** @brief 返回当前尺寸。 */
-    QSizeF size() const { return rect().size(); }
+    QSizeF size() const
+    {
+        return rect().size();
+    }
 
     // Setters
     /** @brief 切换媒体文件并重新加载播放器源。 */
@@ -123,7 +148,10 @@ public:
     /** @brief 设置尺寸并同步画面层。 */
     virtual void setSize(int width, int height);
     /** @brief 缩放入口，转发到 setSize。 */
-    void resize(qreal w, qreal h) { setSize(w, h); }
+    void resize(qreal w, qreal h)
+    {
+        setSize(w, h);
+    }
 
     /** @brief 绘制媒体项背景或占位内容。 */
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -168,19 +196,19 @@ protected:
 
     QSize mMinimumSize;
 
-    bool mMuted;
-    bool mMutedByUserAction;
+    bool        mMuted;
+    bool        mMutedByUserAction;
     static bool sIsMutedByDefault;
-    bool mStopped;
+    bool        mStopped;
 
-    QUrl mMediaFileUrl;
+    QUrl    mMediaFileUrl;
     QString mMediaSource;
 
-    bool mShouldMove;
+    bool    mShouldMove;
     QPointF mMousePressPos;
     QPointF mMouseMovePos;
 
-    bool haveLinkedImage;
+    bool                 haveLinkedImage;
     QGraphicsPixmapItem *mLinkedImage;
 
     qint64 mInitialPos;
@@ -191,13 +219,20 @@ protected:
 /**
  * @brief 音频媒体项：只有控制条与音频输出，没有画面。
  */
-class GraphicsAudioItem : public GraphicsMediaItem {
+class GraphicsAudioItem : public GraphicsMediaItem
+{
     Q_OBJECT
 
 public:
-    enum { Type = GraphicsItemType::AudioItemType };
+    enum
+    {
+        Type = GraphicsItemType::AudioItemType
+    };
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /**
      * @brief 构造音频项。
@@ -206,7 +241,10 @@ public:
      */
     GraphicsAudioItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
     /** @brief 返回音频种类。 */
-    mediaType getMediaType() const { return mediaType_Audio; }
+    mediaType getMediaType() const
+    {
+        return mediaType_Audio;
+    }
 
     /** @brief 深拷贝音频项。 */
     virtual Item *deepCopy() const;
@@ -215,13 +253,20 @@ public:
 /**
  * @brief 视频媒体项：在音频能力之上增加画面层与占位提示。
  */
-class GraphicsVideoItem : public GraphicsMediaItem {
+class GraphicsVideoItem : public GraphicsMediaItem
+{
     Q_OBJECT
 
 public:
-    enum { Type = GraphicsItemType::VideoItemType };
+    enum
+    {
+        Type = GraphicsItemType::VideoItemType
+    };
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /**
      * @brief 构造视频项。
@@ -231,7 +276,10 @@ public:
     GraphicsVideoItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
 
     /** @brief 返回视频种类。 */
-    mediaType getMediaType() const { return mediaType_Video; }
+    mediaType getMediaType() const
+    {
+        return mediaType_Video;
+    }
 
     /** @brief 设置尺寸并同步画面层。 */
     void setSize(int width, int height);

@@ -16,7 +16,8 @@ class DocumentProxy;
  * 借助 PDFRenderer 缓存同一 PDF 的渲染器，为每一页构造 GraphicsPDFItem；
  * 放置到场景时把首页作为背景并同步页面标称尺寸，后续页由调用方翻页放置。
  */
-class ImportPDF : public PageBasedImportAdaptor {
+class ImportPDF : public PageBasedImportAdaptor
+{
     Q_OBJECT;
 
 public:

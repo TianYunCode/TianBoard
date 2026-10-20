@@ -8,9 +8,8 @@
 #include "whiteboard/GraphicsGroupContainerItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
 
-
-GraphicsGroupContainerItem::GraphicsGroupContainerItem(QGraphicsItem *parent)
-    : QGraphicsItem(parent), mCurrentItem(NULL) {
+GraphicsGroupContainerItem::GraphicsGroupContainerItem(QGraphicsItem *parent) : QGraphicsItem(parent), mCurrentItem(NULL)
+{
     setData(GraphicsItemData::ItemLayerType, ItemLayerType::Object);
 
     setDelegate(new GraphicsGroupContainerItemDelegate(this, 0));
@@ -27,30 +26,41 @@ GraphicsGroupContainerItem::GraphicsGroupContainerItem(QGraphicsItem *parent)
     setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::ObjectItem));
 }
 
-GraphicsGroupContainerItem::~GraphicsGroupContainerItem() {}
+GraphicsGroupContainerItem::~GraphicsGroupContainerItem()
+{
+}
 
-void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
-    if (!item) {
+void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
+{
+    if (!item)
+    {
         qWarning("GraphicsGroupContainerItem::addToGroup: cannot add null item");
         return;
     }
-    if (item == this) {
+    if (item == this)
+    {
         qWarning("GraphicsGroupContainerItem::addToGroup: cannot add a group to itself");
         return;
     }
 
     // 组合的旋转/翻转/锁定能力取所有子项的交集：已有子项时只能收紧，不能放宽
-    if (childItems().count()) {
-        if (GraphicsItem::isFlippable(this) && !GraphicsItem::isFlippable(item)) {
+    if (childItems().count())
+    {
+        if (GraphicsItem::isFlippable(this) && !GraphicsItem::isFlippable(item))
+        {
             Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, false);
         }
-        if (GraphicsItem::isRotatable(this) && !GraphicsItem::isRotatable(item)) {
+        if (GraphicsItem::isRotatable(this) && !GraphicsItem::isRotatable(item))
+        {
             Delegate()->setFrameFlag(GF_REVOLVABLE, false);
         }
-        if (!GraphicsItem::isLocked(this) && GraphicsItem::isLocked(item)) {
+        if (!GraphicsItem::isLocked(this) && GraphicsItem::isLocked(item))
+        {
             Delegate()->setLocked(true);
         }
-    } else {
+    }
+    else
+    {
         Delegate()->setFrameFlag(GF_FLIPPABLE_ALL_AXIS, GraphicsItem::isFlippable(item));
         Delegate()->setFrameFlag(GF_REVOLVABLE, GraphicsItem::isRotatable(item));
         Delegate()->setLocked(GraphicsItem::isLocked(item));
@@ -58,13 +68,16 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
 
     // 加入控制类子项后，组合整体也归入控制图层
     if (item->data(GraphicsItemData::ItemLayerType) == ItemLayerType::Control)
+    {
         setData(GraphicsItemData::ItemLayerType, item->data(GraphicsItemData::ItemLayerType));
+    }
 
     // 先求出子项到组合的变换，再改变父子关系，保证视觉位置不变
-    bool ok;
+    bool       ok;
     QTransform itemTransform = item->itemTransform(this, &ok);
 
-    if (!ok) {
+    if (!ok)
+    {
         qWarning("GraphicsGroupContainerItem::addToGroup: could not find a valid transformation from item to "
                  "group coordinates");
         return;
@@ -79,25 +92,32 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
     QTransform newItemTransform(itemTransform);
     item->setPos(mapFromItem(item, 0, 0));
 
-    if (item->scene()) {
+    if (item->scene())
+    {
         item->scene()->removeItem(item);
     }
 
     // 从待删除列表中移除，避免场景随后把刚加入组合的项删掉
     if (corescene())
+    {
         corescene()->removeItemFromDeletion(item);
+    }
     item->setParentItem(this);
 
     // pos 已经承载了平移，变换里要把这部分减掉，否则会重复平移
     if (!item->pos().isNull())
+    {
         newItemTransform *= QTransform::fromTranslate(-item->x(), -item->y());
+    }
 
     // 再把旋转、缩放、变换列表、变换原点等已经被 setPos/setRotation 等表达的属性剥离
-    QPointF origin = item->transformOriginPoint();
-    QMatrix4x4 m;
+    QPointF                     origin = item->transformOriginPoint();
+    QMatrix4x4                  m;
     QList<QGraphicsTransform *> transformList = item->transformations();
     for (int i = 0; i < transformList.size(); ++i)
+    {
         transformList.at(i)->applyTo(&m);
+    }
     newItemTransform *= m.toTransform().inverted();
     newItemTransform.translate(origin.x(), origin.y());
     newItemTransform.rotate(-item->rotation());
@@ -112,15 +132,18 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item) {
     itemsBoundingRect |= itemTransform.mapRect(item->boundingRect() | item->childrenBoundingRect());
     update();
 }
-void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item) {
-    if (!item) {
+void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item)
+{
+    if (!item)
+    {
         qDebug() << "can't specify the item because of the null pointer";
         return;
     }
 
     // 先登记到待删除列表，移出组合的过程中场景不会立即回收它
     CoreGraphicsScene *groupScene = corescene();
-    if (groupScene) {
+    if (groupScene)
+    {
         groupScene->addItemToDeletion(item);
     }
 
@@ -129,11 +152,12 @@ void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item) {
     item->setFlags(ItemIsSelectable | ItemIsFocusable);
 }
 
-void GraphicsGroupContainerItem::deselectCurrentItem() {
+void GraphicsGroupContainerItem::deselectCurrentItem()
+{
     // 只有媒体项需要额外的工具栏收尾，其他子项无需处理
-    if (mCurrentItem &&
-        (mCurrentItem->type() == GraphicsMediaItem::Type || mCurrentItem->type() == GraphicsVideoItem::Type ||
-         mCurrentItem->type() == GraphicsAudioItem::Type)) {
+    if (mCurrentItem && (mCurrentItem->type() == GraphicsMediaItem::Type || mCurrentItem->type() == GraphicsVideoItem::Type ||
+                            mCurrentItem->type() == GraphicsAudioItem::Type))
+    {
         dynamic_cast<GraphicsMediaItem *>(mCurrentItem)->Delegate()->getToolBarItem()->hide();
 
         mCurrentItem->setSelected(false);
@@ -141,12 +165,13 @@ void GraphicsGroupContainerItem::deselectCurrentItem() {
     }
 }
 
-QRectF GraphicsGroupContainerItem::boundingRect() const {
+QRectF GraphicsGroupContainerItem::boundingRect() const
+{
     return itemsBoundingRect;
 }
 
-void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                                       QWidget *widget) {
+void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
     Q_UNUSED(widget);
     Q_UNUSED(painter);
     Q_UNUSED(option);
@@ -155,13 +180,15 @@ void GraphicsGroupContainerItem::paint(QPainter *painter, const QStyleOptionGrap
     Delegate()->postpaint(painter, option, widget);
 }
 
-CoreGraphicsScene *GraphicsGroupContainerItem::corescene() {
+CoreGraphicsScene *GraphicsGroupContainerItem::corescene()
+{
     CoreGraphicsScene *castScene = dynamic_cast<CoreGraphicsScene *>(QGraphicsItem::scene());
 
     return castScene;
 }
 
-GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplication() const {
+GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplication() const
+{
     GraphicsGroupContainerItem *copy = new GraphicsGroupContainerItem();
 
     // 子项尚未复制，保留原 UUID 以便调用方把副本与原组合对应起来
@@ -172,15 +199,17 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopyNoChildDuplicati
     return copy;
 }
 
-
-GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const {
+GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const
+{
     GraphicsGroupContainerItem *copy = new GraphicsGroupContainerItem();
 
     copy->setUuid(this->uuid());
 
-    foreach (QGraphicsItem *it, childItems()) {
+    foreach (QGraphicsItem *it, childItems())
+    {
         Item *childAsItem = dynamic_cast<Item *>(it);
-        if (childAsItem) {
+        if (childAsItem)
+        {
             QGraphicsItem *cloneItem = dynamic_cast<QGraphicsItem *>(childAsItem->deepCopy());
             copy->addToGroup(cloneItem);
         }
@@ -190,10 +219,11 @@ GraphicsGroupContainerItem *GraphicsGroupContainerItem::deepCopy() const {
     return copy;
 }
 
-
-void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const {
+void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const
+{
     GraphicsGroupContainerItem *cp = dynamic_cast<GraphicsGroupContainerItem *>(copy);
-    if (cp) {
+    if (cp)
+    {
         cp->setPos(this->pos());
         cp->setTransform(this->transform());
         cp->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -203,15 +233,18 @@ void GraphicsGroupContainerItem::copyItemParameters(Item *copy) const {
     }
 }
 
-void GraphicsGroupContainerItem::setUuid(const QUuid &pUuid) {
+void GraphicsGroupContainerItem::setUuid(const QUuid &pUuid)
+{
     Item::setUuid(pUuid);
     // 同时存一份到图形项数据，场景按 UUID 查找项时可直接读取，无需转换类型
     setData(GraphicsItemData::ItemUuid, QVariant(pUuid));
 }
 
-void GraphicsGroupContainerItem::destroy(bool canUndo) {
+void GraphicsGroupContainerItem::destroy(bool canUndo)
+{
     // 先逐个解除父子关系并恢复交互标志，再删除空组合
-    foreach (QGraphicsItem *item, childItems()) {
+    foreach (QGraphicsItem *item, childItems())
+    {
         pRemoveFromGroup(item);
         item->setFlag(QGraphicsItem::ItemIsSelectable, true);
         item->setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -220,58 +253,76 @@ void GraphicsGroupContainerItem::destroy(bool canUndo) {
     remove(canUndo);
 }
 
-void GraphicsGroupContainerItem::clearSource() {
-    foreach (QGraphicsItem *child, childItems()) {
+void GraphicsGroupContainerItem::clearSource()
+{
+    foreach (QGraphicsItem *child, childItems())
+    {
         GraphicsItem *item = dynamic_cast<GraphicsItem *>(child);
-        if (item) {
+        if (item)
+        {
             item->clearSource();
         }
     }
 }
 
-void GraphicsGroupContainerItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    if (Delegate()->mousePressEvent(event)) {
+void GraphicsGroupContainerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (Delegate()->mousePressEvent(event))
+    {
         // 有意为空：委托已消费该事件，无需再走基类逻辑
-    } else {
+    }
+    else
+    {
         // 委托未接管时按普通图形项处理，并确保组合被选中
         QGraphicsItem::mousePressEvent(event);
         setSelected(true);
     }
 }
 
-void GraphicsGroupContainerItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-    if (Delegate()->mouseMoveEvent(event)) {
+void GraphicsGroupContainerItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (Delegate()->mouseMoveEvent(event))
+    {
         // 有意为空：委托已消费该事件，无需再走基类逻辑
-    } else {
+    }
+    else
+    {
         QGraphicsItem::mouseMoveEvent(event);
     }
 }
 
-void GraphicsGroupContainerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+void GraphicsGroupContainerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
     QGraphicsItem::mouseReleaseEvent(event);
 }
 
-QVariant GraphicsGroupContainerItem::itemChange(GraphicsItemChange change, const QVariant &value) {
+QVariant GraphicsGroupContainerItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
     QVariant newValue = Delegate()->itemChange(change, value);
 
     // 组合移动或变化后，子项的选择框要跟着重新摆放
-    foreach (QGraphicsItem *child, childItems()) {
+    foreach (QGraphicsItem *child, childItems())
+    {
         GraphicsItem *item = dynamic_cast<GraphicsItem *>(child);
-        if (item) {
+        if (item)
+        {
             item->Delegate()->positionHandles();
         }
     }
 
     // 选中状态变化时释放媒体子项的交互状态
-    if (QGraphicsItem::ItemSelectedChange == change) {
+    if (QGraphicsItem::ItemSelectedChange == change)
+    {
         deselectCurrentItem();
     }
 
     return QGraphicsItem::itemChange(change, newValue);
 }
 
-void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
-    if (!item) {
+void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
+{
+    if (!item)
+    {
         qWarning("QGraphicsItemGroup::removeFromGroup: cannot remove null item");
         return;
     }
@@ -279,23 +330,31 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
     QGraphicsItem *newParent = parentItem();
 
     // 移出后重新计算剩余子项的公共能力，允许恢复旋转/翻转
-    if (childItems().count()) {
-        if (!GraphicsItem::isFlippable(item) || !GraphicsItem::isRotatable(item)) {
+    if (childItems().count())
+    {
+        if (!GraphicsItem::isFlippable(item) || !GraphicsItem::isRotatable(item))
+        {
             bool flippableNow = true;
             bool rotatableNow = true;
-            bool lockedNow = false;
+            bool lockedNow    = false;
 
-            foreach (QGraphicsItem *item, childItems()) {
-                if (!GraphicsItem::isFlippable(item)) {
+            foreach (QGraphicsItem *item, childItems())
+            {
+                if (!GraphicsItem::isFlippable(item))
+                {
                     flippableNow = false;
                 }
-                if (!GraphicsItem::isRotatable(item)) {
+                if (!GraphicsItem::isRotatable(item))
+                {
                     rotatableNow = false;
                 }
                 if (GraphicsItem::isLocked(item))
+                {
                     lockedNow = true;
+                }
 
-                if (!rotatableNow && !flippableNow && lockedNow) {
+                if (!rotatableNow && !flippableNow && lockedNow)
+                {
                     break;
                 }
             }
@@ -306,33 +365,42 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item) {
     }
 
     // 先求子项到新父项的变换，再换父项并用地图像素位置保持视觉位置
-    bool ok;
+    bool       ok;
     QTransform itemTransform;
     if (newParent)
+    {
         itemTransform = item->itemTransform(newParent, &ok);
+    }
     else
+    {
         itemTransform = item->sceneTransform();
+    }
 
     QPointF oldPos = item->mapToItem(newParent, 0, 0);
     item->setParentItem(newParent);
     item->setPos(oldPos);
 
     GraphicsScene *Scene = dynamic_cast<GraphicsScene *>(item->scene());
-    if (Scene) {
+    if (Scene)
+    {
         Scene->addItem(item);
     }
 
     // 从新变换的平移分量中扣除位置
     if (!item->pos().isNull())
+    {
         itemTransform *= QTransform::fromTranslate(-item->x(), -item->y());
+    }
 
     // 剥离 itemTransform()/sceneTransform() 附带的额外变换属性
     // （旋转、缩放、变换列表、变换原点）
-    QPointF origin = item->transformOriginPoint();
-    QMatrix4x4 m;
+    QPointF                     origin = item->transformOriginPoint();
+    QMatrix4x4                  m;
     QList<QGraphicsTransform *> transformList = item->transformations();
     for (int i = 0; i < transformList.size(); ++i)
+    {
         transformList.at(i)->applyTo(&m);
+    }
     itemTransform *= m.toTransform().inverted();
     itemTransform.translate(origin.x(), origin.y());
     itemTransform.rotate(-item->rotation());

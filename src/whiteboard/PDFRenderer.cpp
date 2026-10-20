@@ -6,19 +6,25 @@
 
 #include "whiteboard/QPdfRenderer.h"
 
-
 QMap<QUuid, QPointer<PDFRenderer>> PDFRenderer::sRenderers;
 
-PDFRenderer::PDFRenderer() : dpiForRendering(96) {}
+PDFRenderer::PDFRenderer() : dpiForRendering(96)
+{
+}
 
-PDFRenderer::~PDFRenderer() {
+PDFRenderer::~PDFRenderer()
+{
     // 刻意留空
 }
 
-PDFRenderer *PDFRenderer::rendererForUuid(const QUuid &uuid, const QString &filename, bool importingFile) {
-    if (sRenderers.contains(uuid)) {
+PDFRenderer *PDFRenderer::rendererForUuid(const QUuid &uuid, const QString &filename, bool importingFile)
+{
+    if (sRenderers.contains(uuid))
+    {
         return sRenderers.value(uuid);
-    } else {
+    }
+    else
+    {
         PDFRenderer *newRenderer = new QPdfRenderer(filename, importingFile);
 
         newRenderer->setRefCount(0);
@@ -31,35 +37,39 @@ PDFRenderer *PDFRenderer::rendererForUuid(const QUuid &uuid, const QString &file
 
         sRenderers.insert(newRenderer->fileUuid(), newRenderer);
 
-        QScreen *screen = QGuiApplication::primaryScreen();
-        int dpiCommon =
-            screen ? static_cast<int>((screen->physicalDotsPerInchX() + screen->physicalDotsPerInchY()) / 2)
-                   : 96;
+        QScreen *screen    = QGuiApplication::primaryScreen();
+        int      dpiCommon = screen ? static_cast<int>((screen->physicalDotsPerInchX() + screen->physicalDotsPerInchY()) / 2) : 96;
         newRenderer->setDPI(dpiCommon);
 
         return newRenderer;
     }
 }
 
-void PDFRenderer::setRefCount(const QAtomicInt &refCount) {
+void PDFRenderer::setRefCount(const QAtomicInt &refCount)
+{
     mRefCount = refCount;
 }
 
-void PDFRenderer::setFileData(const QByteArray &fileData) {
+void PDFRenderer::setFileData(const QByteArray &fileData)
+{
     mFileData = fileData;
 }
 
-void PDFRenderer::setFileUuid(const QUuid &fileUuid) {
+void PDFRenderer::setFileUuid(const QUuid &fileUuid)
+{
     mFileUuid = fileUuid;
 }
 
-void PDFRenderer::attach() {
+void PDFRenderer::attach()
+{
     mRefCount.ref();
 }
 
-void PDFRenderer::detach() {
+void PDFRenderer::detach()
+{
     mRefCount.deref();
-    if (mRefCount.loadAcquire() == 0) {
+    if (mRefCount.loadAcquire() == 0)
+    {
         sRenderers.remove(mFileUuid);
         delete this;
     }

@@ -16,7 +16,8 @@ class DocumentProxy;
  * 先解压到用户文档目录下的唯一子目录，再由 PersistenceManager 包装成 DocumentProxy；
  * addFileToDocument() 则解压到临时目录后把内容并入目标文档，最后清理临时目录。
  */
-class ImportDocument : public DocumentBasedImportAdaptor {
+class ImportDocument : public DocumentBasedImportAdaptor
+{
     Q_OBJECT;
 
 public:

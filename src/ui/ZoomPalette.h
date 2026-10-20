@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include "ui/FloatingPalette.h"
 
 #include <memory>
@@ -21,7 +20,8 @@ class BoardController;
  * 容器，监听 BoardController 的 zoomChanged/activeSceneChanged 自动刷新；
  * 倍率接近 1 时只短暂显示后自动隐藏，以免遮挡内容。
  */
-class ZoomPalette : public FloatingPalette {
+class ZoomPalette : public FloatingPalette
+{
     Q_OBJECT
 
 public:

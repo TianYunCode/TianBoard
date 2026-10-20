@@ -28,7 +28,8 @@ class DocumentDatastoreAPI;
  * 同时实现 whiteboard 的 IBoardDropHandler，拖放实现由装配点装上（见 app/main.cpp）。
  * 所有槽与属性读取均在 GUI 线程执行，内部不做加锁。
  */
-class WebWidgetBoardAPI : public QObject, public IBoardDropHandler {
+class WebWidgetBoardAPI : public QObject, public IBoardDropHandler
+{
     Q_OBJECT
 
     Q_PROPERTY(int pageCount READ pageCount SCRIPTABLE true)
@@ -61,7 +62,10 @@ public:
 
 public slots:
     /** @brief 切换门面绑定的场景，供小部件在页面间迁移时复用。 */
-    void setScene(GraphicsScene *pScene) { mScene = pScene; }
+    void setScene(GraphicsScene *pScene)
+    {
+        mScene = pScene;
+    }
 
     /** @brief 切换当前绘制工具；工具名采用脚本侧约定的字符串。 */
     void setTool(const QString &toolString);
@@ -101,8 +105,7 @@ public slots:
      * @param pUrl 对象地址；尺寸为 0 时由小部件按默认尺寸显示。
      * @param background 为 true 时作为背景层插入。
      */
-    void addObject(QString pUrl, int width = 0, int height = 0, int x = 0, int y = 0,
-                   bool background = false);
+    void addObject(QString pUrl, int width = 0, int height = 0, int x = 0, int y = 0, bool background = false);
 
     /** @brief 调整小部件在场景中的宽高。 */
     void resize(qreal width, qreal height);
@@ -130,8 +133,8 @@ public slots:
      * @param height 为 -1 时按默认字号处理。
      * @param font 为空时使用默认字体。
      */
-    void addText(const QString &text, const qreal x, const qreal y, const int height = -1,
-                 const QString &font = "", bool bold = false, bool italic = false);
+    void addText(
+        const QString &text, const qreal x, const qreal y, const int height = -1, const QString &font = "", bool bold = false, bool italic = false);
 
     /** @brief 向脚本回报某个方法的执行状态。 */
     void returnStatus(const QString &method, const QString &status);
@@ -163,7 +166,10 @@ private slots:
 
 private:
     /** @brief 登记一个正在下载的请求 ID。 */
-    inline void registerIDWidget(int id) { webDownloadIds.append(id); }
+    inline void registerIDWidget(int id)
+    {
+        webDownloadIds.append(id);
+    }
     /** @brief 取出并移除下载请求 ID，命中时返回 true。 */
     inline bool takeIDWidget(int id);
 
@@ -186,18 +192,21 @@ private:
     /** @brief 判断 MIME 头是否属于受支持的类型。 */
     bool supportedTypeHeader(const QString &) const;
     /** @brief 把布尔值转成脚本侧使用的字符串。 */
-    QString boolToStr(bool value) const { return value ? "true" : "false"; }
+    QString boolToStr(bool value) const
+    {
+        return value ? "true" : "false";
+    }
 
-    GraphicsScene *mScene; ///< 门面操作的目标场景，可为空。
+    GraphicsScene *mScene;               ///< 门面操作的目标场景，可为空。
 
     GraphicsWidgetItem *mGraphicsWidget; ///< 触发本 API 的图形小部件。
 
-    bool mIsVisible; ///< 小部件当前是否可见。
+    bool mIsVisible;                     ///< 小部件当前是否可见。
 
-    WebWidgetMessageAPI *mMessagesAPI; ///< 延迟创建的消息通道。
+    WebWidgetMessageAPI *mMessagesAPI;   ///< 延迟创建的消息通道。
 
-    DatastoreAPI *mDatastoreAPI; ///< 延迟创建的文档存储。
-    QList<int> webDownloadIds;   ///< 本小部件发起、尚未完成的下载请求 ID。
+    DatastoreAPI *mDatastoreAPI;         ///< 延迟创建的文档存储。
+    QList<int>    webDownloadIds;        ///< 本小部件发起、尚未完成的下载请求 ID。
 };
 
 /**
@@ -207,28 +216,33 @@ private:
  * DocumentDatastoreAPI 落在图形对象自己身上。脚本按 localStorage 的用法调用，
  * length 通过属性暴露，因此实现类必须保证计数与内容一致。
  */
-class WebWidgetStorage : public QObject {
+class WebWidgetStorage : public QObject
+{
     Q_OBJECT
 
     Q_PROPERTY(int length READ length SCRIPTABLE true);
 
 public:
     /** @brief 构造空的存储接口对象。 */
-    WebWidgetStorage(QObject *parent = nullptr) : QObject(parent) { /* 刻意留空 */ }
+    WebWidgetStorage(QObject *parent = nullptr) : QObject(parent)
+    { /* 刻意留空 */
+    }
     /** @brief 虚析构，允许经基类指针释放具体实现。 */
-    virtual ~WebWidgetStorage() { /* 刻意留空 */ }
+    virtual ~WebWidgetStorage()
+    { /* 刻意留空 */
+    }
 
 public slots:
     /** @brief 返回第 index 个键名，越界时返回空字符串。 */
-    virtual QString key(int index) = 0;
+    virtual QString key(int index)                                 = 0;
     /** @brief 读取键对应的值，不存在时返回空字符串。 */
-    virtual QString getItem(const QString &key) = 0;
+    virtual QString getItem(const QString &key)                    = 0;
     /** @brief 写入键值；空值语义交由实现决定。 */
     virtual void setItem(const QString &key, const QString &value) = 0;
     /** @brief 删除指定键。 */
-    virtual void removeItem(const QString &key) = 0;
+    virtual void removeItem(const QString &key)                    = 0;
     /** @brief 清空全部键值。 */
-    virtual void clear() = 0;
+    virtual void clear()                                           = 0;
 
 protected:
     /** @brief 返回已存储的键数量。 */
@@ -241,7 +255,8 @@ protected:
  * 由 WebWidgetBoardAPI::datastore() 延迟创建并持有，实际数据落在
  * DocumentDatastoreAPI 中，生命周期随所属网页小部件。
  */
-class DatastoreAPI : public QObject {
+class DatastoreAPI : public QObject
+{
     Q_OBJECT
 
     Q_PROPERTY(QObject *document READ document SCRIPTABLE true)
@@ -250,7 +265,10 @@ public:
     /** @brief 为一个网页小部件构造存储门面。 */
     DatastoreAPI(GraphicsWebWidgetItem *widget);
     /** @brief 释放内部的文档存储实现。 */
-    virtual ~DatastoreAPI() { ; }
+    virtual ~DatastoreAPI()
+    {
+        ;
+    }
 
     /** @brief 返回当前文档的存储对象。 */
     QObject *document();
@@ -265,7 +283,8 @@ private:
  * 键值随图形对象持久化，因此同一文档重新打开后仍可读到；
  * 本类不负责跨文档共享，实例生命周期与所属小部件一致。
  */
-class DocumentDatastoreAPI : public WebWidgetStorage {
+class DocumentDatastoreAPI : public WebWidgetStorage
+{
     Q_OBJECT
 
 public:

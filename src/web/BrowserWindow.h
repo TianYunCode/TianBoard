@@ -17,7 +17,6 @@ class WebView;
 class MainWindow;
 class WebDownloadManager;
 
-
 /**
  * @brief 浏览器窗口：网页模式的顶层容器，组合 TabWidget、工具栏部件与前进/后退历史菜单。
  *
@@ -26,7 +25,8 @@ class WebDownloadManager;
  * BrowserWindow 同时是 WebPage::mainWindow() 的查找终点，也是全局下载管理器
  * （静态 sWebDownloadManager）的宿主。
  */
-class BrowserWindow : public QWidget {
+class BrowserWindow : public QWidget
+{
     Q_OBJECT;
 
 public:
@@ -59,7 +59,6 @@ public:
 
     /** @brief 返回当前标签页的 WebView，没有则返回空。 */
     WebView *currentTabWebView() const;
-
 
     /**
      * @brief 返回全局下载管理器，首次调用时创建。

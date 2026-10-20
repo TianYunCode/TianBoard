@@ -21,10 +21,8 @@ class GraphicsItemDelegate;
  *
  * 与委托的关系：鼠标事件先交给委托，未消费时再转给内嵌控件，避免选择框与控件争抢事件。
  */
-class GraphicsProxyWidget : public QGraphicsProxyWidget,
-                            public Item,
-                            public ResizableGraphicsItem,
-                            public GraphicsItem {
+class GraphicsProxyWidget : public QGraphicsProxyWidget, public Item, public ResizableGraphicsItem, public GraphicsItem
+{
 public:
     virtual ~GraphicsProxyWidget();
 

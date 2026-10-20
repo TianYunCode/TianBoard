@@ -12,12 +12,16 @@
  *
  * 纯数据载体；isEmpty() 用来判断“没有配置”，而不是判断内容是否合法。
  */
-struct ProxyCredentials {
+struct ProxyCredentials
+{
     QString userName; ///< 用户名。
     QString password; ///< 秘密（密码或令牌）。
 
     /** @brief 用户名与秘密都为空时返回 true。 */
-    bool isEmpty() const { return userName.isEmpty() && password.isEmpty(); }
+    bool isEmpty() const
+    {
+        return userName.isEmpty() && password.isEmpty();
+    }
 };
 
 /**
@@ -27,7 +31,8 @@ struct ProxyCredentials {
  * 留下密钥。按 target 名读写，因此可被单独链接、单独测试。所有调用都在 GUI 线程，
  * 底层 API 失败时静默返回空凭据或空操作，不抛异常。
  */
-class CredentialStore {
+class CredentialStore
+{
 public:
     /** @brief 读取指定 target 的凭据；不存在或读取失败时返回空对象。 */
     static ProxyCredentials read(const QString &targetName);

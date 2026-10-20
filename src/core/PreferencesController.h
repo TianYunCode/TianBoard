@@ -24,7 +24,8 @@ class BrushPropertiesFrame;
  * 通过 pimpl 持有，对外只暴露 ui()。控制器指针由外部传入，不持有所有权。
  * 线程约束：GUI 线程专用。
  */
-class PreferencesDialog : public QDialog {
+class PreferencesDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -37,8 +38,7 @@ public:
      * @param parent 父窗口。
      * @param f 窗口标志。
      */
-    PreferencesDialog(PreferencesController *prefController, QWidget *parent = 0,
-                      Qt::WindowFlags f = Qt::WindowFlags());
+    PreferencesDialog(PreferencesController *prefController, QWidget *parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
     /// 析构；定义在 .cpp 中，以便销毁此处仍不完整的 Private。
     ~PreferencesDialog();
 
@@ -63,7 +63,8 @@ private:
  * BrushPropertiesFrame。设置项的写入通过 Settings 完成，本类只负责界面同步。
  * 线程约束：GUI 线程专用。
  */
-class PreferencesController : public QObject {
+class PreferencesController : public QObject
+{
     Q_OBJECT
 
 public:
@@ -149,7 +150,8 @@ private:
  * 详细说明：非 QObject，控件都挂在 owner 下；本类只持有界面结构与选择器列表，
  * 控制器指针仅用于连接信号。由 PreferencesController 创建并拥有。
  */
-class BrushPropertiesFrame {
+class BrushPropertiesFrame
+{
 public:
     /// 手写的界面结构，取代原先由 .ui 生成的 ui_brushProperties.h；定义在 .cpp 里。
     struct Ui;
@@ -163,11 +165,8 @@ public:
      * @param darkBackgroundSelectedColors 深色背景下的初始选中颜色。
      * @param controller 接收颜色选择信号的控制器，不转移所有权。
      */
-    BrushPropertiesFrame(QFrame *owner, const QList<QColor> &lightBackgroundColors,
-                         const QList<QColor> &darkBackgroundColors,
-                         const QList<QColor> &lightBackgroundSelectedColors,
-                         const QList<QColor> &darkBackgroundSelectedColors,
-                         PreferencesController *controller);
+    BrushPropertiesFrame(QFrame *owner, const QList<QColor> &lightBackgroundColors, const QList<QColor> &darkBackgroundColors,
+        const QList<QColor> &lightBackgroundSelectedColors, const QList<QColor> &darkBackgroundSelectedColors, PreferencesController *controller);
 
     /// 析构；定义在 .cpp 中，以便销毁此处仍不完整的 Private。
     virtual ~BrushPropertiesFrame();

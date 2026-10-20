@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 #include <QtSvg>
 #include <QtSvgWidgets>
@@ -26,7 +25,7 @@
 #include <memory>
 
 #define STARTDRAGTIME 1000000
-#define BUTTONSIZE 96
+#define BUTTONSIZE    96
 #define BUTTONSPACING 10
 
 class DocumentProxy;
@@ -41,7 +40,8 @@ class Thumbnail;
  * DocumentThumbnailWidget 继承后放进 DocumentsWidget 的右侧框架，
  * 场景与图元都由自己持有，设置变化（宽度/间距/尺寸）时重新排版。
  */
-class ThumbnailWidget : public QGraphicsView {
+class ThumbnailWidget : public QGraphicsView
+{
     Q_OBJECT
 
 public:
@@ -76,8 +76,7 @@ public slots:
      * @note 会先清空旧图元与旧标题（标题项由场景负责删除）。
      */
     virtual void setGraphicsItems(const QList<QGraphicsItem *> &pGraphicsItems, const QList<QUrl> &pItemPaths,
-                                  const QStringList pLabels = QStringList(),
-                                  const QString &pMimeType = QString(""));
+        const QStringList pLabels = QStringList(), const QString &pMimeType = QString(""));
     /// 按当前宽度与间距重新计算列数、缩放和图元位置。
     void refreshScene();
     /// 场景选择变化时转发 selectionChanged 信号。
@@ -92,7 +91,6 @@ signals:
     void mouseDoubleClick(QGraphicsItem *item, int index);
     /// 单击某个缩略图，携带图元与下标（当前下标固定为 0）。
     void mouseClick(QGraphicsItem *item, int index);
-
 
 protected:
     /// 记录按下位置；区分框选、Shift 连选与普通点选。
@@ -150,7 +148,8 @@ private:
  * 不单独使用，而是作为 ThumbnailPixmap 的第二个基类，让像素版缩略图也能
  * 参与网格排版与选中框绘制。
  */
-class Thumbnail {
+class Thumbnail
+{
 public:
     /// 创建选中边框图元（此时尚未加入场景）。
     Thumbnail();
@@ -158,16 +157,16 @@ public:
     virtual ~Thumbnail();
 
     /// 复制样式选项并清掉 Selected 状态，避免 Qt 在选中时再画一层虚线框。
-    QStyleOptionGraphicsItem muteStyleOption(const QStyleOptionGraphicsItem *option) {
-        QStyleOptionGraphicsItem styleOption = QStyleOptionGraphicsItem(*option);
-        styleOption.state &= ~QStyle::State_Selected;
+    QStyleOptionGraphicsItem muteStyleOption(const QStyleOptionGraphicsItem *option)
+    {
+        QStyleOptionGraphicsItem styleOption  = QStyleOptionGraphicsItem(*option);
+        styleOption.state                    &= ~QStyle::State_Selected;
 
         return styleOption;
     }
 
     /// 图元选中/变换/移动时同步显示或隐藏选中边框。
-    virtual void itemChange(QGraphicsItem *item, QGraphicsItem::GraphicsItemChange change,
-                            const QVariant &value);
+    virtual void itemChange(QGraphicsItem *item, QGraphicsItem::GraphicsItemChange change, const QVariant &value);
 
     /// 返回图元所在列。
     int column();
@@ -193,7 +192,8 @@ private:
  * 文本过长时在设定宽度内省略右侧；页面导航里被高亮时改用蓝色。由
  * ThumbnailWidget::setGraphicsItems 创建，随缩略图场景一起销毁。
  */
-class ThumbnailTextItem : public QGraphicsTextItem {
+class ThumbnailTextItem : public QGraphicsTextItem
+{
     Q_OBJECT
 public:
     /// 按页码生成“Page N”标题。
@@ -230,35 +230,40 @@ private:
  * 在 QGraphicsPixmapItem 的基础上叠加 Thumbnail 的行列与选中框行为，
  * 绘制时屏蔽 Qt 自带的选中态；形状取整个包围盒，便于框选命中。
  */
-class ThumbnailPixmap : public QGraphicsPixmapItem, public Thumbnail {
+class ThumbnailPixmap : public QGraphicsPixmapItem, public Thumbnail
+{
 public:
     /// 用给定图片构造缩略图，启用平滑缩放与几何变化通知。
-    ThumbnailPixmap(const QPixmap &pix) : QGraphicsPixmapItem(pix) {
+    ThumbnailPixmap(const QPixmap &pix) : QGraphicsPixmapItem(pix)
+    {
         setTransformationMode(Qt::SmoothTransformation);
         setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     }
 
-    virtual ~ThumbnailPixmap() {
+    virtual ~ThumbnailPixmap()
+    {
         // 刻意留空
     }
 
     /// 命中区域为整个包围盒。
-    virtual QPainterPath shape() const {
+    virtual QPainterPath shape() const
+    {
         QPainterPath path;
         path.addRect(boundingRect());
         return path;
     }
 
-
     /// 以去掉选中态的样式绘制图片。
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    {
         QStyleOptionGraphicsItem styleOption = Thumbnail::muteStyleOption(option);
         QGraphicsPixmapItem::paint(painter, &styleOption, widget);
     }
 
     /// 先交给 Thumbnail 维护选中框，再交给基类处理。
-    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) {
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value)
+    {
         Thumbnail::itemChange(this, change, value);
         return QGraphicsPixmapItem::itemChange(change, value);
     }
@@ -270,7 +275,8 @@ public:
  * 除显示图片外还记住自己属于哪个 DocumentProxy、对应第几个场景，
  * 供页面导航和删除/复制页面时定位目标。
  */
-class SceneThumbnailPixmap : public ThumbnailPixmap {
+class SceneThumbnailPixmap : public ThumbnailPixmap
+{
 public:
     /// 用页面截图、所属文档代理和场景下标构造。
     SceneThumbnailPixmap(const QPixmap &pix, DocumentProxy *proxy, int pSceneIndex);
@@ -298,7 +304,8 @@ private:
  * 或复制对应页面。仅当页面来自有效场景（pageFromSceneIndex >= 0）时才启用
  * 悬浮与选择。由 DocumentNavigator 创建并放入导航场景。
  */
-class SceneThumbnailNavigPixmap : public SceneThumbnailPixmap {
+class SceneThumbnailNavigPixmap : public SceneThumbnailPixmap
+{
 public:
     /// 构造并（页面有效时）启用悬浮事件与选中标志。
     SceneThumbnailNavigPixmap(const QPixmap &pix, DocumentProxy *proxy, int pSceneIndex);
@@ -355,36 +362,56 @@ private:
  * 不是图形项，只是 DocumentNavigator 排版时使用的轻量容器：持有两个图元的
  * 裸指针并记录边框宽度。图元本身由场景管理。
  */
-class ImgTextThumbnailElement {
+class ImgTextThumbnailElement
+{
 private:
     SceneThumbnailNavigPixmap *thumbnail;
-    ThumbnailTextItem *caption;
-    int border;
+    ThumbnailTextItem         *caption;
+    int                        border;
 
 public:
     /// 用缩略图与标题构造，边框默认为 0。
-    ImgTextThumbnailElement(SceneThumbnailNavigPixmap *thumb, ThumbnailTextItem *text) : border(0) {
+    ImgTextThumbnailElement(SceneThumbnailNavigPixmap *thumb, ThumbnailTextItem *text) : border(0)
+    {
         this->thumbnail = thumb;
-        this->caption = text;
+        this->caption   = text;
     }
 
     /// 返回缩略图图元。
-    SceneThumbnailNavigPixmap *getThumbnail() const { return this->thumbnail; }
+    SceneThumbnailNavigPixmap *getThumbnail() const
+    {
+        return this->thumbnail;
+    }
     /// 替换缩略图图元。
-    void setThumbnail(SceneThumbnailNavigPixmap *newGItem) { this->thumbnail = newGItem; }
+    void setThumbnail(SceneThumbnailNavigPixmap *newGItem)
+    {
+        this->thumbnail = newGItem;
+    }
 
     /// 返回标题图元。
-    ThumbnailTextItem *getCaption() const { return this->caption; }
+    ThumbnailTextItem *getCaption() const
+    {
+        return this->caption;
+    }
     /// 替换标题图元。
-    void setCaption(ThumbnailTextItem *newcaption) { this->caption = newcaption; }
+    void setCaption(ThumbnailTextItem *newcaption)
+    {
+        this->caption = newcaption;
+    }
 
     /// 把两个图元缩放并摆到第 row 行、第 col 列的单元格中。
     void Place(int row, int col, qreal width, qreal height);
 
     /// 返回边框宽度。
-    int getBorder() const { return this->border; }
+    int getBorder() const
+    {
+        return this->border;
+    }
     /// 设置边框宽度。
-    void setBorder(int newBorder) { this->border = newBorder; }
+    void setBorder(int newBorder)
+    {
+        this->border = newBorder;
+    }
 };
 
 /**
@@ -392,7 +419,8 @@ public:
  *
  * 只保存所属文档代理与场景下标，实际显示的控件由派生类通过 setWidget 放入。
  */
-class ThumbnailProxyWidget : public QGraphicsProxyWidget {
+class ThumbnailProxyWidget : public QGraphicsProxyWidget
+{
 public:
     /// 记录文档代理与场景下标；此时还没有嵌入控件。
     ThumbnailProxyWidget(DocumentProxy *proxy, int index);
@@ -419,7 +447,8 @@ private:
  * 在代理控件下方显示“Page N”（当前页用红色加粗），悬停时叠加删除/复制
  * 图标；文档列表用它把缩略图包装成可拖拽、可操作的一项。
  */
-class DraggableThumbnail : public ThumbnailProxyWidget {
+class DraggableThumbnail : public ThumbnailProxyWidget
+{
     Q_OBJECT
 public:
     /// 构造并创建页码文本项。
@@ -447,7 +476,6 @@ public:
 
     /// 设置可编辑标志。
     void setEditable(bool editable);
-
 
     /// 返回页码文本项。
     ThumbnailTextItem *pageNumber();
@@ -490,7 +518,8 @@ private:
  * 用于素材库：代理只负责缩放缩略图并摆放页码，图像本身仍由传入的
  * ThumbnailPixmap 绘制。
  */
-class DraggableThumbnailPixmap : public DraggableThumbnail {
+class DraggableThumbnailPixmap : public DraggableThumbnail
+{
     Q_OBJECT
 public:
     /// 绑定已有的缩略图位图项，并启用选择与拖放。
@@ -515,7 +544,8 @@ private:
  * 文档列表用它显示整个页面的预览视图；页码文本项由基类创建，
  * 这里通过自己的 pageNumber() 访问。
  */
-class DraggableThumbnailView : public DraggableThumbnail {
+class DraggableThumbnailView : public DraggableThumbnail
+{
     Q_OBJECT
 public:
     /// 绑定预览视图并把它设为代理控件。
@@ -543,48 +573,51 @@ private:
  * 图标从 SVG 预渲染成 96x96 的位图，按位置（第几个图标）横向排列；
  * 通过 x 坐标判断点击了哪个图标，通过 y 坐标判断是否落在图标条上。
  */
-namespace ThumbnailUI {
-const int ICONSIZE = 96;    ///< 单个图标的边长。
-const int ICONSPACING = 10; ///< 图标之间的间距。
+namespace ThumbnailUI
+{
+    const int ICONSIZE    = 96; ///< 单个图标的边长。
+    const int ICONSPACING = 10; ///< 图标之间的间距。
 
-/**
- * @brief 一个悬浮操作图标（关闭/复制/上移/下移）。
- */
-class ThumbnailUIIcon : public QPixmap {
-public:
-    /// 从 SVG 文件渲染图标，pos 决定它在图标条中的横向序号。
-    ThumbnailUIIcon(const QString &filename, int pos);
+    /**
+     * @brief 一个悬浮操作图标（关闭/复制/上移/下移）。
+     */
+    class ThumbnailUIIcon : public QPixmap
+    {
+    public:
+        /// 从 SVG 文件渲染图标，pos 决定它在图标条中的横向序号。
+        ThumbnailUIIcon(const QString &filename, int pos);
 
-    ~ThumbnailUIIcon();
+        ~ThumbnailUIIcon();
 
-    /// 返回图标在图标条中的序号。
-    int pos() const;
+        /// 返回图标在图标条中的序号。
+        int pos() const;
 
-    /// 判断横坐标 x 是否落在本图标范围内。
-    bool triggered(qreal x) const;
+        /// 判断横坐标 x 是否落在本图标范围内。
+        bool triggered(qreal x) const;
 
-private:
-    struct Private;
-    std::unique_ptr<Private> d;
-};
+    private:
+        struct Private;
+        std::unique_ptr<Private> d;
+    };
 
-namespace _private {
-static QMap<QString, ThumbnailUIIcon *> catalog; ///< 按名称缓存已渲染的图标。
-/// 向缓存中注册全部内置图标（close/duplicate/moveUp/moveDown 及其禁用版）。
-void initCatalog();
-} // namespace _private
+    namespace _private
+    {
+        static QMap<QString, ThumbnailUIIcon *> catalog; ///< 按名称缓存已渲染的图标。
+        /// 向缓存中注册全部内置图标（close/duplicate/moveUp/moveDown 及其禁用版）。
+        void initCatalog();
+    } // namespace _private
 
-/**
- * @brief 渲染并登记一个图标。
- * @param thumbnailIcon 图标名（对应 :images/<name>.svg）。
- * @param pos 图标在图标条中的位置。
- * @return 新建的图标对象，登记失败时返回的指针仍需调用方判断。
- */
-ThumbnailUIIcon *addIcon(const QString &thumbnailIcon, int pos);
-/// 按名称取图标；未登记时打印错误并返回空指针。
-ThumbnailUIIcon *getIcon(const QString &thumbnailIcon);
-/// 把图标画到 painter 对应位置（y=0）。
-void draw(QPainter *painter, const ThumbnailUIIcon &thumbnailIcon);
-/// 判断纵坐标 y 是否落在图标条的高度范围内。
-bool triggered(qreal y);
+    /**
+     * @brief 渲染并登记一个图标。
+     * @param thumbnailIcon 图标名（对应 :images/<name>.svg）。
+     * @param pos 图标在图标条中的位置。
+     * @return 新建的图标对象，登记失败时返回的指针仍需调用方判断。
+     */
+    ThumbnailUIIcon *addIcon(const QString &thumbnailIcon, int pos);
+    /// 按名称取图标；未登记时打印错误并返回空指针。
+    ThumbnailUIIcon *getIcon(const QString &thumbnailIcon);
+    /// 把图标画到 painter 对应位置（y=0）。
+    void draw(QPainter *painter, const ThumbnailUIIcon &thumbnailIcon);
+    /// 判断纵坐标 y 是否落在图标条的高度范围内。
+    bool triggered(qreal y);
 } // namespace ThumbnailUI

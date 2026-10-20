@@ -15,7 +15,8 @@
  * 线程约定：start()/stop()/newPixmap()/newChapter() 均在 GUI 线程调用，实现内部不得假设有锁。
  * 暂停语义：只有 canPause() 返回 true 的实现才需要支持 pause()/unpause()，其余实现可直接返回失败。
  */
-class AbstractVideoEncoder : public QObject {
+class AbstractVideoEncoder : public QObject
+{
     Q_OBJECT;
 
 public:
@@ -33,23 +34,30 @@ public:
     virtual bool start() = 0;
 
     /** @brief 结束编码并关闭输出目标。 @return 失败返回 false。 */
-    virtual bool stop() = 0;
+    virtual bool stop()  = 0;
 
     /** @brief 暂停编码；默认实现不支持。 @return 默认返回 false。 */
-    virtual bool pause() { return false; }
+    virtual bool pause()
+    {
+        return false;
+    }
 
     /**
      * @brief 从暂停状态恢复；默认实现不支持。
      * @param audioTimeOffsetMs 本次暂停的毫秒时长，供实现补偿音轨时间戳。
      * @return 默认返回 false。
      */
-    virtual bool unpause(long audioTimeOffsetMs = 0) {
+    virtual bool unpause(long audioTimeOffsetMs = 0)
+    {
         Q_UNUSED(audioTimeOffsetMs);
         return false;
     }
 
     /** @brief 本实现是否支持暂停/恢复。 */
-    virtual bool canPause() { return false; }
+    virtual bool canPause()
+    {
+        return false;
+    }
 
     /**
      * @brief 送入一帧已渲染好的画面。
@@ -63,31 +71,53 @@ public:
     virtual void newChapter(const QString &pLabel, long timestamp);
 
     /** @brief 设置录制帧率，须在 start() 前调用。 */
-    void setFramesPerSecond(int pFps) { mFramesPerSecond = pFps; }
+    void setFramesPerSecond(int pFps)
+    {
+        mFramesPerSecond = pFps;
+    }
 
     /** @brief 当前录制帧率。 */
-    int framesPerSecond() const { return mFramesPerSecond; }
+    int framesPerSecond() const
+    {
+        return mFramesPerSecond;
+    }
 
     /** @brief 输出文件扩展名（不含点），用于拼装录制文件名。 */
     virtual QString videoFileExtension() const = 0;
 
     /** @brief 设置输出文件路径，须在 start() 前调用。 */
-    virtual void setVideoFileName(const QString &pFileName) { mVideoFileName = pFileName; }
+    virtual void setVideoFileName(const QString &pFileName)
+    {
+        mVideoFileName = pFileName;
+    }
 
     /** @brief 当前输出文件路径。 */
-    virtual QString videoFileName() { return mVideoFileName; }
+    virtual QString videoFileName()
+    {
+        return mVideoFileName;
+    }
 
     /** @brief 设置输出画面尺寸，宽高通常取 4 的倍数。 */
-    virtual void setVideoSize(const QSize &pSize) { mVideoSize = pSize; }
+    virtual void setVideoSize(const QSize &pSize)
+    {
+        mVideoSize = pSize;
+    }
 
     /** @brief 当前输出画面尺寸。 */
-    virtual QSize videoSize() const { return mVideoSize; }
+    virtual QSize videoSize() const
+    {
+        return mVideoSize;
+    }
 
     /** @brief 当前视频码率（bit/s）。 */
-    virtual long videoBitsPerSecond() const { return mVideoBitsPerSecond; }
+    virtual long videoBitsPerSecond() const
+    {
+        return mVideoBitsPerSecond;
+    }
 
     /** @brief 设置视频码率（bit/s），须在 start() 前调用。 */
-    virtual void setVideoBitsPerSecond(long pVideoBitsPerSecond) {
+    virtual void setVideoBitsPerSecond(long pVideoBitsPerSecond)
+    {
         mVideoBitsPerSecond = pVideoBitsPerSecond;
     }
 
@@ -95,12 +125,16 @@ public:
     virtual QString lastErrorMessage() = 0;
 
     /** @brief 设置录音设备名；空串表示交给实现选择默认设备。 */
-    virtual void setAudioRecordingDevice(const QString pAudioRecordingDevice) {
+    virtual void setAudioRecordingDevice(const QString pAudioRecordingDevice)
+    {
         mAudioRecordingDevice = pAudioRecordingDevice;
     }
 
     /** @brief 当前录音设备名。 */
-    virtual QString audioRecordingDevice() { return mAudioRecordingDevice; }
+    virtual QString audioRecordingDevice()
+    {
+        return mAudioRecordingDevice;
+    }
 
     /** @brief 是否录制音频，须在 start() 前调用；实现可在设备不可用时自行降级为不录音。 */
     virtual void setRecordAudio(bool pRecordAudio) = 0;

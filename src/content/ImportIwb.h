@@ -17,7 +17,8 @@ class DocumentProxy;
  * 若解压失败则把输入当作裸 XML 直接解析（有些工具导出的 .iwb 实际是未压缩 XML）。
  * 转换结果通过 PersistenceManager 注册成文档。
  */
-class ImportIwb : public DocumentBasedImportAdaptor {
+class ImportIwb : public DocumentBasedImportAdaptor
+{
     Q_OBJECT;
 
 public:

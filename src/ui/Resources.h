@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 
 /**
@@ -16,14 +15,18 @@
  * 下随应用退出统一释放；白板视图、标尺、选择框等都从这里取光标，避免反复
  * 从磁盘加载图片。
  */
-class Resources : public QObject {
+class Resources : public QObject
+{
     Q_OBJECT
 
 public:
     /// 返回单例；首次调用时完成光标初始化并扫描自定义字体目录。
     static Resources *resources();
     /// 返回已加载的自定义字体族名列表。
-    QStringList customFontList() { return mCustomFontList; }
+    QStringList customFontList()
+    {
+        return mCustomFontList;
+    }
 
 private:
     /// 私有构造：单例只能经 resources() 创建。
@@ -35,7 +38,7 @@ private:
 
     static Resources *sSingleton; ///< 单例指针，由静态内存清理器托管。
     /// 把字体目录中的每个字体文件注册进 QFontDatabase 并收集族名。
-    void buildFontList();
+    void        buildFontList();
     QStringList mCustomFontList; ///< 自定义字体族名列表。
 
 public:

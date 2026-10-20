@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 #include <QWidget>
 #include <QToolBar>
@@ -19,7 +18,8 @@
  * 用来在当前工具栏中替换单个工具按钮。由 DesktopPropertyPalette 等属性面板
  * 创建并插入 boardToolBar，所有权随工具栏；也可单独设置某个按钮的图标/颜色。
  */
-class ToolbarButtonGroup : public QWidget {
+class ToolbarButtonGroup : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -57,11 +57,11 @@ signals:
     void currentIndexChanged(int index);
 
 private:
-    QToolButton *mToolButton;      ///< 工具栏原有的第一个按钮，用作样式参照。
-    QString mLabel;                ///< 组尾显示的文字（取最后一个动作的文本）。
-    QList<QAction *> mActions;     ///< 组内动作列表。
-    QList<QToolButton *> mButtons; ///< 与动作一一对应的按钮。
-    int mCurrentIndex;             ///< 当前选中下标。
-    bool mDisplayLabel;            ///< 是否显示文字标签。
-    QActionGroup *mActionGroup;    ///< 互斥动作组。
+    QToolButton         *mToolButton;   ///< 工具栏原有的第一个按钮，用作样式参照。
+    QString              mLabel;        ///< 组尾显示的文字（取最后一个动作的文本）。
+    QList<QAction *>     mActions;      ///< 组内动作列表。
+    QList<QToolButton *> mButtons;      ///< 与动作一一对应的按钮。
+    int                  mCurrentIndex; ///< 当前选中下标。
+    bool                 mDisplayLabel; ///< 是否显示文字标签。
+    QActionGroup        *mActionGroup;  ///< 互斥动作组。
 };

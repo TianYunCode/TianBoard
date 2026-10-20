@@ -15,26 +15,31 @@ THIRD_PARTY_WARNINGS_DISABLE
 #include "quazipfile.h"
 THIRD_PARTY_WARNINGS_ENABLE
 
-
-ExportWeb::ExportWeb(QObject *parent) : ExportAdaptor(parent) {
+ExportWeb::ExportWeb(QObject *parent) : ExportAdaptor(parent)
+{
     ExportWeb::tr("Page"); // 空槽：只为让翻译工具抽到这几个导出用的界面文案
 }
 
+ExportWeb::~ExportWeb()
+{
+}
 
-ExportWeb::~ExportWeb() {}
-
-
-void ExportWeb::persist(DocumentProxy *pDocumentProxy) {
+void ExportWeb::persist(DocumentProxy *pDocumentProxy)
+{
     if (!pDocumentProxy)
+    {
         return;
+    }
 
     QString dirName = askForDirName(pDocumentProxy, tr("Export as Web data"));
 
-    if (dirName.length() > 0) {
+    if (dirName.length() > 0)
+    {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         Application::showMessage(tr("Exporting document..."));
 
-        if (FileSystemUtils::copyDir(pDocumentProxy->persistencePath(), dirName)) {
+        if (FileSystemUtils::copyDir(pDocumentProxy->persistencePath(), dirName))
+        {
             QString htmlPath = dirName + "/index.html";
 
             QFile html(":www/TianBoard-web-player.html");
@@ -43,16 +48,17 @@ void ExportWeb::persist(DocumentProxy *pDocumentProxy) {
             Application::showMessage(tr("Export successful."));
 
             QDesktopServices::openUrl(QUrl::fromLocalFile(htmlPath));
-        } else {
+        }
+        else
+        {
             Application::showMessage(tr("Export failed."));
         }
-
 
         QApplication::restoreOverrideCursor();
     }
 }
 
-
-QString ExportWeb::exportName() {
+QString ExportWeb::exportName()
+{
     return tr("Export to Web Browser");
 }

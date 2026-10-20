@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QMainWindow>
 #include <QMessageBox>
 
@@ -29,7 +28,8 @@ class QWidget;
  * 各调色板、对话框以及 board/web 控制器都通过 Application::mainWindow
  * 取到它。关闭事件不会真正关闭，而是转发给控制器决定是否隐藏或退出。
  */
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 public:
     /// 构造主窗口并完成界面装配；此时还没有任何页面被加入页面栈。
@@ -84,7 +84,10 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
     /// 明确不提供标题栏右键菜单。
-    QMenu *createPopupMenu() override { return nullptr; }
+    QMenu *createPopupMenu() override
+    {
+        return nullptr;
+    }
 
 private:
     struct Private;

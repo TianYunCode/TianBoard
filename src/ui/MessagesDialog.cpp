@@ -4,12 +4,14 @@
 
 #include "ui/MessagesDialog.h"
 
-struct MessagesDialog::Private {
+struct MessagesDialog::Private
+{
     QList<QString> mMessages;
-    int mMessagesFontSize{0};
+    int            mMessagesFontSize{0};
 };
 
-MessagesDialog::MessagesDialog(QString windowTitle, QWidget *parent) : QWidget(parent), d(new Private) {
+MessagesDialog::MessagesDialog(QString windowTitle, QWidget *parent) : QWidget(parent), d(new Private)
+{
     resize(400, 0);
 
     setWindowTitle(windowTitle);
@@ -19,12 +21,15 @@ MessagesDialog::MessagesDialog(QString windowTitle, QWidget *parent) : QWidget(p
 
 MessagesDialog::~MessagesDialog() = default;
 
-void MessagesDialog::setMessages(const QList<QString> messages) {
+void MessagesDialog::setMessages(const QList<QString> messages)
+{
     d->mMessages = messages;
 
-    if (d->mMessages.count()) {
+    if (d->mMessages.count())
+    {
         QVBoxLayout *messagesLayout = new QVBoxLayout(this);
-        foreach (QString message, d->mMessages) {
+        foreach (QString message, d->mMessages)
+        {
             QTextEdit *messageBox = new QTextEdit(this);
             messageBox->setMinimumHeight(55);
             messageBox->setReadOnly(true);
@@ -41,7 +46,8 @@ void MessagesDialog::setMessages(const QList<QString> messages) {
     }
 }
 
-void MessagesDialog::dispose() {
+void MessagesDialog::dispose()
+{
     // 调用方创建后不再持有指针，因此关闭时由自己销毁。
     delete this;
 }

@@ -20,7 +20,8 @@ class GraphicsItemDelegate;
  * 透明度调整、复制与 UUID 标识。像素数据由 QGraphicsPixmapItem 持有，本类不额外
  * 管理资源；位置与 z 值由场景统一分配。
  */
-class GraphicsPixmapItem : public QObject, public QGraphicsPixmapItem, public Item, public GraphicsItem {
+class GraphicsPixmapItem : public QObject, public QGraphicsPixmapItem, public Item, public GraphicsItem
+{
     Q_OBJECT
 
 public:
@@ -31,10 +32,16 @@ public:
     GraphicsPixmapItem(QGraphicsItem *parent = 0);
     virtual ~GraphicsPixmapItem();
 
-    enum { Type = GraphicsItemType::PixmapItemType };
+    enum
+    {
+        Type = GraphicsItemType::PixmapItemType
+    };
 
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
     /** @brief 深拷贝位图项。 */
     virtual Item *deepCopy() const;
 

@@ -26,7 +26,8 @@ class RecordingPalette;
  * 编码器与调色板在首次使用时创建，停止录制或编码结束时 deleteLater。
  * 线程约束：全部逻辑运行在 GUI 线程，waveIn 回调只经排队连接把音频交回编码器。
  */
-class RecordingController : public QObject {
+class RecordingController : public QObject
+{
     Q_OBJECT;
 
 private:
@@ -60,7 +61,8 @@ public:
     QList<QAction *> publicationActions();
 
     /** @brief 录制的四个状态。 */
-    enum RecordingState {
+    enum RecordingState
+    {
         Stopped = 0, ///< 未录制或已完全停止。
         Recording,   ///< 正在采集并编码。
         Paused,      ///< 已暂停：不再送帧，waveIn 停止采集。
@@ -172,16 +174,16 @@ private:
 
     bool mIsGrabbing;
 
-    QQueue<QRect> mWidgetRepaintRectQueue;
+    QQueue<QRect>  mWidgetRepaintRectQueue;
     QQueue<QRectF> mSceneRepaintRectQueue;
 
     bool mInitialized;
 
     QImage mLatestCapture;
 
-    int mVideoFramesPerSecondAtStart;
+    int   mVideoFramesPerSecondAtStart;
     QSize mVideoFrameSizeAtStart;
-    long mVideoBitsPerSecondAtStart;
+    long  mVideoBitsPerSecondAtStart;
 
     static unsigned int sBackgroundColor;
 
@@ -206,7 +208,7 @@ private:
     bool mApplicationIsClosing;
 
     QTime mTimeAtPaused;
-    long mRecordingTimestampOffset;
+    long  mRecordingTimestampOffset;
 
     QAction *mDefaultAudioInputDeviceAction;
     QAction *mNoAudioInputDeviceAction;

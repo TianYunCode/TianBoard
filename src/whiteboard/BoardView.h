@@ -21,7 +21,6 @@ class GraphicsScene;
 class GraphicsWidgetItem;
 class RubberBand;
 
-
 /**
  * @brief 画板的 QGraphicsView：负责输入事件分派、框选、拖放、平板事件与背景绘制。
  *
@@ -32,7 +31,8 @@ class RubberBand;
  * 线程约束：所有事件处理都在 GUI 线程；表格/手写笔事件若来自系统线程也由
  * Qt 事件循环投递到 GUI 线程后处理。
  */
-class BoardView : public QGraphicsView {
+class BoardView : public QGraphicsView
+{
     Q_OBJECT
 
 public:
@@ -42,15 +42,13 @@ public:
      * @param isControl 是否为控制视图。
      * @param isDesktop 是否处于桌面批注模式。
      */
-    BoardView(BoardController *pController, QWidget *pParent = 0, bool isControl = false,
-              bool isDesktop = false);
+    BoardView(BoardController *pController, QWidget *pParent = 0, bool isControl = false, bool isDesktop = false);
     /**
      * @brief 只显示指定 Z 层区间内图元的构造重载（用于分层渲染/演示）。
      * @param pStartLayer 起始层。
      * @param pEndLayer 结束层。
      */
-    BoardView(BoardController *pController, int pStartLayer, int pEndLayer, QWidget *pParent = 0,
-              bool isControl = false, bool isDesktop = false);
+    BoardView(BoardController *pController, int pStartLayer, int pEndLayer, QWidget *pParent = 0, bool isControl = false, bool isDesktop = false);
     virtual ~BoardView();
 
     /// @brief 当前场景（转换为 GraphicsScene）。
@@ -130,8 +128,7 @@ protected:
     virtual void focusOutEvent(QFocusEvent *event);
 
     /// @brief 自定义图元绘制顺序/跳过不可见图元。
-    virtual void drawItems(QPainter *painter, int numItems, QGraphicsItem *items[],
-                           const QStyleOptionGraphicsItem options[]);
+    virtual void drawItems(QPainter *painter, int numItems, QGraphicsItem *items[], const QStyleOptionGraphicsItem options[]);
 
     /// @brief 拖放落下：按 MIME 类型插入图片/文件/URL。
     virtual void dropEvent(QDropEvent *event);

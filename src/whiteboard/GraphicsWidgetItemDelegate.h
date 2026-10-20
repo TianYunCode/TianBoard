@@ -20,7 +20,8 @@
  *
  * @note 线程约束：只在 GUI 线程操作，菜单动作直接改 UI 状态。
  */
-class GraphicsWidgetItemDelegate : public GraphicsItemDelegate {
+class GraphicsWidgetItemDelegate : public GraphicsItemDelegate
+{
     Q_OBJECT
 
 public:

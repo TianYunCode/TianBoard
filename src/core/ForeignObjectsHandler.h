@@ -17,7 +17,8 @@ class ForeighnObjectsHandlerPrivate;
  * 详细说明：无 QObject 基类，按需在栈上创建；实现全部放在私有类中（d 指针），
  * 本类只做转发并拥有 d。所有操作都是同步文件 I/O，调用方需自行决定放在哪个线程。
  */
-class ForeighnObjectsHandler {
+class ForeighnObjectsHandler
+{
 public:
     ForeighnObjectsHandler();
     ~ForeighnObjectsHandler();

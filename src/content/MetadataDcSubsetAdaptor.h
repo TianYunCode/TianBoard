@@ -17,7 +17,8 @@ class DocumentProxy;
  * PersistenceManager 构造 DocumentProxy。缺失字段（尺寸、更新时间、版本）在此处
  * 按兼容规则补默认值，因此读取旧文档时不必另行迁移。
  */
-class MetadataDcSubsetAdaptor {
+class MetadataDcSubsetAdaptor
+{
 public:
     MetadataDcSubsetAdaptor();
     virtual ~MetadataDcSubsetAdaptor();

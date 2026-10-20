@@ -29,7 +29,8 @@ class GraphicsMediaItem;
  * 按下后开始计时，长按会发出 longClicked()，普通点击在释放时发出 clicked()；
  * 进度指示器用于提示长按操作正在进行。按钮不拥有被委托项。
  */
-class DelegateButton : public QGraphicsSvgItem {
+class DelegateButton : public QGraphicsSvgItem
+{
     Q_OBJECT
 
 public:
@@ -40,30 +41,51 @@ public:
      * @param parent 父图形项，通常是选择框。
      * @param section 按钮在框架上的贴边位置。
      */
-    DelegateButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent = 0,
-                   Qt::WindowFrameSection section = Qt::TopLeftSection);
+    DelegateButton(
+        const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent = 0, Qt::WindowFrameSection section = Qt::TopLeftSection);
 
     virtual ~DelegateButton();
 
-    enum { Type = GraphicsItemType::DelegateButtonType };
+    enum
+    {
+        Type = GraphicsItemType::DelegateButtonType
+    };
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /** @brief 设为 true 时鼠标事件穿透到下层，按钮只作装饰。 */
-    void setTransparentToMouseEvent(bool tr) { mIsTransparentToMouseEvent = tr; }
+    void setTransparentToMouseEvent(bool tr)
+    {
+        mIsTransparentToMouseEvent = tr;
+    }
 
     /** @brief 更换按钮图标。 */
     void setFileName(const QString &fileName);
 
     /** @brief 设置长按进度指示器是否可用。 */
-    void setShowProgressIndicator(bool pShow) { mShowProgressIndicator = pShow; }
+    void setShowProgressIndicator(bool pShow)
+    {
+        mShowProgressIndicator = pShow;
+    }
     /** @brief 返回长按进度指示器是否可用。 */
-    bool testShowProgresIndicator() const { return mShowProgressIndicator; }
+    bool testShowProgresIndicator() const
+    {
+        return mShowProgressIndicator;
+    }
 
     /** @brief 设置按钮贴边位置，父框架据此摆放。 */
-    void setSection(Qt::WindowFrameSection section) { mButtonAlignmentSection = section; }
+    void setSection(Qt::WindowFrameSection section)
+    {
+        mButtonAlignmentSection = section;
+    }
     /** @brief 返回按钮贴边位置。 */
-    Qt::WindowFrameSection getSection() const { return mButtonAlignmentSection; }
+    Qt::WindowFrameSection getSection() const
+    {
+        return mButtonAlignmentSection;
+    }
 
 protected:
     /** @brief 按下时记录时间并启动长按计时。 */
@@ -85,12 +107,12 @@ private slots:
 private:
     QGraphicsItem *mDelegated;
 
-    QTime mPressedTime;
-    bool mIsTransparentToMouseEvent;
-    bool mIsPressed;
-    int mProgressTimerId;
-    int mPressProgres;
-    bool mShowProgressIndicator;
+    QTime                  mPressedTime;
+    bool                   mIsTransparentToMouseEvent;
+    bool                   mIsPressed;
+    int                    mProgressTimerId;
+    int                    mPressProgres;
+    bool                   mShowProgressIndicator;
     Qt::WindowFrameSection mButtonAlignmentSection;
 
 signals:
@@ -106,7 +128,8 @@ signals:
  * 用自绘的段码显示当前时间，作为 DelegateMediaControl 的子项贴在控制条上。
  * 不拥有任何外部对象。
  */
-class MediaTimer : public QGraphicsRectItem {
+class MediaTimer : public QGraphicsRectItem
+{
 public:
     /** @brief 构造计时器，初始不显示数字。 */
     MediaTimer(QGraphicsItem *parent = 0);
@@ -124,20 +147,20 @@ public:
 
 private:
     static const char *getSegments(char);
-    void drawString(const QString &s, QPainter &, QBitArray * = 0, bool = true);
-    void drawDigit(const QPoint &, QPainter &, int, char, char = ' ');
-    void drawSegment(const QPoint &, char, QPainter &, int, bool = false);
-    void addPoint(QPolygon &, const QPoint &);
-    void internalSetString(const QString &s);
+    void               drawString(const QString &s, QPainter &, QBitArray * = 0, bool = true);
+    void               drawDigit(const QPoint &, QPainter &, int, char, char = ' ');
+    void               drawSegment(const QPoint &, char, QPainter &, int, bool = false);
+    void               addPoint(QPolygon &, const QPoint &);
+    void               internalSetString(const QString &s);
 
     static char segments[][8];
 
-    int ndigits;
-    QString digitStr;
+    int       ndigits;
+    QString   digitStr;
     QBitArray points;
-    double val;
+    double    val;
 
-    uint shadow : 1;
+    uint shadow     : 1;
     uint smallPoint : 1;
 
     int digitSpace;
@@ -155,7 +178,8 @@ private:
  * 提供播放/暂停、进度拖动与时间显示，事件坐标限定在控制条矩形内。
  * 它直接引用被委托的 GraphicsMediaItem 来驱动播放器，不拥有该媒体项。
  */
-class DelegateMediaControl : public QObject, public QGraphicsRectItem {
+class DelegateMediaControl : public QObject, public QGraphicsRectItem
+{
     Q_OBJECT
 
 public:
@@ -166,7 +190,9 @@ public:
      */
     DelegateMediaControl(GraphicsMediaItem *pDelegated, QGraphicsItem *parent = 0);
 
-    virtual ~DelegateMediaControl() {}
+    virtual ~DelegateMediaControl()
+    {
+    }
 
     /** @brief 绘制控制条背景、按钮与进度。 */
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -199,7 +225,7 @@ protected:
     void seekToMousePos(QPointF mousePos);
 
     GraphicsMediaItem *mDelegate;
-    bool mDisplayCurrentTime;
+    bool               mDisplayCurrentTime;
 
     qint64 mCurrentTimeInMs;
     qint64 mTotalTimeInMs;
@@ -222,42 +248,70 @@ private:
  * 当媒体项被选中时，在内容上方浮出一条工具栏，容纳播放等操作按钮。
  * 工具栏只负责布局与可见性，按钮由使用方通过 setItemsOnToolBar 注入。
  */
-class GraphicsToolBarItem : public QObject, public QGraphicsRectItem {
+class GraphicsToolBarItem : public QObject, public QGraphicsRectItem
+{
 public:
     /** @brief 构造工具栏，初始不可见且宽度为最小值。 */
     GraphicsToolBarItem(QGraphicsItem *parent = 0);
-    virtual ~GraphicsToolBarItem() { ; }
+    virtual ~GraphicsToolBarItem()
+    {
+        ;
+    }
 
     /** @brief 工具栏当前是否显示在画板上。 */
-    bool isVisibleOnBoard() const { return mVisible; }
+    bool isVisibleOnBoard() const
+    {
+        return mVisible;
+    }
     /** @brief 设置工具栏是否显示在画板上。 */
-    void setVisibleOnBoard(bool visible) { mVisible = visible; }
+    void setVisibleOnBoard(bool visible)
+    {
+        mVisible = visible;
+    }
     /** @brief 工具栏是否处于让位移动状态（避免遮挡内容）。 */
-    bool isShifting() const { return mShifting; }
+    bool isShifting() const
+    {
+        return mShifting;
+    }
     /** @brief 设置工具栏是否让位移动。 */
-    void setShifting(bool shifting) { mShifting = shifting; }
+    void setShifting(bool shifting)
+    {
+        mShifting = shifting;
+    }
     /** @brief 返回工具栏上承载的图形项。 */
-    QList<QGraphicsItem *> itemsOnToolBar() const { return mItemsOnToolBar; }
+    QList<QGraphicsItem *> itemsOnToolBar() const
+    {
+        return mItemsOnToolBar;
+    }
     /** @brief 设置工具栏上承载的图形项。 */
-    void setItemsOnToolBar(QList<QGraphicsItem *> itemsOnToolBar) { mItemsOnToolBar = itemsOnToolBar; }
+    void setItemsOnToolBar(QList<QGraphicsItem *> itemsOnToolBar)
+    {
+        mItemsOnToolBar = itemsOnToolBar;
+    }
     /** @brief 返回工具栏最小宽度。 */
-    int minWidth() { return mMinWidth; }
+    int minWidth()
+    {
+        return mMinWidth;
+    }
     /** @brief 按承载项重新摆放工具栏及其子项。 */
     void positionHandles();
     /** @brief 触发工具栏重绘。 */
     void update();
     /** @brief 返回元素之间的间距。 */
-    int getElementsPadding() { return mElementsPadding; }
+    int getElementsPadding()
+    {
+        return mElementsPadding;
+    }
 
 private:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
-    bool mShifting;
-    bool mVisible;
-    int mMinWidth;
-    int mInitialHeight;
-    int mElementsPadding;
+    bool                   mShifting;
+    bool                   mVisible;
+    int                    mMinWidth;
+    int                    mInitialHeight;
+    int                    mElementsPadding;
     QList<QGraphicsItem *> mItemsOnToolBar;
 };
 
@@ -275,7 +329,8 @@ private:
  * 坐标：所有几何操作都交给框架，委托自身不做坐标换算。
  * z 值：委托不直接改 z 值，层级变化通过场景的层级命令完成。
  */
-class GraphicsItemDelegate : public QObject {
+class GraphicsItemDelegate : public QObject
+{
     Q_OBJECT
 
 public:
@@ -331,7 +386,10 @@ public:
     virtual void postpaint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     /** @brief 调试输出。 */
-    void printMessage(const QString &mess) { qDebug() << mess; }
+    void printMessage(const QString &mess)
+    {
+        qDebug() << mess;
+    }
 
     /** @brief 返回被委托的图形项。 */
     QGraphicsItem *delegated();
@@ -350,17 +408,26 @@ public:
     void commitUndoStep();
 
     /** @brief 返回选择框，可能为空。 */
-    GraphicsDelegateFrame *frame() { return mFrame; }
+    GraphicsDelegateFrame *frame()
+    {
+        return mFrame;
+    }
 
     /** @brief 返回被委托项是否处于锁定状态。 */
     bool isLocked() const;
 
     /** @brief 返回拖动时携带的 MIME 数据。 */
-    QMimeData *mimeData() { return mMimeData; }
+    QMimeData *mimeData()
+    {
+        return mMimeData;
+    }
     /** @brief 设置拖动时携带的 MIME 数据，委托接管其所有权。 */
     void setMimeData(QMimeData *mimeData);
     /** @brief 设置拖动时显示的缩略图。 */
-    void setDragPixmap(const QPixmap &pix) { mDragPixmap = pix; }
+    void setDragPixmap(const QPixmap &pix)
+    {
+        mDragPixmap = pix;
+    }
 
     /** @brief 设置锁定状态，并递归应用到组合子项。 */
     void setLocked(bool pLocked);
@@ -368,24 +435,42 @@ public:
     void setButtonsVisible(bool visible);
 
     /** @brief 返回媒体工具栏，可能为空。 */
-    GraphicsToolBarItem *getToolBarItem() const { return mToolBarItem; }
+    GraphicsToolBarItem *getToolBarItem() const
+    {
+        return mToolBarItem;
+    }
 
     /** @brief 返回当前反缩放系数，用于保持控件屏幕尺寸。 */
-    qreal antiScaleRatio() const { return mAntiScaleRatio; }
+    qreal antiScaleRatio() const
+    {
+        return mAntiScaleRatio;
+    }
     /** @brief 控件刷新入口，默认重新摆放。 */
-    virtual void update() { positionHandles(); }
+    virtual void update()
+    {
+        positionHandles();
+    }
 
     /** @brief 返回框架能力标志。 */
-    GraphicsFlags frameFlags() const { return mFlags; }
+    GraphicsFlags frameFlags() const
+    {
+        return mFlags;
+    }
     /** @brief 测试是否设置了某个能力标志。 */
-    bool testFrameFlags(GraphicsFlags pf) const { return mFlags & pf; }
+    bool testFrameFlags(GraphicsFlags pf) const
+    {
+        return mFlags & pf;
+    }
     /** @brief 替换全部能力标志并刷新框架。 */
     void setFrameFlags(GraphicsFlags pf);
     /** @brief 设置或清除单个能力标志。 */
     void setFrameFlag(GraphicsFlags pf, bool set = true);
 
     /** @brief 显示媒体工具栏；基类为空实现。 */
-    virtual void showToolBar(bool autohide = true) { Q_UNUSED(autohide); }
+    virtual void showToolBar(bool autohide = true)
+    {
+        Q_UNUSED(autohide);
+    }
 
 signals:
     /** @brief “在扩展屏显示”状态变化时发出。 */
@@ -435,7 +520,10 @@ protected:
     void setLockedRecurs(const QVariant &pLock, QGraphicsItem *pItem);
 
     /** @brief 返回当前按钮列表。 */
-    QList<DelegateButton *> buttons() { return mButtons; }
+    QList<DelegateButton *> buttons()
+    {
+        return mButtons;
+    }
     QGraphicsItem *mDelegated;
 
     // 选择框左上角的按钮
@@ -455,12 +543,12 @@ protected:
     QAction *mGotoContentSourceAction;
 
     GraphicsDelegateFrame *mFrame;
-    qreal mFrameWidth;
-    qreal mAntiScaleRatio;
+    qreal                  mFrameWidth;
+    qreal                  mAntiScaleRatio;
 
     QList<DelegateButton *> mButtons;
     QList<DelegateButton *> mToolBarButtons;
-    GraphicsToolBarItem *mToolBarItem;
+    GraphicsToolBarItem    *mToolBarItem;
 
 protected slots:
     /** @brief 把图像类对象设为页面背景。 */
@@ -472,15 +560,15 @@ private:
     void updateFrame();
     void updateButtons(bool showUpdated = false);
 
-    QPointF mOffset;
+    QPointF    mOffset;
     QTransform mPreviousTransform;
-    QPointF mPreviousPosition;
-    QPointF mDragStartPosition;
-    qreal mPreviousZValue;
-    QSizeF mPreviousSize;
+    QPointF    mPreviousPosition;
+    QPointF    mDragStartPosition;
+    qreal      mPreviousZValue;
+    QSizeF     mPreviousSize;
     QMimeData *mMimeData;
-    QPixmap mDragPixmap;
+    QPixmap    mDragPixmap;
 
-    bool mMoved;
+    bool          mMoved;
     GraphicsFlags mFlags;
 };

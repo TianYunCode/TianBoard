@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 
 /**
@@ -16,7 +15,8 @@
  * 触控笔/手指长按触发双击语义。当前代码中只见 include，未见实例化，
  * 使用前需确认调用方的接入方式。
  */
-class MousePressFilter : public QObject {
+class MousePressFilter : public QObject
+{
     Q_OBJECT
 
 public:
@@ -33,6 +33,6 @@ protected slots:
     void mouseDownElapsed();
 
 private:
-    QObject *mObject;           ///< 待投递事件的接收对象。
+    QObject     *mObject;       ///< 待投递事件的接收对象。
     QMouseEvent *mPendingEvent; ///< 暂存的双击事件，松开或移动超阈值时销毁。
 };

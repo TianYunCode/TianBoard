@@ -2,12 +2,12 @@
 
 #include "ui/SpinningWheel.h"
 
-
-struct MessageWindow::Private {
-    QHBoxLayout *mLayout{nullptr};
+struct MessageWindow::Private
+{
+    QHBoxLayout   *mLayout{nullptr};
     SpinningWheel *mSpinningWheel{nullptr};
-    QLabel *mLabel{nullptr};
-    QBasicTimer mTimer;
+    QLabel        *mLabel{nullptr};
+    QBasicTimer    mTimer;
 
     int mOriginalAlpha{0};
     int mFadingStep{0};
@@ -15,14 +15,14 @@ struct MessageWindow::Private {
     int mTimerID{0};
 };
 
-MessageWindow::MessageWindow(QWidget *parent)
-    : FloatingPalette(Qt::BottomLeftCorner, parent), d(new Private) {
-    d->mTimerID = -1;
+MessageWindow::MessageWindow(QWidget *parent) : FloatingPalette(Qt::BottomLeftCorner, parent), d(new Private)
+{
+    d->mTimerID       = -1;
 
-    d->mLayout = new QHBoxLayout(this);
+    d->mLayout        = new QHBoxLayout(this);
     // 先以外部 parent 创建，addWidget 时布局会把它们重新归属到本部件。
     d->mSpinningWheel = new SpinningWheel(parent);
-    d->mLabel = new QLabel(parent);
+    d->mLabel         = new QLabel(parent);
     d->mLabel->setStyleSheet(QString("QLabel { color: white; background-color: transparent; border: none; "
                                      "font-family: Arial; font-size: 14px }"));
 
@@ -34,11 +34,13 @@ MessageWindow::MessageWindow(QWidget *parent)
     d->mLayout->addWidget(d->mLabel);
 }
 
-MessageWindow::~MessageWindow() {
+MessageWindow::~MessageWindow()
+{
     // 刻意留空
 }
 
-void MessageWindow::showMessage(const QString &message, bool showSpinningWheel) {
+void MessageWindow::showMessage(const QString &message, bool showSpinningWheel)
+{
     d->mTimer.stop();
 
     d->mLabel->setText(message);
@@ -46,10 +48,13 @@ void MessageWindow::showMessage(const QString &message, bool showSpinningWheel) 
     setBackgroundAlpha(d->mOriginalAlpha);
     d->mFadingStep = 25;
 
-    if (showSpinningWheel) {
+    if (showSpinningWheel)
+    {
         d->mSpinningWheel->show();
         d->mSpinningWheel->startAnimation();
-    } else {
+    }
+    else
+    {
         d->mSpinningWheel->hide();
         d->mSpinningWheel->stopAnimation();
         d->mTimer.start(50, this);
@@ -63,24 +68,29 @@ void MessageWindow::showMessage(const QString &message, bool showSpinningWheel) 
     QCoreApplication::sendPostedEvents();
 }
 
-void MessageWindow::timerEvent(QTimerEvent *event) {
+void MessageWindow::timerEvent(QTimerEvent *event)
+{
     Q_UNUSED(event);
 
     // 每 50ms 递减一档，最后十档开始降低背景透明度，形成淡出。
     d->mFadingStep--;
 
-    if (d->mFadingStep < 1) {
+    if (d->mFadingStep < 1)
+    {
         hide();
         d->mTimer.stop();
         d->mSpinningWheel->stopAnimation();
-    } else if (d->mFadingStep < 10) {
+    }
+    else if (d->mFadingStep < 10)
+    {
         setBackgroundAlpha(d->mOriginalAlpha / 10 * d->mFadingStep);
 
         update();
     }
 }
 
-void MessageWindow::hideMessage() {
+void MessageWindow::hideMessage()
+{
     d->mFadingStep = 0;
     hide();
     QCoreApplication::sendPostedEvents();

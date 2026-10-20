@@ -14,7 +14,8 @@
  * 固定时间再通过元对象系统调用父对象的 `save()` 槽；父对象在构造时传入，且必须
  * 提供该槽，本类不拥有父对象。线程约束：只能在 GUI 线程使用，QBasicTimer 要求同线程。
  */
-class AutoSaver : public QObject {
+class AutoSaver : public QObject
+{
     Q_OBJECT;
 
 public:
@@ -38,6 +39,6 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
-    QBasicTimer mTimer;
+    QBasicTimer   mTimer;
     QElapsedTimer mFirstChange;
 };

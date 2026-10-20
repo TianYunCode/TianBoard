@@ -17,7 +17,6 @@ class QToolButton;
 class DocumentThumbnailWidget;
 class DocumentTreeView;
 
-
 /**
  * @brief 文档管理界面控件。
  *
@@ -26,7 +25,8 @@ class DocumentTreeView;
  * 主视图，并通过下面的访问器取用各个子控件；控件树全部由本类搭建，不再依赖
  * 表单生成的 Ui 类。
  */
-class DocumentsWidget : public QWidget {
+class DocumentsWidget : public QWidget
+{
     Q_OBJECT
 
 public:

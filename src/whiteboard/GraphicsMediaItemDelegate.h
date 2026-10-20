@@ -22,7 +22,8 @@ class QGraphicsItem;
  * 状态、时长、进度信号接到控件上。工具栏在鼠标悬停时显示，离开后延时隐藏。
  * 委托不拥有媒体项；控制条与按钮由框架统一释放。
  */
-class GraphicsMediaItemDelegate : public GraphicsItemDelegate {
+class GraphicsMediaItemDelegate : public GraphicsItemDelegate
+{
     Q_OBJECT
 
 public:
@@ -73,7 +74,6 @@ protected slots:
     /** @brief 延时结束后隐藏工具栏。 */
     void hideToolBar();
 
-
 protected:
     /** @brief 创建媒体专用按钮并接入播放器信号。 */
     virtual void buildButtons();
@@ -81,11 +81,11 @@ protected:
     /** @brief 把被委托项转换为媒体项。 */
     GraphicsMediaItem *delegated();
 
-    DelegateButton *mPlayPauseButton;
-    DelegateButton *mStopButton;
-    DelegateButton *mMuteButton;
+    DelegateButton       *mPlayPauseButton;
+    DelegateButton       *mStopButton;
+    DelegateButton       *mMuteButton;
     DelegateMediaControl *mMediaControl;
 
     QTimer *mToolBarShowTimer;
-    int m_iToolBarShowingInterval;
+    int     m_iToolBarShowingInterval;
 };

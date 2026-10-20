@@ -10,14 +10,14 @@
 
 #include <memory>
 
-
 /**
  * @brief 加载动画部件：页面加载期间由 BrowserWindow 启动，显示一圈渐变圆点。
  *
  * 只存在于 web 域工具栏中，可由外部 pixmap 替换绘制内容。动画通过 QWidget 的定时器
  * 驱动，setAnimated(false) 即停止并释放定时器。
  */
-class ChaseWidget : public QWidget {
+class ChaseWidget : public QWidget
+{
     Q_OBJECT
 
 public:

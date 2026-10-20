@@ -13,12 +13,17 @@
  * 位于 utils 层（纯工具）：不依赖画板状态，所有函数可重入、无副作用。
  * 不可实例化；解析失败时返回原串或空值，不抛异常。
  */
-class StringUtils {
+class StringUtils
+{
 private:
     /** @brief 私有构造，禁止实例化。 */
-    StringUtils() {}
+    StringUtils()
+    {
+    }
     /** @brief 私有析构。 */
-    ~StringUtils() {}
+    ~StringUtils()
+    {
+    }
 
 public:
     /** @brief 按末段数字自然排序；无法解析的数字按 0 处理。 */

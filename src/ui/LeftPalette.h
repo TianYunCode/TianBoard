@@ -9,7 +9,6 @@
 
 #include <memory>
 
-
 /**
  * @brief 左侧停靠面板。
  *
@@ -17,7 +16,8 @@
  * 构造时和每次切换模式时从设置中恢复宽度与是否折叠；用户拖动改宽后立即写回设置，
  * 分别记录 Board 与 Desktop 两种模式下的宽度。
  */
-class LeftPalette : public DockPalette {
+class LeftPalette : public DockPalette
+{
 public:
     /**
      * @brief 构造左侧面板并恢复上次的宽度/折叠状态。

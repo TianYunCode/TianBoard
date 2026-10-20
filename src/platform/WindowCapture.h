@@ -14,7 +14,8 @@
  * 避免用户在挑选窗口时误点到本程序界面。平台层只按 QWidget 的 grab/release 使用它，
  * 不认识 desktop/ 里的任何类型。execute() 会进入平台消息循环，必须在 GUI 线程调用。
  */
-class WindowCapture : public QObject {
+class WindowCapture : public QObject
+{
     Q_OBJECT
 
 public:
@@ -28,6 +29,6 @@ public:
     const QPixmap getCapturedWindow();
 
 private:
-    QPixmap mWindowPixmap; ///< 最近一次抓取的窗口内容。
-    QWidget *mGrabTarget;  ///< 抓取期间独占输入的目标窗口，不拥有所有权。
+    QPixmap  mWindowPixmap; ///< 最近一次抓取的窗口内容。
+    QWidget *mGrabTarget;   ///< 抓取期间独占输入的目标窗口，不拥有所有权。
 };

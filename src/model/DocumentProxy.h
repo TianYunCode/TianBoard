@@ -13,7 +13,6 @@
 
 class GraphicsScene;
 
-
 /**
  * @brief 文档代理：封装单个文档的持久化路径、元数据、页数与 UUID。
  *
@@ -22,7 +21,8 @@ class GraphicsScene;
  * 元数据；内容由 PersistenceManager 按 persistencePath 定位。多个代理可通过相互复制
  * 表示同一份文档，相等性由持久化路径决定。
  */
-class DocumentProxy : public QObject {
+class DocumentProxy : public QObject
+{
     Q_OBJECT
 
     friend class PersistenceManager;
@@ -175,13 +175,15 @@ private:
 /**
  * @brief 按持久化路径比较两个文档代理是否指向同一文档。
  */
-inline bool operator==(const DocumentProxy &proxy1, const DocumentProxy &proxy2) {
+inline bool operator==(const DocumentProxy &proxy1, const DocumentProxy &proxy2)
+{
     return proxy1.persistencePath() == proxy2.persistencePath();
 }
 
 /**
  * @brief 以持久化路径为键计算哈希，使 DocumentProxy 可用于 QHash/QSet。
  */
-inline size_t qHash(const DocumentProxy &key, size_t seed = 0) {
+inline size_t qHash(const DocumentProxy &key, size_t seed = 0)
+{
     return qHash(key.persistencePath(), seed);
 }

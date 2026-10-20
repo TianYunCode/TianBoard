@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QButtonGroup>
 
 #include <memory>
@@ -21,7 +20,8 @@
  * 停靠在容器左侧中部或底部居中；双击某个工具按钮会发出工具 id，由控制器
  * 打开对应的属性面板。
  */
-class StylusPalette : public ActionPalette {
+class StylusPalette : public ActionPalette
+{
     Q_OBJECT
 
 public:

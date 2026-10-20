@@ -14,14 +14,16 @@
  * 比当前读写器的新还是旧。解析不出的串一律得 0（视为最旧），宁可放行也不要对着
  * 一个读得懂的文档弹“版本过新”。对象不可变，可在任意线程构造与比较。
  */
-class Version {
+class Version
+{
 public:
     /** @brief 版本阶段；数值越大越接近正式版。 */
-    enum class Stage : unsigned {
-        Alpha = 10,            ///< 内测版。
-        Beta = 11,             ///< 公测版。
+    enum class Stage : unsigned
+    {
+        Alpha            = 10, ///< 内测版。
+        Beta             = 11, ///< 公测版。
         ReleaseCandidate = 15, ///< 候选发布版。
-        Release = 17           ///< 正式版。
+        Release          = 17  ///< 正式版。
     };
 
     /** @brief 解析版本串；无法解析的部分按 0 处理。 */

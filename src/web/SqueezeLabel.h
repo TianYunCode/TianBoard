@@ -9,14 +9,14 @@
 
 #include <memory>
 
-
 /**
  * @brief 自动省略标签：宽度不足时用 QFontMetrics 做中间省略，避免撑破下载条布局。
  *
  * 只在绘制期间临时替换文本，绘制完立即恢复，因此 text() 始终返回原文。
  * 用于下载项的文件名与进度信息。
  */
-class SqueezeLabel : public QLabel {
+class SqueezeLabel : public QLabel
+{
     Q_OBJECT;
 
 public:

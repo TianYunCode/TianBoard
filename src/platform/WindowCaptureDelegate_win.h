@@ -14,7 +14,8 @@
  * 绘制高亮选择框，确认后抓取该窗口内容。mIsCapturing 期间独占输入，
  * 因此只能在 GUI 线程使用，且不应在捕获过程中销毁本对象。
  */
-class WindowCaptureDelegate : public QObject {
+class WindowCaptureDelegate : public QObject
+{
     Q_OBJECT
 
 public:
@@ -36,9 +37,9 @@ private:
     /** @brief 在屏幕上绘制当前候选窗口的选择框。 */
     void drawSelectionRect();
 
-    bool mIsCapturing;       ///< 是否处于捕获流程中。
-    bool mCancel;            ///< 用户是否已取消。
-    QPoint mLastPoint;       ///< 上一次鼠标位置。
-    HWND mCurrentWindow;     ///< 当前候选窗口句柄。
+    bool    mIsCapturing;    ///< 是否处于捕获流程中。
+    bool    mCancel;         ///< 用户是否已取消。
+    QPoint  mLastPoint;      ///< 上一次鼠标位置。
+    HWND    mCurrentWindow;  ///< 当前候选窗口句柄。
     QPixmap mCapturedPixmap; ///< 抓取结果。
 };

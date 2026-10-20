@@ -40,11 +40,11 @@
 /** 属性页原始缩略图的显示宽度。 */
 #define THUMBNAIL_WIDTH 400
 /** 中央堆叠控件中主列表页的下标。 */
-#define ID_LISTVIEW 0
+#define ID_LISTVIEW     0
 /** 中央堆叠控件中属性页的下标。 */
-#define ID_PROPERTIES 1
+#define ID_PROPERTIES   1
 /** 中央堆叠控件中网页视图页的下标。 */
-#define ID_WEBVIEW 2
+#define ID_WEBVIEW      2
 
 class ListModel;
 
@@ -65,7 +65,6 @@ class FeaturesCentralWidget;
 class FeaturesNewFolderDialog;
 class FeaturesProgressBar;
 
-
 /**
  * @brief 资源库停靠面板，右侧 DockPalette 的“资源库”标签页。
  *
@@ -74,7 +73,8 @@ class FeaturesProgressBar;
  * 面板持有 FeaturesController，监听扫描进度与下载完成等信号，并把动作条的请求
  * 转成对控制器的操作；条目模型由控制器提供，本类负责视图层交互。
  */
-class FeaturesWidget : public DockPaletteWidget {
+class FeaturesWidget : public DockPaletteWidget
+{
     Q_OBJECT
 public:
     /**
@@ -90,7 +90,8 @@ public:
      * @param mode 当前界面模式
      * @return 是否可见
      */
-    bool visibleInMode(DockWidgetMode mode) {
+    bool visibleInMode(DockWidgetMode mode)
+    {
         return mode == DockWidgetMode::Board || mode == DockWidgetMode::Desktop;
     }
     /** @brief 返回面板持有的资源库控制器。 */
@@ -102,8 +103,8 @@ public:
      */
     void importImage(const QImage &image, const QString &fileName = QString());
 
-    static const int minThumbnailSize = 20;
-    static const int maxThumbnailSize = 100;
+    static const int minThumbnailSize     = 20;
+    static const int maxThumbnailSize     = 100;
     static const int defaultThumbnailSize = 40;
 
     /** 路径列表视图的对象名，用于在槽里区分信号来源。 */
@@ -113,9 +114,15 @@ public:
 
 public:
     /** @brief 列表横向滚动条的额外留白。 */
-    int scrollbarHorisontalPadding() const { return 10; }
+    int scrollbarHorisontalPadding() const
+    {
+        return 10;
+    }
     /** @brief 列表纵向滚动条的额外留白。 */
-    int scrollbarVerticalIndent() const { return 0; }
+    int scrollbarVerticalIndent() const
+    {
+        return 0;
+    }
 
 signals:
     /** @brief 请求把现有文件夹名列表发给新建文件夹对话框，用于重名校验。 */
@@ -134,8 +141,8 @@ private slots:
      * @param pSize 目标尺寸（未使用）
      * @param isBackground 是否作为背景（未使用）
      */
-    void onPreviewLoaded(int id, bool pSuccess, QUrl sourceUrl, QUrl originalUrl, QString pContentTypeHeader,
-                         QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
+    void onPreviewLoaded(int id, bool pSuccess, QUrl sourceUrl, QUrl originalUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos,
+        QSize pSize, bool isBackground);
     /**
      * @brief 列表或路径列表中的条目被选中：进入文件夹、显示属性或切换动作条状态。
      * @param current 被点击的索引
@@ -209,7 +216,8 @@ private:
  * FeaturesModel::mimeData() 创建它，动作条和列表通过这些 Feature 判断类型、
  * 是否可删除以及目标路径。
  */
-class FeaturesMimeData : public QMimeData {
+class FeaturesMimeData : public QMimeData
+{
     Q_OBJECT
 
 public:
@@ -236,7 +244,8 @@ private:
  * 由 FeaturesNavigatorWidget 创建；只允许把条目拖到有效文件夹上，拒绝拖到自身或
  * 非文件夹位置。缩略图尺寸通过 thumbnailSizeChanged() 与滑块联动并写入设置。
  */
-class FeaturesListView : public QListView {
+class FeaturesListView : public QListView
+{
     Q_OBJECT
 
 public:
@@ -246,7 +255,10 @@ public:
      * @param name 对象名
      */
     FeaturesListView(QWidget *parent = 0, const char *name = "FeaturesListView");
-    virtual ~FeaturesListView() { ; }
+    virtual ~FeaturesListView()
+    {
+        ;
+    }
 
 protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -268,7 +280,8 @@ public slots:
  * FeaturesCentralWidget 创建并放入堆叠控件的第一页；滑块范围取自
  * FeaturesWidget 的静态常量，当前值由中央控件在初始化时恢复。
  */
-class FeaturesNavigatorWidget : public QWidget {
+class FeaturesNavigatorWidget : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -298,25 +311,29 @@ private:
  * 附加区用于新建文件夹输入框和扫描进度条，显示时可要求模态（锁定主视图）。
  * 控制器扫描信号与动作条请求都汇总到这里再向外转发。
  */
-class FeaturesCentralWidget : public QWidget {
+class FeaturesCentralWidget : public QWidget
+{
     Q_OBJECT
 
 public:
     /** 中央堆叠控件中的页面。 */
-    enum StackElement {
+    enum StackElement
+    {
         MainList = 0,          ///< 缩略图主列表
         FeaturePropertiesList, ///< 单个条目的属性页
         FeaturesWebView        ///< 网页部件视图
     };
 
     /** 附加信息区中的控件。 */
-    enum AddWidget {
+    enum AddWidget
+    {
         NewFolderDialog = 0, ///< 新建文件夹输入框
         ProgressBarWidget    ///< 扫描进度条
     };
 
     /** 附加信息区的交互方式。 */
-    enum AddWidgetState {
+    enum AddWidgetState
+    {
         NonModal = 0, ///< 不锁定主视图
         Modal         ///< 显示时锁定主视图
     };
@@ -418,7 +435,8 @@ private:
  * 作为附加信息区的一页存在，由 FeaturesCentralWidget 创建。名称不能包含路径
  * 非法字符且不能与已有文件夹重名；不合法时确定按钮禁用、输入框变红。
  */
-class FeaturesNewFolderDialog : public QWidget {
+class FeaturesNewFolderDialog : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -475,7 +493,8 @@ private:
  * 由 FeaturesCentralWidget 放入附加信息区；扫描期间显示“Loading xx (%p%)”，
  * 详细路径靠右显示。进度值由控制器逐条累加。
  */
-class FeaturesProgressInfo : public QWidget {
+class FeaturesProgressInfo : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -522,7 +541,8 @@ private:
  * 放在中央堆叠控件的第三页。showElement() 读取部件目录下 config.xml 的
  * content/src 属性，据此加载入口页面；网页设置启用脚本、插件与本地存储。
  */
-class FeaturesWebWidget : public QWidget {
+class FeaturesWebWidget : public QWidget
+{
     Q_OBJECT
 public:
     /**
@@ -551,7 +571,8 @@ private:
  * FeaturesCentralWidget 创建并放在堆叠控件第二页。显示时缓存条目和原图，
  * 按面板宽度缩放预览；来自网络的条目才显示“Add to library”按钮。
  */
-class FeatureProperties : public QWidget {
+class FeatureProperties : public QWidget
+{
     Q_OBJECT
 public:
     /**
@@ -605,7 +626,8 @@ private:
 /**
  * @brief 属性页里使用的浅灰圆角文字按钮。
  */
-class FeatureItemButton : public QPushButton {
+class FeatureItemButton : public QPushButton
+{
 public:
     /**
      * @brief 构造按钮并应用固定样式。
@@ -622,7 +644,8 @@ public:
  * 模型不拥有条目列表，只按行读写；拖放时生成 FeaturesMimeData，并在同模型内
  * 移动时调用 moveData() 完成文件系统与虚拟路径的同步。
  */
-class FeaturesModel : public QAbstractListModel {
+class FeaturesModel : public QAbstractListModel
+{
     Q_OBJECT
 
 signals:
@@ -654,15 +677,14 @@ public:
      */
     void deleteItem(const Feature &feature);
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-    QStringList mimeTypes() const;
-    int rowCount(const QModelIndex &parent) const;
+    QVariant      data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QMimeData    *mimeData(const QModelIndexList &indexes) const;
+    QStringList   mimeTypes() const;
+    int           rowCount(const QModelIndex &parent) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column,
-                      const QModelIndex &parent);
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
-    bool removeRow(int row, const QModelIndex &parent = QModelIndex());
+    bool          dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    bool          removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool          removeRow(int row, const QModelIndex &parent = QModelIndex());
 
     /**
      * @brief 把源条目移动/复制到目标文件夹。
@@ -671,10 +693,15 @@ public:
      * @param action Move 时删除源，Copy 时保留
      * @param deleteManualy true 时在末尾额外从模型删除源条目
      */
-    void moveData(const Feature &source, const Feature &destination, Qt::DropAction action,
-                  bool deleteManualy = false);
-    Qt::DropActions supportedDropActions() const { return Qt::MoveAction | Qt::CopyAction; }
-    Qt::DropActions supportedDragActions() const { return Qt::MoveAction | Qt::CopyAction; }
+    void            moveData(const Feature &source, const Feature &destination, Qt::DropAction action, bool deleteManualy = false);
+    Qt::DropActions supportedDropActions() const
+    {
+        return Qt::MoveAction | Qt::CopyAction;
+    }
+    Qt::DropActions supportedDragActions() const
+    {
+        return Qt::MoveAction | Qt::CopyAction;
+    }
 
 public slots:
     /**
@@ -691,15 +718,21 @@ private:
 /**
  * @brief 按完整路径精确匹配的正则过滤代理，用于路径面包屑列表。
  */
-class FeaturesProxyModel : public QSortFilterProxyModel {
+class FeaturesProxyModel : public QSortFilterProxyModel
+{
     Q_OBJECT
 public:
     /**
      * @brief 构造代理。
      * @param parent 父对象
      */
-    FeaturesProxyModel(QObject *parent = 0) : QSortFilterProxyModel(parent) { ; }
-    virtual ~FeaturesProxyModel() {}
+    FeaturesProxyModel(QObject *parent = 0) : QSortFilterProxyModel(parent)
+    {
+        ;
+    }
+    virtual ~FeaturesProxyModel()
+    {
+    }
 
 protected:
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
@@ -708,7 +741,8 @@ protected:
 /**
  * @brief 资源库搜索过滤代理：只保留文件类条目，名称匹配且所在路径包含前缀。
  */
-class FeaturesSearchProxyModel : public QSortFilterProxyModel {
+class FeaturesSearchProxyModel : public QSortFilterProxyModel
+{
     Q_OBJECT
 public:
     /**
@@ -734,7 +768,8 @@ private:
 /**
  * @brief 路径面包屑过滤代理：只保留当前路径及其各级父文件夹。
  */
-class FeaturesPathProxyModel : public QSortFilterProxyModel {
+class FeaturesPathProxyModel : public QSortFilterProxyModel
+{
     Q_OBJECT
 public:
     /**
@@ -760,7 +795,8 @@ private:
 /**
  * @brief 资源库缩略图列表的绘制委托：去掉条目扩展名并按网格宽度省略文字。
  */
-class FeaturesItemDelegate : public QStyledItemDelegate {
+class FeaturesItemDelegate : public QStyledItemDelegate
+{
     Q_OBJECT
 public:
     /**
@@ -780,7 +816,8 @@ private:
 /**
  * @brief 路径面包屑的绘制委托：画分隔箭头与条目缩略图，不显示文字。
  */
-class FeaturesPathItemDelegate : public QStyledItemDelegate {
+class FeaturesPathItemDelegate : public QStyledItemDelegate
+{
     Q_OBJECT
 public:
     /**
@@ -790,7 +827,7 @@ public:
     FeaturesPathItemDelegate(QObject *parent = 0);
     ~FeaturesPathItemDelegate();
     virtual QString displayText(const QVariant &value, const QLocale &locale) const;
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void            paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
     struct Private;

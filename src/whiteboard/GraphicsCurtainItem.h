@@ -13,7 +13,6 @@
 
 class GraphicsItemDelegate;
 
-
 /**
  * @brief 幕布图元：整页不透明矩形，用于暂时遮住页面内容。
  *
@@ -23,7 +22,8 @@ class GraphicsItemDelegate;
  *
  * 生命周期：归场景所有，委托随基类析构释放；仅在 GUI 线程使用。
  */
-class GraphicsCurtainItem : public QObject, public QGraphicsRectItem, public Item, public GraphicsItem {
+class GraphicsCurtainItem : public QObject, public QGraphicsRectItem, public Item, public GraphicsItem
+{
     Q_OBJECT
 
 public:
@@ -31,10 +31,16 @@ public:
     virtual ~GraphicsCurtainItem();
 
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::CurtainItemType };
+    enum
+    {
+        Type = GraphicsItemType::CurtainItemType
+    };
 
     /// @brief 返回图元类型。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 创建一份新的幕布并复制几何参数。
     virtual Item *deepCopy() const;
@@ -44,7 +50,10 @@ public:
     /// @brief 主动发出 removed() 信号，供场景在删除前统一通知观察者。
     void triggerRemovedSignal();
     /// @brief 幕布不持有外部资源，空实现。
-    virtual void clearSource() { ; }
+    virtual void clearSource()
+    {
+        ;
+    }
 
     /// @brief 设置 UUID，同时写入图元 data 以加速场景内查找。
     virtual void setUuid(const QUuid &pUuid);

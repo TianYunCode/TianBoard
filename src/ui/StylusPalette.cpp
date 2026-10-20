@@ -12,13 +12,13 @@
 
 #include "platform/PlatformUtils.h"
 
-
-struct StylusPalette::Private {
+struct StylusPalette::Private
+{
     int mLastSelectedId{-1};
 };
 
-StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
-    : ActionPalette(Qt::TopLeftCorner, parent, orient), d(new Private) {
+StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient) : ActionPalette(Qt::TopLeftCorner, parent, orient), d(new Private)
+{
     QList<QAction *> actions;
 
     actions << Application::mainWindow->ui().actionPen;
@@ -37,18 +37,24 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
     actions << Application::mainWindow->ui().actionCapture;
 
     if (PlatformUtils::hasVirtualKeyboard())
+    {
         actions << Application::mainWindow->ui().actionVirtualKeyboard;
+    }
 
     setActions(actions);
     setButtonIconSize(QSize(42, 42));
 
     // 绘图工具必须互斥，只有一个处于选中态。
-    if (!PlatformUtils::hasVirtualKeyboard()) {
+    if (!PlatformUtils::hasVirtualKeyboard())
+    {
         groupActions();
-    } else {
+    }
+    else
+    {
         // 虚拟键盘不是绘图工具，不能参与互斥，所以只把最后一个按钮排除在组外。
         setButtonGroup(new QButtonGroup(this));
-        for (int i = 0; i < buttons().size() - 1; i++) {
+        for (int i = 0; i < buttons().size() - 1; i++)
+        {
             buttonGroup()->addButton(buttons()[i], i);
         }
         connect(buttonGroup(), &QButtonGroup::idClicked, this, &ActionPalette::buttonGroupClicked);
@@ -58,31 +64,37 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient)
 
     initPosition();
 
-    foreach (ActionPaletteButton *button, buttons()) {
+    foreach (ActionPaletteButton *button, buttons())
+    {
         // 同名重载：这里要的是无参的那个槽
-        connect(button, &ActionPaletteButton::doubleClicked, this,
-                qOverload<>(&StylusPalette::stylusToolDoubleClicked));
+        connect(button, &ActionPaletteButton::doubleClicked, this, qOverload<>(&StylusPalette::stylusToolDoubleClicked));
     }
 }
 
-void StylusPalette::initPosition() {
+void StylusPalette::initPosition()
+{
     QWidget *pParentW = parentWidget();
     if (!pParentW)
+    {
         return;
+    }
 
     setCustomPositionFlag(true);
 
     // 竖向工具栏贴左侧中部，横向工具栏贴底部水平居中，具体位置每帧按父容器尺寸算。
     QPoint pos;
-    int parentWidth = pParentW->width();
-    int parentHeight = pParentW->height();
+    int    parentWidth  = pParentW->width();
+    int    parentHeight = pParentW->height();
 
-    if (Settings::settings()->appToolBarOrientationVertical->get().toBool()) {
+    if (Settings::settings()->appToolBarOrientationVertical->get().toBool())
+    {
         int posX = border();
         int posY = (parentHeight / 2) - (height() / 2);
         pos.setX(posX);
         pos.setY(posY);
-    } else {
+    }
+    else
+    {
         int posX = (parentWidth / 2) - (width() / 2);
         int posY = parentHeight - border() - height();
         pos.setX(posX);
@@ -91,8 +103,11 @@ void StylusPalette::initPosition() {
     moveInsideParent(pos);
 }
 
-StylusPalette::~StylusPalette() {}
+StylusPalette::~StylusPalette()
+{
+}
 
-void StylusPalette::stylusToolDoubleClicked() {
+void StylusPalette::stylusToolDoubleClicked()
+{
     emit stylusToolDoubleClicked(buttonGroup()->checkedId());
 }

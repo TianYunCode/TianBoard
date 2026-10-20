@@ -16,7 +16,6 @@ class MainWindow;
 class WebToolsPalette;
 class WebView;
 
-
 /**
  * @brief 网页控制器：web 域与主窗口/看板之间的协调者。
  *
@@ -24,7 +23,8 @@ class WebView;
  * 工具面板和“在副屏显示”动作。它不直接操作页面内容，只把捕获结果通过 imageCaptured
  * 交给 ApplicationController，把当前 WebView 通过 activeWebPageChanged 通知看板。
  */
-class WebController : public QObject {
+class WebController : public QObject
+{
     Q_OBJECT
 
 public:
@@ -91,7 +91,10 @@ public slots:
     void toogleMirroring(bool checked);
 
     /** @brief 返回网页模式的中央控件。 */
-    QWidget *controlView() { return mBrowserWidget; }
+    QWidget *controlView()
+    {
+        return mBrowserWidget;
+    }
 
     /** @brief 对当前网页执行复制。 */
     void copy();

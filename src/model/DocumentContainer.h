@@ -8,7 +8,6 @@
 #include <QtWidgets>
 #include "model/DocumentProxy.h"
 
-
 /**
  * @brief 文档容器：为“当前文档”维护缩略图列表，并把页面增删、移动、复制转发给 PersistenceManager。
  *
@@ -17,7 +16,8 @@
  * 只保存裸指针；缩略图 QPixmap 由本类负责 new/delete。生命周期上随 DocumentController
  * 创建，父对象是主窗口中央控件。
  */
-class DocumentContainer : public QObject {
+class DocumentContainer : public QObject
+{
     Q_OBJECT
 
 public:
@@ -45,23 +45,36 @@ public:
      *
      * 供删除流程等需要先“摘掉”旧文档再自行刷新视图的场景使用。
      */
-    void pureSetDocument(DocumentProxy *document) { mCurrentDocument = document; }
+    void pureSetDocument(DocumentProxy *document)
+    {
+        mCurrentDocument = document;
+    }
 
     /** @brief 返回当前文档代理，可能为空。 */
-    DocumentProxy *selectedDocument() { return mCurrentDocument; }
+    DocumentProxy *selectedDocument()
+    {
+        return mCurrentDocument;
+    }
 
     /** @brief 返回当前文档的页数（假定当前文档非空）。 */
-    int pageCount() { return mCurrentDocument->pageCount(); }
+    int pageCount()
+    {
+        return mCurrentDocument->pageCount();
+    }
 
     /**
      * @brief 返回指定页的缩略图。
      * @param index 从 0 开始的页索引。
      * @return 缓存的缩略图指针；越界时返回 nullptr。
      */
-    const QPixmap *pageAt(int index) {
+    const QPixmap *pageAt(int index)
+    {
         if (index < mDocumentThumbs.size())
+        {
             return mDocumentThumbs[index];
-        else {
+        }
+        else
+        {
             return NULL;
         }
     }
@@ -162,7 +175,6 @@ signals:
      * @param index 页索引。
      */
     void documentPageUpdated(int index);
-
 
     /**
      * @brief 缩略图集合发生结构性变化（增删、移动、重载）后发出。

@@ -43,10 +43,17 @@ class GraphicsStrokesGroup;
  * （upgradeScene 复用同一套规则），写出时 SvgSubsetWriter 从 GraphicsScene 生成 DOM。
  * 对外只暴露静态方法，场景的加载/保存与 DocumentProxy 的页面索引绑定。
  */
-class SvgSubsetAdaptor {
+class SvgSubsetAdaptor
+{
 private:
-    SvgSubsetAdaptor() { ; }
-    virtual ~SvgSubsetAdaptor() { ; }
+    SvgSubsetAdaptor()
+    {
+        ;
+    }
+    virtual ~SvgSubsetAdaptor()
+    {
+        ;
+    }
 
 public:
     /** @brief 加载指定页为新的 GraphicsScene；页面文件缺失或损坏时返回 0。 */
@@ -97,7 +104,7 @@ public:
 private:
     static QDomDocument loadSceneDocument(DocumentProxy *proxy, const int pPageIndex);
 
-    static QString toSvgTransform(const QTransform &matrix);
+    static QString    toSvgTransform(const QTransform &matrix);
     static QTransform fromSvgTransform(const QString &transform);
 
     /**
@@ -106,12 +113,15 @@ private:
      * 读取过程中记录目标文件版本，遇到低版本数据时就地补齐字段（例如缺省 fillRule、
      * 旧版 z 序、字号单位），因此 loadScene 与 upgradeScene 共用同一实现。
      */
-    class SvgSubsetReader {
+    class SvgSubsetReader
+    {
     public:
         /** @brief 绑定文档与 XML 字节；解析在 loadScene 中真正开始。 */
         SvgSubsetReader(DocumentProxy *proxy, const QByteArray &pXmlData);
 
-        virtual ~SvgSubsetReader() {}
+        virtual ~SvgSubsetReader()
+        {
+        }
 
         /** @brief 创建并返回场景；解析失败时返回 0，已创建的图元随之释放。 */
         GraphicsScene *loadScene(DocumentProxy *proxy);
@@ -151,25 +161,25 @@ private:
 
         GraphicsCache *cacheFromSvg();
 
-        void readGroupRoot();
-        QGraphicsItem *readElementFromGroup();
+        void                        readGroupRoot();
+        QGraphicsItem              *readElementFromGroup();
         GraphicsGroupContainerItem *readGroup();
 
         void graphicsItemFromSvg(QGraphicsItem *gItem);
 
         QXmlStreamReader mXmlReader;
-        int mFileVersion;
-        DocumentProxy *mProxy;
-        QString mDocumentPath;
+        int              mFileVersion;
+        DocumentProxy   *mProxy;
+        QString          mDocumentPath;
 
         QColor mGroupDarkBackgroundColor;
         QColor mGroupLightBackgroundColor;
-        qreal mGroupZIndex;
-        bool mGroupHasInfo;
+        qreal  mGroupZIndex;
+        bool   mGroupHasInfo;
 
         bool saveSceneAfterLoading;
 
-        QString mNamespaceUri;
+        QString        mNamespaceUri;
         GraphicsScene *mScene;
 
         QHash<QString, GraphicsStrokesGroup *> mStrokesList;
@@ -182,7 +192,8 @@ private:
      * 引用；笔迹按“是否闭合”分别写成 polyline 或 polygon。写出后 XML 由
      * writeSvgElement() 统一交给 QXmlStreamWriter。
      */
-    class SvgSubsetWriter {
+    class SvgSubsetWriter
+    {
     public:
         /** @brief 记录场景、文档路径与页号，构造时不写文件。 */
         SvgSubsetWriter(DocumentProxy *proxy, GraphicsScene *pScene, const int pageIndex);
@@ -190,29 +201,31 @@ private:
         /** @brief 把场景写到 pageIndex 对应的页面文件；成功返回 true。 */
         bool persistScene(DocumentProxy *proxy, int pageIndex);
 
-        virtual ~SvgSubsetWriter() {}
+        virtual ~SvgSubsetWriter()
+        {
+        }
 
     private:
-        void persistGroupToDom(QGraphicsItem *groupItem, QDomElement *curParent,
-                               QDomDocument *curDomDocument);
-        void persistStrokeToDom(QGraphicsItem *strokeItem, QDomElement *curParent,
-                                QDomDocument *curDomDocument);
+        void persistGroupToDom(QGraphicsItem *groupItem, QDomElement *curParent, QDomDocument *curDomDocument);
+        void persistStrokeToDom(QGraphicsItem *strokeItem, QDomElement *curParent, QDomDocument *curDomDocument);
         void polygonItemToSvgPolygon(GraphicsPolygonItem *polygonItem, bool groupHoldsInfo);
         void polygonItemToSvgLine(GraphicsPolygonItem *polygonItem, bool groupHoldsInfo);
         void strokeToSvgPolyline(GraphicsStroke *stroke, bool groupHoldsInfo);
         void strokeToSvgPolygon(GraphicsStroke *stroke, bool groupHoldsInfo);
 
-        inline QString pointsToSvgPointsAttribute(QVector<QPointF> points) {
+        inline QString pointsToSvgPointsAttribute(QVector<QPointF> points)
+        {
             GeometryUtils::crashPointList(points);
 
-            int pointsCount = points.size();
+            int     pointsCount = points.size();
             QString svgPoints;
 
-            int length = 0;
+            int     length = 0;
             QString sBuf;
 
-            for (int j = 0; j < pointsCount; j++) {
-                sBuf = "%1,%2 ";
+            for (int j = 0; j < pointsCount; j++)
+            {
+                sBuf                 = "%1,%2 ";
                 const QPointF &point = points.at(j);
 
                 QString temp1 = "%1", temp2 = "%2";
@@ -229,12 +242,17 @@ private:
             return svgPoints;
         }
 
-        inline qreal trickAlpha(qreal alpha) {
+        inline qreal trickAlpha(qreal alpha)
+        {
             qreal trickAlpha = alpha;
-            if (trickAlpha >= 0.2 && trickAlpha < 0.6) {
+            if (trickAlpha >= 0.2 && trickAlpha < 0.6)
+            {
                 trickAlpha /= 5;
-            } else if (trickAlpha < 0.8)
+            }
+            else if (trickAlpha < 0.8)
+            {
                 trickAlpha /= 3;
+            }
 
             return trickAlpha;
         }
@@ -258,9 +276,9 @@ private:
         void writeSvgElement(DocumentProxy *proxy);
 
     private:
-        GraphicsScene *mScene;
+        GraphicsScene   *mScene;
         QXmlStreamWriter mXmlWriter;
-        QString mDocumentPath;
-        int mPageIndex;
+        QString          mDocumentPath;
+        int              mPageIndex;
     };
 };

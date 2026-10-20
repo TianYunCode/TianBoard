@@ -8,7 +8,6 @@
 #include <QSortFilterProxyModel>
 #include "core/PersistenceManager.h"
 
-
 /**
  * @brief 文档树排序代理：把排序职责从 DocumentTreeModel 中分离出来。
  *
@@ -16,7 +15,8 @@
  * 所有视图索引都必须经它映射回源索引。顶层节点（“我的文档”“回收站”）是固定入口，不参与
  * 排序，lessThan 对它们恒返回 false。由 DocumentController 创建并持有。
  */
-class SortFilterProxyModel : public QSortFilterProxyModel {
+class SortFilterProxyModel : public QSortFilterProxyModel
+{
 public:
     /**
      * @brief 构造代理，关闭动态排序并启用大小写不敏感比较。

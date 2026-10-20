@@ -4,33 +4,34 @@
 #include "ui/FeaturesActionBar.h"
 #include "ui/FeaturesWidget.h"
 
-struct FeaturesActionBar::Private {
-    FeaturesController *featuresController{nullptr};
+struct FeaturesActionBar::Private
+{
+    FeaturesController    *featuresController{nullptr};
     FeaturesActionBarState currentState{IN_ROOT};
-    eButtonSet mCrntButtonSet{eButtonSet_Default};
-    eButtonSet mPreviousButtonSet{eButtonSet_Default};
-    QButtonGroup *mButtonGroup{nullptr};
-    QLineEdit *mSearchBar{nullptr};
-    QHBoxLayout *mLayout{nullptr};
-    QAction *mpFavoriteAction{nullptr};
-    QAction *mpSocialAction{nullptr};
-    QAction *mpRescanModelAction{nullptr};
-    QAction *mpDeleteAction{nullptr};
-    QAction *mpSearchAction{nullptr};
-    QAction *mpCloseAction{nullptr};
-    QAction *mpRemoveFavorite{nullptr};
-    QAction *mpNewFolderAction{nullptr};
-    ActionButton *mpFavoriteBtn{nullptr};
-    ActionButton *mpSocialBtn{nullptr};
-    ActionButton *mpRescanModelBtn{nullptr};
-    ActionButton *mpDeleteBtn{nullptr};
-    ActionButton *mpCloseBtn{nullptr};
-    ActionButton *mpRemoveFavoriteBtn{nullptr};
-    ActionButton *mpNewFolderBtn{nullptr};
+    eButtonSet             mCrntButtonSet{eButtonSet_Default};
+    eButtonSet             mPreviousButtonSet{eButtonSet_Default};
+    QButtonGroup          *mButtonGroup{nullptr};
+    QLineEdit             *mSearchBar{nullptr};
+    QHBoxLayout           *mLayout{nullptr};
+    QAction               *mpFavoriteAction{nullptr};
+    QAction               *mpSocialAction{nullptr};
+    QAction               *mpRescanModelAction{nullptr};
+    QAction               *mpDeleteAction{nullptr};
+    QAction               *mpSearchAction{nullptr};
+    QAction               *mpCloseAction{nullptr};
+    QAction               *mpRemoveFavorite{nullptr};
+    QAction               *mpNewFolderAction{nullptr};
+    ActionButton          *mpFavoriteBtn{nullptr};
+    ActionButton          *mpSocialBtn{nullptr};
+    ActionButton          *mpRescanModelBtn{nullptr};
+    ActionButton          *mpDeleteBtn{nullptr};
+    ActionButton          *mpCloseBtn{nullptr};
+    ActionButton          *mpRemoveFavoriteBtn{nullptr};
+    ActionButton          *mpNewFolderBtn{nullptr};
 };
 
-FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *parent, const char *name)
-    : QWidget(parent), d(new Private) {
+FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *parent, const char *name) : QWidget(parent), d(new Private)
+{
     d->featuresController = controller;
 
     setObjectName(name);
@@ -39,7 +40,7 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     setAcceptDrops(true);
 
     d->mButtonGroup = new QButtonGroup(this);
-    d->mSearchBar = new QLineEdit(this);
+    d->mSearchBar   = new QLineEdit(this);
     d->mSearchBar->setStyleSheet(QString("background-color:white; border-radius : 10px; padding : 2px;"));
 
     d->mLayout = new QHBoxLayout();
@@ -48,31 +49,27 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     setMaximumHeight(ACTIONBAR_HEIGHT);
 
     // 创建动作
-    d->mpFavoriteAction =
-        new QAction(QIcon(":/images/libpalette/miniFavorite.png"), tr("Add to favorites"), this);
-    d->mpSocialAction = new QAction(QIcon(":/images/libpalette/social.png"), tr("Share"), this);
-    d->mpSearchAction = new QAction(QIcon(":/images/libpalette/miniSearch.png"), tr("Search"), this);
-    d->mpRescanModelAction =
-        new QAction(QIcon(":/images/cursors/rotate.png"), tr("Rescan file system"), this);
-    d->mpDeleteAction = new QAction(QIcon(":/images/libpalette/miniTrash.png"), tr("Delete"), this);
-    d->mpCloseAction = new QAction(QIcon(":/images/close.svg"), tr("Back to folder"), this);
-    d->mpRemoveFavorite =
-        new QAction(QIcon(":/images/libpalette/trash_favorite.svg"), tr("Remove from favorites"), this);
-    d->mpNewFolderAction =
-        new QAction(QIcon(":/images/libpalette/miniNewFolder.png"), tr("Create new folder"), this);
+    d->mpFavoriteAction    = new QAction(QIcon(":/images/libpalette/miniFavorite.png"), tr("Add to favorites"), this);
+    d->mpSocialAction      = new QAction(QIcon(":/images/libpalette/social.png"), tr("Share"), this);
+    d->mpSearchAction      = new QAction(QIcon(":/images/libpalette/miniSearch.png"), tr("Search"), this);
+    d->mpRescanModelAction = new QAction(QIcon(":/images/cursors/rotate.png"), tr("Rescan file system"), this);
+    d->mpDeleteAction      = new QAction(QIcon(":/images/libpalette/miniTrash.png"), tr("Delete"), this);
+    d->mpCloseAction       = new QAction(QIcon(":/images/close.svg"), tr("Back to folder"), this);
+    d->mpRemoveFavorite    = new QAction(QIcon(":/images/libpalette/trash_favorite.svg"), tr("Remove from favorites"), this);
+    d->mpNewFolderAction   = new QAction(QIcon(":/images/libpalette/miniNewFolder.png"), tr("Create new folder"), this);
 
     // 创建按钮
-    d->mpFavoriteBtn = new ActionButton(this, d->mpFavoriteAction);
-    d->mpSocialBtn = new ActionButton(this, d->mpSocialAction);
+    d->mpFavoriteBtn       = new ActionButton(this, d->mpFavoriteAction);
+    d->mpSocialBtn         = new ActionButton(this, d->mpSocialAction);
 
-    d->mpRescanModelBtn = new ActionButton(this, d->mpRescanModelAction);
+    d->mpRescanModelBtn    = new ActionButton(this, d->mpRescanModelAction);
     // 重新扫描入口暂不展示，仅保留对象。
     d->mpRescanModelBtn->hide();
 
-    d->mpDeleteBtn = new ActionButton(this, d->mpDeleteAction);
-    d->mpCloseBtn = new ActionButton(this, d->mpCloseAction);
+    d->mpDeleteBtn         = new ActionButton(this, d->mpDeleteAction);
+    d->mpCloseBtn          = new ActionButton(this, d->mpCloseAction);
     d->mpRemoveFavoriteBtn = new ActionButton(this, d->mpRemoveFavorite);
-    d->mpNewFolderBtn = new ActionButton(this, d->mpNewFolderAction);
+    d->mpNewFolderBtn      = new ActionButton(this, d->mpNewFolderAction);
 
     // 初始状态下不允许新建文件夹，进入文件夹后由 setButtons() 打开。
     d->mpNewFolderBtn->setEnabled(false);
@@ -92,7 +89,6 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     connect(d->mpRescanModelAction, &QAction::triggered, this, &FeaturesActionBar::onActionRescanModel);
     connect(d->mpDeleteAction, &QAction::triggered, this, &FeaturesActionBar::onActionTrash);
 
-
     // 组装默认动作条；搜索框代替了独立的搜索按钮。
     d->mLayout->addWidget(d->mpFavoriteBtn);
     d->mLayout->addWidget(d->mpSocialBtn);
@@ -107,18 +103,22 @@ FeaturesActionBar::FeaturesActionBar(FeaturesController *controller, QWidget *pa
     setAcceptDrops(true);
 }
 
-void FeaturesActionBar::setCurrentState(FeaturesActionBarState state) {
+void FeaturesActionBar::setCurrentState(FeaturesActionBarState state)
+{
     d->currentState = state;
     setButtons();
 }
 
-void FeaturesActionBar::cleanText() {
+void FeaturesActionBar::cleanText()
+{
     d->mSearchBar->clear();
 }
 
-void FeaturesActionBar::setButtons() {
+void FeaturesActionBar::setButtons()
+{
     // 各状态下按钮的显隐与可用性差异集中在这里维护。
-    switch (d->currentState) {
+    switch (d->currentState)
+    {
         case IN_FOLDER:
             d->mpFavoriteBtn->show();
             d->mpSocialBtn->hide();
@@ -173,63 +173,80 @@ void FeaturesActionBar::setButtons() {
     }
 }
 
-void FeaturesActionBar::onSearchTextChanged(QString txt) {
+void FeaturesActionBar::onSearchTextChanged(QString txt)
+{
     Q_UNUSED(txt)
     emit searchElement(d->mSearchBar->text());
 }
 
-void FeaturesActionBar::onActionNewFolder() {
+void FeaturesActionBar::onActionNewFolder()
+{
     emit newFolderToCreate();
 }
 
-void FeaturesActionBar::onActionFavorite() {
+void FeaturesActionBar::onActionFavorite()
+{
     emit addElementsToFavorite();
 }
 
-void FeaturesActionBar::onActionRemoveFavorite() {
+void FeaturesActionBar::onActionRemoveFavorite()
+{
     emit removeElementsFromFavorite();
 }
 
-void FeaturesActionBar::onActionTrash() {
+void FeaturesActionBar::onActionTrash()
+{
     emit deleteSelectedElements();
 }
-void FeaturesActionBar::onActionRescanModel() {
+void FeaturesActionBar::onActionRescanModel()
+{
     emit rescanModel();
 }
 
-void FeaturesActionBar::lockIt() {
+void FeaturesActionBar::lockIt()
+{
     setEnabled(false);
 }
 
-void FeaturesActionBar::unlockIt() {
+void FeaturesActionBar::unlockIt()
+{
     setEnabled(true);
 }
 
-void FeaturesActionBar::dragEnterEvent(QDragEnterEvent *event) {
+void FeaturesActionBar::dragEnterEvent(QDragEnterEvent *event)
+{
     // 只接受资源库自己的拖放数据，外部文件交给其他控件处理。
     const FeaturesMimeData *fMimeData = qobject_cast<const FeaturesMimeData *>(event->mimeData());
-    if (fMimeData) {
+    if (fMimeData)
+    {
         event->acceptProposedAction();
-    } else {
+    }
+    else
+    {
         event->ignore();
     }
 }
 
-void FeaturesActionBar::dropEvent(QDropEvent *event) {
+void FeaturesActionBar::dropEvent(QDropEvent *event)
+{
     const FeaturesMimeData *fMimeData = qobject_cast<const FeaturesMimeData *>(event->mimeData());
 
-    if (!fMimeData) {
+    if (!fMimeData)
+    {
         qWarning() << "data came from not supported widget";
         event->ignore();
         return;
     }
 
     QWidget *dest = childAt(event->pos());
-    if (dest == d->mpDeleteBtn) {
+    if (dest == d->mpDeleteBtn)
+    {
         // 删除前先整体校验：只要有一个条目不可删除就放弃整个操作，避免半完成状态。
         QList<Feature> featuresList = fMimeData->features();
-        foreach (Feature curFeature, featuresList) {
-            if (!curFeature.isDeletable()) {
+        foreach (Feature curFeature, featuresList)
+        {
+            if (!curFeature.isDeletable())
+            {
                 qWarning() << "Undeletable feature found, stopping deleting process";
                 event->ignore();
                 return;
@@ -239,14 +256,16 @@ void FeaturesActionBar::dropEvent(QDropEvent *event) {
         event->accept();
 
         emit deleteElements(fMimeData);
-
-    } else if (dest == d->mpFavoriteBtn) {
+    }
+    else if (dest == d->mpFavoriteBtn)
+    {
         event->setDropAction(Qt::CopyAction);
         event->accept();
 
         emit addToFavorite(fMimeData);
-
-    } else if (dest == d->mpRemoveFavoriteBtn) {
+    }
+    else if (dest == d->mpRemoveFavoriteBtn)
+    {
         event->setDropAction(Qt::MoveAction);
         event->accept();
 
@@ -254,9 +273,12 @@ void FeaturesActionBar::dropEvent(QDropEvent *event) {
     }
 }
 
-FeaturesActionBar::~FeaturesActionBar() {}
+FeaturesActionBar::~FeaturesActionBar()
+{
+}
 
-ActionButton::ActionButton(QWidget *parent, QAction *action, const char *name) : QToolButton(parent) {
+ActionButton::ActionButton(QWidget *parent, QAction *action, const char *name) : QToolButton(parent)
+{
     setObjectName(name);
     addAction(action);
     setDefaultAction(action);
@@ -267,4 +289,6 @@ ActionButton::ActionButton(QWidget *parent, QAction *action, const char *name) :
     setFocusPolicy(Qt::NoFocus);
 }
 
-ActionButton::~ActionButton() {}
+ActionButton::~ActionButton()
+{
+}

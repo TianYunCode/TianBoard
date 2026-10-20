@@ -19,7 +19,8 @@
  * （当前色 / 浅背景色 / 深背景色），明暗背景切换时由场景统一换色。
  * 子图元随 QGraphicsItemGroup 的所有权规则由场景管理，组本身不额外持有资源。
  */
-class GraphicsStrokesGroup : public QObject, public QGraphicsItemGroup, public Item, public GraphicsItem {
+class GraphicsStrokesGroup : public QObject, public QGraphicsItemGroup, public Item, public GraphicsItem
+{
     Q_OBJECT
 public:
     /**
@@ -28,7 +29,12 @@ public:
      * currentColor 当前显示色、colorOnLightBackground 浅背景下用色、
      * colorOnDarkBackground 深背景下用色。
      */
-    enum colorType { currentColor = 0, colorOnLightBackground, colorOnDarkBackground };
+    enum colorType
+    {
+        currentColor = 0,
+        colorOnLightBackground,
+        colorOnDarkBackground
+    };
 
     /// @brief 构造组并挂上 Delegate（可移动、可旋转、可沿任意轴翻转）
     GraphicsStrokesGroup(QGraphicsItem *parent = 0);
@@ -38,9 +44,15 @@ public:
     /// @brief 把变换、位置、锁定标记与 Z 值复制到 copy
     virtual void copyItemParameters(Item *copy) const;
     /// @brief QGraphicsItem::type() 的识别值
-    enum { Type = GraphicsItemType::StrokeItemType };
+    enum
+    {
+        Type = GraphicsItemType::StrokeItemType
+    };
     /// @brief 返回 Type，供 qgraphicsitem_cast 识别
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
     /// @brief 设置 UUID，同时冗余存进 item data 以便场景内快速检索
     virtual void setUuid(const QUuid &pUuid);
     /// @brief 把组内全部多边形的指定颜色槽位设为 color

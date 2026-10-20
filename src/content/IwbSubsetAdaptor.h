@@ -34,7 +34,8 @@ class GraphicsStrokesGroup;
  * DocumentProxy 对象，而是通过 PersistenceManager 落盘的页面 SVG 与资源目录，
  * 调用方随后用指针创建或追加文档。
  */
-class IwbSubsetAdaptor {
+class IwbSubsetAdaptor
+{
 public:
     IwbSubsetAdaptor();
     /**
@@ -53,7 +54,8 @@ private:
      * 被引用者先出现，因此先 hash 出所有元素再逐个回填；每解析完一页立即持久化，
      * 避免整本文档同时驻留内存。
      */
-    class IwbSubsetReader {
+    class IwbSubsetReader
+    {
     public:
         /** @brief 绑定目标文档与 content.xml 文件设备，读取前不解析。 */
         IwbSubsetReader(DocumentProxy *proxy, QFile *content);
@@ -68,25 +70,25 @@ private:
         bool parse();
 
     private:
-        QString mTempFilePath;
-        GraphicsScene *mCurrentScene;
-        QRectF mCurrentSceneRect;
-        QString mIndent;
-        QRectF mViewBox;
-        QRectF mViewPort;
-        qreal mVBTransFactor;
-        QPointF mViewBoxCenter;
-        QSize mSize;
-        QPointF mShiftVector;
-        bool mSvgGSectionIsOpened;
+        QString                     mTempFilePath;
+        GraphicsScene              *mCurrentScene;
+        QRectF                      mCurrentSceneRect;
+        QString                     mIndent;
+        QRectF                      mViewBox;
+        QRectF                      mViewPort;
+        qreal                       mVBTransFactor;
+        QPointF                     mViewBoxCenter;
+        QSize                       mSize;
+        QPointF                     mShiftVector;
+        bool                        mSvgGSectionIsOpened;
         GraphicsGroupContainerItem *mGSectionContainer;
 
     private:
-        QDomDocument mDOMdoc;
-        QDomNode mCurrentDOMElement;
+        QDomDocument                   mDOMdoc;
+        QDomNode                       mCurrentDOMElement;
         QHash<QString, GraphicsItem *> persistedItems;
-        QMap<QString, QString> mRefToUuidMap;
-        QDir mTmpFlashDir;
+        QMap<QString, QString>         mRefToUuidMap;
+        QDir                           mTmpFlashDir;
 
         void addItemToGSection(QGraphicsItem *item);
         bool hashElements();
@@ -96,39 +98,35 @@ private:
         void hashSiblingIwbElements(QDomElement *parent, QDomElement *topGroup = 0);
 
         inline void parseSvgSectionAttr(const QDomElement &);
-        bool parseSvgPage(const QDomElement &parent);
-        bool parseSvgPageset(const QDomElement &parent);
-        bool parseSvgElement(const QDomElement &parent);
-        bool parseIwbMeta(const QDomElement &element);
-        bool parseSvg(const QDomElement &svgSection);
+        bool        parseSvgPage(const QDomElement &parent);
+        bool        parseSvgPageset(const QDomElement &parent);
+        bool        parseSvgElement(const QDomElement &parent);
+        bool        parseIwbMeta(const QDomElement &element);
+        bool        parseSvg(const QDomElement &svgSection);
 
-        inline bool parseGSection(const QDomElement &element);
-        inline bool parseSvgSwitchSection(const QDomElement &element);
-        inline bool parseSvgRect(const QDomElement &element);
-        inline bool parseSvgEllipse(const QDomElement &element);
-        inline bool parseSvgPolygon(const QDomElement &element);
-        inline bool parseSvgPolyline(const QDomElement &element);
-        inline bool parseSvgText(const QDomElement &element);
-        inline bool parseSvgTextarea(const QDomElement &element);
-        inline bool parseSvgImage(const QDomElement &element);
-        inline bool parseSvgFlash(const QDomElement &element);
-        inline bool parseSvgAudio(const QDomElement &element);
-        inline bool parseSvgVideo(const QDomElement &element);
+        inline bool                        parseGSection(const QDomElement &element);
+        inline bool                        parseSvgSwitchSection(const QDomElement &element);
+        inline bool                        parseSvgRect(const QDomElement &element);
+        inline bool                        parseSvgEllipse(const QDomElement &element);
+        inline bool                        parseSvgPolygon(const QDomElement &element);
+        inline bool                        parseSvgPolyline(const QDomElement &element);
+        inline bool                        parseSvgText(const QDomElement &element);
+        inline bool                        parseSvgTextarea(const QDomElement &element);
+        inline bool                        parseSvgImage(const QDomElement &element);
+        inline bool                        parseSvgFlash(const QDomElement &element);
+        inline bool                        parseSvgAudio(const QDomElement &element);
+        inline bool                        parseSvgVideo(const QDomElement &element);
         inline GraphicsGroupContainerItem *parseIwbGroup(QDomElement &parent);
-        inline bool parseIwbElement(QDomElement &element);
-        inline void parseTSpan(const QDomElement &parent, QPainter &painter, qreal &curX, qreal &curY,
-                               qreal &width, qreal &height, qreal &linespacing,
-                               QRectF &lastDrawnTextBoundingRect, qreal &fontSize, QColor &fontColor,
-                               QString &fontFamily, QString &fontStretch, bool &italic, int &fontWeight,
-                               int &textAlign, QTransform &fontTransform);
-        inline void parseTSpan(const QDomElement &element, QTextCursor &cursor, QTextBlockFormat &blockFormat,
-                               QTextCharFormat &charFormat);
+        inline bool                        parseIwbElement(QDomElement &element);
+        inline void parseTSpan(const QDomElement &parent, QPainter &painter, qreal &curX, qreal &curY, qreal &width, qreal &height,
+            qreal &linespacing, QRectF &lastDrawnTextBoundingRect, qreal &fontSize, QColor &fontColor, QString &fontFamily, QString &fontStretch,
+            bool &italic, int &fontWeight, int &textAlign, QTransform &fontTransform);
+        inline void parseTSpan(const QDomElement &element, QTextCursor &cursor, QTextBlockFormat &blockFormat, QTextCharFormat &charFormat);
         inline void hashSceneItem(const QDomElement &element, GraphicsItem *item);
 
         // 以下文本属性读取服务于旧版内嵌 HTML 文本路径，新解析走 QTextCursor 分支
-        inline void parseTextAttributes(const QDomElement &element, qreal &fontSize, QColor &fontColor,
-                                        QString &fontFamily, QString &fontStretch, bool &italic,
-                                        int &fontWeight, int &textAlign, QTransform &fontTransform);
+        inline void parseTextAttributes(const QDomElement &element, qreal &fontSize, QColor &fontColor, QString &fontFamily, QString &fontStretch,
+            bool &italic, int &fontWeight, int &textAlign, QTransform &fontTransform);
         inline void parseTextAttributes(const QDomElement &element, QFont &font, QColor);
         inline void readTextBlockAttr(const QDomElement &element, QTextBlockFormat &format);
         inline void readTextCharAttr(const QDomElement &element, QTextCharFormat &format);
@@ -139,14 +137,13 @@ private:
         bool persistCurrentScene();
         bool persistScenes();
 
-        void repositionSvgItem(QGraphicsItem *item, qreal width, qreal height, qreal x, qreal y,
-                               QTransform &transform);
-        QColor colorFromString(const QString &clrString);
-        QTransform transformFromString(const QString trString, QGraphicsItem *item = 0);
-        bool getViewBoxDimenstions(const QString &viewBox);
+        void           repositionSvgItem(QGraphicsItem *item, qreal width, qreal height, qreal x, qreal y, QTransform &transform);
+        QColor         colorFromString(const QString &clrString);
+        QTransform     transformFromString(const QString trString, QGraphicsItem *item = 0);
+        bool           getViewBoxDimenstions(const QString &viewBox);
         QSvgGenerator *createSvgGenerator(qreal width, qreal height);
-        bool getTempFileName();
-        inline bool strToBool(QString);
-        bool createTempFlashPath();
+        bool           getTempFileName();
+        inline bool    strToBool(QString);
+        bool           createTempFlashPath();
     };
 };

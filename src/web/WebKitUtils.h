@@ -8,14 +8,14 @@
 #include <QtWebEngineWidgets>
 #include <QWebEnginePage>
 
-
 /**
  * @brief 网页对象工具类：提供静态方法枚举页面中的可嵌入对象。
  *
  * 当前 Qt6 实现只发起脚本查询，尚未把结果转换为对象列表，因此 objectsInFrame 通常返回空。
  * 保留该类作为后续重新实现元素命中的入口。
  */
-class WebKitUtils {
+class WebKitUtils
+{
 public:
     /** @brief 构造工具类（无状态）。 */
     WebKitUtils();
@@ -26,7 +26,8 @@ public:
     /**
      * @brief 描述一个可嵌入的 HTML 对象：源地址与建议尺寸。
      */
-    class HtmlObject {
+    class HtmlObject
+    {
     public:
         /**
          * @brief 构造对象描述。
@@ -34,8 +35,9 @@ public:
          * @param pWidth 建议宽度。
          * @param pHeight 建议高度。
          */
-        HtmlObject(const QString &pSource, int pWidth, int pHeight)
-            : source(pSource), width(pWidth), height(pHeight) {}
+        HtmlObject(const QString &pSource, int pWidth, int pHeight) : source(pSource), width(pWidth), height(pHeight)
+        {
+        }
 
         /** @brief 对象源地址。 */
         QString source;

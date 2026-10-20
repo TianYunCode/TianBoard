@@ -17,14 +17,14 @@ class DocumentProxy;
  * 详细说明：进程级单例，父对象为 qApp，首次调用 documentManager() 时创建；适配器都以
  * 本对象为父，随其析构。导入会读写文档包并调用 PersistenceManager，属于 GUI 线程操作。
  */
-class DocumentManager : public QObject {
+class DocumentManager : public QObject
+{
     Q_OBJECT
 
 public:
     /// 返回进程内唯一实例，首次调用时创建。
     static DocumentManager *documentManager();
     virtual ~DocumentManager();
-
 
     /**
      * @brief 生成文件对话框用的导入过滤器。

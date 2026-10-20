@@ -22,41 +22,38 @@
  * 详细说明：由调用方填充后交给 DownloadManager；结构体按值在队列中传递，
  * 因此所有字段必须保持可拷贝。srcUrl 在本地文件下载时会被改写为本地路径。
  */
-struct sDownloadFileDesc {
+struct sDownloadFileDesc
+{
     /// 下载完成后的去向。
-    enum eDestinations {
+    enum eDestinations
+    {
         board,         ///< 加入当前画板页面
         library,       ///< 存入文档库
         graphicsWidget ///< 作为图形控件嵌入文档
     };
 
     sDownloadFileDesc()
-        : dest(board),
-          id(0),
-          totalSize(0),
-          currentSize(0),
-          modal(false),
-          isBackground(false),
-          dropActions(Qt::IgnoreAction),
-          dropMouseButtons(Qt::NoButton),
-          dropModifiers(Qt::NoModifier) {}
+        : dest(board), id(0), totalSize(0), currentSize(0), modal(false), isBackground(false), dropActions(Qt::IgnoreAction),
+          dropMouseButtons(Qt::NoButton), dropModifiers(Qt::NoModifier)
+    {
+    }
 
     eDestinations dest;
-    QString name;
-    int id;
-    int totalSize;
-    int currentSize;
-    QString srcUrl;
-    QString originalSrcUrl;
-    QString contentTypeHeader;
-    bool modal;
-    QPointF pos;
-    QSize size;
-    bool isBackground;
+    QString       name;
+    int           id;
+    int           totalSize;
+    int           currentSize;
+    QString       srcUrl;
+    QString       originalSrcUrl;
+    QString       contentTypeHeader;
+    bool          modal;
+    QPointF       pos;
+    QSize         size;
+    bool          isBackground;
 
-    QPoint dropPoint;
-    Qt::DropActions dropActions;
-    Qt::MouseButtons dropMouseButtons;
+    QPoint                dropPoint;
+    Qt::DropActions       dropActions;
+    Qt::MouseButtons      dropMouseButtons;
     Qt::KeyboardModifiers dropModifiers;
 };
 
@@ -66,7 +63,8 @@ struct sDownloadFileDesc {
  * 详细说明：由 DownloadManager 创建并持有；完成或出错后由管理器销毁。
  * 线程约束：与管理器同处 GUI 线程。
  */
-class DownloadHttpFile : public HttpGet {
+class DownloadHttpFile : public HttpGet
+{
     Q_OBJECT
 public:
     /**
@@ -80,8 +78,8 @@ signals:
     /// 下载进度变化（字节）。
     void downloadProgress(int id, qint64 current, qint64 total);
     /// 下载结束；contentUrl 为最终地址（可能经过重定向）。
-    void downloadFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader,
-                          QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
+    void downloadFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos,
+        QSize pSize, bool isBackground);
     /// 下载出错。
     void downloadError(int id);
 
@@ -91,12 +89,12 @@ public slots:
     void cancel();
 
 private slots:
-    void onDownloadFinished(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData,
-                            QPointF pPos, QSize pSize, bool isBackground);
+    void onDownloadFinished(
+        bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 private:
-    int mId;
+    int  mId;
     bool mCancelled;
 };
 
@@ -105,7 +103,8 @@ private:
  * 但文档路径、选中文档等 GUI 线程状态必须在主线程解析（见 prepare()）。
  * 对象自持生命周期：线程结束后自行销毁。
  */
-class AsyncLocalFileDownloader : public QThread {
+class AsyncLocalFileDownloader : public QThread
+{
     Q_OBJECT
 public:
     /**
@@ -128,9 +127,8 @@ public:
 
 signals:
     /// 复制结束；字段含义与 DownloadHttpFile::downloadFinished 一致，contentUrl 为目标文件地址。
-    void signal_asyncCopyFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl,
-                                  QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize,
-                                  bool isBackground);
+    void signal_asyncCopyFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos,
+        QSize pSize, bool isBackground);
 
 private:
     // 只能在 GUI 线程调用：解析来源、取出当前文档、准备好目标路径。
@@ -138,9 +136,9 @@ private:
     bool prepare();
 
     sDownloadFileDesc mDesc;
-    QAtomicInt mAborting;
-    QString mFrom;
-    QString mTo;
+    QAtomicInt        mAborting;
+    QString           mFrom;
+    QString           mTo;
 };
 
 /**
@@ -149,7 +147,8 @@ private:
  * 详细说明：进程级单例，由 Application 在退出时 destroy()；HTTP 任务与本地复制线程
  * 都以本对象为父，因此所有信号都回到 GUI 线程。并发上限由 SIMULTANEOUS_DOWNLOAD 决定。
  */
-class DownloadManager : public QObject {
+class DownloadManager : public QObject
+{
     Q_OBJECT
 public:
     /**
@@ -187,18 +186,16 @@ signals:
     /// 任务结束（仅编号）。
     void downloadFinished(int id);
     /// HTTP 任务结束，携带内容与来源地址。
-    void downloadFinished(bool pSuccess, int id, QUrl sourceUrl, QString pContentTypeHeader,
-                          QByteArray pData);
+    void downloadFinished(bool pSuccess, int id, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData);
     /// 任务结束，携带完整描述。
     void downloadFinished(bool pSuccess, sDownloadFileDesc desc, QByteArray pData);
     /// 模态下载结束，界面可关闭等待框。
     void downloadModalFinished();
     /// 请求把下载结果加入画板。
-    void addDownloadedFileToBoard(bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader,
-                                  QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
+    void addDownloadedFileToBoard(
+        bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize, bool isBackground);
     /// 请求把下载结果存入文档库。
-    void addDownloadedFileToLibrary(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader,
-                                    QByteArray pData, QString pTitle);
+    void addDownloadedFileToLibrary(bool pSuccess, QUrl sourceUrl, QString pContentTypeHeader, QByteArray pData, QString pTitle);
     /// 取消全部下载的广播。
     void cancelAllDownloads();
     /// 所有下载均已结束。
@@ -210,9 +207,8 @@ private slots:
     /// 更新任务进度。
     void onDownloadProgress(int id, qint64 received, qint64 total);
     /// 统一处理任务结束：更新列表、发信号并回收任务对象。
-    void onDownloadFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl,
-                            QString pContentTypeHeader, QByteArray pData, QPointF pPos, QSize pSize,
-                            bool isBackground);
+    void onDownloadFinished(int id, bool pSuccess, QUrl sourceUrl, QUrl contentUrl, QString pContentTypeHeader, QByteArray pData, QPointF pPos,
+        QSize pSize, bool isBackground);
     /// 任务出错时结束并回收。
     void onDownloadError(int id);
 
@@ -234,7 +230,7 @@ private:
 
     QVector<sDownloadFileDesc> mCrntDL;
     QVector<sDownloadFileDesc> mPendingDL;
-    int mLastID;
-    QVector<int> mDLAvailability;
-    QMap<int, QObject *> mDownloads;
+    int                        mLastID;
+    QVector<int>               mDLAvailability;
+    QMap<int, QObject *>       mDownloads;
 };

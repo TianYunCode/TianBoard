@@ -24,7 +24,8 @@ class VuMeter;
  * recordingStateChanged() 更新按钮可用性，recordingProgressChanged() 刷新计时，
  * audioLevelChanged() 驱动 VU 表。所有槽都在 GUI 线程执行。
  */
-class RecordingPalette : public ActionPalette {
+class RecordingPalette : public ActionPalette
+{
     Q_OBJECT;
 
 public:
@@ -52,14 +53,14 @@ private:
     std::unique_ptr<Private> d;
 };
 
-
 /**
  * @brief 简易音量电平表，用一条填充矩形表示当前音频电平。
  *
  * 由 RecordingPalette 创建并随其销毁；只保存 0-255 的归一化音量，
  * 绘制时按控件高度换算，无音频时显示为空。仅在 GUI 线程使用。
  */
-class VuMeter : public QWidget {
+class VuMeter : public QWidget
+{
 public:
     /** @brief 构造电平表，初始音量为 0。 */
     VuMeter(QWidget *pParent);

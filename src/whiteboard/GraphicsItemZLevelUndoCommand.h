@@ -17,7 +17,8 @@
  * redo 按原方向再次移动。命令不拥有图形项，项由场景管理。
  * mHack 用于跳过 QUndoStack 入栈时自动触发的首次 redo。
  */
-class GraphicsItemZLevelUndoCommand : public UndoCommand {
+class GraphicsItemZLevelUndoCommand : public UndoCommand
+{
 public:
     /**
      * @brief 构造批量层级命令。
@@ -26,8 +27,8 @@ public:
      * @param _previousZLevel 移动前的 z 值。
      * @param dest 移动方向。
      */
-    GraphicsItemZLevelUndoCommand(GraphicsScene *_scene, const QList<QGraphicsItem *> &_items,
-                                  qreal _previousZLevel, ZLayerController::moveDestination dest);
+    GraphicsItemZLevelUndoCommand(
+        GraphicsScene *_scene, const QList<QGraphicsItem *> &_items, qreal _previousZLevel, ZLayerController::moveDestination dest);
     /**
      * @brief 构造单项层级命令。
      * @param _scene 目标场景，不能为空。
@@ -35,12 +36,14 @@ public:
      * @param _previousZLevel 移动前的 z 值。
      * @param dest 移动方向。
      */
-    GraphicsItemZLevelUndoCommand(GraphicsScene *_scene, QGraphicsItem *_item, qreal _previousZLevel,
-                                  ZLayerController::moveDestination dest);
+    GraphicsItemZLevelUndoCommand(GraphicsScene *_scene, QGraphicsItem *_item, qreal _previousZLevel, ZLayerController::moveDestination dest);
     ~GraphicsItemZLevelUndoCommand();
 
     /** @brief 返回撤销命令类型。 */
-    virtual int getType() const { return UndoType::undotype_GRAPHICITEMZVALUE; }
+    virtual int getType() const
+    {
+        return UndoType::undotype_GRAPHICITEMZVALUE;
+    }
 
 protected:
     /** @brief 按记录的方向反向移动若干层，恢复原层级。 */
@@ -52,9 +55,9 @@ private:
     /** @brief 主动刷新场景与选择框，规避重绘延迟。 */
     void updateLazyScene();
 
-    qreal mPreviousZLevel;
-    QList<QGraphicsItem *> mItems;
-    GraphicsScene *mpScene;
+    qreal                             mPreviousZLevel;
+    QList<QGraphicsItem *>            mItems;
+    GraphicsScene                    *mpScene;
     ZLayerController::moveDestination mDest;
-    bool mHack;
+    bool                              mHack;
 };

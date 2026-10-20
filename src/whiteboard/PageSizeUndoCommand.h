@@ -10,7 +10,6 @@
 
 class GraphicsScene;
 
-
 /**
  * @brief 记录一次页面尺寸切换，撤销时恢复旧尺寸、重做时应用新尺寸。
  *
@@ -18,7 +17,8 @@ class GraphicsScene;
  * 持有的场景指针只在场景存活期间有效（场景销毁时撤销栈由上层清理）。
  * 首次 redo 用于跳过命令入栈时的重复应用，见实现文件中的说明。
  */
-class PageSizeUndoCommand : public UndoCommand {
+class PageSizeUndoCommand : public UndoCommand
+{
 public:
     /**
      * @param pScene 目标场景，可为空（空指针时撤销/重做直接返回）。
@@ -29,7 +29,10 @@ public:
     virtual ~PageSizeUndoCommand();
 
     /// @brief 命令类型为页面尺寸，供撤销栈识别。
-    virtual int getType() { return UndoType::undotype_PAGESIZE; };
+    virtual int getType()
+    {
+        return UndoType::undotype_PAGESIZE;
+    };
 
 protected:
     /// @brief 恢复之前的页面尺寸并强制重绘场景。
@@ -38,9 +41,9 @@ protected:
     virtual void redo();
 
 private:
-    GraphicsScene *mScene; ///< 应用尺寸的场景，不持有所有权
-    QSize mPreviousSize;   ///< 变更前尺寸
-    QSize mNewSize;        ///< 变更后尺寸
+    GraphicsScene *mScene;        ///< 应用尺寸的场景，不持有所有权
+    QSize          mPreviousSize; ///< 变更前尺寸
+    QSize          mNewSize;      ///< 变更后尺寸
 
-    bool mFirstRedo; ///< 首次 redo 标志：命令入栈时 Qt 会自动调用一次 redo
+    bool mFirstRedo;              ///< 首次 redo 标志：命令入栈时 Qt 会自动调用一次 redo
 };

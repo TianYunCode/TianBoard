@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QDialog>
 
 #include <memory>
@@ -18,7 +17,8 @@
  * 收到 authenticationRequired 时临时创建，exec() 后即销毁；用户在 OK 时
  * 读取输入值决定是否写入凭据存储。
  */
-class ProxyDialog : public QDialog {
+class ProxyDialog : public QDialog
+{
     Q_OBJECT
 
 public:

@@ -16,7 +16,6 @@
 #include "core/ApplicationController.h"
 #include "ui/FeaturesWidget.h"
 
-
 class WebToolsPalette;
 class StylusPalette;
 class PageNumberPalette;
@@ -29,7 +28,6 @@ class KeyboardPalette;
 class MainWindow;
 class ApplicationController;
 
-
 /**
  * @brief 管理画板四周的调色板：笔/橡皮/背景/页面/缩放/工具/添加素材等，
  * 并处理它们的停靠模式、显示隐藏与长按展开行为。
@@ -40,7 +38,8 @@ class ApplicationController;
  *
  * 线程约束：只在 GUI 线程使用。
  */
-class BoardPaletteManager : public QObject {
+class BoardPaletteManager : public QObject
+{
     Q_OBJECT
 
 public:
@@ -54,13 +53,25 @@ public:
     /// @brief 建立全部调色板并完成初始布局与连接。
     void setupLayout();
     /// @brief 左侧调色板。
-    LeftPalette *leftPalette() { return mLeftPalette; }
+    LeftPalette *leftPalette()
+    {
+        return mLeftPalette;
+    }
     /// @brief 右侧调色板。
-    RightPalette *rightPalette() { return mRightPalette; }
+    RightPalette *rightPalette()
+    {
+        return mRightPalette;
+    }
     /// @brief 手写笔（颜色/线宽）调色板。
-    StylusPalette *stylusPalette() { return mStylusPalette; }
+    StylusPalette *stylusPalette()
+    {
+        return mStylusPalette;
+    }
     /// @brief “添加素材”调色板。
-    ActionPalette *addItemPalette() { return mAddItemPalette; }
+    ActionPalette *addItemPalette()
+    {
+        return mAddItemPalette;
+    }
     /// @brief 显示/隐藏虚拟键盘调色板。
     void showVirtualKeyboard(bool show = true);
     /// @brief 按保存的位置初始化各调色板的位置。
@@ -71,7 +82,10 @@ public:
     KeyboardPalette *mKeyboardPalette; ///< 虚拟键盘调色板
 
     /// @brief 记录当前打开的网页工具调色板，用于互斥关闭。
-    void setCurrentWebToolsPalette(WebToolsPalette *palette) { mWebToolsCurrentPalette = palette; }
+    void setCurrentWebToolsPalette(WebToolsPalette *palette)
+    {
+        mWebToolsCurrentPalette = palette;
+    }
     WebToolsPalette *mWebToolsCurrentPalette; ///< 当前打开的网页工具调色板，可为空
 
     /// @brief 按停靠模式处理单个调色板的显示与定位。
@@ -101,8 +115,7 @@ public slots:
      * @param scale 缩放比例。
      * @param sourceUrl 来源地址，可为空。
      */
-    void addItem(const QPixmap &pPixmap, const QPointF &p = QPointF(0.0, 0.0), qreal scale = 1.0,
-                 const QUrl &sourceUrl = QUrl());
+    void addItem(const QPixmap &pPixmap, const QPointF &p = QPointF(0.0, 0.0), qreal scale = 1.0, const QUrl &sourceUrl = QUrl());
 
     /// @brief 主模式切换后调整调色板集合。
     void slot_changeMainMode(ApplicationController::MainMode);
@@ -122,47 +135,47 @@ private:
     /// @brief 创建并组装停靠式调色板控件。
     void setupDockPaletteWidgets();
 
-    QWidget *mContainer;              ///< 调色板容器，不持有所有权
-    BoardController *mBoardControler; ///< 画板控制器，不持有所有权
+    QWidget         *mContainer;              ///< 调色板容器，不持有所有权
+    BoardController *mBoardControler;         ///< 画板控制器，不持有所有权
 
-    StylusPalette *mStylusPalette; ///< 手写笔调色板
+    StylusPalette *mStylusPalette;            ///< 手写笔调色板
 
-    ZoomPalette *mZoomPalette;   ///< 缩放调色板
-    LeftPalette *mLeftPalette;   ///< 左侧调色板
-    RightPalette *mRightPalette; ///< 右侧调色板
+    ZoomPalette  *mZoomPalette;               ///< 缩放调色板
+    LeftPalette  *mLeftPalette;               ///< 左侧调色板
+    RightPalette *mRightPalette;              ///< 右侧调色板
 
-    BackgroundPalette *mBackgroundsPalette; ///< 背景调色板
-    ActionPalette *mToolsPalette;           ///< 工具调色板
-    ActionPalette *mAddItemPalette;         ///< 添加素材调色板
-    ActionPalette *mErasePalette;           ///< 橡皮调色板
-    ActionPalette *mPagePalette;            ///< 页导航调色板
+    BackgroundPalette *mBackgroundsPalette;   ///< 背景调色板
+    ActionPalette     *mToolsPalette;         ///< 工具调色板
+    ActionPalette     *mAddItemPalette;       ///< 添加素材调色板
+    ActionPalette     *mErasePalette;         ///< 橡皮调色板
+    ActionPalette     *mPagePalette;          ///< 页导航调色板
 
-    QUrl mItemUrl;      ///< 待添加素材的 URL
-    QPixmap mPixmap;    ///< 待添加的位图
-    QPointF mPos;       ///< 待添加素材的位置
-    qreal mScaleFactor; ///< 待添加素材的缩放比例
+    QUrl    mItemUrl;                         ///< 待添加素材的 URL
+    QPixmap mPixmap;                          ///< 待添加的位图
+    QPointF mPos;                             ///< 待添加素材的位置
+    qreal   mScaleFactor;                     ///< 待添加素材的缩放比例
 
-    QTime mPageButtonPressedTime;   ///< 页按钮按下时刻，用于区分单击与长按
-    bool mPendingPageButtonPressed; ///< 页按钮是否处于长按等待状态
+    QTime mPageButtonPressedTime;             ///< 页按钮按下时刻，用于区分单击与长按
+    bool  mPendingPageButtonPressed;          ///< 页按钮是否处于长按等待状态
 
-    QTime mZoomButtonPressedTime;   ///< 缩放按钮按下时刻
-    bool mPendingZoomButtonPressed; ///< 缩放按钮是否处于长按等待状态
+    QTime mZoomButtonPressedTime;             ///< 缩放按钮按下时刻
+    bool  mPendingZoomButtonPressed;          ///< 缩放按钮是否处于长按等待状态
 
-    QTime mPanButtonPressedTime;   ///< 平移按钮按下时刻
-    bool mPendingPanButtonPressed; ///< 平移按钮是否处于长按等待状态
+    QTime mPanButtonPressedTime;              ///< 平移按钮按下时刻
+    bool  mPendingPanButtonPressed;           ///< 平移按钮是否处于长按等待状态
 
-    QTime mEraseButtonPressedTime;   ///< 橡皮按钮按下时刻
-    bool mPendingEraseButtonPressed; ///< 橡皮按钮是否处于长按等待状态
+    QTime mEraseButtonPressedTime;            ///< 橡皮按钮按下时刻
+    bool  mPendingEraseButtonPressed;         ///< 橡皮按钮是否处于长按等待状态
 
-    PageNavigationWidget *mpPageNavigWidget; ///< 页导航控件
+    PageNavigationWidget *mpPageNavigWidget;  ///< 页导航控件
 
     CachePropertiesWidget *mpCachePropWidget; ///< 遮罩属性面板
 
-    FeaturesWidget *mpFeaturesWidget; ///< 素材库面板
+    FeaturesWidget *mpFeaturesWidget;         ///< 素材库面板
 
-    DockDownloadWidget *mpDownloadWidget; ///< 下载进度面板
+    DockDownloadWidget *mpDownloadWidget;     ///< 下载进度面板
 
-    bool mDownloadInProgress; ///< 是否有下载正在进行
+    bool mDownloadInProgress;                 ///< 是否有下载正在进行
 
 private slots:
     /// @brief 打开背景选择。

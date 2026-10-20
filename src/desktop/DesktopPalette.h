@@ -22,7 +22,8 @@
  * 显示/隐藏事件会切换笔、标记、橡皮动作的图标（带小箭头版本），供长按展开属性面板。
  * 线程约束：仅在 GUI 线程使用。
  */
-class DesktopPalette : public ActionPalette {
+class DesktopPalette : public ActionPalette
+{
     Q_OBJECT
 
 public:

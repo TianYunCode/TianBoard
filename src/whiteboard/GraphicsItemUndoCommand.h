@@ -21,7 +21,8 @@ class GraphicsScene;
  * 单靠场景无法还原，需要在 undo/redo 时按 UUID 重新挂回组合。
  * mFirstRedo 用于跳过 QUndoStack 在 push 时触发的首次 redo。
  */
-class GraphicsItemUndoCommand : public UndoCommand {
+class GraphicsItemUndoCommand : public UndoCommand
+{
 public:
     typedef QMultiMap<GraphicsGroupContainerItem *, QUuid> GroupDataTable;
 
@@ -32,9 +33,8 @@ public:
      * @param pAddedItems 被新增的项集合；与移除集合的交集会被剔除。
      * @param groupsMap 项与所属组合的对应关系，用于恢复组合归属。
      */
-    GraphicsItemUndoCommand(GraphicsScene *pScene, const QSet<QGraphicsItem *> &pRemovedItems,
-                            const QSet<QGraphicsItem *> &pAddedItems,
-                            const GroupDataTable &groupsMap = GroupDataTable());
+    GraphicsItemUndoCommand(GraphicsScene *pScene, const QSet<QGraphicsItem *> &pRemovedItems, const QSet<QGraphicsItem *> &pAddedItems,
+        const GroupDataTable &groupsMap = GroupDataTable());
 
     /**
      * @brief 构造单项增删命令。
@@ -47,12 +47,21 @@ public:
     virtual ~GraphicsItemUndoCommand();
 
     /** @brief 返回本命令新增的项集合。 */
-    QSet<QGraphicsItem *> GetAddedList() const { return mAddedItems; }
+    QSet<QGraphicsItem *> GetAddedList() const
+    {
+        return mAddedItems;
+    }
     /** @brief 返回本命令移除的项集合。 */
-    QSet<QGraphicsItem *> GetRemovedList() const { return mRemovedItems; }
+    QSet<QGraphicsItem *> GetRemovedList() const
+    {
+        return mRemovedItems;
+    }
 
     /** @brief 返回撤销命令类型。 */
-    virtual int getType() const { return UndoType::undotype_GRAPHICITEM; }
+    virtual int getType() const
+    {
+        return UndoType::undotype_GRAPHICITEM;
+    }
 
 protected:
     /** @brief 撤销：重新插入被移除的项，移出被新增的项，并恢复组合归属。 */
@@ -61,10 +70,10 @@ protected:
     virtual void redo();
 
 private:
-    GraphicsScene *mScene;
+    GraphicsScene        *mScene;
     QSet<QGraphicsItem *> mRemovedItems;
     QSet<QGraphicsItem *> mAddedItems;
-    GroupDataTable mExcludedFromGroup;
+    GroupDataTable        mExcludedFromGroup;
 
     bool mFirstRedo;
 };

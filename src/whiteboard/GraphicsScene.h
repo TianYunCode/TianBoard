@@ -48,7 +48,8 @@ const double PI = 4.0 * atan(1.0);
  * 每层维护自己的上下限与"下一个可分配值"。图元的 Z 值一律经本类生成，
  * 保证不同类型的图元不会在纵深上互相穿插。控制器只引用场景，不拥有它。
  */
-class ZLayerController : public QObject {
+class ZLayerController : public QObject
+{
     Q_OBJECT
 
 public:
@@ -59,10 +60,14 @@ public:
      * （初始为 bottomLimit）；incStep 是每次分配的递增步长。
      * 上下限相等表示该层只有一个固定 Z 值（如背景层、选中层）。
      */
-    struct ItemLayerTypeData {
-        ItemLayerTypeData() : bottomLimit(0), topLimit(0), curValue(0), incStep(1) {}
-        ItemLayerTypeData(qreal bot, qreal top, qreal increment = 1)
-            : bottomLimit(bot), topLimit(top), curValue(bot), incStep(increment) {}
+    struct ItemLayerTypeData
+    {
+        ItemLayerTypeData() : bottomLimit(0), topLimit(0), curValue(0), incStep(1)
+        {
+        }
+        ItemLayerTypeData(qreal bot, qreal top, qreal increment = 1) : bottomLimit(bot), topLimit(top), curValue(bot), incStep(increment)
+        {
+        }
         qreal bottomLimit;
         qreal topLimit;
         qreal curValue;
@@ -74,7 +79,13 @@ public:
      *
      * up 上移一层、down 下移一层、top 升到本层最高、bottom 降到本层最低。
      */
-    enum moveDestination { up, down, top, bottom };
+    enum moveDestination
+    {
+        up,
+        down,
+        top,
+        bottom
+    };
 
     /// @brief 层类型到区间数据的映射
     typedef QMap<itemLayerType::Enum, ItemLayerTypeData> ScopeMap;
@@ -83,14 +94,26 @@ public:
     ZLayerController(QGraphicsScene *scene);
 
     /// @brief 指定层的 Z 值下限（未注册的层返回 0）
-    qreal getBottomLimit(itemLayerType::Enum key) const { return scopeMap.value(key).bottomLimit; }
+    qreal getBottomLimit(itemLayerType::Enum key) const
+    {
+        return scopeMap.value(key).bottomLimit;
+    }
     /// @brief 指定层的 Z 值上限（未注册的层返回 0）
-    qreal getTopLimit(itemLayerType::Enum key) const { return scopeMap.value(key).topLimit; }
+    qreal getTopLimit(itemLayerType::Enum key) const
+    {
+        return scopeMap.value(key).topLimit;
+    }
     /// @brief key 是否为已注册的层类型
-    bool validLayerType(itemLayerType::Enum key) const { return scopeMap.contains(key); }
+    bool validLayerType(itemLayerType::Enum key) const
+    {
+        return scopeMap.contains(key);
+    }
 
     /// @brief 出错时使用的哨兵 Z 值，低于所有合法层
-    static qreal errorNum() { return errorNumber; }
+    static qreal errorNum()
+    {
+        return errorNumber;
+    }
 
     /// @brief 在指定层内分配下一个可用 Z 值；层不存在时返回 errorNum()
     qreal generateZLevel(itemLayerType::Enum key);
@@ -117,8 +140,8 @@ public:
     bool zLevelAvailable(qreal z);
 
 private:
-    ScopeMap scopeMap;
-    static qreal errorNumber;
+    ScopeMap        scopeMap;
+    static qreal    errorNumber;
     QGraphicsScene *mScene;
 };
 
@@ -136,7 +159,8 @@ private:
  * 场景以所属 DocumentProxy 为 QObject 父对象，生命周期随文档；场景不拥有文档。
  * 所有接口只允许在 GUI 线程调用。
  */
-class GraphicsScene : public CoreGraphicsScene, public Item {
+class GraphicsScene : public CoreGraphicsScene, public Item
+{
     Q_OBJECT
 
 public:
@@ -146,14 +170,29 @@ public:
      * clearItemsAndAnnotations 清对象与批注、clearAnnotations 只清笔迹组、
      * clearItems 只清普通对象（保留笔迹）、clearBackground 只清背景图元。
      */
-    enum clearCase { clearItemsAndAnnotations = 0, clearAnnotations, clearItems, clearBackground };
+    enum clearCase
+    {
+        clearItemsAndAnnotations = 0,
+        clearAnnotations,
+        clearItems,
+        clearBackground
+    };
 
     /// @brief 打开撤销重做开关（构造后一次性启用）
-    void enableUndoRedoStack() { mUndoRedoStackEnabled = true; }
+    void enableUndoRedoStack()
+    {
+        mUndoRedoStackEnabled = true;
+    }
     /// @brief 设置是否把增删操作压入全局撤销栈（加载文档等场合需临时关闭）
-    void setURStackEnable(bool enable) { mUndoRedoStackEnabled = enable; }
+    void setURStackEnable(bool enable)
+    {
+        mUndoRedoStackEnabled = enable;
+    }
     /// @brief 撤销栈开关是否打开
-    bool isURStackIsEnabled() { return mUndoRedoStackEnabled; }
+    bool isURStackIsEnabled()
+    {
+        return mUndoRedoStackEnabled;
+    }
 
     /**
      * @brief 构造页面场景
@@ -168,7 +207,10 @@ public:
     virtual Item *deepCopy() const;
 
     /// @brief 场景没有需要单独拷贝的图元参数，空实现
-    virtual void copyItemParameters(Item *copy) const { Q_UNUSED(copy); }
+    virtual void copyItemParameters(Item *copy) const
+    {
+        Q_UNUSED(copy);
+    }
 
     /**
      * @brief 深拷贝整个场景（背景、页面尺寸与全部可见图元）
@@ -230,21 +272,17 @@ public:
      * @param shouldPlayAsap 加入场景后立即开始播放
      * @return 文件不存在或媒体类型不支持时返回 NULL
      */
-    GraphicsMediaItem *addMedia(const QUrl &pMediaFileUrl, bool shouldPlayAsap,
-                                const QPointF &pPos = QPointF(0, 0));
+    GraphicsMediaItem *addMedia(const QUrl &pMediaFileUrl, bool shouldPlayAsap, const QPointF &pPos = QPointF(0, 0));
     /// @brief addMedia() 的别名，语义上表示添加视频
-    GraphicsMediaItem *addVideo(const QUrl &pVideoFileUrl, bool shouldPlayAsap,
-                                const QPointF &pPos = QPointF(0, 0));
+    GraphicsMediaItem *addVideo(const QUrl &pVideoFileUrl, bool shouldPlayAsap, const QPointF &pPos = QPointF(0, 0));
     /// @brief addMedia() 的别名，语义上表示添加音频
-    GraphicsMediaItem *addAudio(const QUrl &pAudioFileUrl, bool shouldPlayAsap,
-                                const QPointF &pPos = QPointF(0, 0));
+    GraphicsMediaItem *addAudio(const QUrl &pAudioFileUrl, bool shouldPlayAsap, const QPointF &pPos = QPointF(0, 0));
     /**
      * @brief 添加 SVG 图元，并先把内容持久化到文档的图片目录
      * @param pData 非空时直接使用内嵌数据，忽略 pSvgFileUrl 指向的内容
      * @return 写盘失败返回 nullptr（此时不会入场景、不压撤销命令）
      */
-    GraphicsSvgItem *addSvg(const QUrl &pSvgFileUrl, const QPointF &pPos = QPointF(0, 0),
-                            const QByteArray pData = QByteArray());
+    GraphicsSvgItem *addSvg(const QUrl &pSvgFileUrl, const QPointF &pPos = QPointF(0, 0), const QByteArray pData = QByteArray());
     /// @brief 用当前设置的字体添加纯文本图元
     GraphicsTextItem *addText(const QString &pString, const QPointF &pTopLeft = QPointF(0, 0));
 
@@ -253,12 +291,10 @@ public:
      * @param pointSize 小于 1 时回落到设置里的像素字号
      * @param fontFamily 空串时回落到设置里的字体族
      */
-    GraphicsTextItem *addTextWithFont(const QString &pString, const QPointF &pTopLeft = QPointF(0, 0),
-                                      int pointSize = -1, const QString &fontFamily = "", bool bold = false,
-                                      bool italic = false);
+    GraphicsTextItem *addTextWithFont(const QString &pString, const QPointF &pTopLeft = QPointF(0, 0), int pointSize = -1,
+        const QString &fontFamily = "", bool bold = false, bool italic = false);
     /// @brief 添加富文本图元，HTML 先经 TextTools::cleanHtml() 清洗
-    GraphicsTextItem *addTextHtml(const QString &pString = QString(),
-                                  const QPointF &pTopLeft = QPointF(0, 0));
+    GraphicsTextItem *addTextHtml(const QString &pString = QString(), const QPointF &pTopLeft = QPointF(0, 0));
 
     /// @brief 把 items 打包成一个组加入场景（嵌套组会被拆平）；@return 新组
     GraphicsGroupContainerItem *createGroup(QList<QGraphicsItem *> items);
@@ -272,20 +308,24 @@ public:
      * @return 实际作为背景的图元（可能已被缩放调整）
      * @note 旧背景会先被移除。
      */
-    QGraphicsItem *setAsBackgroundObject(QGraphicsItem *item, bool pAdaptTransformation = false,
-                                         bool expand = false);
+    QGraphicsItem *setAsBackgroundObject(QGraphicsItem *item, bool pAdaptTransformation = false, bool expand = false);
     /// @brief 取消背景标记并恢复可选中/可移动；层类型与 Z 值由调用方按对象来源重设
     void unsetBackgroundObject();
 
     /// @brief 当前背景图元，没有则为 0
-    QGraphicsItem *backgroundObject() const { return mBackgroundObject; }
+    QGraphicsItem *backgroundObject() const
+    {
+        return mBackgroundObject;
+    }
 
     /// @brief item 是否就是当前背景图元
-    bool isBackgroundObject(const QGraphicsItem *item) const { return item == mBackgroundObject; }
+    bool isBackgroundObject(const QGraphicsItem *item) const
+    {
+        return item == mBackgroundObject;
+    }
 
     /// @brief 等比缩放到页面标称尺寸之内（expand 为真时小图也放大）；center 为真时居中
-    QGraphicsItem *scaleToFitDocumentSize(QGraphicsItem *item, bool center = false, int margin = 0,
-                                          bool expand = false);
+    QGraphicsItem *scaleToFitDocumentSize(QGraphicsItem *item, bool center = false, int margin = 0, bool expand = false);
 
     /// @brief 覆盖标称页面与全部可见内容的矩形；ratio>0 时按该宽高比扩展
     QRectF normalizedSceneRect(qreal ratio = -1.0);
@@ -298,8 +338,7 @@ public:
     /// @brief 从上一点画直线段到 pEndPoint 并挂到当前笔迹；bLineStyle 为真表示直线工具（先清掉本次已画段）
     void drawLineTo(const QPointF &pEndPoint, const qreal &pWidth, bool bLineStyle);
     /// @brief 同上，起点与终点分别用 pStartWidth、endWidth（压感渐变段）
-    void drawLineTo(const QPointF &pEndPoint, const qreal &pStartWidth, const qreal &endWidth,
-                    bool bLineStyle);
+    void drawLineTo(const QPointF &pEndPoint, const qreal &pStartWidth, const qreal &endWidth, bool bLineStyle);
     /// @brief 用橡皮线段擦除：与橡皮相交的笔迹多边形被拆分替换，被整块覆盖的直接移除
     void eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth);
     /// @brief 圆规画弧：以 pCenterPoint 为圆心、上一笔点为半径端点，重建当前弧多边形
@@ -316,22 +355,40 @@ public:
     void setDocument(DocumentProxy *pDocument);
 
     /// @brief 场景所属的文档代理
-    DocumentProxy *document() const { return mDocument; }
+    DocumentProxy *document() const
+    {
+        return mDocument;
+    }
 
     /// @brief 当前是否深色背景
-    bool isDarkBackground() const { return mDarkBackground; }
+    bool isDarkBackground() const
+    {
+        return mDarkBackground;
+    }
 
     /// @brief 当前是否浅色背景
-    bool isLightBackground() const { return !mDarkBackground; }
+    bool isLightBackground() const
+    {
+        return !mDarkBackground;
+    }
 
     /// @brief 页面底纹类型（空白/格线/横线）
-    PageBackground pageBackground() const { return mPageBackground; }
+    PageBackground pageBackground() const
+    {
+        return mPageBackground;
+    }
 
     /// @brief 底纹格线间距（像素）
-    int backgroundGridSize() const { return mBackgroundGridSize; }
+    int backgroundGridSize() const
+    {
+        return mBackgroundGridSize;
+    }
 
     /// @brief 是否设置了背景图元
-    bool hasBackground() { return (mBackgroundObject != 0); }
+    bool hasBackground()
+    {
+        return (mBackgroundObject != 0);
+    }
 
     /// @brief 在 center 处添加直尺（工具层，不属于文档内容）
     void addRuler(QPointF center);
@@ -350,37 +407,48 @@ public:
     void addCache();
 
     /// @brief 顶层图元的快速访问列表（组成员不在其中）
-    QList<QGraphicsItem *> getFastAccessItems() { return mFastAccessItems; }
+    QList<QGraphicsItem *> getFastAccessItems()
+    {
+        return mFastAccessItems;
+    }
 
     /**
      * @brief 视图状态快照：缩放系数、滚动条位置与场景中心
      *
      * 每页各存一份，切页时保存/恢复，使页面记住自己的浏览位置。
      */
-    class SceneViewState {
+    class SceneViewState
+    {
     public:
         /// @brief 默认状态：缩放 1、滚动 0、中心在原点
-        SceneViewState() {
-            zoomFactor = 1;
+        SceneViewState()
+        {
+            zoomFactor         = 1;
             horizontalPosition = 0;
-            verticalPostition = 0;
-            mLastSceneCenter = QPointF();
+            verticalPostition  = 0;
+            mLastSceneCenter   = QPointF();
         }
 
         /// @brief 用指定的缩放系数与滚动条位置构造
-        SceneViewState(qreal pZoomFactor, int pHorizontalPosition, int pVerticalPostition,
-                       QPointF sceneCenter = QPointF()) {
-            zoomFactor = pZoomFactor;
+        SceneViewState(qreal pZoomFactor, int pHorizontalPosition, int pVerticalPostition, QPointF sceneCenter = QPointF())
+        {
+            zoomFactor         = pZoomFactor;
             horizontalPosition = pHorizontalPosition;
-            verticalPostition = pVerticalPostition;
-            mLastSceneCenter = sceneCenter;
+            verticalPostition  = pVerticalPostition;
+            mLastSceneCenter   = sceneCenter;
         }
 
         /// @brief 最近一次记录的场景中心点
-        QPointF lastSceneCenter() { return mLastSceneCenter; }
+        QPointF lastSceneCenter()
+        {
+            return mLastSceneCenter;
+        }
 
         /// @brief 记录当前场景中心点
-        void setLastSceneCenter(QPointF center) { mLastSceneCenter = center; }
+        void setLastSceneCenter(QPointF center)
+        {
+            mLastSceneCenter = center;
+        }
 
         /// @brief 最近一次记录的场景中心点
         QPointF mLastSceneCenter;
@@ -394,10 +462,16 @@ public:
     };
 
     /// @brief 取回本页保存的视图状态
-    SceneViewState viewState() const { return mViewState; }
+    SceneViewState viewState() const
+    {
+        return mViewState;
+    }
 
     /// @brief 保存本页的视图状态
-    void setViewState(const SceneViewState &pViewState) { mViewState = pViewState; }
+    void setViewState(const SceneViewState &pViewState)
+    {
+        mViewState = pViewState;
+    }
 
     /// @brief 把渲染质量广播给场景中所有实现了 Item 接口的图元
     virtual void setRenderingQuality(Item::RenderingQuality pRenderingQuality);
@@ -427,22 +501,43 @@ public:
      * PdfExport 导出 PDF（剔除 PDF 背景图元避免重复绘制）；
      * Recording 录屏（只画内容层，剔除工具与选中框）。
      */
-    enum RenderingContext { Screen = 0, NonScreen, PdfExport, Recording };
+    enum RenderingContext
+    {
+        Screen = 0,
+        NonScreen,
+        PdfExport,
+        Recording
+    };
 
     /// @brief 设置当前渲染上下文，drawItems()/drawBackground() 据此过滤
-    void setRenderingContext(RenderingContext pRenderingContext) { mRenderingContext = pRenderingContext; }
+    void setRenderingContext(RenderingContext pRenderingContext)
+    {
+        mRenderingContext = pRenderingContext;
+    }
 
     /// @brief 当前渲染上下文
-    RenderingContext renderingContext() const { return mRenderingContext; }
+    RenderingContext renderingContext() const
+    {
+        return mRenderingContext;
+    }
 
     /// @brief 已注册的工具图元集合（直尺、橡皮预览等，不算文档内容）
-    QSet<QGraphicsItem *> tools() { return mTools; }
+    QSet<QGraphicsItem *> tools()
+    {
+        return mTools;
+    }
 
     /// @brief 把图元登记为工具（不计入内容计数，导出/录制时被剔除）
-    void registerTool(QGraphicsItem *item) { mTools << item; }
+    void registerTool(QGraphicsItem *item)
+    {
+        mTools << item;
+    }
 
     /// @brief 上一次绘制/擦除的终点，即下一段的起点
-    const QPointF &previousPoint() { return mPreviousPoint; }
+    const QPointF &previousPoint()
+    {
+        return mPreviousPoint;
+    }
 
     /// @brief 把图元临时抬到选中层，保证选中时盖在其他内容之上
     void setSelectedZLevel(QGraphicsItem *item);
@@ -495,9 +590,8 @@ public slots:
      * @param pUseAnimation 是否用 1 秒淡入动画
      * @param useProxyForDocumentPath true 用本场景所属文档的目录，false 用当前选中文档
      */
-    GraphicsPixmapItem *addPixmap(const QPixmap &pPixmap, QGraphicsItem *replaceFor,
-                                  const QPointF &pPos = QPointF(0, 0), qreal scaleFactor = 1.0,
-                                  bool pUseAnimation = false, bool useProxyForDocumentPath = false);
+    GraphicsPixmapItem *addPixmap(const QPixmap &pPixmap, QGraphicsItem *replaceFor, const QPointF &pPos = QPointF(0, 0), qreal scaleFactor = 1.0,
+        bool pUseAnimation = false, bool useProxyForDocumentPath = false);
 
     /// @brief 文本图元请求压入一条文本撤销命令
     void textUndoCommandAdded(GraphicsTextItem *textItem);
@@ -526,8 +620,7 @@ protected:
     /// @brief 由等宽线段生成多边形图元（未入场景）
     GraphicsPolygonItem *lineToPolygonItem(const QLineF &pLine, const qreal &pWidth);
     /// @brief 由变宽线段生成多边形图元（未入场景）
-    GraphicsPolygonItem *lineToPolygonItem(const QLineF &pLine, const qreal &pStartWidth,
-                                           const qreal &pEndWidth);
+    GraphicsPolygonItem *lineToPolygonItem(const QLineF &pLine, const qreal &pStartWidth, const qreal &pEndWidth);
 
     /// @brief 由圆弧（起始半径 + 跨越角）生成多边形图元（未入场景）
     GraphicsPolygonItem *arcToPolygonItem(const QLineF &pStartRadius, qreal pSpanAngle, qreal pWidth);
@@ -567,8 +660,7 @@ protected:
     void recolorAllItems();
 
     /// @brief 按渲染上下文过滤待绘图元：导出剔除工具与 PDF 背景，录制只画内容层
-    virtual void drawItems(QPainter *painter, int numItems, QGraphicsItem *items[],
-                           const QStyleOptionGraphicsItem options[], QWidget *widget = 0);
+    virtual void drawItems(QPainter *painter, int numItems, QGraphicsItem *items[], const QStyleOptionGraphicsItem options[], QWidget *widget = 0);
 
     /// @brief 沿父链返回图元所在的顶层图元
     QGraphicsItem *rootItem(QGraphicsItem *item) const;
@@ -598,18 +690,18 @@ private:
 
     DocumentProxy *mDocument;
 
-    bool mDarkBackground;
+    bool           mDarkBackground;
     PageBackground mPageBackground;
-    int mBackgroundGridSize;
+    int            mBackgroundGridSize;
 
-    bool mIsDesktopMode;
+    bool  mIsDesktopMode;
     qreal mZoomFactor;
 
     QGraphicsItem *mBackgroundObject;
 
     QPointF mPreviousPoint;
-    qreal mPreviousWidth;
-    qreal mDistanceFromLastStrokePoint;
+    qreal   mPreviousWidth;
+    qreal   mDistanceFromLastStrokePoint;
 
     QList<GraphicsPolygonItem *> mPreviousPolygonItems;
 
@@ -637,11 +729,11 @@ private:
     Magnifier *magniferControlViewWidget;
     Magnifier *magniferDisplayViewWidget;
 
-    ZLayerController *mZLayerController;
+    ZLayerController    *mZLayerController;
     GraphicsPolygonItem *mpLastPolygon;
     GraphicsPolygonItem *mTempPolygon;
 
-    bool mDrawWithCompass;
+    bool                 mDrawWithCompass;
     GraphicsPolygonItem *mCurrentPolygon;
-    SelectionFrame *mSelectionFrame;
+    SelectionFrame      *mSelectionFrame;
 };

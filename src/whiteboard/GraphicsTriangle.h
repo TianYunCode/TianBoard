@@ -18,7 +18,6 @@
 class GraphicsScene;
 class Item;
 
-
 /**
  * @brief 直角三角形图元：支持四个直角朝向、双向缩放、旋转、翻转与沿斜边画线。
  *
@@ -26,7 +25,8 @@ class Item;
  * 三角形顶点。悬停时显示缩放/翻转/旋转手柄，朝向导变化时重算顶点数组。
  * 生命周期归场景所有，仅 GUI 线程使用。
  */
-class GraphicsTriangle : public AbstractDrawRuler, public QGraphicsPolygonItem, public Item {
+class GraphicsTriangle : public AbstractDrawRuler, public QGraphicsPolygonItem, public Item
+{
     Q_OBJECT
 
 public:
@@ -34,10 +34,16 @@ public:
     virtual ~GraphicsTriangle();
 
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::TriangleItemType };
+    enum
+    {
+        Type = GraphicsItemType::TriangleItemType
+    };
 
     /// @brief 返回图元类型。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 创建一份三角板并复制几何参数。
     virtual Item *deepCopy(void) const;
@@ -52,7 +58,8 @@ public:
     virtual void EndLine();
 
     /// @brief 直角所在角。
-    enum Orientation {
+    enum Orientation
+    {
         BottomLeft = 0, ///< 直角在左下
         BottomRight,    ///< 直角在右下
         TopLeft,        ///< 直角在左上
@@ -64,34 +71,53 @@ public:
      * @param str "BottomLeft"/"BottomRight"/"TopLeft"/"TopRight" 之一。
      * @return 未知字符串返回 sDefaultOrientation。
      */
-    static Orientation orientationFromStr(const QStringView &str) {
+    static Orientation orientationFromStr(const QStringView &str)
+    {
         if (str == "BottomLeft")
+        {
             return BottomLeft;
+        }
         if (str == "BottomRight")
+        {
             return BottomRight;
+        }
         if (str == "TopLeft")
+        {
             return TopLeft;
+        }
         if (str == "TopRight")
+        {
             return TopRight;
+        }
         return sDefaultOrientation;
     }
     /// @brief 把朝向转换为持久化字符串；非法值返回空串。
-    static QString orientationToStr(Orientation orientation) {
+    static QString orientationToStr(Orientation orientation)
+    {
         QString result;
         if (orientation == 0)
+        {
             result = "BottomLeft";
+        }
         else if (orientation == 1)
+        {
             result = "BottomRight";
+        }
         else if (orientation == 2)
+        {
             result = "TopLeft";
+        }
         else if (orientation == 3)
+        {
             result = "TopRight";
+        }
 
         return result;
     }
 
     /// @brief 以矩形与朝向设置几何。
-    void setRect(const QRectF &rect, Orientation orientation) {
+    void setRect(const QRectF &rect, Orientation orientation)
+    {
         setRect(rect.x(), rect.y(), rect.width(), rect.height(), orientation);
     }
     /// @brief 以坐标尺寸与朝向设置几何，并重算三个顶点。
@@ -99,9 +125,15 @@ public:
     /// @brief 切换朝向并重算顶点。
     void setOrientation(Orientation orientation);
     /// @brief 当前朝向。
-    Orientation getOrientation() const { return mOrientation; }
+    Orientation getOrientation() const
+    {
+        return mOrientation;
+    }
     /// @brief 三角形外接矩形。
-    QRectF rect() const { return boundingRect(); }
+    QRectF rect() const
+    {
+        return boundingRect();
+    }
 
     /// @brief 所在场景。
     GraphicsScene *scene() const;
@@ -166,42 +198,42 @@ private:
 
     /// @brief 计算旋转手柄所用的变换。
     QTransform calculateRotationTransform();
-    qreal angle; ///< 旋转累计角度（度）
+    qreal      angle; ///< 旋转累计角度（度）
     /// @brief 绕指定中心应用旋转变换。
     void rotateAroundCenter(QTransform &transform, QPointF center);
 
-    bool mResizing1; ///< 是否正在拖动第一缩放手柄
-    bool mResizing2; ///< 是否正在拖动第二缩放手柄
-    bool mRotating;  ///< 是否正在旋转
-    QRect lastRect;  ///< 上一次几何矩形，用于增量缩放
+    bool  mResizing1;                             ///< 是否正在拖动第一缩放手柄
+    bool  mResizing2;                             ///< 是否正在拖动第二缩放手柄
+    bool  mRotating;                              ///< 是否正在旋转
+    QRect lastRect;                               ///< 上一次几何矩形，用于增量缩放
 
-    QPoint lastPos; ///< 上一次鼠标位置
+    QPoint lastPos;                               ///< 上一次鼠标位置
 
-    QRectF bounds_rect; ///< 最近一次保存的包围矩形
+    QRectF bounds_rect;                           ///< 最近一次保存的包围矩形
 
-    QGraphicsSvgItem *mHFlipSvgItem;  ///< 水平翻转按钮图元
-    QGraphicsSvgItem *mVFlipSvgItem;  ///< 垂直翻转按钮图元
-    QGraphicsSvgItem *mRotateSvgItem; ///< 旋转手柄图元
+    QGraphicsSvgItem *mHFlipSvgItem;              ///< 水平翻转按钮图元
+    QGraphicsSvgItem *mVFlipSvgItem;              ///< 垂直翻转按钮图元
+    QGraphicsSvgItem *mRotateSvgItem;             ///< 旋转手柄图元
 
-    static const QRect sDefaultRect;              ///< 新建三角板的默认几何
+    static const QRect       sDefaultRect;        ///< 新建三角板的默认几何
     static const Orientation sDefaultOrientation; ///< 默认朝向
 
-    Orientation mOrientation; ///< 当前朝向
+    Orientation mOrientation;                     ///< 当前朝向
 
-    QPointF A1, B1, C1, A2, B2, C2; ///< 两套缩放基准顶点（斜边两端与直角顶点）
-    qreal C;                        ///< 中间计算的边长/比例系数
-    qreal W1, H1;                   ///< 第一缩放手柄的参考宽高
-    QPointF CC;                     ///< 参考顶点
+    QPointF A1, B1, C1, A2, B2, C2;               ///< 两套缩放基准顶点（斜边两端与直角顶点）
+    qreal   C;                                    ///< 中间计算的边长/比例系数
+    qreal   W1, H1;                               ///< 第一缩放手柄的参考宽高
+    QPointF CC;                                   ///< 参考顶点
     /// @brief 按给定矩形与当前朝向计算三个顶点。
     void calculatePoints(const QRectF &rect);
 
-    bool mShouldPaintInnerTriangle; ///< 是否绘制内侧刻度三角形
+    bool mShouldPaintInnerTriangle;      ///< 是否绘制内侧刻度三角形
 
-    static const int d = 70;            ///< 刻度边距
-    static const int sArrowLength = 30; ///< 朝向箭头长度
-    static const int sMinWidth = 240;   ///< 最小宽度
-    static const int sMinHeight = 120;  ///< 最小高度
-    qreal mStrokeWidth;                 ///< 沿斜边画线时的笔宽
+    static const int d            = 70;  ///< 刻度边距
+    static const int sArrowLength = 30;  ///< 朝向箭头长度
+    static const int sMinWidth    = 240; ///< 最小宽度
+    static const int sMinHeight   = 120; ///< 最小高度
+    qreal            mStrokeWidth;       ///< 沿斜边画线时的笔宽
 
     /// @brief 判断矩形是否落在三角形内部（strict 控制边界处理）。
     bool contains(const QRectF &rect, bool strict = true);

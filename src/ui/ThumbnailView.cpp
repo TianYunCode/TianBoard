@@ -3,13 +3,13 @@
 
 #include "core/MimeData.h"
 
-
-struct ThumbnailView::Private {
+struct ThumbnailView::Private
+{
     QHBoxLayout *mHBoxLayout{nullptr};
 };
 
-ThumbnailView::ThumbnailView(GraphicsScene *scene, QWidget *parent)
-    : QGraphicsView(scene, parent), d(new Private) {
+ThumbnailView::ThumbnailView(GraphicsScene *scene, QWidget *parent) : QGraphicsView(scene, parent), d(new Private)
+{
     d->mHBoxLayout = new QHBoxLayout(this);
 
     setAcceptDrops(true);
@@ -17,8 +17,8 @@ ThumbnailView::ThumbnailView(GraphicsScene *scene, QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
-    int nominalWidth = scene->nominalSize().width();
-    int nominalHeight = scene->nominalSize().height();
+    int    nominalWidth  = scene->nominalSize().width();
+    int    nominalHeight = scene->nominalSize().height();
     QRectF nominalSceneRect(-nominalWidth / 2, -nominalHeight / 2, nominalWidth, nominalHeight);
     // 场景以 (0,0) 为中心，先适配到名义页面范围再锁定 sceneRect，避免出现滚动条。
     fitInView(nominalSceneRect, Qt::KeepAspectRatio);
@@ -35,4 +35,6 @@ ThumbnailView::ThumbnailView(GraphicsScene *scene, QWidget *parent)
     d->mHBoxLayout->setAlignment(Qt::AlignHCenter);
 }
 
-ThumbnailView::~ThumbnailView() {}
+ThumbnailView::~ThumbnailView()
+{
+}

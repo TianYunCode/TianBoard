@@ -22,14 +22,14 @@ class KeyboardButton;
 class Application;
 class MainWindow;
 
-
 /**
  * @brief 某一按键尺寸下的一套九宫格按键贴图。
  *
  * 左右两端与中段各有按下/未按下两张图，KeyboardButton 按控件宽度拉伸中段拼出
  * 完整按键。KeyboardPalette 在按键尺寸变化时重建本对象，由调色板独占持有。
  */
-class BTNImages {
+class BTNImages
+{
 public:
     /**
      * @brief 按尺寸加载对应资源目录下的按键贴图。
@@ -40,8 +40,8 @@ public:
     BTNImages(QString _strHeight, int _width, int _height);
 
     QString m_strHeight;
-    int m_width;
-    int m_height;
+    int     m_width;
+    int     m_height;
 
     QImage m_btnLeftPassive;
     QImage m_btnCenterPassive;
@@ -64,7 +64,8 @@ private:
  *
  * 路径由按键尺寸目录与内容名拼接而成；KeyboardButton 在尺寸变化时按需重建。
  */
-class ContentImage {
+class ContentImage
+{
 public:
     /**
      * @brief 加载指定尺寸的内容图标。
@@ -75,7 +76,7 @@ public:
     ContentImage(QString strHeight, int m_height, QString strContentPath);
 
     QString m_strHeight;
-    int m_height;
+    int     m_height;
 
     QImage m_btnContent;
 
@@ -91,7 +92,8 @@ private:
  * 不可激活的置顶窗口），由主窗口的“虚拟键盘”动作控制显隐；按键通过
  * KeyboardSender 发送到当前前台应用。按键布局与尺寸随设置中的键帽大小重建。
  */
-class KeyboardPalette : public ActionPalette {
+class KeyboardPalette : public ActionPalette
+{
     Q_OBJECT
 
     friend class KeyboardButton;
@@ -109,7 +111,7 @@ public:
     ~KeyboardPalette();
 
     /** @brief 是否成功取得系统键盘布局；false 时键盘不可用。 */
-    bool isEnabled();
+    bool          isEnabled();
     virtual QSize sizeHint() const;
     /** @brief 按键帽尺寸计算窗口大小，并以中心/底边为基准重新定位。 */
     virtual void adjustSizeAndPosition(bool pUp = true);
@@ -187,7 +189,8 @@ private:
  * 子类实现 onPress()/onRelease()/paintContent() 决定按下时发送什么键、键面画什么。
  * 按键由 KeyboardPalette 创建并 setGeometry() 定位，父控件是调色板。
  */
-class KeyboardButton : public QWidget {
+class KeyboardButton : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -208,9 +211,9 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
     /** @brief 按下时执行的动作。 */
-    virtual void onPress() = 0;
+    virtual void onPress()                       = 0;
     /** @brief 松开时执行的动作。 */
-    virtual void onRelease() = 0;
+    virtual void onRelease()                     = 0;
     /** @brief 在按键底图上绘制键面内容。 */
     virtual void paintContent(QPainter &painter) = 0;
 
@@ -233,7 +236,8 @@ private:
  * 部分键还带特殊修饰符（modifier1/modifier2），按下后先记住修饰符，等下一个键
  * 一起发送，行为类似 AltGr 组合键。
  */
-class KeyButton : public KeyboardButton {
+class KeyButton : public KeyboardButton
+{
     Q_OBJECT
 
 public:
@@ -265,7 +269,8 @@ private:
 /**
  * @brief 控制键：发送固定虚拟键码，键面显示标签或图标。
  */
-class CntrlButton : public KeyboardButton {
+class CntrlButton : public KeyboardButton
+{
     Q_OBJECT
 
 public:
@@ -297,7 +302,8 @@ private:
 /**
  * @brief Caps Lock 键：切换键盘的 capsLock 标志，自身以锁定态显示。
  */
-class CapsLockButton : public KeyboardButton {
+class CapsLockButton : public KeyboardButton
+{
     Q_OBJECT
 
 public:
@@ -320,7 +326,8 @@ protected:
 /**
  * @brief Shift 键：切换键盘的 shift 标志，自身以按下态显示。
  */
-class ShiftButton : public KeyboardButton {
+class ShiftButton : public KeyboardButton
+{
     Q_OBJECT
 
 public:
@@ -345,7 +352,8 @@ protected:
  *
  * 菜单弹出期间会把键盘标记为“语言菜单激活”，避免鼠标离开窗口时误触发隐藏逻辑。
  */
-class LocaleButton : public KeyboardButton {
+class LocaleButton : public KeyboardButton
+{
     Q_OBJECT
 
 public:

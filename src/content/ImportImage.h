@@ -18,7 +18,8 @@ class DocumentProxy;
  *
  * @note 支持列表取自运行期 QImageReader，不同平台的可用格式可能不同。
  */
-class ImportImage : public PageBasedImportAdaptor {
+class ImportImage : public PageBasedImportAdaptor
+{
     Q_OBJECT;
 
 public:

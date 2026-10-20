@@ -12,8 +12,9 @@
 
 #include "third/singleapp/qtsingleapplication.h"
 
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 
 class BoardController;
@@ -35,7 +36,8 @@ class MainWindow;
  * 生命周期覆盖整个进程，必须且只能有一个实例（由 main() 在栈上创建）。
  * 线程约束：所有成员都只能在 GUI 线程使用；exec() 返回后对象才可析构。
  */
-class Application : public QtSingleApplication {
+class Application : public QtSingleApplication
+{
     Q_OBJECT
 
 public:
@@ -86,7 +88,10 @@ public:
     static QWidget *dialogHost();
 
     /// 以具体类型返回 qApp；调用方需保证当前存在 Application 实例。
-    static Application *app() { return static_cast<Application *> qApp; }
+    static Application *app()
+    {
+        return static_cast<Application *> qApp;
+    }
 
     /// 文档库条目的拖放 MIME 类型。
     static const QString mimeTypeBoardDocument;
@@ -129,9 +134,15 @@ public:
     bool eventFilter(QObject *obj, QEvent *event);
 
     /// 是否处于详细日志模式（由命令行参数决定）。
-    bool isVerbose() { return mIsVerbose; }
+    bool isVerbose()
+    {
+        return mIsVerbose;
+    }
     /// 设置详细日志模式开关。
-    void setVerbose(bool verbose) { mIsVerbose = verbose; }
+    void setVerbose(bool verbose)
+    {
+        mIsVerbose = verbose;
+    }
     /**
      * @brief 从 HTML 片段中提取根元素的 src 地址。
      * @param html 可能包含注释与空字符的 HTML 文本。
@@ -192,9 +203,9 @@ private:
      * @brief 解析命令行与设置，安装界面翻译器。
      * @param args 命令行参数，识别 `-lang`。
      */
-    void setupTranslators(const QStringList &args);
+    void           setupTranslators(const QStringList &args);
     QList<QMenu *> mProtoMenus;
-    bool mIsVerbose;
+    bool           mIsVerbose;
 
 protected:
     /// 偏好设置控制器，父对象为主窗口。

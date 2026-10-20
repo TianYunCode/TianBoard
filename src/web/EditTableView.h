@@ -8,14 +8,14 @@
 #include <QtWidgets>
 #include <QTableView>
 
-
 /**
  * @brief 可编辑表格视图：下载管理器的列表控件，键盘删除即删除当前下载条目。
  *
  * 只服务于 web 域的下载对话框。真正的数据删除由模型 removeRows 完成，视图负责
  * 在删除后把选择落到相邻行。
  */
-class EditTableView : public QTableView {
+class EditTableView : public QTableView
+{
     Q_OBJECT;
 
 public:

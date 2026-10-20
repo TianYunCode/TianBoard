@@ -25,7 +25,8 @@ class QScreen;
  * 生命周期覆盖整个进程，首次 instance() 时创建；通过原生事件过滤器跟踪屏幕变化。
  * 线程约束：GUI 线程专用。
  */
-class VirtualDesktop : public QWidget, public QAbstractNativeEventFilter {
+class VirtualDesktop : public QWidget, public QAbstractNativeEventFilter
+{
     Q_OBJECT
 
 public:
@@ -35,7 +36,10 @@ public:
     /// 返回当前屏幕数量。
     int numScreens() const;
     /// numScreens 的同义接口。
-    int screenCount() const { return numScreens(); }
+    int screenCount() const
+    {
+        return numScreens();
+    }
     /// 返回主屏下标；没有主屏时返回 0。
     int primaryScreen() const;
 

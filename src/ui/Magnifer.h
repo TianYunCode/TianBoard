@@ -10,16 +10,16 @@
 
 #include <memory>
 
-
 /**
  * @brief 放大镜的运行时参数。
  *
  * 由 Magnifier 内部持有，尺寸或倍率变化时更新，不参与持久化。
  */
-class MagnifierParams {
+class MagnifierParams
+{
 public:
-    int x;                      ///< 镜面对象的水平坐标（当前实现未使用）。
-    int y;                      ///< 镜面对象的垂直坐标（当前实现未使用）。
+    int   x;                    ///< 镜面对象的水平坐标（当前实现未使用）。
+    int   y;                    ///< 镜面对象的垂直坐标（当前实现未使用）。
     qreal zoom;                 ///< 放大倍率，1.0 表示与画布 1:1 显示。
     qreal sizePercentFromScene; ///< 镜面尺寸占画布宽度的百分比。
 };
@@ -33,12 +33,14 @@ public:
  * 的 controlContainer 下，展示屏那份为非交互模式并挂在 displayView 下。关闭按钮只发
  * 信号，实际销毁由 BoardController 完成，因此它不是常驻部件。
  */
-class Magnifier : public QWidget {
+class Magnifier : public QWidget
+{
     Q_OBJECT
 
 public:
     /// 镜面形状；modesCount 仅用于在两种形状之间循环取模。
-    enum DrawingMode {
+    enum DrawingMode
+    {
         circular = 0, ///< 圆形镜面。
         rectangular,  ///< 圆角矩形（宽高比约 3:1）镜面。
         modesCount    ///< 形状总数，取模循环用。

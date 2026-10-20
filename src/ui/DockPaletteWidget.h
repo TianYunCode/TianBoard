@@ -12,8 +12,13 @@
 #include <memory>
 
 /** 白板当前处于哪个界面，决定哪些停靠面板可见。 */
-enum class DockWidgetMode { Board, Web, Document, Desktop };
-
+enum class DockWidgetMode
+{
+    Board,
+    Web,
+    Document,
+    Desktop
+};
 
 /**
  * @brief 停靠调色板页面的抽象基类：名称、左右图标、可见状态与显示请求。
@@ -23,7 +28,8 @@ enum class DockWidgetMode { Board, Web, Document, Desktop };
  * 注册，父控件转交给对应的 DockPalette；页面通过 showTab()/hideTab() 请求调色板
  * 增加或移除自己的标签。页面本身不负责停靠布局。
  */
-class DockPaletteWidget : public QWidget {
+class DockPaletteWidget : public QWidget
+{
     Q_OBJECT
 public:
     /**

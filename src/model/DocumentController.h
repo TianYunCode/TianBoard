@@ -31,7 +31,6 @@ class DocumentProxyTreeItem;
 class MainWindow;
 class DocumentToolsPalette;
 
-
 /**
  * @brief 导入文件重名时的替换对话框：让用户决定沿用旧名替换还是输入新名新建文档。
  *
@@ -39,7 +38,8 @@ class DocumentToolsPalette;
  * 保存同级已存在的名称；输入命中已存在名称时确认按钮变为“替换”。对话框本身不落盘，
  * 结果由调用方读取 lineEditText()。
  */
-class DocumentReplaceDialog : public QDialog {
+class DocumentReplaceDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -50,8 +50,8 @@ public:
      * @param parent 父窗口。
      * @param pFlags 窗口标志。
      */
-    DocumentReplaceDialog(const QString &pIncommingName, const QStringList &pFileList, QWidget *parent = 0,
-                          Qt::WindowFlags pFlags = Qt::WindowFlags());
+    DocumentReplaceDialog(
+        const QString &pIncommingName, const QStringList &pFileList, QWidget *parent = 0, Qt::WindowFlags pFlags = Qt::WindowFlags());
 
     /**
      * @brief 设置名称输入框使用的正则校验规则。
@@ -76,7 +76,10 @@ public:
     QString labelTextWithName(const QString &documentName) const;
 
     /** @brief 返回用户最终输入的名称。 */
-    QString lineEditText() const { return mLineEdit->text(); }
+    QString lineEditText() const
+    {
+        return mLineEdit->text();
+    }
 
 signals:
     /**
@@ -125,7 +128,6 @@ private:
     QLabel *mLabelText;
 };
 
-
 /**
  * @brief 文档树节点：目录树中的一个条目，目录节点可带子节点，文档节点持有 DocumentProxy。
  *
@@ -133,12 +135,14 @@ private:
  * mProxy 是 QPointer；节点被克隆用于拖放复制时按引用或按内容复制文档。节点自身不负责
  * 持久化，目录名同时作为虚拟路径的一段。
  */
-class DocumentTreeNode {
+class DocumentTreeNode
+{
 public:
     friend class DocumentTreeModel;
 
     /** @brief 节点类型。 */
-    enum Type {
+    enum Type
+    {
         Catalog = 0, ///< 目录（文件夹）
         Document     ///< 文档
     };
@@ -150,11 +154,13 @@ public:
      * @param pDisplayName 显示名，空则退回 pName。
      * @param pProxy 文档节点关联的代理，目录节点为空。
      */
-    DocumentTreeNode(Type pType, const QString &pName, const QString &pDisplayName = QString(),
-                     DocumentProxy *pProxy = 0);
+    DocumentTreeNode(Type pType, const QString &pName, const QString &pDisplayName = QString(), DocumentProxy *pProxy = 0);
 
     /** @brief 构造空目录节点，供反序列化时占位。 */
-    DocumentTreeNode() : mType(Catalog), mParent(0), mProxy(0) { ; }
+    DocumentTreeNode() : mType(Catalog), mParent(0), mProxy(0)
+    {
+        ;
+    }
 
     /**
      * @brief 析构：递归删除子节点，并删除自己持有的文档代理。
@@ -162,23 +168,39 @@ public:
     ~DocumentTreeNode();
 
     /** @brief 返回子节点列表。 */
-    QList<DocumentTreeNode *> children() const { return mChildren; }
+    QList<DocumentTreeNode *> children() const
+    {
+        return mChildren;
+    }
 
     /** @brief 返回父节点，根节点返回空。 */
-    DocumentTreeNode *parentNode() { return mParent; }
+    DocumentTreeNode *parentNode()
+    {
+        return mParent;
+    }
 
     /** @brief 返回节点类型。 */
-    Type nodeType() const { return mType; }
+    Type nodeType() const
+    {
+        return mType;
+    }
 
     /** @brief 返回节点在树中的名称。 */
-    QString nodeName() const { return mName; }
+    QString nodeName() const
+    {
+        return mName;
+    }
 
     /** @brief 返回节点显示名。 */
-    QString displayName() const { return mDisplayName; }
+    QString displayName() const
+    {
+        return mDisplayName;
+    }
 
     /** @brief 同时修改节点名与显示名。 */
-    void setNodeName(const QString &str) {
-        mName = str;
+    void setNodeName(const QString &str)
+    {
+        mName        = str;
         mDisplayName = str;
     }
 
@@ -204,17 +226,28 @@ public:
     void removeChild(int index);
 
     /** @brief 返回节点关联的文档代理，目录节点为空。 */
-    DocumentProxy *proxyData() const { return mProxy; }
+    DocumentProxy *proxyData() const
+    {
+        return mProxy;
+    }
 
     /** @brief 是否是没有父节点的根节点。 */
-    bool isRoot() { return !mParent; }
+    bool isRoot()
+    {
+        return !mParent;
+    }
 
     /** @brief 是否是第二层节点（父节点为根），即“我的文档/回收站”这类固定入口。 */
-    bool isTopLevel() {
-        if (mParent) {
+    bool isTopLevel()
+    {
+        if (mParent)
+        {
             return !mParent->mParent;
-        } else
+        }
+        else
+        {
             return false;
+        }
     }
 
     /**
@@ -261,31 +294,36 @@ Q_DECLARE_METATYPE(DocumentTreeNode *)
  * DocumentController 通常把它包在 SortFilterProxyModel 后面，所以模型自身只管源索引，
  * 视图索引的映射由代理完成。拖放通过 DocumentTreeMimeData 传递内部索引。
  */
-class DocumentTreeModel : public QAbstractItemModel {
+class DocumentTreeModel : public QAbstractItemModel
+{
     Q_OBJECT
 
 public:
     /** @brief 顶层固定节点标识。 */
-    enum eAncestors {
+    enum eAncestors
+    {
         aMyDocuments, ///< 我的文档
         aModel,       ///< 模型库（历史遗留，当前未创建该节点）
         aTrash        ///< 回收站
     };
 
     /** @brief 节点复制方式。 */
-    enum eCopyMode {
+    enum eCopyMode
+    {
         aReference,  ///< 按引用复制：新节点与原节点共享同一份文档
         aContentCopy ///< 按内容复制：复制一份独立的文档数据
     };
 
     /** @brief 插入位置选择方式。 */
-    enum eAddItemMode {
+    enum eAddItemMode
+    {
         aEnd = 0,       ///< 追加到子节点末尾
         aDetectPosition ///< 按名称/日期规则插入到合适位置
     };
 
     /** @brief 自定义数据角色。 */
-    enum eDocumentData {
+    enum eDocumentData
+    {
         DataNode = Qt::UserRole + 1, ///< 返回节点指针
         CreationDate,                ///< 返回节点（或目录下）的创建时间
         UpdateDate                   ///< 返回节点（或目录下）的更新时间
@@ -323,7 +361,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     /** @brief 支持移动与复制两种拖放动作。 */
-    Qt::DropActions supportedDropActions() const { return Qt::MoveAction | Qt::CopyAction; }
+    Qt::DropActions supportedDropActions() const
+    {
+        return Qt::MoveAction | Qt::CopyAction;
+    }
 
     /** @brief 声明内部拖放使用的 MIME 类型。 */
     QStringList mimeTypes() const;
@@ -336,8 +377,7 @@ public:
     /**
      * @brief 处理拖放落下：页面拖入文档时复制页面，树内条目按动作移动或复制。
      */
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
-                      const QModelIndex &parent);
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
     /**
      * @brief 删除指定范围的子树。
@@ -359,8 +399,7 @@ public:
      * @param pMode 按引用或按内容复制。
      * @return 新节点的持久索引。
      */
-    QPersistentModelIndex copyIndexToNewParent(const QModelIndex &source, const QModelIndex &newParent,
-                                               eCopyMode pMode = aReference);
+    QPersistentModelIndex copyIndexToNewParent(const QModelIndex &source, const QModelIndex &newParent, eCopyMode pMode = aReference);
 
     /**
      * @brief 批量复制多个索引，只处理第 0 列。
@@ -376,13 +415,22 @@ public:
      * @brief 返回当前节点。
      * @note 排序后视图索引会变化，这里保留节点指针而非索引，供代理模型回查。
      */
-    DocumentTreeNode *currentNode() const { return mCurrentNode; }
+    DocumentTreeNode *currentNode() const
+    {
+        return mCurrentNode;
+    }
 
     /** @brief 设置当前节点。 */
-    void setCurrentNode(DocumentTreeNode *pNode) { mCurrentNode = pNode; }
+    void setCurrentNode(DocumentTreeNode *pNode)
+    {
+        mCurrentNode = pNode;
+    }
 
     /** @brief 返回当前节点对应的模型索引。 */
-    QModelIndex currentIndex() { return indexForNode(mCurrentNode); }
+    QModelIndex currentIndex()
+    {
+        return indexForNode(mCurrentNode);
+    }
 
     /** @brief 查找代理对应的模型索引。 */
     QModelIndex indexForProxy(DocumentProxy *pSearch) const;
@@ -394,7 +442,10 @@ public:
     void setRootNode(DocumentTreeNode *pRoot);
 
     /** @brief 返回根节点。 */
-    DocumentTreeNode *rootNode() const { return mRootNode; }
+    DocumentTreeNode *rootNode() const
+    {
+        return mRootNode;
+    }
 
     /** @brief 返回索引对应的文档代理，目录节点返回空。 */
     DocumentProxy *proxyForIndex(const QModelIndex &pIndex) const;
@@ -421,28 +472,40 @@ public:
     bool inTrash(const QModelIndex &index) const;
 
     /** @brief 判断索引是否是目录节点。 */
-    bool isCatalog(const QModelIndex &index) const {
+    bool isCatalog(const QModelIndex &index) const
+    {
         return nodeFromIndex(index)->nodeType() == DocumentTreeNode::Catalog;
     }
 
     /** @brief 判断索引是否是文档节点。 */
-    bool isDocument(const QModelIndex &index) const {
+    bool isDocument(const QModelIndex &index) const
+    {
         return nodeFromIndex(index)->nodeType() == DocumentTreeNode::Document;
     }
 
     /** @brief 判断索引是否是第二层固定节点。 */
-    bool isToplevel(const QModelIndex &index) const {
+    bool isToplevel(const QModelIndex &index) const
+    {
         return nodeFromIndex(index) ? nodeFromIndex(index)->isTopLevel() : false;
     }
 
     /** @brief 判断索引是否是固定节点（不允许删除/移动的顶层入口）。 */
-    bool isConstant(const QModelIndex &index) const { return isToplevel(index); }
+    bool isConstant(const QModelIndex &index) const
+    {
+        return isToplevel(index);
+    }
 
     /** @brief 判断索引是否可重命名（以可编辑标志为准）。 */
-    bool isOkToRename(const QModelIndex &index) const { return flags(index) & Qt::ItemIsEditable; }
+    bool isOkToRename(const QModelIndex &index) const
+    {
+        return flags(index) & Qt::ItemIsEditable;
+    }
 
     /** @brief 返回索引对应的文档代理。 */
-    DocumentProxy *proxyData(const QModelIndex &index) const { return nodeFromIndex(index)->proxyData(); }
+    DocumentProxy *proxyData(const QModelIndex &index) const
+    {
+        return nodeFromIndex(index)->proxyData();
+    }
 
     /**
      * @brief 按代理元数据中的分组名把文档挂到树上。
@@ -459,12 +522,18 @@ public:
     QModelIndex addCatalog(const QString &pName, const QModelIndex &pParent);
 
     /** @brief 返回本次会话新建、尚未落盘的文档列表。 */
-    QList<DocumentProxy *> newDocuments() { return mNewDocuments; }
+    QList<DocumentProxy *> newDocuments()
+    {
+        return mNewDocuments;
+    }
 
     /** @brief 把已存在于树中的文档标记为新建（用于新建后立即保存）。 */
-    void markDocumentAsNew(DocumentProxy *pDoc) {
+    void markDocumentAsNew(DocumentProxy *pDoc)
+    {
         if (indexForProxy(pDoc).isValid())
+        {
             mNewDocuments << pDoc;
+        }
     }
 
     /**
@@ -479,10 +548,16 @@ public:
     QString adjustNameForParentIndex(const QString &pName, const QModelIndex &pIndex);
 
     /** @brief 返回“我的文档”顶层索引。 */
-    QPersistentModelIndex myDocumentsIndex() const { return mMyDocuments; }
+    QPersistentModelIndex myDocumentsIndex() const
+    {
+        return mMyDocuments;
+    }
 
     /** @brief 返回“回收站”顶层索引。 */
-    QPersistentModelIndex trashIndex() const { return mTrash; }
+    QPersistentModelIndex trashIndex() const
+    {
+        return mTrash;
+    }
 
     /** @brief 把模型索引转换为节点指针；无效索引返回根节点。 */
     DocumentTreeNode *nodeFromIndex(const QModelIndex &pIndex) const;
@@ -491,13 +566,22 @@ public:
     static bool nodeLessThan(const DocumentTreeNode *firstIndex, const DocumentTreeNode *secondIndex);
 
     /** @brief 设置拖放时高亮的节点。 */
-    void setHighLighted(const QModelIndex &newHighLighted) { mHighLighted = newHighLighted; }
+    void setHighLighted(const QModelIndex &newHighLighted)
+    {
+        mHighLighted = newHighLighted;
+    }
 
     /** @brief 返回拖放时高亮的节点。 */
-    QModelIndex highLighted() { return mHighLighted; }
+    QModelIndex highLighted()
+    {
+        return mHighLighted;
+    }
 
     /** @brief 当前日期列的排序方向（升序取最早日期，降序取最晚日期）。 */
-    bool ascendingOrder() const { return mAscendingOrder; }
+    bool ascendingOrder() const
+    {
+        return mAscendingOrder;
+    }
 
     /** @brief 递归查找节点（或目录下）指定类型的日期。 */
     QDateTime findNodeDate(DocumentTreeNode *node, QString type) const;
@@ -532,8 +616,7 @@ private:
     /** @brief 递归按节点指针构造索引。 */
     QModelIndex pIndexForNode(const QModelIndex &parent, DocumentTreeNode *pNode) const;
     /** @brief 把游离节点插入父节点并发出行插入通知。 */
-    QModelIndex addNode(DocumentTreeNode *pFreeNode, const QModelIndex &pParent,
-                        eAddItemMode pMode = aDetectPosition);
+    QModelIndex addNode(DocumentTreeNode *pFreeNode, const QModelIndex &pParent, eAddItemMode pMode = aDetectPosition);
     /** @brief 计算游离节点在父节点中应处的有序位置。 */
     int positionForParent(DocumentTreeNode *pFreeNode, DocumentTreeNode *pParentNode);
     /** @brief 移动后若目标层存在重名，则给节点补唯一后缀。 */
@@ -565,15 +648,22 @@ private:
  *
  * 只在 DocumentTreeModel 与其视图之间传递，不跨进程序列化。
  */
-class DocumentTreeMimeData : public QMimeData {
+class DocumentTreeMimeData : public QMimeData
+{
     Q_OBJECT
 
 public:
     /** @brief 返回被拖动的索引列表。 */
-    QList<QModelIndex> indexes() const { return mIndexes; }
+    QList<QModelIndex> indexes() const
+    {
+        return mIndexes;
+    }
 
     /** @brief 设置被拖动的索引列表。 */
-    void setIndexes(const QList<QModelIndex> &pIndexes) { mIndexes = pIndexes; }
+    void setIndexes(const QList<QModelIndex> &pIndexes)
+    {
+        mIndexes = pIndexes;
+    }
 
 private:
     /** @brief 被拖动的源模型索引。 */
@@ -586,7 +676,8 @@ private:
  * 视图的 model 通常是 SortFilterProxyModel；本类所有对外接口都接受源模型索引，内部
  * 负责映射到视图索引，避免把源索引直接交给代理模型。
  */
-class DocumentTreeView : public QTreeView {
+class DocumentTreeView : public QTreeView
+{
     Q_OBJECT
 
 public:
@@ -628,7 +719,10 @@ protected:
     void paintEvent(QPaintEvent *event);
 
     /** @brief 把当前 model 转为 DocumentTreeModel，失败返回空。 */
-    DocumentTreeModel *fullModel() { return qobject_cast<DocumentTreeModel *>(model()); }
+    DocumentTreeModel *fullModel()
+    {
+        return qobject_cast<DocumentTreeModel *>(model());
+    }
 
     /** @brief 行删除前通知基类。 */
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
@@ -648,7 +742,8 @@ private:
  * 编辑期间用 mExistingFileNames 缓存同级已有名称；重名时输入框变红但不阻止提交，
  * 真正写回由 setModelData 再次校验。
  */
-class DocumentTreeItemDelegate : public QStyledItemDelegate {
+class DocumentTreeItemDelegate : public QStyledItemDelegate
+{
     Q_OBJECT
 
 public:
@@ -665,8 +760,7 @@ private slots:
 
 protected:
     /** @brief 只为第 0 列创建行编辑器。 */
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     /** @brief 用当前名称填充编辑器并全选。 */
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
     /** @brief 校验通过后把编辑器内容写回模型。 */
@@ -686,12 +780,14 @@ private:
  * 重命名/拖放/导出等文档操作，维护选择类型（文件夹、文档、页），并根据选择状态刷新
  * 主窗口动作。生命周期由主窗口持有，mDocumentWidget 作为文档模式的中央控件。
  */
-class DocumentController : public DocumentContainer {
+class DocumentController : public DocumentContainer
+{
     Q_OBJECT
 
 public:
     /** @brief 删除行为的类型，决定删除动作的文案与后果。 */
-    enum DeletionType {
+    enum DeletionType
+    {
         MoveToTrash = 0, ///< 移入回收站
         CompleteDelete,  ///< 永久删除
         EmptyFolder,     ///< 清空普通目录（内容移入回收站）
@@ -701,7 +797,8 @@ public:
     };
 
     /** @brief 最近一次选中的元素类型。 */
-    enum LastSelectedElementType {
+    enum LastSelectedElementType
+    {
         None = 0, ///< 无选择
         Folder,   ///< 目录
         Document, ///< 文档
@@ -709,13 +806,15 @@ public:
     };
 
     /** @brief 排序方向。 */
-    enum SortOrder {
+    enum SortOrder
+    {
         ASC = 0, ///< 升序
         DESC     ///< 降序
     };
 
     /** @brief 排序依据。 */
-    enum SortKind {
+    enum SortKind
+    {
         CreationDate, ///< 按创建日期
         UpdateDate,   ///< 按更新日期
         Alphabetical  ///< 按名称字母序
@@ -769,10 +868,16 @@ public:
     bool pageCanBeDeleted(int page);
 
     /** @brief 回收站分组名（本地化）。 */
-    QString documentTrashGroupName() { return mDocumentTrashGroupName; }
+    QString documentTrashGroupName()
+    {
+        return mDocumentTrashGroupName;
+    }
 
     /** @brief 默认文档分组名（本地化）。 */
-    QString defaultDocumentGroupName() { return mDefaultDocumentGroupName; }
+    QString defaultDocumentGroupName()
+    {
+        return mDefaultDocumentGroupName;
+    }
 
     /**
      * @brief 切换当前文档。
@@ -789,15 +894,17 @@ public:
     /**
      * @brief 根据选择类型与索引推导应执行的删除方式。
      */
-    inline DeletionType deletionTypeForSelection(LastSelectedElementType pTypeSelection,
-                                                 const QModelIndex &selectedIndex,
-                                                 DocumentTreeModel *docModel) const;
+    inline DeletionType deletionTypeForSelection(
+        LastSelectedElementType pTypeSelection, const QModelIndex &selectedIndex, DocumentTreeModel *docModel) const;
 
     /** @brief 判断是否只选中了第一页（唯一一页）。 */
     bool firstAndOnlySceneSelected() const;
 
     /** @brief 返回文档模式的中央控件。 */
-    QWidget *mainWidget() const { return mDocumentWidget; }
+    QWidget *mainWidget() const
+    {
+        return mDocumentWidget;
+    }
 
     /**
      * @brief 把单项移入回收站。
@@ -900,8 +1007,7 @@ public slots:
      * @param onImport 是否处于导入流程（影响看板加载方式）。
      * @param editMode 是否立即进入重命名。
      */
-    void selectDocument(DocumentProxy *proxy, bool setAsCurrentDocument = true, const bool onImport = false,
-                        const bool editMode = false);
+    void selectDocument(DocumentProxy *proxy, bool setAsCurrentDocument = true, const bool onImport = false, const bool editMode = false);
 
     /** @brief 进入文档模式时刷新选择与缩略图。 */
     void show();

@@ -10,14 +10,14 @@
 
 #include <memory>
 
-
 /**
  * @brief 预设颜色取色框：显示当前颜色，左键点击切换到下一个颜色。
  *
  * PreferencesController 创建多个实例，用于背景色、网格色等偏好设置；控件只负责
  * 维护颜色列表与选中下标，并通过 colorSelected() 通知外部，自己不改任何业务状态。
  */
-class ColorPicker : public QFrame {
+class ColorPicker : public QFrame
+{
     Q_OBJECT
 
 public:

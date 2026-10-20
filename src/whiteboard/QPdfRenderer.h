@@ -12,7 +12,6 @@
 
 class QPainter;
 
-
 /**
  * @brief 以 QPdfDocument 实现 PDFRenderer；替代早期基于 Xpdf 的实现。
  *
@@ -20,7 +19,8 @@ class QPainter;
  * 栅格化；渲染尺寸受实现文件中的边长上限约束。实例由 PDFRenderer 的共享表
  * 管理，外部只能 attach/detach。仅在 GUI 线程使用。
  */
-class QPdfRenderer : public PDFRenderer {
+class QPdfRenderer : public PDFRenderer
+{
     Q_OBJECT
 
 public:
@@ -59,9 +59,9 @@ private:
     /// @brief 返回（可能命中的）整页位图，尺寸变化时重新栅格化并更新缓存。
     QImage renderedPage(int pageIndex, const QSize &pixelSize);
 
-    QPdfDocument mDocument; ///< Qt 的 PDF 文档对象
+    QPdfDocument mDocument;  ///< Qt 的 PDF 文档对象
 
-    int mCachedPageIndex;   ///< 缓存对应的页索引（从 0 开始）
-    QSize mCachedPixelSize; ///< 缓存位图的像素尺寸
-    QImage mCachedImage;    ///< 最近一次渲染的整页位图
+    int    mCachedPageIndex; ///< 缓存对应的页索引（从 0 开始）
+    QSize  mCachedPixelSize; ///< 缓存位图的像素尺寸
+    QImage mCachedImage;     ///< 最近一次渲染的整页位图
 };

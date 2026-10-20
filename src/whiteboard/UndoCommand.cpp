@@ -1,10 +1,11 @@
 #include "whiteboard/UndoCommand.h"
 
-
-UndoCommand::UndoCommand(QUndoCommand *parent) : QUndoCommand(parent) {
+UndoCommand::UndoCommand(QUndoCommand *parent) : QUndoCommand(parent)
+{
     // 刻意留空
 }
 
-UndoCommand::~UndoCommand() {
+UndoCommand::~UndoCommand()
+{
     // 刻意留空
 }

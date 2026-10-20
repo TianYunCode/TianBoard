@@ -21,7 +21,8 @@
  * 组合拥有其子项：销毁组合时子项会先被移出并重新设为可选，再删除组合本身。
  * 组合的 z 值遵循 Object 图层的统一规则，加入控制类子项时组合也会被视为控制类。
  */
-class GraphicsGroupContainerItem : public QGraphicsItem, public Item, public GraphicsItem {
+class GraphicsGroupContainerItem : public QGraphicsItem, public Item, public GraphicsItem
+{
 public:
     /**
      * @brief 构造空组合。
@@ -43,9 +44,15 @@ public:
      */
     void removeFromGroup(QGraphicsItem *item);
     /** @brief 记录当前正在交互的子项（如媒体项），用于释放时收尾。 */
-    void setCurrentItem(QGraphicsItem *item) { mCurrentItem = item; }
+    void setCurrentItem(QGraphicsItem *item)
+    {
+        mCurrentItem = item;
+    }
     /** @brief 返回当前正在交互的子项，可能为空。 */
-    QGraphicsItem *getCurrentItem() const { return mCurrentItem; }
+    QGraphicsItem *getCurrentItem() const
+    {
+        return mCurrentItem;
+    }
     /** @brief 若当前子项是媒体项，隐藏其工具栏并取消选中。 */
     void deselectCurrentItem();
 
@@ -63,10 +70,16 @@ public:
     /** @brief 把位置、变换、图层、锁定状态等参数复制到另一个组合。 */
     virtual void copyItemParameters(Item *copy) const;
 
-    enum { Type = GraphicsItemType::groupContainerType };
+    enum
+    {
+        Type = GraphicsItemType::groupContainerType
+    };
 
     /** @brief 返回图形项类型标识。 */
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /**
      * @brief 设置 UUID，并同步写入图形项数据以便场景快速查找。
@@ -100,6 +113,6 @@ protected:
     void pRemoveFromGroup(QGraphicsItem *item);
 
 private:
-    QRectF itemsBoundingRect;
+    QRectF         itemsBoundingRect;
     QGraphicsItem *mCurrentItem;
 };

@@ -27,13 +27,22 @@ class DocumentProxy;
 #include "ui/DockPaletteWidget.h"
 
 /** 停靠面板所在的一侧 */
-enum class DockOrientation { Left, Right, Top, Bottom };
+enum class DockOrientation
+{
+    Left,
+    Right,
+    Top,
+    Bottom
+};
 
 /** 标签朝向 */
-enum class DockTabOrientation { Up, Down };
+enum class DockTabOrientation
+{
+    Up,
+    Down
+};
 
 class DockPalette;
-
 
 /**
  * @brief 停靠面板右侧（或左侧）的标签条，负责绘制标签并处理点击与拖拽改宽。
@@ -42,7 +51,8 @@ class DockPalette;
  * 它把鼠标按下位置交给 DockPalette 的私有状态，从而区分“点击切换标签”和
  * “拖动改变面板宽度”；标签图标与背景都取自所属 DockPalette。
  */
-class TabDockPalette : public QWidget {
+class TabDockPalette : public QWidget
+{
     Q_OBJECT
     friend class DockPalette;
 
@@ -67,8 +77,11 @@ private:
 };
 
 /** 左/右停靠面板 */
-enum class DockPaletteType { Left, Right };
-
+enum class DockPaletteType
+{
+    Left,
+    Right
+};
 
 /**
  * @brief 停靠面板基类：管理一组 DockPaletteWidget 页面、标签条与可折叠的宽度。
@@ -78,7 +91,8 @@ enum class DockPaletteType { Left, Right };
  * LeftPalette 与 RightPalette（都继承本类）作为容器 mContainer 的子控件持有，
  * 页面由 registerWidget() 交给它管理，切换应用模式时用 switchMode() 决定显隐。
  */
-class DockPalette : public QWidget {
+class DockPalette : public QWidget
+{
     Q_OBJECT
     friend class TabDockPalette;
 

@@ -16,7 +16,8 @@
  * 只把本端点订阅过的主题回调给图形对象。生命周期由 WebWidgetBoardAPI 持有，
  * 随网页小部件销毁；回调发生在发出消息的线程（实际为 GUI 线程）。
  */
-class WebWidgetMessageAPI : public QObject {
+class WebWidgetMessageAPI : public QObject
+{
     Q_OBJECT
 
 public:
@@ -30,17 +31,23 @@ public slots:
     void sendMessage(const QString &pTopicName, const QString &pMessage);
 
     /** @brief 订阅主题；重复订阅无副作用。 */
-    void subscribeToTopic(const QString &pTopicName) { mSubscribedTopics << pTopicName; }
+    void subscribeToTopic(const QString &pTopicName)
+    {
+        mSubscribedTopics << pTopicName;
+    }
 
     /** @brief 取消订阅主题；未订阅时无副作用。 */
-    void unsubscribeFromTopic(const QString &pTopicName) { mSubscribedTopics.remove(pTopicName); }
+    void unsubscribeFromTopic(const QString &pTopicName)
+    {
+        mSubscribedTopics.remove(pTopicName);
+    }
 
 private slots:
     /** @brief 仅在主题属于本端点订阅集合时转交给图形对象。 */
     void onNewMessage(const QString &pTopicName, const QString &pMessage);
 
 private:
-    QSet<QString> mSubscribedTopics;         ///< 本端点订阅的主题集合。
+    QSet<QString>       mSubscribedTopics;   ///< 本端点订阅的主题集合。
     GraphicsWidgetItem *mGraphicsWidgetItem; ///< 接收消息的图形对象，不拥有所有权。
 };
 
@@ -50,7 +57,8 @@ private:
  * 纯工具/服务型单例：所有网页小部件共用同一个实例，负责把消息广播给订阅者。
  * 首次 instance() 时创建，随进程退出销毁；不跨进程、不持久化。
  */
-class WebWidgetMessageBroker : public QObject {
+class WebWidgetMessageBroker : public QObject
+{
     Q_OBJECT
 
 private:

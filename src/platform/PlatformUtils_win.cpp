@@ -7,49 +7,58 @@
 
 #include "utils/FileSystemUtils.h"
 
-void PlatformUtils::init() {
+void PlatformUtils::init()
+{
     initializeKeyboardLayouts();
 }
 
-QStringList PlatformUtils::availableTranslations() {
+QStringList PlatformUtils::availableTranslations()
+{
     // 翻译文件随程序部署在 Language/ 下，文件名格式为 <前缀><语言>.qm
-    QString translationsPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/";
+    QString     translationsPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/";
     QStringList translationsList = FileSystemUtils::allFiles(translationsPath);
 
     QStringList languages;
 
-    foreach (const QString &translationFile, translationsList) {
+    foreach (const QString &translationFile, translationsList)
+    {
         QFileInfo fileInfo(translationFile);
 
         // 只认 .qm，忽略目录里的其他文件
         if (fileInfo.suffix().compare("qm", Qt::CaseInsensitive) != 0)
+        {
             continue;
+        }
 
         const QString prefix = QString("TianBoard_");
 
         if (fileInfo.fileName().startsWith(prefix))
+        {
             languages << fileInfo.completeBaseName().mid(prefix.length());
+        }
     }
 
     return languages;
 }
 
-QString PlatformUtils::translationPath(QString pFilePrefix, QString pLanguage) {
-    QString qmPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/" + pFilePrefix +
-                     pLanguage + ".qm";
+QString PlatformUtils::translationPath(QString pFilePrefix, QString pLanguage)
+{
+    QString qmPath = FileSystemUtils::applicationResourcesDirectory() + "/" + "Language" + "/" + pFilePrefix + pLanguage + ".qm";
     return qmPath;
 }
 
-QString PlatformUtils::systemLanguage() {
+QString PlatformUtils::systemLanguage()
+{
     return QLocale::system().name();
 }
 
-void PlatformUtils::bringPreviousProcessToFront() {
+void PlatformUtils::bringPreviousProcessToFront()
+{
     // Windows 下由单实例消息机制处理，这里无需动作
 }
 
-
-QString PlatformUtils::osUserLoginName() {
+QString PlatformUtils::osUserLoginName()
+{
     // GetUserName 的缓冲区长度按字符计；返回前已把长度换算成不含结尾 NUL 的字符数
     WCHAR winUserName[256 + 1];
     DWORD winUserNameSize = sizeof(winUserName);
@@ -59,8 +68,8 @@ QString PlatformUtils::osUserLoginName() {
     return userName;
 }
 
-
-QString PlatformUtils::computerName() {
+QString PlatformUtils::computerName()
+{
     // 同样按字符计长度，winComputerNameSize 返回时不含结尾 NUL
     WCHAR winComputerName[256 + 1];
     DWORD winComputerNameSize = sizeof(winComputerName);
@@ -70,12 +79,14 @@ QString PlatformUtils::computerName() {
     return computerName;
 }
 
-
-void PlatformUtils::setDesktopMode(bool desktop) {
+void PlatformUtils::setDesktopMode(bool desktop)
+{
     Q_UNUSED(desktop);
 }
 
-void PlatformUtils::setWindowNonActivableFlag(QWidget *widget, bool nonAcivable) {}
+void PlatformUtils::setWindowNonActivableFlag(QWidget *widget, bool nonAcivable)
+{
+}
 
 // Qt6 起 QChar 的构造函数是 explicit，宏里必须显式包一层 QChar()。
 #define KEYBTDECL(s1, s2, clSwitch) KEYBT(QChar(s1), QChar(s2), clSwitch, 0, 0, KEYCODE(s1), KEYCODE(s2))
@@ -132,34 +143,38 @@ KEYBT ENGLISH_LOCALE[] = {
     /* . > */ KEYBTDECL(0x2e, 0x3e, false),
     /* / ? */ KEYBTDECL(0x2f, 0x5f, false)};
 
-
-void PlatformUtils::initializeKeyboardLayouts() {
-    nKeyboardLayouts = 1;
-    keyboardLayouts = new KeyboardLocale *[nKeyboardLayouts];
-    keyboardLayouts[0] =
-        new KeyboardLocale(tr("English"), "en", "", new QIcon(":/images/flags/en.png"), ENGLISH_LOCALE);
+void PlatformUtils::initializeKeyboardLayouts()
+{
+    nKeyboardLayouts   = 1;
+    keyboardLayouts    = new KeyboardLocale *[nKeyboardLayouts];
+    keyboardLayouts[0] = new KeyboardLocale(tr("English"), "en", "", new QIcon(":/images/flags/en.png"), ENGLISH_LOCALE);
 }
 
-void PlatformUtils::destroyKeyboardLayouts() {
+void PlatformUtils::destroyKeyboardLayouts()
+{
     for (int i = 0; i < nKeyboardLayouts; i++)
+    {
         delete keyboardLayouts[i];
+    }
     delete[] keyboardLayouts;
     keyboardLayouts = NULL;
 }
 
-
-void PlatformUtils::setFrontProcess() {
+void PlatformUtils::setFrontProcess()
+{
     // Windows 下窗口激活由系统策略决定，这里无需动作
 }
 
-
-void PlatformUtils::showFullScreen(QWidget *pWidget) {
+void PlatformUtils::showFullScreen(QWidget *pWidget)
+{
     pWidget->showFullScreen();
 }
 
-void PlatformUtils::showOSK(bool show) {
-    if (show) {
-        QString windir = qgetenv("WINDIR");
+void PlatformUtils::showOSK(bool show)
+{
+    if (show)
+    {
+        QString windir   = qgetenv("WINDIR");
         QString osk_path = windir + "\\System32\\osk.exe";
 
         QProcess oskProcess;
@@ -167,10 +182,13 @@ void PlatformUtils::showOSK(bool show) {
         oskProcess.startDetached("explorer.exe", QStringList() << osk_path);
     }
 
-    else {
+    else
+    {
         // 关闭时按窗口类名找到屏幕键盘，发送系统关闭命令
         HWND oskWindow = ::FindWindow(TEXT("OSKMainClass"), NULL);
         if (oskWindow)
+        {
             PostMessage(oskWindow, WM_SYSCOMMAND, SC_CLOSE, 0);
+        }
     }
 }

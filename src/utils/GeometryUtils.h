@@ -14,7 +14,8 @@
  * 不可实例化；所有函数无副作用，失败时返回空多边形或原值。
  * 结果坐标与输入处于同一坐标系，调用方自行负责视图变换。
  */
-class GeometryUtils {
+class GeometryUtils
+{
 private:
     /** @brief 私有构造，禁止实例化。 */
     GeometryUtils();
@@ -33,13 +34,11 @@ public:
     static QPolygonF arcToPolygon(const QLineF &startRadius, qreal spanAngle, qreal width);
 
     /** @brief 把两端宽度不同的线段转成多边形。 */
-    static QPolygonF lineToPolygon(const QPointF &pStart, const QPointF &pEnd, const qreal &pStartWidth,
-                                   const qreal &pEndWidth);
+    static QPolygonF lineToPolygon(const QPointF &pStart, const QPointF &pEnd, const qreal &pStartWidth, const qreal &pEndWidth);
     /** @brief 把折线按线性变化的笔宽转成多边形。 */
     static QPolygonF curveToPolygon(const QList<QPointF> &points, qreal startWidth, qreal endWidth);
     /** @brief 把带逐点宽度的曲线转成多边形，可指定两端是否画圆头。 */
-    static QPolygonF curveToPolygon(const QList<QPair<QPointF, qreal>> &points, bool roundStart,
-                                    bool roundEnd);
+    static QPolygonF curveToPolygon(const QList<QPair<QPointF, qreal>> &points, bool roundStart, bool roundEnd);
 
     /** @brief 把点约束到矩形范围内（浮点版）。 */
     static QPointF pointConstrainedInRect(QPointF point, QRectF rect);
@@ -53,13 +52,12 @@ public:
     static qreal angle(const QPointF &p1, const QPointF &p2, const QPointF &p3);
 
     /** @brief 在二次贝塞尔曲线上采样 nPoints 个点。 */
-    static QList<QPointF> quadraticBezier(const QPointF &p0, const QPointF &p1, const QPointF &p2,
-                                          unsigned int nPoints);
+    static QList<QPointF> quadraticBezier(const QPointF &p0, const QPointF &p1, const QPointF &p2, unsigned int nPoints);
 
-    const static int centimeterGraduationHeight;     ///< 厘米刻度线高度。
-    const static int halfCentimeterGraduationHeight; ///< 半厘米刻度线高度。
-    const static int millimeterGraduationHeight;     ///< 毫米刻度线高度。
-    const static int millimetersPerCentimeter;       ///< 每厘米的毫米数。
-    const static int millimetersPerHalfCentimeter;   ///< 每半厘米的毫米数。
-    const static float inchSize;                     ///< 一英寸的像素尺寸。
+    const static int   centimeterGraduationHeight;     ///< 厘米刻度线高度。
+    const static int   halfCentimeterGraduationHeight; ///< 半厘米刻度线高度。
+    const static int   millimeterGraduationHeight;     ///< 毫米刻度线高度。
+    const static int   millimetersPerCentimeter;       ///< 每厘米的毫米数。
+    const static int   millimetersPerHalfCentimeter;   ///< 每半厘米的毫米数。
+    const static float inchSize;                       ///< 一英寸的像素尺寸。
 };

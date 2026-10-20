@@ -16,24 +16,30 @@ class DocumentProxy;
  *
  * 详细说明：只做值语义比较；文档代理由文档树拥有，本键不延长其生命周期。
  */
-class SceneCacheID {
+class SceneCacheID
+{
 public:
-    SceneCacheID() : documentProxy(0), pageIndex(-1) {}
+    SceneCacheID() : documentProxy(0), pageIndex(-1)
+    {
+    }
 
-    SceneCacheID(DocumentProxy *pDocumentProxy, int pPageIndex) {
+    SceneCacheID(DocumentProxy *pDocumentProxy, int pPageIndex)
+    {
         documentProxy = pDocumentProxy;
-        pageIndex = pPageIndex;
+        pageIndex     = pPageIndex;
     }
 
     DocumentProxy *documentProxy;
-    int pageIndex;
+    int            pageIndex;
 };
 
-inline bool operator==(const SceneCacheID &id1, const SceneCacheID &id2) {
+inline bool operator==(const SceneCacheID &id1, const SceneCacheID &id2)
+{
     return id1.documentProxy == id2.documentProxy && id1.pageIndex == id2.pageIndex;
 }
 
-inline size_t qHash(const SceneCacheID &id, size_t seed = 0) {
+inline size_t qHash(const SceneCacheID &id, size_t seed = 0)
+{
     return qHash(id.pageIndex, seed);
 }
 
@@ -45,7 +51,8 @@ inline size_t qHash(const SceneCacheID &id, size_t seed = 0) {
  * 不会被淘汰，其视图状态会暂存并在重新加载时恢复。
  * 线程约束：GUI 线程专用。
  */
-class SceneCache : public QHash<SceneCacheID, GraphicsScene *> {
+class SceneCache : public QHash<SceneCacheID, GraphicsScene *>
+{
 public:
     SceneCache();
     virtual ~SceneCache();
@@ -75,7 +82,8 @@ public:
     GraphicsScene *value(DocumentProxy *proxy, int pageIndex);
 
     /// 按完整键取出场景，不刷新使用顺序。
-    GraphicsScene *value(const SceneCacheID &key) const {
+    GraphicsScene *value(const SceneCacheID &key) const
+    {
         return QHash<SceneCacheID, GraphicsScene *>::value(key);
     }
 

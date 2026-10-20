@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QWidget>
 
 #include <memory>
@@ -17,7 +16,8 @@
  * 模式下创建并交给 DisplayManager 摆放：白板模式下源是一个 QWidget，
  * 桌面模式下则按屏幕矩形抓屏；start()/stop() 控制定时器，抓屏频率来自设置。
  */
-class ScreenMirror : public QWidget {
+class ScreenMirror : public QWidget
+{
     Q_OBJECT
 
 public:

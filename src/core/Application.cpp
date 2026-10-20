@@ -37,22 +37,21 @@
 QPointer<QUndoStack> Application::undoStack;
 
 ApplicationController *Application::applicationController = 0;
-BoardController *Application::boardController = 0;
-WebController *Application::webController = 0;
-DocumentController *Application::documentController = 0;
+BoardController       *Application::boardController       = 0;
+WebController         *Application::webController         = 0;
+DocumentController    *Application::documentController    = 0;
 
-MainWindow *Application::mainWindow = 0;
+MainWindow *Application::mainWindow                       = 0;
 
-const QString Application::mimeTypeBoardDocument = QString("application/vnd.tianboard-document");
-const QString Application::mimeTypeBoardPage = QString("application/vnd.tianboard-page");
-const QString Application::mimeTypeBoardPageItem = QString("application/vnd.tianboard-page-item");
-const QString Application::mimeTypeBoardPageThumbnail = QString("application/vnd.tianboard-thumbnail");
+const QString Application::mimeTypeBoardDocument          = QString("application/vnd.tianboard-document");
+const QString Application::mimeTypeBoardPage              = QString("application/vnd.tianboard-page");
+const QString Application::mimeTypeBoardPageItem          = QString("application/vnd.tianboard-page-item");
+const QString Application::mimeTypeBoardPageThumbnail     = QString("application/vnd.tianboard-thumbnail");
 
-QObject *Application::staticMemoryCleaner = 0;
+QObject *Application::staticMemoryCleaner                 = 0;
 
-
-Application::Application(const QString &id, int &argc, char **argv)
-    : QtSingleApplication(id, argc, argv), mPreferencesController(NULL) {
+Application::Application(const QString &id, int &argc, char **argv) : QtSingleApplication(id, argc, argv), mPreferencesController(NULL)
+{
     staticMemoryCleaner = new QObject(0); // 由 Application 析构函数删除
 
     setOrganizationName("TianBoard");
@@ -66,43 +65,42 @@ Application::Application(const QString &id, int &argc, char **argv)
 
     QStringList args = arguments();
 
-    mIsVerbose = args.contains("-v") || args.contains("-verbose") || args.contains("verbose") ||
-                 args.contains("-log") || args.contains("log");
-
+    mIsVerbose       = args.contains("-v") || args.contains("-verbose") || args.contains("verbose") || args.contains("-log") || args.contains("log");
 
     setupTranslators(args);
 
     Resources::resources();
 
     if (!undoStack)
+    {
         undoStack = new QUndoStack(staticMemoryCleaner);
+    }
 
     PlatformUtils::init();
 
     Settings *settings = Settings::settings();
 
-    connect(settings->appToolBarPositionedAtTop, &Setting::changed, this,
-            &Application::toolBarPositionChanged);
-    connect(settings->appToolBarDisplayText, &Setting::changed, this,
-            &Application::toolBarDisplayTextChanged);
+    connect(settings->appToolBarPositionedAtTop, &Setting::changed, this, &Application::toolBarPositionChanged);
+    connect(settings->appToolBarDisplayText, &Setting::changed, this, &Application::toolBarDisplayTextChanged);
     updateProtoActionsState();
 
     setWindowIcon(QIcon(":/images/TianBoardIcon.svg"));
 
     setStyle("fusion");
 
-    QString css = FileSystemUtils::readTextFile(FileSystemUtils::applicationResourcesDirectory() + "/etc/" +
-                                                qApp->applicationName() + ".css");
+    QString css = FileSystemUtils::readTextFile(FileSystemUtils::applicationResourcesDirectory() + "/etc/" + qApp->applicationName() + ".css");
     if (css.length() > 0)
+    {
         setStyleSheet(css);
+    }
 
     QApplication::setStartDragDistance(8); // 默认值是 4，对触摸屏来说偏小
 
     installEventFilter(this);
 }
 
-
-Application::~Application() {
+Application::~Application()
+{
     PlatformUtils::destroy();
 
     FileSystemUtils::deleteAllTempDirCreatedDuringSession();
@@ -124,36 +122,48 @@ Application::~Application() {
     staticMemoryCleaner = 0;
 }
 
-void Application::setupTranslators(const QStringList &args) {
+void Application::setupTranslators(const QStringList &args)
+{
     LanguageManager *languages = LanguageManager::instance();
 
     QString requested;
 
     const int langIndex = args.indexOf("-lang");
     if (langIndex >= 0 && langIndex + 1 < args.size())
+    {
         requested = args.at(langIndex + 1);
+    }
 
     if (requested.isEmpty())
+    {
         requested = languages->savedPreference();
+    }
 
     if (requested.isEmpty())
+    {
         requested = PlatformUtils::systemLanguage();
+    }
 
     // 没有对应 .qm 时退回源语言（英文），而不是像以前那样声称在某个语言下运行
     // 却一个翻译器都没装。
     if (!languages->setLanguage(requested))
+    {
         languages->setLanguage(QStringLiteral("en"));
+    }
 
     qDebug() << "Running application in:" << languages->currentLanguage();
 }
 
-int Application::exec(const QString &pFileToImport) {
+int Application::exec(const QString &pFileToImport)
+{
     QPixmapCache::setCacheLimit(1024 * 100);
 
     QString webDbPath = Settings::userDataDirectory() + "/web-databases";
-    QDir webDbDir(webDbPath);
+    QDir    webDbDir(webDbPath);
     if (!webDbDir.exists(webDbPath))
+    {
         webDbDir.mkpath(webDbPath);
+    }
 
     QWebEngineSettings *gs = QWebEngineProfile::defaultProfile()->settings();
     gs->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
@@ -163,7 +173,6 @@ int Application::exec(const QString &pFileToImport) {
     gs->setAttribute(QWebEngineSettings::HyperlinkAuditingEnabled, true);
     gs->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
     gs->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
-
 
     mainWindow = new MainWindow(0, Qt::FramelessWindowHint);
     mainWindow->setAttribute(Qt::WA_NativeWindow, true);
@@ -185,84 +194,75 @@ int Application::exec(const QString &pFileToImport) {
     boardController = new BoardController(mainWindow);
     boardController->init();
 
-    webController = new WebController(mainWindow);
+    webController      = new WebController(mainWindow);
     documentController = new DocumentController(mainWindow);
 
     DrawingController::drawingController()->setStylusTool((int)StylusTool::Pen);
 
-    applicationController =
-        new ApplicationController(boardController->controlView(), boardController->displayView(), mainWindow,
-                                  staticMemoryCleaner, boardController->paletteManager()->rightPalette());
+    applicationController = new ApplicationController(boardController->controlView(), boardController->displayView(), mainWindow, staticMemoryCleaner,
+        boardController->paletteManager()->rightPalette());
 
+    connect(
+        applicationController, &ApplicationController::mainModeChanged, boardController->paletteManager(), &BoardPaletteManager::slot_changeMainMode);
 
-    connect(applicationController, &ApplicationController::mainModeChanged, boardController->paletteManager(),
-            &BoardPaletteManager::slot_changeMainMode);
+    connect(
+        applicationController, &ApplicationController::desktopMode, boardController->paletteManager(), &BoardPaletteManager::slot_changeDesktopMode);
 
-    connect(applicationController, &ApplicationController::desktopMode, boardController->paletteManager(),
-            &BoardPaletteManager::slot_changeDesktopMode);
-
-    connect(applicationController, &ApplicationController::mainModeChanged, boardController,
-            &BoardController::appMainModeChanged);
+    connect(applicationController, &ApplicationController::mainModeChanged, boardController, &BoardController::appMainModeChanged);
 
     // 只有白板和网页模式真的实现了 剪切/复制/粘贴；文档库模式下这三个动作过去是
     // "看着能点、按了没反应"（DocumentController 里是三个空函数），现在直接灰掉。
     connect(applicationController, &ApplicationController::mainModeChanged, this,
-            [this](ApplicationController::MainMode mode) {
-                const bool hasClipboard =
-                    (mode == ApplicationController::Board || mode == ApplicationController::Internet);
-                mainWindow->ui().actionCut->setEnabled(hasClipboard);
-                mainWindow->ui().actionCopy->setEnabled(hasClipboard);
-                mainWindow->ui().actionPaste->setEnabled(hasClipboard);
-            });
+        [this](ApplicationController::MainMode mode)
+        {
+            const bool hasClipboard = (mode == ApplicationController::Board || mode == ApplicationController::Internet);
+            mainWindow->ui().actionCut->setEnabled(hasClipboard);
+            mainWindow->ui().actionCopy->setEnabled(hasClipboard);
+            mainWindow->ui().actionPaste->setEnabled(hasClipboard);
+        });
 
-    connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController,
-            &ApplicationController::showDesktop);
+    connect(mainWindow->ui().actionDesktop, &QAction::triggered, applicationController, &ApplicationController::showDesktop);
     connect(mainWindow->ui().actionDesktop, &QAction::triggered, this, &Application::stopScript);
-    connect(mainWindow->ui().actionRecording, &QAction::triggered, applicationController,
-            &ApplicationController::toggleRecordingPalette);
-    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow,
-            &MainWindow::showMinimized);
+    connect(mainWindow->ui().actionRecording, &QAction::triggered, applicationController, &ApplicationController::toggleRecordingPalette);
+    connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow, &MainWindow::showMinimized);
 
     mPreferencesController = new PreferencesController(mainWindow);
 
-    connect(mainWindow->ui().actionPreferences, &QAction::triggered, mPreferencesController,
-            &PreferencesController::show);
-
+    connect(mainWindow->ui().actionPreferences, &QAction::triggered, mPreferencesController, &PreferencesController::show);
 
     toolBarPositionChanged(Settings::settings()->appToolBarPositionedAtTop->get());
 
     bool bUseMultiScreen = Settings::settings()->appUseMultiscreen->get().toBool();
     mainWindow->ui().actionMultiScreen->setChecked(bUseMultiScreen);
-    connect(mainWindow->ui().actionMultiScreen, &QAction::triggered, applicationController,
-            &ApplicationController::useMultiScreen);
-    connect(mainWindow->ui().actionWidePageSize, &QAction::triggered, boardController,
-            &BoardController::setWidePageSize);
-    connect(mainWindow->ui().actionRegularPageSize, &QAction::triggered, boardController,
-            &BoardController::setRegularPageSize);
+    connect(mainWindow->ui().actionMultiScreen, &QAction::triggered, applicationController, &ApplicationController::useMultiScreen);
+    connect(mainWindow->ui().actionWidePageSize, &QAction::triggered, boardController, &BoardController::setWidePageSize);
+    connect(mainWindow->ui().actionRegularPageSize, &QAction::triggered, boardController, &BoardController::setRegularPageSize);
 
-    connect(mainWindow->ui().actionCut, &QAction::triggered, applicationController,
-            &ApplicationController::actionCut);
-    connect(mainWindow->ui().actionCopy, &QAction::triggered, applicationController,
-            &ApplicationController::actionCopy);
-    connect(mainWindow->ui().actionPaste, &QAction::triggered, applicationController,
-            &ApplicationController::actionPaste);
+    connect(mainWindow->ui().actionCut, &QAction::triggered, applicationController, &ApplicationController::actionCut);
+    connect(mainWindow->ui().actionCopy, &QAction::triggered, applicationController, &ApplicationController::actionCopy);
+    connect(mainWindow->ui().actionPaste, &QAction::triggered, applicationController, &ApplicationController::actionPaste);
 
     applicationController->initScreenLayout(bUseMultiScreen);
     boardController->setupLayout();
 
     if (pFileToImport.length() > 0)
+    {
         Application::applicationController->importFile(pFileToImport);
+    }
 
     if (Settings::settings()->appStartMode->get().toInt())
+    {
         applicationController->showDesktop();
+    }
     else
+    {
         applicationController->showBoard();
+    }
 
     emit DrawingController::drawingController() -> colorPaletteChanged();
 
     onScreenCountChanged(1);
-    connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this,
-            &Application::onScreenCountChanged);
+    connect(VirtualDesktop::instance(), &VirtualDesktop::screenCountChanged, this, &Application::onScreenCountChanged);
 
     // 第二个实例把要打开的文档路径通过单实例通道发过来；此前没人收这条消息，
     // 双击文档只会让新进程退出、已运行的实例毫无反应。
@@ -272,7 +272,8 @@ int Application::exec(const QString &pFileToImport) {
     // 冒烟自检（tst_smoke 用 `--ui-smoke` 拉起）：依次切到文档 / 网页 / 画板模式再退出。
     // 这些切换以前从来没有自动化覆盖；文档模式的代理模型索引错用就是这样漏到用户手里的
     // （Debug 下 Qt 弹断言对话框、事件循环卡死）。断言一旦出现，进程不会按时退出，测试判红。
-    if (arguments().contains("--ui-smoke")) {
+    if (arguments().contains("--ui-smoke"))
+    {
         QTimer::singleShot(2000, applicationController, &ApplicationController::showDocument);
         QTimer::singleShot(4000, applicationController, &ApplicationController::showInternet);
         QTimer::singleShot(6000, applicationController, &ApplicationController::showBoard);
@@ -282,45 +283,56 @@ int Application::exec(const QString &pFileToImport) {
     return QApplication::exec();
 }
 
-void Application::onScreenCountChanged(int newCount) {
+void Application::onScreenCountChanged(int newCount)
+{
     Q_UNUSED(newCount);
     DisplayManager displayManager;
     mainWindow->ui().actionMultiScreen->setEnabled(displayManager.numScreens() > 1);
 }
 
-void Application::startScript() {
+void Application::startScript()
+{
     this->boardController->freezeWebWidgets(false);
 }
 
-void Application::stopScript() {
+void Application::stopScript()
+{
     this->boardController->freezeWebWidgets(true);
 }
 
-void Application::showBoard() {
+void Application::showBoard()
+{
     applicationController->showBoard();
 }
 
-void Application::showInternet() {
+void Application::showInternet()
+{
     applicationController->showInternet();
     webController->showTabAtTop(true);
 }
 
-void Application::showDocument() {
+void Application::showDocument()
+{
     applicationController->showDocument();
 }
 
-int Application::toolBarHeight() {
+int Application::toolBarHeight()
+{
     return mainWindow->ui().boardToolBar->rect().height();
 }
 
-
-void Application::toolBarPositionChanged(QVariant topOrBottom) {
+void Application::toolBarPositionChanged(QVariant topOrBottom)
+{
     Qt::ToolBarArea area;
 
     if (topOrBottom.toBool())
+    {
         area = Qt::TopToolBarArea;
+    }
     else
+    {
         area = Qt::BottomToolBarArea;
+    }
 
     mainWindow->addToolBar(area, mainWindow->ui().boardToolBar);
     mainWindow->addToolBar(area, mainWindow->ui().webToolBar);
@@ -329,69 +341,80 @@ void Application::toolBarPositionChanged(QVariant topOrBottom) {
     webController->showTabAtTop(topOrBottom.toBool());
 }
 
-
-void Application::toolBarDisplayTextChanged(QVariant display) {
-    Qt::ToolButtonStyle toolButtonStyle =
-        display.toBool() ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly;
+void Application::toolBarDisplayTextChanged(QVariant display)
+{
+    Qt::ToolButtonStyle toolButtonStyle = display.toBool() ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly;
     mainWindow->ui().boardToolBar->setToolButtonStyle(toolButtonStyle);
     mainWindow->ui().webToolBar->setToolButtonStyle(toolButtonStyle);
     mainWindow->ui().documentToolBar->setToolButtonStyle(toolButtonStyle);
 }
 
-
-void Application::closeEvent(QCloseEvent *event) {
+void Application::closeEvent(QCloseEvent *event)
+{
     Q_UNUSED(event);
 
     closing();
 }
 
-void Application::closing() {
-    if (Settings::settings()->emptyTrashForOlderDocuments->get().toBool()) {
+void Application::closing()
+{
+    if (Settings::settings()->emptyTrashForOlderDocuments->get().toBool())
+    {
         DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
-        documentController->deleteDocumentsInFolderOlderThan(
-            docModel->trashIndex(), Settings::settings()->emptyTrashDaysValue->get().toInt());
+        documentController->deleteDocumentsInFolderOlderThan(docModel->trashIndex(), Settings::settings()->emptyTrashDaysValue->get().toInt());
         if (docModel->hasChildren(docModel->trashIndex()))
+        {
             documentController->deleteEmptyFolders(docModel->trashIndex());
+        }
     }
 
     if (boardController)
+    {
         boardController->closing();
+    }
 
     if (applicationController)
+    {
         applicationController->closing();
+    }
 
     if (webController)
+    {
         webController->closing();
+    }
 
     // 工具栏位置要写在落盘之前：closing() 里已经 save() 过，之后 set() 只会进队列。
-    Settings::settings()->appToolBarPositionedAtTop->set(
-        mainWindow->toolBarArea(mainWindow->ui().boardToolBar) == Qt::TopToolBarArea);
+    Settings::settings()->appToolBarPositionedAtTop->set(mainWindow->toolBarArea(mainWindow->ui().boardToolBar) == Qt::TopToolBarArea);
 
     Settings::settings()->closing();
 
     quit();
 }
 
-
-void Application::showMessage(const QString &message, bool showSpinningWheel) {
+void Application::showMessage(const QString &message, bool showSpinningWheel)
+{
     if (applicationController)
+    {
         applicationController->showMessage(message, showSpinningWheel);
+    }
 }
 
-
-void Application::setDisabled(bool disable) {
+void Application::setDisabled(bool disable)
+{
     boardController->setDisabled(disable);
 }
 
-
-void Application::decorateActionMenu(QAction *action) {
-    foreach (QWidget *menuWidget, action->associatedWidgets()) {
+void Application::decorateActionMenu(QAction *action)
+{
+    foreach (QWidget *menuWidget, action->associatedWidgets())
+    {
         QToolButton *tb = qobject_cast<QToolButton *>(menuWidget);
 
-        if (tb && !tb->menu()) {
+        if (tb && !tb->menu())
+        {
             tb->setObjectName("buttonMenu");
             tb->setPopupMode(QToolButton::InstantPopup);
-            QMenu *menu = new QMenu(mainWindow);
+            QMenu *menu                 = new QMenu(mainWindow);
 
             QActionGroup *pageSizeGroup = new QActionGroup(mainWindow);
             pageSizeGroup->addAction(mainWindow->ui().actionWidePageSize);
@@ -424,35 +447,43 @@ void Application::decorateActionMenu(QAction *action) {
     }
 }
 
-
-void Application::updateProtoActionsState() {
-    if (mainWindow) {
+void Application::updateProtoActionsState()
+{
+    if (mainWindow)
+    {
         mainWindow->ui().actionMultiScreen->setVisible(true);
     }
 
     foreach (QMenu *protoMenu, mProtoMenus)
+    {
         protoMenu->setVisible(true);
+    }
 }
 
-
-void Application::insertSpaceToToolbarBeforeAction(QToolBar *toolbar, QAction *action, int width) {
+void Application::insertSpaceToToolbarBeforeAction(QToolBar *toolbar, QAction *action, int width)
+{
     QWidget *spacer = new QWidget();
 
-    if (width >= 0) {
+    if (width >= 0)
+    {
         QHBoxLayout *layout = new QHBoxLayout();
         layout->addSpacing(width);
         spacer->setLayout(layout);
-    } else
+    }
+    else
+    {
         spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    }
 
     toolbar->insertWidget(action, spacer);
 }
 
-
-bool Application::eventFilter(QObject *obj, QEvent *event) {
+bool Application::eventFilter(QObject *obj, QEvent *event)
+{
     bool result = QObject::eventFilter(obj, event);
 
-    if (event->type() == QEvent::FileOpen) {
+    if (event->type() == QEvent::FileOpen)
+    {
         QFileOpenEvent *fileToOpenEvent = static_cast<QFileOpenEvent *>(event);
 
         PlatformUtils::setFrontProcess();
@@ -460,25 +491,31 @@ bool Application::eventFilter(QObject *obj, QEvent *event) {
         applicationController->importFile(fileToOpenEvent->file());
     }
 
-    if (event->type() == QEvent::TabletLeaveProximity) {
+    if (event->type() == QEvent::TabletLeaveProximity)
+    {
         if (boardController && boardController->controlView())
+        {
             boardController->controlView()->forcedTabletRelease();
+        }
     }
 
-
-    if (event->type() == QEvent::ApplicationActivate) {
+    if (event->type() == QEvent::ApplicationActivate)
+    {
         if (boardController && boardController->controlView())
+        {
             boardController->controlView()->setMultiselection(false);
+        }
     }
 
     return result;
 }
 
-
-bool Application::handleOpenMessage(const QString &pMessage) {
+bool Application::handleOpenMessage(const QString &pMessage)
+{
     qDebug() << "received message" << pMessage;
 
-    if (pMessage == Settings::appPingMessage) {
+    if (pMessage == Settings::appPingMessage)
+    {
         qDebug() << "received ping";
         return true;
     }
@@ -490,31 +527,42 @@ bool Application::handleOpenMessage(const QString &pMessage) {
     return true;
 }
 
-void Application::cleanup() {
+void Application::cleanup()
+{
     if (applicationController)
+    {
         delete applicationController;
+    }
     if (boardController)
+    {
         delete boardController;
+    }
     if (webController)
+    {
         delete webController;
+    }
     if (documentController)
+    {
         delete documentController;
+    }
 
     applicationController = NULL;
-    boardController = NULL;
-    webController = NULL;
-    documentController = NULL;
+    boardController       = NULL;
+    webController         = NULL;
+    documentController    = NULL;
 }
 
-QWidget *Application::dialogHost() {
+QWidget *Application::dialogHost()
+{
     return mainWindow;
 }
 
-QString Application::urlFromHtml(QString html) {
-    QString _html;
+QString Application::urlFromHtml(QString html)
+{
+    QString            _html;
     QRegularExpression comments("<[ \r\n\t]*(--([^\\-]|[\r\n]|-[^\\-])*--[ \r\n\t]*)>");
-    QString url;
-    QDomDocument domDoc;
+    QString            url;
+    QDomDocument       domDoc;
 
     // 去掉 HTML 注释与 CRLF，避免解析器在提取 src 时被注释节点干扰。
     _html = html.remove(comments);
@@ -522,36 +570,44 @@ QString Application::urlFromHtml(QString html) {
     QDomElement rootElem = domDoc.documentElement();
 
     // 根元素有时是 <meta> 标签，这时 src 挂在它的第一个子元素上。
-    if (rootElem.tagName().toLower().contains("meta")) {
+    if (rootElem.tagName().toLower().contains("meta"))
+    {
         qDebug() << rootElem.firstChildElement().tagName();
         // 取下一个元素的 src。
         url = rootElem.firstChildElement().attribute("src");
-    } else {
+    }
+    else
+    {
         url = rootElem.attribute("src");
     }
 
     return url;
 }
 
-bool Application::isFromWeb(QString url) {
+bool Application::isFromWeb(QString url)
+{
     bool res = true;
 
-    if (url.startsWith("tianboardtool://") || url.startsWith("file://") || url.startsWith("/")) {
+    if (url.startsWith("tianboardtool://") || url.startsWith("file://") || url.startsWith("/"))
+    {
         res = false;
     }
 
     return res;
 }
 
-QScreen *Application::controlScreen() {
+QScreen *Application::controlScreen()
+{
     QList<QScreen *> screenList = screens();
     if (screenList.size() == 1)
+    {
         return screenList.first();
+    }
 
     return screenList[controlScreenIndex()];
 }
 
-
-int Application::controlScreenIndex() {
+int Application::controlScreenIndex()
+{
     return applicationController->displayManager()->controleScreenIndex();
 }

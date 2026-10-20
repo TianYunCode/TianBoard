@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QRubberBand>
 
 /**
@@ -15,7 +14,8 @@
  * 则可整体移动。由 BoardView 在框选模式下创建并持有（非缩放拖动时把位移
  * 转交给视图移动已选对象），CustomCaptureWindow 也用它来圈定截图区域。
  */
-class RubberBand : public QRubberBand {
+class RubberBand : public QRubberBand
+{
     Q_OBJECT
 
 public:
@@ -25,7 +25,8 @@ public:
 
 private:
     /// 鼠标所在位置对应的缩放方向；None 表示在选区内部。
-    enum enm_resizingMode {
+    enum enm_resizingMode
+    {
         None,        ///< 选区内部，整体拖动。
         Top,         ///< 上边。
         TopLeft,     ///< 左上角。
@@ -47,10 +48,10 @@ private:
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    QStyle *customStyle;            ///< 自建的 windows 风格实例，析构时释放。
-    enm_resizingMode mResizingMode; ///< 当前拖动对应的缩放方向。
-    int mResizingBorderHeight;      ///< 可触发缩放的边框宽度（像素）。
-    bool mMouseIsPressed;           ///< 是否处于按下拖动状态。
-    QPoint mLastPressedPoint;       ///< 上一次按下点，用于计算整体位移。
-    QPoint mLastMousePos;           ///< 上一次移动点，用于计算右侧/底部增量。
+    QStyle          *customStyle;           ///< 自建的 windows 风格实例，析构时释放。
+    enm_resizingMode mResizingMode;         ///< 当前拖动对应的缩放方向。
+    int              mResizingBorderHeight; ///< 可触发缩放的边框宽度（像素）。
+    bool             mMouseIsPressed;       ///< 是否处于按下拖动状态。
+    QPoint           mLastPressedPoint;     ///< 上一次按下点，用于计算整体位移。
+    QPoint           mLastMousePos;         ///< 上一次移动点，用于计算右侧/底部增量。
 };

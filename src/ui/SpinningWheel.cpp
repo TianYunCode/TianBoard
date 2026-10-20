@@ -2,20 +2,23 @@
 
 #include <QtWidgets>
 
-
-SpinningWheel::SpinningWheel(QWidget *parent) : QWidget(parent), mPosition(9), mTimerID(0) {
+SpinningWheel::SpinningWheel(QWidget *parent) : QWidget(parent), mPosition(9), mTimerID(0)
+{
     // 刻意留空
 }
 
-SpinningWheel::~SpinningWheel() {
+SpinningWheel::~SpinningWheel()
+{
     stopAnimation();
 }
 
-QSize SpinningWheel::sizeHint() const {
+QSize SpinningWheel::sizeHint() const
+{
     return QSize(16, 16);
 }
 
-void SpinningWheel::paintEvent(QPaintEvent *event) {
+void SpinningWheel::paintEvent(QPaintEvent *event)
+{
     Q_UNUSED(event);
 
     qreal side = qMin(width() / 2, height() / 2);
@@ -32,7 +35,8 @@ void SpinningWheel::paintEvent(QPaintEvent *event) {
     // 相位决定整体旋转角，12 根线每根间隔 30 度。
     painter.rotate(30 * (mPosition.loadAcquire() % 12));
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 12; i++)
+    {
         painter.drawLine(QPointF(side / 2, 0), QPointF(0.9 * side, 0));
         painter.rotate(30);
         // 透明度逐根加深，形成旋转方向的拖尾感。
@@ -43,20 +47,25 @@ void SpinningWheel::paintEvent(QPaintEvent *event) {
     }
 }
 
-void SpinningWheel::startAnimation() {
-    if (mTimerID == 0) {
+void SpinningWheel::startAnimation()
+{
+    if (mTimerID == 0)
+    {
         mTimerID = startTimer(42);
     }
 }
 
-void SpinningWheel::stopAnimation() {
-    if (mTimerID != 0) {
+void SpinningWheel::stopAnimation()
+{
+    if (mTimerID != 0)
+    {
         killTimer(mTimerID);
         mTimerID = 0;
     }
 }
 
-void SpinningWheel::timerEvent(QTimerEvent *event) {
+void SpinningWheel::timerEvent(QTimerEvent *event)
+{
     Q_UNUSED(event);
 
     // 每次只推进一格，重绘时由 paintEvent 换算成旋转角。

@@ -19,7 +19,8 @@
  * 线程约束：init/start/stop/close 在 GUI 线程调用；数据回调 waveInProc 运行在驱动线程，
  * 只有信号 newWaveBuffer 以值拷贝方式跨线程交回 GUI 线程，回调内不碰 Qt 对象状态。
  */
-class WaveRecorder : public QObject {
+class WaveRecorder : public QObject
+{
     Q_OBJECT;
 
 public:
@@ -47,13 +48,19 @@ public:
     bool close();
 
     /** @brief 最近一次失败的错误文本。 */
-    QString lastErrorMessage() { return mLastErrorMessage; }
+    QString lastErrorMessage()
+    {
+        return mLastErrorMessage;
+    }
 
     /** @brief 枚举系统录音输入设备名。 */
     static QStringList waveInDevices();
 
     /** @brief 暂停恢复时把暂停时长补进音频时间戳，避免音画在暂停后错位。 */
-    void skipTime(long milliseconds) { mMsTimeStamp += milliseconds; }
+    void skipTime(long milliseconds)
+    {
+        mMsTimeStamp += milliseconds;
+    }
 
 signals:
     /**
@@ -67,8 +74,7 @@ private:
      * @brief waveIn 驱动回调：回收已录满的缓冲区，取出数据后重新投递。
      * @warning 运行在驱动线程，不能在此直接操作界面或编码器对象。
      */
-    static void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1,
-                                    DWORD_PTR dwParam2);
+    static void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2);
 
     /**
      * @brief 拷贝缓冲区数据并以当前时间戳发出 newWaveBuffer()，随后推进时间戳。
@@ -76,12 +82,16 @@ private:
      */
     void emitNewWaveBuffer(WAVEHDR *pBuffer);
 
-    void setLastErrorMessage(QString pLastErrorMessage) {
+    void setLastErrorMessage(QString pLastErrorMessage)
+    {
         mLastErrorMessage = pLastErrorMessage;
         qWarning() << mLastErrorMessage;
     }
 
-    bool isRecording() const { return mIsRecording; }
+    bool isRecording() const
+    {
+        return mIsRecording;
+    }
 
     QString mLastErrorMessage;
 

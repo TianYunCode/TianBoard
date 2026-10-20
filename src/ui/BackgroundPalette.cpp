@@ -2,40 +2,40 @@
 
 #include "ui/MainWindow.h"
 
-struct BackgroundPalette::Private {
+struct BackgroundPalette::Private
+{
     QVBoxLayout *mVLayout{nullptr};
     QHBoxLayout *mTopLayout{nullptr};
     QHBoxLayout *mBottomLayout{nullptr};
 
-    QSlider *mSlider{nullptr};
-    QLabel *mSliderLabel{nullptr};
+    QSlider             *mSlider{nullptr};
+    QLabel              *mSliderLabel{nullptr};
     ActionPaletteButton *mResetDefaultGridSizeButton{nullptr};
 };
 
-BackgroundPalette::BackgroundPalette(QList<QAction *> actions, QWidget *parent)
-    : ActionPalette(parent), d(new Private) {
+BackgroundPalette::BackgroundPalette(QList<QAction *> actions, QWidget *parent) : ActionPalette(parent), d(new Private)
+{
     init();
     setActions(actions);
 }
 
-
-BackgroundPalette::BackgroundPalette(QWidget *parent) : ActionPalette(parent), d(new Private) {
+BackgroundPalette::BackgroundPalette(QWidget *parent) : ActionPalette(parent), d(new Private)
+{
     init();
 }
 
-
 BackgroundPalette::~BackgroundPalette() = default;
 
-
-void BackgroundPalette::init() {
+void BackgroundPalette::init()
+{
     // 基类构造时已经建立了通用按钮布局，这里整套换掉，改用上下两行的专用布局。
     ActionPalette::clearLayout();
     delete layout();
 
     initButtonState();
 
-    d->mVLayout = new QVBoxLayout(this);
-    d->mTopLayout = new QHBoxLayout();
+    d->mVLayout      = new QVBoxLayout(this);
+    d->mTopLayout    = new QHBoxLayout();
     d->mBottomLayout = new QHBoxLayout();
 
     d->mVLayout->addLayout(d->mTopLayout);
@@ -49,15 +49,13 @@ void BackgroundPalette::init() {
     // 开启跟踪，拖动过程中就持续发出 valueChanged()，而不是等松开滑块才发。
     d->mSlider->setTracking(true);
 
-    d->mSliderLabel = new QLabel(tr("Grid size"));
+    d->mSliderLabel                = new QLabel(tr("Grid size"));
 
-    d->mResetDefaultGridSizeButton =
-        createPaletteButton(Application::mainWindow->ui().actionDefaultGridSize, this);
+    d->mResetDefaultGridSizeButton = createPaletteButton(Application::mainWindow->ui().actionDefaultGridSize, this);
     d->mResetDefaultGridSizeButton->setFixedSize(24, 24);
     appendAction(Application::mainWindow->ui().actionDefaultGridSize);
 
-    connect(Application::mainWindow->ui().actionDefaultGridSize, &QAction::triggered, this,
-            &BackgroundPalette::defaultBackgroundGridSize);
+    connect(Application::mainWindow->ui().actionDefaultGridSize, &QAction::triggered, this, &BackgroundPalette::defaultBackgroundGridSize);
 
     d->mBottomLayout->addSpacing(16);
     d->mBottomLayout->addWidget(d->mSliderLabel);
@@ -68,39 +66,47 @@ void BackgroundPalette::init() {
     updateLayout();
 }
 
-void BackgroundPalette::addAction(QAction *action) {
+void BackgroundPalette::addAction(QAction *action)
+{
     ActionPaletteButton *button = createPaletteButton(action, this);
 
     d->mTopLayout->addWidget(button);
     appendAction(action);
 }
 
-void BackgroundPalette::setActions(QList<QAction *> actions) {
+void BackgroundPalette::setActions(QList<QAction *> actions)
+{
     clearButtonMap();
 
-    foreach (QAction *action, actions) {
+    foreach (QAction *action, actions)
+    {
         addAction(action);
     }
 
     actionChanged();
 }
 
-void BackgroundPalette::updateLayout() {
-    if (toolButtonStyle() == Qt::ToolButtonIconOnly) {
+void BackgroundPalette::updateLayout()
+{
+    if (toolButtonStyle() == Qt::ToolButtonIconOnly)
+    {
+        d->mVLayout->setContentsMargins(sLayoutContentMargin / 2 + border(), sLayoutContentMargin / 2 + border(), sLayoutContentMargin / 2 + border(),
+            sLayoutContentMargin / 2 + border());
+    }
+    else
+    {
         d->mVLayout->setContentsMargins(
-            sLayoutContentMargin / 2 + border(), sLayoutContentMargin / 2 + border(),
-            sLayoutContentMargin / 2 + border(), sLayoutContentMargin / 2 + border());
-    } else {
-        d->mVLayout->setContentsMargins(sLayoutContentMargin + border(), sLayoutContentMargin + border(),
-                                        sLayoutContentMargin + border(), sLayoutContentMargin + border());
+            sLayoutContentMargin + border(), sLayoutContentMargin + border(), sLayoutContentMargin + border(), sLayoutContentMargin + border());
     }
     update();
 }
 
-void BackgroundPalette::clearLayout() {
-    while (!d->mTopLayout->isEmpty()) {
+void BackgroundPalette::clearLayout()
+{
+    while (!d->mTopLayout->isEmpty())
+    {
         QLayoutItem *pItem = d->mTopLayout->itemAt(0);
-        QWidget *pW = pItem->widget();
+        QWidget     *pW    = pItem->widget();
         d->mTopLayout->removeItem(pItem);
         delete pItem;
         d->mTopLayout->removeWidget(pW);
@@ -109,9 +115,10 @@ void BackgroundPalette::clearLayout() {
 
     delete d->mTopLayout;
 
-    while (!d->mBottomLayout->isEmpty()) {
+    while (!d->mBottomLayout->isEmpty())
+    {
         QLayoutItem *pItem = d->mBottomLayout->itemAt(0);
-        QWidget *pW = pItem->widget();
+        QWidget     *pW    = pItem->widget();
         d->mBottomLayout->removeItem(pItem);
         delete pItem;
         d->mBottomLayout->removeWidget(pW);
@@ -126,7 +133,8 @@ void BackgroundPalette::clearLayout() {
     clearButtons();
 }
 
-void BackgroundPalette::showEvent(QShowEvent *event) {
+void BackgroundPalette::showEvent(QShowEvent *event)
+{
     backgroundChanged();
 
     d->mSlider->setValue(Application::boardController->activeScene()->backgroundGridSize());
@@ -136,27 +144,35 @@ void BackgroundPalette::showEvent(QShowEvent *event) {
     QWidget::showEvent(event);
 }
 
-void BackgroundPalette::sliderValueChanged(int value) {
+void BackgroundPalette::sliderValueChanged(int value)
+{
     Application::boardController->activeScene()->setBackgroundGridSize(value);
     // 切换场景时会经由 refresh() 间接回到这里，所以设置里保存的始终是当前场景的值。
     Settings::settings()->crossSize = value;
 }
 
-void BackgroundPalette::defaultBackgroundGridSize() {
+void BackgroundPalette::defaultBackgroundGridSize()
+{
     d->mSlider->setValue(Settings::settings()->defaultCrossSize);
     sliderValueChanged(Settings::settings()->defaultCrossSize);
 }
 
-void BackgroundPalette::backgroundChanged() {
+void BackgroundPalette::backgroundChanged()
+{
     bool dark = Application::boardController->activeScene()->isDarkBackground();
 
     if (dark)
+    {
         d->mSliderLabel->setStyleSheet("QLabel { color : white; }");
+    }
     else
+    {
         d->mSliderLabel->setStyleSheet("QLabel { color : black; }");
+    }
 }
 
-void BackgroundPalette::refresh() {
+void BackgroundPalette::refresh()
+{
     backgroundChanged();
     d->mSlider->setValue(Application::boardController->activeScene()->backgroundGridSize());
 }

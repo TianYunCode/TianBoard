@@ -15,7 +15,6 @@
 
 class GraphicsScene;
 
-
 /**
  * @brief 可移动、可旋转、可沿尺边画线的直尺图元。
  *
@@ -23,7 +22,8 @@ class GraphicsScene;
  * 本体。悬停时显示缩放/旋转手柄；沿长边拖动时通过 StartLine/DrawLine/EndLine
  * 产生一条直线笔画。生命周期归场景所有，仅 GUI 线程交互。
  */
-class GraphicsRuler : public AbstractDrawRuler, public QGraphicsRectItem, public Item {
+class GraphicsRuler : public AbstractDrawRuler, public QGraphicsRectItem, public Item
+{
     Q_OBJECT
 
 public:
@@ -31,10 +31,16 @@ public:
     virtual ~GraphicsRuler();
 
     /// @brief 图元类型标识。
-    enum { Type = GraphicsItemType::RulerItemType };
+    enum
+    {
+        Type = GraphicsItemType::RulerItemType
+    };
 
     /// @brief 返回图元类型。
-    virtual int type() const { return Type; }
+    virtual int type() const
+    {
+        return Type;
+    }
 
     /// @brief 创建一份直尺并复制几何参数。
     virtual Item *deepCopy() const;
@@ -86,7 +92,10 @@ private:
     /// @brief 按当前方向与缩放选择缩放光标。
     void updateResizeCursor();
     /// @brief 当前缩放光标。
-    QCursor resizeCursor() const { return mResizeCursor; }
+    QCursor resizeCursor() const
+    {
+        return mResizeCursor;
+    }
 
     /// @brief 旋转中心，取尺身中心。
     virtual QPointF rotationCenter() const;
@@ -99,14 +108,14 @@ private:
     /// @brief 所在场景。
     virtual GraphicsScene *scene() const;
 
-    QCursor mResizeCursor; ///< 缩放光标
+    QCursor mResizeCursor;               ///< 缩放光标
 
-    int drawLineDirection; ///< 沿尺边画线时相对长边的方向（1/-1）
+    int drawLineDirection;               ///< 沿尺边画线时相对长边的方向（1/-1）
 
-    static const QRect sDefaultRect; ///< 新建直尺的默认几何
+    static const QRect sDefaultRect;     ///< 新建直尺的默认几何
 
     static const int sMinLength = 150;   ///< 最短长度（约 3 cm）
     static const int sMaxLength = 35000; ///< 最长长度（约 700 cm）
 
-    qreal mStrokeWidth; ///< 沿尺边画线时的笔宽
+    qreal mStrokeWidth;                  ///< 沿尺边画线时的笔宽
 };

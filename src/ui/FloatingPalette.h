@@ -11,14 +11,14 @@
 #include <memory>
 
 /** 浮动调色板被拖到父控件哪条边时收起。 */
-typedef enum {
+typedef enum
+{
     eMinimizedLocation_None,
     eMinimizedLocation_Left,
     eMinimizedLocation_Top,
     eMinimizedLocation_Right,
     eMinimizedLocation_Bottom
 } eMinimizedLocation;
-
 
 /**
  * @brief 浮动调色板基类：圆角背景、拖动、贴边收起的公共实现。
@@ -29,7 +29,8 @@ typedef enum {
  * minimizeStart() 让调用方收起，拖离边缘后再发出 maximizeStart() 恢复。
  * 同组调色板可通过 addAssociatedPalette() 建立关联，一起对齐宽度和位置。
  */
-class FloatingPalette : public QWidget {
+class FloatingPalette : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -101,7 +102,7 @@ protected:
     virtual int gripSize();
 
     static const int sLayoutContentMargin = 12;
-    static const int sLayoutSpacing = 15;
+    static const int sLayoutSpacing       = 15;
     /**
      * @brief 把窗口移动到父控件内，并处理贴边收起逻辑。
      * @param position 目标位置（父控件坐标）

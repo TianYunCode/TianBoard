@@ -16,7 +16,8 @@ class GraphicsGroupContainerItem;
  * “在扩展屏上显示”两个选项。委托不拥有组合对象，鼠标事件默认不消费，交由组合
  * 自身按普通图形项逻辑处理，只在按下时先释放当前交互的媒体子项。
  */
-class GraphicsGroupContainerItemDelegate : public GraphicsItemDelegate {
+class GraphicsGroupContainerItemDelegate : public GraphicsItemDelegate
+{
     Q_OBJECT
 
 public:

@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QWidget>
 
 #include <memory>
@@ -17,7 +16,8 @@
  * 中用 QWidget::render 把源部件画到自己的画面上。设计用于在另一个窗口里
  * “照搬”某个部件的显示；当前代码中只有 include，尚未见实例化。
  */
-class WidgetMirror : public QWidget {
+class WidgetMirror : public QWidget
+{
     Q_OBJECT
 
 public:

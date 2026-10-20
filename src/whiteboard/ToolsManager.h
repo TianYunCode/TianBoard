@@ -9,7 +9,6 @@
 
 #include "core/Application.h"
 
-
 /**
  * @brief 工具注册表：集中登记尺、量角器、圆规、遮罩等内置工具的元数据。
  *
@@ -17,12 +16,14 @@
  * 因此随应用静态内存清理器统一销毁；destroy() 供提前释放使用。
  * 构造时填充描述符与图标映射，之后只读访问，仅在 GUI 线程使用。
  */
-class ToolsManager : public QObject {
+class ToolsManager : public QObject
+{
     Q_OBJECT
 
 public:
     /// @brief 单个工具的元数据：标识、图标、显示名与版本。
-    class ToolDescriptor {
+    class ToolDescriptor
+    {
     public:
         QString id;      ///< 工具标识（tianboardtool:// 形式）
         QPixmap icon;    ///< 工具图标
@@ -36,13 +37,18 @@ public:
     static void destroy();
 
     /// @brief 所有已注册工具的列表。
-    QList<ToolDescriptor> allTools() { return mDescriptors; }
+    QList<ToolDescriptor> allTools()
+    {
+        return mDescriptors;
+    }
 
     /// @brief 所有已注册工具的标识列表。
-    QStringList allToolIDs() {
+    QStringList allToolIDs()
+    {
         QStringList ids;
 
-        foreach (ToolDescriptor tool, allTools()) {
+        foreach (ToolDescriptor tool, allTools())
+        {
             ids << tool.id;
         }
 
@@ -50,10 +56,14 @@ public:
     }
 
     /// @brief 按标识查找工具；未找到时返回默认构造的空描述符。
-    ToolDescriptor toolByID(const QString &id) {
-        foreach (ToolDescriptor tool, allTools()) {
+    ToolDescriptor toolByID(const QString &id)
+    {
+        foreach (ToolDescriptor tool, allTools())
+        {
             if (tool.id == id)
+            {
                 return tool;
+            }
         }
 
         return ToolDescriptor();
@@ -68,15 +78,18 @@ public:
     ToolDescriptor cache;      ///< 幕布工具
 
     /// @brief 按工具标识返回图标资源路径；未知标识返回空串。
-    QString iconFromToolId(QString id) { return mToolsIcon.value(id); }
+    QString iconFromToolId(QString id)
+    {
+        return mToolsIcon.value(id);
+    }
 
 private:
     ToolsManager(QObject *parent = 0);
     virtual ~ToolsManager();
 
-    static ToolsManager *sManager; ///< 单例指针
+    static ToolsManager *sManager;      ///< 单例指针
 
     QList<ToolDescriptor> mDescriptors; ///< 注册顺序即工具面板顺序
 
-    QMap<QString, QString> mToolsIcon; ///< 工具标识到图标资源路径的映射
+    QMap<QString, QString> mToolsIcon;  ///< 工具标识到图标资源路径的映射
 };

@@ -19,7 +19,8 @@ class DocumentProxy;
  * 纯批注 PDF（即 ExportPDF 的结果）。当前实现只保留退化路径，mHasPDFBackgrounds
  * 恒为 false，_overlay 文件会被重命名为最终文件。
  */
-class ExportFullPDF : public ExportAdaptor {
+class ExportFullPDF : public ExportAdaptor
+{
     Q_OBJECT;
 
 public:

@@ -11,78 +11,76 @@
 
 DrawingController *DrawingController::sDrawingController = 0;
 
-DrawingController *DrawingController::drawingController() {
+DrawingController *DrawingController::drawingController()
+{
     if (!sDrawingController)
+    {
         sDrawingController = new DrawingController();
+    }
 
     return sDrawingController;
 }
 
-void DrawingController::destroy() {
+void DrawingController::destroy()
+{
     if (sDrawingController)
+    {
         delete sDrawingController;
+    }
     sDrawingController = NULL;
 }
 
 DrawingController::DrawingController(QObject *parent)
-    : QObject(parent),
-      mActiveRuler(NULL),
-      mStylusTool((StylusTool::Enum)-1),
-      mLatestDrawingTool((StylusTool::Enum)-1),
-      mIsDesktopMode(false) {
-    connect(Settings::settings(), &Settings::colorContextChanged, this,
-            &DrawingController::colorPaletteChanged);
+    : QObject(parent), mActiveRuler(NULL), mStylusTool((StylusTool::Enum)-1), mLatestDrawingTool((StylusTool::Enum)-1), mIsDesktopMode(false)
+{
+    connect(Settings::settings(), &Settings::colorContextChanged, this, &DrawingController::colorPaletteChanged);
 
-    connect(Application::mainWindow->ui().actionPen, &QAction::triggered, this,
-            &DrawingController::penToolSelected);
-    connect(Application::mainWindow->ui().actionEraser, &QAction::triggered, this,
-            &DrawingController::eraserToolSelected);
-    connect(Application::mainWindow->ui().actionMarker, &QAction::triggered, this,
-            &DrawingController::markerToolSelected);
-    connect(Application::mainWindow->ui().actionSelector, &QAction::triggered, this,
-            &DrawingController::selectorToolSelected);
-    connect(Application::mainWindow->ui().actionPlay, &QAction::triggered, this,
-            &DrawingController::playToolSelected);
-    connect(Application::mainWindow->ui().actionHand, &QAction::triggered, this,
-            &DrawingController::handToolSelected);
-    connect(Application::mainWindow->ui().actionZoomIn, &QAction::triggered, this,
-            &DrawingController::zoomInToolSelected);
-    connect(Application::mainWindow->ui().actionZoomOut, &QAction::triggered, this,
-            &DrawingController::zoomOutToolSelected);
-    connect(Application::mainWindow->ui().actionPointer, &QAction::triggered, this,
-            &DrawingController::pointerToolSelected);
-    connect(Application::mainWindow->ui().actionLine, &QAction::triggered, this,
-            &DrawingController::lineToolSelected);
-    connect(Application::mainWindow->ui().actionText, &QAction::triggered, this,
-            &DrawingController::textToolSelected);
-    connect(Application::mainWindow->ui().actionCapture, &QAction::triggered, this,
-            &DrawingController::captureToolSelected);
+    connect(Application::mainWindow->ui().actionPen, &QAction::triggered, this, &DrawingController::penToolSelected);
+    connect(Application::mainWindow->ui().actionEraser, &QAction::triggered, this, &DrawingController::eraserToolSelected);
+    connect(Application::mainWindow->ui().actionMarker, &QAction::triggered, this, &DrawingController::markerToolSelected);
+    connect(Application::mainWindow->ui().actionSelector, &QAction::triggered, this, &DrawingController::selectorToolSelected);
+    connect(Application::mainWindow->ui().actionPlay, &QAction::triggered, this, &DrawingController::playToolSelected);
+    connect(Application::mainWindow->ui().actionHand, &QAction::triggered, this, &DrawingController::handToolSelected);
+    connect(Application::mainWindow->ui().actionZoomIn, &QAction::triggered, this, &DrawingController::zoomInToolSelected);
+    connect(Application::mainWindow->ui().actionZoomOut, &QAction::triggered, this, &DrawingController::zoomOutToolSelected);
+    connect(Application::mainWindow->ui().actionPointer, &QAction::triggered, this, &DrawingController::pointerToolSelected);
+    connect(Application::mainWindow->ui().actionLine, &QAction::triggered, this, &DrawingController::lineToolSelected);
+    connect(Application::mainWindow->ui().actionText, &QAction::triggered, this, &DrawingController::textToolSelected);
+    connect(Application::mainWindow->ui().actionCapture, &QAction::triggered, this, &DrawingController::captureToolSelected);
 }
 
-DrawingController::~DrawingController() {
+DrawingController::~DrawingController()
+{
     // 刻意留空
 }
 
-int DrawingController::stylusTool() {
+int DrawingController::stylusTool()
+{
     return mStylusTool;
 }
 
-int DrawingController::latestDrawingTool() {
+int DrawingController::latestDrawingTool()
+{
     return mLatestDrawingTool;
 }
 
-void DrawingController::setStylusTool(int tool) {
-    if (tool != mStylusTool) {
+void DrawingController::setStylusTool(int tool)
+{
+    if (tool != mStylusTool)
+    {
         Application::boardController->activeScene()->deselectAllItems();
-        if (mStylusTool == StylusTool::Pen || mStylusTool == StylusTool::Marker ||
-            mStylusTool == StylusTool::Line) {
+        if (mStylusTool == StylusTool::Pen || mStylusTool == StylusTool::Marker || mStylusTool == StylusTool::Line)
+        {
             mLatestDrawingTool = mStylusTool;
         }
 
-        if (tool == StylusTool::Pen || tool == StylusTool::Line) {
+        if (tool == StylusTool::Pen || tool == StylusTool::Line)
+        {
             emit lineWidthIndexChanged(Settings::settings()->penWidthIndex());
             emit colorIndexChanged(Settings::settings()->penColorIndex());
-        } else if (tool == StylusTool::Marker) {
+        }
+        else if (tool == StylusTool::Marker)
+        {
             emit lineWidthIndexChanged(Settings::settings()->markerWidthIndex());
             emit colorIndexChanged(Settings::settings()->markerColorIndex());
         }
@@ -90,67 +88,112 @@ void DrawingController::setStylusTool(int tool) {
         mStylusTool = (StylusTool::Enum)tool;
 
         if (mStylusTool == StylusTool::Pen)
+        {
             Application::mainWindow->ui().actionPen->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Eraser)
+        {
             Application::mainWindow->ui().actionEraser->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Marker)
+        {
             Application::mainWindow->ui().actionMarker->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Selector)
+        {
             Application::mainWindow->ui().actionSelector->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Play)
+        {
             Application::mainWindow->ui().actionPlay->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Hand)
+        {
             Application::mainWindow->ui().actionHand->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::ZoomIn)
+        {
             Application::mainWindow->ui().actionZoomIn->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::ZoomOut)
+        {
             Application::mainWindow->ui().actionZoomOut->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Pointer)
+        {
             Application::mainWindow->ui().actionPointer->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Line)
+        {
             Application::mainWindow->ui().actionLine->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Text)
+        {
             Application::mainWindow->ui().actionText->setChecked(true);
+        }
         else if (mStylusTool == StylusTool::Capture)
+        {
             Application::mainWindow->ui().actionCapture->setChecked(true);
+        }
 
         emit stylusToolChanged(tool);
         if (mStylusTool != StylusTool::Selector)
+        {
             emit colorPaletteChanged();
+        }
     }
 }
 
-bool DrawingController::isDrawingTool() {
-    return (stylusTool() == StylusTool::Pen) || (stylusTool() == StylusTool::Marker) ||
-           (stylusTool() == StylusTool::Line);
+bool DrawingController::isDrawingTool()
+{
+    return (stylusTool() == StylusTool::Pen) || (stylusTool() == StylusTool::Marker) || (stylusTool() == StylusTool::Line);
 }
 
-int DrawingController::currentToolWidthIndex() {
+int DrawingController::currentToolWidthIndex()
+{
     if (stylusTool() == StylusTool::Pen || stylusTool() == StylusTool::Line)
+    {
         return Settings::settings()->penWidthIndex();
+    }
     else if (stylusTool() == StylusTool::Marker)
+    {
         return Settings::settings()->markerWidthIndex();
+    }
     else
+    {
         return -1;
+    }
 }
 
-qreal DrawingController::currentToolWidth() {
+qreal DrawingController::currentToolWidth()
+{
     if (stylusTool() == StylusTool::Pen || stylusTool() == StylusTool::Line)
+    {
         return Settings::settings()->currentPenWidth();
+    }
     else if (stylusTool() == StylusTool::Marker)
+    {
         return Settings::settings()->currentMarkerWidth();
+    }
     else
-        //failsafe
+    {
+        // failsafe
         return Settings::settings()->currentPenWidth();
+    }
 }
 
-void DrawingController::setLineWidthIndex(int index) {
-    if (stylusTool() == StylusTool::Marker) {
+void DrawingController::setLineWidthIndex(int index)
+{
+    if (stylusTool() == StylusTool::Marker)
+    {
         Settings::settings()->setMarkerWidthIndex(index);
-    } else {
+    }
+    else
+    {
         Settings::settings()->setPenWidthIndex(index);
 
-        if (stylusTool() != StylusTool::Line && stylusTool() != StylusTool::Selector) {
+        if (stylusTool() != StylusTool::Line && stylusTool() != StylusTool::Selector)
+        {
             setStylusTool(StylusTool::Pen);
         }
     }
@@ -158,74 +201,103 @@ void DrawingController::setLineWidthIndex(int index) {
     emit lineWidthIndexChanged(index);
 }
 
-
-int DrawingController::currentToolColorIndex() {
-    if (stylusTool() == StylusTool::Pen || stylusTool() == StylusTool::Line) {
+int DrawingController::currentToolColorIndex()
+{
+    if (stylusTool() == StylusTool::Pen || stylusTool() == StylusTool::Line)
+    {
         return Settings::settings()->penColorIndex();
-    } else if (stylusTool() == StylusTool::Marker) {
+    }
+    else if (stylusTool() == StylusTool::Marker)
+    {
         return Settings::settings()->markerColorIndex();
-    } else {
+    }
+    else
+    {
         return -1;
     }
 }
 
-QColor DrawingController::currentToolColor() {
+QColor DrawingController::currentToolColor()
+{
     return toolColor(Settings::settings()->isDarkBackground());
 }
 
-QColor DrawingController::toolColor(bool onDarkBackground) {
-    if (stylusTool() == StylusTool::Pen || stylusTool() == StylusTool::Line) {
+QColor DrawingController::toolColor(bool onDarkBackground)
+{
+    if (stylusTool() == StylusTool::Pen || stylusTool() == StylusTool::Line)
+    {
         return Settings::settings()->penColor(onDarkBackground);
-    } else if (stylusTool() == StylusTool::Marker) {
+    }
+    else if (stylusTool() == StylusTool::Marker)
+    {
         return Settings::settings()->markerColor(onDarkBackground);
-    } else {
-        //failsafe
-        if (onDarkBackground) {
+    }
+    else
+    {
+        // failsafe
+        if (onDarkBackground)
+        {
             return Qt::white;
-        } else {
+        }
+        else
+        {
             return Qt::black;
         }
     }
 }
 
-void DrawingController::setColorIndex(int index) {
+void DrawingController::setColorIndex(int index)
+{
     Q_ASSERT(index >= 0 && index < Settings::settings()->colorPaletteSize);
 
-    if (stylusTool() == StylusTool::Marker) {
+    if (stylusTool() == StylusTool::Marker)
+    {
         Settings::settings()->setMarkerColorIndex(index);
-    } else {
+    }
+    else
+    {
         Settings::settings()->setPenColorIndex(index);
     }
 
     emit colorIndexChanged(index);
 }
 
-void DrawingController::setEraserWidthIndex(int index) {
+void DrawingController::setEraserWidthIndex(int index)
+{
     setStylusTool(StylusTool::Eraser);
     Settings::settings()->setEraserWidthIndex(index);
 }
 
-void DrawingController::setPenColor(bool onDarkBackground, const QColor &color, int pIndex) {
-    if (onDarkBackground) {
+void DrawingController::setPenColor(bool onDarkBackground, const QColor &color, int pIndex)
+{
+    if (onDarkBackground)
+    {
         Settings::settings()->boardPenDarkBackgroundSelectedColors->setColor(pIndex, color);
-    } else {
+    }
+    else
+    {
         Settings::settings()->boardPenLightBackgroundSelectedColors->setColor(pIndex, color);
     }
 
     emit colorPaletteChanged();
 }
 
-void DrawingController::setMarkerColor(bool onDarkBackground, const QColor &color, int pIndex) {
-    if (onDarkBackground) {
+void DrawingController::setMarkerColor(bool onDarkBackground, const QColor &color, int pIndex)
+{
+    if (onDarkBackground)
+    {
         Settings::settings()->boardMarkerDarkBackgroundSelectedColors->setColor(pIndex, color);
-    } else {
+    }
+    else
+    {
         Settings::settings()->boardMarkerLightBackgroundSelectedColors->setColor(pIndex, color);
     }
 
     emit colorPaletteChanged();
 }
 
-void DrawingController::setMarkerAlpha(qreal alpha) {
+void DrawingController::setMarkerAlpha(qreal alpha)
+{
     Settings::settings()->boardMarkerLightBackgroundColors->setAlpha(alpha);
     Settings::settings()->boardMarkerLightBackgroundSelectedColors->setAlpha(alpha);
 
@@ -237,65 +309,98 @@ void DrawingController::setMarkerAlpha(qreal alpha) {
     emit colorPaletteChanged();
 }
 
-
-void DrawingController::penToolSelected(bool checked) {
+void DrawingController::penToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Pen);
+    }
 }
 
-void DrawingController::eraserToolSelected(bool checked) {
+void DrawingController::eraserToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Eraser);
+    }
 }
 
-void DrawingController::markerToolSelected(bool checked) {
+void DrawingController::markerToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Marker);
+    }
 }
 
-void DrawingController::selectorToolSelected(bool checked) {
+void DrawingController::selectorToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Selector);
+    }
 }
 
-void DrawingController::playToolSelected(bool checked) {
+void DrawingController::playToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Play);
+    }
 }
 
-void DrawingController::handToolSelected(bool checked) {
+void DrawingController::handToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Hand);
+    }
 }
 
-
-void DrawingController::zoomInToolSelected(bool checked) {
+void DrawingController::zoomInToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::ZoomIn);
+    }
 }
 
-void DrawingController::zoomOutToolSelected(bool checked) {
+void DrawingController::zoomOutToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::ZoomOut);
+    }
 }
 
-void DrawingController::pointerToolSelected(bool checked) {
+void DrawingController::pointerToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Pointer);
+    }
 }
 
-
-void DrawingController::lineToolSelected(bool checked) {
+void DrawingController::lineToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Line);
+    }
 }
 
-void DrawingController::textToolSelected(bool checked) {
+void DrawingController::textToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Text);
+    }
 }
 
-void DrawingController::captureToolSelected(bool checked) {
+void DrawingController::captureToolSelected(bool checked)
+{
     if (checked)
+    {
         setStylusTool(StylusTool::Capture);
+    }
 }

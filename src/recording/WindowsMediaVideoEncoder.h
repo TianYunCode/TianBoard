@@ -19,7 +19,8 @@
  * 暂停不关闭 WMV 文件：只停 waveIn 并丢弃暂停期间的视频帧，恢复时由调用方传入暂停时长补偿音轨。
  * 线程约束：除 waveIn 回调外全部在 GUI 线程；两路音频信号都用排队连接回到 GUI 线程再写 writer。
  */
-class WindowsMediaVideoEncoder : public AbstractVideoEncoder {
+class WindowsMediaVideoEncoder : public AbstractVideoEncoder
+{
     Q_OBJECT;
 
 public:
@@ -42,7 +43,10 @@ public:
     virtual bool stop();
 
     /** @brief Windows Media 编码支持暂停/恢复。 */
-    virtual bool canPause() { return true; };
+    virtual bool canPause()
+    {
+        return true;
+    };
 
     /** @brief 追加一帧视频；暂停期间的帧直接丢弃。 */
     virtual void newPixmap(const QImage &pPix, long timestamp);
@@ -51,10 +55,16 @@ public:
     virtual void newChapter(const QString &pLabel, long timestamp);
 
     /** @brief 输出容器扩展名。 */
-    virtual QString videoFileExtension() const { return "wmv"; }
+    virtual QString videoFileExtension() const
+    {
+        return "wmv";
+    }
 
     /** @brief 最近一次失败的错误文本。 */
-    virtual QString lastErrorMessage() { return mLastErrorMessage; }
+    virtual QString lastErrorMessage()
+    {
+        return mLastErrorMessage;
+    }
 
     /** @brief 开关音频；录制中切换会增删到写入器的连接。 */
     virtual void setRecordAudio(bool pRecordAudio);
@@ -65,7 +75,7 @@ private slots:
 
 private:
     QPointer<WindowsMediaFile> mWMVideo;
-    QPointer<WaveRecorder> mWaveRecorder;
+    QPointer<WaveRecorder>     mWaveRecorder;
 
     QString mLastErrorMessage;
 
@@ -73,5 +83,5 @@ private:
     bool mIsPaused;
 
     quint8 mLastAudioLevel;
-    bool mIsRecording;
+    bool   mIsRecording;
 };

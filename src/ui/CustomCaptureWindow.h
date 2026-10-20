@@ -11,7 +11,6 @@
 
 #include <memory>
 
-
 /**
  * @brief 自定义区域截图对话框：显示整屏截图并让用户拖拽框选。
  *
@@ -19,7 +18,8 @@
  * 背景是传入的整屏位图，拖动时用 RubberBand 显示选区。确认后调用方通过
  * getSelectedPixmap() 取回裁剪结果。对象由调用方创建并销毁。
  */
-class CustomCaptureWindow : public QDialog {
+class CustomCaptureWindow : public QDialog
+{
     Q_OBJECT
 
 public:

@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QMouseEvent>
 #include <QPoint>
 
@@ -21,7 +20,8 @@
  * （如桌面批注的 DesktopPropertyPalette）在构造后填入动作；实例随对应
  * 控制器/父部件一起销毁。
  */
-class PropertyPalette : public ActionPalette {
+class PropertyPalette : public ActionPalette
+{
     Q_OBJECT
 public:
     /// 以对象名构造竖向属性调色板。

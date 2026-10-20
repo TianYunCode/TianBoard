@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include <QtWidgets>
 #include <QWidget>
 
@@ -18,7 +17,8 @@
  * QTextEdit，底部一个“关闭”按钮。由 DocumentManager 在导入完成后发现错误时
  * 创建并显示，关闭时自行 delete，因此没有长期持有者。
  */
-class MessagesDialog : public QWidget {
+class MessagesDialog : public QWidget
+{
     Q_OBJECT
 
 public:
