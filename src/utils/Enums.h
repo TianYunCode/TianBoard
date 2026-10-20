@@ -156,6 +156,7 @@ struct GraphicsItemType
         RulerItemType,                                 ///< 直尺。
         CompassItemType,                               ///< 圆规。
         ProtractorItemType,                            ///< 量角器。
+        AxesItemType,                                  ///< 坐标轴。
         StrokeItemType,                                ///< 笔画。
         TriangleItemType,                              ///< 三角板。
         MagnifierItemType,                             ///< 放大镜。

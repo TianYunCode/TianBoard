@@ -24,6 +24,7 @@ class GraphicsWebWidgetItem;
 class GraphicsTextItem;
 class GraphicsCurtainItem;
 class GraphicsRuler;
+class GraphicsAxes;
 class GraphicsCompass;
 class GraphicsProtractor;
 class GraphicsScene;
@@ -154,6 +155,7 @@ private:
         GraphicsRuler *rulerFromSvg();
 
         GraphicsCompass *compassFromSvg();
+        GraphicsAxes    *axesFromSvg();
 
         GraphicsProtractor *protractorFromSvg();
 
@@ -270,6 +272,7 @@ private:
         void curtainItemToSvg(GraphicsCurtainItem *item);
         void rulerToSvg(GraphicsRuler *item);
         void compassToSvg(GraphicsCompass *item);
+        void axesToSvg(GraphicsAxes *item);
         void protractorToSvg(GraphicsProtractor *item);
         void cacheToSvg(GraphicsCache *item);
         void triangleToSvg(GraphicsTriangle *item);

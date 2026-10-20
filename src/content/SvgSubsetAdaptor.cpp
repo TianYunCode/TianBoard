@@ -25,6 +25,7 @@
 #include "whiteboard/Item.h"
 
 #include "whiteboard/GraphicsRuler.h"
+#include "whiteboard/GraphicsAxes.h"
 #include "whiteboard/GraphicsCompass.h"
 #include "whiteboard/GraphicsProtractor.h"
 #include "whiteboard/GraphicsCurtainItem.h"
@@ -754,6 +755,15 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                     mScene->registerTool(compass);
                 }
             }
+            else if (mXmlReader.name() == "axes")
+            {
+                GraphicsAxes *axes = axesFromSvg();
+                if (axes)
+                {
+                    mScene->addItem(axes);
+                    mScene->registerTool(axes);
+                }
+            }
             else if (mXmlReader.name() == "protractor")
             {
                 GraphicsProtractor *protractor = protractorFromSvg();
@@ -1363,6 +1373,13 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
         if (compass && compass->isVisible())
         {
             compassToSvg(compass);
+            continue;
+        }
+
+        GraphicsAxes *axes = qgraphicsitem_cast<GraphicsAxes *>(item);
+        if (axes && axes->isVisible())
+        {
+            axesToSvg(axes);
             continue;
         }
 
@@ -2982,6 +2999,69 @@ GraphicsCompass *SvgSubsetAdaptor::SvgSubsetReader::compassFromSvg()
     compass->setVisible(true);
 
     return compass;
+}
+
+void SvgSubsetAdaptor::SvgSubsetWriter::axesToSvg(GraphicsAxes *item)
+{
+    /**
+     * 输出形如：
+     *
+      <tb:axes x="-200" y="-200" width="400" height="400" tb:show-numbers="true"...>
+      </tb:axes>
+     */
+
+    mXmlWriter.writeStartElement(Settings::documentNamespaceUri, "axes");
+
+    // 写 bounds()：读回来正是用它调 setRect() 还原的，两端必须同一个量。
+    QRectF bounds = item->bounds();
+    mXmlWriter.writeAttribute("x", QString("%1").arg(bounds.x()));
+    mXmlWriter.writeAttribute("y", QString("%1").arg(bounds.y()));
+    mXmlWriter.writeAttribute("width", QString("%1").arg(bounds.width()));
+    mXmlWriter.writeAttribute("height", QString("%1").arg(bounds.height()));
+    mXmlWriter.writeAttribute("transform", toSvgTransform(item->sceneTransform()));
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "show-numbers", item->showNumbers() ? xmlTrue : xmlFalse);
+
+    QString zs;
+    zs.setNum(item->zValue(), 'f'); // 'f' keeps precision
+    mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "z-value", zs);
+
+    Item *boardItem = dynamic_cast<Item *>(item);
+
+    if (boardItem)
+    {
+        mXmlWriter.writeAttribute(Settings::documentNamespaceUri, "uuid", StringUtils::toCanonicalUuid(boardItem->uuid()));
+    }
+
+    mXmlWriter.writeEndElement();
+}
+
+GraphicsAxes *SvgSubsetAdaptor::SvgSubsetReader::axesFromSvg()
+{
+    GraphicsAxes *axes = new GraphicsAxes();
+
+    graphicsItemFromSvg(axes);
+
+    axes->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
+
+    QStringView svgX      = mXmlReader.attributes().value("x");
+    QStringView svgY      = mXmlReader.attributes().value("y");
+    QStringView svgWidth  = mXmlReader.attributes().value("width");
+    QStringView svgHeight = mXmlReader.attributes().value("height");
+
+    if (!svgX.isNull() && !svgY.isNull() && !svgWidth.isNull() && !svgHeight.isNull())
+    {
+        axes->setRect(svgX.toString().toFloat(), svgY.toString().toFloat(), svgWidth.toString().toFloat(), svgHeight.toString().toFloat());
+    }
+
+    QStringView showNumbers = mXmlReader.attributes().value(mNamespaceUri, "show-numbers");
+    if (!showNumbers.isNull())
+    {
+        axes->setShowNumbers(showNumbers.toString() == xmlTrue);
+    }
+
+    axes->setVisible(true);
+
+    return axes;
 }
 
 void SvgSubsetAdaptor::SvgSubsetWriter::protractorToSvg(GraphicsProtractor *item)

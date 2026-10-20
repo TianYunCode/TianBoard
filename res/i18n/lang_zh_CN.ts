@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="391"/>
+        <location filename="../../src/core/Application.cpp" line="454"/>
         <source>Page Size</source>
         <translation>页面尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="407"/>
+        <location filename="../../src/core/Application.cpp" line="470"/>
         <source>Screen Recording</source>
         <translation>录屏</translation>
     </message>
@@ -17,7 +17,7 @@
 <context>
     <name>ApplicationController</name>
     <message>
-        <location filename="../../src/core/ApplicationController.cpp" line="268"/>
+        <location filename="../../src/core/ApplicationController.cpp" line="273"/>
         <source>Web</source>
         <translation>网页</translation>
     </message>
@@ -25,7 +25,7 @@
 <context>
     <name>BackgroundPalette</name>
     <message>
-        <location filename="../../src/ui/BackgroundPalette.cpp" line="51"/>
+        <location filename="../../src/ui/BackgroundPalette.cpp" line="52"/>
         <source>Grid size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -33,7 +33,7 @@
 <context>
     <name>BlackoutWidget</name>
     <message>
-        <location filename="../../src/ui/BlackoutWidget.cpp" line="52"/>
+        <location filename="../../src/ui/BlackoutWidget.cpp" line="56"/>
         <source>Click to Return to Application</source>
         <translation type="unfinished"></translation>
     </message>
@@ -41,70 +41,70 @@
 <context>
     <name>BoardController</name>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="79"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="64"/>
         <source>Group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="80"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="64"/>
         <source>Ungroup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="377"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="303"/>
         <source>Saving document...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="383"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="311"/>
         <source>Document has just been saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="678"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="665"/>
         <source>Deleting page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="689"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="677"/>
         <source>Page %1 deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="996"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1021"/>
         <source>Downloading content %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1004"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1029"/>
         <source>Download finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1093"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1130"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1854"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1884"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1149"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1195"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2047"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2078"/>
         <source>Add file operation failed: file copying error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1209"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1307"/>
         <source>Unknown tool type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1257"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1366"/>
         <source>Unknown content type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2183"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2430"/>
         <source>Add Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2184"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2430"/>
         <source>All Supported (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -112,12 +112,12 @@
 <context>
     <name>BoardPaletteManager</name>
     <message>
-        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="736"/>
+        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="805"/>
         <source>CapturedImage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="739"/>
+        <location filename="../../src/whiteboard/BoardPaletteManager.cpp" line="810"/>
         <source>Error Adding Image to Library</source>
         <translation type="unfinished"></translation>
     </message>
@@ -125,27 +125,27 @@
 <context>
     <name>CachePropertiesWidget</name>
     <message>
-        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="51"/>
+        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="37"/>
         <source>Cache Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="65"/>
+        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="50"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="76"/>
+        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="61"/>
         <source>Shape:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="95"/>
+        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="80"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="106"/>
+        <location filename="../../src/ui/CachePropertiesWidget.cpp" line="91"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
@@ -166,27 +166,27 @@
         <translation>显示 TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/DesktopPalette.cpp" line="54"/>
+        <location filename="../../src/desktop/DesktopPalette.cpp" line="59"/>
         <source>Capture Part of the Screen</source>
         <translation>捕获屏幕局部</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/DesktopPalette.cpp" line="61"/>
+        <location filename="../../src/desktop/DesktopPalette.cpp" line="70"/>
         <source>Capture the Screen</source>
         <translation>捕获屏幕</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/DesktopPalette.cpp" line="82"/>
+        <location filename="../../src/desktop/DesktopPalette.cpp" line="95"/>
         <source>Show the stylus palette</source>
         <translation>显示触控笔调色板</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/DesktopPalette.cpp" line="122"/>
+        <location filename="../../src/desktop/DesktopPalette.cpp" line="150"/>
         <source>Show Board on Secondary Screen</source>
         <translation>在副屏显示演示板</translation>
     </message>
     <message>
-        <location filename="../../src/desktop/DesktopPalette.cpp" line="124"/>
+        <location filename="../../src/desktop/DesktopPalette.cpp" line="154"/>
         <source>Show Desktop on Secondary Screen</source>
         <translation>在副屏显示桌面</translation>
     </message>
@@ -194,38 +194,38 @@
 <context>
     <name>DocumentController</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1526"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2996"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1805"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3531"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1527"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1805"/>
         <source>Untitled Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1595"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1879"/>
         <source>New Folder</source>
         <translation type="unfinished">新建文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1760"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2062"/>
         <source>Add Folder of Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1761"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2063"/>
         <source>Add Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1762"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2064"/>
         <source>Add Pages from File</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="2071"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2393"/>
         <source>duplicated %1 page</source>
         <comment>duplicated %1 pages</comment>
         <translation type="unfinished">
@@ -233,96 +233,96 @@
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2082"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2406"/>
         <source>Duplicating Document %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2087"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2410"/>
         <source>Document %1 copied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2096"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2420"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2097"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2420"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2495"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2591"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2947"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3053"/>
         <source>Open Supported File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2524"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2607"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2978"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3068"/>
         <source>Importing file %1...</source>
         <translation type="unfinished">正在导入文件 %1……</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2532"/>
-        <location filename="../../src/model/DocumentController.cpp" line="2618"/>
+        <location filename="../../src/model/DocumentController.cpp" line="2988"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3081"/>
         <source>Failed to import file ... </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2547"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3004"/>
         <source>Import all Images from Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2560"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3018"/>
         <source>Folder does not contain any image files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2780"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3267"/>
         <source>Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2781"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3267"/>
         <source>The document &apos;%1&apos; has been generated with a newer version of TianBoard (%2). By opening it, you may lose some information. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2826"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3320"/>
         <source>Add all Images to Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2827"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3320"/>
         <source>All Images (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2839"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3332"/>
         <source>Selection does not contain any image files!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3000"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3535"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3004"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3008"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3539"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3543"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3207"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3790"/>
         <source>Page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3209"/>
+        <location filename="../../src/model/DocumentController.cpp" line="3794"/>
         <source>Title page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -330,22 +330,22 @@
 <context>
     <name>DocumentManager</name>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="45"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="46"/>
         <source>images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="46"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="47"/>
         <source>videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="47"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="48"/>
         <source>objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="48"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="49"/>
         <source>widgets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -355,28 +355,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="178"/>
-        <location filename="../../src/core/DocumentManager.cpp" line="239"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="196"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="266"/>
         <source>Inserting page %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="191"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="205"/>
         <source>Import successful.</source>
         <translation type="unfinished">导入成功。</translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="206"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="221"/>
         <source>Importing file %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="252"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="275"/>
         <source>Import of file %1 successful.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="290"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="315"/>
         <source>File %1 saved</source>
         <translation type="unfinished"></translation>
     </message>
@@ -384,7 +384,7 @@
 <context>
     <name>DocumentNavigator</name>
     <message>
-        <location filename="../../src/ui/DocumentNavigator.cpp" line="132"/>
+        <location filename="../../src/ui/DocumentNavigator.cpp" line="129"/>
         <source>Page %0</source>
         <translation type="unfinished"></translation>
     </message>
@@ -392,22 +392,22 @@
 <context>
     <name>DocumentReplaceDialog</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="71"/>
+        <location filename="../../src/model/DocumentController.cpp" line="73"/>
         <source>Accept</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="72"/>
+        <location filename="../../src/model/DocumentController.cpp" line="73"/>
         <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="73"/>
+        <location filename="../../src/model/DocumentController.cpp" line="74"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="126"/>
+        <location filename="../../src/model/DocumentController.cpp" line="131"/>
         <source>The name %1 is allready used.
 Keeping this name will replace the document.
 Providing a new name will create a new document.</source>
@@ -417,17 +417,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeModel</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="290"/>
+        <location filename="../../src/model/DocumentController.cpp" line="324"/>
         <source>My documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="294"/>
+        <location filename="../../src/model/DocumentController.cpp" line="326"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="609"/>
+        <location filename="../../src/model/DocumentController.cpp" line="719"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -437,24 +437,24 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeView</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1313"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1567"/>
         <source>Copying page %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="1362"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1618"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1371"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1628"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1371"/>
+        <location filename="../../src/model/DocumentController.cpp" line="1628"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -462,27 +462,27 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentsWidget</name>
     <message>
-        <location filename="../../src/ui/DocumentsWidget.cpp" line="203"/>
+        <location filename="../../src/ui/DocumentsWidget.cpp" line="202"/>
         <source>TianBoard Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentsWidget.cpp" line="204"/>
+        <location filename="../../src/ui/DocumentsWidget.cpp" line="203"/>
         <source>Creation date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentsWidget.cpp" line="205"/>
+        <location filename="../../src/ui/DocumentsWidget.cpp" line="204"/>
         <source>Update date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentsWidget.cpp" line="206"/>
+        <location filename="../../src/ui/DocumentsWidget.cpp" line="205"/>
         <source>Alphabetical order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentsWidget.cpp" line="208"/>
+        <location filename="../../src/ui/DocumentsWidget.cpp" line="207"/>
         <source>Sort Order</source>
         <translation type="unfinished"></translation>
     </message>
@@ -490,98 +490,98 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DownloadItem</name>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="43"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="40"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="61"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="58"/>
         <source>Filename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="84"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="81"/>
         <source>Try Again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="89"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="86"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="94"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="91"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="162"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="175"/>
         <source>Save File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="165"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="179"/>
         <source>Download canceled: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="251"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="284"/>
         <source>Error opening saved file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="261"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="295"/>
         <source>Error saving: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="269"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="303"/>
         <source>Network Error: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="303"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="344"/>
         <source>seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="306"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="348"/>
         <source>minutes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="318"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="364"/>
         <source>- %4 %5 remaining</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="319"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="366"/>
         <source>%1 of %2 (%3/sec) %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="321"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="368"/>
         <source>?</source>
         <comment>unknown file size</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="328"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="380"/>
         <source>%1 of %2 - Stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="337"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="391"/>
         <source>bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="340"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="396"/>
         <source>KB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="343"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="401"/>
         <source>MB</source>
         <translation type="unfinished"></translation>
     </message>
@@ -589,12 +589,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DownloadWidget</name>
     <message>
-        <location filename="../../src/ui/DownloadWidget.cpp" line="28"/>
+        <location filename="../../src/ui/DownloadWidget.cpp" line="25"/>
         <source>Downloading files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DownloadWidget.cpp" line="47"/>
+        <location filename="../../src/ui/DownloadWidget.cpp" line="45"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -602,9 +602,9 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DraggableThumbnail</name>
     <message>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1130"/>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1133"/>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1136"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1326"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1330"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1334"/>
         <source>Page %0</source>
         <translation type="unfinished"></translation>
     </message>
@@ -612,9 +612,9 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DraggableThumbnailView</name>
     <message>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1330"/>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1333"/>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1336"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1557"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1561"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1565"/>
         <source>Page %0</source>
         <translation type="unfinished"></translation>
     </message>
@@ -622,32 +622,32 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportAdaptor</name>
     <message>
-        <location filename="../../src/content/ExportAdaptor.cpp" line="87"/>
+        <location filename="../../src/content/ExportAdaptor.cpp" line="95"/>
         <source>Exporting document...</source>
         <translation type="unfinished">正在导出文档……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportAdaptor.cpp" line="95"/>
+        <location filename="../../src/content/ExportAdaptor.cpp" line="106"/>
         <source>Export failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportAdaptor.cpp" line="96"/>
+        <location filename="../../src/content/ExportAdaptor.cpp" line="107"/>
         <source>Unable to export to the selected location. You do not have the permissions necessary to save the file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportAdaptor.cpp" line="102"/>
+        <location filename="../../src/content/ExportAdaptor.cpp" line="114"/>
         <source>Export failed: location not writable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportAdaptor.cpp" line="112"/>
+        <location filename="../../src/content/ExportAdaptor.cpp" line="126"/>
         <source>Export successful.</source>
         <translation type="unfinished">导出成功。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportAdaptor.cpp" line="128"/>
+        <location filename="../../src/content/ExportAdaptor.cpp" line="146"/>
         <source>Warnings during export was appeared</source>
         <translation type="unfinished"></translation>
     </message>
@@ -660,17 +660,17 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="28"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="29"/>
         <source>Export as TianBoard Document</source>
         <translation>导出为 TianBoard 文档</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="61"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="65"/>
         <source>Exporting %1 %2 of %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="70"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="76"/>
         <source>Export to TianBoard Format</source>
         <translation type="unfinished"></translation>
     </message>
@@ -678,34 +678,34 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportDocumentSetAdaptor</name>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="38"/>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="47"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="42"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="53"/>
         <source>Failed to export...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="41"/>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="54"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="45"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="60"/>
         <source>Export as TianBoard Document Set</source>
         <translation>导出为 TianBoard 文档集</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="61"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="69"/>
         <source>Exporting document...</source>
         <translation type="unfinished">正在导出文档……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="65"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="76"/>
         <source>Export successful.</source>
         <translation type="unfinished">导出成功。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="69"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="83"/>
         <source>Export failed.</source>
         <translation type="unfinished">导出失败。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="110"/>
+        <location filename="../../src/content/ExportDocumentSetAdaptor.cpp" line="130"/>
         <source>Export to TianBoard Document Set Format</source>
         <translation>导出为 TianBoard 文档集格式</translation>
     </message>
@@ -713,12 +713,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportFullPDF</name>
     <message>
-        <location filename="../../src/content/ExportFullPDF.cpp" line="50"/>
+        <location filename="../../src/content/ExportFullPDF.cpp" line="51"/>
         <source>Export as PDF File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportFullPDF.cpp" line="191"/>
+        <location filename="../../src/content/ExportFullPDF.cpp" line="111"/>
         <source>Export to PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -726,27 +726,27 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportIwb</name>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="16"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="20"/>
         <source>Export to IWB</source>
         <translation>导出为 IWB</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="29"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="37"/>
         <source>Export as IWB File</source>
         <translation>导出为 IWB 文件</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="35"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="45"/>
         <source>Exporting document...</source>
         <translation>正在导出文档……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="40"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="53"/>
         <source>Export successful.</source>
         <translation>导出成功。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="42"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="58"/>
         <source>Export failed.</source>
         <translation>导出失败。</translation>
     </message>
@@ -759,12 +759,12 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportPDF.cpp" line="70"/>
+        <location filename="../../src/content/ExportPDF.cpp" line="72"/>
         <source>Exporting page %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportPDF.cpp" line="119"/>
+        <location filename="../../src/content/ExportPDF.cpp" line="128"/>
         <source>Export to PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -777,27 +777,27 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="33"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="34"/>
         <source>Export as Web data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="37"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="39"/>
         <source>Exporting document...</source>
         <translation type="unfinished">正在导出文档……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="45"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="48"/>
         <source>Export successful.</source>
         <translation type="unfinished">导出成功。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="49"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="54"/>
         <source>Export failed.</source>
         <translation type="unfinished">导出失败。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="59"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="63"/>
         <source>Export to Web Browser</source>
         <translation type="unfinished"></translation>
     </message>
@@ -805,17 +805,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeatureProperties</name>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="926"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="1028"/>
         <source>Add to page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="930"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="1032"/>
         <source>Add to library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="935"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="1037"/>
         <source>Object informations</source>
         <translation type="unfinished"></translation>
     </message>
@@ -838,27 +838,27 @@ Providing a new name will create a new document.</source>
         <translation>搜索</translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesActionBar.cpp" line="56"/>
+        <location filename="../../src/ui/FeaturesActionBar.cpp" line="55"/>
         <source>Rescan file system</source>
         <translation>重新扫描文件系统</translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesActionBar.cpp" line="57"/>
+        <location filename="../../src/ui/FeaturesActionBar.cpp" line="56"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesActionBar.cpp" line="58"/>
+        <location filename="../../src/ui/FeaturesActionBar.cpp" line="57"/>
         <source>Back to folder</source>
         <translation>返回文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesActionBar.cpp" line="60"/>
+        <location filename="../../src/ui/FeaturesActionBar.cpp" line="58"/>
         <source>Remove from favorites</source>
         <translation>从收藏夹移除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesActionBar.cpp" line="62"/>
+        <location filename="../../src/ui/FeaturesActionBar.cpp" line="59"/>
         <source>Create new folder</source>
         <translation>新建文件夹</translation>
     </message>
@@ -866,43 +866,43 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeaturesController</name>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="281"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="306"/>
         <source>Audios</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="283"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="307"/>
         <source>Movies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="285"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="309"/>
         <source>Pictures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="289"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="311"/>
         <source>Applications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="290"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="312"/>
         <source>Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="293"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="313"/>
         <source>Favorites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="295"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="315"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="667"/>
-        <location filename="../../src/whiteboard/FeaturesController.cpp" line="775"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="760"/>
+        <location filename="../../src/whiteboard/FeaturesController.cpp" line="883"/>
         <source>ImportedImage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -910,17 +910,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeaturesNewFolderDialog</name>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="703"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="783"/>
         <source>Accept</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="704"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="784"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="705"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="785"/>
         <source>Enter a new folder name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -928,7 +928,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>FeaturesProgressInfo</name>
     <message>
-        <location filename="../../src/ui/FeaturesWidget.cpp" line="801"/>
+        <location filename="../../src/ui/FeaturesWidget.cpp" line="892"/>
         <source>Loading </source>
         <translation type="unfinished"></translation>
     </message>
@@ -936,12 +936,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsGroupContainerItemDelegate</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsGroupContainerItemDelegate.cpp" line="23"/>
+        <location filename="../../src/whiteboard/GraphicsGroupContainerItemDelegate.cpp" line="26"/>
         <source>Locked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsGroupContainerItemDelegate.cpp" line="30"/>
+        <location filename="../../src/whiteboard/GraphicsGroupContainerItemDelegate.cpp" line="33"/>
         <source>Visible on Extended Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -949,22 +949,22 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsItemDelegate</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="614"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="735"/>
         <source>Locked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="622"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="742"/>
         <source>Visible on Extended Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="632"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="752"/>
         <source>Set as background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="642"/>
+        <location filename="../../src/whiteboard/GraphicsItemDelegate.cpp" line="762"/>
         <source>Go to Content Source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -972,17 +972,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsMediaItem</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="338"/>
+        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="407"/>
         <source>Media resource couldn&apos;t be resolved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="341"/>
+        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="410"/>
         <source>Unsupported media format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="345"/>
+        <location filename="../../src/whiteboard/GraphicsMediaItem.cpp" line="413"/>
         <source>Media error: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -990,7 +990,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsTextItem</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsTextItem.cpp" line="19"/>
+        <location filename="../../src/whiteboard/GraphicsTextItem.cpp" line="17"/>
         <source>&lt;Type Text Here&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -998,12 +998,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsTextItemDelegate</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="321"/>
+        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="360"/>
         <source>Text Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="441"/>
+        <location filename="../../src/whiteboard/GraphicsTextItemDelegate.cpp" line="485"/>
         <source>Editable</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1011,7 +1011,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsWebWidgetItem</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsWidgetItem.cpp" line="779"/>
+        <location filename="../../src/whiteboard/GraphicsWidgetItem.cpp" line="806"/>
         <source>Web</source>
         <translation>网页</translation>
     </message>
@@ -1019,7 +1019,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsWidgetItem</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsWidgetItem.cpp" line="453"/>
+        <location filename="../../src/whiteboard/GraphicsWidgetItem.cpp" line="469"/>
         <source>Loading ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1027,12 +1027,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>GraphicsWidgetItemDelegate</name>
     <message>
-        <location filename="../../src/whiteboard/GraphicsWidgetItemDelegate.cpp" line="43"/>
+        <location filename="../../src/whiteboard/GraphicsWidgetItemDelegate.cpp" line="46"/>
         <source>Frozen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/GraphicsWidgetItemDelegate.cpp" line="53"/>
+        <location filename="../../src/whiteboard/GraphicsWidgetItemDelegate.cpp" line="57"/>
         <source>Transform as Tool </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1040,26 +1040,26 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ImportDocument</name>
     <message>
-        <location filename="../../src/content/ImportDocument.cpp" line="34"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="33"/>
         <source>TianBoard (*.tbz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportDocument.cpp" line="124"/>
-        <location filename="../../src/content/ImportDocument.cpp" line="143"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="139"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="159"/>
         <source>Importing file %1...</source>
         <translation type="unfinished">正在导入文件 %1……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportDocument.cpp" line="131"/>
-        <location filename="../../src/content/ImportDocument.cpp" line="149"/>
-        <location filename="../../src/content/ImportDocument.cpp" line="155"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="147"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="166"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="172"/>
         <source>Import of file %1 failed.</source>
         <translation type="unfinished">文件 %1 导入失败。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportDocument.cpp" line="137"/>
-        <location filename="../../src/content/ImportDocument.cpp" line="161"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="152"/>
+        <location filename="../../src/content/ImportDocument.cpp" line="178"/>
         <source>Import successful.</source>
         <translation type="unfinished">导入成功。</translation>
     </message>
@@ -1067,7 +1067,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ImportDocumentSetAdaptor</name>
     <message>
-        <location filename="../../src/content/ImportDocumentSetAdaptor.cpp" line="35"/>
+        <location filename="../../src/content/ImportDocumentSetAdaptor.cpp" line="34"/>
         <source>TianBoard Document Set (*.tbx)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1075,7 +1075,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ImportImage</name>
     <message>
-        <location filename="../../src/content/ImportImage.cpp" line="38"/>
+        <location filename="../../src/content/ImportImage.cpp" line="37"/>
         <source>Image Format (</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1083,31 +1083,31 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ImportIwb</name>
     <message>
-        <location filename="../../src/content/ImportIwb.cpp" line="41"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="39"/>
         <source>Interactive Whiteboard File (</source>
         <translation>交互式白板文件（</translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportIwb.cpp" line="61"/>
-        <location filename="../../src/content/ImportIwb.cpp" line="201"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="65"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="218"/>
         <source>Importing file %1...</source>
         <translation>正在导入文件 %1……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportIwb.cpp" line="75"/>
-        <location filename="../../src/content/ImportIwb.cpp" line="217"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="83"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="238"/>
         <source>Import of file %1 failed.</source>
         <translation>文件 %1 导入失败。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportIwb.cpp" line="92"/>
-        <location filename="../../src/content/ImportIwb.cpp" line="241"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="99"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="266"/>
         <source>Import successful.</source>
         <translation>导入成功。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportIwb.cpp" line="97"/>
-        <location filename="../../src/content/ImportIwb.cpp" line="244"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="106"/>
+        <location filename="../../src/content/ImportIwb.cpp" line="271"/>
         <source>Import failed.</source>
         <translation>导入失败。</translation>
     </message>
@@ -1115,7 +1115,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ImportPDF</name>
     <message>
-        <location filename="../../src/content/ImportPDF.cpp" line="31"/>
+        <location filename="../../src/content/ImportPDF.cpp" line="30"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1125,7 +1125,7 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ImportPDF.cpp" line="50"/>
+        <location filename="../../src/content/ImportPDF.cpp" line="51"/>
         <source>Importing page %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1133,7 +1133,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>KeyboardPalette</name>
     <message>
-        <location filename="../../src/ui/KeyboardPalette.cpp" line="127"/>
+        <location filename="../../src/ui/KeyboardPalette.cpp" line="133"/>
         <source>Enter</source>
         <translation>回车</translation>
     </message>
@@ -1141,899 +1141,899 @@ Providing a new name will create a new document.</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="726"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="845"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="847"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="633"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="752"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="754"/>
         <source>TianBoard</source>
         <translation>TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="727"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="728"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="634"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="635"/>
         <source>Stylus</source>
         <translation>触控笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="730"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="637"/>
         <source>Ctrl+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="732"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="639"/>
         <source>Backgrounds</source>
         <translation>背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="734"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="641"/>
         <source>Change Background</source>
         <translation>更换背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="736"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="643"/>
         <source>Undo</source>
         <translation>撤销</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="738"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="645"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="740"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="647"/>
         <source>Redo</source>
         <translation>重做</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="742"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="649"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="744"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="651"/>
         <source>Previous</source>
         <translation>上一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="746"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="810"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="653"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="717"/>
         <source>Previous Page</source>
         <translation>上一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="749"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="656"/>
         <source>PgUp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="751"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="658"/>
         <source>Next</source>
         <translation>下一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="753"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="817"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="660"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="724"/>
         <source>Next Page</source>
         <translation>下一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="756"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="663"/>
         <source>PgDown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="758"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1183"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="665"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1046"/>
         <source>Documents</source>
         <translation>文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="760"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="667"/>
         <source>Manage Documents</source>
         <translation>管理文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="763"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="670"/>
         <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="765"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1182"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="672"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1045"/>
         <source>Web</source>
         <translation>网页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="767"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="674"/>
         <source>Web Browsing</source>
         <translation>网页浏览</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="770"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="677"/>
         <source>Ctrl+W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="772"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="776"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="780"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1074"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="679"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="683"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="687"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="954"/>
         <source>Line</source>
         <translation>直线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="774"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="681"/>
         <source>Small Line</source>
         <translation>细线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="778"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="685"/>
         <source>Medium Line</source>
         <translation>中线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="782"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="689"/>
         <source>Large Line</source>
         <translation>粗线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="784"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="691"/>
         <source>Quit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="786"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="693"/>
         <source>Quit TianBoard</source>
         <translation>退出 TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="788"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="792"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="796"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1039"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="695"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="699"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="703"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="920"/>
         <source>Eraser</source>
         <translation>橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="790"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="697"/>
         <source>Smalle Eraser</source>
         <translation>小橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="794"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="701"/>
         <source>Medium Eraser</source>
         <translation>中橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="798"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="705"/>
         <source>Large Eraser</source>
         <translation>大橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="800"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="802"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="804"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="805"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="806"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="807"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="707"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="709"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="711"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="712"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="713"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="714"/>
         <source>Color</source>
         <translation>颜色</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="808"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="715"/>
         <source>Back</source>
         <translation>后退</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="813"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="720"/>
         <source>Left</source>
         <translation>左</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="815"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="722"/>
         <source>Forward</source>
         <translation>前进</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="820"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="727"/>
         <source>Right</source>
         <translation>右</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="822"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="729"/>
         <source>Reload</source>
         <translation>重新加载</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="824"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="731"/>
         <source>Reload Current Page</source>
         <translation>重新加载本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="826"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="733"/>
         <source>Home</source>
         <translation>主页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="828"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="735"/>
         <source>Load Home Page</source>
         <translation>打开主页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="830"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1181"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="737"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1044"/>
         <source>Board</source>
         <translation>演示板</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="832"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="739"/>
         <source>Display Board</source>
         <translation>在显示屏上显示演示板</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="835"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="742"/>
         <source>Ctrl+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="837"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="744"/>
         <source>Erase</source>
         <translation>擦除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="839"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="746"/>
         <source>Erase Content</source>
         <translation>擦除内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="841"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="748"/>
         <source>Preferences</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="843"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="750"/>
         <source>Display Preferences</source>
         <translation>显示设置</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="849"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="756"/>
         <source>Show Desktop</source>
         <translation>显示桌面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="851"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="758"/>
         <source>Show Computer Desktop</source>
         <translation>显示电脑桌面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="854"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="761"/>
         <source>Ctrl+Shift+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="856"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="763"/>
         <source>Bigger</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="858"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1065"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="765"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="945"/>
         <source>Zoom In</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="861"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="768"/>
         <source>Ctrl++</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="863"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="770"/>
         <source>Smaller</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="865"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1066"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="772"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="946"/>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="868"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="775"/>
         <source>Ctrl+-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="870"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="777"/>
         <source>New Folder</source>
         <translation>新建文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="872"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="779"/>
         <source>Create a New Folder</source>
         <translation>新建文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="874"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="781"/>
         <source>New Document</source>
         <translation>新建文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="877"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="783"/>
         <source>Create a New Document</source>
         <translation>新建文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="879"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="785"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="881"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="787"/>
         <source>Import a Document</source>
         <translation>导入文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="883"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="789"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="885"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="791"/>
         <source>Export a Document</source>
         <translation>导出文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="887"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="793"/>
         <source>Open in Board</source>
         <translation>在演示板中打开</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="889"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="795"/>
         <source>Open Page in Board</source>
         <translation>在演示板中打开本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="892"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="798"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="894"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="800"/>
         <source>Duplicate</source>
         <translation>副本</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="897"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="802"/>
         <source>Duplicate Selected Content</source>
         <translation>复制所选内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="899"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="804"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="901"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="806"/>
         <source>Delete Selected Content</source>
         <translation>删除所选内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="904"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="809"/>
         <source>Del</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="907"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="811"/>
         <source>Add to Working Document</source>
         <translation>添加到当前文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="910"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="813"/>
         <source>Add Selected Content to Open Document</source>
         <translation>把所选内容加入已打开的文档</translation>
     </message>
     <message>
+        <location filename="../../src/ui/MainWindow.cpp" line="815"/>
         <location filename="../../src/ui/MainWindow.cpp" line="912"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1031"/>
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="915"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="817"/>
         <source>Add Content to Document</source>
         <translation>添加内容到文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="917"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="819"/>
         <source>Rename</source>
         <translation>重命名</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="919"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="821"/>
         <source>Rename Content</source>
         <translation>重命名内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="921"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="925"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="823"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="827"/>
         <source>Tools</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="923"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="927"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="825"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="829"/>
         <source>Display Tools</source>
         <translation>显示工具</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="929"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="831"/>
         <source>Multi Screen</source>
         <translation>多屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="930"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="931"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="832"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="833"/>
         <source>Wide Size (16/9)</source>
         <translation>宽屏尺寸 (16/9)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="934"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="835"/>
         <source>Use Document Wide Size (16/9)</source>
         <translation>使用文档宽屏尺寸 (16/9)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="936"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="938"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="837"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="838"/>
         <source>Regular Size (4/3)</source>
         <translation>标准尺寸 (4/3)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="941"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="840"/>
         <source>Use Document Regular Size (4/3)</source>
         <translation>使用文档标准尺寸 (4/3)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="943"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="944"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="842"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="843"/>
         <source>Custom Size</source>
         <translation>自定义尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="947"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="845"/>
         <source>Use Custom Document Size</source>
         <translation>使用自定义文档尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="949"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="847"/>
         <source>Stop Loading</source>
         <translation>停止加载</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="952"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="849"/>
         <source>Stop Loading Web Page</source>
         <translation>停止加载网页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="954"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="851"/>
         <source>Cut</source>
         <translation>剪切</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="955"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="852"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="956"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="853"/>
         <source>Paste</source>
         <translation>粘贴</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="957"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="854"/>
         <source>Sleep</source>
         <translation>待机</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="959"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="856"/>
         <source>Put Presentation to Sleep</source>
         <translation>让演示进入待机</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="961"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="858"/>
         <source>Virtual Keyboard</source>
         <translation>虚拟键盘</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="964"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="860"/>
         <source>Display Virtual Keyboard</source>
         <translation>显示虚拟键盘</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="967"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="971"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="862"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="865"/>
         <source>Plain Light Background</source>
         <translation>浅色纯色背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="968"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="975"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="982"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="863"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="868"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="873"/>
         <source>Light</source>
         <translation>浅色</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="974"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="978"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="867"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="870"/>
         <source>Grid Light Background</source>
         <translation>浅色网格背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="981"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="985"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="872"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="875"/>
         <source>Ruled Light Background</source>
         <translation>浅色横线背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="988"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="992"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="877"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="880"/>
         <source>Plain Dark Background</source>
         <translation>深色纯色背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="989"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="996"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1003"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="878"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="883"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="888"/>
         <source>Dark</source>
         <translation>深色</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="995"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="999"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="882"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="885"/>
         <source>Grid Dark Background</source>
         <translation>深色网格背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1002"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1006"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="887"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="890"/>
         <source>Ruled Dark Background</source>
         <translation>深色横线背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1008"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="892"/>
         <source>Screen Recording</source>
         <translation>录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1011"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="894"/>
         <source>Record the Screen to Video</source>
         <translation>录制屏幕为视频</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1132"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1003"/>
         <source>Pause Screen Recording</source>
         <translation>暂停录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1134"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1005"/>
         <source>Recording Config</source>
         <translation>录屏设置</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1137"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1007"/>
         <source>Configure Screen Recording</source>
         <translation>配置录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1013"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="896"/>
         <source>Record</source>
         <translation>录制</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1016"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="898"/>
         <source>Start Screen Recording</source>
         <translation>开始录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1018"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="900"/>
         <source>Erase Items</source>
         <translation>擦除对象</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1020"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="902"/>
         <source>Erase All Items</source>
         <translation>清除全部对象</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1022"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1155"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="904"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1021"/>
         <source>Erase Annotations</source>
         <translation>清除批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1025"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="906"/>
         <source>Erase All Annotations</source>
         <translation>清除全部批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1027"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="908"/>
         <source>Clear Page</source>
         <translation>清空本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1029"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="910"/>
         <source>Clear All Elements</source>
         <translation>清除所有元素</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1032"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="913"/>
         <source>Pen</source>
         <translation>画笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1034"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="915"/>
         <source>Annotate Document</source>
         <translation>批注文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1037"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="918"/>
         <source>Ctrl+I</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1041"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="922"/>
         <source>Erase Annotation</source>
         <translation>清除批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1044"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="925"/>
         <source>Ctrl+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1046"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="927"/>
         <source>Marker</source>
         <translation>荧光笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1048"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="929"/>
         <source>Highlight </source>
         <translation>高亮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1051"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="932"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1053"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="934"/>
         <source>Selector</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1056"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="936"/>
         <source>Select And Modify Objects</source>
         <translation>选择并修改对象</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1059"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="939"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1061"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="941"/>
         <source>Hand</source>
         <translation>抓手</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1063"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="943"/>
         <source>Scroll Page</source>
         <translation>滚动页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1067"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="947"/>
         <source>Laser Pointer</source>
         <translation>激光笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1069"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="949"/>
         <source>Virtual Laser Pointer</source>
         <translation>虚拟激光笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1072"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="952"/>
         <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1076"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="956"/>
         <source>Draw Lines</source>
         <translation>画直线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1079"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="959"/>
         <source>Ctrl+J</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1081"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="961"/>
         <source>Text</source>
         <translation>文本</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1083"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="963"/>
         <source>Write Text</source>
         <translation>输入文字</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1086"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="966"/>
         <source>Ctrl+K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1088"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="968"/>
         <source>Capture</source>
         <translation>捕获</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1091"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1146"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="970"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1015"/>
         <source>Capture Part of the Screen</source>
         <translation>捕获屏幕局部</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1094"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1096"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="972"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="973"/>
         <source>Add To Current Page</source>
         <translation>添加到当前页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1099"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="975"/>
         <source>Add Item To Current Page</source>
         <translation>添加到当前页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1101"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="977"/>
         <source>Add To New Page</source>
         <translation>添加到新页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1104"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="979"/>
         <source>Add Item To New Page</source>
         <translation>添加到新页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1106"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="981"/>
         <source>Add To Library</source>
         <translation>添加到资源库</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1109"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="983"/>
         <source>Add Item To Library</source>
         <translation>添加到资源库</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1111"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="985"/>
         <source>Pages</source>
         <translation>页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1113"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1117"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="987"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="991"/>
         <source>Create a New Page</source>
         <translation>新建页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1115"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="989"/>
         <source>New Page</source>
         <translation>新建页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1119"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="993"/>
         <source>Duplicate Page</source>
         <translation>复制本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1122"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="995"/>
         <source>Duplicate the Current Page</source>
         <translation>复制当前页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1124"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="997"/>
         <source>Import Page</source>
         <translation>导入页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1127"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="999"/>
         <source>Import an External Page</source>
         <translation>导入外部页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1129"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1001"/>
         <source>Pause</source>
         <translation>暂停</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1139"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1009"/>
         <source>Web Trap</source>
         <translation>网页抓取</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1141"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1011"/>
         <source>Trap Web Content</source>
         <translation>抓取网页内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1143"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1013"/>
         <source>Custom Capture</source>
         <translation>自定义捕获</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1149"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1017"/>
         <source>Show on Display</source>
         <translation>在显示屏上显示</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1152"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1019"/>
         <source>Show Main Screen on Display Screen</source>
         <translation>把主屏投射到显示屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1158"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1023"/>
         <source>Erase all Annotations</source>
         <translation>清除全部批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1160"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1025"/>
         <source>Hide TianBoard</source>
         <translation>隐藏 TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1163"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1027"/>
         <source>Hide TianBoard Application</source>
         <translation>隐藏 TianBoard 程序</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1166"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1030"/>
         <source>Ctrl+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1168"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1032"/>
         <source>Play</source>
         <translation>播放</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1170"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1034"/>
         <source>Interact with items</source>
         <translation>与对象交互</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1172"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1036"/>
         <source>Erase Background</source>
         <translation>擦除背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1175"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1038"/>
         <source>Remove the backgound</source>
         <translation>移除背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1177"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1179"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1040"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1042"/>
         <source>Reset grid size</source>
         <translation>重置网格大小</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1295"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1185"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1296"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1186"/>
         <source>No</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1310"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1201"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>
@@ -2041,7 +2041,7 @@ Providing a new name will create a new document.</source>
 <context>
     <name>MessagesDialog</name>
     <message>
-        <location filename="../../src/ui/MessagesDialog.cpp" line="34"/>
+        <location filename="../../src/ui/MessagesDialog.cpp" line="40"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
@@ -2049,17 +2049,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>NetworkAccessManager</name>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="78"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="82"/>
         <source>&lt;qt&gt;Enter username and password for &quot;%1&quot; at %2&lt;/qt&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="113"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="123"/>
         <source>Failed to log to Proxy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="137"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="150"/>
         <source>SSL Errors:
 
 %1
@@ -2070,12 +2070,12 @@ Do you want to ignore these errors for this host?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="141"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="154"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="142"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="155"/>
         <source>No</source>
         <translation>否</translation>
     </message>
@@ -2083,17 +2083,17 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PersistenceManager</name>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="498"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="595"/>
         <source>(copy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="1120"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="1278"/>
         <source>Document Repository Loss</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="1121"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="1278"/>
         <source>TianBoard has lost access to the document repository &apos;%1&apos;. Unfortunately the application must shut down to avoid data corruption. Latest changes may be lost as well.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2101,7 +2101,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PlatformUtils</name>
     <message>
-        <location filename="../../src/platform/PlatformUtils_win.cpp" line="151"/>
+        <location filename="../../src/platform/PlatformUtils_win.cpp" line="150"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2109,7 +2109,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PreferencesController</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1423"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1329"/>
         <source>Marker is pressure sensitive</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2117,213 +2117,213 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1125"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1073"/>
         <source>Preferences</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1126"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1074"/>
         <source>Default Settings</source>
         <translation>恢复默认设置</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1127"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1075"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1129"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1076"/>
         <source>version: %1</source>
         <translation>版本：%1</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1134"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1079"/>
         <source>TianBoard is copyright © %1. All rights reserved.</source>
         <translation>TianBoard 版权所有 © %1。</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1136"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1080"/>
         <source>Multi display</source>
         <translation>多显示器</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1138"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1081"/>
         <source>Swap control display and view display</source>
         <translation>交换控制屏与显示屏</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1139"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1082"/>
         <source>Show internal web page content on secondary screen or projector</source>
         <translation>在副屏或投影仪上显示内置网页内容</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1142"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1083"/>
         <source>Swap first and second view displays</source>
         <translation>交换第一与第二显示屏</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1143"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1084"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1144"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1085"/>
         <source>Mode to start in:</source>
         <translation>启动模式：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1145"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1086"/>
         <source>Board</source>
         <translation>演示板</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1146"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1087"/>
         <source>Desktop</source>
         <translation>桌面</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1148"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1089"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1150"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1091"/>
         <source>Stylus Palette</source>
         <translation>触控笔调色板</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1151"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1092"/>
         <source>Horizontal</source>
         <translation>水平</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1152"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1093"/>
         <source>Vertical</source>
         <translation>垂直</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1153"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1094"/>
         <source>Virtual Keyboard</source>
         <translation>虚拟键盘</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1155"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1095"/>
         <source>Built-in virtual keyboard button size:</source>
         <translation>内置虚拟键盘按钮尺寸：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1156"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1096"/>
         <source>Use system keyboard (recommended)</source>
         <translation>使用系统键盘（推荐）</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1157"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1097"/>
         <source>Toolbar</source>
         <translation>工具栏</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1159"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1098"/>
         <source>Positioned at the Top (recommended for tablets)</source>
         <translation>置于顶部（适合数位板，推荐）</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1161"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1099"/>
         <source>Positioned at the Bottom (recommended for white boards)</source>
         <translation>置于底部（适合电子白板，推荐）</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1162"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1100"/>
         <source>Display Text Under Button</source>
         <translation>在按钮下方显示文字</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1163"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1101"/>
         <source>Documents Mode</source>
         <translation>文档模式</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1165"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1102"/>
         <source>Display date column on alphabetical sort</source>
         <translation>按名称排序时显示日期列</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1167"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1103"/>
         <source>Empty trash for documents older than</source>
         <translation>清空回收站中早于</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1168"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1104"/>
         <source>days</source>
         <translation>天</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1170"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1105"/>
         <source>Display</source>
         <translation>显示</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1171"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1106"/>
         <source>On Light Background</source>
         <translation>浅色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1172"/>
-        <location filename="../../src/core/PreferencesController.cpp" line="1174"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1107"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1109"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1173"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1108"/>
         <source>On Dark Background</source>
         <translation>深色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1175"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1110"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1176"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1111"/>
         <source>Pen</source>
         <translation>钢笔</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1178"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1112"/>
         <source>Marker</source>
         <translation>记号笔</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1179"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1113"/>
         <source>Internet</source>
         <translation>互联网</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1181"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1114"/>
         <source>Show Page with External Browser</source>
         <translation>用外部浏览器打开页面</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1182"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1115"/>
         <source>Home Page:</source>
         <translation>主页：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1183"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1116"/>
         <source>Proxy User:</source>
         <translation>代理用户：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1184"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1117"/>
         <source>Pass:</source>
         <translation>密码：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1186"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1118"/>
         <source>Network</source>
         <translation>网络</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1187"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="1119"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
@@ -2331,22 +2331,22 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>ProxyDialog</name>
     <message>
-        <location filename="../../src/ui/ProxyDialog.cpp" line="34"/>
+        <location filename="../../src/ui/ProxyDialog.cpp" line="37"/>
         <source>Connect to Proxy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/ProxyDialog.cpp" line="39"/>
+        <location filename="../../src/ui/ProxyDialog.cpp" line="42"/>
         <source>Username:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/ProxyDialog.cpp" line="48"/>
+        <location filename="../../src/ui/ProxyDialog.cpp" line="51"/>
         <source>Password:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/ProxyDialog.cpp" line="64"/>
+        <location filename="../../src/ui/ProxyDialog.cpp" line="67"/>
         <source>Save username and password for future use</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2354,24 +2354,24 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/content/IwbDocumentAdaptor.cpp" line="1050"/>
+        <location filename="../../src/content/IwbDocumentAdaptor.cpp" line="1300"/>
         <source>Element ID = </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/IwbDocumentAdaptor.cpp" line="1052"/>
+        <location filename="../../src/content/IwbDocumentAdaptor.cpp" line="1302"/>
         <source>Content is not supported in destination format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="994"/>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1179"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1171"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1387"/>
         <source>Remove Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="995"/>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1180"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1171"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="1387"/>
         <source>Are you sure you want to remove 1 page from the selected document &apos;%0&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2379,62 +2379,62 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>RecordingController</name>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="317"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="354"/>
         <source>Failed to start encoder ...</source>
         <translation>无法启动编码器……</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="320"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="359"/>
         <source>No screen recording encoder available...</source>
         <translation>没有可用的录屏编码器……</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="465"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="534"/>
         <source>Part %1</source>
         <translation>第 %1 章</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="590"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="694"/>
         <source>on your desktop ...</source>
         <translation>正在保存到桌面……</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="593"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="699"/>
         <source>in folder %1</source>
         <translation>保存到文件夹 %1</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="596"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="702"/>
         <source>Screen recording created %1</source>
         <translation>已创建录屏文件 %1</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="601"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="709"/>
         <source>Screen recording error (%1)</source>
         <translation>录屏出错（%1）</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="724"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="841"/>
         <source>Default Audio Input</source>
         <translation>默认音频输入</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="727"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="844"/>
         <source>No Audio Recording</source>
         <translation>不录制音频</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="762"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="885"/>
         <source>Small</source>
         <translation>小</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="763"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="886"/>
         <source>Medium</source>
         <translation>中</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="764"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="887"/>
         <source>Full</source>
         <translation>全屏</translation>
     </message>
@@ -2442,7 +2442,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>SearchLineEdit</name>
     <message>
-        <location filename="../../src/web/SearchLineEdit.cpp" line="113"/>
+        <location filename="../../src/web/SearchLineEdit.cpp" line="123"/>
         <source>Search</source>
         <translation>搜索</translation>
     </message>
@@ -2450,7 +2450,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../../src/settings/Settings.cpp" line="873"/>
+        <location filename="../../src/settings/Settings.cpp" line="919"/>
         <source>My Movies</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2458,32 +2458,32 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>TabBar</name>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="50"/>
+        <location filename="../../src/web/TabWidget.cpp" line="58"/>
         <source>New &amp;Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="53"/>
+        <location filename="../../src/web/TabWidget.cpp" line="62"/>
         <source>Clone Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="58"/>
+        <location filename="../../src/web/TabWidget.cpp" line="67"/>
         <source>&amp;Close Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="61"/>
+        <location filename="../../src/web/TabWidget.cpp" line="70"/>
         <source>Close &amp;Other Tabs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="67"/>
+        <location filename="../../src/web/TabWidget.cpp" line="75"/>
         <source>Reload Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="72"/>
+        <location filename="../../src/web/TabWidget.cpp" line="82"/>
         <source>Reload All Tabs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2491,13 +2491,13 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>TabWidget</name>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="168"/>
+        <location filename="../../src/web/TabWidget.cpp" line="199"/>
         <source>Recently Closed Tabs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/web/TabWidget.cpp" line="309"/>
-        <location filename="../../src/web/TabWidget.cpp" line="334"/>
+        <location filename="../../src/web/TabWidget.cpp" line="374"/>
+        <location filename="../../src/web/TabWidget.cpp" line="402"/>
         <source>(Untitled)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2505,12 +2505,12 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>ThumbnailAdaptor</name>
     <message>
-        <location filename="../../src/content/ThumbnailAdaptor.cpp" line="41"/>
+        <location filename="../../src/content/ThumbnailAdaptor.cpp" line="44"/>
         <source>Generating preview thumbnails ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/content/ThumbnailAdaptor.cpp" line="47"/>
+        <location filename="../../src/content/ThumbnailAdaptor.cpp" line="52"/>
         <source>%1 thumbnails generated ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2518,7 +2518,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>ThumbnailTextItem</name>
     <message>
-        <location filename="../../src/ui/ThumbnailWidget.cpp" line="824"/>
+        <location filename="../../src/ui/ThumbnailWidget.cpp" line="958"/>
         <source>Page %0</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2526,65 +2526,70 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>ToolsManager</name>
     <message>
-        <location filename="../../src/whiteboard/ToolsManager.cpp" line="22"/>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="27"/>
         <source>Mask</source>
-        <translation type="unfinished"></translation>
+        <translation>遮罩</translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/ToolsManager.cpp" line="30"/>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="34"/>
         <source>Ruler</source>
-        <translation type="unfinished"></translation>
+        <translation>直尺</translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/ToolsManager.cpp" line="38"/>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="41"/>
         <source>Compass</source>
-        <translation type="unfinished"></translation>
+        <translation>圆规</translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/ToolsManager.cpp" line="46"/>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="48"/>
         <source>Protractor</source>
-        <translation type="unfinished"></translation>
+        <translation>量角器</translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/ToolsManager.cpp" line="54"/>
-        <source>Triangle</source>
-        <translation type="unfinished"></translation>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="55"/>
+        <source>Axes</source>
+        <translation>坐标轴</translation>
     </message>
     <message>
         <location filename="../../src/whiteboard/ToolsManager.cpp" line="62"/>
-        <source>Magnifier</source>
-        <translation type="unfinished"></translation>
+        <source>Triangle</source>
+        <translation>三角板</translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/ToolsManager.cpp" line="70"/>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="69"/>
+        <source>Magnifier</source>
+        <translation>放大镜</translation>
+    </message>
+    <message>
+        <location filename="../../src/whiteboard/ToolsManager.cpp" line="76"/>
         <source>Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>幕布</translation>
     </message>
 </context>
 <context>
     <name>WebDownloadManager</name>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="438"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="490"/>
         <source>Downloads</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="455"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="507"/>
         <source>Clean Up</source>
         <translation>清理</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="464"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="516"/>
         <source>0 Items</source>
         <translation>0 项</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="700"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="783"/>
         <source>1 Download</source>
         <translation>1 个下载</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebDownloadManager.cpp" line="700"/>
+        <location filename="../../src/web/WebDownloadManager.cpp" line="783"/>
         <source>%1 Downloads</source>
         <comment>always &gt;= 2</comment>
         <translation type="unfinished"></translation>
@@ -2593,17 +2598,17 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>WebView</name>
     <message>
-        <location filename="../../src/web/WebView.cpp" line="218"/>
+        <location filename="../../src/web/WebView.cpp" line="233"/>
         <source>Download PDF Document: would you prefer to download the PDF file or add it to the current TianBoard document?</source>
         <translation>下载 PDF 文档：你想把这份 PDF 存到磁盘，还是直接加入当前 TianBoard 文档？</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebView.cpp" line="221"/>
+        <location filename="../../src/web/WebView.cpp" line="236"/>
         <source>Download</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="../../src/web/WebView.cpp" line="223"/>
+        <location filename="../../src/web/WebView.cpp" line="237"/>
         <source>Add to Current Document</source>
         <translation>加入当前文档</translation>
     </message>
@@ -2611,7 +2616,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>WebWidgetBoardAPI</name>
     <message>
-        <location filename="../../src/api/WebWidgetBoardAPI.cpp" line="363"/>
+        <location filename="../../src/api/WebWidgetBoardAPI.cpp" line="448"/>
         <source>%0 called (method=%1, status=%2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2619,7 +2624,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>ZoomPalette</name>
     <message>
-        <location filename="../../src/ui/ZoomPalette.cpp" line="85"/>
+        <location filename="../../src/ui/ZoomPalette.cpp" line="96"/>
         <source>%1 x</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2627,52 +2632,52 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>brushProperties</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="363"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="353"/>
         <source>Pen is Pressure Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="364"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="354"/>
         <source>Opacity</source>
         <translation type="unfinished">不透明度</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="366"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="355"/>
         <source>On Light Background</source>
         <translation>浅色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="368"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="356"/>
         <source>On Dark Background</source>
         <translation>深色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="369"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="357"/>
         <source>Line Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="370"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="358"/>
         <source>Medium</source>
         <translation>中</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="371"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="359"/>
         <source>Strong</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="372"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="360"/>
         <source>Fine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="374"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="361"/>
         <source>Show preview circle from</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="375"/>
+        <location filename="../../src/core/PreferencesController.cpp" line="362"/>
         <source>px</source>
         <translation type="unfinished"></translation>
     </message>

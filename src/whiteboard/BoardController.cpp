@@ -1272,6 +1272,11 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
             mActiveScene->addProtractor(pPos);
             DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
         }
+        else if (sourceUrl.toString() == ToolsManager::manager()->axes.id)
+        {
+            mActiveScene->addAxes(pPos);
+            DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
+        }
         else if (sourceUrl.toString() == ToolsManager::manager()->triangle.id)
         {
             mActiveScene->addTriangle(pPos);

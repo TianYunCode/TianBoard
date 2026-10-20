@@ -123,6 +123,7 @@
         <file>images/backgroundPalette/background5On.svg</file>
         <file>images/backgroundPalette/background6.svg</file>
         <file>images/backgroundPalette/background6On.svg</file>
+        <file>images/toolPalette/axesTool.png</file>
         <file>images/toolPalette/rulerTool.png</file>
         <file>images/toolPalette/triangleTool.png</file>
         <file>images/toolPalette/protractorTool.png</file>
@@ -208,6 +209,8 @@
         <file>images/right_arrow.png</file>
         <file>images/moveUp.svg</file>
         <file>images/moveDown.svg</file>
+        <file>images/moveTool.svg</file>
+        <file>images/numbersTool.svg</file>
         <file>images/moveDownDisabled.svg</file>
         <file>images/closeDisabled.svg</file>
         <file>images/moveUpDisabled.svg</file>

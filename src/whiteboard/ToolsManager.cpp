@@ -50,6 +50,13 @@ ToolsManager::ToolsManager(QObject *parent) : QObject(parent)
     mToolsIcon.insert(protractor.id, ":/images/toolPalette/protractorTool.png");
     mDescriptors << protractor;
 
+    axes.id      = "tianboardtool://axes";
+    axes.icon    = QPixmap(":/images/toolPalette/axesTool.png");
+    axes.label   = tr("Axes");
+    axes.version = "1.0";
+    mToolsIcon.insert(axes.id, ":/images/toolPalette/axesTool.png");
+    mDescriptors << axes;
+
     triangle.id      = "tianboardtool://triangle";
     triangle.icon    = QPixmap(":/images/toolPalette/triangleTool.png");
     triangle.label   = tr("Triangle");

@@ -24,6 +24,7 @@
 
 #include "whiteboard/GraphicsRuler.h"
 #include "whiteboard/GraphicsProtractor.h"
+#include "whiteboard/GraphicsAxes.h"
 #include "whiteboard/GraphicsCompass.h"
 #include "whiteboard/GraphicsTriangle.h"
 #include "whiteboard/GraphicsCurtainItem.h"
@@ -2462,6 +2463,20 @@ void GraphicsScene::resizedMagnifier(qreal newPercent)
         magniferDisplayViewWidget->grabPoint();
         setModified(true);
     }
+}
+
+void GraphicsScene::addAxes(QPointF center)
+{
+    GraphicsAxes *axes = new GraphicsAxes(); // 内存交给场景，随场景一起销毁
+    mTools << axes;
+    addItem(axes);
+
+    QRectF rect = axes->bounds();
+    axes->setRect(center.x() - rect.width() / 2, center.y() - rect.height() / 2, rect.width(), rect.height());
+
+    axes->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Tool));
+
+    axes->setVisible(true);
 }
 
 void GraphicsScene::addCompass(QPointF center)

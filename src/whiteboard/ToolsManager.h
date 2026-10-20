@@ -71,6 +71,7 @@ public:
 
     ToolDescriptor ruler;      ///< 直尺工具
     ToolDescriptor protractor; ///< 量角器工具
+    ToolDescriptor axes;       ///< 坐标轴工具
     ToolDescriptor compass;    ///< 圆规工具
     ToolDescriptor mask;       ///< 遮罩（聚光灯）工具
     ToolDescriptor triangle;   ///< 三角板工具

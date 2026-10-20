@@ -396,6 +396,8 @@ public:
     void addProtractor(QPointF center);
     /// @brief 在 center 处添加圆规（工具层）
     void addCompass(QPointF center);
+    /// @brief 在指定场景位置放一个坐标轴图元。
+    void addAxes(QPointF center);
     /// @brief 在 center 处添加三角板（工具层）
     void addTriangle(QPointF center);
     /// @brief 打开放大镜：控制端与显示端各建一个窗口；已有放大镜时忽略

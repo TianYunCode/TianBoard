@@ -470,8 +470,8 @@ bool BoardView::isBoardItem(QGraphicsItem *item)
 bool BoardView::isCppTool(QGraphicsItem *item)
 {
     return (item->type() == GraphicsItemType::CompassItemType || item->type() == GraphicsItemType::RulerItemType ||
-            item->type() == GraphicsItemType::ProtractorItemType || item->type() == GraphicsItemType::TriangleItemType ||
-            item->type() == GraphicsItemType::CurtainItemType);
+            item->type() == GraphicsItemType::ProtractorItemType || item->type() == GraphicsItemType::AxesItemType ||
+            item->type() == GraphicsItemType::TriangleItemType || item->type() == GraphicsItemType::CurtainItemType);
 }
 
 void BoardView::handleItemsSelection(QGraphicsItem *item)

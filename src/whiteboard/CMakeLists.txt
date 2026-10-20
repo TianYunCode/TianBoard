@@ -31,6 +31,8 @@ add_library(tb_whiteboard OBJECT
     DrawingController.h
     FeaturesController.cpp
     FeaturesController.h
+    GraphicsAxes.cpp
+    GraphicsAxes.h
     GraphicsCache.cpp
     GraphicsCache.h
     GraphicsCompass.cpp

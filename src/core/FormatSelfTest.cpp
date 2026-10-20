@@ -6,6 +6,7 @@
 #include "content/SvgSubsetAdaptor.h"
 #include "model/DocumentProxy.h"
 #include "utils/Enums.h"
+#include "whiteboard/GraphicsAxes.h"
 #include "whiteboard/GraphicsCompass.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"
@@ -105,6 +106,10 @@ namespace
             {
                 facts << QStringLiteral("pixmap|%1|%2").arg(rectOf(pixmapItem), imageFingerprint(pixmapItem->pixmap()));
             }
+            else if (GraphicsAxes *axes = dynamic_cast<GraphicsAxes *>(item))
+            {
+                facts << QStringLiteral("axes|%1|%2").arg(rectOf(axes), axes->showNumbers() ? QStringLiteral("on") : QStringLiteral("off"));
+            }
             else if (dynamic_cast<GraphicsRuler *>(item))
             {
                 facts << QStringLiteral("ruler|%1").arg(rectOf(item));
@@ -171,7 +176,8 @@ namespace
             {
                 kinds << QStringLiteral("group");
             }
-            else if (dynamic_cast<GraphicsRuler *>(item) || dynamic_cast<GraphicsProtractor *>(item) || dynamic_cast<GraphicsCompass *>(item))
+            else if (dynamic_cast<GraphicsRuler *>(item) || dynamic_cast<GraphicsProtractor *>(item) || dynamic_cast<GraphicsCompass *>(item) ||
+                     dynamic_cast<GraphicsAxes *>(item))
             {
                 kinds << QStringLiteral("tool");
             }
@@ -241,6 +247,8 @@ namespace
         scene->addItem(text);
 
         scene->addPixmap(makeTestPixmap(), nullptr, QPointF(460, 300), 1.0, false, true);
+
+        scene->addAxes(QPointF(900, 200));
 
         scene->addRuler(QPointF(300, 620));
         scene->addProtractor(QPointF(560, 620));
