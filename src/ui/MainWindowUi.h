@@ -96,6 +96,7 @@ struct MainWindowUi
     QAction  *actionLine;                    ///< 画线工具。
     QAction  *actionText;                    ///< 文本工具。
     QAction  *actionCapture;                 ///< 截取屏幕区域。
+    QAction  *actionSnap;                    ///< 网格吸附开关（可勾选）。
     QAction  *actionAddItemToCurrentPage;    ///< 把截取内容加入当前页。
     QAction  *actionAddItemToNewPage;        ///< 把截取内容加入新页。
     QAction  *actionAddItemToLibrary;        ///< 把截取内容加入素材库。

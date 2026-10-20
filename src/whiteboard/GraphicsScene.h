@@ -384,6 +384,32 @@ public:
         return mBackgroundGridSize;
     }
 
+    /// @brief 是否开启网格吸附（全应用共用工具栏上的那个开关）。
+    bool isSnapping() const;
+
+    /**
+     * @brief 把一个场景坐标吸到最近的网格交点。
+     * @return 需要叠加的位移；没开吸附或没有可吸附的就是 (0,0)。
+     */
+    QPointF snapToGrid(const QPointF &point) const;
+
+    /**
+     * @brief 在一组图元角点里挑吸得力最强的那个位移。
+     * @param snapIndex 带回选中的是第几个角点；没角点参与时为 -1。
+     */
+    QPointF snapCorners(const QList<QPointF> &corners, int *snapIndex = nullptr) const;
+
+    /// @brief 把一个场景矩形按吸得力最强的那个角吸到网格。
+    QPointF snapToGrid(const QRectF &rect) const;
+
+    /**
+     * @brief 计算图元用于吸附的外框。
+     *
+     * 有画笔的图形按笔宽把框缩回去（否则吸上之后线宽的一半会压过网格线）；
+     * 只有一段的直线笔迹则退回它那两个端点构成的框。
+     */
+    static QRectF itemRectForSnapping(const QGraphicsItem *item);
+
     /// @brief 是否设置了背景图元
     bool hasBackground()
     {

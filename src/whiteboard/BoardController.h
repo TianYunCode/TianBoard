@@ -174,6 +174,17 @@ public:
     }
     /// @brief 当前缩放比例（1.0 为原始大小）。
     qreal currentZoom();
+
+    /// @brief 是否开启网格吸附；由工具栏上的“吸附到网格”开关控制，整个应用共用一个状态。
+    bool isSnapping() const
+    {
+        return mSnapping;
+    }
+    /// @brief 打开或关闭网格吸附。
+    void setSnapping(bool enabled)
+    {
+        mSnapping = enabled;
+    }
     /// @brief 把当前视图位置记录到场景，供下次打开时恢复。
     void persistViewPositionOnCurrentScene();
     /**
@@ -468,6 +479,7 @@ private:
     QColor                                   mMarkerColorOnDarkBackground;  ///< 深色背景下的记号笔颜色
     QColor                                   mMarkerColorOnLightBackground; ///< 浅色背景下的记号笔颜色
     qreal                                    mSystemScaleFactor;            ///< 系统缩放因子
+    bool                                     mSnapping = false;             ///< 是否开启网格吸附
     bool                                     mCleanupDone;                  ///< 清理是否已完成，避免重复收尾
     QMap<QAction *, QPair<QString, QString>> mActionTexts;                  ///< 动作文本缓存（快捷键提示/纯文本）
     bool                                     mCacheWidgetIsEnabled;         ///< 遮罩是否启用

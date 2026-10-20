@@ -7,7 +7,9 @@
 #include <QGraphicsView>
 #include <QGraphicsVideoItem>
 
+#include "core/Application.h"
 #include "utils/GeometryUtils.h"
+#include "utils/Snapping.h"
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
@@ -2463,6 +2465,79 @@ void GraphicsScene::resizedMagnifier(qreal newPercent)
         magniferDisplayViewWidget->grabPoint();
         setModified(true);
     }
+}
+
+bool GraphicsScene::isSnapping() const
+{
+    return Application::boardController && Application::boardController->isSnapping();
+}
+
+QPointF GraphicsScene::snapToGrid(const QPointF &point) const
+{
+    if (!isSnapping())
+    {
+        return QPointF();
+    }
+
+    // 横线稿纸（ruled）上只有横线，吸 X 会把图元推到没有线可对的位置上。
+    const bool snapX = (pageBackground() != PageBackground::ruled);
+
+    return Snapping::toGrid(point, backgroundGridSize(), snapX).offset;
+}
+
+QPointF GraphicsScene::snapCorners(const QList<QPointF> &corners, int *snapIndex) const
+{
+    if (!isSnapping())
+    {
+        if (snapIndex)
+        {
+            *snapIndex = -1;
+        }
+        return QPointF();
+    }
+
+    const bool             snapX = (pageBackground() != PageBackground::ruled);
+    const Snapping::Result best  = Snapping::bestOfCorners(corners, backgroundGridSize(), snapX);
+
+    if (snapIndex)
+    {
+        *snapIndex = best.corner;
+    }
+
+    return best.offset;
+}
+
+QPointF GraphicsScene::snapToGrid(const QRectF &rect) const
+{
+    QList<QPointF> corners;
+    corners << rect.topLeft() << rect.topRight() << rect.bottomLeft() << rect.bottomRight();
+    return snapCorners(corners);
+}
+
+QRectF GraphicsScene::itemRectForSnapping(const QGraphicsItem *item)
+{
+    QRectF bounds                               = item->boundingRect();
+
+    const QAbstractGraphicsShapeItem *shapeItem = dynamic_cast<const QAbstractGraphicsShapeItem *>(item);
+    if (shapeItem && shapeItem->pen().style() != Qt::NoPen)
+    {
+        bounds -= QMarginsF(
+            shapeItem->pen().widthF() / 2.0, shapeItem->pen().widthF() / 2.0, shapeItem->pen().widthF() / 2.0, shapeItem->pen().widthF() / 2.0);
+    }
+
+    // 一笔只有一段而且是一条名义直线时，包围盒是那条斜线的方形外框，按端点取框才对得上网格。
+    const GraphicsStrokesGroup *strokesGroup = dynamic_cast<const GraphicsStrokesGroup *>(item);
+    if (strokesGroup && strokesGroup->childItems().count() == 1)
+    {
+        const GraphicsPolygonItem *polygonItem = dynamic_cast<const GraphicsPolygonItem *>(strokesGroup->childItems().at(0));
+        if (polygonItem && polygonItem->isNominalLine())
+        {
+            const QLineF line = polygonItem->originalLine();
+            bounds            = QRectF(line.p1(), line.p2());
+        }
+    }
+
+    return bounds;
 }
 
 void GraphicsScene::addAxes(QPointF center)

@@ -456,6 +456,13 @@ void MainWindowUi::setupUi(QMainWindow *mw)
     icon68.addFile(QString::fromUtf8(":/images/stylusPalette/captureArea.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
     icon68.addFile(QString::fromUtf8(":/images/stylusPalette/captureAreaOn.png"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
     actionCapture->setIcon(icon68);
+    actionSnap = new QAction(mw);
+    actionSnap->setObjectName("actionSnap");
+    actionSnap->setCheckable(true);
+    QIcon iconSnap;
+    iconSnap.addFile(QString::fromUtf8(":/images/stylusPalette/snap.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+    iconSnap.addFile(QString::fromUtf8(":/images/stylusPalette/snapOn.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::On);
+    actionSnap->setIcon(iconSnap);
     actionAddItemToCurrentPage = new QAction(mw);
     actionAddItemToCurrentPage->setObjectName("actionAddItemToCurrentPage");
     QIcon icon69;
@@ -964,6 +971,13 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
     actionText->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+K", nullptr));
+#endif // QT_CONFIG(shortcut)
+    actionSnap->setText(QCoreApplication::translate("MainWindow", "Snap to Grid", nullptr));
+#if QT_CONFIG(tooltip)
+    actionSnap->setToolTip(QCoreApplication::translate("MainWindow", "Snap Items To The Page Grid", nullptr));
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(shortcut)
+    actionSnap->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+S", nullptr));
 #endif // QT_CONFIG(shortcut)
     actionCapture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
 #if QT_CONFIG(tooltip)

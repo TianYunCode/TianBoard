@@ -51,60 +51,60 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="303"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="305"/>
         <source>Saving document...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="311"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="313"/>
         <source>Document has just been saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="665"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="667"/>
         <source>Deleting page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="677"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="679"/>
         <source>Page %1 deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1021"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1023"/>
         <source>Downloading content %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1029"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1031"/>
         <source>Download finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1149"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1195"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2047"/>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2078"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1151"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1197"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2049"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2080"/>
         <source>Add file operation failed: file copying error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1307"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1309"/>
         <source>Unknown tool type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="1366"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="1368"/>
         <source>Unknown content type %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2430"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2432"/>
         <source>Add Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/whiteboard/BoardController.cpp" line="2430"/>
+        <location filename="../../src/whiteboard/BoardController.cpp" line="2432"/>
         <source>All Supported (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1141,899 +1141,914 @@ Providing a new name will create a new document.</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="633"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="752"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="754"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="640"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="759"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="761"/>
         <source>TianBoard</source>
         <translation>TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="634"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="635"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="641"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="642"/>
         <source>Stylus</source>
         <translation>触控笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="637"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="644"/>
         <source>Ctrl+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="639"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="646"/>
         <source>Backgrounds</source>
         <translation>背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="641"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="648"/>
         <source>Change Background</source>
         <translation>更换背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="643"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="650"/>
         <source>Undo</source>
         <translation>撤销</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="645"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="652"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="647"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="654"/>
         <source>Redo</source>
         <translation>重做</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="649"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="656"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="651"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="658"/>
         <source>Previous</source>
         <translation>上一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="653"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="717"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="660"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="724"/>
         <source>Previous Page</source>
         <translation>上一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="656"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="663"/>
         <source>PgUp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="658"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="665"/>
         <source>Next</source>
         <translation>下一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="660"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="724"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="667"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="731"/>
         <source>Next Page</source>
         <translation>下一页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="663"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="670"/>
         <source>PgDown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="665"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1046"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="672"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1060"/>
         <source>Documents</source>
         <translation>文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="667"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="674"/>
         <source>Manage Documents</source>
         <translation>管理文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="670"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="677"/>
         <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="672"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1045"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="679"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1059"/>
         <source>Web</source>
         <translation>网页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="674"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="681"/>
         <source>Web Browsing</source>
         <translation>网页浏览</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="677"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="684"/>
         <source>Ctrl+W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="679"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="683"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="687"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="954"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="686"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="690"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="694"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="961"/>
         <source>Line</source>
         <translation>直线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="681"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="688"/>
         <source>Small Line</source>
         <translation>细线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="685"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="692"/>
         <source>Medium Line</source>
         <translation>中线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="689"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="696"/>
         <source>Large Line</source>
         <translation>粗线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="691"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="698"/>
         <source>Quit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="693"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="700"/>
         <source>Quit TianBoard</source>
         <translation>退出 TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="695"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="699"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="703"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="920"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="702"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="706"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="710"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="927"/>
         <source>Eraser</source>
         <translation>橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="697"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="704"/>
         <source>Smalle Eraser</source>
         <translation>小橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="701"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="708"/>
         <source>Medium Eraser</source>
         <translation>中橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="705"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="712"/>
         <source>Large Eraser</source>
         <translation>大橡皮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="707"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="709"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="711"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="712"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="713"/>
         <location filename="../../src/ui/MainWindow.cpp" line="714"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="716"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="718"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="719"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="720"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="721"/>
         <source>Color</source>
         <translation>颜色</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="715"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="722"/>
         <source>Back</source>
         <translation>后退</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="720"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="727"/>
         <source>Left</source>
         <translation>左</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="722"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="729"/>
         <source>Forward</source>
         <translation>前进</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="727"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="734"/>
         <source>Right</source>
         <translation>右</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="729"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="736"/>
         <source>Reload</source>
         <translation>重新加载</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="731"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="738"/>
         <source>Reload Current Page</source>
         <translation>重新加载本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="733"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="740"/>
         <source>Home</source>
         <translation>主页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="735"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="742"/>
         <source>Load Home Page</source>
         <translation>打开主页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="737"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1044"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="744"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1058"/>
         <source>Board</source>
         <translation>演示板</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="739"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="746"/>
         <source>Display Board</source>
         <translation>在显示屏上显示演示板</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="742"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="749"/>
         <source>Ctrl+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="744"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="751"/>
         <source>Erase</source>
         <translation>擦除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="746"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="753"/>
         <source>Erase Content</source>
         <translation>擦除内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="748"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="755"/>
         <source>Preferences</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="750"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="757"/>
         <source>Display Preferences</source>
         <translation>显示设置</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="756"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="763"/>
         <source>Show Desktop</source>
         <translation>显示桌面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="758"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="765"/>
         <source>Show Computer Desktop</source>
         <translation>显示电脑桌面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="761"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="768"/>
         <source>Ctrl+Shift+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="763"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="770"/>
         <source>Bigger</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="765"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="945"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="772"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="952"/>
         <source>Zoom In</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="768"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="775"/>
         <source>Ctrl++</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="770"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="777"/>
         <source>Smaller</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="772"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="946"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="779"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="953"/>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="775"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="782"/>
         <source>Ctrl+-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="777"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="784"/>
         <source>New Folder</source>
         <translation>新建文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="779"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="786"/>
         <source>Create a New Folder</source>
         <translation>新建文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="781"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="788"/>
         <source>New Document</source>
         <translation>新建文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="783"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="790"/>
         <source>Create a New Document</source>
         <translation>新建文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="785"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="792"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="787"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="794"/>
         <source>Import a Document</source>
         <translation>导入文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="789"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="796"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="791"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="798"/>
         <source>Export a Document</source>
         <translation>导出文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="793"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="800"/>
         <source>Open in Board</source>
         <translation>在演示板中打开</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="795"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="802"/>
         <source>Open Page in Board</source>
         <translation>在演示板中打开本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="798"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="805"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="800"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="807"/>
         <source>Duplicate</source>
         <translation>副本</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="802"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="809"/>
         <source>Duplicate Selected Content</source>
         <translation>复制所选内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="804"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="811"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="806"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="813"/>
         <source>Delete Selected Content</source>
         <translation>删除所选内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="809"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="816"/>
         <source>Del</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="811"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="818"/>
         <source>Add to Working Document</source>
         <translation>添加到当前文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="813"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="820"/>
         <source>Add Selected Content to Open Document</source>
         <translation>把所选内容加入已打开的文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="815"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="912"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="822"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="919"/>
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="817"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="824"/>
         <source>Add Content to Document</source>
         <translation>添加内容到文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="819"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="826"/>
         <source>Rename</source>
         <translation>重命名</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="821"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="828"/>
         <source>Rename Content</source>
         <translation>重命名内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="823"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="827"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="830"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="834"/>
         <source>Tools</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="825"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="829"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="832"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="836"/>
         <source>Display Tools</source>
         <translation>显示工具</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="831"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="838"/>
         <source>Multi Screen</source>
         <translation>多屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="832"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="833"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="839"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="840"/>
         <source>Wide Size (16/9)</source>
         <translation>宽屏尺寸 (16/9)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="835"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="842"/>
         <source>Use Document Wide Size (16/9)</source>
         <translation>使用文档宽屏尺寸 (16/9)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="837"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="838"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="844"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="845"/>
         <source>Regular Size (4/3)</source>
         <translation>标准尺寸 (4/3)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="840"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="847"/>
         <source>Use Document Regular Size (4/3)</source>
         <translation>使用文档标准尺寸 (4/3)</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="842"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="843"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="849"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="850"/>
         <source>Custom Size</source>
         <translation>自定义尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="845"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="852"/>
         <source>Use Custom Document Size</source>
         <translation>使用自定义文档尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="847"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="854"/>
         <source>Stop Loading</source>
         <translation>停止加载</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="849"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="856"/>
         <source>Stop Loading Web Page</source>
         <translation>停止加载网页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="851"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="858"/>
         <source>Cut</source>
         <translation>剪切</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="852"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="859"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="853"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="860"/>
         <source>Paste</source>
         <translation>粘贴</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="854"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="861"/>
         <source>Sleep</source>
         <translation>待机</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="856"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="863"/>
         <source>Put Presentation to Sleep</source>
         <translation>让演示进入待机</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="858"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="865"/>
         <source>Virtual Keyboard</source>
         <translation>虚拟键盘</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="860"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="867"/>
         <source>Display Virtual Keyboard</source>
         <translation>显示虚拟键盘</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="862"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="865"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="869"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="872"/>
         <source>Plain Light Background</source>
         <translation>浅色纯色背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="863"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="868"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="873"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="870"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="875"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="880"/>
         <source>Light</source>
         <translation>浅色</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="867"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="870"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="874"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="877"/>
         <source>Grid Light Background</source>
         <translation>浅色网格背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="872"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="875"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="879"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="882"/>
         <source>Ruled Light Background</source>
         <translation>浅色横线背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="877"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="880"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="884"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="887"/>
         <source>Plain Dark Background</source>
         <translation>深色纯色背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="878"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="883"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="888"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="885"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="890"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="895"/>
         <source>Dark</source>
         <translation>深色</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="882"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="885"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="889"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="892"/>
         <source>Grid Dark Background</source>
         <translation>深色网格背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="887"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="890"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="894"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="897"/>
         <source>Ruled Dark Background</source>
         <translation>深色横线背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="892"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="899"/>
         <source>Screen Recording</source>
         <translation>录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="894"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="901"/>
         <source>Record the Screen to Video</source>
         <translation>录制屏幕为视频</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1003"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="975"/>
+        <source>Snap to Grid</source>
+        <translation>吸附到网格</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/MainWindow.cpp" line="977"/>
+        <source>Snap Items To The Page Grid</source>
+        <translation>拖动图元时吸向页面网格线</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/MainWindow.cpp" line="980"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/MainWindow.cpp" line="1017"/>
         <source>Pause Screen Recording</source>
         <translation>暂停录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1005"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1019"/>
         <source>Recording Config</source>
         <translation>录屏设置</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1007"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1021"/>
         <source>Configure Screen Recording</source>
         <translation>配置录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="896"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="903"/>
         <source>Record</source>
         <translation>录制</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="898"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="905"/>
         <source>Start Screen Recording</source>
         <translation>开始录屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="900"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="907"/>
         <source>Erase Items</source>
         <translation>擦除对象</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="902"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="909"/>
         <source>Erase All Items</source>
         <translation>清除全部对象</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="904"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1021"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="911"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1035"/>
         <source>Erase Annotations</source>
         <translation>清除批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="906"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="913"/>
         <source>Erase All Annotations</source>
         <translation>清除全部批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="908"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="915"/>
         <source>Clear Page</source>
         <translation>清空本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="910"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="917"/>
         <source>Clear All Elements</source>
         <translation>清除所有元素</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="913"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="920"/>
         <source>Pen</source>
         <translation>画笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="915"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="922"/>
         <source>Annotate Document</source>
         <translation>批注文档</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="918"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="925"/>
         <source>Ctrl+I</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="922"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="929"/>
         <source>Erase Annotation</source>
         <translation>清除批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="925"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="932"/>
         <source>Ctrl+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="927"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="934"/>
         <source>Marker</source>
         <translation>荧光笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="929"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="936"/>
         <source>Highlight </source>
         <translation>高亮</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="932"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="939"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="934"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="941"/>
         <source>Selector</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="936"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="943"/>
         <source>Select And Modify Objects</source>
         <translation>选择并修改对象</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="939"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="946"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="941"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="948"/>
         <source>Hand</source>
         <translation>抓手</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="943"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="950"/>
         <source>Scroll Page</source>
         <translation>滚动页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="947"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="954"/>
         <source>Laser Pointer</source>
         <translation>激光笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="949"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="956"/>
         <source>Virtual Laser Pointer</source>
         <translation>虚拟激光笔</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="952"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="959"/>
         <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="956"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="963"/>
         <source>Draw Lines</source>
         <translation>画直线</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="959"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="966"/>
         <source>Ctrl+J</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="961"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="968"/>
         <source>Text</source>
         <translation>文本</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="963"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="970"/>
         <source>Write Text</source>
         <translation>输入文字</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="966"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="973"/>
         <source>Ctrl+K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="968"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="982"/>
         <source>Capture</source>
         <translation>捕获</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="970"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1015"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="984"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1029"/>
         <source>Capture Part of the Screen</source>
         <translation>捕获屏幕局部</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="972"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="973"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="986"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="987"/>
         <source>Add To Current Page</source>
         <translation>添加到当前页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="975"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="989"/>
         <source>Add Item To Current Page</source>
         <translation>添加到当前页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="977"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="991"/>
         <source>Add To New Page</source>
         <translation>添加到新页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="979"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="993"/>
         <source>Add Item To New Page</source>
         <translation>添加到新页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="981"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="995"/>
         <source>Add To Library</source>
         <translation>添加到资源库</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="983"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="997"/>
         <source>Add Item To Library</source>
         <translation>添加到资源库</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="985"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="999"/>
         <source>Pages</source>
         <translation>页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="987"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="991"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1001"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1005"/>
         <source>Create a New Page</source>
         <translation>新建页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="989"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1003"/>
         <source>New Page</source>
         <translation>新建页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="993"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1007"/>
         <source>Duplicate Page</source>
         <translation>复制本页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="995"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1009"/>
         <source>Duplicate the Current Page</source>
         <translation>复制当前页</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="997"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1011"/>
         <source>Import Page</source>
         <translation>导入页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="999"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1013"/>
         <source>Import an External Page</source>
         <translation>导入外部页面</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1001"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1015"/>
         <source>Pause</source>
         <translation>暂停</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1009"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1023"/>
         <source>Web Trap</source>
         <translation>网页抓取</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1011"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1025"/>
         <source>Trap Web Content</source>
         <translation>抓取网页内容</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1013"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1027"/>
         <source>Custom Capture</source>
         <translation>自定义捕获</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1017"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1031"/>
         <source>Show on Display</source>
         <translation>在显示屏上显示</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1019"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1033"/>
         <source>Show Main Screen on Display Screen</source>
         <translation>把主屏投射到显示屏</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1023"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1037"/>
         <source>Erase all Annotations</source>
         <translation>清除全部批注</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1025"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1039"/>
         <source>Hide TianBoard</source>
         <translation>隐藏 TianBoard</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1027"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1041"/>
         <source>Hide TianBoard Application</source>
         <translation>隐藏 TianBoard 程序</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1030"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1044"/>
         <source>Ctrl+H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1032"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1046"/>
         <source>Play</source>
         <translation>播放</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1034"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1048"/>
         <source>Interact with items</source>
         <translation>与对象交互</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1036"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1050"/>
         <source>Erase Background</source>
         <translation>擦除背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1038"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1052"/>
         <source>Remove the backgound</source>
         <translation>移除背景</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1040"/>
-        <location filename="../../src/ui/MainWindow.cpp" line="1042"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1054"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1056"/>
         <source>Reset grid size</source>
         <translation>重置网格大小</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1185"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1199"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1186"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1200"/>
         <source>No</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1201"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1215"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>

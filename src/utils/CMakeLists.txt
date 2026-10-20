@@ -20,6 +20,8 @@ add_library(tb_utils STATIC
     GeometryUtils.cpp
     GeometryUtils.h
     Globals.h
+    Snapping.cpp
+    Snapping.h
     StringUtils.cpp
     StringUtils.h
     Version.cpp

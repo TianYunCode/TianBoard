@@ -269,6 +269,8 @@ void BoardController::connectToolbar()
     connect(mMainWindow->ui().actionNewPage, &QAction::triggered, this, qOverload<>(&BoardController::addScene));
     connect(mMainWindow->ui().actionDuplicatePage, &QAction::triggered, this, qOverload<>(&BoardController::duplicateScene));
 
+    connect(mMainWindow->ui().actionSnap, &QAction::toggled, this, &BoardController::setSnapping);
+
     connect(mMainWindow->ui().actionClearPage, &QAction::triggered, this, &BoardController::clearScene);
     connect(mMainWindow->ui().actionEraseItems, &QAction::triggered, this, &BoardController::clearSceneItems);
     connect(mMainWindow->ui().actionEraseAnnotations, &QAction::triggered, this, &BoardController::clearSceneAnnotation);

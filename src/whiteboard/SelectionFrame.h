@@ -146,6 +146,7 @@ private:
     QBrush                        mLocalBrush;     ///< 边框画刷
 
     QPointF mPressedPos;                           ///< 按下位置
+    QRectF  mStartingBounds;                       ///< 按下时选区的场景包围盒；吸附按它算，避免误差累积
     QPointF mLastMovedPos;                         ///< 上一次移动位置
     QPointF mLastTranslateOffset;                  ///< 上一次累计平移量，避免重复位移
     qreal   mRotationAngle;                        ///< 当前累计旋转角度（调试用）

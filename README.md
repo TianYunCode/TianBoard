@@ -77,8 +77,8 @@ D:/Qt/6.9.3/msvc2022_64/bin/lupdate.exe -no-obsolete \
 `lconvert.exe <新.ts> <旧.ts> -o <合并.ts>`（后一个输入的译文优先）合回去，再逐条补齐
 用户看得见的部分。
 
-当前抽取到 478 条源文本，`zh_CN` 已译完 262 条（覆盖主窗口工具栏/菜单动作与提示、内置工具名、设置对话框
-各标签页、关于页与版本号、录屏控制器与调色板、IWB 导入导出、下载管理与桌面调色板），其余 216 条自动回落到英文。
+当前抽取到 481 条源文本，`zh_CN` 已译完 264 条（覆盖主窗口工具栏/菜单动作与提示、内置工具名、设置对话框
+各标签页、关于页与版本号、录屏控制器与调色板、IWB 导入导出、下载管理与桌面调色板），其余 217 条自动回落到英文。
 `Ctrl+T`、`PgUp` 这类快捷键串是按键名本身，不译。
 
 ## 目录结构
@@ -114,7 +114,7 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 收紧成真 `STATIC` 库；其余模块因为还有 11 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
-代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，344 个文件）已用
+代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，352 个文件）已用
 clang-format 22.1.8 排过一次，日常提交前跑 `.\scripts\format.ps1 -Check`（0 才是干净）。
 `third/` 与 `src/app/resource.h` 永久排除（后者是 ANSI 代码页给 `rc.exe` 读的符号表，
 重排或转码会让 `.res` 静默出错），格式化结果绑定 clang-format 版本，升版本要单独一次全量提交。

@@ -79,6 +79,8 @@ struct BoardView::Private
 
     bool           mWidgetMoved{false};
     QPointF        mLastPressedMousePos;
+    QPointF        mFirstPressedMousePos; ///< 本次拖动按下时的落点，用来算总位移
+    QList<QPointF> mCornerPoints;         ///< 按下时图元的四个角（场景坐标），吸附按它们算
     QGraphicsItem *movingItem{nullptr};
     QMouseEvent   *suspendedMousePressEvent{nullptr};
 
@@ -797,6 +799,17 @@ void BoardView::handleItemMousePress(QMouseEvent *event)
     d->movingItem           = determineItemToPress(d->movingItem);
     handleItemsSelection(d->movingItem);
 
+    // 记下按下时的四角与落点：拖动时用“相对按下点的总位移”预测当前位置再吸附，
+    // 这样同一次拖动里反复吸附不会把误差一点点累积进图元位置。
+    d->mFirstPressedMousePos = d->mLastPressedMousePos;
+    d->mCornerPoints.clear();
+    if (d->movingItem)
+    {
+        const QRectF bounds = GraphicsScene::itemRectForSnapping(d->movingItem);
+        d->mCornerPoints << d->movingItem->mapToScene(bounds.topLeft()) << d->movingItem->mapToScene(bounds.topRight())
+                         << d->movingItem->mapToScene(bounds.bottomLeft()) << d->movingItem->mapToScene(bounds.bottomRight());
+    }
+
     if (isMultipleSelectionEnabled())
     {
         return;
@@ -858,8 +871,35 @@ void BoardView::handleItemMouseMove(QMouseEvent *event)
         QPointF scenePos = mapToScene(event->position().toPoint());
         QPointF newPos   = d->movingItem->pos() + scenePos - d->mLastPressedMousePos;
         d->movingItem->setPos(newPos);
-        d->mLastPressedMousePos = scenePos;
-        d->mWidgetMoved         = true;
+
+        if (scene()->isSnapping() && !d->mCornerPoints.isEmpty())
+        {
+            const QPointF moved = scenePos - d->mFirstPressedMousePos;
+
+            QList<QPointF> corners;
+            foreach (const QPointF &corner, d->mCornerPoints)
+            {
+                corners << corner + moved;
+            }
+
+            int           snapIndex  = -1;
+            const QPointF snapVector = scene()->snapCorners(corners, &snapIndex);
+
+            if (!snapVector.isNull())
+            {
+                newPos += snapVector;
+                d->movingItem->setPos(newPos);
+            }
+
+            // 位移的基准点也要跟着吸过去，否则下一次移动又会从没吸的位置起算，图元会来回抖。
+            d->mLastPressedMousePos = scenePos + snapVector;
+        }
+        else
+        {
+            d->mLastPressedMousePos = scenePos;
+        }
+
+        d->mWidgetMoved = true;
         event->accept();
     }
     else

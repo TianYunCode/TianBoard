@@ -22,6 +22,11 @@ tianboard_add_test(tst_stringutils
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/StringUtils.cpp
     LIBS    Qt6::Core Qt6::Core5Compat)
 
+# 网格吸附只是纯几何：一个 QPointF 加一个格距算位移，脱离整个应用栈单独构建。
+tianboard_add_test(tst_snapping
+    SOURCES ${CMAKE_SOURCE_DIR}/src/utils/Snapping.cpp
+    LIBS    Qt6::Core)
+
 tianboard_add_test(tst_geometryutils
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/GeometryUtils.cpp
     LIBS    Qt6::Core Qt6::Gui Qt6::Widgets)

@@ -86,6 +86,8 @@
         <file>images/toolbar/paste.png</file>
         <file>images/toolbar/pageSize.png</file>
         <file>images/toolbar/tools.png</file>
+        <file>images/stylusPalette/snap.svg</file>
+        <file>images/stylusPalette/snapOn.svg</file>
         <file>images/stylusPalette/arrow.png</file>
         <file>images/stylusPalette/arrowOn.png</file>
         <file>images/stylusPalette/handPlay.png</file>

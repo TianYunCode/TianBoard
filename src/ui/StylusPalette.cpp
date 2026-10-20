@@ -35,6 +35,7 @@ StylusPalette::StylusPalette(QWidget *parent, Qt::Orientation orient) : ActionPa
     actions << Application::mainWindow->ui().actionLine;
     actions << Application::mainWindow->ui().actionText;
     actions << Application::mainWindow->ui().actionCapture;
+    actions << Application::mainWindow->ui().actionSnap;
 
     if (PlatformUtils::hasVirtualKeyboard())
     {

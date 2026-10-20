@@ -150,6 +150,7 @@ void SelectionFrame::mousePressEvent(QGraphicsSceneMouseEvent *event)
     mPressedPos = mLastMovedPos = event->pos();
     mLastTranslateOffset        = QPointF();
     mRotationAngle              = 0;
+    mStartingBounds             = sceneBoundingRect();
 
     if (scene()->itemAt(event->scenePos(), transform()) == mRotateButton)
     {
@@ -170,6 +171,13 @@ void SelectionFrame::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     QPointF dp        = event->pos() - mPressedPos;
     QPointF rotCenter = mapToScene(rect().center());
+
+    // 整组拖动也要吸到网格：拿“按下时的选区 + 这次的总位移”去吸附，
+    // 同一次拖动里反复算也不会把误差累积进位移。
+    if (GraphicsScene *boardScene = dynamic_cast<GraphicsScene *>(scene()); boardScene && boardScene->isSnapping())
+    {
+        dp += boardScene->snapToGrid(mStartingBounds.translated(dp));
+    }
 
     foreach (GraphicsItemDelegate *curDelegate, mEnclosedtems)
     {

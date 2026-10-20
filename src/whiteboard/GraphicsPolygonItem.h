@@ -135,17 +135,17 @@ public:
     virtual void copyItemParameters(Item *copy) const;
 
     /** @brief 返回生成该多边形的原始线段。 */
-    QLineF originalLine()
+    QLineF originalLine() const
     {
         return mOriginalLine;
     }
     /** @brief 返回原始线宽。 */
-    qreal originalWidth()
+    qreal originalWidth() const
     {
         return mOriginalWidth;
     }
     /** @brief 是否仍为未编辑的原始线段。 */
-    bool isNominalLine()
+    bool isNominalLine() const
     {
         return mIsNominalLine;
     }
