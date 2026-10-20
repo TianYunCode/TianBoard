@@ -164,7 +164,6 @@
         <file>images/libpalette/AudiosCategory.svg</file>
         <file>images/libpalette/PicturesCategory.svg</file>
         <file>images/libpalette/ShapesCategory.svg</file>
-        <file>images/libpalette/InteractivesCategory.svg</file>
         <file>images/libpalette/movieIcon.svg</file>
         <file>images/libpalette/soundIcon.svg</file>
         <file>images/libpalette/folder.svg</file>
@@ -176,7 +175,6 @@
         <file>images/libpalette/miniNewFolder.png</file>
         <file>images/libpalette/miniFavorite.png</file>
         <file>images/libpalette/home.png</file>
-        <file>images/toolbar/updates.png</file>
         <file>images/toolbar/display.png</file>
         <file>images/toolbar/hide.png</file>
         <file>images/libpalette/MoviesCategory.svg</file>
@@ -213,7 +211,6 @@
         <file>images/moveDownDisabled.svg</file>
         <file>images/closeDisabled.svg</file>
         <file>images/moveUpDisabled.svg</file>
-        <file>images/tab_mask.png</file>
         <file>images/roundeRrectangle.svg</file>
         <file>images/circle.svg</file>
         <file>images/rightAligned.svg</file>

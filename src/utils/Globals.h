@@ -1,20 +1,12 @@
 /**
  * @file Globals.h
- * @brief 声明删除指针、套用全局样式表与临时压制第三方警告的宏。
+ * @brief 声明套用全局样式表与临时压制第三方警告的宏。
  */
 
 #pragma once
 
 #include <QString>
 #include <QFile>
-
-/// 删除指针并置空；传入空指针时无操作。
-#define DELETEPTR(ptr) \
-    if (NULL != ptr)   \
-    {                  \
-        delete ptr;    \
-        ptr = NULL;    \
-    }
 
 /// 把 :/style.qss 读入并套到当前控件上；样式资源不存在时清空样式。
 #define SET_STYLE_SHEET()                              \
