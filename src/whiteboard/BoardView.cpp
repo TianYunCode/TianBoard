@@ -23,6 +23,7 @@
 #include "ui/RubberBand.h"
 #include "ui/ToolWidget.h"
 #include "ui/Resources.h"
+#include "whiteboard/SnapIndicator.h"
 #include "ui/MainWindow.h"
 #include "ui/ThumbnailWidget.h"
 
@@ -89,6 +90,8 @@ struct BoardView::Private
 
     QList<QGraphicsItem *> mRubberedItems;
     QSet<QGraphicsItem *>  mJustSelectedItems;
+
+    SnapIndicator *mSnapIndicator{nullptr}; ///< 吸附命中时的参考标记，第一次用到才建
 
     int    mLongPressInterval{0};
     QTimer mLongPressTimer;
@@ -862,6 +865,16 @@ void BoardView::handleItemMousePress(QMouseEvent *event)
     }
 }
 
+void BoardView::updateSnapIndicator(Qt::Corner corner, const QPointF &snapPoint, qreal angle)
+{
+    if (!d->mSnapIndicator)
+    {
+        d->mSnapIndicator = new SnapIndicator(this);
+    }
+
+    d->mSnapIndicator->appear(corner, snapPoint, angle);
+}
+
 void BoardView::handleItemMouseMove(QMouseEvent *event)
 {
     d->movingItem = determineItemToMove(d->movingItem);
@@ -889,6 +902,10 @@ void BoardView::handleItemMouseMove(QMouseEvent *event)
             {
                 newPos += snapVector;
                 d->movingItem->setPos(newPos);
+
+                // 标记跟着那条边的角度转，图元歪着放的时候参考角也不脱开。
+                updateSnapIndicator(
+                    static_cast<Qt::Corner>(snapIndex), corners.at(snapIndex) + snapVector, QLineF(corners.at(0), corners.at(1)).angle());
             }
 
             // 位移的基准点也要跟着吸过去，否则下一次移动又会从没吸的位置起算，图元会来回抖。

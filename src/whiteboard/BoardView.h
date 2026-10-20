@@ -102,6 +102,9 @@ protected:
     /// @brief 处理图元上的鼠标移动。
     void handleItemMouseMove(QMouseEvent *event);
 
+    /// @brief 在吸附命中的位置亮一次参考标记；标记控件按需创建，随视图销毁。
+    void updateSnapIndicator(Qt::Corner corner, const QPointF &snapPoint, qreal angle = 0);
+
     /// @brief 事件总入口，先处理平板/手势等特殊情况。
     virtual bool event(QEvent *e);
 

@@ -105,6 +105,8 @@ add_library(tb_whiteboard OBJECT
     QPdfRenderer.h
     ResizableGraphicsItem.cpp
     ResizableGraphicsItem.h
+    SnapIndicator.cpp
+    SnapIndicator.h
     SelectionFrame.cpp
     SelectionFrame.h
     ToolsManager.cpp
