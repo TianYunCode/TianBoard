@@ -4,8 +4,10 @@
 #include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
 
+#include "api/WebWidgetBoardAPI.h"
 #include "core/Application.h"
 #include "settings/Settings.h"
+#include "whiteboard/BoardDropHandler.h"
 
 
 void messageOutputHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
@@ -57,6 +59,14 @@ int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(TianBoard);
 
     qInstallMessageHandler(messageOutputHandler);
+
+    // 装配点认识所有模块：画板只声明了 BoardDropHandler 接口，实现是 api 的门面
+    // （它要 DownloadManager 和文档的对象目录）。装上之前画板不会崩，只是不接拖放。
+    // 见 docs/architecture.md 拆环顺序第 3 步。
+    installBoardDropHandlerFactory(
+        [](GraphicsScene *scene, GraphicsWidgetItem *widget) -> BoardDropHandler * {
+            return new WebWidgetBoardAPI(scene, widget);
+        });
 
     Application app("TianBoard", argc, argv);
 

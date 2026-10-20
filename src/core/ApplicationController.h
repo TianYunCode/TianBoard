@@ -75,8 +75,6 @@ public:
 
     bool isShowingDesktop() { return mIsShowingDesktop; }
 
-    QStringList widgetInlineJavaScripts();
-
 signals:
     void mainModeChanged(ApplicationController::MainMode pMode);
     void desktopMode(bool displayed);

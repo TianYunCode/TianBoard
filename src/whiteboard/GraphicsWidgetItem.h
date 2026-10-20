@@ -11,12 +11,8 @@
 #include "whiteboard/Item.h"
 #include "whiteboard/ResizableGraphicsItem.h"
 
-class WebWidgetBoardAPI;
+class BoardDropHandler;
 class GraphicsScene;
-class WebWidgetAPI;
-class WebWidgetStorageAPI;
-class GraphiscItem;
-class GraphiscItemDelegate;
 
 struct WidgetType {
     enum Enum { Web = 0, Apple, Other };
@@ -132,14 +128,12 @@ protected:
     virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     virtual void sendJSEnterEvent();
     virtual void sendJSLeaveEvent();
-    virtual void injectInlineJavaScript();
     virtual void wheelEvent(QGraphicsSceneWheelEvent *event);
     //virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 protected slots:
     void geometryChangeRequested(const QRect &geom);
-    virtual void javaScriptWindowObjectCleared();
     void mainFrameLoadFinished(bool ok);
 
 private slots:
@@ -150,14 +144,11 @@ private:
     bool mIsFrozen;
     bool mIsTakingSnapshot;
     bool mShouldMoveWidget;
-    WebWidgetBoardAPI *mBoardAPI;
+    BoardDropHandler *mDropHandler;
     QPixmap mSnapshot;
     QPointF mLastMousePos;
     QUrl ownFolder;
     QUrl SnapshotFile;
-
-    static bool sInlineJavaScriptLoaded;
-    static QStringList sInlineJavaScripts;
 };
 
 class GraphicsAppleWidgetItem : public GraphicsWidgetItem {
@@ -226,14 +217,10 @@ public:
 
     Metadata mMetadatas;
 
-private slots:
-    virtual void javaScriptWindowObjectCleared();
-
 private:
     static void loadNPAPIWrappersTemplates();
     static QString textForSubElementByLocale(QDomElement rootElement, QString subTagName, QLocale locale);
 
-    WebWidgetAPI *mWebWidgetAPI;
     QMap<QString, PreferenceValue> mPreferences;
 
     static bool sTemplateLoaded;

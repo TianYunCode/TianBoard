@@ -5,9 +5,10 @@
 #              原 board/ + domain/ + tools/ 三块合并（它们本就同属画板域，
 #              分开只让 include 前缀显得比实际耦合更干净）。
 #
-# 允许依赖：model、utils、api。尚未成立的边：whiteboard <-> core / ui / content /
-# web / platform。对 desktop 与 recording 已经是零出边（录制按钮的转发与桌面批注
-# 宿主都挪到 core 装配层）。绘制热路径在本模块，改动要盯性能。
+# 允许依赖：model、utils。尚未成立的边：whiteboard <-> core / ui / content /
+# web / platform。对 api、desktop 与 recording 已经是零出边：录制按钮的转发与桌面
+# 批注宿主都挪到了 core 装配层，拖放门面改经本模块的 BoardDropHandler 接口回调。
+# 绘制热路径在本模块，改动要盯性能。
 # ======================================================================
 
 add_library(tb_whiteboard OBJECT
@@ -15,6 +16,8 @@ add_library(tb_whiteboard OBJECT
     AbstractDrawRuler.h
     BoardController.cpp
     BoardController.h
+    BoardDropHandler.cpp
+    BoardDropHandler.h
     BoardPaletteManager.cpp
     BoardPaletteManager.h
     BoardView.cpp

@@ -19,30 +19,37 @@
 - **建议**：确认这是废弃协议还是待实现；废弃就删掉声明与调用点，待实现就补测试。
 
 ### 2. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1018/1045/1064`（`freezedWidgetWrapper.html`、
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:993/1011/1030`（`freezedWidgetWrapper.html`、
   按 `npapi-wrapper*` 前缀挑包装页、读 `etc/npapi-wrapper.config.xml`）与
-  `src/content/IwbSubsetAdaptor.cpp:896`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
+  `src/content/IwbSubsetAdaptor.cpp:895`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
 - **现象**：Qt6 WebEngine 没有 NPAPI/Flash 插件接口，这套包装页只能显示一张“无法播放”的
   静态图；但代码路径是活的，旧文档里的 flash 条目会走到这里。
 - **建议**：要么把 flash 条目明确降级成“不支持的媒体”并提示用户，要么连同
   `res/etc/npapi-wrapper.*`、`freezedWidgetWrapper.html` 一起删。属于产品可见的取舍。
 
 ### 3. 小部件的 JS 桥与加载回调在 Qt6 里没有接回来
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp`（`javaScriptWindowObjectCleared()`、
-  `mainFrameLoadFinished()`、`initialLayoutCompleted()`、`injectInlineJavaScript()`）与
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp`（`mainFrameLoadFinished()`、
+  `initialLayoutCompleted()`、`geometryChangeRequested()`、`onLinkClicked()`）与
   `src/ui/ToolWidget.cpp::initialize()`（只 `load()`，页面里拿不到任何 API 对象）
 - **现象**：Qt5 时代这些槽挂在 `page()->mainFrame()` 的
-  `javaScriptWindowObjectCleared`/`initialLayoutCompleted` 等信号上，Qt6 WebEngine 没有
-  对应信号（要换 `QWebEnginePage::webChannel` + 页面侧 `qwebchannel.js`，小部件自己的
-  脚本不认），所以这些槽没有发送者：`mBoardAPI`/`mWebWidgetAPI` 从不创建，
-  `mInitialLoadDone` 恒为 false ⇒ `hasLoadedSuccessfully()` 恒 false，`paint()` 永远走
-  “未加载”分支。小部件仍能显示（`ToolWidget` 的预览视图是真的），但脚本调不到画板能力。
-- **已顺手修掉的两处故障**：拖放落到小部件上时 `mBoardAPI` 是空指针（现在按需创建）；
+  `initialLayoutCompleted`/`geometryChangeRequested`/`linkClicked` 等信号上，Qt6 WebEngine
+  没有对应信号（要换 `QWebEnginePage::webChannel` + 页面侧 `qwebchannel.js`，小部件自己的
+  脚本不认），所以这些槽没有发送者：`mInitialLoadDone` 恒为 false ⇒
+  `hasLoadedSuccessfully()` 恒 false，`paint()` 永远走“未加载”分支。小部件仍能显示
+  （`ToolWidget` 的预览视图是真的），但脚本调不到画板能力。
+- **这一轮已经删掉的死半截**：`javaScriptWindowObjectCleared()`（基类与
+  `GraphicsWebWidgetItem` 两处）、`injectInlineJavaScript()` 连同它读的
+  `widget-inline-js` 目录扫描（`ApplicationController::widgetInlineJavaScripts()`，
+  部署里根本没有这个目录）、只被那条死链 new 出来的 `WebWidgetAPI`/
+  `WebWidgetPreferenceAPI` 两个门面，以及 `FeaturesWebWidget` 里从不使用的 `boardApi`。
+  留着的四个槽是给桥恢复用的，删了就等于把这条路堵死。
+- **已顺手修掉的故障**：拖放落到小部件上时门面是空指针——现在经 `whiteboard/BoardDropHandler`
+  接口按需创建（实现由 `app/main.cpp` 装上，见 docs/architecture.md 第五节）；
   `ToolWidget::javaScriptWindowObjectCleared()` 每次切活动场景 `new` 一个
   `WebWidgetBoardAPI`（父对象给场景，无人接收）并重复连接
   `DownloadManager::downloadFinished` —— 泄漏 + 重复回调，已连同该槽一起删除。
 - **建议**：真要恢复脚本桥，需要一次独立改造：定下 QWebChannel 的对象名与 JS 侧包装，
-  并把 `WebWidget*API` 三个门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
+  并把 `WebWidget*API` 剩下的门面的 `Q_PROPERTY`/`SCRIPTABLE` 换成 `Q_INVOKABLE`。
 
 ### 4. 「捕获网页」(Web Trap) 在 Qt6 下整条命中测试链是空的
 - **位置**：`src/web/WebTrapWebView.cpp`（`trapElementAtPos()` 的函数体整块在 `/* */` 里、
@@ -55,19 +62,20 @@
 - **建议**：恢复就在 `WebEnginePage` 里跑一段脚本取命中元素再回传（截图/内嵌代码两条输出），
   或者干脆连同工具栏动作一起删掉。
 
-### 5. `FeaturesWidget` / `StartupHintsPalette` 里的 `boardApi` 是拿空场景造的死人对象
-- **位置**：`src/ui/FeaturesWidget.cpp:840`（`new WebWidgetBoardAPI(Application::boardController->activeScene())`）、
-  `src/ui/StartupHintsPalette.cpp:31`（`new WebWidgetBoardAPI(0)`）
+### 5. `FeaturesWidget` / `StartupHintsPalette` 里的 `boardApi` 是拿空场景造的死人对象（已清）
+- **位置**：`src/ui/FeaturesWidget.cpp`（原来是 `new WebWidgetBoardAPI(Application::boardController->activeScene())`）、
+  `src/ui/StartupHintsPalette.cpp`（原来是 `new WebWidgetBoardAPI(0)`）
 - **为什么恒空**：构造链在 `Application::exec()` 里走到 `boardController->init()` →
   `setupViews()` → `BoardPaletteManager` → `FeaturesWidget`，而 `setActiveDocumentScene()`
   要到 `init()` 的后半段才调，所以 `activeScene()` 此刻还是 0。于是这些小部件 API 对象的
   `if (activeScene() != mScene) return;` 全部提前返回（`pageCount()` 恒 -1），
   而构造函数照样给全局的 `DownloadManager::downloadFinished` 挂了一条永久接收者。
-- **现状**：不可达（小部件 JS 桥本来就没接回来，见第三节），所以不崩；但每次下载完成都会
-  空转跑一遍这些接收者。
-- **建议**：接第二节那笔账一起做——桥恢复时这些对象要按 `GraphicsWidgetItem::processDropEvent()`
-  那样**按需创建**，不要在构造期拿"当时的活动场景"。`StartupHintsPalette` 整类目前连构造点
-  都被注释（`BoardPaletteManager.cpp:187`），可以先删。
+- **处理**：两处都已删。`StartupHintsPalette` 整类连构造点都被注释，属于死类，在删死类那批
+  一起删掉；`FeaturesWebWidget::boardApi` 从头到尾只被一个空 body 的
+  `if (ok && NULL != d->boardApi) {}` 读过，连同那个槽一起删——少一条没人接收、
+  每次下载完成都空转的全局连接。
+- **剩下的规矩**：桥真要恢复，这些小部件门面必须像 `GraphicsWidgetItem::processDropEvent()`
+  那样**按需创建**，不要在构造期拿“当时的活动场景”（见第三节）。
 
 ### 6. `.iwb` 的命名空间校验只打日志、不拒绝
 - **位置**：`src/content/IwbSubsetAdaptor.cpp:1100/1108/1127/1207` 四条"incorrect … namespace,

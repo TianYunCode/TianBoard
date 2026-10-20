@@ -3,13 +3,11 @@
 #include <QtWebChannel/QWebChannel>
 
 #include "whiteboard/GraphicsWidgetItem.h"
+#include "whiteboard/BoardDropHandler.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsItemDelegate.h"
 #include "whiteboard/GraphicsWidgetItemDelegate.h"
 #include "whiteboard/GraphicsDelegateFrame.h"
-
-#include "api/WebWidgetBoardAPI.h"
-#include "api/WebWidgetAPI.h"
 
 #include "whiteboard/BoardController.h"
 
@@ -24,9 +22,6 @@
 #include "web/WebKitUtils.h"
 #include "web/WebController.h"
 
-bool GraphicsWidgetItem::sInlineJavaScriptLoaded = false;
-QStringList GraphicsWidgetItem::sInlineJavaScripts;
-
 GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
     : QGraphicsWidget(parent),
       mInitialLoadDone(false),
@@ -39,7 +34,7 @@ GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *pa
       mIsFrozen(false),
       mIsTakingSnapshot(false),
       mShouldMoveWidget(false),
-      mBoardAPI(0) {
+      mDropHandler(nullptr) {
     setData(
         GraphicsItemData::ItemLayerType,
         QVariant(itemLayerType::ObjectItem)); //Necessary to set if we want z value to be assigned correctly
@@ -95,8 +90,6 @@ void GraphicsWidgetItem::initialize() {
     page()->setPalette(palette);
     page()->setLinkDelegationPolicy(QWebEnginePage::DelegateAllLinks);*/
 
-    //connect(page()->mainFrame(), &QWebChannel::javaScriptWindowObjectCleared,
-    //        this, &GraphicsWidgetItem::javaScriptWindowObjectCleared);
     //connect(page(), SIGNAL(geometryChangeRequested(const QRect&)), this, SLOT(geometryChangeRequested(const QRect&)));
     //connect(this, SIGNAL(loadFinished(bool)), this, SLOT(mainFrameLoadFinished (bool)));
     //connect(page()->mainFrame(), SIGNAL(initialLayoutCompleted()), this, SLOT(initialLayoutCompleted()));
@@ -225,13 +218,15 @@ void GraphicsWidgetItem::removeScript() {
 }
 
 void GraphicsWidgetItem::processDropEvent(QGraphicsSceneDragDropEvent *event) {
-    // mBoardAPI 原本只在 javaScriptWindowObjectCleared() 里建，而 Qt6 的
+    // 处理拖放的是 api 的门面（它要 DownloadManager 与文档对象目录），画板只认
+    // BoardDropHandler 这个接口；实现由装配点在启动时装上。
+    // 原来 mBoardAPI 只在 javaScriptWindowObjectCleared() 里建，而 Qt6 的
     // QWebEnginePage 没有那个信号去触发它 —— 拖放落到小部件上就是一次空指针。
-    // 父对象给场景，随场景一起回收。
-    if (!mBoardAPI)
-        mBoardAPI = new WebWidgetBoardAPI(scene(), this);
+    if (!mDropHandler)
+        mDropHandler = createBoardDropHandler(scene(), this);
 
-    mBoardAPI->ProcessDropEvent(event);
+    if (mDropHandler)
+        mDropHandler->processDropEvent(event);
 }
 
 QUrl GraphicsWidgetItem::getOwnFolder() const {
@@ -476,16 +471,6 @@ void GraphicsWidgetItem::sendJSLeaveEvent() {
     //    page()->mainFrame()->evaluateJavaScript("if(widget && widget.onleave) { widget.onleave();}");
 }
 
-void GraphicsWidgetItem::injectInlineJavaScript() {
-    if (!sInlineJavaScriptLoaded) {
-        sInlineJavaScripts = Application::applicationController->widgetInlineJavaScripts();
-        sInlineJavaScriptLoaded = true;
-    }
-
-    //foreach(QString script, sInlineJavaScripts)
-    //    page()->mainFrame()->evaluateJavaScript(script);
-}
-
 void GraphicsWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     //QGraphicsView::paint(painter, option, widget);
 
@@ -516,13 +501,6 @@ void GraphicsWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 void GraphicsWidgetItem::geometryChangeRequested(const QRect &geom) {
     resize(geom.width(), geom.height());
-}
-
-void GraphicsWidgetItem::javaScriptWindowObjectCleared() {
-    injectInlineJavaScript();
-
-    if (!mBoardAPI)
-        mBoardAPI = new WebWidgetBoardAPI(scene(), this);
 }
 
 void GraphicsWidgetItem::mainFrameLoadFinished(bool ok) {
@@ -659,7 +637,7 @@ QString GraphicsWebWidgetItem::sNPAPIWrappperConfigTemplate;
 QMap<QString, QString> GraphicsWebWidgetItem::sNPAPIWrapperTemplates;
 
 GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
-    : GraphicsWidgetItem(pWidgetUrl, parent), mWebWidgetAPI(0) {
+    : GraphicsWidgetItem(pWidgetUrl, parent) {
     QString path = pWidgetUrl.toLocalFile();
     QDir potentialDir(path);
 
@@ -783,9 +761,6 @@ GraphicsWebWidgetItem::GraphicsWebWidgetItem(const QUrl &pWidgetUrl, QGraphicsIt
 
     if (!f.exists())
         mMainHtmlUrl = QUrl(mMainHtmlFileName);
-
-    //connect(page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
-    //connect(Application::boardController, SIGNAL(activeSceneChanged()), this, SLOT(javaScriptWindowObjectCleared()));
 
     //load(mMainHtmlUrl);
 
@@ -1022,15 +997,6 @@ bool GraphicsWebWidgetItem::hasNPAPIWrapper(const QString &pMimeType) {
     loadNPAPIWrappersTemplates();
 
     return sNPAPIWrapperTemplates.contains(pMimeType);
-}
-
-void GraphicsWebWidgetItem::javaScriptWindowObjectCleared() {
-    GraphicsWidgetItem::javaScriptWindowObjectCleared();
-
-    if (!mWebWidgetAPI)
-        mWebWidgetAPI = new WebWidgetAPI(this);
-
-    //page()->mainFrame()->addToJavaScriptWindowObject("widget", mWebWidgetAPI);
 }
 
 void GraphicsWebWidgetItem::loadNPAPIWrappersTemplates() {

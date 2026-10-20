@@ -25,7 +25,7 @@ src/
   ├─ content/      文档格式读写与导入导出：.tbz/.tbx 与 IWB 子集（IwbDocumentAdaptor /
   │                IwbSubsetAdaptor / ExportIwb / ImportIwb）、SVG/RDF 元数据、缩略图数据、
   │                PDF 渲染导出（原 adaptors/ + pdf/）
-  ├─ api/          小部件与文档对外 API 门面（WebWidgetAPI/WebWidgetBoardAPI/WebWidgetMessageAPI）
+  ├─ api/          小部件与文档对外 API 门面（WebWidgetBoardAPI/WebWidgetMessageAPI）
   ├─ web/          内嵌浏览器与网页控制器（原 web/ + web/browser/）
   ├─ desktop/      屏幕批注（平台无关部分）
   ├─ recording/    录屏：画面与声音采集、录制调色板、Windows Media 编码器
@@ -127,7 +127,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 15 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 14 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
@@ -159,7 +159,6 @@ include。
 | `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
 | `core` ↔ `recording` | 2 / 7 | ApplicationController/PreferencesController 认 RecordingController |
-| `api` ↔ `whiteboard` | 8 / 2 | `whiteboard/GraphicsWidgetItem.cpp` 反向认 api 门面 |
 | `content` ↔ `ui` | 2 / 2 | `content/ExportAdaptor.cpp` 弹 MessagesDialog/MainWindow |
 | `web` ↔ `whiteboard` | 5 / 7 | 互相认控制器与图形项 |
 
@@ -183,7 +182,7 @@ include。
   （`checkLayout`/`onActivated`/`onLocaleChanged`）、从没定义过的 `sendKeyEvent` 声明，
   以及两处 `#ifndef Q_OS_WIN` 里连接空槽的 `onDeactivated`——本工程只有 Win32 平台实现。
 
-`whiteboard` 现在对 `desktop` 与 `recording` 都是**零出边**（这两组环因此消失）：
+`whiteboard` 现在对 `desktop`、`recording` 与 `api` 都是**零出边**（这三组环因此消失）：
 
 - 白板工具栏的“录制”按钮不再由 `BoardPaletteManager` 转发。这条 connect 挪到装配层
   （`core/Application.cpp`），转发的槽换成 `ApplicationController::toggleRecordingPalette`
@@ -200,6 +199,16 @@ include。
   Win32 平台实现（`src/platform/*_win.cpp`），Mac 上根本链接不起来；而且那段代码 include
   的是 `core/ApplicationController.h`，头文件里 `DesktopAnnotationController` 只是前置声明，
   它调用成员函数——即便真在 Mac 上编译也是错的。
+- 拖放门面反向边：`GraphicsWidgetItem::processDropEvent` 过去 `new WebWidgetBoardAPI(...)`
+  再调它，画板因此 include `api/`。现在画板只认自己这层的 `whiteboard/BoardDropHandler`
+  接口（一个纯虚函数 + 一个工厂指针），`WebWidgetBoardAPI` 实现它，实现由装配点
+  `app/main.cpp` 在启动时装上（`installBoardDropHandlerFactory`）。放在 `app/` 而不是
+  `core/Application.cpp`，是因为 api 本来就认 core，装上就会新造一组 `core` ↔ `api` 环；
+  `app/` 是唯一允许认识所有模块的那一层。没装上也不会崩，只是不接拖放。
+  同一次改动里删掉了 `WebWidgetAPI`/`WebWidgetPreferenceAPI` 两个门面与整条
+  `javaScriptWindowObjectCleared` → `injectInlineJavaScript` 的死链：Qt6 没有
+  `addToJavaScriptWindowObject`，注册它们的 connect 在移植时就断了线，`widget-inline-js`
+  目录也不在部署里——只剩"被一个从没接上的槽 new 出来"这一处引用。
 
 ### 拆环顺序（从叶子往根拆）
 
@@ -209,8 +218,8 @@ include。
 1. ~~**`utils/`**~~（已完成：出边为零，已收紧成 STATIC）
 2. ~~**`settings/`**~~（已完成：资源目录下沉到 `utils/FileSystemUtils`，登录名由
    `core/Application` 启动时注入；出边只有 utils，已收紧成 STATIC）
-3. **`api/`**：断开 `whiteboard/GraphicsWidgetItem.cpp` → api 的反向边（小部件经
-   QObject 消息桥调用画板能力，改为画板侧注册回调/接口，api 只认下层的 whiteboard）。
+3. ~~**`api/`**~~（已完成：见上一节最后一条，`whiteboard` 对 api 零出边。本模块仍认
+   whiteboard/core/model/content/utils，是画板之上的一层门面）
 4. **`model/`**：断开 `model` → `ui`（DocumentController 直接实例化缩略图视图）与
    `model` → `content`（DocumentContainer 直接调 ThumbnailAdaptor）。两处都要抽接口：
    `IThumbnailProvider`、`IDocumentStore`，由装配层（core/app）注入。
@@ -236,8 +245,8 @@ include。
 由 `src/` 全量扫描得到）：
 
 ```text
-api         -> content:1, core:6, model:1, settings:1, utils:2, web:1, whiteboard:8
-app         -> core:1, platform:1, settings:1, utils:1
+api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
+app         -> api:1, core:1, platform:1, settings:1, utils:1, whiteboard:1
 content     -> core:44, model:22, platform:3, settings:12, ui:2, utils:22, whiteboard:50
 core        -> content:15, desktop:2, model:11, platform:7, recording:2, settings:15,
                ui:11, utils:7, web:2, whiteboard:33
@@ -246,12 +255,12 @@ model       -> content:5, core:13, platform:1, settings:4, ui:8, utils:5, whiteb
 platform    -> utils:1
 recording   -> core:7, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> api:1, content:2, core:40, model:9, platform:9, settings:16, utils:8,
+ui          -> content:2, core:40, model:9, platform:9, settings:16, utils:8,
                whiteboard:40
 utils       -> （无出边）
 web         -> core:17, platform:1, settings:5, ui:5, utils:2, whiteboard:5
-whiteboard  -> api:2, content:3, core:65, model:9, platform:5, settings:20, ui:48,
-               utils:42, web:7
+whiteboard  -> content:3, core:65, model:9, platform:5, settings:20, ui:48, utils:42,
+               web:7
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

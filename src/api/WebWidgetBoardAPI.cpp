@@ -396,7 +396,7 @@ void WebWidgetBoardAPI::enableDropOnWidget(bool enable) {
     }
 }
 
-void WebWidgetBoardAPI::ProcessDropEvent(QGraphicsSceneDragDropEvent *event) {
+void WebWidgetBoardAPI::processDropEvent(QGraphicsSceneDragDropEvent *event) {
     const QMimeData *pMimeData = event->mimeData();
 
     QString destFileName;

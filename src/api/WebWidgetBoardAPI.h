@@ -3,7 +3,7 @@
 #include <QtCore>
 #include <QGraphicsSceneDragDropEvent>
 
-#include "api/WebWidgetAPI.h"
+#include "whiteboard/BoardDropHandler.h"
 #include "core/DownloadManager.h"
 
 class GraphicsScene;
@@ -14,7 +14,7 @@ class WebWidgetMessageAPI;
 class DatastoreAPI;
 class DocumentDatastoreAPI;
 
-class WebWidgetBoardAPI : public QObject {
+class WebWidgetBoardAPI : public QObject, public BoardDropHandler {
     Q_OBJECT
 
     Q_PROPERTY(int pageCount READ pageCount SCRIPTABLE true)
@@ -90,8 +90,12 @@ public slots:
 
     void enableDropOnWidget(bool enable = true);
 
-    void ProcessDropEvent(QGraphicsSceneDragDropEvent *);
     bool isDropableData(const QMimeData *pMimeData) const;
+
+public:
+    // whiteboard 里的 BoardDropHandler 接口：拖到小部件上的东西要怎么进画板。
+    // 画板只认接口，实现由装配点装上（见 app/main.cpp）。
+    void processDropEvent(QGraphicsSceneDragDropEvent *event) override;
 
 private slots:
     void onDownloadFinished(bool pSuccess, sDownloadFileDesc desc, QByteArray pData);
@@ -123,6 +127,28 @@ private:
 
     DatastoreAPI *mDatastoreAPI;
     QList<int> webDownloadIds;
+};
+
+// 小部件脚本看到的 Web Storage 形状（原来与 widget 门面同在 WebWidgetAPI.h，
+// 那个门面已经随失效的 JS 桥删掉，只留下这里真正需要的这一块）。
+class WebWidgetStorage : public QObject {
+    Q_OBJECT
+
+    Q_PROPERTY(int length READ length SCRIPTABLE true);
+
+public:
+    WebWidgetStorage(QObject *parent = nullptr) : QObject(parent) { /* NOOP */ }
+    virtual ~WebWidgetStorage() { /* NOOP */ }
+
+public slots:
+    virtual QString key(int index) = 0;
+    virtual QString getItem(const QString &key) = 0;
+    virtual void setItem(const QString &key, const QString &value) = 0;
+    virtual void removeItem(const QString &key) = 0;
+    virtual void clear() = 0;
+
+protected:
+    virtual int length() = 0;
 };
 
 class DatastoreAPI : public QObject {

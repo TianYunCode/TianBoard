@@ -26,7 +26,6 @@
 #include "ui/DockPaletteWidget.h"
 #include "settings/Settings.h"
 #include "whiteboard/FeaturesController.h"
-#include "api/WebWidgetBoardAPI.h"
 #include "ui/FeaturesActionBar.h"
 #include "ui/RubberBand.h"
 #include <QtWebEngineWidgets>
@@ -260,10 +259,6 @@ public:
     virtual ~FeaturesWebWidget();
 
     void showElement(const Feature &elem);
-
-private slots:
-    void onLoadFinished(bool ok);
-    void javaScriptWindowObjectCleared();
 
 private:
     struct Private;

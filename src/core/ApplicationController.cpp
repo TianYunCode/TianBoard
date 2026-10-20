@@ -536,32 +536,6 @@ void ApplicationController::useMultiScreen(bool use) {
     Settings::settings()->appUseMultiscreen->set(use);
 }
 
-QStringList ApplicationController::widgetInlineJavaScripts() {
-    QString scriptDirPath = FileSystemUtils::applicationResourcesDirectory() + "/widget-inline-js";
-    QDir scriptDir(scriptDirPath);
-
-    QStringList scripts;
-
-    if (scriptDir.exists()) {
-        QStringList files = scriptDir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-
-        foreach (QString file, files) {
-            QFile scriptFile(scriptDirPath + "/" + file);
-            if (file.endsWith(".js") && scriptFile.open(QIODevice::ReadOnly)) {
-                QString s = QString::fromUtf8(scriptFile.readAll());
-
-                if (s.length() > 0)
-                    scripts << s;
-            }
-        }
-    }
-
-    std::sort(scripts.begin(), scripts.end());
-
-    return scripts;
-}
-
-
 void ApplicationController::actionCut() {
     if (!Application::closingDown()) {
         if (mMainMode == Board) {

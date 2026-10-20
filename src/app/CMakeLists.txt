@@ -17,7 +17,8 @@ add_executable(TianBoard WIN32
     ${CMAKE_SOURCE_DIR}/res/TianBoard.qrc
 )
 
-# 跨模块 include 一律走 "模块/文件.h"；main.cpp 只 include core/ 与 utils/。
+# 跨模块 include 一律走 "模块/文件.h"。main.cpp 是装配点：除了 core/ 与 utils/，
+# 它还负责把 lower 模块需要的实现装上（见 installBoardDropHandlerFactory）。
 target_include_directories(TianBoard PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}   # rc.exe 靠它找到 TianBoard.ico（不同生成器的工作目录不同，不依赖隐式行为）

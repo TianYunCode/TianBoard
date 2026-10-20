@@ -3,7 +3,6 @@
 #include <QRegularExpression>
 #include <QRegExp>
 #include <QWebEngineView>
-#include <QtWebChannel/QWebChannel>
 #include <QWidget>
 
 #include "ui/FeaturesWidget.h"
@@ -66,7 +65,6 @@ struct FeaturesWebWidget::Private {
     QWebEngineView *mpView{nullptr};
     QWebEngineSettings *mpWebSettings{nullptr};
     QVBoxLayout *mpLayout{nullptr};
-    WebWidgetBoardAPI *boardApi{nullptr};
 };
 
 struct FeatureProperties::Private {
@@ -828,7 +826,6 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget *parent, const char *name) : QWidge
     d->mpView = NULL;
     d->mpWebSettings = NULL;
     d->mpLayout = NULL;
-    d->boardApi = NULL;
 
     setObjectName(name);
 
@@ -839,8 +836,6 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget *parent, const char *name) : QWidge
 
     d->mpView = new QWebEngineView(this);
     d->mpView->setObjectName("SearchEngineView");
-    d->boardApi = new WebWidgetBoardAPI(Application::boardController->activeScene());
-    //connect(mpView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
     d->mpWebSettings = QWebEngineProfile::defaultProfile()->settings();
     d->mpWebSettings->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
     d->mpWebSettings->setAttribute(QWebEngineSettings::PluginsEnabled, true);
@@ -853,15 +848,9 @@ FeaturesWebWidget::FeaturesWebWidget(QWidget *parent, const char *name) : QWidge
 
     d->mpLayout->addWidget(d->mpView);
     d->mpLayout->setContentsMargins(0, 0, 0, 0);
-
-    connect(d->mpView, &QWebEngineView::loadFinished, this, &FeaturesWebWidget::onLoadFinished);
 }
 
 FeaturesWebWidget::~FeaturesWebWidget() {
-    if (NULL != d->boardApi) {
-        delete d->boardApi;
-        d->boardApi = NULL;
-    }
     if (NULL != d->mpView) {
         delete d->mpView;
         d->mpView = NULL;
@@ -871,8 +860,6 @@ FeaturesWebWidget::~FeaturesWebWidget() {
         d->mpLayout = NULL;
     }
 }
-
-void FeaturesWebWidget::javaScriptWindowObjectCleared() {}
 
 void FeaturesWebWidget::showElement(const Feature &elem) {
     QString qsWidgetName;
@@ -902,11 +889,6 @@ void FeaturesWebWidget::showElement(const Feature &elem) {
 
     d->mpView->load(QUrl::fromLocalFile(QString("%0/%1").arg(path).arg(qsWidgetName)));
 }
-
-void FeaturesWebWidget::onLoadFinished(bool ok) {
-    if (ok && NULL != d->boardApi) {}
-}
-
 
 FeatureProperties::FeatureProperties(QWidget *parent, const char *name) : QWidget(parent), d(new Private) {
     d->mpLayout = NULL;
