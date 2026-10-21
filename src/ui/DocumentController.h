@@ -1,19 +1,17 @@
 /**
  * @file DocumentController.h
- * @brief 文档模式的界面与控制器声明：树视图、重命名委托、重名对话框与文档控制器。
+ * @brief 文档模式的界面与控制器声明：树视图、重命名委托与文档控制器。
  *
  * 详细说明：文档树本身（节点、模型、拖放载荷）是域侧的东西，住在
- * model/DocumentTreeModel.h；本文件剩下的都是界面：DocumentTreeView 与它的委托、
- * 导入重名时的 DocumentReplaceDialog，以及把树模型、缩略图视图与 BoardController
- * 串起来的 DocumentController（继承 DocumentContainer）。
+ * model/DocumentTreeModel.h；导入重名时的对话框在 ui/DocumentReplaceDialog.h。
+ * 本文件剩下的是 DocumentTreeView 与它的委托，以及把树模型、缩略图视图与
+ * BoardController 串起来的 DocumentController（继承 DocumentContainer）。
  */
 
 #pragma once
 
-#include <QRegExp>
-#include <QRegularExpression>
-
 #include <QtWidgets>
+
 #include "model/DocumentContainer.h"
 #include "core/ApplicationController.h"
 #include "core/Application.h"
@@ -23,7 +21,6 @@
 #include "ui/MessageWindow.h"
 
 class GraphicsScene;
-class QDialog;
 class DocumentProxy;
 class BoardController;
 class DocumentsWidget;
@@ -32,103 +29,6 @@ class DocumentGroupTreeItem;
 class DocumentProxyTreeItem;
 class MainWindow;
 class DocumentToolsPalette;
-
-/**
- * @brief 导入文件重名时的替换对话框：让用户决定沿用旧名替换还是输入新名新建文档。
- *
- * 只在导入流程中由 DocumentController 弹出。输入内容由正则校验器约束，列表 mFileNameList
- * 保存同级已存在的名称；输入命中已存在名称时确认按钮变为“替换”。对话框本身不落盘，
- * 结果由调用方读取 lineEditText()。
- */
-class DocumentReplaceDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    /**
-     * @brief 构造对话框。
-     * @param pIncommingName 待导入文档的原始名称。
-     * @param pFileList 同级已存在的文档名列表。
-     * @param parent 父窗口。
-     * @param pFlags 窗口标志。
-     */
-    DocumentReplaceDialog(
-        const QString &pIncommingName, const QStringList &pFileList, QWidget *parent = 0, Qt::WindowFlags pFlags = Qt::WindowFlags());
-
-    /**
-     * @brief 设置名称输入框使用的正则校验规则。
-     * @warning mValidator 在该实现中未创建，调用前应确认其非空。
-     */
-    void setRegexp(const QRegularExpression &pRegExp);
-
-    /**
-     * @brief 判断输入框当前内容是否通过校验。
-     * @param pStr 待校验字符串（当前实现未使用，直接查询输入框状态）。
-     */
-    bool validString(const QString &pStr);
-
-    /**
-     * @brief 重置对话框的文件名与同级名称列表（例如连续导入多个文件时复用对话框）。
-     */
-    void setFileNameAndList(const QString &fileName, const QStringList &pLst);
-
-    /**
-     * @brief 生成带文档名的提示文案。
-     */
-    QString labelTextWithName(const QString &documentName) const;
-
-    /** @brief 返回用户最终输入的名称。 */
-    QString lineEditText() const
-    {
-        return mLineEdit->text();
-    }
-
-signals:
-    /**
-     * @brief 用户要求把当前名称作为新文件夹创建时发出。
-     * @param str 输入的名称。
-     */
-    void createNewFolder(QString str);
-
-    /** @brief 对话框被取消时发出，供调用方清理状态。 */
-    void closeDialog();
-
-private slots:
-    /**
-     * @brief 接受对话框（名称合法时由确认按钮触发）。
-     */
-    void accept();
-
-    /**
-     * @brief 取消对话框：清空输入并发出 closeDialog。
-     */
-    void reject();
-
-    /**
-     * @brief 输入变化时刷新校验底色与确认按钮文案。
-     */
-    void reactOnTextChanged(const QString &pStr);
-
-private:
-    /** @brief 名称输入框。 */
-    QLineEdit *mLineEdit;
-    /** @brief 名称校验器；当前实现未初始化。 */
-    QRegularExpressionValidator *mValidator;
-    /** @brief 同级已存在的名称列表。 */
-    QStringList mFileNameList;
-    /** @brief 待导入文档的原始名称。 */
-    QString mIncommingName;
-    /** @brief 确认按钮。 */
-    QPushButton *acceptButton;
-    /** @brief 确认按钮文案：接受。 */
-    const QString acceptText;
-    /** @brief 确认按钮文案：替换。 */
-    const QString replaceText;
-    /** @brief 取消按钮文案。 */
-    const QString cancelText;
-    /** @brief 对话框上方的提示标签。 */
-    QLabel *mLabelText;
-};
 
 /**
  * @brief 文档目录树视图：在 QTreeView 之上处理拖放高亮、选中展开和源/代理索引映射。

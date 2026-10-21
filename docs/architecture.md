@@ -152,12 +152,12 @@ include。
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 46 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 8 / 54 | 五个服务伸手拿界面：`DocumentManager`、`PersistenceManager`（认 DocumentController/MainWindow）、`DisplayManager`（BlackoutWidget）、`DownloadManager`（MainWindow）、`NetworkAccessManager`（ProxyDialog），加上 `Application` 自己；`ui/*.cpp` 反过来认 Application |
-| `content` ↔ `core` | 44 / 19 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `core` ↔ `whiteboard` | 30 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 7 / 55 | 只剩 `Application`(4) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `content` ↔ `core` | 44 / 16 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 43 / 50 | 调色板与画板互相认 |
-| `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
-| `core` ↔ `web` | 3 / 19 | `core/Application.cpp` 认 WebController |
+| `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+| `core` ↔ `web` | 2 / 19 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
 | `core` ↔ `recording` | 1 / 5 | ApplicationController/PreferencesController 认 RecordingController |
 
@@ -290,12 +290,24 @@ include。
    `DocumentManager` 那两条 `ui/MainWindow.h`/`ui/DocumentController.h` 确认是死 include 删掉
    ——**判死之后仍要编译一次**，本次就有一个"看着是死引用其实在替调用方供给类型"的例子。
    core 对 ui 因此只剩 8 条，全在 `Application`(4)/`ApplicationController`(3) 这两个装配角色
-   与 `PersistenceManager::processInteractiveReplacementDialog`(1)。**最后这一条有意留着**：它
-   在导入重名时弹 `DocumentReplaceDialog` 并让控制器刷新选择项，属于"仓库服务在做界面决策"，
-   挪走要改导入流程本身，而重名导入这条路径当前没有任何测试覆盖——先补测试再动它。四个
-   `*SelfTest` 与它们的分发表也已搬去 `app/`（2026-10-21，同一轮）：core 只剩一个通用钩子
+   与 `PersistenceManager::processInteractiveReplacementDialog`(1)。最后这一条已于 2026-10-21
+   拆掉：`PersistenceManager` 遇到重名不再自己弹对话框、也不再命令控制器换文档，改问装配期装上
+   的 `installDuplicateNameResolver`（实现是 `ui/DocumentReplaceDialog::ask`，接在 `app/main.cpp`），
+   顶掉当前文档时只发一个事实 `currentDocumentReplaced(incoming, outgoing)`；`copyDocumentScene`
+   也不再拿 `Application::documentController` 往缩略图条里插一张图，改成复用既有契约
+   `documentSceneCreated`（`documentSceneChanged` 本来就按"屏幕上是不是这份文档"决定要不要重建）。
+   于是 `src/core/` 里除那两个装配角色没有一个文件认识 `ui/`：7 条 = Application 4 +
+   ApplicationController 3，剩下的都是"装配层本来就认识所有模块"的形状。
+   拆之前先补了 `app/ImportSelfTest.{h,cpp}` + `tests/tst_import.cpp`：重名裁决的取消/改名/替换
+   三条路径原先必须弹窗才走得到，人工点不全，桩裁决器把它们变成七个可自动执行的案子（不撞名
+   不征询、取消整包退回磁盘外、改名两份共存、同名替换且画板跟到新文档、.tbx 整批那一腿、没装
+   钩子时不登记、删掉当前文档那一行）。补测试的过程里抓到两处真缺陷，都记在
+   `docs/code-suspicions.md`：`QModelIndex::sibling()` 被当成"取这个节点的第 i 个孩子"用了两处，
+   以及 `mCurrentNode` 没人负责清。
+   五个 `*SelfTest` 与它们的分发表也已搬去 `app/`（2026-10-21，同一轮）：core 只剩一个通用钩子
    `Application::setSelfTestRun(延时, 入口)`，`app/SelfTests.cpp` 按命令行决定跑哪个、已有实例
-   在跑就退 75。搬完 core 对 whiteboard 从 46 降到 30、对 content 19→16、对 ui 17→15。
+   在跑就退 75。搬完 core 对 whiteboard 从 46 降到 30、对 content 从 19 降到 16；对 ui 经过
+   这几轮从 17 降到现在的 7。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -306,17 +318,17 @@ include。
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
-app         -> api:1, content:4, core:10, model:4, platform:1, settings:5, ui:2, utils:4,
-               web:1, whiteboard:17
+app         -> api:1, content:4, core:15, model:6, platform:1, settings:6, ui:7, utils:5,
+               web:1, whiteboard:19
 content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:16, desktop:2, model:5, platform:6, recording:1, settings:14, ui:8,
+core        -> content:16, desktop:2, model:6, platform:6, recording:1, settings:14, ui:7,
                utils:6, web:2, whiteboard:30
 desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
 model       -> core:9, settings:4, utils:4
 platform    -> utils:1
 recording   -> core:5, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> core:54, model:10, platform:11, settings:20, utils:12, whiteboard:43
+ui          -> core:55, model:10, platform:11, settings:20, utils:12, whiteboard:43
 utils       -> （无出边）
 web         -> core:19, platform:1, settings:5, ui:5, utils:3, whiteboard:5
 whiteboard  -> core:67, model:7, platform:5, settings:20, ui:50, utils:47

@@ -1,5 +1,4 @@
 #include "ui/DocumentController.h"
-#include <QRegExp>
 
 #include <QtCore>
 #include <QtWidgets>
@@ -31,105 +30,6 @@
 #include "whiteboard/GraphicsScene.h"
 
 #include "model/DocumentProxy.h"
-
-DocumentReplaceDialog::DocumentReplaceDialog(const QString &pIncommingName, const QStringList &pFileList, QWidget *parent, Qt::WindowFlags pFlags)
-    : QDialog(parent, pFlags), mFileNameList(pFileList), mIncommingName(pIncommingName), acceptText(tr("Accept")), replaceText(tr("Replace")),
-      cancelText(tr("Cancel")), mLabelText(0)
-{
-    this->setStyleSheet("background:white;");
-
-    QVBoxLayout *mainLayout  = new QVBoxLayout(this);
-
-    QVBoxLayout *labelLayout = new QVBoxLayout();
-
-    mLabelText               = new QLabel(labelTextWithName(pIncommingName), this);
-    mLineEdit                = new QLineEdit(this);
-    mLineEdit->setText(pIncommingName);
-    mLineEdit->selectedText();
-
-    labelLayout->addWidget(mLabelText);
-    labelLayout->addWidget(mLineEdit);
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-
-    acceptButton              = new QPushButton(acceptText, this);
-    QPushButton *cancelButton = new QPushButton(cancelText, this);
-    buttonLayout->addWidget(acceptButton);
-    buttonLayout->addWidget(cancelButton);
-
-    mainLayout->addLayout(labelLayout);
-    mainLayout->addLayout(buttonLayout);
-
-    acceptButton->setEnabled(false);
-
-    connect(acceptButton, &QPushButton::clicked, this, &DocumentReplaceDialog::accept);
-    connect(cancelButton, &QPushButton::clicked, this, &DocumentReplaceDialog::reject);
-    connect(mLineEdit, &QLineEdit::textEdited, this, &DocumentReplaceDialog::reactOnTextChanged);
-
-    reactOnTextChanged(mIncommingName);
-}
-
-void DocumentReplaceDialog::setRegexp(const QRegularExpression &pRegExp)
-{
-    mValidator->setRegularExpression(pRegExp);
-}
-bool DocumentReplaceDialog::validString(const QString &pStr)
-{
-    Q_UNUSED(pStr);
-    return mLineEdit->hasAcceptableInput();
-}
-
-void DocumentReplaceDialog::setFileNameAndList(const QString &fileName, const QStringList &pLst)
-{
-    mFileNameList  = pLst;
-    mIncommingName = fileName;
-    mLabelText->setText(labelTextWithName(fileName));
-    mLineEdit->setText(fileName);
-    mLineEdit->selectAll();
-    mLineEdit->selectedText();
-}
-
-QString DocumentReplaceDialog::labelTextWithName(const QString &documentName) const
-{
-    return tr("The name %1 is allready used.\nKeeping this name will replace the document.\nProviding a new "
-              "name will create a new document.")
-        .arg(documentName);
-}
-
-void DocumentReplaceDialog::accept()
-{
-    QDialog::accept();
-}
-void DocumentReplaceDialog::reject()
-{
-    mLineEdit->clear();
-    emit closeDialog();
-
-    QDialog::reject();
-}
-
-void DocumentReplaceDialog::reactOnTextChanged(const QString &pStr)
-{
-    if (!validString(pStr))
-    {
-        acceptButton->setEnabled(false);
-        mLineEdit->setStyleSheet("background:#FFB3C8;");
-        acceptButton->setEnabled(false);
-    }
-    else if (mFileNameList.contains(pStr.trimmed(), Qt::CaseSensitive))
-    {
-        // 同级已有同名文档：允许确认，但语义改为“替换”，用红底提示风险。
-        acceptButton->setEnabled(true);
-        mLineEdit->setStyleSheet("background:#FFB3C8;");
-        acceptButton->setText(replaceText);
-    }
-    else
-    {
-        acceptButton->setEnabled(true);
-        mLineEdit->setStyleSheet("background:white;");
-        acceptButton->setText(acceptText);
-    }
-}
 
 DocumentTreeView::DocumentTreeView(QWidget *parent) : QTreeView(parent)
 {
@@ -561,6 +461,12 @@ DocumentController::DocumentController(MainWindow *mainWindow)
     connect(this, &DocumentController::exportDone, mMainWindow, &MainWindow::onExportDone);
     connect(this, &DocumentContainer::documentThumbnailsUpdated, this, &DocumentController::refreshDocumentThumbnailsView);
     connect(this, &DocumentController::reorderDocumentsRequested, this, &DocumentController::reorderDocuments);
+    // 导入的同名文档顶掉了画板上正在展示的那一份：核心只回报这个事实，换谁上画板由界面决定。
+    connect(PersistenceManager::persistenceManager(), &PersistenceManager::currentDocumentReplaced, this,
+        [this](DocumentProxy *incomingProxy, DocumentProxy *)
+        {
+            selectDocument(incomingProxy, true, true);
+        });
 }
 
 DocumentController::~DocumentController()

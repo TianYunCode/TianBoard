@@ -16,9 +16,11 @@
 #include "ui/MessagesDialog.h"
 #include "core/NetworkAccessManager.h"
 #include "ui/ProxyDialog.h"
+#include "ui/DocumentReplaceDialog.h"
 #include "api/WebWidgetBoardAPI.h"
 #include "app/SelfTests.h"
 #include "core/Application.h"
+#include "core/PersistenceManager.h"
 #include "content/DocumentFormatServices.h"
 #include "model/IDocumentFormatServices.h"
 #include "settings/Settings.h"
@@ -99,6 +101,10 @@ int main(int argc, char *argv[])
 
     // 服务层要问用户拿站点凭据，但它不认识对话框：装配点把 ProxyDialog 接上去。
     NetworkAccessManager::installCredentialPrompt(&ProxyDialog::prompt);
+
+    // 同一套路：文档名撞车时 PersistenceManager 只问“这份要不要登记、叫什么名字”，
+    // 弹窗问用户的是界面。没装这个钩子时撞名一律不登记，调用方照样回收刚导入的那一份。
+    PersistenceManager::installDuplicateNameResolver(&DocumentReplaceDialog::ask);
 
     // 同一套路：服务层只说"该告诉用户什么"，落到哪个窗口由这里决定。
     UserNotices::installWarningPresenter(

@@ -38,6 +38,8 @@ add_library(tb_ui OBJECT
     DockPaletteWidget.h
     DocumentController.cpp
     DocumentController.h
+    DocumentReplaceDialog.cpp
+    DocumentReplaceDialog.h
     DocumentNavigator.cpp
     DocumentNavigator.h
     DocumentsWidget.cpp

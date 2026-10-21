@@ -7,6 +7,8 @@
 
 #include <QtCore>
 
+#include <functional>
+
 #include "core/SceneCache.h"
 
 class QDomNode;
@@ -65,6 +67,30 @@ public:
     static PersistenceManager *persistenceManager();
     /// 销毁单例并置空指针。
     static void destroy();
+
+    /**
+     * @brief 名字与同级已有文档冲突时，要向用户要的裁决。
+     *
+     * finalName 只要还落在同级名字列表里就是“替换那一份”，否则是“改个名字新建”。
+     */
+    struct DuplicateNameDecision
+    {
+        /// 是否把这份文档登记进文档树；false 表示用户放弃了这次导入。
+        bool proceed = false;
+        /// 登记用的最终名字；proceed 为 false 时无意义。
+        QString finalName;
+    };
+
+    /**
+     * @brief 重名裁决钩子的签名：拿待登记的名字与同级已有名字，回答用户的选择。
+     */
+    using DuplicateNameResolver = std::function<DuplicateNameDecision(const QString &documentName, const QStringList &siblingNames)>;
+
+    /**
+     * @brief 装上重名裁决钩子，实现是 ui/DocumentReplaceDialog::ask()，由装配点装入（app/main.cpp）。
+     * @note 服务层不认识对话框：没装上时遇到重名一律不登记，由调用方回收刚导入的那一份。
+     */
+    static void installDuplicateNameResolver(DuplicateNameResolver resolver);
 
     /**
      * @brief 在文档仓库中新建一个文档包。
@@ -226,11 +252,11 @@ public:
      */
     void createDocumentProxiesStructure(const QFileInfoList &contentInfo, bool interactive = false);
     /**
-     * @brief 文档重名时弹窗让用户选择替换或保留。
-     * @param pProxy 待登记的文档。
-     * @return 对话框结果。
+     * @brief 把文档代理登记进它所属的分组，名字与同级冲突时按装上的重名裁决钩子处理。
+     * @param pProxy 待登记的文档代理；所有权仍在调用方。
+     * @return 是否已登记；返回 false 时代理没有进树，由调用方删除（连带退回磁盘上的文档包）。
      */
-    QDialog::DialogCode processInteractiveReplacementDialog(DocumentProxy *pProxy);
+    bool registerDocumentProxy(DocumentProxy *pProxy);
 
     /// 返回文档包的固定子目录名列表。
     QStringList documentSubDirectories()
@@ -305,6 +331,9 @@ signals:
     void documentMetadataChanged(DocumentProxy *pDocumentProxy);
     /// 文档即将被删除。
     void documentWillBeDeleted(DocumentProxy *pDocumentProxy);
+
+    /// 正被展示的文档即将被导入的同名文档顶掉：界面据此将画板换到 incomingProxy。
+    void currentDocumentReplaced(DocumentProxy *incomingProxy, DocumentProxy *outgoingProxy);
 
     /// 文档中新建了页面。
     void documentSceneCreated(DocumentProxy *pDocumentProxy, int pIndex);

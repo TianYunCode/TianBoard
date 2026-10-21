@@ -112,6 +112,17 @@ set_tests_properties(tst_shortcuts PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 导入重名裁决自检：应用带 --import-selftest 用桩裁决器走完取消/改名/替换三条路径，
+# 查的是登记结果、磁盘上有没有残留没人认领的文档包，以及顶掉当前文档时界面有没有跟上。
+add_executable(tst_import tst_import.cpp)
+target_compile_options(tst_import PRIVATE /MP /utf-8)
+target_link_libraries(tst_import PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_import TianBoard)
+add_test(NAME tst_import COMMAND tst_import)
+set_tests_properties(tst_import PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # Cookie 隐私自检：应用带 --cookie-selftest 查镜像罐类型、三项设置名与退出清理计数。
 add_executable(tst_cookies tst_cookies.cpp)
 target_compile_options(tst_cookies PRIVATE /MP /utf-8)

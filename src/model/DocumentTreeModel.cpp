@@ -657,8 +657,10 @@ bool DocumentTreeModel::removeRows(int row, int count, const QModelIndex &parent
     DocumentTreeNode *parentNode = nodeFromIndex(parent);
     for (int i = row; i < row + count; i++)
     {
-        DocumentTreeNode *curChildNode  = parentNode->children().at(i);
-        QModelIndex       curChildIndex = parent.sibling(i, 0);
+        DocumentTreeNode *curChildNode = parentNode->children().at(i);
+        // QModelIndex::sibling() 取的是同一个父节点下的另一行，不是"这个节点的第 i 个孩子"，
+        // 清空子树必须走 index(i, 0, parent)。
+        QModelIndex curChildIndex      = index(i, 0, parent);
         if (curChildNode)
         {
             // 先自底向上清空子树，保证每个被删节点都在模型的 begin/endRemoveRows 范围内；
@@ -669,6 +671,13 @@ bool DocumentTreeModel::removeRows(int row, int count, const QModelIndex &parent
                 {
                     removeRows(0, 1, curChildIndex);
                 }
+            }
+
+            // mCurrentNode 指着正被删掉的这一棵子树时必须清干净：节点析构会 delete 掉它，
+            // 留着的话之后任何一次 currentIndex() 都会拿悬垂指针去走父链。
+            if (mCurrentNode && (curChildNode == mCurrentNode || curChildNode->findNode(mCurrentNode)))
+            {
+                mCurrentNode = nullptr;
             }
         }
         mNewDocuments.removeAll(curChildNode->proxyData());
@@ -837,7 +846,7 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
     {
         for (int i = 0; i < rowCount(source); i++)
         {
-            QModelIndex curNewParentIndexChild = source.sibling(i, 0);
+            QModelIndex curNewParentIndexChild = index(i, 0, source);
             copyIndexToNewParent(curNewParentIndexChild, newParentIndex, pMode);
         }
     }

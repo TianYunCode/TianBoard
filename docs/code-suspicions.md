@@ -349,6 +349,34 @@
   一并删掉；现在全仓只有 `setupUi` 写默认值、只有 `ShortcutManager` 写覆盖，装配后期不再有人
   补刀。`tst_shortcuts` 会抽查这几条默认值仍在原位，就是为了钉住这个顺序。
 
-仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
+- **`QModelIndex::sibling()` 被当成"取第 i 个孩子"用了两处（2026-10-21，补导入重名自检时撞出来的
+  栈溢出）**：`QAbstractItemModel::sibling(row, column, index)` 的语义是"**和 index 同一个父节点**
+  的第 row 行"，实现里先 `parent(index)` 再 `index(row, column, 那个父)`。`DocumentTreeModel::removeRows`
+  清空子树那段写的是 `parent.sibling(i, 0)`，拿到的却是 `parent` 自己的兄弟——在"我的文档"下删一行时
+  `i` 为 0 会指回 `parent` 本身，于是 `while (rowCount(curChildIndex)) removeRows(0, 1, curChildIndex)`
+  每轮都在删同一个父节点的第一行、行数永远不减，直接递归到栈溢出（`c00000fd`，Qt 的代理模型在
+  `create_mapping_recursive` 里先把栈吃光）；`copyIndexToNewParent` 递归复制目录时同一处误用会让
+  复制一个分组却搬来它邻居的子树。两处都改成 `index(i, 0, parent)`。判据与现场在
+  `tests/tst_import.cpp`（`--import-selftest` 的第 4 个案子：同名替换）。
+- **当前文档那一行被删掉后 `mCurrentNode` 没人清**：`DocumentTreeNode::~DocumentTreeNode` 会
+  `delete mProxy`，而 `mCurrentNode` 是裸指针；`currentIndex()` 恰好是从根重新搜节点而不是走父链，
+  所以不会当场崩，但 `data()` 里 `mCurrentNode == dataNode` 这种比对拿的是已释放的地址——地址被
+  新节点复用时"当前文档"的高亮图标会落到别人身上。`removeRows` 现在在删之前把自己（或自己子树里）
+  那份清成 `nullptr`，`tst_import` 第 7 个案子直接断言 `currentNode()` 归零。
+- **重名导入的三处漏点（同一次改动顺手补）**：① `createDocumentProxiesStructure(..., interactive=true)`
+  把 `processInteractiveReplacementDialog` 的返回值丢掉，用户点"取消"后那份刚解压出来的文档包
+  既不登记也不释放——内存里漏一个 `DocumentProxy`，磁盘上留下一包没人认领的目录，下次启动扫描时
+  它还会自己冒出来；现在取消即整包退回磁盘外，与另两个调用点的行为一致。② 对话框的确认按钮只看
+  `mLineEdit->hasAcceptableInput()`，而 `mValidator` 从来没被创建过（`setRegexp` 一旦调用就是空指针解
+  引用，好在零调用点），所以清空输入框也能点确认：旧名字被写成空串后 `addDocument()` 直接 return，
+  代理又漏一次。现在解析器返回空名字一律按取消处理，`setRegexp`/`mValidator`/`setFileNameAndList`
+  和两个零接收者的信号（`createNewFolder`、`closeDialog`）一起删掉。③ 替换发生时先 `deleteDocument`
+  旧的、后 `addDocument` 新的，中间界面被叫去"选中那个还不在树里的新文档"，`setCurrentDocument`
+  因此静默落空、当前节点继续抱着即将删除的旧节点；现在先挂新的再换旧的。
+
+仍未处理的审计发现（低置信度或产品决策）：`createDocumentProxiesStructure` 遇到第一个"分组在树里
+不存在"的文档包时 `return` 而不是 `continue`——`.tbx` 里带了新分组时，整批导入会从这里静默断掉，
+后面的包一个都不登记（改法是补建分组或直接续跑，得先定产品口径，`tst_import` 现在只覆盖分组存在
+的情形）；`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
 `PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。

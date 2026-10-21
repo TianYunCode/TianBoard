@@ -20,6 +20,8 @@ add_executable(TianBoard WIN32
     CookieSelfTest.h
     FormatSelfTest.cpp
     FormatSelfTest.h
+    ImportSelfTest.cpp
+    ImportSelfTest.h
     main.cpp
     resource.h
     SelfTests.cpp

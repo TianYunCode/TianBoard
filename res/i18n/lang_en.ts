@@ -194,38 +194,38 @@
 <context>
     <name>DocumentController</name>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="556"/>
-        <location filename="../../src/ui/DocumentController.cpp" line="2276"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="456"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2182"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="556"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="456"/>
         <source>Untitled Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="630"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="536"/>
         <source>New Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="813"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="719"/>
         <source>Add Folder of Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="814"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="720"/>
         <source>Add Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="815"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="721"/>
         <source>Add Pages from File</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/ui/DocumentController.cpp" line="1141"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1047"/>
         <source>duplicated %1 page</source>
         <comment>duplicated %1 pages</comment>
         <translation type="unfinished">
@@ -234,96 +234,96 @@
         </translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1154"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1060"/>
         <source>Duplicating Document %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1158"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1064"/>
         <source>Document %1 copied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1168"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1074"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1168"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1074"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1694"/>
-        <location filename="../../src/ui/DocumentController.cpp" line="1800"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1600"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1706"/>
         <source>Open Supported File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1725"/>
-        <location filename="../../src/ui/DocumentController.cpp" line="1815"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1631"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1721"/>
         <source>Importing file %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1735"/>
-        <location filename="../../src/ui/DocumentController.cpp" line="1828"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1641"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1734"/>
         <source>Failed to import file ... </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1751"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1657"/>
         <source>Import all Images from Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="1765"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1671"/>
         <source>Folder does not contain any image files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2014"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1920"/>
         <source>Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2014"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1920"/>
         <source>The document &apos;%1&apos; has been generated with a newer version of TianBoard (%2). By opening it, you may lose some information. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2067"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1973"/>
         <source>Add all Images to Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2067"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1973"/>
         <source>All Images (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2079"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1985"/>
         <source>Selection does not contain any image files!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2280"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2186"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2284"/>
-        <location filename="../../src/ui/DocumentController.cpp" line="2288"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2190"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2194"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2522"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2428"/>
         <source>Page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="2526"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2432"/>
         <source>Title page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -331,33 +331,33 @@
 <context>
     <name>DocumentManager</name>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="103"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="97"/>
         <source>All supported files (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="191"/>
-        <location filename="../../src/core/DocumentManager.cpp" line="261"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="185"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="255"/>
         <source>Inserting page %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="200"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="194"/>
         <source>Import successful.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="216"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="210"/>
         <source>Importing file %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="270"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="264"/>
         <source>Import of file %1 successful.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/DocumentManager.cpp" line="310"/>
+        <location filename="../../src/core/DocumentManager.cpp" line="304"/>
         <source>File %1 saved</source>
         <translation type="unfinished"></translation>
     </message>
@@ -373,22 +373,22 @@
 <context>
     <name>DocumentReplaceDialog</name>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="36"/>
+        <location filename="../../src/ui/DocumentReplaceDialog.cpp" line="11"/>
         <source>Accept</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="36"/>
+        <location filename="../../src/ui/DocumentReplaceDialog.cpp" line="11"/>
         <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="37"/>
+        <location filename="../../src/ui/DocumentReplaceDialog.cpp" line="29"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="94"/>
+        <location filename="../../src/ui/DocumentReplaceDialog.cpp" line="47"/>
         <source>The name %1 is allready used.
 Keeping this name will replace the document.
 Providing a new name will create a new document.</source>
@@ -419,12 +419,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeView</name>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="318"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="218"/>
         <source>Copying page %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/ui/DocumentController.cpp" line="369"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="269"/>
         <source>%1 pages copied</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -432,12 +432,12 @@ Providing a new name will create a new document.</source>
         </translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="379"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="279"/>
         <source>Remove Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/DocumentController.cpp" line="379"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="279"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1881,17 +1881,17 @@ Providing a new name will create a new document.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1262"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1268"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1263"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1269"/>
         <source>No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/MainWindow.cpp" line="1278"/>
+        <location filename="../../src/ui/MainWindow.cpp" line="1284"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1907,12 +1907,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>NetworkAccessManager</name>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="137"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="135"/>
         <source>Failed to log to Proxy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="164"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="162"/>
         <source>SSL Errors:
 
 %1
@@ -1923,12 +1923,12 @@ Do you want to ignore these errors for this host?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="168"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="166"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="169"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="167"/>
         <source>No</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1936,17 +1936,17 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PersistenceManager</name>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="595"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="600"/>
         <source>(copy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="1278"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="1284"/>
         <source>Document Repository Loss</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/PersistenceManager.cpp" line="1278"/>
+        <location filename="../../src/core/PersistenceManager.cpp" line="1284"/>
         <source>TianBoard has lost access to the document repository &apos;%1&apos;. Unfortunately the application must shut down to avoid data corruption. Latest changes may be lost as well.</source>
         <translation type="unfinished"></translation>
     </message>

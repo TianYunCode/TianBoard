@@ -17,6 +17,7 @@
 #include "core/ForeignObjectsHandler.h"
 
 #include "model/DocumentProxy.h"
+#include "model/DocumentTreeModel.h"
 
 #include "content/ExportPDF.h"
 #include "content/SvgSubsetAdaptor.h"
@@ -31,7 +32,11 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardPaletteManager.h"
 
-#include "ui/DocumentController.h"
+namespace
+{
+    /// 重名裁决钩子；由装配点装入界面实现，为空时重名一律不登记。
+    PersistenceManager::DuplicateNameResolver gDuplicateNameResolver;
+} // namespace
 
 const QString PersistenceManager::imageDirectory   = "images";  // added to PersistenceManager::mAllDirectories
 const QString PersistenceManager::objectDirectory  = "objects"; // added to PersistenceManager::mAllDirectories
@@ -173,90 +178,90 @@ void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &con
         {
             mDocumentTreeStructureModel->addDocument(docProxy, parentIndex);
         }
-        else
+        else if (!registerDocumentProxy(docProxy))
         {
-            processInteractiveReplacementDialog(docProxy);
+            // 用户没同意登记（或压根没装上重名裁决钩子）：把刚解压出来的这一份退回磁盘外，
+            // 留着它既不在树里、又会在下次启动扫描时凭空冒出来。
+            deleteDocument(docProxy);
         }
     }
 }
 
-QDialog::DialogCode PersistenceManager::processInteractiveReplacementDialog(DocumentProxy *pProxy)
+void PersistenceManager::installDuplicateNameResolver(DuplicateNameResolver resolver)
 {
-    // TODO: 双击文档包打开时会先套一个等待光标，这里的“存起来再改回去”是给那条路径擦屁股的，
-    //  proper 的做法是让打开流程自己管光标而不是在对话框里改。
-    Qt::CursorShape saveShape;
-    if (Application::overrideCursor())
+    gDuplicateNameResolver = std::move(resolver);
+}
+
+bool PersistenceManager::registerDocumentProxy(DocumentProxy *pProxy)
+{
+    const QString     docGroupName = pProxy->metaData(Settings::documentGroupName).toString();
+    const QModelIndex parentIndex  = mDocumentTreeStructureModel->goTo(docGroupName);
+    if (!parentIndex.isValid())
     {
-        saveShape = Application::overrideCursor()->shape();
-        Application::overrideCursor()->setShape(Qt::ArrowCursor);
-    }
-    else
-    {
-        saveShape = Qt::ArrowCursor;
-    }
-
-    QDialog::DialogCode result = QDialog::Rejected;
-
-    if (Application::documentController && Application::documentController->mainWidget())
-    {
-        QString     docGroupName = pProxy->metaData(Settings::documentGroupName).toString();
-        QModelIndex parentIndex  = mDocumentTreeStructureModel->goTo(docGroupName);
-        if (!parentIndex.isValid())
-        {
-            Application::overrideCursor()->setShape(saveShape);
-            return QDialog::Rejected;
-        }
-
-        QStringList docList = mDocumentTreeStructureModel->nodeNameList(parentIndex);
-        QString     docName = pProxy->metaData(Settings::documentName).toString();
-
-        if (docList.contains(docName))
-        {
-            DocumentReplaceDialog *replaceDialog =
-                new DocumentReplaceDialog(docName, docList, /*Application::documentController->mainWidget()*/ 0, Qt::Widget);
-            if (replaceDialog->exec() == QDialog::Accepted)
-            {
-                result             = QDialog::Accepted;
-                QString resultName = replaceDialog->lineEditText();
-                int     i          = docList.indexOf(resultName);
-                if (i != -1)
-                { // replace
-                    QModelIndex    replaceIndex = mDocumentTreeStructureModel->index(i, 0, parentIndex);
-                    DocumentProxy *replaceProxy = mDocumentTreeStructureModel->proxyData(replaceIndex);
-
-                    if (mDocumentTreeStructureModel->currentIndex() == replaceIndex)
-                    {
-                        Application::documentController->selectDocument(pProxy, true, true);
-                    }
-
-                    if (replaceProxy)
-                    {
-                        deleteDocument(replaceProxy);
-                    }
-                    if (replaceIndex.isValid())
-                    {
-                        mDocumentTreeStructureModel->removeRow(i, parentIndex);
-                    }
-                }
-                pProxy->setMetaData(Settings::documentName, resultName);
-                mDocumentTreeStructureModel->addDocument(pProxy, parentIndex);
-            }
-            replaceDialog->setParent(0);
-            delete replaceDialog;
-        }
-        else
-        {
-            mDocumentTreeStructureModel->addDocument(pProxy, parentIndex);
-            result = QDialog::Accepted;
-        }
-    }
-    // TODO: 这个 if 是临时绕法
-    if (Application::overrideCursor())
-    {
-        Application::overrideCursor()->setShape(saveShape);
+        return false;
     }
 
-    return result;
+    const QStringList docList = mDocumentTreeStructureModel->nodeNameList(parentIndex);
+    const QString     docName = pProxy->metaData(Settings::documentName).toString();
+
+    if (!docList.contains(docName))
+    {
+        mDocumentTreeStructureModel->addDocument(pProxy, parentIndex);
+        return true;
+    }
+
+    if (!gDuplicateNameResolver)
+    {
+        qWarning() << "PersistenceManager: 未装上重名裁决钩子，同名文档" << docName << "没有登记";
+        return false;
+    }
+
+    const DuplicateNameDecision decision = gDuplicateNameResolver(docName, docList);
+    if (!decision.proceed || decision.finalName.isEmpty())
+    {
+        // 空名字会被 addDocument() 直接挡掉，代理既不进树也不被释放，所以按取消处理。
+        return false;
+    }
+
+    const int replacedRow = docList.indexOf(decision.finalName);
+
+    pProxy->setMetaData(Settings::documentName, decision.finalName);
+
+    if (replacedRow == -1)
+    {
+        mDocumentTreeStructureModel->addDocument(pProxy, parentIndex);
+        return true;
+    }
+
+    const QModelIndex replaceIndex = mDocumentTreeStructureModel->index(replacedRow, 0, parentIndex);
+    DocumentProxy    *outgoing     = mDocumentTreeStructureModel->proxyData(replaceIndex);
+    const QModelIndex currentIndex = mDocumentTreeStructureModel->currentIndex();
+    const bool        wasCurrent   = currentIndex.isValid() && outgoing == mDocumentTreeStructureModel->proxyData(currentIndex);
+
+    // 先把新的挂上、再换旧的：界面在那一刻要能在树里找到接手文档的节点，否则"当前文档"
+    // 会抱着一个马上被删掉的节点；旧文档则要在自己还活着的时候就被画板放下。
+    mDocumentTreeStructureModel->addDocument(pProxy, parentIndex);
+
+    if (wasCurrent)
+    {
+        emit currentDocumentReplaced(pProxy, outgoing);
+    }
+
+    if (outgoing)
+    {
+        deleteDocument(outgoing);
+    }
+
+    // 插入位置由排序决定，同名的一新一旧挨在一起时旧文档的行号可能被新文档顶动；删除前
+    // 按代理重新找回它自己，别拿插入前算出来的行号去删——那会删错行，留下一个指向已删除
+    // 代理的节点，代理模型接着就在这种错位的行映射里递归到栈溢出。
+    const QModelIndex outgoingIndex = mDocumentTreeStructureModel->indexForProxy(outgoing);
+    if (outgoingIndex.isValid())
+    {
+        mDocumentTreeStructureModel->removeRow(outgoingIndex.row(), outgoingIndex.parent());
+    }
+
+    return true;
 }
 
 QString PersistenceManager::adjustDocumentVirtualPath(const QString &str)
@@ -458,7 +463,7 @@ DocumentProxy *PersistenceManager::createDocument(
         addDoc = true;
         mDocumentTreeStructureModel->addDocument(doc);
     }
-    else if (processInteractiveReplacementDialog(doc) == QDialog::Accepted)
+    else if (registerDocumentProxy(doc))
     {
         addDoc = true;
     }
@@ -536,7 +541,7 @@ DocumentProxy *PersistenceManager::createDocumentFromDir(const QString &pDocumen
         addDoc = true;
         mDocumentTreeStructureModel->addDocument(doc);
     }
-    else if (processInteractiveReplacementDialog(doc) == QDialog::Accepted)
+    else if (registerDocumentProxy(doc))
     {
         addDoc = true;
     }
@@ -832,10 +837,11 @@ void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, D
 
     Q_ASSERT(QFileInfo(thumbTmp).exists());
     Q_ASSERT(QFileInfo(thumbTo).exists());
-    const QPixmap      *pix  = new QPixmap(thumbTmp);
-    DocumentController *ctrl = Application::documentController;
-    ctrl->addPixmapAt(pix, toIndex);
-    ctrl->TreeViewSelectionChanged(ctrl->firstSelectedTreeIndex(), QModelIndex());
+
+    // 回报事实，不动界面：谁在展示这份文档，谁自己把缩略图条按盘上的内容重建。
+    // 以前这里直接拿 Application::documentController 往缩略图列表里插一张图，复制到的
+    // 文档不是屏幕上那一份时，插进去的图就落在了别的文档的条上。
+    emit documentSceneCreated(to, toIndex);
 }
 
 GraphicsScene *PersistenceManager::createDocumentSceneAt(DocumentProxy *proxy, int index, bool useUndoRedoStack)
