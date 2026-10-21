@@ -1,4 +1,5 @@
 #include "content/ExportFullPDF.h"
+#include "model/DocumentTreeModel.h"
 #include "core/VirtualDesktop.h"
 
 #include <QtCore>
@@ -16,7 +17,6 @@
 #include "whiteboard/GraphicsPDFItem.h"
 
 #include "model/DocumentProxy.h"
-#include "model/DocumentController.h"
 
 #include "whiteboard/PdfPageItem.h"
 

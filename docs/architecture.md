@@ -20,8 +20,10 @@ src/
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager +
   │                CookieJar（可枚举的 Cookie 镜像罐）、
   │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
-  ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentController、
-  │                SortFilterProxyModel（原 document/）
+  ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
+  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel；
+  │                文档模式的控制器 DocumentController 目前还住在这里，它是界面装配代码，
+  │                拆环第 4 步的后半搬去 ui/（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
   │                图形项 + 绘图工具（原 board/ + domain/ + tools/）+ PDF 页图形项与
   │                渲染器（PDFRenderer/QPdfRenderer/PdfPageItem，从原 pdf/ 搬来）
@@ -154,8 +156,8 @@ include。
 | `core` ↔ `ui` | 13 / 40 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp`、`DocumentManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 39 / 48 | 调色板与画板互相认 |
-| `core` ↔ `model` | 13 / 13 | `core/DocumentManager` ↔ `model/DocumentController` |
-| `model` ↔ `ui` | 8 / 9 | `model/DocumentController.cpp` 直接建 ThumbnailView/MainWindow |
+| `core` ↔ `model` | 13 / 17 | `core/DocumentManager` ↔ `model/DocumentController`；`model/*` 反过来认 PersistenceManager/Application/DocumentManager |
+| `model` ↔ `ui` | 7 / 9 | `model/DocumentController.cpp` 直接建文档库界面（DocumentsWidget/DocumentToolsPalette/DocumentThumbnailWidget）、MessageWindow 与 MousePressFilter |
 | `model` ↔ `whiteboard` | 2 / 9 | 文档页与图形场景互认（model 只剩 `GraphicsScene`/`BoardController` 两个头） |
 | `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
@@ -280,11 +282,11 @@ include。
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, content:1, core:1, model:1, platform:1, settings:1, utils:1, whiteboard:1
-content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
+content     -> core:44, model:24, platform:3, settings:12, utils:22, whiteboard:57
 core        -> content:19, desktop:2, model:13, platform:7, recording:2, settings:20,
                ui:15, utils:10, web:4, whiteboard:49
 desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
-model       -> core:13, platform:1, settings:4, ui:7, utils:5, whiteboard:2
+model       -> core:17, platform:1, settings:6, ui:7, utils:7, whiteboard:2
 platform    -> utils:1
 recording   -> core:5, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3

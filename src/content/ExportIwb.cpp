@@ -1,9 +1,9 @@
 #include "content/ExportIwb.h"
+#include "model/DocumentTreeModel.h"
 #include "content/IwbDocumentAdaptor.h"
 #include "model/DocumentProxy.h"
 #include "core/DocumentManager.h"
 #include "core/Application.h"
-#include "model/DocumentController.h"
 
 #include <QModelIndex>
 #include <QObject>

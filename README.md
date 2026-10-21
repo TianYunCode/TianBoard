@@ -152,7 +152,7 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 收紧成真 `STATIC` 库；其余模块因为还有 10 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
-代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，374 个文件）已用
+代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，376 个文件）已用
 clang-format 22.1.8 排过一次，日常提交前跑 `.\scripts\format.ps1 -Check`（0 才是干净）。
 `third/` 与 `src/app/resource.h` 永久排除（后者是 ANSI 代码页给 `rc.exe` 读的符号表，
 重排或转码会让 `.res` 静默出错），格式化结果绑定 clang-format 版本，升版本要单独一次全量提交。

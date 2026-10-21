@@ -1,5 +1,5 @@
 #include "model/SortFilterProxyModel.h"
-#include "model/DocumentController.h"
+#include "model/DocumentTreeModel.h"
 
 SortFilterProxyModel::SortFilterProxyModel() : QSortFilterProxyModel()
 {

@@ -1,4 +1,5 @@
 #include "content/ExportDocument.h"
+#include "model/DocumentTreeModel.h"
 
 #include "platform/PlatformUtils.h"
 
@@ -6,7 +7,6 @@
 #include "core/Application.h"
 
 #include "model/DocumentProxy.h"
-#include "model/DocumentController.h"
 
 #include "utils/Globals.h"
 

@@ -13,6 +13,8 @@ add_library(tb_model OBJECT
     DocumentController.h
     DocumentProxy.cpp
     DocumentProxy.h
+    DocumentTreeModel.cpp
+    DocumentTreeModel.h
     IDocumentFormatServices.cpp
     IDocumentFormatServices.h
     SortFilterProxyModel.cpp
