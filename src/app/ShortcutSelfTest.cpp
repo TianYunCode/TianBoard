@@ -1,4 +1,4 @@
-#include "core/ShortcutSelfTest.h"
+#include "app/ShortcutSelfTest.h"
 
 #include <QAction>
 #include <QDebug>

@@ -1,4 +1,4 @@
-#include "core/SnapSelfTest.h"
+#include "app/SnapSelfTest.h"
 
 #include "core/Application.h"
 #include "core/PersistenceManager.h"

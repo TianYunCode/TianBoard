@@ -26,8 +26,6 @@ add_library(tb_core OBJECT
     AutoSaver.h
     CookieJar.cpp
     CookieJar.h
-    CookieSelfTest.cpp
-    CookieSelfTest.h
     DisplayManager.cpp
     DisplayManager.h
     DocumentManager.cpp
@@ -36,8 +34,6 @@ add_library(tb_core OBJECT
     DownloadManager.h
     ForeignObjectsHandler.cpp
     ForeignObjectsHandler.h
-    FormatSelfTest.cpp
-    FormatSelfTest.h
     HttpGet.cpp
     HttpGet.h
     IdleTimer.cpp
@@ -50,14 +46,10 @@ add_library(tb_core OBJECT
     NetworkAccessManager.h
     PersistenceManager.cpp
     PersistenceManager.h
-    SnapSelfTest.cpp
-    SnapSelfTest.h
     SceneCache.cpp
     SceneCache.h
     ShortcutManager.cpp
     ShortcutManager.h
-    ShortcutSelfTest.cpp
-    ShortcutSelfTest.h
     TextTools.cpp
     TextTools.h
     VirtualDesktop.cpp

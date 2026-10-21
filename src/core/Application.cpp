@@ -32,12 +32,8 @@
 #include "ui/Resources.h"
 
 #include "whiteboard/ToolsManager.h"
-#include "core/CookieSelfTest.h"
 #include "core/DisplayManager.h"
-#include "core/FormatSelfTest.h"
-#include "core/SnapSelfTest.h"
 #include "core/ShortcutManager.h"
-#include "core/ShortcutSelfTest.h"
 
 QPointer<QUndoStack> Application::undoStack;
 
@@ -299,45 +295,16 @@ int Application::exec(const QString &pFileToImport)
         QTimer::singleShot(8000, qApp, &QCoreApplication::quit);
     }
 
-    // 自检模式：让应用带着真实装配跑一段只查对错的代码，用退出码回报不一致的条数。
-    // 判据写在各自的 *SelfTest.cpp 里，这里只管拉起跑。
-    // 约定：0 = 通过，非 0 = 不一致条数；75 = 已有实例在跑、让路——测试据此判“跳过”而不是
-    // 判失败，因为自检会写临时文档、动场景缓存与用户配置，两个进程并行没有意义。
-    // 崩溃时 stderr 是块缓冲的，最后几条日志会跟着进程一起丢，看不出停在哪；verbose 分支
-    // 按条 open/close 落盘（见 app/main.cpp 的消息处理器），所以自检一律开它。
-    struct SelfTestMode
+    // 自检动作由装配层装上（app/SelfTests.cpp）：core 不认识具体自检，只管延时跑一下、
+    // 把返回值当退出码，并顺带打开 verbose 日志（崩溃时 stderr 块缓冲会吞掉最后几行）。
+    if (mSelfTestRunner)
     {
-        const char *flag;
-        int (*run)();
-    };
-
-    static const SelfTestMode selfTestModes[] = {
-        {"--format-selftest",   FormatSelfTest::run  }, // 文档格式读写往返（tst_format）
-        {"--snap-selftest",     SnapSelfTest::run    }, // 网格吸线的场景侧接线（tst_snap）
-        {"--shortcut-selftest", ShortcutSelfTest::run}, // 快捷键注册表的读写与冲突（tst_shortcuts）
-        {"--cookie-selftest",   CookieSelfTest::run  }, // Cookie 镜像罐与退出清理计数（tst_cookies）
-    };
-
-    for (const SelfTestMode &mode : selfTestModes)
-    {
-        if (!arguments().contains(QLatin1String(mode.flag)))
-        {
-            continue;
-        }
-
         setVerbose(true);
 
-        const bool anotherInstanceRunning = isRunning();
-
-        if (anotherInstanceRunning)
-        {
-            qWarning() << mode.flag << "：已有实例在运行，让路";
-        }
-
-        QTimer::singleShot(anotherInstanceRunning ? 0 : 1500, qApp,
-            [mode, anotherInstanceRunning]
+        QTimer::singleShot(mSelfTestDelayMs, qApp,
+            [this]
             {
-                qApp->exit(anotherInstanceRunning ? 75 : mode.run());
+                qApp->exit(mSelfTestRunner());
             });
     }
 
@@ -586,6 +553,12 @@ bool Application::handleOpenMessage(const QString &pMessage)
     Application::applicationController->importFile(pMessage);
 
     return true;
+}
+
+void Application::setSelfTestRun(int delayMs, std::function<int()> runner)
+{
+    mSelfTestRunner  = std::move(runner);
+    mSelfTestDelayMs = delayMs;
 }
 
 void Application::cleanup()

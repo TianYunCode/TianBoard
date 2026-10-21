@@ -1,4 +1,4 @@
-#include "core/CookieSelfTest.h"
+#include "app/CookieSelfTest.h"
 
 #include <QDateTime>
 #include <QDebug>

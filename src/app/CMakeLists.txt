@@ -3,7 +3,12 @@
 #       TianBoard.rc / resource.h（加速器与图标资源）、res/TianBoard.qrc。
 #
 # 这里只做装配：把各模块的 OBJECT 库并成一个 TianBoard.exe，再把运行期
-# 目录铺到可执行文件旁边。不放业务代码。
+# 目录铺到可执行文件旁边。不放业务代码——但有两样"只有装配层能干"的东西，
+# 2026-10 起也住在这里：
+#   * 下层模块所需实现的注入（drop 处理器工厂、文档格式服务），见 main.cpp；
+#   * 四个 *SelfTest 与按命令行分发的 app/SelfTests.cpp——自检要同时伸手进
+#     model/whiteboard/content/web/ui，换任何别的模块都会新造一组环，
+#     core 那边只留一个通用钩子 Application::setSelfTestRun()。
 #
 # 运行期布局（FileSystemUtils::applicationResourcesDirectory() ==
 # applicationDirPath()）：etc/ library/ customizations/ Language/ 必须与
@@ -11,8 +16,18 @@
 # ======================================================================
 
 add_executable(TianBoard WIN32
+    CookieSelfTest.cpp
+    CookieSelfTest.h
+    FormatSelfTest.cpp
+    FormatSelfTest.h
     main.cpp
     resource.h
+    SelfTests.cpp
+    SelfTests.h
+    ShortcutSelfTest.cpp
+    ShortcutSelfTest.h
+    SnapSelfTest.cpp
+    SnapSelfTest.h
     TianBoard.rc
     ${CMAKE_SOURCE_DIR}/res/TianBoard.qrc
 )

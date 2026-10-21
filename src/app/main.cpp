@@ -10,6 +10,7 @@
 #include "utils/FileSystemUtils.h"
 
 #include "api/WebWidgetBoardAPI.h"
+#include "app/SelfTests.h"
 #include "core/Application.h"
 #include "content/DocumentFormatServices.h"
 #include "model/IDocumentFormatServices.h"
@@ -90,6 +91,8 @@ int main(int argc, char *argv[])
     installDocumentFormatServices(&documentFormatServices);
 
     Application app("TianBoard", argc, argv);
+    // 自检是装配层的活：分发表在 app/SelfTests.cpp，core 只有一个通用钩子。
+    installSelfTestFromArgs(app);
 
     QStringList args = app.arguments();
 

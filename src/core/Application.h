@@ -7,6 +7,7 @@
 
 #include <QtWidgets>
 #include <QUndoStack>
+#include <functional>
 #include <QToolBar>
 #include <QMenu>
 
@@ -62,6 +63,16 @@ public:
 
     /// 删除各控制器并把全局指针置空，供退出流程使用；不结束事件循环。
     void cleanup();
+
+    /**
+     * @brief 装一个“装配完成之后跑的自检”，用退出码回报结果。
+     * @param delayMs 延时；要等界面装配完再跑的自检取 1500，让路那种立刻跑取 0。
+     * @param runner 自检入口，返回不一致的条数（0 = 通过）。
+     * @note 只有装配层（app/SelfTests.cpp）会装它：自检要伸手进各层，那是装配层的活，
+     *       core 不认识任何具体自检。装了它就顺带打开 verbose 日志——崩溃时 stderr 是
+     *       块缓冲的，最后几条日志会跟进程一起丢。
+     */
+    void setSelfTestRun(int delayMs, std::function<int()> runner);
 
     /// 全局撤销栈，父对象为 staticMemoryCleaner。
     static QPointer<QUndoStack> undoStack;
@@ -206,6 +217,11 @@ private:
     void           setupTranslators(const QStringList &args);
     QList<QMenu *> mProtoMenus;
     bool           mIsVerbose;
+
+    /// 待跑的自检入口；为空表示正常启动。由装配层经 setSelfTestRun() 装上。
+    std::function<int()> mSelfTestRunner;
+    /// 自检的延时刻度，见 setSelfTestRun()。
+    int mSelfTestDelayMs{0};
 
 protected:
     /// 偏好设置控制器，父对象为主窗口。

@@ -1,4 +1,4 @@
-#include "core/FormatSelfTest.h"
+#include "app/FormatSelfTest.h"
 
 #include "core/PersistenceManager.h"
 #include "content/ImportIwb.h"
