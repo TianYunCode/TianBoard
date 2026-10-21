@@ -14,7 +14,7 @@
 #include "core/DisplayManager.h"
 
 #include "whiteboard/BoardController.h"
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/DrawingController.h"
 #include "recording/RecordingController.h"

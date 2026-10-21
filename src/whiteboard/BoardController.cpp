@@ -48,7 +48,7 @@
 #include "whiteboard/ToolsManager.h"
 
 #include "model/DocumentProxy.h"
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 
 #include "whiteboard/DrawingController.h"
 #include "whiteboard/BoardView.h"

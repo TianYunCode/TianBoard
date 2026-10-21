@@ -85,8 +85,12 @@ public:
     QString exportAdaptorName(int index) const;
     /// @brief 把第 index 个导出器与它对应的菜单动作绑起来；动作的所有权在调用方。
     void associateExportAction(int index, QAction *action);
-    /// @brief 用第 index 个导出器导出这份文档（询问保存位置后写出）。
-    void exportDocumentWithAdaptor(int index, DocumentProxy *proxy);
+    /**
+     * @brief 用第 index 个导出器导出这份文档（询问保存位置后写出）。
+     * @param selectedTreeIndex 界面当前选中的树节点；导出整组文档时才用得上，
+     *        没有选中项就传一个空的 QModelIndex。由调用方给，导出器不去问界面。
+     */
+    void exportDocumentWithAdaptor(int index, DocumentProxy *proxy, const QModelIndex &selectedTreeIndex);
     /// @brief 按当前选中的树节点，逐个刷新各导出动作能不能用。
     void refreshExportActions(const QModelIndex &selectedIndex);
     /// 对外转发 documentUpdated 信号。

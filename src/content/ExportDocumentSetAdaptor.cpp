@@ -1,5 +1,4 @@
 #include "content/ExportDocumentSetAdaptor.h"
-#include "model/DocumentController.h"
 #include "model/DocumentTreeModel.h"
 #include "content/ExportDocument.h"
 
@@ -27,7 +26,7 @@ ExportDocumentSetAdaptor::~ExportDocumentSetAdaptor()
 {
 }
 
-void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy)
+void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QModelIndex &selectedTreeIndex)
 {
     QModelIndex         treeViewParentIndex;
     PersistenceManager *persistenceManager = PersistenceManager::persistenceManager();
@@ -47,7 +46,7 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy)
     }
     else
     {
-        treeViewParentIndex = Application::documentController->firstSelectedTreeIndex();
+        treeViewParentIndex = selectedTreeIndex;
         if (!treeViewParentIndex.isValid())
         {
             qDebug() << "failed to export";

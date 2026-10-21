@@ -32,7 +32,7 @@ public:
     /** @brief 扩展名 ".tbz"。 */
     virtual QString exportExtention();
     /** @brief 询问保存路径并写出 .tbz。 */
-    virtual void persist(DocumentProxy *pDocument);
+    virtual void persist(DocumentProxy *pDocument, const QModelIndex &selectedTreeIndex);
 
     /** @brief 以 UTF-8 文件名编码把文档目录压成 zip；失败返回 false。 */
     virtual bool persistsDocument(DocumentProxy *pDocument, const QString &filename);

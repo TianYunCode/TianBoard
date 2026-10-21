@@ -28,5 +28,5 @@ public:
     /** @brief 菜单文案：“Export to Web Browser”。 */
     virtual QString exportName();
     /** @brief 询问目录、复制文档目录并放入播放器页面。 */
-    virtual void persist(DocumentProxy *pDocument);
+    virtual void persist(DocumentProxy *pDocument, const QModelIndex &selectedTreeIndex);
 };

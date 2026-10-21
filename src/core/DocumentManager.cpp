@@ -21,7 +21,7 @@
 #include "whiteboard/GraphicsPixmapItem.h"
 
 #include "model/DocumentProxy.h"
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 #include "whiteboard/BoardController.h"
 
 #include "core/Application.h"
@@ -332,9 +332,9 @@ void DocumentManager::associateExportAction(int index, QAction *action)
     mExportAdaptors.at(index)->setAssociatedAction(action);
 }
 
-void DocumentManager::exportDocumentWithAdaptor(int index, DocumentProxy *proxy)
+void DocumentManager::exportDocumentWithAdaptor(int index, DocumentProxy *proxy, const QModelIndex &selectedTreeIndex)
 {
-    mExportAdaptors.at(index)->persist(proxy);
+    mExportAdaptors.at(index)->persist(proxy, selectedTreeIndex);
 }
 
 void DocumentManager::refreshExportActions(const QModelIndex &selectedIndex)

@@ -36,8 +36,13 @@ public:
     {
         return "";
     }
-    /** @brief 交互式导出入口：询问位置并写出文档。 */
-    virtual void persist(DocumentProxy *pDocument) = 0;
+    /**
+     * @brief 交互式导出入口：询问位置并写出文档。
+     * @param selectedTreeIndex 界面选中的树节点，只有"导出整组文档"那一个导出器会用到，
+     *        其余导出器忽略。选中项由调用方给，导出器不回问界面（依赖方向见
+     *        docs/architecture.md 的 content 不认 ui）。
+     */
+    virtual void persist(DocumentProxy *pDocument, const QModelIndex &selectedTreeIndex) = 0;
     /** @brief 把文档无交互地写到 filename；成功返回 true。 */
     virtual bool persistsDocument(DocumentProxy *pDocument, const QString &filename);
     /** @brief 判断当前选中的树节点能否使用本导出器；默认不可用。 */

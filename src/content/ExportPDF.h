@@ -29,7 +29,7 @@ public:
     /** @brief 扩展名 ".pdf"。 */
     virtual QString exportExtention();
     /** @brief 询问保存路径并导出。 */
-    virtual void persist(DocumentProxy *pDocument);
+    virtual void persist(DocumentProxy *pDocument, const QModelIndex &selectedTreeIndex);
     /** @brief 目录节点不可导出。 */
     virtual bool associatedActionactionAvailableFor(const QModelIndex &selectedIndex);
 

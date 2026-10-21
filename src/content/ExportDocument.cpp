@@ -24,8 +24,10 @@ ExportDocument::~ExportDocument()
 {
 }
 
-void ExportDocument::persist(DocumentProxy *pDocumentProxy)
+void ExportDocument::persist(DocumentProxy *pDocumentProxy, const QModelIndex &selectedTreeIndex)
 {
+    Q_UNUSED(selectedTreeIndex);
+
     persistLocally(pDocumentProxy, tr("Export as TianBoard Document"));
 }
 

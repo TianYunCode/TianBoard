@@ -31,7 +31,7 @@
 
 #include "whiteboard/BoardController.h"
 
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 
 #include "core/PersistenceManager.h"
 

@@ -25,8 +25,10 @@ QString ExportIwb::exportExtention()
     return QString(".iwb");
 }
 
-void ExportIwb::persist(DocumentProxy *pDocument)
+void ExportIwb::persist(DocumentProxy *pDocument, const QModelIndex &selectedTreeIndex)
 {
+    Q_UNUSED(selectedTreeIndex);
+
     QString src = pDocument->persistencePath();
 
     if (!pDocument)

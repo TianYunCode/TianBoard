@@ -1,4 +1,4 @@
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 #include <QRegExp>
 
 #include <QtCore>
@@ -1667,7 +1667,7 @@ void DocumentController::exportDocument()
 
     DocumentProxy *proxy          = firstSelectedTreeProxy();
 
-    DocumentManager::documentManager()->exportDocumentWithAdaptor(adaptorIndex, proxy);
+    DocumentManager::documentManager()->exportDocumentWithAdaptor(adaptorIndex, proxy, firstSelectedTreeIndex());
     emit exportDone();
 }
 

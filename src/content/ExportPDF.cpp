@@ -29,8 +29,10 @@ ExportPDF::~ExportPDF()
 {
 }
 
-void ExportPDF::persist(DocumentProxy *pDocumentProxy)
+void ExportPDF::persist(DocumentProxy *pDocumentProxy, const QModelIndex &selectedTreeIndex)
 {
+    Q_UNUSED(selectedTreeIndex);
+
     persistLocally(pDocumentProxy, tr("Export as PDF File"));
 }
 

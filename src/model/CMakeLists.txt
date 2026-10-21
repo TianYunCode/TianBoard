@@ -1,6 +1,7 @@
 # ======================================================================
 # model — 文档域：DocumentProxy（一份 .tbz 文档）、DocumentContainer（页面容器）、
-#         DocumentController（文档库的增删改查）、SortFilterProxyModel。
+#         DocumentTreeModel（文档目录树）与 SortFilterProxyModel。
+#         文档模式的控制器 DocumentController 在 ui/（它建的是文档库界面）。
 #         原 document/；缩略图与元数据的“数据”在本模块，落盘格式在 content/。
 #
 # 允许依赖：utils。尚未成立的边：model <-> core / content / ui / whiteboard。
@@ -9,8 +10,6 @@
 add_library(tb_model OBJECT
     DocumentContainer.cpp
     DocumentContainer.h
-    DocumentController.cpp
-    DocumentController.h
     DocumentProxy.cpp
     DocumentProxy.h
     DocumentTreeModel.cpp

@@ -11,7 +11,7 @@
 #     上一次的好产物 —— 这时候 ctest 照样全绿。所以判定必须看两件事：**构建日志里的
 #     error/LNK 计数为 0**，以及**没有输入比产物新**（树上没改动时 MSBuild 本来
 #     就不重链接，所以不能拿"exe 离现在几分钟"当判据）。两样缺一不可。
-#     新鲜度分两套：src/、res/ 与根构建文件对 TianBoard.exe，tests/tst_x.cpp 对各自的
+#     新鲜度分两套：src/ 与 res/ 的编译输入对 TianBoard.exe，tests/tst_x.cpp 对各自的
 #     tst_x.exe——测试源不是应用输入，混在一起会把格式化工具碰过的时间戳误判成"没重编"。
 #     res/ 必须在第一套里：往素材库加一张图不碰任何源文件，而它既可能进 qrc（编进 exe），
 #     也可能只靠 POST_BUILD 整目录拷贝，少这条就会带着旧素材目录把测试全跑绿。
@@ -111,11 +111,14 @@ if (-not (Test-Path $Exe)) { throw "没有产物：$Exe —— 构建根本没�
 # 测试可执行，格式化工具碰一下它们的时间戳，不该把应用判成"没重编"。
 $exeTime = (Get-Item $Exe).LastWriteTime
 $inputs = @()
+# 只把**编译输入**算进来（.cpp/.h/.qrc）。CMakeLists.txt 与 CMakePresets.json 是
+# 构建系统输入，不算：改了内容 CMake 会重生成工程文件、MSBuild 自己会把受影响的东西
+# 重做一遍（新增的 .cpp 本身也在这套输入里，跑不掉）；而只动一行注释时文件时间戳变了、
+# 构建却正确地什么都没重做，算进来就是天天误报。
 foreach ($dir in @('src')) {
     $inputs += Get-ChildItem -Path (Join-Path $Root $dir) -Recurse -File |
-        Where-Object { $_.Extension -in '.cpp', '.h', '.qrc' -or $_.Name -eq 'CMakeLists.txt' }
+        Where-Object { $_.Extension -in '.cpp', '.h', '.qrc' }
 }
-$inputs += Get-Item (Join-Path $Root 'CMakeLists.txt'), (Join-Path $Root 'CMakePresets.json')
 # res/ 下的每个文件都进产物：qrc 列出的编进 exe，etc/ library/ customizations/ 由
 # src/app 的 POST_BUILD 整目录拷到 exe 同级。往 res/library 里加一张图不碰任何源文件，
 # 没有这一条就会悄悄带着旧素材目录跑完整套测试。

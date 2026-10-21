@@ -2,7 +2,7 @@
 
 #include "ui/DocumentsWidget.h"
 
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 #include "ui/DocumentThumbnailWidget.h"
 
 struct DocumentsWidget::Private

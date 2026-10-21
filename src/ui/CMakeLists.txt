@@ -4,11 +4,13 @@
 #      以及原先根下 widgets/ 的内容（已并进来）与从 network/ 移来的
 #      ProxyDialog（它是对话框，不是服务）。屏幕键盘 KeyboardPalette* 与框选取图的
 #      CustomCaptureWindow* 也从 src/platform/ 移到了这里——它们是界面，平台层只留
-#      下"怎么把一次按键交给系统"这一件事（platform/KeyboardSender）。
+#      下"怎么把一次按键交给系统"这一件事（platform/KeyboardSender）。文档模式的控制器
+#      DocumentController（+ 它的树视图/委托/重名对话框）也是 2026-10 从 model/ 搬进来的：
+#      它建的是界面，model/ 只留纯文档域。
 #
-# 允许依赖：model、utils、platform。尚未成立的边：ui <-> core / whiteboard / model。
-# （对 content 与 api 已经零出边：content 那两个是从没被使用的死 include，api 那个是
-# FeaturesWidget 里从不使用的 boardApi。）
+# 允许依赖：model、utils、platform。尚未成立的边：ui <-> core / whiteboard。
+# （对 model 已是单向：model 不再 include 本模块；对 content 与 api 零出边——content
+# 那两个是从没被使用的死 include，api 那个是 FeaturesWidget 里从不使用的 boardApi。）
 # ======================================================================
 
 add_library(tb_ui OBJECT
@@ -32,6 +34,8 @@ add_library(tb_ui OBJECT
     DockPalette.h
     DockPaletteWidget.cpp
     DockPaletteWidget.h
+    DocumentController.cpp
+    DocumentController.h
     DocumentNavigator.cpp
     DocumentNavigator.h
     DocumentsWidget.cpp

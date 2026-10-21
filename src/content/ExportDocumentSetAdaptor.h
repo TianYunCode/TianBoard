@@ -39,7 +39,7 @@ public:
     virtual QString exportExtention();
 
     /** @brief 询问保存路径并导出当前选中节点及其子树。 */
-    virtual void persist(DocumentProxy *pDocument);
+    virtual void persist(DocumentProxy *pDocument, const QModelIndex &selectedTreeIndex);
     /** @brief 以 pRootIndex 为根写出 .tbx；失败返回 false。 */
     bool persistData(const QModelIndex &pRootIndex, QString filename);
     /** @brief 递归把一个树节点及其子节点写入 zip，保持目录层级。 */

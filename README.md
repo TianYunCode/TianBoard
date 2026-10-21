@@ -32,7 +32,7 @@ OpenSSL：原先用的那两处（代理密码的 AES、两个 md5 助手）一�
 `verify.ps1` 存在的原因是踩过一次真实的假绿：MSBuild `/m` 下某个工程编译失败时其它工程继续，
 `TianBoard.exe` 不重新链接，磁盘上还是上一次的旧产物，`ctest` 拿旧 exe 照样全绿。所以它
 在跑测试之前先卡五条硬判据：**构建日志里 `error C`/`LNK`/`fatal error` 计数为 0**、
-**没有输入比产物新**（`src/`、`res/` 与根构建文件对 `TianBoard.exe`，每个 `tst_x.cpp` 对各自的
+**没有输入比产物新**（`src/` 与 `res/` 里的编译输入对 `TianBoard.exe`，每个 `tst_x.cpp` 对各自的
 `tst_x.exe`，`res/i18n/*.ts` 则对摆在可执行文件同级的 `Language/TianBoard_<语言>.qm`——`.ts` 不进
 exe，改完不重链接是正常的，但语言包必须已经铺过去）、**源码里没有平台条件编译**（`Q_OS_*`/`Q_WS_*`，理由见
 [docs/coding-style.md](docs/coding-style.md) 第二节）、**源码全是合法 UTF-8 且除 TAB/换行外
@@ -149,7 +149,7 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 
 每个模块的 `CMakeLists.txt` 显式列出全部源文件（不用 GLOB），新增文件不改清单就不进构建。
 `src/utils`（出边为零）、`src/settings` 与 `src/platform`（都只依赖 utils）已经从 `OBJECT`
-收紧成真 `STATIC` 库；其余模块因为还有 10 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
+收紧成真 `STATIC` 库；其余模块因为还有 8 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。
 
 代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，376 个文件）已用

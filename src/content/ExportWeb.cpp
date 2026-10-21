@@ -24,8 +24,10 @@ ExportWeb::~ExportWeb()
 {
 }
 
-void ExportWeb::persist(DocumentProxy *pDocumentProxy)
+void ExportWeb::persist(DocumentProxy *pDocumentProxy, const QModelIndex &selectedTreeIndex)
 {
+    Q_UNUSED(selectedTreeIndex);
+
     if (!pDocumentProxy)
     {
         return;

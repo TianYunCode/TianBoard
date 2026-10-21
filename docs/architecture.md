@@ -20,10 +20,9 @@ src/
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager +
   │                CookieJar（可枚举的 Cookie 镜像罐）、
   │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
-  ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
-  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel；
-  │                文档模式的控制器 DocumentController 目前还住在这里，它是界面装配代码，
-  │                拆环第 4 步的后半搬去 ui/（原 document/）
+  ├─ model/        纯文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
+  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel，
+  │                出边只剩 core/settings/utils（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
   │                图形项 + 绘图工具（原 board/ + domain/ + tools/）+ PDF 页图形项与
   │                渲染器（PDFRenderer/QPdfRenderer/PdfPageItem，从原 pdf/ 搬来）
@@ -35,7 +34,8 @@ src/
   ├─ desktop/      屏幕批注（平台无关部分）
   ├─ recording/    录屏：画面与声音采集、录制调色板、Windows Media 编码器
   ├─ ui/           全部界面控件与调色板（原 ui/ + widgets/ + network/ProxyDialog，
-  │                加上从 platform/ 搬来的 KeyboardPalette* 与 CustomCaptureWindow*）
+  │                加上从 platform/ 搬来的 KeyboardPalette* 与 CustomCaptureWindow*，
+  │                以及从 model/ 搬来的 DocumentController——文档模式的界面装配）
   ├─ platform/     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
   │                KeyboardSender*、CredentialStore*（出边只有 utils）
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
@@ -132,7 +132,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 10 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 8 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
@@ -153,12 +153,10 @@ include。
 | 环 | 边数 | 典型出处 |
 |---|---|---|
 | `core` ↔ `whiteboard` | 33 / 65 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 13 / 40 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp`、`DocumentManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
+| `core` ↔ `ui` | 20 / 49 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp`、`DocumentManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `ui` ↔ `whiteboard` | 39 / 48 | 调色板与画板互相认 |
-| `core` ↔ `model` | 13 / 17 | `core/DocumentManager` ↔ `model/DocumentController`；`model/*` 反过来认 PersistenceManager/Application/DocumentManager |
-| `model` ↔ `ui` | 7 / 9 | `model/DocumentController.cpp` 直接建文档库界面（DocumentsWidget/DocumentToolsPalette/DocumentThumbnailWidget）、MessageWindow 与 MousePressFilter |
-| `model` ↔ `whiteboard` | 2 / 9 | 文档页与图形场景互认（model 只剩 `GraphicsScene`/`BoardController` 两个头） |
+| `ui` ↔ `whiteboard` | 40 / 50 | 调色板与画板互相认 |
+| `core` ↔ `model` | 8 / 9 | `core/DocumentManager` ↔ `model/DocumentProxy`；`model/*` 反过来认 PersistenceManager/Application/DocumentManager |
 | `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
 | `core` ↔ `recording` | 2 / 5 | ApplicationController/PreferencesController 认 RecordingController |
@@ -247,16 +245,18 @@ include。
    `core/Application` 启动时注入；出边只有 utils，已收紧成 STATIC）
 3. ~~**`api/`**~~（已完成：见上一节最后一条，`whiteboard` 对 api 零出边。本模块仍认
    whiteboard/core/model/content/utils，是画板之上的一层门面）
-4. **`model/`**（前半已完成）：`model` → `content` 已断——元数据读写与单页缩略图
-   抽成 `model/IDocumentFormatServices`（四个纯虚方法），实现是 `content/DocumentFormatServices`
-   （只是转调现成的 `MetadataDcSubsetAdaptor`/`ThumbnailAdaptor`），由 `app/main.cpp` 在启动时
-   装一个 static 实例；模型侧调用走四个自由函数，没装上时告警一次并给空结果。顺带把
-   `DocumentManager::supportedExportAdaptors()`（只有 DocumentController 用、把导出器对象指针
-   整个发出去）换成五个按意图命名的方法，`content/ExportPDF.h` 那条“只为供给 ExportAdaptor
-   类型”的 include 也随之消失。**剩下要做的是** `model` → `ui`：DocumentController 直接实例化
-   文档库界面（DocumentsWidget/DocumentToolsPalette/DocumentThumbnailWidget）、弹 MessageWindow、
-   装 MousePressFilter，得把“文档模式界面的装配”上提到装配层或抽 `IDocumentHost` 接口。
-   两步都做完，`tb_model` 才能从 OBJECT 收紧成 STATIC。
+4. ~~**`model/`**~~（已完成，2026-10-21）：两步。先 `model` → `content`
+   （元数据与缩略图抽成 `model/IDocumentFormatServices`，见上面第 4 步前半那段），再把
+   `model/DocumentController.{h,cpp}` 整个搬到 `ui/`——它是界面装配代码：建文档库控件、
+   建导出菜单、连主窗口十几个动作、弹 MessageWindow、装 MousePressFilter。搬之前先把
+   两处"下层回头问界面"的依赖反转掉：`DocumentTreeModel` 从控制器里拆成
+   `model/DocumentTreeModel.{h,cpp}`（原来声明寄在 `core/PersistenceManager.h`、实现写在
+   控制器里），`ExportDocumentSetAdaptor` 改由调用方把选中的树节点当参数传进来
+   （`persist(proxy, selectedTreeIndex)`），导出器不再 include 控制器。
+   搬完 `model` 的出边只有 core:9 / settings:4 / utils:4，两组环（`model↔ui`、
+   `model↔whiteboard`）一起消失。**还收紧不了 STATIC**：`model↔core` 仍在，
+   要等第 9 步把 `PersistenceManager`/`DocumentManager` 从 core 拆出来。
+
 5. ~~**`platform/`**~~（已完成：`WindowCapture` 只收一个 `QWidget*` 作捕获目标，不再认
    `desktop/*` 与 `whiteboard/BoardView`；`KeyboardPalette*` 与 `CustomCaptureWindow*`
    这两个界面组件上移到 `ui/`，平台层只留 `KeyboardSender` 的 `SendInput`；出边只剩
@@ -282,18 +282,18 @@ include。
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, content:1, core:1, model:1, platform:1, settings:1, utils:1, whiteboard:1
-content     -> core:44, model:24, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:19, desktop:2, model:13, platform:7, recording:2, settings:20,
-               ui:15, utils:10, web:4, whiteboard:49
+content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
+core        -> content:19, desktop:2, model:8, platform:7, recording:2, settings:20, ui:20,
+               utils:10, web:4, whiteboard:49
 desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
-model       -> core:17, platform:1, settings:6, ui:7, utils:7, whiteboard:2
+model       -> core:9, settings:4, utils:4
 platform    -> utils:1
 recording   -> core:5, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> core:41, model:9, platform:9, settings:16, utils:8, whiteboard:38
+ui          -> core:49, model:10, platform:10, settings:18, utils:11, whiteboard:40
 utils       -> （无出边）
 web         -> core:19, platform:1, settings:5, ui:5, utils:3, whiteboard:5
-whiteboard  -> core:67, model:9, platform:5, settings:20, ui:48, utils:47
+whiteboard  -> core:67, model:7, platform:5, settings:20, ui:50, utils:47
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

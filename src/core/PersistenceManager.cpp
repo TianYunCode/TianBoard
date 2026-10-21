@@ -31,7 +31,7 @@
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardPaletteManager.h"
 
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 
 const QString PersistenceManager::imageDirectory   = "images";  // added to PersistenceManager::mAllDirectories
 const QString PersistenceManager::objectDirectory  = "objects"; // added to PersistenceManager::mAllDirectories

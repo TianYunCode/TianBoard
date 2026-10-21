@@ -46,8 +46,10 @@ void ExportFullPDF::saveOverlayPdf(DocumentProxy *pDocumentProxy, const QString 
     mSimpleExporter->persistsDocument(pDocumentProxy, filename);
 }
 
-void ExportFullPDF::persist(DocumentProxy *pDocumentProxy)
+void ExportFullPDF::persist(DocumentProxy *pDocumentProxy, const QModelIndex &selectedTreeIndex)
 {
+    Q_UNUSED(selectedTreeIndex);
+
     persistLocally(pDocumentProxy, tr("Export as PDF File"));
 }
 

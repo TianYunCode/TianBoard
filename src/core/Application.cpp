@@ -26,7 +26,7 @@
 #include "whiteboard/BoardPaletteManager.h"
 #include "web/WebController.h"
 
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 
 #include "ui/MainWindow.h"
 #include "ui/Resources.h"

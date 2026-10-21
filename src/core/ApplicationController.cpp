@@ -18,7 +18,7 @@
 #include "whiteboard/DrawingController.h"
 
 #include "model/DocumentProxy.h"
-#include "model/DocumentController.h"
+#include "ui/DocumentController.h"
 
 #include "whiteboard/GraphicsWidgetItem.h"
 
