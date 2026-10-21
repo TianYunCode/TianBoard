@@ -1,10 +1,10 @@
 #include "content/ExportWeb.h"
+#include "utils/UserNotices.h"
 
 #include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
 
 #include "core/DocumentManager.h"
-#include "core/Application.h"
 
 #include "model/DocumentProxy.h"
 
@@ -38,7 +38,7 @@ void ExportWeb::persist(DocumentProxy *pDocumentProxy, const QModelIndex &select
     if (dirName.length() > 0)
     {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        Application::showMessage(tr("Exporting document..."));
+        UserNotices::presentStatusMessage(tr("Exporting document..."));
 
         if (FileSystemUtils::copyDir(pDocumentProxy->persistencePath(), dirName))
         {
@@ -47,13 +47,13 @@ void ExportWeb::persist(DocumentProxy *pDocumentProxy, const QModelIndex &select
             QFile html(":www/TianBoard-web-player.html");
             html.copy(htmlPath);
 
-            Application::showMessage(tr("Export successful."));
+            UserNotices::presentStatusMessage(tr("Export successful."));
 
             QDesktopServices::openUrl(QUrl::fromLocalFile(htmlPath));
         }
         else
         {
-            Application::showMessage(tr("Export failed."));
+            UserNotices::presentStatusMessage(tr("Export failed."));
         }
 
         QApplication::restoreOverrideCursor();

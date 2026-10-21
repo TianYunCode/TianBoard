@@ -49,8 +49,6 @@ add_library(tb_core OBJECT
     SceneCache.h
     ShortcutManager.cpp
     ShortcutManager.h
-    UserNotices.cpp
-    UserNotices.h
 )
 
 # 跨模块 include 一律写成 "模块/文件.h"，由这一条 src/ 路径解析；

@@ -1,4 +1,5 @@
 #include <QFileDialog>
+#include "utils/UserNotices.h"
 
 #include "content/ExportAdaptor.h"
 
@@ -91,7 +92,7 @@ void ExportAdaptor::persistLocally(DocumentProxy *pDocumentProxy, const QString 
 
         if (mIsVerbose)
         {
-            Application::showMessage(tr("Exporting document..."));
+            UserNotices::presentStatusMessage(tr("Exporting document..."));
         }
 
         // 只检查目录权限而不是文件本身：文件可能尚不存在，QFileInfo::isWritable 对
@@ -110,7 +111,7 @@ void ExportAdaptor::persistLocally(DocumentProxy *pDocumentProxy, const QString 
 
             if (mIsVerbose)
             {
-                Application::showMessage(tr("Export failed: location not writable"));
+                UserNotices::presentStatusMessage(tr("Export failed: location not writable"));
             }
 
             QApplication::restoreOverrideCursor();
@@ -122,7 +123,7 @@ void ExportAdaptor::persistLocally(DocumentProxy *pDocumentProxy, const QString 
 
         if (mIsVerbose && persisted)
         {
-            Application::showMessage(tr("Export successful."));
+            UserNotices::presentStatusMessage(tr("Export successful."));
         }
 
         QApplication::restoreOverrideCursor();

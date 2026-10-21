@@ -445,14 +445,6 @@ void Application::closing()
     quit();
 }
 
-void Application::showMessage(const QString &message, bool showSpinningWheel)
-{
-    if (applicationController)
-    {
-        applicationController->showMessage(message, showSpinningWheel);
-    }
-}
-
 void Application::setDisabled(bool disable)
 {
     boardController->setDisabled(disable);

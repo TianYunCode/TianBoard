@@ -1,4 +1,5 @@
 #include "whiteboard/GraphicsScene.h"
+#include "utils/UserNotices.h"
 
 #include <QtWidgets>
 #include <QtWebEngineWidgets>
@@ -348,8 +349,8 @@ void GraphicsScene::selectionChangedProcessing()
 {
     if (selectedItems().count())
     {
-        Application::showMessage("ZValue is " + QString::number(selectedItems().first()->zValue(), 'f') + "own z value is " +
-                                 QString::number(selectedItems().first()->data(GraphicsItemData::ItemOwnZValue).toReal(), 'f'));
+        UserNotices::presentStatusMessage("ZValue is " + QString::number(selectedItems().first()->zValue(), 'f') + "own z value is " +
+                                          QString::number(selectedItems().first()->data(GraphicsItemData::ItemOwnZValue).toReal(), 'f'));
     }
 }
 

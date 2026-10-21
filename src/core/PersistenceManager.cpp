@@ -1,5 +1,5 @@
 #include "core/PersistenceManager.h"
-#include "core/UserNotices.h"
+#include "utils/UserNotices.h"
 #include <algorithm>
 
 #include <QtXml>

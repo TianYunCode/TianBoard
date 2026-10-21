@@ -127,13 +127,6 @@ public:
     /// 页面缩略图的拖放 MIME 类型。
     static const QString mimeTypeBoardPageThumbnail;
 
-    /**
-     * @brief 在主窗口上显示一条提示消息。
-     * @param message 要显示的文字。
-     * @param showSpinningWheel 为 true 时同时显示忙碌指示。
-     * @note 应用控制器尚未创建时静默忽略。
-     */
-    static void showMessage(const QString &message, bool showSpinningWheel = false);
     /// 启用或禁用画板交互；委托给 BoardController。
     static void setDisabled(bool disable);
 

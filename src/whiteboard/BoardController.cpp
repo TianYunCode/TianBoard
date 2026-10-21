@@ -1,4 +1,5 @@
 #include "whiteboard/BoardController.h"
+#include "utils/UserNotices.h"
 #include <QRandomGenerator>
 #include <QRegularExpression>
 #include "platform/VirtualDesktop.h"
@@ -302,7 +303,7 @@ void BoardController::saveData(SaveFlags fls)
     bool verbose = fls.testFlag(sf_showProgress);
     if (verbose)
     {
-        Application::showMessage(tr("Saving document..."));
+        UserNotices::presentStatusMessage(tr("Saving document..."));
     }
     if (mActiveScene && mActiveScene->isModified())
     {
@@ -310,7 +311,7 @@ void BoardController::saveData(SaveFlags fls)
     }
     if (verbose)
     {
-        Application::showMessage(tr("Document has just been saved..."));
+        UserNotices::presentStatusMessage(tr("Document has just been saved..."));
     }
 }
 

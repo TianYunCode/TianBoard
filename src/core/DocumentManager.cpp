@@ -1,5 +1,5 @@
 #include "core/DocumentManager.h"
-#include "core/UserNotices.h"
+#include "utils/UserNotices.h"
 
 #include "utils/StringUtils.h"
 
@@ -182,7 +182,7 @@ DocumentProxy *DocumentManager::importFile(const QFile &pFile, const QString &pG
                     int                   nPage = 0;
                     foreach (GraphicsItem *page, pages)
                     {
-                        Application::showMessage(tr("Inserting page %1 of %2").arg(++nPage).arg(pages.size()), true);
+                        UserNotices::presentStatusMessage(tr("Inserting page %1 of %2").arg(++nPage).arg(pages.size()), true);
 
                         int            pageIndex = document->pageCount();
                         GraphicsScene *scene     = PersistenceManager::persistenceManager()->createDocumentSceneAt(document, pageIndex);
@@ -191,7 +191,7 @@ DocumentProxy *DocumentManager::importFile(const QFile &pFile, const QString &pG
                     }
 
                     PersistenceManager::persistenceManager()->persistDocumentMetadata(document);
-                    Application::showMessage(tr("Import successful."));
+                    UserNotices::presentStatusMessage(tr("Import successful."));
                 }
             }
 
@@ -207,7 +207,7 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
     int nImportedDocuments = 0;
     foreach (const QString &fileName, fileNames)
     {
-        Application::showMessage(tr("Importing file %1").arg(fileName));
+        UserNotices::presentStatusMessage(tr("Importing file %1").arg(fileName));
 
         QFile     file(fileName);
         QFileInfo fileInfo(file);
@@ -252,7 +252,7 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
                     int                   nPage = 0;
                     foreach (GraphicsItem *page, pages)
                     {
-                        Application::showMessage(tr("Inserting page %1 of %2").arg(++nPage).arg(pages.size()), true);
+                        UserNotices::presentStatusMessage(tr("Inserting page %1 of %2").arg(++nPage).arg(pages.size()), true);
                         int            pageIndex = document->pageCount();
                         GraphicsScene *scene     = PersistenceManager::persistenceManager()->createDocumentSceneAt(document, pageIndex);
                         importAdaptor->placeImportedItemToScene(scene, page);
@@ -261,7 +261,7 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
                     }
 
                     PersistenceManager::persistenceManager()->persistDocumentMetadata(document);
-                    Application::showMessage(tr("Import of file %1 successful.").arg(file.fileName()));
+                    UserNotices::presentStatusMessage(tr("Import of file %1 successful.").arg(file.fileName()));
                     nImportedDocuments++;
                 }
 
@@ -301,7 +301,7 @@ DocumentProxy *DocumentManager::importDir(const QDir &pDir, const QString &pGrou
 
         PersistenceManager::persistenceManager()->persistDocumentMetadata(doc);
 
-        Application::showMessage(tr("File %1 saved").arg(pDir.dirName()));
+        UserNotices::presentStatusMessage(tr("File %1 saved").arg(pDir.dirName()));
     }
     else
     {

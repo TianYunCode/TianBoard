@@ -1,8 +1,7 @@
 #include "content/ExportDocumentSetAdaptor.h"
+#include "utils/UserNotices.h"
 #include "model/DocumentTreeModel.h"
 #include "content/ExportDocument.h"
-
-#include "core/Application.h"
 
 #include "model/DocumentProxy.h"
 
@@ -34,7 +33,7 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QMod
         if (!treeViewParentIndex.isValid())
         {
             qDebug() << "failed to export";
-            Application::showMessage(tr("Failed to export..."));
+            UserNotices::presentStatusMessage(tr("Failed to export..."));
             return;
         }
         filename = askForFileName(pDocumentProxy, tr("Export as TianBoard Document Set"));
@@ -45,7 +44,7 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QMod
         if (!treeViewParentIndex.isValid())
         {
             qDebug() << "failed to export";
-            Application::showMessage(tr("Failed to export..."));
+            UserNotices::presentStatusMessage(tr("Failed to export..."));
             return;
         }
 
@@ -61,21 +60,21 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QMod
 
         if (mIsVerbose)
         {
-            Application::showMessage(tr("Exporting document..."));
+            UserNotices::presentStatusMessage(tr("Exporting document..."));
         }
 
         if (persistData(treeViewParentIndex, filename))
         {
             if (mIsVerbose)
             {
-                Application::showMessage(tr("Export successful."));
+                UserNotices::presentStatusMessage(tr("Export successful."));
             }
         }
         else
         {
             if (mIsVerbose)
             {
-                Application::showMessage(tr("Export failed."));
+                UserNotices::presentStatusMessage(tr("Export failed."));
             }
         }
 

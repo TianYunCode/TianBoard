@@ -40,7 +40,7 @@ void IdleTimer::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
 
-    bool hasWaitCuror = (Application::overrideCursor() && (Application::overrideCursor()->shape() == Qt::WaitCursor));
+    bool hasWaitCuror = (QApplication::overrideCursor() && (QApplication::overrideCursor()->shape() == Qt::WaitCursor));
 
     if (!mCursorIsHidden && (mLastInputEventTime.secsTo(QDateTime::currentDateTime()) >= 2) && Application::boardController &&
         Application::boardController->controlView() && Application::boardController->controlView()->hasFocus() && !hasWaitCuror)

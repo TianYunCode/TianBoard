@@ -1,4 +1,5 @@
 #include "recording/RecordingController.h"
+#include "utils/UserNotices.h"
 #include "platform/VirtualDesktop.h"
 
 #include "utils/FileSystemUtils.h"
@@ -350,12 +351,12 @@ void RecordingController::start()
                 }
                 mVideoEncoder->deleteLater();
                 Application::mainWindow->ui().actionRecordingStart->setChecked(false);
-                Application::showMessage(tr("Failed to start encoder ..."), false);
+                UserNotices::presentStatusMessage(tr("Failed to start encoder ..."), false);
             }
         }
         else
         {
-            Application::showMessage(tr("No screen recording encoder available..."), false);
+            UserNotices::presentStatusMessage(tr("No screen recording encoder available..."), false);
         }
     }
 }
@@ -675,7 +676,7 @@ void RecordingController::webActiveWebPageChanged(QWidget *webView)
 
 void RecordingController::encodingStatus(const QString &pStatus)
 {
-    Application::showMessage(pStatus, true);
+    UserNotices::presentStatusMessage(pStatus, true);
 }
 
 void RecordingController::encodingFinished(bool ok)
@@ -698,14 +699,14 @@ void RecordingController::encodingFinished(bool ok)
                     location = tr("in folder %1").arg(mRecordingPath);
                 }
 
-                Application::showMessage(tr("Screen recording created %1").arg(location), false);
+                UserNotices::presentStatusMessage(tr("Screen recording created %1").arg(location), false);
             }
         }
         else
         {
             qWarning() << mVideoEncoder->lastErrorMessage();
 
-            Application::showMessage(tr("Screen recording error (%1)").arg(mVideoEncoder->lastErrorMessage()), false);
+            UserNotices::presentStatusMessage(tr("Screen recording error (%1)").arg(mVideoEncoder->lastErrorMessage()), false);
         }
 
         // 编码器已经发完 encodingFinished，回收它并把状态机送回 Stopped，界面据此恢复操作。

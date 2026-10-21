@@ -1,4 +1,5 @@
 #include "whiteboard/BoardPaletteManager.h"
+#include "utils/UserNotices.h"
 
 #include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
@@ -807,7 +808,7 @@ void BoardPaletteManager::addItemToLibrary()
     }
     else
     {
-        Application::showMessage(tr("Error Adding Image to Library"));
+        UserNotices::presentStatusMessage(tr("Error Adding Image to Library"));
     }
 
     mAddItemPalette->hide();

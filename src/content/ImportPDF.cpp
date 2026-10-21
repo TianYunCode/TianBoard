@@ -1,7 +1,7 @@
 #include "content/ImportPDF.h"
+#include "utils/UserNotices.h"
 #include "platform/VirtualDesktop.h"
 
-#include "core/Application.h"
 #include "core/PersistenceManager.h"
 
 #include "whiteboard/GraphicsPDFItem.h"
@@ -37,7 +37,7 @@ QList<GraphicsItem *> ImportPDF::import(const QUuid &uuid, const QString &filePa
 
     if (!pdfRenderer->isValid())
     {
-        Application::showMessage(tr("PDF import failed."));
+        UserNotices::presentStatusMessage(tr("PDF import failed."));
         return result;
     }
     pdfRenderer->setDPI(this->dpi);
@@ -46,7 +46,7 @@ QList<GraphicsItem *> ImportPDF::import(const QUuid &uuid, const QString &filePa
 
     for (int pdfPageNumber = 1; pdfPageNumber <= pdfPageCount; pdfPageNumber++)
     {
-        Application::showMessage(tr("Importing page %1 of %2").arg(pdfPageNumber).arg(pdfPageCount), true);
+        UserNotices::presentStatusMessage(tr("Importing page %1 of %2").arg(pdfPageNumber).arg(pdfPageCount), true);
         // 所有权交给调用方，placeImportedItemToScene 时再转交场景。
         result << new GraphicsPDFItem(pdfRenderer, pdfPageNumber); // 由场景负责 delete
     }

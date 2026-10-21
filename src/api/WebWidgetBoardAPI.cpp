@@ -1,4 +1,5 @@
 #include "api/WebWidgetBoardAPI.h"
+#include "utils/UserNotices.h"
 
 #include <QWebEngineView>
 #include <QDomDocument>
@@ -444,7 +445,7 @@ QString WebWidgetBoardAPI::lang()
 void WebWidgetBoardAPI::returnStatus(const QString &method, const QString &status)
 {
     QString msg = QString(tr("%0 called (method=%1, status=%2)")).arg("returnStatus").arg(method).arg(status);
-    Application::showMessage(msg);
+    UserNotices::presentStatusMessage(msg);
 }
 
 void WebWidgetBoardAPI::usedMethods(QStringList methods)

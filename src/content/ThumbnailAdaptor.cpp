@@ -1,10 +1,10 @@
 #include "content/ThumbnailAdaptor.h"
+#include "utils/UserNotices.h"
 
 #include <QtCore>
 
 #include "utils/FileSystemUtils.h"
 
-#include "core/Application.h"
 #include "settings/Settings.h"
 
 #include "model/DocumentProxy.h"
@@ -37,7 +37,7 @@ void ThumbnailAdaptor::generateMissingThumbnails(DocumentProxy *proxy)
 
                 if (displayMessage && thumbCount == 1)
                 {
-                    Application::showMessage(tr("Generating preview thumbnails ..."));
+                    UserNotices::presentStatusMessage(tr("Generating preview thumbnails ..."));
                 }
 
                 persistScene(proxy, scene, iPageNo);
@@ -45,7 +45,7 @@ void ThumbnailAdaptor::generateMissingThumbnails(DocumentProxy *proxy)
 
             if (displayMessage && thumbCount > 0)
             {
-                Application::showMessage(tr("%1 thumbnails generated ...").arg(thumbCount));
+                UserNotices::presentStatusMessage(tr("%1 thumbnails generated ...").arg(thumbCount));
             }
         }
     }

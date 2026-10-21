@@ -1,9 +1,9 @@
 #include "content/ImportDocument.h"
+#include "utils/UserNotices.h"
 #include "model/DocumentProxy.h"
 
 #include "utils/FileSystemUtils.h"
 
-#include "core/Application.h"
 #include "settings/Settings.h"
 #include "core/PersistenceManager.h"
 
@@ -136,7 +136,7 @@ DocumentProxy *ImportDocument::importFile(const QFile &pFile, const QString &pGr
     Q_UNUSED(pGroup);
 
     QFileInfo fi(pFile);
-    Application::showMessage(tr("Importing file %1...").arg(fi.baseName()), true);
+    UserNotices::presentStatusMessage(tr("Importing file %1...").arg(fi.baseName()), true);
 
     QString path = Settings::userDocumentDirectory();
 
@@ -144,38 +144,38 @@ DocumentProxy *ImportDocument::importFile(const QFile &pFile, const QString &pGr
 
     if (!extractFileToDir(pFile, path, documentRootFolder))
     {
-        Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
+        UserNotices::presentStatusMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return NULL;
     }
 
     DocumentProxy *newDocument = PersistenceManager::persistenceManager()->createDocumentFromDir(documentRootFolder, pGroup, "", false, false, true);
-    Application::showMessage(tr("Import successful."));
+    UserNotices::presentStatusMessage(tr("Import successful."));
     return newDocument;
 }
 
 bool ImportDocument::addFileToDocument(DocumentProxy *pDocument, const QFile &pFile)
 {
     QFileInfo fi(pFile);
-    Application::showMessage(tr("Importing file %1...").arg(fi.baseName()), true);
+    UserNotices::presentStatusMessage(tr("Importing file %1...").arg(fi.baseName()), true);
 
     QString path = FileSystemUtils::createTempDir();
 
     QString documentRootFolder;
     if (!extractFileToDir(pFile, path, documentRootFolder))
     {
-        Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
+        UserNotices::presentStatusMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return false;
     }
 
     if (!PersistenceManager::persistenceManager()->addDirectoryContentToDocument(documentRootFolder, pDocument))
     {
-        Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
+        UserNotices::presentStatusMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return false;
     }
 
     FileSystemUtils::deleteDir(path);
 
-    Application::showMessage(tr("Import successful."));
+    UserNotices::presentStatusMessage(tr("Import successful."));
 
     return true;
 }

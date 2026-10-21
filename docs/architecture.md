@@ -47,8 +47,8 @@ src/
   │                KeyboardSender*、CredentialStore*、VirtualDesktop（出边只有 utils）
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
                    applicationResourcesDirectory）、Snapping、CookieRules、TextTools、
-                   AutoSaver、Globals、Enums.h（出边为零，最底一层；TextTools 与 AutoSaver
-                   2026-10-21 从 core/ 搬来，搬完出边仍然是零）
+                   AutoSaver、Globals、UserNotices、Enums.h（出边为零，最底一层；TextTools、
+                   AutoSaver 与 UserNotices 2026-10-21/22 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/             Qt Test 用例（16 个）
@@ -174,7 +174,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 |---|---|---|
 | `core` ↔ `whiteboard` | 17 / 52 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application/DocumentController |
 | `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
-| `content` ↔ `core` | 28 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `content` ↔ `core` | 17 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器。2026-10-22 把"向用户报一句"下沉成 `utils/UserNotices`，9 个导入导出器不再为了一条状态消息认识应用对象 |
 | `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
 
 `core` ↔ `ui` 已于 2026-10-21 归零（见下面第 9 步的收尾）：`Application.cpp` 与
@@ -329,8 +329,9 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
    `app/main.cpp`）；`DownloadManager` 不再命令主窗口显示/隐藏下载窗口，只广播事实
    （`hasModalDownload()` + 原有 `downloadModalFinished`），`ui/DownloadWidget` 自己决定可见性，
    `MainWindow` 那两个各只有一次调用者的转发函数删掉，顺手补上那个无父顶层窗体的释放。
-   同一轮又拆三处：导出告警与仓库丢失提示统一走 `core/UserNotices`（两个装配期装上的
-   presenter，实现是 `ui/MessagesDialog` 与主窗口的提示框，没装就退化成日志）；
+   同一轮又拆三处：导出告警与仓库丢失提示统一走 `UserNotices`（装配期装上的 presenter，
+   实现是 `ui/MessagesDialog` 与主窗口的提示框，没装就退化成日志；这个门面 2026-10-22 从
+   core/ 下沉到 utils/，理由见第四节）；
    `DisplayManager` 不再认识 `ui/BlackoutWidget`，改成 `installBlackoutSurfaceFactory`
    返回一个 `QWidget*` 并把"用户活动"作为回调传回来（不需要为拆环发明带信号的接口类）；
    `DocumentManager` 那两条 `ui/MainWindow.h`/`ui/DocumentController.h` 确认是死 include 删掉
@@ -373,26 +374,29 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 由 `src/` 全量扫描得到）：
 
 ```text
-api         -> content:1, core:4, model:1, settings:1, utils:1, whiteboard:6
-app         -> api:1, content:4, core:32, desktop:1, model:7, platform:4, recording:1,
-               settings:10, ui:13, utils:6, web:1, whiteboard:30
-content     -> core:28, model:21, platform:8, settings:7, utils:21, whiteboard:41
-core        -> content:15, model:6, platform:4, settings:7, utils:4, whiteboard:17
+api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:6
+app         -> api:1, content:4, core:31, desktop:1, model:7, platform:4, recording:1,
+               settings:10, ui:13, utils:8, web:1, whiteboard:30
+content     -> core:17, model:21, platform:8, settings:7, utils:31, whiteboard:41
+core        -> content:15, model:6, platform:4, settings:7, utils:7, whiteboard:17
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> core:9, settings:5, utils:5
 platform    -> utils:1
-recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:3, whiteboard:4
+recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:4, whiteboard:4
 settings    -> utils:2
-ui          -> core:41, model:11, platform:10, settings:16, utils:10, whiteboard:28
+ui          -> core:35, model:11, platform:10, settings:16, utils:11, whiteboard:28
 utils       -> （无出边）
 web         -> core:13, platform:3, settings:4, ui:5, utils:3, whiteboard:4
-whiteboard  -> core:52, model:13, platform:5, settings:20, ui:30, utils:45
+whiteboard  -> core:51, model:13, platform:5, settings:20, ui:30, utils:49
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
 上面 `core` 那一行是 2026-10-21 把 `Application.cpp`/`ApplicationController.cpp` 搬去 `app/`
-之后重测的：core 对 ui 归零，对 whiteboard 28→17、model 8→6、platform 8→4、settings 11→7、
-utils 6→4，这些边全部转到了 `app` 那一行——`app` 是装配点，本来就该这么重。
+之后重测的：core 对 ui 归零，对 whiteboard 28→17、model 8→6、platform 8→4、settings 11→7，
+这些边全部转到了 `app` 那一行——`app` 是装配点，本来就该这么重。
+2026-10-22 又把 `UserNotices` 从 core/ 下沉到 utils/ 并加了一条状态条通道：`content` 对
+core 从 26 降到 17（9 个导入导出器不再为了一句"导出成功"认识应用对象），对 utils 从 21 升到
+31——那是朝下的一条边，不是新账。`utils` 的出边仍然是零。
 重跑这张表不需要脚本，一条 grep 就够：
 
 ```text

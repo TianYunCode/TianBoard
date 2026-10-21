@@ -1,4 +1,5 @@
 #include "whiteboard/GraphicsGroupContainerItem.h"
+#include "utils/UserNotices.h"
 #include "whiteboard/GraphicsMediaItem.h"
 #include "whiteboard/GraphicsMediaItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
@@ -348,7 +349,7 @@ void GraphicsMediaItem::togglePlayPause()
     // 载入失败后不再尝试播放，直接把错误提示给用户
     if (!mErrorString.isEmpty())
     {
-        Application::showMessage("Can't play media: " + mErrorString);
+        UserNotices::presentStatusMessage("Can't play media: " + mErrorString);
         return;
     }
 
@@ -414,7 +415,7 @@ void GraphicsMediaItem::mediaError(QMediaPlayer::Error errorCode, const QString 
 
     if (!mErrorString.isEmpty())
     {
-        Application::showMessage(mErrorString);
+        UserNotices::presentStatusMessage(mErrorString);
         qDebug() << mErrorString;
     }
 }

@@ -7,7 +7,7 @@
 #include <QTextCodec>
 
 #include "core/DisplayManager.h"
-#include "core/UserNotices.h"
+#include "utils/UserNotices.h"
 #include "ui/MainWindow.h"
 #include "ui/BlackoutWidget.h"
 #include "ui/MessagesDialog.h"
@@ -143,6 +143,18 @@ int main(int argc, char *argv[])
             else
             {
                 qWarning() << title << text;
+            }
+        });
+
+    // 状态条上那条进度（导入到第几页、导出成没成）也走同一个门面：格式层与画板只想说
+    // 一句"第 3 页已插入"，不该因此 include 应用对象。总控器是 exec() 里才建的，
+    // 这里按空指针放过——在此之前没有任何东西会 presentStatusMessage。
+    UserNotices::installStatusPresenter(
+        [](const QString &message, bool showBusyIndicator)
+        {
+            if (Application::applicationController)
+            {
+                Application::applicationController->showMessage(message, showBusyIndicator);
             }
         });
 

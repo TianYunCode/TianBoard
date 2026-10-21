@@ -1,4 +1,5 @@
 #include "ui/DocumentController.h"
+#include "utils/UserNotices.h"
 
 #include <QtCore>
 #include <QtWidgets>
@@ -1982,7 +1983,7 @@ void DocumentController::addImages()
 
             if (importedImageNumber == 0)
             {
-                Application::showMessage(tr("Selection does not contain any image files!"));
+                UserNotices::presentStatusMessage(tr("Selection does not contain any image files!"));
                 Application::applicationController->showDocument();
             }
             else

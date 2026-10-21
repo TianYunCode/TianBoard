@@ -1,4 +1,5 @@
 #include "core/NetworkAccessManager.h"
+#include "utils/UserNotices.h"
 #include "core/CookieJar.h"
 #include <QElapsedTimer>
 
@@ -132,7 +133,7 @@ void NetworkAccessManager::proxyAuthenticationRequired(const QNetworkProxy &prox
 
     if (mProxyAuthenticationCount == 3)
     {
-        Application::showMessage(tr("Failed to log to Proxy"));
+        UserNotices::presentStatusMessage(tr("Failed to log to Proxy"));
         disconnect(this, &QNetworkAccessManager::proxyAuthenticationRequired, this, &NetworkAccessManager::proxyAuthenticationRequired);
     }
 

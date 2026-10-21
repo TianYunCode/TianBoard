@@ -6,6 +6,9 @@
 # 外加 Enums.h（全局枚举与 typedef，原先住在 core/，与同类的 Globals.h 放一起）。
 # TextTools/AutoSaver 是 2026-10-21 从 core/ 搬来的：两者只 include 自己的头，
 # 放 utils 这一层不会给这个模块添任何出边（本模块出边仍然是零）。
+# UserNotices（服务层向用户报告的三个出口，呈现方式由装配点装上）同一轮搬来：
+# 它只有 QString 与 std::function，而调用方从 content 的导入导出器排到 api 的小部件
+# 门面——留在 core 就等于要求每句"导出成功"先认识应用对象。
 # 平台相关的 PlatformUtils* 在 src/platform/（对外接口名字没变，仍是
 # "platform/PlatformUtils.h"）。
 #
@@ -35,6 +38,8 @@ add_library(tb_utils STATIC
     TextTools.h
     Version.cpp
     Version.h
+    UserNotices.cpp
+    UserNotices.h
     Enums.h
 )
 

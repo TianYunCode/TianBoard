@@ -8,6 +8,7 @@
 #include "model/IDocumentFormatServices.h"
 #include "settings/Settings.h"
 #include "utils/Enums.h"
+#include "utils/UserNotices.h"
 #include "whiteboard/GraphicsAxes.h"
 #include "whiteboard/GraphicsCompass.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
@@ -37,6 +38,9 @@
 
 namespace
 {
+    /// @brief 自检期间收到的状态条消息条数；验的是装配点那条呈现通道接没接上。
+    int gStatusMessages = 0;
+
     /// @brief 页尺寸与笔迹配色：往返两端共用同一组常量，比对才有参照。
     const QSize  kPageSize(1024, 768);
     const QColor kStrokeColor(220, 40, 40);
@@ -295,6 +299,10 @@ namespace
         {
             failures << QStringLiteral("IWB 导入后应有 1 页，实际 %1 页").arg(imported->pageCount());
         }
+        if (gStatusMessages == 0)
+        {
+            failures << QStringLiteral("导入这一路一条状态消息都没送到界面：装配点的 UserNotices 呈现通道没接上");
+        }
 
         QStringList    facts;
         GraphicsScene *scene = SvgSubsetAdaptor::loadScene(imported, 0);
@@ -318,6 +326,22 @@ namespace FormatSelfTest
     int run()
     {
         QStringList failures;
+
+        // 先确认装配点已经给主窗口接过这条通道（app/main.cpp 的 installStatusPresenter）：
+        // 没接的话消息不会崩，只会退化成一行 qInfo，用户在界面上什么也看不见——正是要判红的。
+        if (!UserNotices::hasStatusPresenter())
+        {
+            failures << QStringLiteral("装配点没装上状态条呈现方式（app/main.cpp 的 installStatusPresenter）");
+        }
+
+        // 再换成一个计数器，验导入导出器确实还在往外发消息：把某条 presentStatusMessage
+        // 删掉，下面 iwbFacts 那条断言立刻变红。
+        gStatusMessages = 0;
+        UserNotices::installStatusPresenter(
+            [](const QString &, bool)
+            {
+                ++gStatusMessages;
+            });
 
         // 按进程号命名，重复运行或并行跑都不会撞到上一次的文档；开工前先清干净。
         const QString documentDirectory =

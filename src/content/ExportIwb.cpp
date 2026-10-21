@@ -1,8 +1,8 @@
 #include "content/ExportIwb.h"
+#include "utils/UserNotices.h"
 #include "model/DocumentTreeModel.h"
 #include "content/IwbDocumentAdaptor.h"
 #include "model/DocumentProxy.h"
-#include "core/Application.h"
 
 #include <QModelIndex>
 #include <QObject>
@@ -43,7 +43,7 @@ void ExportIwb::persist(DocumentProxy *pDocument, const QModelIndex &selectedTre
 
         if (mIsVerbose)
         {
-            Application::showMessage(tr("Exporting document..."));
+            UserNotices::presentStatusMessage(tr("Exporting document..."));
         }
 
         IwbDocumentAdaptor toIWBExporter;
@@ -51,12 +51,12 @@ void ExportIwb::persist(DocumentProxy *pDocument, const QModelIndex &selectedTre
         {
             if (mIsVerbose)
             {
-                Application::showMessage(tr("Export successful."));
+                UserNotices::presentStatusMessage(tr("Export successful."));
             }
         }
         else if (mIsVerbose)
         {
-            Application::showMessage(tr("Export failed."));
+            UserNotices::presentStatusMessage(tr("Export failed."));
         }
 
         reportErrorsList(toIWBExporter.getConversionMessages());

@@ -1,10 +1,10 @@
 #include "content/ExportDocument.h"
+#include "utils/UserNotices.h"
 #include "model/DocumentTreeModel.h"
 
 #include "platform/PlatformUtils.h"
 
 #include "core/DocumentManager.h"
-#include "core/Application.h"
 
 #include "model/DocumentProxy.h"
 
@@ -64,7 +64,7 @@ void ExportDocument::processing(const QString &pObjectName, int pCurrent, int pT
 
     if (mIsVerbose)
     {
-        Application::showMessage(tr("Exporting %1 %2 of %3").arg(localized).arg(pCurrent).arg(pTotal));
+        UserNotices::presentStatusMessage(tr("Exporting %1 %2 of %3").arg(localized).arg(pCurrent).arg(pTotal));
     }
 }
 

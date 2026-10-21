@@ -1,7 +1,7 @@
 #include <QDir>
+#include "utils/UserNotices.h"
 #include <QList>
 
-#include "core/Application.h"
 #include "core/PersistenceManager.h"
 #include "core/DocumentManager.h"
 #include "core/PersistenceManager.h"
@@ -62,7 +62,7 @@ QString ImportIwb::importFileFilter()
 bool ImportIwb::addFileToDocument(DocumentProxy *pDocument, const QFile &pFile)
 {
     QFileInfo fi(pFile);
-    Application::showMessage(tr("Importing file %1...").arg(fi.baseName()), true);
+    UserNotices::presentStatusMessage(tr("Importing file %1...").arg(fi.baseName()), true);
 
     // IWB 通常是 zip 包；解压失败时按裸 XML 处理（有些工具直接导出 content.xml）。
     QString path               = QDir::tempPath();
@@ -80,7 +80,7 @@ bool ImportIwb::addFileToDocument(DocumentProxy *pDocument, const QFile &pFile)
 
     if (!contentFile.length())
     {
-        Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
+        UserNotices::presentStatusMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return false;
     }
     else
@@ -96,14 +96,14 @@ bool ImportIwb::addFileToDocument(DocumentProxy *pDocument, const QFile &pFile)
             PersistenceManager::persistenceManager()->addDirectoryContentToDocument(destDocument->persistencePath(), pDocument);
             FileSystemUtils::deleteDir(destDocument->persistencePath());
             delete destDocument;
-            Application::showMessage(tr("Import successful."));
+            UserNotices::presentStatusMessage(tr("Import successful."));
             return true;
         }
         else
         {
             FileSystemUtils::deleteDir(destDocument->persistencePath());
             delete destDocument;
-            Application::showMessage(tr("Import failed."));
+            UserNotices::presentStatusMessage(tr("Import failed."));
             return false;
         }
     }
@@ -215,7 +215,7 @@ DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup)
     Q_UNUSED(pGroup); // 分组信息由文件内的元数据决定，调用方传入的 pGroup 仅在下方覆盖显示名
 
     QFileInfo fi(pFile);
-    Application::showMessage(tr("Importing file %1...").arg(fi.baseName()), true);
+    UserNotices::presentStatusMessage(tr("Importing file %1...").arg(fi.baseName()), true);
 
     // 与 addFileToDocument 相同的解包策略：zip 优先，失败则当作裸 XML。
     QString path               = QDir::tempPath();
@@ -235,7 +235,7 @@ DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup)
 
     if (!contentFile.length())
     {
-        Application::showMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
+        UserNotices::presentStatusMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return 0;
     }
     else
@@ -263,12 +263,12 @@ DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup)
             newDocument =
                 PersistenceManager::persistenceManager()->createDocumentFromDir(destDocument->persistencePath(), "", "", false, false, true);
 
-            Application::showMessage(tr("Import successful."));
+            UserNotices::presentStatusMessage(tr("Import successful."));
         }
         else
         {
             FileSystemUtils::deleteDir(destDocument->persistencePath());
-            Application::showMessage(tr("Import failed."));
+            UserNotices::presentStatusMessage(tr("Import failed."));
         }
         delete destDocument;
 
