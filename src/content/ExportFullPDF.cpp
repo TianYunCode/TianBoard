@@ -1,6 +1,6 @@
 #include "content/ExportFullPDF.h"
 #include "model/DocumentTreeModel.h"
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include <QtCore>
 #include <QtSvg>

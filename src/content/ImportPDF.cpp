@@ -1,5 +1,5 @@
 #include "content/ImportPDF.h"
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include "core/Application.h"
 #include "core/PersistenceManager.h"

@@ -139,7 +139,7 @@ src/desktop      屏幕批注（平台无关部分）
 src/recording    录屏：画面与声音采集、录制调色板、Windows Media 编码器
 src/ui           全部界面控件与调色板
 src/platform     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
-                 KeyboardSender*、CredentialStore*
+                 KeyboardSender*、CredentialStore*、VirtualDesktop
 src/utils        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、Enums.h…
 third/           内联的 quazip/zlib 与 qtsingleapplication
 res/             images / etc / library / customizations / style / i18n(.ts) / qrc

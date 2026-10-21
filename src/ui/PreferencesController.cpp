@@ -22,7 +22,7 @@
 #include "ui/ShortcutSettingsWidget.h"
 #include "core/ShortcutManager.h"
 
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 #include "utils/CookieRules.h"
 
 qreal PreferencesController::sSliderRatio = 10.0;

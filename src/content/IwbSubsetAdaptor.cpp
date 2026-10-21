@@ -1,5 +1,5 @@
 #include <QRegExp>
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 #include <QSvgGenerator>
 #include <QSvgRenderer>
 #include <QPixmap>

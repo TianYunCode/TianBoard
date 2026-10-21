@@ -7,7 +7,7 @@
 #include <QWebEngineSettings>
 #include <QWebEngineHistory>
 #include <QWebEngineHistoryItem>
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include "settings/Settings.h"
 #include "core/Application.h"

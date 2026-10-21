@@ -1,5 +1,5 @@
 #include "whiteboard/BoardView.h"
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include <QtWidgets>
 #include <QtXml>

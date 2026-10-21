@@ -1,5 +1,5 @@
 #include "recording/RecordingController.h"
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include "utils/FileSystemUtils.h"
 #include "utils/StringUtils.h"

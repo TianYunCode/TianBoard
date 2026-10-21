@@ -1,6 +1,6 @@
 #include "core/ApplicationController.h"
 #include <algorithm>
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"

@@ -1,5 +1,5 @@
 #include "core/Application.h"
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 #include <QWebEngineProfile>
 #include <QRegularExpression>
 #include <QRegExp>

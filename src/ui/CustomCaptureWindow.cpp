@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 #include <QStyle>
 
 #include "ui/CustomCaptureWindow.h"

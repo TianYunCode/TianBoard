@@ -1,6 +1,6 @@
 #include <QDebug>
 #include <QtWidgets>
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 #include <QWebEngineCookieStore>
 #include <QWebEnginePage>
 #include <QWebEngineProfile>

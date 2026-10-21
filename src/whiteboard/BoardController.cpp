@@ -1,7 +1,7 @@
 #include "whiteboard/BoardController.h"
 #include <QRandomGenerator>
 #include <QRegularExpression>
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 #include <QtWidgets>
 #include <QtWebEngineWidgets>

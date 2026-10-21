@@ -1,7 +1,8 @@
 # ======================================================================
 # platform — 平台相关实现（Win32）：PlatformUtils（含键盘布局表）、窗口捕获
 #            （WindowCapture*）、一次按键如何注入系统（KeyboardSender_win）、
-#            凭据管理器（CredentialStore_win）。
+#            凭据管理器（CredentialStore_win）、虚拟桌面枚举与窗口归属（VirtualDesktop，
+#            2026-10-21 从 core/ 搬来：它只 include 自己的头加 Win32/Qt，是纯平台代码）。
 #
 # 从 utils/ 与 desktop/、ui/ 里挑出来的、只有这几个文件是真按平台分的；
 # PlatformUtils.h 的对外接口名字保持原样，其余模块不感知底下是 Win32 还是别的。
@@ -22,6 +23,8 @@ add_library(tb_platform STATIC
     PlatformUtils.cpp
     PlatformUtils.h
     PlatformUtils_win.cpp
+    VirtualDesktop.cpp
+    VirtualDesktop.h
     WindowCapture.h
     WindowCapture_win.cpp
     WindowCaptureDelegate_win.cpp

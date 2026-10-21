@@ -1,6 +1,6 @@
 # ======================================================================
 # core — 应用与各类服务/控制器：Application（QApplication 子类，单实例）、
-#        ApplicationController（启动与模式切换）、DisplayManager/VirtualDesktop
+#        ApplicationController（启动与模式切换）、DisplayManager（VirtualDesktop 已去 platform/）
 #        （多屏）、LanguageManager（取词）、PersistenceManager（.tbz 落盘）、
 #        DocumentManager（文档库）、NetworkAccessManager/HttpGet/AutoSaver
 #        （原 network/；ProxyDialog 归 ui/）、MimeData、TextTools、IdleTimer、
@@ -56,8 +56,6 @@ add_library(tb_core OBJECT
     UserNotices.h
     TextTools.cpp
     TextTools.h
-    VirtualDesktop.cpp
-    VirtualDesktop.h
 )
 
 # 跨模块 include 一律写成 "模块/文件.h"，由这一条 src/ 路径解析；

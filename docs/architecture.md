@@ -16,7 +16,7 @@ src/
   ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
   │                （只依赖 utils，与 utils 一样是真 STATIC）
   ├─ core/         应用与各类服务/控制器（Application、ApplicationController、
-  │                DisplayManager/VirtualDesktop、LanguageManager、PersistenceManager、
+  │                DisplayManager、LanguageManager、PersistenceManager、
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager +
   │                CookieJar（可枚举的 Cookie 镜像罐）、
   │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
@@ -41,7 +41,7 @@ src/
   │                以及从 model/ 搬来的 DocumentController——文档模式的界面装配；Resources
   │                搬去了 model/，ToolWidget 与 Magnifier 搬去了 whiteboard/）
   ├─ platform/     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
-  │                KeyboardSender*、CredentialStore*（出边只有 utils）
+  │                KeyboardSender*、CredentialStore*、VirtualDesktop（出边只有 utils）
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
                    applicationResourcesDirectory）、Snapping、CookieRules、Globals、Enums.h
                    （出边为零，最底一层）
@@ -161,13 +161,15 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 含头文件里的；`app/` 作为装配点不计）。2026-10-21 又删掉 107 行确认无害的跨模块
 include：候选 286 处，其余 179 处被编译器证明仍在替调用方供给类型——判死只能靠编译，
 grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`Application::mainWindow->ui()`
-这类用法里类型名一次都不出现）。这五个环的边数因此全线下降。
+这类用法里类型名一次都不出现）。同一轮把 `VirtualDesktop`（虚拟桌面枚举与窗口归属，
+只 include 自己的头加 Win32/Qt）从 core/ 搬去 platform/，19 处跨模块引用因此从 →core
+挪到 →platform——这些模块对 platform 的边本来就存在，一条新环都没造出来。
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 28 / 55 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 6 / 45 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
-| `content` ↔ `core` | 35 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `core` ↔ `whiteboard` | 28 / 53 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 6 / 42 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `content` ↔ `core` | 29 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
 | `core` ↔ `model` | 7 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 
@@ -186,7 +188,8 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 `docs/coding-style.md` 第二节）。
 - 屏幕键盘 `KeyboardPalette*` 与框选取图的 `CustomCaptureWindow*` 搬去 `ui/`——它们本来
   就是界面：继承 `ui/ActionPalette`、要 `ui/MainWindow` 定位、要 `ui/RubberBand` 画框，
-  还认 `core/Application` 与 `core/VirtualDesktop`。平台层只剩下不带界面的那件事：
+  还认 `core/Application` 与 `core/VirtualDesktop`（后者 2026-10-21 也已搬到 `platform/`）。
+  平台层只剩下不带界面的那件事：
   一次按键怎么交给系统（`KeyboardSender`，`sendUnicodeKey`/`sendVirtualKey` 两个函数，
   Win32 `SendInput` 的实现）。搬完 `platform` 出边只剩 utils，`tb_platform` 因此也收紧成
   STATIC，`platform` ↔ `core` 与 `platform` ↔ `ui` 两组环一起消失。
@@ -354,17 +357,17 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 api         -> content:1, core:4, model:1, settings:1, utils:1, whiteboard:6
 app         -> api:1, content:4, core:17, desktop:1, model:5, recording:1, settings:6, ui:7,
                utils:4, web:1, whiteboard:19
-content     -> core:35, model:21, platform:2, settings:7, utils:20, whiteboard:41
-core        -> content:15, model:7, platform:5, settings:11, ui:6, utils:6, whiteboard:28
-desktop     -> core:8, platform:3, settings:3, ui:11, whiteboard:8
+content     -> core:29, model:21, platform:8, settings:7, utils:20, whiteboard:41
+core        -> content:15, model:7, platform:8, settings:11, ui:6, utils:6, whiteboard:28
+desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> core:9, settings:5, utils:5
 platform    -> utils:1
-recording   -> core:6, model:1, platform:1, settings:3, ui:3, utils:3, whiteboard:4
+recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:3, whiteboard:4
 settings    -> utils:2
-ui          -> core:45, model:10, platform:7, settings:16, utils:10, whiteboard:28
+ui          -> core:42, model:10, platform:10, settings:16, utils:10, whiteboard:28
 utils       -> （无出边）
-web         -> core:16, platform:1, settings:4, ui:5, utils:2, whiteboard:4
-whiteboard  -> core:55, model:13, platform:3, settings:20, ui:30, utils:44
+web         -> core:14, platform:3, settings:4, ui:5, utils:2, whiteboard:4
+whiteboard  -> core:53, model:13, platform:5, settings:20, ui:30, utils:44
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

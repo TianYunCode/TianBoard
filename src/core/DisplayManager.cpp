@@ -19,7 +19,7 @@ void DisplayManager::installBlackoutSurfaceFactory(DisplayManager::BlackoutSurfa
 #include "whiteboard/BoardView.h"
 #include "whiteboard/BoardController.h"
 
-#include "core/VirtualDesktop.h"
+#include "platform/VirtualDesktop.h"
 
 DisplayManager::DisplayManager(QObject *parent)
     : QObject(parent), mControlScreenIndex(-1), mDisplayScreenIndex(-1), mControlWidget(0), mDisplayWidget(0), mDesktopWidget(0)
