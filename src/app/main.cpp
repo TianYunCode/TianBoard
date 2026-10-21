@@ -9,6 +9,11 @@
 #include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
 
+#include "core/DisplayManager.h"
+#include "core/UserNotices.h"
+#include "ui/MainWindow.h"
+#include "ui/BlackoutWidget.h"
+#include "ui/MessagesDialog.h"
 #include "core/NetworkAccessManager.h"
 #include "ui/ProxyDialog.h"
 #include "api/WebWidgetBoardAPI.h"
@@ -94,6 +99,44 @@ int main(int argc, char *argv[])
 
     // 服务层要问用户拿站点凭据，但它不认识对话框：装配点把 ProxyDialog 接上去。
     NetworkAccessManager::installCredentialPrompt(&ProxyDialog::prompt);
+
+    // 同一套路：服务层只说"该告诉用户什么"，落到哪个窗口由这里决定。
+    UserNotices::installWarningPresenter(
+        [](const QString &title, const QStringList &messages)
+        {
+            MessagesDialog *dialog = new MessagesDialog(title, Application::mainWindow);
+            // 不设这个属性的话，每次导出警告都会在主窗口下面攒一个关不掉的对话框对象。
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+            dialog->setMessages(messages);
+            dialog->show();
+        });
+    UserNotices::installModalNoticePresenter(
+        [](const QString &title, const QString &text)
+        {
+            if (Application::mainWindow)
+            {
+                Application::mainWindow->warning(title, text);
+            }
+            else
+            {
+                qWarning() << title << text;
+            }
+        });
+
+    // 黑屏表面：由界面层提供窗体，DisplayManager 只管铺到哪些屏幕、什么时候收回来。
+    DisplayManager::installBlackoutSurfaceFactory(
+        [](bool returnControlsVisible, const QRect &geometry, std::function<void()> onActivity) -> QWidget *
+        {
+            BlackoutWidget *surface = new BlackoutWidget(); // 由 DisplayManager::unBlackout 关闭并释放
+            QObject::connect(surface, &BlackoutWidget::activity, surface,
+                [onActivity]
+                {
+                    onActivity();
+                });
+            surface->setReturnControlsVisible(returnControlsVisible);
+            surface->setGeometry(geometry);
+            return surface;
+        });
 
     Application app("TianBoard", argc, argv);
     // 自检是装配层的活：分发表在 app/SelfTests.cpp，core 只有一个通用钩子。

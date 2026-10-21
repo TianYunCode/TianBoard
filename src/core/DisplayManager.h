@@ -7,7 +7,6 @@
 
 #include <QtWidgets>
 
-class BlackoutWidget;
 class BoardView;
 class VirtualDesktop;
 
@@ -23,6 +22,18 @@ class DisplayManager : public QObject
     Q_OBJECT
 
 public:
+    /**
+     * @brief 一块黑屏表面的工厂签名：盖住指定屏幕，用户在上面活动时回调一次。
+     * @param returnControlsVisible 只有控制屏需要“返回”控件，其余屏幕只放一个标志。
+     * @param geometry 目标屏幕的几何。
+     * @param onActivity 用户活动时触发；DisplayManager 借此解除黑屏。
+     * @note 返回的窗体由 DisplayManager 持有并在解除时 close()（表面自带 WA_DeleteOnClose），
+     *       工厂本身住在界面层，由装配点装上（app/main.cpp）——服务层不认识 BlackoutWidget。
+     */
+    using BlackoutSurfaceFactory = std::function<QWidget *(bool returnControlsVisible, const QRect &geometry, std::function<void()> onActivity)>;
+
+    /// @brief 装上黑屏表面的工厂，只在装配阶段调用一次。
+    static void installBlackoutSurfaceFactory(BlackoutSurfaceFactory factory);
     /// 构造管理器并连接屏幕几何变化信号，初始角色由设置与屏幕数量决定。
     DisplayManager(QObject *parent = 0);
     virtual ~DisplayManager();
@@ -177,7 +188,7 @@ private:
 
     QList<BoardView *> mPreviousDisplayWidgets;
 
-    QList<BlackoutWidget *> mBlackoutWidgets;
+    QList<QWidget *> mBlackoutWidgets;
 
     QList<DisplayRole> mScreenIndexesRoles;
 

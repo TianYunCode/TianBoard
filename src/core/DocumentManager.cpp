@@ -1,4 +1,5 @@
 #include "core/DocumentManager.h"
+#include "core/UserNotices.h"
 
 #include "utils/StringUtils.h"
 
@@ -13,15 +14,12 @@
 #include "content/ImportImage.h"
 #include "content/ImportIwb.h"
 #include "content/ImportDocumentSetAdaptor.h"
-#include "ui/MessagesDialog.h"
-#include "ui/MainWindow.h"
 
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsSvgItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 
 #include "model/DocumentProxy.h"
-#include "ui/DocumentController.h"
 #include "whiteboard/BoardController.h"
 
 #include "core/Application.h"
@@ -57,11 +55,7 @@ DocumentManager::DocumentManager(QObject *parent) : QObject(parent)
         connect(adaptor, &ExportAdaptor::exportWarnings, this,
             [](const QString &title, const QList<QString> &messages)
             {
-                MessagesDialog *dialog = new MessagesDialog(title, Application::mainWindow);
-                // 不设这个属性的话，每次导出警告都会在主窗口下面攒一个关不掉的对话框对象。
-                dialog->setAttribute(Qt::WA_DeleteOnClose);
-                dialog->setMessages(messages);
-                dialog->show();
+                UserNotices::presentWarnings(title, messages);
             });
     }
 

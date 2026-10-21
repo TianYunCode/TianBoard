@@ -1,6 +1,6 @@
 #include "core/PersistenceManager.h"
+#include "core/UserNotices.h"
 #include <algorithm>
-#include "ui/MainWindow.h"
 
 #include <QtXml>
 #include <QVariant>
@@ -1274,7 +1274,7 @@ void PersistenceManager::checkIfDocumentRepositoryExists()
         QString humanPath = QDir::cleanPath(mDocumentRepositoryPath);
         humanPath         = QDir::toNativeSeparators(humanPath);
 
-        Application::mainWindow->warning(
+        UserNotices::presentModalNotice(
             tr("Document Repository Loss"), tr("TianBoard has lost access to the document repository '%1'. Unfortunately the application "
                                                "must shut down to avoid data corruption. Latest changes may be lost as well.")
                                                 .arg(humanPath));

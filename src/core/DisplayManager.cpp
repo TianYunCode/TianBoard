@@ -1,5 +1,15 @@
 #include "core/DisplayManager.h"
 
+namespace
+{
+    DisplayManager::BlackoutSurfaceFactory gBlackoutFactory;
+} // namespace
+
+void DisplayManager::installBlackoutSurfaceFactory(DisplayManager::BlackoutSurfaceFactory factory)
+{
+    gBlackoutFactory = std::move(factory);
+}
+
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
@@ -8,8 +18,6 @@
 
 #include "whiteboard/BoardView.h"
 #include "whiteboard/BoardController.h"
-
-#include "ui/BlackoutWidget.h"
 
 #include "core/VirtualDesktop.h"
 
@@ -224,6 +232,12 @@ void DisplayManager::positionScreens()
 
 void DisplayManager::blackout()
 {
+    if (!gBlackoutFactory)
+    {
+        qWarning() << "黑屏表面工厂没有装上，多屏黑屏无法铺满（装配点应调用 installBlackoutSurfaceFactory）";
+        return;
+    }
+
     QList<int> screenIndexes;
 
     if (mControlScreenIndex > -1)
@@ -240,22 +254,18 @@ void DisplayManager::blackout()
 
     for (int i = 0; i < screenIndexes.size(); i++)
     {
-        int screenIndex                = screenIndexes.at(i);
+        int screenIndex = screenIndexes.at(i);
 
-        BlackoutWidget *blackoutWidget = new BlackoutWidget(); // 由 DisplayManager::unBlackout 删除
-        connect(blackoutWidget, &BlackoutWidget::activity, this, &DisplayManager::unBlackout);
-
-        // 只有控制屏显示返回控件，其余屏幕只显示标志。
-        blackoutWidget->setReturnControlsVisible(screenIndex == mControlScreenIndex);
-
-        blackoutWidget->setGeometry(mDesktop->screenGeometry(screenIndex));
-
-        mBlackoutWidgets << blackoutWidget;
+        mBlackoutWidgets << gBlackoutFactory(screenIndex == mControlScreenIndex, mDesktop->screenGeometry(screenIndex),
+            [this]
+            {
+                unBlackout();
+            });
     }
 
-    foreach (BlackoutWidget *blackoutWidget, mBlackoutWidgets)
+    for (QWidget *surface : mBlackoutWidgets)
     {
-        PlatformUtils::showFullScreen(blackoutWidget);
+        PlatformUtils::showFullScreen(surface);
     }
 }
 

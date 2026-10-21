@@ -50,6 +50,8 @@ add_library(tb_core OBJECT
     SceneCache.h
     ShortcutManager.cpp
     ShortcutManager.h
+    UserNotices.cpp
+    UserNotices.h
     TextTools.cpp
     TextTools.h
     VirtualDesktop.cpp
