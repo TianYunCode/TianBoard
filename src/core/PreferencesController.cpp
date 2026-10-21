@@ -24,6 +24,8 @@
 #include "core/ShortcutManager.h"
 
 #include "core/VirtualDesktop.h"
+#include "utils/CookieRules.h"
+#include "web/WebController.h"
 
 qreal PreferencesController::sSliderRatio = 10.0;
 qreal PreferencesController::sMinPenWidth = 0.5;
@@ -497,9 +499,16 @@ struct PreferencesDialog::Ui
     QVBoxLayout  *verticalLayout_2;
     QTextBrowser *copyrightTextBrowser;
 
-    // 下面两个不是旧表单里的东西：快捷键页是后来加的，界面本体在 ui/ShortcutSettingsWidget。
+    // 下面这些不是旧表单里的东西：快捷键页与 Cookie 隐私组都是后来加的。
     QWidget                *shortcutTab;
     ShortcutSettingsWidget *shortcutSettings;
+    QGroupBox              *privacyGroupBox;
+    QLabel                 *cookiePolicyLabel;
+    QComboBox              *cookiePolicyComboBox;
+    QCheckBox              *cookieAutoDeleteCheckBox;
+    QLabel                 *cookieKeepDomainsLabel;
+    QLineEdit              *cookieKeepDomainsEdit;
+    QLabel                 *cookieCountLabel;
 
     void setupUi(QWidget *preferencesDialog)
     {
@@ -1042,6 +1051,44 @@ struct PreferencesDialog::Ui
         gridLayout_6->addItem(verticalSpacer_2, 2, 0, 1, 1);
 
         mainTabWidget->addTab(networkTab, QString());
+        privacyGroupBox = new QGroupBox(networkTab);
+        privacyGroupBox->setObjectName("privacyGroupBox");
+        QGridLayout *privacyLayout = new QGridLayout(privacyGroupBox);
+        privacyLayout->setObjectName("privacyLayout");
+        cookiePolicyLabel = new QLabel(privacyGroupBox);
+        cookiePolicyLabel->setObjectName("cookiePolicyLabel");
+
+        privacyLayout->addWidget(cookiePolicyLabel, 0, 0, 1, 1);
+
+        cookiePolicyComboBox = new QComboBox(privacyGroupBox);
+        cookiePolicyComboBox->setObjectName("cookiePolicyComboBox");
+        cookiePolicyComboBox->addItem(QString(), QStringLiteral("AcceptAll"));
+        cookiePolicyComboBox->addItem(QString(), QStringLiteral("DenyThirdParty"));
+        cookiePolicyComboBox->addItem(QString(), QStringLiteral("DenyAll"));
+
+        privacyLayout->addWidget(cookiePolicyComboBox, 0, 1, 1, 1);
+
+        cookieAutoDeleteCheckBox = new QCheckBox(privacyGroupBox);
+        cookieAutoDeleteCheckBox->setObjectName("cookieAutoDeleteCheckBox");
+
+        privacyLayout->addWidget(cookieAutoDeleteCheckBox, 1, 0, 1, 2);
+
+        cookieKeepDomainsLabel = new QLabel(privacyGroupBox);
+        cookieKeepDomainsLabel->setObjectName("cookieKeepDomainsLabel");
+
+        privacyLayout->addWidget(cookieKeepDomainsLabel, 2, 0, 1, 1);
+
+        cookieKeepDomainsEdit = new QLineEdit(privacyGroupBox);
+        cookieKeepDomainsEdit->setObjectName("cookieKeepDomainsEdit");
+
+        privacyLayout->addWidget(cookieKeepDomainsEdit, 2, 1, 1, 1);
+
+        cookieCountLabel = new QLabel(privacyGroupBox);
+        cookieCountLabel->setObjectName("cookieCountLabel");
+
+        privacyLayout->addWidget(cookieCountLabel, 3, 0, 1, 2);
+
+        gridLayout_6->addWidget(privacyGroupBox, 1, 0, 1, 1);
         shortcutTab = new QWidget();
         shortcutTab->setObjectName("shortcutTab");
         QVBoxLayout *shortcutTabLayout = new QVBoxLayout(shortcutTab);
@@ -1132,6 +1179,14 @@ struct PreferencesDialog::Ui
         label->setText(PreferencesDialog::tr("Proxy User:", nullptr));
         label_3->setText(PreferencesDialog::tr("Pass:", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(networkTab), PreferencesDialog::tr("Network", nullptr));
+        privacyGroupBox->setTitle(PreferencesDialog::tr("Cookies", nullptr));
+        cookiePolicyLabel->setText(PreferencesDialog::tr("Cookie policy:", nullptr));
+        cookiePolicyComboBox->setItemText(0, PreferencesDialog::tr("Accept all cookies", nullptr));
+        cookiePolicyComboBox->setItemText(1, PreferencesDialog::tr("Block third-party cookies", nullptr));
+        cookiePolicyComboBox->setItemText(2, PreferencesDialog::tr("Block all cookies", nullptr));
+        cookieAutoDeleteCheckBox->setText(PreferencesDialog::tr("Delete cookies when TianBoard closes", nullptr));
+        cookieKeepDomainsLabel->setText(PreferencesDialog::tr("Keep cookies for these domains:", nullptr));
+        cookieKeepDomainsEdit->setPlaceholderText(PreferencesDialog::tr("For example: .example.org, login.example.com", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(shortcutTab), PreferencesDialog::tr("Shortcuts", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(aboutTab), PreferencesDialog::tr("About", nullptr));
     } // retranslateUi
@@ -1204,6 +1259,26 @@ void PreferencesController::show()
     mPreferencesWindow->exec();
 }
 
+namespace
+{
+    /**
+     * @brief 把下拉框选到 itemData 等于 wanted 的那一项。
+     * @note 配置里的策略名与界面语言无关，所以选中靠 data 而不是靠行号——行号会因
+     *       增删条目而错位，data 不会。
+     */
+    void selectItemByData(QComboBox *box, const QString &wanted)
+    {
+        for (int i = 0; i < box->count(); ++i)
+        {
+            if (box->itemData(i).toString() == wanted)
+            {
+                box->setCurrentIndex(i);
+                return;
+            }
+        }
+    }
+} // namespace
+
 void PreferencesController::wire()
 {
     Settings *settings = Settings::settings();
@@ -1255,6 +1330,26 @@ void PreferencesController::wire()
         connect(mPreferencesUI->swapDisplayScreensCheckBox, &QCheckBox::clicked, Application::applicationController->displayManager(),
             &DisplayManager::swapDisplayScreens);
     }
+
+    connect(mPreferencesUI->cookiePolicyComboBox, qOverload<int>(&QComboBox::activated), this,
+        [this](int)
+        {
+            Settings::settings()->webCookiePolicy->set(mPreferencesUI->cookiePolicyComboBox->currentData().toString());
+
+            // 策略改完立刻重装过滤器，不用重启应用；镜像连线在 WebController 里自己防重。
+            if (Application::webController)
+            {
+                Application::webController->installCookiePolicy();
+            }
+        });
+    connect(mPreferencesUI->cookieAutoDeleteCheckBox, &QCheckBox::clicked, settings->webCookieAutoDelete, &Setting::setBool);
+    connect(mPreferencesUI->cookieAutoDeleteCheckBox, &QCheckBox::clicked, this, &PreferencesController::cookieCountChanged);
+    connect(mPreferencesUI->cookieKeepDomainsEdit, &QLineEdit::editingFinished, this,
+        [this]
+        {
+            Settings::settings()->webCookieKeepDomains->set(CookieRules::parseDomainList(mPreferencesUI->cookieKeepDomainsEdit->text()));
+            cookieCountChanged();
+        });
 
     connect(mPreferencesUI->toolbarAtTopRadioButton, &QRadioButton::clicked, this, &PreferencesController::toolbarPositionChanged);
     connect(mPreferencesUI->toolbarAtBottomRadioButton, &QRadioButton::clicked, this, &PreferencesController::toolbarPositionChanged);
@@ -1401,6 +1496,10 @@ void PreferencesController::init()
     mPreferencesUI->displayBrowserPageCheckBox->setChecked(settings->webShowPageImmediatelyOnMirroredScreen->get().toBool());
     mPreferencesUI->swapControlAndDisplayScreensCheckBox->setChecked(settings->swapControlAndDisplayScreens->get().toBool());
     mPreferencesUI->webHomePage->setText(settings->webHomePage->get().toString());
+    selectItemByData(mPreferencesUI->cookiePolicyComboBox, settings->webCookiePolicy->get().toString());
+    mPreferencesUI->cookieAutoDeleteCheckBox->setChecked(settings->webCookieAutoDelete->get().toBool());
+    mPreferencesUI->cookieKeepDomainsEdit->setText(settings->webCookieKeepDomains->get().toStringList().join(QStringLiteral(", ")));
+    cookieCountChanged();
 
     const ProxyCredentials proxyCredentials = CredentialStore::proxyCredentials();
     mPreferencesUI->proxyUsername->setText(proxyCredentials.userName);
@@ -1427,6 +1526,14 @@ void PreferencesController::init()
     mMarkerProperties->ui().pressureSensitiveCheckBox->setChecked(settings->boardMarkerPressureSensitive->get().toBool());
 
     mMarkerProperties->ui().opacitySlider->setValue(settings->boardMarkerAlpha->get().toDouble() * 100);
+}
+
+void PreferencesController::cookieCountChanged()
+{
+    // 只报本次会话镜像到的那些：内核不提供“列出盘上已有的 Cookie”，所以数字是下界。
+    const int marked = Application::webController ? Application::webController->cookiesMarkedForDeletion() : 0;
+
+    mPreferencesUI->cookieCountLabel->setText(PreferencesDialog::tr("%1 cookie(s) will be deleted on exit.").arg(marked));
 }
 
 void PreferencesController::close()
@@ -1518,6 +1625,10 @@ void PreferencesController::defaultSettings()
         mPreferencesUI->displayBrowserPageCheckBox->setChecked(defaultValue);
 
         mPreferencesUI->webHomePage->setText(settings->webHomePage->reset().toString());
+        selectItemByData(mPreferencesUI->cookiePolicyComboBox, settings->webCookiePolicy->reset().toString());
+        mPreferencesUI->cookieAutoDeleteCheckBox->setChecked(settings->webCookieAutoDelete->reset().toBool());
+        mPreferencesUI->cookieKeepDomainsEdit->setText(settings->webCookieKeepDomains->reset().toStringList().join(QStringLiteral(", ")));
+        cookieCountChanged();
     }
     else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->shortcutTab)
     {

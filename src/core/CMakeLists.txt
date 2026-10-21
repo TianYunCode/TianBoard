@@ -19,6 +19,10 @@ add_library(tb_core OBJECT
     ApplicationController.h
     AutoSaver.cpp
     AutoSaver.h
+    CookieJar.cpp
+    CookieJar.h
+    CookieSelfTest.cpp
+    CookieSelfTest.h
     DisplayManager.cpp
     DisplayManager.h
     DocumentManager.cpp

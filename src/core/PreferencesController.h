@@ -132,6 +132,9 @@ protected slots:
     /// 切换系统屏幕键盘。
     void systemOSKCheckBoxToggled(bool checked);
 
+    /** @brief 刷新“退出时会清掉多少个 Cookie”的提示，随白名单与开关的变化重算。 */
+    void cookieCountChanged();
+
 private slots:
     /// 屏幕数量变化时启用或禁用多屏相关设置。
     void adjustScreens(int screen);

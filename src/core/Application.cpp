@@ -32,6 +32,7 @@
 #include "ui/Resources.h"
 
 #include "whiteboard/ToolsManager.h"
+#include "core/CookieSelfTest.h"
 #include "core/DisplayManager.h"
 #include "core/FormatSelfTest.h"
 #include "core/SnapSelfTest.h"
@@ -299,6 +300,7 @@ int Application::exec(const QString &pFileToImport)
         {"--format-selftest",   FormatSelfTest::run  }, // 文档格式读写往返（tst_format）
         {"--snap-selftest",     SnapSelfTest::run    }, // 网格吸线的场景侧接线（tst_snap）
         {"--shortcut-selftest", ShortcutSelfTest::run}, // 快捷键注册表的读写与冲突（tst_shortcuts）
+        {"--cookie-selftest",   CookieSelfTest::run  }, // Cookie 镜像罐与退出清理计数（tst_cookies）
     };
 
     for (const SelfTestMode &mode : selfTestModes)

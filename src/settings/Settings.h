@@ -351,6 +351,9 @@ public:
     Setting *webShowPageImmediatelyOnMirroredScreen;            ///< 镜像屏是否立即显示网页。
 
     Setting *webHomePage;                                       ///< 网页对象默认主页。
+    Setting *webCookiePolicy;                                   ///< Cookie 策略：全拒 / 只拒第三方 / 全收。
+    Setting *webCookieAutoDelete;                               ///< 退出时是否清掉白名单以外的 Cookie。
+    Setting *webCookieKeepDomains;                              ///< 退出时保留 Cookie 的域白名单（QStringList）。
 
     Setting *pageCacheSize;                                     ///< 页面缓存大小。
 

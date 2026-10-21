@@ -1,8 +1,8 @@
 # ======================================================================
 # utils — 纯工具：字符串 / 几何 / 版本 / 文件系统 / 全局类型定义
 #
-# 内容：StringUtils、GeometryUtils、Version、FileSystemUtils、Globals，
-# 外加 Enums.h（全局枚举与 typedef，原先住在 core/，与同类的 Globals.h 放一起）。
+# 内容：StringUtils、GeometryUtils、Version、FileSystemUtils、Snapping、CookieRules、
+# Globals，外加 Enums.h（全局枚举与 typedef，原先住在 core/，与同类的 Globals.h 放一起）。
 # 平台相关的 PlatformUtils* 在 src/platform/（对外接口名字没变，仍是
 # "platform/PlatformUtils.h"）。
 #
@@ -15,6 +15,8 @@
 # ======================================================================
 
 add_library(tb_utils STATIC
+    CookieRules.cpp
+    CookieRules.h
     FileSystemUtils.cpp
     FileSystemUtils.h
     GeometryUtils.cpp

@@ -148,6 +148,14 @@
   打架）；改成"按域分组的子注册表"则要动 62 个读方，收益只有观感。真要动它，先想清楚
   解决的是哪个具体毛病，而不是"指针太多"。
 
+- **上游的 `Web/PrivateBrowsing` 有意没搬**。它要做的是"整个应用用无痕档"：新建一个
+  `QWebEngineProfile`（不带存储名的构造=off-the-record）并让每一个 `QWebEngineView` 都用它。
+  我们的网页层现在统一吃 `QWebEngineProfile::defaultProfile()`（Application 构造里就在给它配
+  `QWebEngineSettings`），要接无痕就得把 profile 一路穿过 `WebView`/`BrowserWindow`/
+  `TabWidget`/镜像与捕获那几处——是一次成体系的改动，而且和这轮已经做好的"退出清 Cookie +
+  第三方 Cookie 过滤"重叠大半，先不做。真要做时注意：切档必须重建页面，运行中改这个开关
+  不可能无损生效。
+
 ## 三、命名与形态遗留
 
 - **`src/app/resource.h` 是全仓唯一保留 `#ifndef` 守卫的头**（`src/` 下 170 个头文件里

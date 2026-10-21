@@ -37,8 +37,23 @@ public:
     /** @brief 析构。 */
     virtual ~WebController();
 
-    /** @brief 关闭网页模式时的钩子，当前无操作。 */
+    /** @brief 退出前按白名单清 Cookie（自动清除开着时才动手）。 */
     void closing();
+
+    /**
+     * @brief 按 Web/CookiePolicy 装 Cookie 过滤器，并把 WebEngine 的 Cookie 信号镜像到
+     *        应用的 Cookie 罐（顺带 loadAllCookies 让盘上的历史 Cookie 也进镜像）。
+     * @note 构造时调用一次；设置页改了策略会再调一次，选完立即生效不用重启。重复调用
+     *       只换过滤器，镜像连线不会重复安装。
+     */
+    void installCookiePolicy();
+
+    /**
+     * @brief 按当前设置统计：本次会话镜像到的 Cookie 里有多少个在退出时会被清掉。
+     * @note 白名单空着时全都算进去——那种情况下走的是“一次性清空整个 Cookie 罐”，
+     *       不是逐条删除，数字只是给用户看的预期。
+     */
+    int cookiesMarkedForDeletion() const;
 
     /** @brief 按窗口宽度调整工具栏动作的显隐。 */
     void adaptToolBar();
@@ -115,6 +130,9 @@ private:
     /** @brief 懒创建浏览器窗口并切换到网页模式。 */
     void webBrowserInstance();
 
+    /** @brief 退出时执行清 Cookie：白名单空着就整罐清空，否则逐条删掉不匹配的。 */
+    void clearCookiesOnExit();
+
     /** @brief 主窗口。 */
     MainWindow *mMainWindow;
 
@@ -127,6 +145,6 @@ private:
     /** @brief 网页工具面板。 */
     WebToolsPalette *mToolsCurrentPalette;
 
-    /** @brief 下载视图是否可见（当前未使用）。 */
-    bool mDownloadViewIsVisible;
+    /** @brief Cookie 镜像连线是否已经装上；改策略会重调 installCookiePolicy，连线不能重复。 */
+    bool mCookieMirrorInstalled{false};
 };

@@ -27,6 +27,11 @@ tianboard_add_test(tst_snapping
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/Snapping.cpp
     LIBS    Qt6::Core)
 
+# Cookie 隐私规则也只是纯字符串运算：策略名映射与保留域匹配，脱离 QtWebEngine 单独构建。
+tianboard_add_test(tst_cookierules
+    SOURCES ${CMAKE_SOURCE_DIR}/src/utils/CookieRules.cpp
+    LIBS    Qt6::Core)
+
 tianboard_add_test(tst_geometryutils
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/GeometryUtils.cpp
     LIBS    Qt6::Core Qt6::Gui Qt6::Widgets)
@@ -104,6 +109,16 @@ target_link_libraries(tst_shortcuts PRIVATE Qt6::Test Qt6::Core)
 add_dependencies(tst_shortcuts TianBoard)
 add_test(NAME tst_shortcuts COMMAND tst_shortcuts)
 set_tests_properties(tst_shortcuts PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
+# Cookie 隐私自检：应用带 --cookie-selftest 查镜像罐类型、三项设置名与退出清理计数。
+add_executable(tst_cookies tst_cookies.cpp)
+target_compile_options(tst_cookies PRIVATE /MP /utf-8)
+target_link_libraries(tst_cookies PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_cookies TianBoard)
+add_test(NAME tst_cookies COMMAND tst_cookies)
+set_tests_properties(tst_cookies PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 

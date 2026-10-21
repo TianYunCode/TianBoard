@@ -1,4 +1,5 @@
 #include "core/NetworkAccessManager.h"
+#include "core/CookieJar.h"
 #include <QElapsedTimer>
 
 #include <QtWidgets>
@@ -45,6 +46,10 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent) : QNetworkAccessMana
     {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     }
+
+    // 用可枚举的罐子：web/WebController 要把内嵌浏览器的 Cookie 同步进来，
+    // 退出时才能按域白名单逐条删除（QWebEngineCookieStore 自己列不出清单）。
+    setCookieJar(new CookieJar(this));
 
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
     QString            location  = Settings::userDataDirectory() + "/web-cache";

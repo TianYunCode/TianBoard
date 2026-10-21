@@ -335,9 +335,15 @@ void Settings::init()
     webShowPageImmediatelyOnMirroredScreen =
         new Setting(this, "Web", "ShowPageImediatelyOnMirroredScreen", defaultShowPageImmediatelyOnMirroredScreen);
 
-    webHomePage   = new Setting(this, "Web", "Homepage", softwareHomeUrl);
+    webHomePage          = new Setting(this, "Web", "Homepage", softwareHomeUrl);
 
-    pageCacheSize = new Setting(this, "App", "PageCacheSize", 20);
+    // 隐私三件套：默认只收第一方 Cookie（写错策略名会回落到这一档，见 utils/CookieRules）。
+    webCookiePolicy      = new Setting(this, "Web", "CookiePolicy", QStringLiteral("DenyThirdParty"));
+
+    webCookieAutoDelete  = new Setting(this, "Web", "CookieAutoDelete", false);
+    webCookieKeepDomains = new Setting(this, "Web", "CookieKeepDomains", QStringList());
+
+    pageCacheSize        = new Setting(this, "App", "PageCacheSize", 20);
 
     bitmapFileExtensions << "jpg" << "jpeg" << "png" << "tiff" << "tif" << "bmp" << "gif";
     vectoFileExtensions << "svg" << "svgz";

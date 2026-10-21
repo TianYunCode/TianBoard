@@ -17,7 +17,8 @@ src/
   │                （只依赖 utils，与 utils 一样是真 STATIC）
   ├─ core/         应用与各类服务/控制器（Application、ApplicationController、
   │                DisplayManager/VirtualDesktop、LanguageManager、PersistenceManager、
-  │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager、
+  │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager +
+  │                CookieJar（可枚举的 Cookie 镜像罐）、
   │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentController、
   │                SortFilterProxyModel（原 document/）
@@ -36,11 +37,11 @@ src/
   ├─ platform/     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
   │                KeyboardSender*、CredentialStore*（出边只有 utils）
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
-                   applicationResourcesDirectory）、Globals、Enums.h
+                   applicationResourcesDirectory）、Snapping、CookieRules、Globals、Enums.h
                    （出边为零，最底一层）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（13 个）
+tests/             Qt Test 用例（15 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账

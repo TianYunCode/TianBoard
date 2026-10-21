@@ -1,6 +1,9 @@
+#include <QDebug>
 #include <QtWidgets>
 #include "core/VirtualDesktop.h"
+#include <QWebEngineCookieStore>
 #include <QWebEnginePage>
+#include <QWebEngineProfile>
 
 #include "platform/PlatformUtils.h"
 
@@ -19,7 +22,10 @@
 #include "settings/Setting.h"
 #include "core/Application.h"
 #include "core/ApplicationController.h"
+#include "core/CookieJar.h"
 #include "core/DisplayManager.h"
+#include "core/NetworkAccessManager.h"
+#include "utils/CookieRules.h"
 
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
@@ -27,9 +33,23 @@
 #include "ui/CustomCaptureWindow.h"
 #include "whiteboard/BoardPaletteManager.h"
 
+namespace
+{
+    /**
+     * @brief 取回应用共享的 Cookie 罐。
+     * @return 不是 CookieJar 时返回空指针——NetworkAccessManager 构造时装的就是它，
+     *         正常跑起来不会为空。
+     */
+    CookieJar *appCookieJar()
+    {
+        return qobject_cast<CookieJar *>(NetworkAccessManager::defaultAccessManager()->cookieJar());
+    }
+} // namespace
+
 WebController::WebController(MainWindow *mainWindow)
     : QObject(mainWindow->centralWidget()), mMainWindow(mainWindow), mCurrentWebBrowser(0), mBrowserWidget(0), mToolsCurrentPalette(0)
 {
+    installCookiePolicy();
 }
 
 WebController::~WebController()
@@ -202,7 +222,140 @@ void WebController::screenLayoutChanged()
 
 void WebController::closing()
 {
-    // 浏览器窗口由主窗口统一销毁，关闭流程里没有需要额外释放的资源。
+    // 浏览器窗口由主窗口统一销毁；这里只有一件事：按白名单清 Cookie。
+    // 放在 closing 而不是析构里，是因为此刻 QtWebEngine 的浏览器线程还活着——
+    // 等到 ~WebController 已经被父对象链拖到退出末尾，那时候删 Cookie 是不保证的。
+    clearCookiesOnExit();
+}
+
+void WebController::installCookiePolicy()
+{
+    QWebEngineCookieStore *cookieStore = QWebEngineProfile::defaultProfile()->cookieStore();
+
+    const CookieRules::Policy policy   = CookieRules::policyFromName(Settings::settings()->webCookiePolicy->get().toString());
+
+    cookieStore->setCookieFilter(
+        [policy](const QWebEngineCookieStore::FilterRequest &request)
+        {
+            switch (policy)
+            {
+                case CookieRules::Policy::DenyAll:
+                    return false;
+                case CookieRules::Policy::DenyThirdParty:
+                    return !request.thirdParty;
+                case CookieRules::Policy::AcceptAll:
+                    return true;
+            }
+
+            return false;
+        });
+
+    if (mCookieMirrorInstalled)
+    {
+        return;
+    }
+
+    CookieJar *jar = appCookieJar();
+
+    if (!jar)
+    {
+        qWarning() << "WebController: 应用 Cookie 罐不是 CookieJar，Cookie 清理功能不可用";
+        return;
+    }
+
+    // 镜像：内核每收/删一条就同步进应用自己的罐子，顺带让应用发出的网络请求与内嵌浏览器
+    // 共用同一份会话。context 用 jar，界面销毁后连接自动断开。
+    connect(cookieStore, &QWebEngineCookieStore::cookieAdded, jar,
+        [jar](const QNetworkCookie &cookie)
+        {
+            jar->insertCookie(cookie);
+        });
+    connect(cookieStore, &QWebEngineCookieStore::cookieRemoved, jar,
+        [jar](const QNetworkCookie &cookie)
+        {
+            jar->deleteCookie(cookie);
+        });
+    mCookieMirrorInstalled = true;
+
+    // 盘上的历史 Cookie 不会自己冒出来：loadAllCookies 让内核把每一条都发一遍 cookieAdded，
+    // 镜像里才有清单可逐条判断。浏览器进程要到第一个页面才真起来，所以这次枚举不保证拿全，
+    // 界面上的数字按“至少这么多”报（见 PreferencesController::cookieCountChanged）。
+    cookieStore->loadAllCookies();
+}
+
+int WebController::cookiesMarkedForDeletion() const
+{
+    if (!Settings::settings()->webCookieAutoDelete->get().toBool())
+    {
+        return 0;
+    }
+
+    const CookieJar *jar = appCookieJar();
+
+    if (!jar)
+    {
+        return 0;
+    }
+
+    const QStringList           keepDomains = Settings::settings()->webCookieKeepDomains->get().toStringList();
+    const QList<QNetworkCookie> cookies     = jar->storedCookies();
+
+    if (keepDomains.isEmpty())
+    {
+        return cookies.size();
+    }
+
+    int marked = 0;
+
+    for (const QNetworkCookie &cookie : cookies)
+    {
+        if (!CookieRules::isKeptDomain(cookie.domain(), keepDomains))
+        {
+            ++marked;
+        }
+    }
+
+    return marked;
+}
+
+void WebController::clearCookiesOnExit()
+{
+    if (!Settings::settings()->webCookieAutoDelete->get().toBool())
+    {
+        return;
+    }
+
+    QWebEngineCookieStore *cookieStore = QWebEngineProfile::defaultProfile()->cookieStore();
+    const QStringList      keepDomains = Settings::settings()->webCookieKeepDomains->get().toStringList();
+
+    if (keepDomains.isEmpty())
+    {
+        // 没有白名单就交给内核整罐清空：连历史 Cookie 一起，比按镜像逐条删更彻底。
+        cookieStore->deleteAllCookies();
+        return;
+    }
+
+    CookieJar *jar = appCookieJar();
+
+    if (!jar)
+    {
+        return;
+    }
+
+    // 先拷一份：deleteCookie 会回调 cookieRemoved，进而改罐子里的条目。
+    const QList<QNetworkCookie> cookies = jar->storedCookies();
+    int                         deleted = 0;
+
+    for (const QNetworkCookie &cookie : cookies)
+    {
+        if (!CookieRules::isKeptDomain(cookie.domain(), keepDomains))
+        {
+            cookieStore->deleteCookie(cookie);
+            ++deleted;
+        }
+    }
+
+    qDebug() << "WebController: 退出清理 Cookie，删掉" << deleted << "个，保留" << keepDomains;
 }
 
 void WebController::adaptToolBar()
