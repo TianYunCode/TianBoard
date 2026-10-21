@@ -69,7 +69,7 @@ set_tests_properties(tst_smoke PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
-# 主模式切换回归：应用带 --ui-smoke 自己依次切 文档 / 网页 / 画板 再退出。
+# 主模式切换回归：应用带 --ui-smoke 自己依次切 文档 / 网页 / 画板 / 桌面批注 再退出。
 # Debug 下 Qt 断言对话框会卡住事件循环，进程就不会按时退出，这条用例据此判红。
 add_executable(tst_ui_modes tst_ui_modes.cpp)
 target_compile_options(tst_ui_modes PRIVATE /MP /utf-8)

@@ -23,6 +23,7 @@
 #include "core/ApplicationController.h"
 #include "core/PersistenceManager.h"
 #include "content/DocumentFormatServices.h"
+#include "desktop/DesktopAnnotationController.h"
 #include "model/IDocumentFormatServices.h"
 #include "recording/RecordingController.h"
 #include "settings/Settings.h"
@@ -110,6 +111,15 @@ int main(int argc, char *argv[])
         [](bool visible)
         {
             RecordingController::instance()->toggleRecordingPalette(visible);
+        });
+
+    // 桌面批注层同理：总控器只要一个"会造批注层"的入口，它持有的类型是 core 自己的
+    // IDesktopAnnotation。批注层以总控器为 parent，随应用生命周期存在（不随进出桌面销毁），
+    // 所以所有权写法与拆环之前完全一样。
+    ApplicationController::installDesktopAnnotationFactory(
+        [](QObject *parent, RightPalette *rightPalette) -> IDesktopAnnotation *
+        {
+            return new DesktopAnnotationController(parent, rightPalette);
         });
 
     // 同一套路：文档名撞车时 PersistenceManager 只问“这份要不要登记、叫什么名字”，

@@ -28,7 +28,7 @@
 #include "ui/KeyboardPalette.h"
 
 DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightPalette *rightPalette)
-    : QObject(parent), mTransparentDrawingView(0), mTransparentDrawingScene(0), mDesktopPalette(NULL), mDesktopPenPalette(NULL),
+    : IDesktopAnnotation(parent), mTransparentDrawingView(0), mTransparentDrawingScene(0), mDesktopPalette(NULL), mDesktopPenPalette(NULL),
       mDesktopMarkerPalette(NULL), mDesktopEraserPalette(NULL), mRightPalette(rightPalette), mWindowPositionInitialized(false),
       mIsFullyTransparent(false), mDesktopToolsPalettePositioned(false), mPendingPenButtonPressed(false), mPendingMarkerButtonPressed(false),
       mPendingEraserButtonPressed(false), mbArrowClicked(false), mBoardStylusTool(DrawingController::drawingController()->stylusTool()),
@@ -220,7 +220,7 @@ void DesktopAnnotationController::eraseDesktopAnnotations()
     }
 }
 
-BoardView *DesktopAnnotationController::drawingView()
+QWidget *DesktopAnnotationController::drawingView()
 {
     return mTransparentDrawingView;
 }
@@ -262,7 +262,7 @@ void DesktopAnnotationController::showWindow()
     mDesktopPalette->appear();
 }
 
-void DesktopAnnotationController::close()
+void DesktopAnnotationController::closeWindow()
 {
     if (mTransparentDrawingView)
     {
@@ -703,7 +703,7 @@ void DesktopAnnotationController::onDesktopPaletteMinimize()
     }
 }
 
-void DesktopAnnotationController::TransparentWidgetResized()
+void DesktopAnnotationController::relayout()
 {
     onTransparentWidgetResized();
 }

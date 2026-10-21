@@ -284,7 +284,7 @@ int Application::exec(const QString &pFileToImport)
     setActivationWindow(mainWindow);
     connect(this, &QtSingleApplication::messageReceived, this, &Application::handleOpenMessage);
 
-    // 冒烟自检（tst_smoke 用 `--ui-smoke` 拉起）：依次切到文档 / 网页 / 画板模式再退出。
+    // 冒烟自检（tst_smoke 用 `--ui-smoke` 拉起）：依次切到文档 / 网页 / 画板 / 桌面批注再退出。
     // 这些切换以前从来没有自动化覆盖；文档模式的代理模型索引错用就是这样漏到用户手里的
     // （Debug 下 Qt 弹断言对话框、事件循环卡死）。断言一旦出现，进程不会按时退出，测试判红。
     if (arguments().contains("--ui-smoke"))
@@ -292,7 +292,17 @@ int Application::exec(const QString &pFileToImport)
         QTimer::singleShot(2000, applicationController, &ApplicationController::showDocument);
         QTimer::singleShot(4000, applicationController, &ApplicationController::showInternet);
         QTimer::singleShot(6000, applicationController, &ApplicationController::showBoard);
-        QTimer::singleShot(8000, qApp, &QCoreApplication::quit);
+        // 桌面批注层现在是装配点装的工厂造出来的（core 只认识 IDesktopAnnotation 这份契约），
+        // 进一次才量得到那套装上有没有真装上；它一铺就是整块透明画布，所以只停 1.5 秒就撤。
+        // showDesktop 的形参带默认值，成员指针形式喂不进 singleShot（槽参数个数不能超过信号），
+        // 所以这里用 lambda 显式按默认值调。
+        QTimer::singleShot(8000, applicationController,
+            []
+            {
+                Application::applicationController->showDesktop();
+            });
+        QTimer::singleShot(9500, applicationController, &ApplicationController::hideDesktop);
+        QTimer::singleShot(11000, qApp, &QCoreApplication::quit);
     }
 
     // 自检动作由装配层装上（app/SelfTests.cpp）：core 不认识具体自检，只管延时跑一下、

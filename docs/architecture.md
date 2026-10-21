@@ -44,7 +44,7 @@ src/
                    （出边为零，最底一层）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（15 个）
+tests/             Qt Test 用例（16 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账
@@ -133,22 +133,22 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 7 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 6 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
 
-已经做到的四个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
-（出边只有 utils）与 `tb_recording`（没有任何模块反向 include 它，2026-10-21）。越界的
-`#include` 在编译期就失败，而不是等到链接期靠符号缺失才发现——这个配方对其它模块同样
-成立，`settings` 与 `platform` 都是照着 `utils` 拆出来的。
+已经做到的五个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
+（出边只有 utils）、`tb_recording` 与 `tb_desktop`（没有任何模块反向 include 它们，
+2026-10-21）。越界的 `#include` 在编译期就失败，而不是等到链接期靠符号缺失才发现——
+这个配方对其它模块同样成立，`settings` 与 `platform` 都是照着 `utils` 拆出来的。
 
 换成 STATIC 的前置条件有两种，强度不同：
 
 * **叶子模块**要求出边全部落在比它低的层（下表），且没有对上的 include——这是终态。
 * **非叶子模块**只要"没有任何上层反向 include 它"（也就是不在任何环里）就可以先归档：
   它向上那几条边的符号在最终可执行里照样解得开，因为上层此刻还是 OBJECT、.obj 直接进
-  exe；`tb_recording` 就是这样先走了一步，它仍认 core/ui/web/whiteboard。等那些模块也
+  exe；`tb_recording` 与 `tb_desktop` 就是这样先走了一步，它们仍认 core/ui/web/whiteboard。等那些模块也
   逐个 STATIC 时，再给它们补 `target_link_libraries` 声明，MSVC 的链接器对静态库顺序不
   敏感（反复扫描直到符号解完），不会变成一门链接参数的玄学。
 
@@ -165,7 +165,6 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 | `ui` ↔ `whiteboard` | 43 / 50 | 调色板与画板互相认 |
 | `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 | `core` ↔ `web` | 2 / 19 | `core/Application.cpp` 认 WebController |
-| `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette/DesktopAnnotationController |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -276,7 +275,16 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
    `core` 对 `recording` 的最后一条边（`ApplicationController::toggleRecordingPalette` 里那句
    `RecordingController::instance()`）改成装配点装上的 `installRecordingToggle` 钩子，于是没有任何
    模块反向 include recording，`tb_recording` 收紧成 STATIC、`core` ↔ `recording` 那组环消失（双向环
-   8 → 7）。剩下 `core` → `desktop`(2) 与 `core` → `web`(2) 是同一条路，拆完这两个模块也能跟进 STATIC。
+   8 → 7）。剩下 `core` → `web`(2) 是同一条路，拆完 `tb_web` 也能跟进 STATIC。
+   desktop 这一条随后也断掉：core 的总控器改经 `core/IDesktopAnnotation.h`
+   这份契约用批注层（drawingView/showWindow/hideWindow/closeWindow/relayout/updateShowHideState
+   + `imageCaptured` 信号 + `screenLayoutChanged` 槽），实现类由装配点装的工厂创建并以总控器为
+   parent，所以所有权与生命周期跟拆环前一模一样；`tb_desktop` 因此也收紧成 STATIC，双向环
+   7 → 6。顺手删掉两处死代码：`desktop/DesktopPalette.h` 是总控器里从没用过的 include，
+   `restoreBoard` 是一个从没被 emit 过的信号（桌面工具栏的"显示 TianBoard"走的是
+   `goToBoard()` → `showBoard()`），以及零调用者的 `uninotesController()`。工厂没装上时构造
+   直接 `qFatal`——批注层是四个主模式之一，不是可选装饰；`--ui-smoke` 现在会进一次桌面批注
+   再撤出来（tst_ui_modes 多出这一腿，把工厂装回 nullptr 立刻判红）。
 8. **`ui/` ↔ `whiteboard/`（最大的一组，40/48）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
 9. **`core/`**（进行中）：偏好设置对话框（`PreferencesDialog` + `PreferencesController` +
@@ -328,12 +336,11 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
-app         -> api:1, content:4, core:16, model:6, platform:1, recording:1, settings:6, ui:7,
-               utils:5, web:1, whiteboard:19
+app         -> api:1, content:4, core:16, desktop:1, model:6, platform:1, recording:1,
+               settings:6, ui:7, utils:5, web:1, whiteboard:19
 content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:16, desktop:2, model:6, platform:6, settings:14, ui:7, utils:6,
-               web:2, whiteboard:30
-desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
+core        -> content:16, model:6, platform:6, settings:14, ui:7, utils:6, web:2, whiteboard:30
+desktop     -> core:8, platform:3, settings:3, ui:11, web:1, whiteboard:8
 model       -> core:9, settings:4, utils:4
 platform    -> utils:1
 recording   -> core:5, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4

@@ -22,9 +22,6 @@
 
 #include "whiteboard/GraphicsWidgetItem.h"
 
-#include "desktop/DesktopPalette.h"
-#include "desktop/DesktopAnnotationController.h"
-
 #include "web/WebController.h"
 
 #include "ui/ScreenMirror.h"
@@ -33,33 +30,42 @@
 #include "whiteboard/GraphicsPixmapItem.h"
 
 #include "core/NetworkAccessManager.h"
+#include "core/IDesktopAnnotation.h"
 
 namespace
 {
     /// 录制显隐的转发实现；由装配点装上 recording 里的懒建入口。
     ApplicationController::RecordingToggle gRecordingToggle;
+
+    /// 桌面批注层的工厂；由装配点装上 desktop 里的实现类。
+    ApplicationController::DesktopAnnotationFactory gDesktopAnnotationFactory;
 } // namespace
 
 ApplicationController::ApplicationController(
     BoardView *pControlView, BoardView *pDisplayView, MainWindow *pMainWindow, QObject *parent, RightPalette *rightPalette)
-    : QObject(parent), mMainWindow(pMainWindow), mControlView(pControlView), mDisplayView(pDisplayView), mMirror(0), mMainMode(Board),
-      mDisplayManager(0), mIsShowingDesktop(false)
+    : QObject(parent), mDesktopAnnotation(0), mMainWindow(pMainWindow), mControlView(pControlView), mDisplayView(pDisplayView), mMirror(0),
+      mMainMode(Board), mDisplayManager(0), mIsShowingDesktop(false)
 {
-    mDisplayManager    = new DisplayManager(this);
+    mDisplayManager = new DisplayManager(this);
 
-    mUninoteController = new DesktopAnnotationController(this, rightPalette);
+    // 桌面批注是四个主模式之一，不是可选装饰：装配点没装上工厂就是装配漏了，立刻大声失败，
+    // 别等到切进桌面模式时拿空指针去崩一处看不出根因的地方。
+    if (!gDesktopAnnotationFactory)
+    {
+        qFatal("ApplicationController: 桌面批注层工厂没装上（应在 app/main.cpp 装）");
+    }
+    mDesktopAnnotation = gDesktopAnnotationFactory(this, rightPalette);
 
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, this, &ApplicationController::screenLayoutChanged);
-    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mUninoteController, &DesktopAnnotationController::screenLayoutChanged);
+    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mDesktopAnnotation, &IDesktopAnnotation::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &WebController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, Application::boardController, &BoardController::adjustDisplayViews);
     // 槽第三个参数有默认值，成员指针形式要求参数个数不超过信号，这里显式补默认值
-    connect(mUninoteController, &DesktopAnnotationController::imageCaptured, this,
+    connect(mDesktopAnnotation, &IDesktopAnnotation::imageCaptured, this,
         [this](const QPixmap &pixmap, bool pageMode)
         {
             addCapturedPixmap(pixmap, pageMode);
         });
-    connect(mUninoteController, &DesktopAnnotationController::restoreBoard, this, &ApplicationController::hideDesktop);
 
     for (int i = 0; i < mDisplayManager->numPreviousViews(); i++)
     {
@@ -102,7 +108,7 @@ void ApplicationController::initScreenLayout(bool useMultiscreen)
     mDisplayManager->setDisplayWidget(mDisplayView);
 
     mDisplayManager->setPreviousDisplaysWidgets(mPreviousViews);
-    mDisplayManager->setDesktopWidget(mUninoteController->drawingView());
+    mDisplayManager->setDesktopWidget(mDesktopAnnotation->drawingView());
 
     mDisplayManager->setUseMultiScreen(useMultiscreen);
     mDisplayManager->adjustScreens(-1);
@@ -321,7 +327,7 @@ void ApplicationController::showBoard()
     mIsShowingDesktop = false;
     PlatformUtils::setDesktopMode(false);
 
-    mUninoteController->hideWindow();
+    mDesktopAnnotation->hideWindow();
 
     PlatformUtils::showFullScreen(mMainWindow);
 
@@ -354,7 +360,7 @@ void ApplicationController::showInternet()
         adaptToolBar();
 
         mMainWindow->show();
-        mUninoteController->hideWindow();
+        mDesktopAnnotation->hideWindow();
 
         Application::webController->show();
 
@@ -399,7 +405,7 @@ void ApplicationController::showDocument()
 
     mMainWindow->show();
 
-    mUninoteController->hideWindow();
+    mDesktopAnnotation->hideWindow();
 
     emit mainModeChanged(Document);
 }
@@ -414,7 +420,7 @@ void ApplicationController::showDesktop(bool dontSwitchFrontProcess)
     }
 
     mMainWindow->hide();
-    mUninoteController->showWindow();
+    mDesktopAnnotation->showWindow();
 
     if (mMirror)
     {
@@ -465,6 +471,11 @@ void ApplicationController::installRecordingToggle(RecordingToggle toggle)
     gRecordingToggle = std::move(toggle);
 }
 
+void ApplicationController::installDesktopAnnotationFactory(DesktopAnnotationFactory factory)
+{
+    gDesktopAnnotationFactory = std::move(factory);
+}
+
 void ApplicationController::toggleRecordingPalette(bool visible)
 {
     if (!gRecordingToggle)
@@ -477,12 +488,12 @@ void ApplicationController::toggleRecordingPalette(bool visible)
 
 QWidget *ApplicationController::desktopDrawingHost()
 {
-    return mUninoteController->drawingView();
+    return mDesktopAnnotation->drawingView();
 }
 
 void ApplicationController::desktopDrawingResized()
 {
-    mUninoteController->TransparentWidgetResized();
+    mDesktopAnnotation->relayout();
 }
 
 void ApplicationController::setMirrorSourceWidget(QWidget *pWidget)
@@ -509,7 +520,7 @@ void ApplicationController::mirroringEnabled(bool enabled)
         }
 
         mMirror->setVisible(enabled && mDisplayManager->numScreens() > 1);
-        mUninoteController->updateShowHideState(enabled);
+        mDesktopAnnotation->updateShowHideState(enabled);
         Application::mainWindow->ui().actionWebShowHideOnDisplay->setChecked(enabled);
     }
     else
@@ -525,10 +536,10 @@ void ApplicationController::closing()
         mMirror->stop();
     }
 
-    if (mUninoteController)
+    if (mDesktopAnnotation)
     {
-        mUninoteController->hideWindow();
-        mUninoteController->close();
+        mDesktopAnnotation->hideWindow();
+        mDesktopAnnotation->closeWindow();
     }
 
     // 退出前把文档目录树写回 documents/folders.xml。

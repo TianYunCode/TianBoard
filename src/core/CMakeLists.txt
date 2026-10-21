@@ -36,6 +36,7 @@ add_library(tb_core OBJECT
     ForeignObjectsHandler.h
     HttpGet.cpp
     HttpGet.h
+    IDesktopAnnotation.h
     IdleTimer.cpp
     IdleTimer.h
     LanguageManager.cpp

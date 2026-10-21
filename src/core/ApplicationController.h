@@ -18,7 +18,7 @@
 class BoardView;
 class DocumentProxy;
 class GraphicsScene;
-class DesktopAnnotationController;
+class IDesktopAnnotation;
 class ScreenMirror;
 class MainWindow;
 class DisplayManager;
@@ -139,18 +139,12 @@ public:
         return mDisplayManager;
     }
 
-    /// 返回桌面批注控制器，调用方不得取得所有权。
-    DesktopAnnotationController *uninotesController()
-    {
-        return mUninoteController;
-    }
-
     /**
      * @brief 返回桌面批注模式下可承载画板调色板的宿主窗口。
      * @return 宿主窗口指针；桌面批注模式未激活时可能为空。
      * @note 桌面批注模式下承载画板调色板的宿主窗口，以及它的尺寸变化通知。画板只需要
-     * "一个能当父控件的窗口"，不需要认识 DesktopAnnotationController 本身——装配层
-     * 提供这两个入口，whiteboard 就不必为这事 include desktop/。
+     * "一个能当父控件的窗口"，不需要认识批注层的实现类——装配层提供这两个入口，
+     * whiteboard 就不必为这事 include desktop/。
      */
     QWidget *desktopDrawingHost();
     /// 通知总控器桌面批注宿主尺寸已变化，触发重新布局。
@@ -186,6 +180,17 @@ public:
 
     /// 装上录制显隐的转发实现，只在装配阶段调用一次。
     static void installRecordingToggle(RecordingToggle toggle);
+
+    /**
+     * @brief 桌面批注层的工厂：总控器要一个会造批注层的入口，但它不认识 desktop 的实现类。
+     * @note 批注层由本类持有（parent 传 this），随应用生命周期存在；工厂必须在建
+     *       Application 之前装上，否则构造时就 qFatal——桌面批注是四个主模式之一，
+     *       不是可选装饰。
+     */
+    using DesktopAnnotationFactory = std::function<IDesktopAnnotation *(QObject *parent, RightPalette *rightPalette)>;
+
+    /// 装上桌面批注层的工厂，只在装配阶段调用一次。
+    static void installDesktopAnnotationFactory(DesktopAnnotationFactory factory);
 
 signals:
     /// 主显示模式发生变化。
@@ -242,8 +247,8 @@ public slots:
 private slots:
 
 protected:
-    /// 桌面批注控制器，由本类持有。
-    DesktopAnnotationController *mUninoteController;
+    /// 桌面批注层，由本类持有；由装配点装上的工厂创建。
+    IDesktopAnnotation *mDesktopAnnotation;
 
     /// 主窗口，不持有所有权。
     MainWindow *mMainWindow;

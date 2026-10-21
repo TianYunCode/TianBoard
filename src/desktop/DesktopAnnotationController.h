@@ -9,6 +9,7 @@
 #include <QTime>
 #include <QTimer>
 
+#include "core/IDesktopAnnotation.h"
 #include "ui/RightPalette.h"
 
 class DesktopPalette;
@@ -33,7 +34,7 @@ class RightPalette;
  * 工具栏与属性面板都浮在透明画布上，位置由桌面工具栏与右侧栏宽度共同决定。
  * 线程约束：全部操作在 GUI 线程；截图期间会先隐藏工具栏，抓完再恢复。
  */
-class DesktopAnnotationController : public QObject
+class DesktopAnnotationController : public IDesktopAnnotation
 {
     Q_OBJECT
 
@@ -49,23 +50,23 @@ public:
     virtual ~DesktopAnnotationController();
 
     /** @brief 进入桌面批注：显示工具栏并全屏铺开透明画布，同时保存画板工具、切到桌面工具。 */
-    void showWindow();
+    void showWindow() override;
 
     /** @brief 退出桌面批注：隐藏画布与工具栏，并恢复进入前的画板工具。 */
-    void hideWindow();
+    void hideWindow() override;
 
     /** @brief 桌面工具栏对象，供外部连接/定位。 */
     DesktopPalette *desktopPalette();
 
-    /** @brief 透明绘图层视图，供外部截图或设置父窗口。 */
-    BoardView *drawingView();
+    /** @brief 透明绘图层视图，供外部截图或设置父窗口（实现里就是那块 BoardView）。 */
+    QWidget *drawingView() override;
 
-    /** @brief 请求按当前视图高度重排左右侧栏；转发给 onTransparentWidgetResized()。 */
-    void TransparentWidgetResized();
+    /** @brief 按当前视图高度重排浮在透明画布上的属性面板。 */
+    void relayout() override;
 
 public slots:
     /** @brief 显示器布局变化：有可用副屏时显示“在副屏显示画板”按钮。 */
-    void screenLayoutChanged();
+    void screenLayoutChanged() override;
 
     /** @brief 回到白板主界面；由桌面工具栏的“显示 TianBoard”按钮触发。 */
     void goToBoard();
@@ -80,23 +81,16 @@ public slots:
     void screenCapture();
 
     /** @brief 同步工具栏上显示/隐藏副屏按钮的状态。 */
-    void updateShowHideState(bool pEnabled);
+    void updateShowHideState(bool enabled) override;
 
     /** @brief 隐藏透明画布与桌面工具栏；不恢复画板工具，供退出路径复用。 */
-    void close();
+    void closeWindow() override;
 
     /** @brief 工具切换后刷新场景背景（选择器需要完全透明）。 */
     void stylusToolChanged(int tool);
 
     /** @brief 按当前状态重设透明场景背景刷。 */
     void updateBackground();
-
-signals:
-    /** @brief 截图完成；pageMode 表示是否按整页插入（桌面截图当前均为 false）。 */
-    void imageCaptured(const QPixmap &pCapturedPixmap, bool pageMode);
-
-    /** @brief 请求退出桌面模式、恢复白板显示。 */
-    void restoreBoard();
 
 protected:
     /** @brief 抓取光标所在屏幕的当前画面，用于区域/全屏截图。 */
