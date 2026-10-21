@@ -363,6 +363,10 @@
   所以不会当场崩，但 `data()` 里 `mCurrentNode == dataNode` 这种比对拿的是已释放的地址——地址被
   新节点复用时"当前文档"的高亮图标会落到别人身上。`removeRows` 现在在删之前把自己（或自己子树里）
   那份清成 `nullptr`，`tst_import` 第 7 个案子直接断言 `currentNode()` 归零。
+- **一条被我写错又改回来的“缺陷”**：曾记下 `createDocumentProxiesStructure` 遇到分组不存在时 `return`
+  会"把整批导入静默断掉"。实测不成立——`DocumentTreeModel::goTo()` 在找不到某一级时**就地补建**那个
+  分组（`tst_import` 第 8 个案子钉住这一点：删掉分组再导入，分组连同里面的文档都被补回来，且不会掉进
+  "我的文档"根）。所以那条 `return` 实际不可达；记下这条是为了别再拿它当缺陷去"修"。
 - **重名导入的三处漏点（同一次改动顺手补）**：① `createDocumentProxiesStructure(..., interactive=true)`
   把 `processInteractiveReplacementDialog` 的返回值丢掉，用户点"取消"后那份刚解压出来的文档包
   既不登记也不释放——内存里漏一个 `DocumentProxy`，磁盘上留下一包没人认领的目录，下次启动扫描时
@@ -374,9 +378,6 @@
   旧的、后 `addDocument` 新的，中间界面被叫去"选中那个还不在树里的新文档"，`setCurrentDocument`
   因此静默落空、当前节点继续抱着即将删除的旧节点；现在先挂新的再换旧的。
 
-仍未处理的审计发现（低置信度或产品决策）：`createDocumentProxiesStructure` 遇到第一个"分组在树里
-不存在"的文档包时 `return` 而不是 `continue`——`.tbx` 里带了新分组时，整批导入会从这里静默断掉，
-后面的包一个都不登记（改法是补建分组或直接续跑，得先定产品口径，`tst_import` 现在只覆盖分组存在
-的情形）；`PreferencesController` 对
+仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
 `PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。

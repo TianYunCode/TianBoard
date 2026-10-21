@@ -9,6 +9,7 @@
 #include "whiteboard/GraphicsTextItem.h"
 
 #include <QCoreApplication>
+#include <functional>
 #include <QDir>
 #include <QFileInfo>
 #include <QSize>
@@ -122,25 +123,38 @@ namespace
         return model->nodeNameList(model->myDocumentsIndex());
     }
 
-    /// @brief 收尾：测试留在树里的文档全部删掉，用户的文档库不该留着自测痕迹。
+    /// @brief 收尾：测试留在树里的文档与分组全部删掉，用户的文档库不该留着自测痕迹。
     void purgeTestDocuments(PersistenceManager *pm, const QString &prefix)
     {
-        DocumentTreeModel *model = pm->mDocumentTreeStructureModel;
-        const QModelIndex  group = model->myDocumentsIndex();
-        const QStringList  names = rootNames(model);
+        DocumentTreeModel *model                       = pm->mDocumentTreeStructureModel;
 
-        for (int i = names.size() - 1; i >= 0; i--)
+        // 深度优先：先清子节点，父分组的行号才会在删除过程中保持不动。
+        std::function<void(const QModelIndex &)> purge = [&](const QModelIndex &parent)
         {
-            if (!names.at(i).startsWith(prefix))
+            const QStringList names = model->nodeNameList(parent);
+            for (int i = names.size() - 1; i >= 0; i--)
             {
-                continue;
+                const QModelIndex child = model->index(i, 0, parent);
+                if (model->isCatalog(child))
+                {
+                    purge(child);
+                    if (names.at(i).startsWith(prefix))
+                    {
+                        model->removeRow(i, parent);
+                    }
+                }
+                else if (names.at(i).startsWith(prefix))
+                {
+                    DocumentProxy *proxy = model->proxyData(child);
+                    if (proxy)
+                    {
+                        pm->deleteDocument(proxy);
+                    }
+                }
             }
-            DocumentProxy *proxy = model->proxyData(model->index(i, 0, group));
-            if (proxy)
-            {
-                pm->deleteDocument(proxy);
-            }
-        }
+        };
+
+        purge(model->myDocumentsIndex());
     }
 } // namespace
 
@@ -442,6 +456,52 @@ namespace ImportSelfTest
             }
         }
 
+        // ---- 8. 带新分组的导入包：分组要跟着补建出来，文档不许掉进“我的文档”根 ----
+        {
+            gScript.clear();
+            const QString group      = prefix + QStringLiteral("新分组");
+            const QString name       = prefix + QStringLiteral("分组里的文档");
+            const QString seedPath   = QDir(rootDir).filePath(QStringLiteral("J"));
+            const QString importPath = QDir(rootDir).filePath(QStringLiteral("K"));
+
+            DocumentProxy *grouped   = pm->createDocument(group, name, false, seedPath, 1, false);
+            if (!grouped)
+            {
+                failures << QStringLiteral("造带分组的底稿失败：%1").arg(seedPath);
+            }
+            else
+            {
+                pm->persistDocumentMetadata(grouped);
+                if (!clonePackage(seedPath, importPath))
+                {
+                    failures << QStringLiteral("复制导入包失败：%1 -> %2").arg(seedPath, importPath);
+                }
+                // 把分组连同里面那份文档从树里撤掉，模拟“装这个包的时候机器上还没有这个分组”。
+                const QModelIndex groupIndex = model->goTo(group);
+                if (groupIndex.isValid())
+                {
+                    model->removeRow(groupIndex.row(), groupIndex.parent());
+                }
+                if (rootNames(model).contains(group))
+                {
+                    failures << QStringLiteral("撤分组没成功，后面的案子量不出东西");
+                }
+
+                QFileInfoList batch;
+                batch << QFileInfo(importPath);
+                pm->createDocumentProxiesStructure(batch, true);
+
+                const QModelIndex revived = model->goTo(group);
+                if (!revived.isValid() || !model->nodeNameList(revived).contains(name))
+                {
+                    failures << QStringLiteral("导入没把分组「%1」连同里面那份文档补回来").arg(group);
+                }
+                if (rootNames(model).contains(name))
+                {
+                    failures << QStringLiteral("带分组的文档掉进了“我的文档”根，而不是它自己的分组");
+                }
+            }
+        }
         purgeTestDocuments(pm, prefix);
         QCoreApplication::processEvents();
 
