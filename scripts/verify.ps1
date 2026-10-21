@@ -15,6 +15,8 @@
 #     tst_x.exe——测试源不是应用输入，混在一起会把格式化工具碰过的时间戳误判成"没重编"。
 #     res/ 必须在第一套里：往素材库加一张图不碰任何源文件，而它既可能进 qrc（编进 exe），
 #     也可能只靠 POST_BUILD 整目录拷贝，少这条就会带着旧素材目录把测试全跑绿。
+#     唯一例外是 res/i18n/*.ts：lrelease 产出的是 .qm，不进 exe，改完 .ts 不重链接 exe 是
+#     正常的。它改跟摆在 exe 同级的那份 .qm 比——运行时与 tst_language 加载的都是这一份。
 #  2. 构建命令的退出码很容易被后面一句 shell 吃掉（`...; grep ...; true` 会让后台
 #     任务报"成功"），所以这里每步都显式取 $LASTEXITCODE。
 #  3. 排版门禁（format.ps1 -Check）和构建一起跑，才不会攒出"以后再格式化"的债。
@@ -117,11 +119,28 @@ $inputs += Get-Item (Join-Path $Root 'CMakeLists.txt'), (Join-Path $Root 'CMakeP
 # res/ 下的每个文件都进产物：qrc 列出的编进 exe，etc/ library/ customizations/ 由
 # src/app 的 POST_BUILD 整目录拷到 exe 同级。往 res/library 里加一张图不碰任何源文件，
 # 没有这一条就会悄悄带着旧素材目录跑完整套测试。
-$inputs += Get-ChildItem -Path (Join-Path $Root 'res') -Recurse -File
+# 只有 res/i18n/*.ts 例外：lrelease 的产物是 build/Language/TianBoard_<语言>.qm，
+# 不进 exe，改动 .ts 不会让 exe 变旧，所以单独比自己的 qm（见下）。
+$tsFiles = @(Get-ChildItem -Path (Join-Path $Root 'res\i18n') -Filter '*.ts' -File)
+$inputs += Get-ChildItem -Path (Join-Path $Root 'res') -Recurse -File | Where-Object { $_.Extension -ne '.ts' }
 $stale = @($inputs | Where-Object { $_.LastWriteTime -gt $exeTime })
 if ($stale.Count -gt 0) {
     $stale | Select-Object -First 6 | ForEach-Object { Write-Host "  比产物新: $($_.FullName.Substring($Root.Length + 1))" -ForegroundColor Red }
     throw "有 $($stale.Count) 个输入文件比 $([IO.Path]::GetFileName($Exe)) 新 —— 构建没把它们编进去，测试结果不可信"
+}
+
+# 翻译源文本各自跟**摆在可执行文件旁边**的 .qm 比：测试与运行时加载的都是这一份，
+# lrelease 产物只拷到 build/Language 而没铺到 exe 同级，界面就还是上一版文案。
+$deployedLanguage = Join-Path (Split-Path -Parent $Exe) 'Language'
+foreach ($ts in $tsFiles) {
+    $lang = $ts.BaseName -replace '^lang_', ''
+    $qm = Join-Path $deployedLanguage "TianBoard_$lang.qm"
+    if (-not (Test-Path $qm)) {
+        throw "没有 $qm —— 语言包没铺到可执行文件旁边，切语言只会回落英文"
+    }
+    if ((Get-Item $qm).LastWriteTime -lt $ts.LastWriteTime) {
+        throw "Language/TianBoard_$lang.qm 比 res/i18n/$($ts.Name) 旧 —— 翻译改动没进语言包（POST_BUILD 只在链接时铺，改动 .ts 后要重新链接）"
+    }
 }
 
 # 每个测试用例跟自己那份可执行比；tests/CMakeLists.txt 跟最新的那份比。

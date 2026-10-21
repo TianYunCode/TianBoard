@@ -96,6 +96,17 @@ set_tests_properties(tst_snap PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 快捷键自定义自检：应用带 --shortcut-selftest 跑注册表登记、出厂默认撞键检查，
+# 再用一张自建表跑改绑→落盘→读回→恢复默认的完整回路（含快捷键页的按钮接线）。
+add_executable(tst_shortcuts tst_shortcuts.cpp)
+target_compile_options(tst_shortcuts PRIVATE /MP /utf-8)
+target_link_libraries(tst_shortcuts PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_shortcuts TianBoard)
+add_test(NAME tst_shortcuts COMMAND tst_shortcuts)
+set_tests_properties(tst_shortcuts PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

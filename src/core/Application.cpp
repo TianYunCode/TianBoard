@@ -35,6 +35,8 @@
 #include "core/DisplayManager.h"
 #include "core/FormatSelfTest.h"
 #include "core/SnapSelfTest.h"
+#include "core/ShortcutManager.h"
+#include "core/ShortcutSelfTest.h"
 
 QPointer<QUndoStack> Application::undoStack;
 
@@ -104,6 +106,9 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 Application::~Application()
 {
     PlatformUtils::destroy();
+
+    // 快捷键注册表里存的是主窗口 QAction 的裸指针，必须赶在主窗口之前散掉。
+    ShortcutManager::destroy();
 
     FileSystemUtils::deleteAllTempDirCreatedDuringSession();
 
@@ -178,10 +183,6 @@ int Application::exec(const QString &pFileToImport)
 
     mainWindow = new MainWindow(0, Qt::FramelessWindowHint);
     mainWindow->setAttribute(Qt::WA_NativeWindow, true);
-
-    mainWindow->ui().actionCopy->setShortcuts(QKeySequence::Copy);
-    mainWindow->ui().actionPaste->setShortcuts(QKeySequence::Paste);
-    mainWindow->ui().actionCut->setShortcuts(QKeySequence::Cut);
 
     ThumbnailUI::_private::initCatalog();
 
@@ -282,59 +283,45 @@ int Application::exec(const QString &pFileToImport)
         QTimer::singleShot(8000, qApp, &QCoreApplication::quit);
     }
 
-    // 文档格式往返自检（tst_format 用 `--format-selftest` 拉起）：真存一页再真读回来逐项比对。
-    // 这条链路在界面上是看不见的——属性名、命名空间或取整精度任何一侧动一下，都要等“存下去
-    // 再打开”才露出来。75 是“已有实例在跑，让路”的约定退出码，测试据此判跳过而不是判失败：
-    // 自检会往临时目录写文档并动场景缓存，两个进程并行没有意义。
-    if (arguments().contains("--format-selftest"))
+    // 自检模式：让应用带着真实装配跑一段只查对错的代码，用退出码回报不一致的条数。
+    // 判据写在各自的 *SelfTest.cpp 里，这里只管拉起跑。
+    // 约定：0 = 通过，非 0 = 不一致条数；75 = 已有实例在跑、让路——测试据此判“跳过”而不是
+    // 判失败，因为自检会写临时文档、动场景缓存与用户配置，两个进程并行没有意义。
+    // 崩溃时 stderr 是块缓冲的，最后几条日志会跟着进程一起丢，看不出停在哪；verbose 分支
+    // 按条 open/close 落盘（见 app/main.cpp 的消息处理器），所以自检一律开它。
+    struct SelfTestMode
     {
-        // 崩溃时 stderr 是块缓冲的，最后几条日志会跟着进程一起丢，看不出停在哪。
-        // verbose 分支按条 open/close 落盘（见 app/main.cpp 的消息处理器），所以自检开它。
+        const char *flag;
+        int (*run)();
+    };
+
+    static const SelfTestMode selfTestModes[] = {
+        {"--format-selftest",   FormatSelfTest::run  }, // 文档格式读写往返（tst_format）
+        {"--snap-selftest",     SnapSelfTest::run    }, // 网格吸线的场景侧接线（tst_snap）
+        {"--shortcut-selftest", ShortcutSelfTest::run}, // 快捷键注册表的读写与冲突（tst_shortcuts）
+    };
+
+    for (const SelfTestMode &mode : selfTestModes)
+    {
+        if (!arguments().contains(QLatin1String(mode.flag)))
+        {
+            continue;
+        }
+
         setVerbose(true);
 
-        if (isRunning())
-        {
-            qWarning() << "format-selftest: 已有实例在运行，让路";
-            QTimer::singleShot(0, qApp,
-                []
-                {
-                    qApp->exit(75);
-                });
-        }
-        else
-        {
-            QTimer::singleShot(1500, qApp,
-                []
-                {
-                    qApp->exit(FormatSelfTest::run());
-                });
-        }
-    }
+        const bool anotherInstanceRunning = isRunning();
 
-    // 网格吸附接线自检（tst_snap 用 `--snap-selftest` 拉起）：查 GraphicsScene 把格距、背景
-    // 类型与图元外框喂给吸附数学的姿势；纯几何另有 tests/tst_snapping 单独覆盖。
-    if (arguments().contains("--snap-selftest"))
-    {
-        // 同上：崩溃时 stderr 块缓冲会吞掉最后的日志，verbose 分支按条落盘。
-        setVerbose(true);
+        if (anotherInstanceRunning)
+        {
+            qWarning() << mode.flag << "：已有实例在运行，让路";
+        }
 
-        if (isRunning())
-        {
-            qWarning() << "snap-selftest: 已有实例在运行，让路";
-            QTimer::singleShot(0, qApp,
-                []
-                {
-                    qApp->exit(75);
-                });
-        }
-        else
-        {
-            QTimer::singleShot(1500, qApp,
-                []
-                {
-                    qApp->exit(SnapSelfTest::run());
-                });
-        }
+        QTimer::singleShot(anotherInstanceRunning ? 0 : 1500, qApp,
+            [mode, anotherInstanceRunning]
+            {
+                qApp->exit(anotherInstanceRunning ? 75 : mode.run());
+            });
     }
 
     return QApplication::exec();

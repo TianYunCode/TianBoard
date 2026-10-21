@@ -20,6 +20,8 @@
 #include "recording/RecordingController.h"
 
 #include "ui/ColorPicker.h"
+#include "ui/ShortcutSettingsWidget.h"
+#include "core/ShortcutManager.h"
 
 #include "core/VirtualDesktop.h"
 
@@ -494,6 +496,10 @@ struct PreferencesDialog::Ui
     QWidget      *aboutTab;
     QVBoxLayout  *verticalLayout_2;
     QTextBrowser *copyrightTextBrowser;
+
+    // 下面两个不是旧表单里的东西：快捷键页是后来加的，界面本体在 ui/ShortcutSettingsWidget。
+    QWidget                *shortcutTab;
+    ShortcutSettingsWidget *shortcutSettings;
 
     void setupUi(QWidget *preferencesDialog)
     {
@@ -1036,6 +1042,16 @@ struct PreferencesDialog::Ui
         gridLayout_6->addItem(verticalSpacer_2, 2, 0, 1, 1);
 
         mainTabWidget->addTab(networkTab, QString());
+        shortcutTab = new QWidget();
+        shortcutTab->setObjectName("shortcutTab");
+        QVBoxLayout *shortcutTabLayout = new QVBoxLayout(shortcutTab);
+        shortcutTabLayout->setObjectName("shortcutTabLayout");
+        shortcutSettings = new ShortcutSettingsWidget(ShortcutManager::instance(), shortcutTab);
+        shortcutSettings->setObjectName("shortcutSettings");
+
+        shortcutTabLayout->addWidget(shortcutSettings);
+
+        mainTabWidget->addTab(shortcutTab, QString());
         aboutTab = new QWidget();
         aboutTab->setObjectName("aboutTab");
         aboutTab->setEnabled(true);
@@ -1116,6 +1132,7 @@ struct PreferencesDialog::Ui
         label->setText(PreferencesDialog::tr("Proxy User:", nullptr));
         label_3->setText(PreferencesDialog::tr("Pass:", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(networkTab), PreferencesDialog::tr("Network", nullptr));
+        mainTabWidget->setTabText(mainTabWidget->indexOf(shortcutTab), PreferencesDialog::tr("Shortcuts", nullptr));
         mainTabWidget->setTabText(mainTabWidget->indexOf(aboutTab), PreferencesDialog::tr("About", nullptr));
     } // retranslateUi
 };
@@ -1501,6 +1518,10 @@ void PreferencesController::defaultSettings()
         mPreferencesUI->displayBrowserPageCheckBox->setChecked(defaultValue);
 
         mPreferencesUI->webHomePage->setText(settings->webHomePage->reset().toString());
+    }
+    else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->shortcutTab)
+    {
+        mPreferencesUI->shortcutSettings->restoreAllShortcuts();
     }
     else if (mPreferencesUI->mainTabWidget->currentWidget() == mPreferencesUI->gridTab)
     {

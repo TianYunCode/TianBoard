@@ -467,6 +467,8 @@ public slots:
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant());
     /** @brief 按完整键名写入配置值（先缓存，随后统一落盘）。 */
     void setValue(const QString &key, const QVariant &value);
+    /** @brief 从三份配置（内存队列/应用级/用户级）里删掉指定键，让它回落到默认值。 */
+    void removeSetting(const QString &setting);
 
     /** @brief 颜色环境变化时转发信号，供调色板刷新。 */
     void colorChanged()
@@ -499,8 +501,6 @@ private:
     /** @brief 展开路径中的用户目录通配符。 */
     static QString replaceWildcard(QString &path);
 
-    /** @brief 从用户配置中移除指定键。 */
-    void removeSetting(const QString &setting);
     /** @brief 为新版本引入的设置项补齐默认值。 */
     void checkNewSettings();
 };

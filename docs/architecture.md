@@ -17,7 +17,8 @@ src/
   │                （只依赖 utils，与 utils 一样是真 STATIC）
   ├─ core/         应用与各类服务/控制器（Application、ApplicationController、
   │                DisplayManager/VirtualDesktop、LanguageManager、PersistenceManager、
-  │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager…）
+  │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager、
+  │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentController、
   │                SortFilterProxyModel（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
@@ -39,7 +40,7 @@ src/
                    （出边为零，最底一层）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（9 个）
+tests/             Qt Test 用例（13 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账

@@ -90,6 +90,9 @@ protected:
     }
 
 private:
+    /// 把 setupUi 造出来的动作按分组登记进 ShortcutManager：这是用户能改绑快捷键的前提。
+    void registerShortcuts();
+
     struct Private;
     std::unique_ptr<Private> d;
 };

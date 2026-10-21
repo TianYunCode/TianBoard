@@ -47,6 +47,10 @@ add_library(tb_core OBJECT
     SnapSelfTest.h
     SceneCache.cpp
     SceneCache.h
+    ShortcutManager.cpp
+    ShortcutManager.h
+    ShortcutSelfTest.cpp
+    ShortcutSelfTest.h
     TextTools.cpp
     TextTools.h
     VirtualDesktop.cpp

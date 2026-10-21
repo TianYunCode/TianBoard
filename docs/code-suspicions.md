@@ -318,6 +318,29 @@
   **仍然会丢的（未修，别再当往返无损）**：IWB 没有工具图元的概念，尺子/量角器/圆规导出去就没了；
   一笔 polyline 回来是一个覆盖整条包围盒的 polygon，`originalWidth()` 是 -1，逐段结构与笔宽不还原。
 
+- **从未接线的缩略图卡片（已删）**：`ThumbnailProxyWidget` / `DraggableThumbnail` /
+  `DraggableThumbnailPixmap` / `DraggableThumbnailView` 四个类连同只被它们用的
+  `ui/ThumbnailView` 在全仓没有一个 `new`（`DocumentController` 里那句
+  `#include "ui/ThumbnailView.h"` 是唯一的活引用，也只是 include）。文档模式真正在用的
+  可操作缩略图是 `SceneThumbnailPixmap` 那一族：它自己画悬浮图标、自己判命中，不走
+  `QGraphicsProxyWidget` 那条路。删掉约 490 行，两个只属于死类的 `Page %0` 原文也随
+  `lupdate -no-obsolete` 退出翻译目录（悬浮图标 `close/duplicate/moveUp/moveDown` 仍被
+  活类调用，资源一个没动）。
+
+- **快捷键当文案（做快捷键自定义之前先算的账）**：24 条
+  `setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+T", nullptr))` 写在
+  `MainWindowUi::retranslateUi` 里，有两处后果：① 21 条按键名因此进了翻译目录，谁把它们译了
+  就改掉按键绑定的解析（补中文时只能整批标成“刻意不译”）；② `retranslateUi` 每次切换语言都
+  重跑，于是“用户自己改的快捷键”会被下一次换语言冲掉——现在还没有这个功能，所以它只是个暗坑。
+  本轮把它补成真功能（`core/ShortcutManager` + `ui/ShortcutSettingsWidget`）时一并搬正：默认值
+  以数据形式待在 `setupUi`（只跑一次），用户覆盖存在 `Shortcut/<objectName>`，注册发生在主窗口
+  构造的最后一步。`Application::exec()` 里那三行事后 `setShortcuts(QKeySequence::Copy/Cut/Paste)`
+  也并入 `setupUi`：它们跑在主窗口构造之后，正是“后写的一刀盖掉先读回来的覆盖”，留着它，
+  改绑复制/剪切/粘贴必然失效。`DocumentController` 里两处
+  `actionDelete->setShortcut(QKeySequence(Qt::Key_Delete))` 同罪（与 `setupUi` 的默认值本来就重复），
+  一并删掉；现在全仓只有 `setupUi` 写默认值、只有 `ShortcutManager` 写覆盖，装配后期不再有人
+  补刀。`tst_shortcuts` 会抽查这几条默认值仍在原位，就是为了钉住这个顺序。
+
 仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
 `PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。

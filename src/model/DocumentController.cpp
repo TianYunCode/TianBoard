@@ -22,7 +22,6 @@
 #include "content/ThumbnailAdaptor.h"
 #include "content/MetadataDcSubsetAdaptor.h"
 
-#include "ui/ThumbnailView.h"
 #include "ui/MousePressFilter.h"
 #include "ui/MessageWindow.h"
 #include "ui/MainWindow.h"
@@ -2112,8 +2111,6 @@ void DocumentController::setupViews()
             }
         }
 
-        mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
-
         connect(mMainWindow->ui().actionDelete, &QAction::triggered, this, &DocumentController::deleteSelectedItem);
         connect(mMainWindow->ui().actionDuplicate, &QAction::triggered, this, &DocumentController::duplicateSelectedItem);
         connect(mMainWindow->ui().actionRename, &QAction::triggered, this, &DocumentController::renameSelectedItem);
@@ -3441,8 +3438,6 @@ void DocumentController::updateActions()
 
         return;
     }
-
-    mMainWindow->ui().actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
 
     QModelIndex    selectedIndex = firstSelectedTreeIndex();
     DocumentProxy *selectedProxy = docModel->proxyData(selectedIndex);

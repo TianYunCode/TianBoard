@@ -9,6 +9,7 @@
 #include "whiteboard/BoardController.h"
 #include "core/DisplayManager.h"
 #include "core/LanguageManager.h"
+#include "core/ShortcutManager.h"
 
 #include "ui/MainWindowUi.h"
 
@@ -632,6 +633,36 @@ void MainWindowUi::setupUi(QMainWindow *mw)
     documentToolBar->addAction(actionDesktop);
     documentToolBar->addAction(actionMenu);
 
+    // 默认快捷键集中在这里，一处一份：写的是按键名而不是自然语言，所以不进 retranslateUi——
+    // 那边每次换语言都会重跑，会把用户自己改绑的结果冲掉。用户改动存在 Shortcut/<objectName>
+    // 里，由 ShortcutManager 在注册时读回来。Cut/Copy/Paste 用 Qt 标准键序，让平台决定组合。
+    actionStylus->setShortcut(QKeySequence(QStringLiteral("Ctrl+T")));
+    actionUndo->setShortcut(QKeySequence(QStringLiteral("Ctrl+Z")));
+    actionRedo->setShortcut(QKeySequence(QStringLiteral("Ctrl+Y")));
+    actionBack->setShortcut(QKeySequence(QStringLiteral("PgUp")));
+    actionForward->setShortcut(QKeySequence(QStringLiteral("PgDown")));
+    actionDocument->setShortcut(QKeySequence(QStringLiteral("Ctrl+D")));
+    actionWeb->setShortcut(QKeySequence(QStringLiteral("Ctrl+W")));
+    actionWebBack->setShortcut(QKeySequence(QStringLiteral("Left")));
+    actionWebForward->setShortcut(QKeySequence(QStringLiteral("Right")));
+    actionBoard->setShortcut(QKeySequence(QStringLiteral("Ctrl+B")));
+    actionDesktop->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+H")));
+    actionWebBigger->setShortcut(QKeySequence(QStringLiteral("Ctrl++")));
+    actionWebSmaller->setShortcut(QKeySequence(QStringLiteral("Ctrl+-")));
+    actionOpen->setShortcut(QKeySequence(QStringLiteral("Ctrl+O")));
+    actionDelete->setShortcut(QKeySequence(QStringLiteral("Del")));
+    actionPen->setShortcut(QKeySequence(QStringLiteral("Ctrl+I")));
+    actionEraser->setShortcut(QKeySequence(QStringLiteral("Ctrl+E")));
+    actionMarker->setShortcut(QKeySequence(QStringLiteral("Ctrl+M")));
+    actionSelector->setShortcut(QKeySequence(QStringLiteral("Ctrl+F")));
+    actionPointer->setShortcut(QKeySequence(QStringLiteral("Ctrl+G")));
+    actionLine->setShortcut(QKeySequence(QStringLiteral("Ctrl+J")));
+    actionText->setShortcut(QKeySequence(QStringLiteral("Ctrl+K")));
+    actionSnap->setShortcut(QKeySequence(QStringLiteral("Ctrl+S")));
+    actionHideApplication->setShortcut(QKeySequence(QStringLiteral("Ctrl+H")));
+    actionCut->setShortcuts(QKeySequence::Cut);
+    actionCopy->setShortcuts(QKeySequence::Copy);
+    actionPaste->setShortcuts(QKeySequence::Paste);
     retranslateUi(mw);
 }
 
@@ -640,49 +671,28 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
     mw->setWindowTitle(QCoreApplication::translate("MainWindow", "TianBoard", nullptr));
     actionStylus->setText(QCoreApplication::translate("MainWindow", "Stylus", nullptr));
     actionStylus->setIconText(QCoreApplication::translate("MainWindow", "Stylus", nullptr));
-#if QT_CONFIG(shortcut)
-    actionStylus->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+T", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionBackgrounds->setText(QCoreApplication::translate("MainWindow", "Backgrounds", nullptr));
 #if QT_CONFIG(tooltip)
     actionBackgrounds->setToolTip(QCoreApplication::translate("MainWindow", "Change Background", nullptr));
 #endif // QT_CONFIG(tooltip)
     actionUndo->setText(QCoreApplication::translate("MainWindow", "Undo", nullptr));
-#if QT_CONFIG(shortcut)
-    actionUndo->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+Z", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionRedo->setText(QCoreApplication::translate("MainWindow", "Redo", nullptr));
-#if QT_CONFIG(shortcut)
-    actionRedo->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+Y", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionBack->setText(QCoreApplication::translate("MainWindow", "Previous", nullptr));
 #if QT_CONFIG(tooltip)
     actionBack->setToolTip(QCoreApplication::translate("MainWindow", "Previous Page", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionBack->setShortcut(QCoreApplication::translate("MainWindow", "PgUp", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionForward->setText(QCoreApplication::translate("MainWindow", "Next", nullptr));
 #if QT_CONFIG(tooltip)
     actionForward->setToolTip(QCoreApplication::translate("MainWindow", "Next Page", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionForward->setShortcut(QCoreApplication::translate("MainWindow", "PgDown", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionDocument->setText(QCoreApplication::translate("MainWindow", "Documents", nullptr));
 #if QT_CONFIG(tooltip)
     actionDocument->setToolTip(QCoreApplication::translate("MainWindow", "Manage Documents", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionDocument->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+D", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionWeb->setText(QCoreApplication::translate("MainWindow", "Web", nullptr));
 #if QT_CONFIG(tooltip)
     actionWeb->setToolTip(QCoreApplication::translate("MainWindow", "Web Browsing", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionWeb->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+W", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionLineSmall->setText(QCoreApplication::translate("MainWindow", "Line", nullptr));
 #if QT_CONFIG(tooltip)
     actionLineSmall->setToolTip(QCoreApplication::translate("MainWindow", "Small Line", nullptr));
@@ -723,16 +733,10 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionWebBack->setToolTip(QCoreApplication::translate("MainWindow", "Previous Page", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionWebBack->setShortcut(QCoreApplication::translate("MainWindow", "Left", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionWebForward->setText(QCoreApplication::translate("MainWindow", "Forward", nullptr));
 #if QT_CONFIG(tooltip)
     actionWebForward->setToolTip(QCoreApplication::translate("MainWindow", "Next Page", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionWebForward->setShortcut(QCoreApplication::translate("MainWindow", "Right", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionWebReload->setText(QCoreApplication::translate("MainWindow", "Reload", nullptr));
 #if QT_CONFIG(tooltip)
     actionWebReload->setToolTip(QCoreApplication::translate("MainWindow", "Reload Current Page", nullptr));
@@ -745,9 +749,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionBoard->setToolTip(QCoreApplication::translate("MainWindow", "Display Board", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionBoard->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+B", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionErase->setText(QCoreApplication::translate("MainWindow", "Erase", nullptr));
 #if QT_CONFIG(tooltip)
     actionErase->setToolTip(QCoreApplication::translate("MainWindow", "Erase Content", nullptr));
@@ -764,23 +765,14 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionDesktop->setToolTip(QCoreApplication::translate("MainWindow", "Show Computer Desktop", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionDesktop->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+Shift+H", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionWebBigger->setText(QCoreApplication::translate("MainWindow", "Bigger", nullptr));
 #if QT_CONFIG(tooltip)
     actionWebBigger->setToolTip(QCoreApplication::translate("MainWindow", "Zoom In", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionWebBigger->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl++", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionWebSmaller->setText(QCoreApplication::translate("MainWindow", "Smaller", nullptr));
 #if QT_CONFIG(tooltip)
     actionWebSmaller->setToolTip(QCoreApplication::translate("MainWindow", "Zoom Out", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionWebSmaller->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+-", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionNewFolder->setText(QCoreApplication::translate("MainWindow", "New Folder", nullptr));
 #if QT_CONFIG(tooltip)
     actionNewFolder->setToolTip(QCoreApplication::translate("MainWindow", "Create a New Folder", nullptr));
@@ -801,9 +793,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionOpen->setToolTip(QCoreApplication::translate("MainWindow", "Open Page in Board", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionOpen->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+O", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionDuplicate->setText(QCoreApplication::translate("MainWindow", "Duplicate", nullptr));
 #if QT_CONFIG(tooltip)
     actionDuplicate->setToolTip(QCoreApplication::translate("MainWindow", "Duplicate Selected Content", nullptr));
@@ -812,9 +801,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionDelete->setToolTip(QCoreApplication::translate("MainWindow", "Delete Selected Content", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionDelete->setShortcut(QCoreApplication::translate("MainWindow", "Del", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionAddToWorkingDocument->setText(QCoreApplication::translate("MainWindow", "Add to Working Document", nullptr));
 #if QT_CONFIG(tooltip)
     actionAddToWorkingDocument->setToolTip(QCoreApplication::translate("MainWindow", "Add Selected Content to Open Document", nullptr));
@@ -921,30 +907,18 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionPen->setToolTip(QCoreApplication::translate("MainWindow", "Annotate Document", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionPen->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+I", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionEraser->setText(QCoreApplication::translate("MainWindow", "Eraser", nullptr));
 #if QT_CONFIG(tooltip)
     actionEraser->setToolTip(QCoreApplication::translate("MainWindow", "Erase Annotation", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionEraser->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+E", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionMarker->setText(QCoreApplication::translate("MainWindow", "Marker", nullptr));
 #if QT_CONFIG(tooltip)
     actionMarker->setToolTip(QCoreApplication::translate("MainWindow", "Highlight ", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionMarker->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+M", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionSelector->setText(QCoreApplication::translate("MainWindow", "Selector", nullptr));
 #if QT_CONFIG(tooltip)
     actionSelector->setToolTip(QCoreApplication::translate("MainWindow", "Select And Modify Objects", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionSelector->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+F", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionHand->setText(QCoreApplication::translate("MainWindow", "Hand", nullptr));
 #if QT_CONFIG(tooltip)
     actionHand->setToolTip(QCoreApplication::translate("MainWindow", "Scroll Page", nullptr));
@@ -955,30 +929,18 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionPointer->setToolTip(QCoreApplication::translate("MainWindow", "Virtual Laser Pointer", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionPointer->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+G", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionLine->setText(QCoreApplication::translate("MainWindow", "Line", nullptr));
 #if QT_CONFIG(tooltip)
     actionLine->setToolTip(QCoreApplication::translate("MainWindow", "Draw Lines", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionLine->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+J", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionText->setText(QCoreApplication::translate("MainWindow", "Text", nullptr));
 #if QT_CONFIG(tooltip)
     actionText->setToolTip(QCoreApplication::translate("MainWindow", "Write Text", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionText->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+K", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionSnap->setText(QCoreApplication::translate("MainWindow", "Snap to Grid", nullptr));
 #if QT_CONFIG(tooltip)
     actionSnap->setToolTip(QCoreApplication::translate("MainWindow", "Snap Items To The Page Grid", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionSnap->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+S", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionCapture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
 #if QT_CONFIG(tooltip)
     actionCapture->setToolTip(QCoreApplication::translate("MainWindow", "Capture Part of the Screen", nullptr));
@@ -1040,9 +1002,6 @@ void MainWindowUi::retranslateUi(QMainWindow *mw)
 #if QT_CONFIG(tooltip)
     actionHideApplication->setToolTip(QCoreApplication::translate("MainWindow", "Hide TianBoard Application", nullptr));
 #endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(shortcut)
-    actionHideApplication->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+H", nullptr));
-#endif // QT_CONFIG(shortcut)
     actionPlay->setText(QCoreApplication::translate("MainWindow", "Play", nullptr));
 #if QT_CONFIG(tooltip)
     actionPlay->setToolTip(QCoreApplication::translate("MainWindow", "Interact with items", nullptr));
@@ -1098,6 +1057,110 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(par
     d->ui.actionPreferences->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Return));
     // Alt+F4 是系统保留组合键，动作上设置的快捷键不会生效，只能在这里显式登记一次。
     d->ui.actionQuit->setShortcut(QKeySequence(Qt::ALT | Qt::Key_F4));
+
+    // 默认值全部就位之后再登记：ShortcutManager 以这一刻的快捷键为“默认”，
+    // 随后把用户存在配置里的覆盖读回来盖上去。
+    registerShortcuts();
+}
+
+void MainWindow::registerShortcuts()
+{
+    ShortcutManager *shortcuts = ShortcutManager::instance();
+    MainWindowUi    &ui        = d->ui;
+
+    shortcuts->registerActions(ShortcutManager::Group::Common, {
+                                                                   ui.actionStylus,
+                                                                   ui.actionBoard,
+                                                                   ui.actionWeb,
+                                                                   ui.actionDocument,
+                                                                   ui.actionDesktop,
+                                                                   ui.actionVirtualKeyboard,
+                                                                   ui.actionHideApplication,
+                                                                   ui.actionPreferences,
+                                                                   ui.actionCut,
+                                                                   ui.actionCopy,
+                                                                   ui.actionPaste,
+                                                                   ui.actionQuit,
+                                                               });
+
+    shortcuts->registerActions(ShortcutManager::Group::Board, {
+                                                                  ui.actionUndo,
+                                                                  ui.actionRedo,
+                                                                  ui.actionBack,
+                                                                  ui.actionForward,
+                                                                  ui.actionNewPage,
+                                                                  ui.actionDuplicatePage,
+                                                                  ui.actionImportPage,
+                                                                  ui.actionAdd,
+                                                                  ui.actionClearPage,
+                                                                  ui.actionEraseItems,
+                                                                  ui.actionEraseAnnotations,
+                                                                  ui.actionEraseBackground,
+                                                              });
+
+    shortcuts->registerActions(ShortcutManager::Group::Tool, {
+                                                                 ui.actionPen,
+                                                                 ui.actionEraser,
+                                                                 ui.actionMarker,
+                                                                 ui.actionSelector,
+                                                                 ui.actionPlay,
+                                                                 ui.actionHand,
+                                                                 ui.actionZoomIn,
+                                                                 ui.actionZoomOut,
+                                                                 ui.actionPointer,
+                                                                 ui.actionLine,
+                                                                 ui.actionText,
+                                                                 ui.actionCapture,
+                                                                 ui.actionSnap,
+                                                             });
+
+    shortcuts->registerActions(ShortcutManager::Group::LineColor, {
+                                                                      ui.actionLineSmall,
+                                                                      ui.actionLineMedium,
+                                                                      ui.actionLineLarge,
+                                                                      ui.actionEraserSmall,
+                                                                      ui.actionEraserMedium,
+                                                                      ui.actionEraserLarge,
+                                                                      ui.actionColor0,
+                                                                      ui.actionColor1,
+                                                                      ui.actionColor2,
+                                                                      ui.actionColor3,
+                                                                      ui.actionColor4,
+                                                                  });
+
+    shortcuts->registerActions(ShortcutManager::Group::Background, {
+                                                                       ui.actionBackgrounds,
+                                                                       ui.actionPlainLightBackground,
+                                                                       ui.actionCrossedLightBackground,
+                                                                       ui.actionRuledLightBackground,
+                                                                       ui.actionPlainDarkBackground,
+                                                                       ui.actionCrossedDarkBackground,
+                                                                       ui.actionRuledDarkBackground,
+                                                                       ui.actionDefaultGridSize,
+                                                                   });
+
+    shortcuts->registerActions(ShortcutManager::Group::Web, {
+                                                                ui.actionWebBack,
+                                                                ui.actionWebForward,
+                                                                ui.actionWebReload,
+                                                                ui.actionHome,
+                                                                ui.actionWebBigger,
+                                                                ui.actionWebSmaller,
+                                                                ui.actionStopLoading,
+                                                            });
+
+    shortcuts->registerActions(ShortcutManager::Group::Document, {
+                                                                     ui.actionNewDocument,
+                                                                     ui.actionNewFolder,
+                                                                     ui.actionImport,
+                                                                     ui.actionExport,
+                                                                     ui.actionRename,
+                                                                     ui.actionDuplicate,
+                                                                     ui.actionDelete,
+                                                                     ui.actionOpen,
+                                                                     ui.actionAddToWorkingDocument,
+                                                                     ui.actionDocumentAdd,
+                                                                 });
 }
 
 MainWindow::~MainWindow() = default;

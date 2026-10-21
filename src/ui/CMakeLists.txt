@@ -81,12 +81,12 @@ add_library(tb_ui OBJECT
     RubberBand.h
     ScreenMirror.cpp
     ScreenMirror.h
+    ShortcutSettingsWidget.cpp
+    ShortcutSettingsWidget.h
     SpinningWheel.cpp
     SpinningWheel.h
     StylusPalette.cpp
     StylusPalette.h
-    ThumbnailView.cpp
-    ThumbnailView.h
     ThumbnailWidget.cpp
     ThumbnailWidget.h
     ToolbarButtonGroup.cpp
