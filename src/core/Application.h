@@ -10,6 +10,7 @@
 #include <functional>
 #include <QToolBar>
 #include <QMenu>
+#include <functional>
 
 #include "third/singleapp/qtsingleapplication.h"
 
@@ -19,7 +20,7 @@ namespace Ui
 }
 
 class BoardController;
-class WebController;
+class IWebController;
 class ControlView;
 class PreferencesController;
 class Resources;
@@ -77,12 +78,23 @@ public:
     /// 全局撤销栈，父对象为 staticMemoryCleaner。
     static QPointer<QUndoStack> undoStack;
 
+    /**
+     * @brief 网页控制器的工厂：exec() 要建它，但不认识 web 里的实现类。
+     * @note 实现是 web/WebController，由装配点装上（app/main.cpp）；接口住在 core
+     *       （core/IWebController.h），于是 core 不再 include web（拆环见
+     *       docs/architecture.md 第 7 步）。没装上时构造直接 qFatal。
+     */
+    using WebControllerFactory = std::function<IWebController *(MainWindow *mainWindow)>;
+
+    /// 装上网页控制器的工厂，只在装配阶段调用一次。
+    static void installWebControllerFactory(WebControllerFactory factory);
+
     /// 应用控制器，由 exec() 创建，父对象为 staticMemoryCleaner。
     static ApplicationController *applicationController;
     /// 画板控制器，父对象为主窗口。
     static BoardController *boardController;
-    /// 网页控制器，父对象为主窗口。
-    static WebController *webController;
+    /// 网页控制器，父对象是主窗口的中央控件；类型是 core 自己的契约。
+    static IWebController *webController;
     /// 文档库控制器，父对象为主窗口。
     static DocumentController *documentController;
 

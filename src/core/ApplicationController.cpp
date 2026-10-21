@@ -22,8 +22,6 @@
 
 #include "whiteboard/GraphicsWidgetItem.h"
 
-#include "web/WebController.h"
-
 #include "ui/ScreenMirror.h"
 #include "ui/MainWindow.h"
 
@@ -31,6 +29,7 @@
 
 #include "core/NetworkAccessManager.h"
 #include "core/IDesktopAnnotation.h"
+#include "core/IWebController.h"
 
 namespace
 {
@@ -58,7 +57,7 @@ ApplicationController::ApplicationController(
 
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, this, &ApplicationController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mDesktopAnnotation, &IDesktopAnnotation::screenLayoutChanged);
-    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &WebController::screenLayoutChanged);
+    connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &IWebController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, Application::boardController, &BoardController::adjustDisplayViews);
     // 槽第三个参数有默认值，成员指针形式要求参数个数不超过信号，这里显式补默认值
     connect(mDesktopAnnotation, &IDesktopAnnotation::imageCaptured, this,
@@ -82,7 +81,7 @@ ApplicationController::ApplicationController(
         mMirror = new ScreenMirror();
     }
 
-    connect(Application::webController, &WebController::imageCaptured, this, &ApplicationController::addCapturedPixmap);
+    connect(Application::webController, &IWebController::imageCaptured, this, &ApplicationController::addCapturedPixmap);
 }
 
 ApplicationController::~ApplicationController()

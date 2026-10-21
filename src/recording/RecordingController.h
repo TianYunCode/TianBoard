@@ -136,7 +136,7 @@ private slots:
     void applicationDesktopMode(bool displayed);
 
     /** @brief 网页模式下活动页面变化时改用新的 WebView 采集。 */
-    void webActiveWebPageChanged(WebView *pWebView);
+    void webActiveWebPageChanged(QWidget *webView);
 
     /** @brief 把编码器状态文本转成界面提示。 */
     void encodingStatus(const QString &pStatus);

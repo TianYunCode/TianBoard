@@ -16,8 +16,7 @@
 
 #include "ui/MainWindow.h"
 
-#include "web/WebController.h"
-#include "web/WebView.h"
+#include "core/IWebController.h"
 
 #include "whiteboard/GraphicsScene.h"
 
@@ -44,7 +43,7 @@ RecordingController::RecordingController(QObject *pParent)
 
     connect(Application::applicationController, &ApplicationController::desktopMode, this, &RecordingController::applicationDesktopMode);
 
-    connect(Application::webController, &WebController::activeWebPageChanged, this, &RecordingController::webActiveWebPageChanged);
+    connect(Application::webController, &IWebController::activeWebPageChanged, this, &RecordingController::webActiveWebPageChanged);
 
     connect(Application::app(), &QApplication::lastWindowClosed, this, &RecordingController::applicationAboutToQuit);
 }
@@ -666,11 +665,11 @@ void RecordingController::applicationDesktopMode(bool displayed)
     }
 }
 
-void RecordingController::webActiveWebPageChanged(WebView *pWebView)
+void RecordingController::webActiveWebPageChanged(QWidget *webView)
 {
     if (Application::applicationController->displayMode() == ApplicationController::Internet)
     {
-        setSourceWidget(pWebView);
+        setSourceWidget(webView);
     }
 }
 

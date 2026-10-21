@@ -9,8 +9,6 @@
 #include "core/ApplicationController.h"
 #include "settings/Settings.h"
 
-#include "web/WebController.h"
-
 #include "ui/MainWindow.h"
 
 #include "whiteboard/BoardView.h"

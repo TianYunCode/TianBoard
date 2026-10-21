@@ -24,7 +24,7 @@
 #include "whiteboard/BoardView.h"
 #include "whiteboard/DrawingController.h"
 #include "whiteboard/BoardPaletteManager.h"
-#include "web/WebController.h"
+#include "core/IWebController.h"
 
 #include "ui/DocumentController.h"
 
@@ -35,11 +35,22 @@
 #include "core/DisplayManager.h"
 #include "core/ShortcutManager.h"
 
+namespace
+{
+    /// 网页控制器的工厂实现；由装配点装上 web 里的实现类。
+    Application::WebControllerFactory gWebControllerFactory;
+} // namespace
+
+void Application::installWebControllerFactory(WebControllerFactory factory)
+{
+    gWebControllerFactory = std::move(factory);
+}
+
 QPointer<QUndoStack> Application::undoStack;
 
 ApplicationController *Application::applicationController = 0;
 BoardController       *Application::boardController       = 0;
-WebController         *Application::webController         = 0;
+IWebController        *Application::webController         = 0;
 DocumentController    *Application::documentController    = 0;
 
 MainWindow *Application::mainWindow                       = 0;
@@ -194,7 +205,12 @@ int Application::exec(const QString &pFileToImport)
     boardController = new BoardController(mainWindow);
     boardController->init();
 
-    webController      = new WebController(mainWindow);
+    // 网页控制器是四个主模式之一：装配点没装上工厂就是装配漏了，立刻大声失败。
+    if (!gWebControllerFactory)
+    {
+        qFatal("Application: 网页控制器工厂没装上（应在 app/main.cpp 装）");
+    }
+    webController      = gWebControllerFactory(mainWindow);
     documentController = new DocumentController(mainWindow);
 
     DrawingController::drawingController()->setStylusTool((int)StylusTool::Pen);

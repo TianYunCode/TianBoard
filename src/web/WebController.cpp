@@ -47,7 +47,7 @@ namespace
 } // namespace
 
 WebController::WebController(MainWindow *mainWindow)
-    : QObject(mainWindow->centralWidget()), mMainWindow(mainWindow), mCurrentWebBrowser(0), mBrowserWidget(0), mToolsCurrentPalette(0)
+    : IWebController(mainWindow->centralWidget()), mMainWindow(mainWindow), mCurrentWebBrowser(0), mBrowserWidget(0), mToolsCurrentPalette(0)
 {
     installCookiePolicy();
 }

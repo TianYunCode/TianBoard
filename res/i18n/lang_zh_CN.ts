@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="452"/>
+        <location filename="../../src/core/Application.cpp" line="478"/>
         <source>Page Size</source>
         <translation>页面尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="468"/>
+        <location filename="../../src/core/Application.cpp" line="494"/>
         <source>Screen Recording</source>
         <translation>录屏</translation>
     </message>
@@ -17,7 +17,7 @@
 <context>
     <name>ApplicationController</name>
     <message>
-        <location filename="../../src/core/ApplicationController.cpp" line="273"/>
+        <location filename="../../src/core/ApplicationController.cpp" line="282"/>
         <source>Web</source>
         <translation>网页</translation>
     </message>
@@ -2290,62 +2290,62 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>RecordingController</name>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="354"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="353"/>
         <source>Failed to start encoder ...</source>
         <translation>无法启动编码器……</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="359"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="358"/>
         <source>No screen recording encoder available...</source>
         <translation>没有可用的录屏编码器……</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="534"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="533"/>
         <source>Part %1</source>
         <translation>第 %1 章</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="694"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="693"/>
         <source>on your desktop ...</source>
         <translation>正在保存到桌面……</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="699"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="698"/>
         <source>in folder %1</source>
         <translation>保存到文件夹 %1</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="702"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="701"/>
         <source>Screen recording created %1</source>
         <translation>已创建录屏文件 %1</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="709"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="708"/>
         <source>Screen recording error (%1)</source>
         <translation>录屏出错（%1）</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="841"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="840"/>
         <source>Default Audio Input</source>
         <translation>默认音频输入</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="844"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="843"/>
         <source>No Audio Recording</source>
         <translation>不录制音频</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="885"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="884"/>
         <source>Small</source>
         <translation>小</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="886"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="885"/>
         <source>Medium</source>
         <translation>中</translation>
     </message>
     <message>
-        <location filename="../../src/recording/RecordingController.cpp" line="887"/>
+        <location filename="../../src/recording/RecordingController.cpp" line="886"/>
         <source>Full</source>
         <translation>全屏</translation>
     </message>

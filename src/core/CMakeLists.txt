@@ -37,6 +37,7 @@ add_library(tb_core OBJECT
     HttpGet.cpp
     HttpGet.h
     IDesktopAnnotation.h
+    IWebController.h
     IdleTimer.cpp
     IdleTimer.h
     LanguageManager.cpp

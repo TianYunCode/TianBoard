@@ -23,6 +23,7 @@
 #include "core/ApplicationController.h"
 #include "core/PersistenceManager.h"
 #include "content/DocumentFormatServices.h"
+#include "web/WebController.h"
 #include "desktop/DesktopAnnotationController.h"
 #include "model/IDocumentFormatServices.h"
 #include "recording/RecordingController.h"
@@ -162,6 +163,14 @@ int main(int argc, char *argv[])
             surface->setReturnControlsVisible(returnControlsVisible);
             surface->setGeometry(geometry);
             return surface;
+        });
+
+    // 网页控制器同理：Application 要建它、按模式切它、退出时让它清 Cookie，
+    // 但它只通过 core/IWebController.h 这份契约说话，实现类由这里给出。
+    Application::installWebControllerFactory(
+        [](MainWindow *mainWindow) -> IWebController *
+        {
+            return new WebController(mainWindow);
         });
 
     Application app("TianBoard", argc, argv);

@@ -13,7 +13,7 @@
 #include "settings/Setting.h"
 #include "settings/Settings.h"
 #include "utils/CookieRules.h"
-#include "web/WebController.h"
+#include "core/IWebController.h"
 
 namespace
 {
