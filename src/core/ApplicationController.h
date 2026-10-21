@@ -10,6 +10,7 @@
 #include <QNetworkAccessManager>
 
 #include <QtNetwork/QHttpPart>
+#include <functional>
 #include <new>
 #include <memory>
 #include <QJSEngine>
@@ -175,6 +176,16 @@ public:
     {
         return mIsShowingDesktop;
     }
+
+    /**
+     * @brief 录制调色板显隐的转发钩子：由装配点在 app/main.cpp 装上 recording 的实现。
+     * @note 总控器不认识 recording：这是它唯一需要够到录制模块的地方。没装上时按
+     *       "录制"只告警一句，不会崩。
+     */
+    using RecordingToggle = std::function<void(bool visible)>;
+
+    /// 装上录制显隐的转发实现，只在装配阶段调用一次。
+    static void installRecordingToggle(RecordingToggle toggle);
 
 signals:
     /// 主显示模式发生变化。

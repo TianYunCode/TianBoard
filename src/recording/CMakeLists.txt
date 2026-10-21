@@ -3,11 +3,14 @@
 #             Windows Media 编码器与波形录音（编码器与波形录音原来是子目录，
 #             现已扁平并入本模块）。
 #
-# 允许依赖：utils、model。尚未成立的边：recording <-> core / ui / web / platform
-# （whiteboard 的反向边已断：工具栏"录制"由 core 装配层直连 RecordingController）。
+# 允许依赖：utils、model、settings、platform、core、ui、web、whiteboard（都是单向向下/
+# 向内，没有任何模块反过来 include recording/，所以本模块不是环的一部分）。
+# 最后一条反向边在 2026-10-21 断掉：core 的总控器不再认识 RecordingController，"录制"按钮
+# 走装配点装上的 ApplicationController::installRecordingToggle 钩子（实现见 app/main.cpp）。
+# 没有任何模块依赖它，因此做成真正的 STATIC：越界 include 上层在编译期就失败。
 # ======================================================================
 
-add_library(tb_recording OBJECT
+add_library(tb_recording STATIC
     AbstractVideoEncoder.cpp
     AbstractVideoEncoder.h
     RecordingController.cpp

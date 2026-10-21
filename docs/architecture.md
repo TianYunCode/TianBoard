@@ -32,7 +32,8 @@ src/
   ├─ api/          小部件与文档对外 API 门面（WebWidgetBoardAPI/WebWidgetMessageAPI）
   ├─ web/          内嵌浏览器与网页控制器（原 web/ + web/browser/）
   ├─ desktop/      屏幕批注（平台无关部分）
-  ├─ recording/    录屏：画面与声音采集、录制调色板、Windows Media 编码器
+  ├─ recording/    录屏：画面与声音采集、录制调色板、Windows Media 编码器（没有任何模块
+│                反向依赖它，真 STATIC）
   ├─ ui/           全部界面控件与调色板（原 ui/ + widgets/ + network/ProxyDialog，
   │                加上从 platform/ 搬来的 KeyboardPalette* 与 CustomCaptureWindow*，
   │                以及从 model/ 搬来的 DocumentController——文档模式的界面装配）
@@ -132,18 +133,24 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 8 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 7 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
 
-已经做到的三个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）与
-`tb_platform`（出边只有 utils）。越界的 `#include` 在编译期就失败，而不是等到链接期靠
-符号缺失才发现——这个配方对其它模块同样成立，`settings` 与 `platform` 都是照着
-`utils` 拆出来的。
+已经做到的四个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
+（出边只有 utils）与 `tb_recording`（没有任何模块反向 include 它，2026-10-21）。越界的
+`#include` 在编译期就失败，而不是等到链接期靠符号缺失才发现——这个配方对其它模块同样
+成立，`settings` 与 `platform` 都是照着 `utils` 拆出来的。
 
-换成 STATIC 的前置条件：该模块的出边全部落在比它低的层（下表），且没有对上的
-include。
+换成 STATIC 的前置条件有两种，强度不同：
+
+* **叶子模块**要求出边全部落在比它低的层（下表），且没有对上的 include——这是终态。
+* **非叶子模块**只要"没有任何上层反向 include 它"（也就是不在任何环里）就可以先归档：
+  它向上那几条边的符号在最终可执行里照样解得开，因为上层此刻还是 OBJECT、.obj 直接进
+  exe；`tb_recording` 就是这样先走了一步，它仍认 core/ui/web/whiteboard。等那些模块也
+  逐个 STATIC 时，再给它们补 `target_link_libraries` 声明，MSVC 的链接器对静态库顺序不
+  敏感（反复扫描直到符号解完），不会变成一门链接参数的玄学。
 
 ## 五、依赖债：现存的双向环
 
@@ -158,8 +165,7 @@ include。
 | `ui` ↔ `whiteboard` | 43 / 50 | 调色板与画板互相认 |
 | `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 | `core` ↔ `web` | 2 / 19 | `core/Application.cpp` 认 WebController |
-| `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
-| `core` ↔ `recording` | 1 / 5 | ApplicationController/PreferencesController 认 RecordingController |
+| `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette/DesktopAnnotationController |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -237,8 +243,8 @@ include。
 
 ### 拆环顺序（从叶子往根拆）
 
-按下面这个顺序拆，每一步都能把某个模块的出边降到“只指向更低的层”，然后就该模块
-从 `OBJECT` 改成 `STATIC`。
+按下面这个顺序拆，每一步都能把某个模块的出边降到“只指向更低的层”（或者至少让没有
+任何模块反向依赖它），然后就该模块从 `OBJECT` 改成 `STATIC`。
 
 1. ~~**`utils/`**~~（已完成：出边为零，已收紧成 STATIC）
 2. ~~**`settings/`**~~（已完成：资源目录下沉到 `utils/FileSystemUtils`，登录名由
@@ -266,7 +272,11 @@ include。
    `ui/DocumentNavigator` 的两条死 include 删除。`content` 剩下的脏边都在
    `content` ↔ `core`（44/15）与 `content` ↔ `model`（22/5）这两组上）
 7. ~~**`desktop/` + `recording/` + `web/`**~~（已完成：画板侧对这三者的直接调用全部换成
-   装配层的转发——录制按钮、批注宿主、`openInternetUrl`，见上一节）
+   装配层的转发——录制按钮、批注宿主、`openInternetUrl`，见上一节）。2026-10-21 又补一刀：
+   `core` 对 `recording` 的最后一条边（`ApplicationController::toggleRecordingPalette` 里那句
+   `RecordingController::instance()`）改成装配点装上的 `installRecordingToggle` 钩子，于是没有任何
+   模块反向 include recording，`tb_recording` 收紧成 STATIC、`core` ↔ `recording` 那组环消失（双向环
+   8 → 7）。剩下 `core` → `desktop`(2) 与 `core` → `web`(2) 是同一条路，拆完这两个模块也能跟进 STATIC。
 8. **`ui/` ↔ `whiteboard/`（最大的一组，40/48）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
 9. **`core/`**（进行中）：偏好设置对话框（`PreferencesDialog` + `PreferencesController` +
@@ -318,11 +328,11 @@ include。
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
-app         -> api:1, content:4, core:15, model:6, platform:1, settings:6, ui:7, utils:5,
-               web:1, whiteboard:19
+app         -> api:1, content:4, core:16, model:6, platform:1, recording:1, settings:6, ui:7,
+               utils:5, web:1, whiteboard:19
 content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:16, desktop:2, model:6, platform:6, recording:1, settings:14, ui:7,
-               utils:6, web:2, whiteboard:30
+core        -> content:16, desktop:2, model:6, platform:6, settings:14, ui:7, utils:6,
+               web:2, whiteboard:30
 desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
 model       -> core:9, settings:4, utils:4
 platform    -> utils:1

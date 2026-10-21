@@ -20,9 +20,11 @@
 #include "api/WebWidgetBoardAPI.h"
 #include "app/SelfTests.h"
 #include "core/Application.h"
+#include "core/ApplicationController.h"
 #include "core/PersistenceManager.h"
 #include "content/DocumentFormatServices.h"
 #include "model/IDocumentFormatServices.h"
+#include "recording/RecordingController.h"
 #include "settings/Settings.h"
 #include "whiteboard/IBoardDropHandler.h"
 
@@ -101,6 +103,14 @@ int main(int argc, char *argv[])
 
     // 服务层要问用户拿站点凭据，但它不认识对话框：装配点把 ProxyDialog 接上去。
     NetworkAccessManager::installCredentialPrompt(&ProxyDialog::prompt);
+
+    // 录制按钮的转发同理：总控器只说"用户要显隐录屏调色板"，具体找谁由这里决定。
+    // instance() 是懒建的，所以第一次按下才创建录制控制器这件事留在实现里。
+    ApplicationController::installRecordingToggle(
+        [](bool visible)
+        {
+            RecordingController::instance()->toggleRecordingPalette(visible);
+        });
 
     // 同一套路：文档名撞车时 PersistenceManager 只问“这份要不要登记、叫什么名字”，
     // 弹窗问用户的是界面。没装这个钩子时撞名一律不登记，调用方照样回收刚导入的那一份。

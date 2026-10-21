@@ -32,9 +32,13 @@
 
 #include "whiteboard/GraphicsPixmapItem.h"
 
-#include "recording/RecordingController.h"
-
 #include "core/NetworkAccessManager.h"
+
+namespace
+{
+    /// 录制显隐的转发实现；由装配点装上 recording 里的懒建入口。
+    ApplicationController::RecordingToggle gRecordingToggle;
+} // namespace
 
 ApplicationController::ApplicationController(
     BoardView *pControlView, BoardView *pDisplayView, MainWindow *pMainWindow, QObject *parent, RightPalette *rightPalette)
@@ -453,11 +457,22 @@ void ApplicationController::hideDesktop()
 }
 
 // 白板工具栏上的"录制"按钮过去由 BoardPaletteManager 代为转发，画板模块因此得
-// include RecordingController。转发挪到装配层（这里本来就认识各控制器），
-// 并且仍然只在第一次按下时才创建录制控制器——instance() 是懒建的。
+// include RecordingController；转发先挪到这里。这里也不再认识 recording：显隐动作
+// 改走装配点装上的钩子（app/main.cpp），并且仍然只在第一次按下时才创建录制控制器
+// ——instance() 是懒建的，创建发生在钩子里。
+void ApplicationController::installRecordingToggle(RecordingToggle toggle)
+{
+    gRecordingToggle = std::move(toggle);
+}
+
 void ApplicationController::toggleRecordingPalette(bool visible)
 {
-    RecordingController::instance()->toggleRecordingPalette(visible);
+    if (!gRecordingToggle)
+    {
+        qWarning() << "ApplicationController: 未装上录制显隐钩子，按钮点了没反应";
+        return;
+    }
+    gRecordingToggle(visible);
 }
 
 QWidget *ApplicationController::desktopDrawingHost()
