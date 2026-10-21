@@ -14,7 +14,6 @@
 
 #include "model/DocumentContainer.h"
 #include "core/ApplicationController.h"
-#include "core/Application.h"
 #include "model/SortFilterProxyModel.h"
 #include "model/DocumentTreeModel.h"
 

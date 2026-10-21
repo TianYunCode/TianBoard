@@ -1,4 +1,3 @@
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 
 #include "ui/RightPalette.h"

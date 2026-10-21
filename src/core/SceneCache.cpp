@@ -3,7 +3,6 @@
 #include "whiteboard/GraphicsScene.h"
 
 #include "core/PersistenceManager.h"
-#include "core/Application.h"
 #include "settings/Settings.h"
 
 #include "model/DocumentProxy.h"

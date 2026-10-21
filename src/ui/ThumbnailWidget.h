@@ -11,7 +11,6 @@
 #include <QElapsedTimer>
 #include <QGraphicsSceneHoverEvent>
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/CoreGraphicsScene.h"
 #include "settings/Settings.h"

@@ -4,7 +4,6 @@
 
 #include "whiteboard/BoardController.h"
 
-#include "core/Application.h"
 #include "core/PersistenceManager.h"
 #include "core/DocumentManager.h"
 

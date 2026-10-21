@@ -14,7 +14,6 @@
 #include <QtMultimediaWidgets/QVideoWidget>
 #include <QtMultimedia/QVideoFrame>
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "utils/FileSystemUtils.h"
 

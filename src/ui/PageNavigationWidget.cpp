@@ -1,5 +1,4 @@
 #include "ui/PageNavigationWidget.h"
-#include "core/Application.h"
 
 #include "whiteboard/BoardController.h"
 #include "utils/Globals.h"

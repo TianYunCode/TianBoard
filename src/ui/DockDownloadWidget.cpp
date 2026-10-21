@@ -1,5 +1,4 @@
 #include "ui/DockDownloadWidget.h"
-#include "core/Application.h"
 
 #include "utils/Globals.h"
 

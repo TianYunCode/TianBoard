@@ -4,7 +4,6 @@
 
 #include "ui/MainWindow.h"
 #include "ui/DownloadWidget.h"
-#include "core/Application.h"
 #include "core/LanguageManager.h"
 #include "core/ShortcutManager.h"
 
