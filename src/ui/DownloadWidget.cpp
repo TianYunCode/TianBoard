@@ -48,6 +48,8 @@ DownloadWidget::DownloadWidget(QWidget *parent, const char *name) : QWidget(pare
     d->mpLayout->addLayout(d->mpBttnLayout);
 
     connect(DownloadManager::downloadManager(), &DownloadManager::fileAddedToDownload, this, &DownloadWidget::onFileAddedToDownload);
+    connect(DownloadManager::downloadManager(), &DownloadManager::fileAddedToDownload, this, &DownloadWidget::syncModalVisibility);
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadModalFinished, this, &DownloadWidget::syncModalVisibility);
     connect(DownloadManager::downloadManager(), &DownloadManager::downloadUpdated, this, &DownloadWidget::onDownloadUpdated);
     connect(DownloadManager::downloadManager(), qOverload<int>(&DownloadManager::downloadFinished), this, &DownloadWidget::onDownloadFinished);
     connect(d->mpCancelBttn, &QPushButton::clicked, this, &DownloadWidget::onCancelClicked);
@@ -75,6 +77,18 @@ DownloadWidget::~DownloadWidget()
     {
         delete d->mpLayout;
         d->mpLayout = NULL;
+    }
+}
+
+void DownloadWidget::syncModalVisibility()
+{
+    if (DownloadManager::downloadManager()->hasModalDownload())
+    {
+        show();
+    }
+    else
+    {
+        hide();
     }
 }
 

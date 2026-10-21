@@ -153,7 +153,7 @@ include。
 | 环 | 边数 | 典型出处 |
 |---|---|---|
 | `core` ↔ `whiteboard` | 46 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 17 / 54 | 五个服务伸手拿界面：`DocumentManager`、`PersistenceManager`（认 DocumentController/MainWindow）、`DisplayManager`（BlackoutWidget）、`DownloadManager`（MainWindow）、`NetworkAccessManager`（ProxyDialog），加上 `Application` 自己；`ui/*.cpp` 反过来认 Application |
+| `core` ↔ `ui` | 13 / 54 | 五个服务伸手拿界面：`DocumentManager`、`PersistenceManager`（认 DocumentController/MainWindow）、`DisplayManager`（BlackoutWidget）、`DownloadManager`（MainWindow）、`NetworkAccessManager`（ProxyDialog），加上 `Application` 自己；`ui/*.cpp` 反过来认 Application |
 | `content` ↔ `core` | 44 / 19 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 43 / 50 | 调色板与画板互相认 |
 | `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
@@ -277,7 +277,12 @@ include。
    因此归零，否则会新造两组环）。
    **剩下 8 组环里 7 组都过 `core`**，主体是 `Application`/`ApplicationController` 这两个装配
    角色，另有上面点名的五处"服务伸手拿界面"。收尾手法与前几刀同一路：服务只发信号或只收
-   `QWidget*`（`Application::dialogHost()` 已是这个形状），装配动作留在装配层。四个
+   `QWidget*`（`Application::dialogHost()` 已是这个形状），装配动作留在装配层。已按这条路
+   拆掉两处服务漏点：`NetworkAccessManager` 不再 include `ui/ProxyDialog.h`——站点要凭据时
+   改问装配期装上的钩子 `installCredentialPrompt`（实现是 `ProxyDialog::prompt`，接在
+   `app/main.cpp`）；`DownloadManager` 不再命令主窗口显示/隐藏下载窗口，只广播事实
+   （`hasModalDownload()` + 原有 `downloadModalFinished`），`ui/DownloadWidget` 自己决定可见性，
+   `MainWindow` 那两个各只有一次调用者的转发函数删掉，顺手补上那个无父顶层窗体的释放。四个
    `*SelfTest` 与它们的分发表也已搬去 `app/`（2026-10-21，同一轮）：core 只剩一个通用钩子
    `Application::setSelfTestRun(延时, 入口)`，`app/SelfTests.cpp` 按命令行决定跑哪个、已有实例
    在跑就退 75。搬完 core 对 whiteboard 从 46 降到 30、对 content 19→16、对 ui 17→15。
@@ -294,7 +299,7 @@ api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, content:4, core:10, model:4, platform:1, settings:5, ui:2, utils:4,
                web:1, whiteboard:17
 content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:16, desktop:2, model:5, platform:6, recording:1, settings:14, ui:15,
+core        -> content:16, desktop:2, model:5, platform:6, recording:1, settings:14, ui:13,
                utils:6, web:2, whiteboard:30
 desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
 model       -> core:9, settings:4, utils:4

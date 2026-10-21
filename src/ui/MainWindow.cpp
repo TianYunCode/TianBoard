@@ -1163,7 +1163,13 @@ void MainWindow::registerShortcuts()
                                                                  });
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    // 下载窗口是无父的顶层窗体（要独立于主窗口显示并把整应用设成模态），
+    // 因此不会随主窗口的控件树回收，必须在这里显式释放。
+    delete d->downloadWidget;
+    d->downloadWidget = nullptr;
+}
 
 MainWindowUi &MainWindow::ui()
 {
@@ -1288,14 +1294,4 @@ void MainWindow::warning(QString windowTitle, QString text)
 void MainWindow::information(QString windowTitle, QString text)
 {
     oneButtonMessageBox(windowTitle, text, QMessageBox::Information);
-}
-
-void MainWindow::showDownloadWidget()
-{
-    d->downloadWidget->show();
-}
-
-void MainWindow::hideDownloadWidget()
-{
-    d->downloadWidget->hide();
 }

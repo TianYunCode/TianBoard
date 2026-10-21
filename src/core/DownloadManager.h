@@ -175,6 +175,12 @@ public:
     /// 取消指定任务。
     void cancelDownload(int id);
 
+    /**
+     * @brief 是否还有带模态标记的下载任务（正在下与排队中的都算）。
+     * @note 界面用这个决定下载窗口显示还是隐藏：服务层只报事实，不命令界面。
+     */
+    bool hasModalDownload() const;
+
     /// 销毁单例并置空指针。
     static void destroy();
 

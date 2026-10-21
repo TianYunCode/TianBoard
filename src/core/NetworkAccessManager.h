@@ -7,6 +7,8 @@
 
 #include <QtNetwork>
 
+#include <functional>
+
 /**
  * @brief 全局 QNetworkAccessManager：配置磁盘缓存与代理，并处理需要凭据的认证请求。
  *
@@ -21,6 +23,18 @@ class NetworkAccessManager : public QNetworkAccessManager
 public:
     /// 返回进程内唯一实例，首次调用时创建。
     static NetworkAccessManager *defaultAccessManager();
+
+    /**
+     * @brief 向用户征询站点凭据的钩子签名：填好 user/password 并回答是否记住。
+     * @return 用户确认返回 true；取消返回 false（这一次认证就放弃）。
+     */
+    using CredentialPrompt = std::function<bool(QWidget *parent, const QUrl &url, QString &user, QString &password, bool &remember)>;
+
+    /**
+     * @brief 装上凭据征询钩子，实现是 ui/ProxyDialog::prompt()，由装配点装入（app/main.cpp）。
+     * @note 服务层不认识对话框：没装上时收到认证请求只会告警一句并放弃，不会崩。
+     */
+    static void installCredentialPrompt(CredentialPrompt prompt);
 
     /// 构造管理器，加载代理设置并建立磁盘缓存。
     NetworkAccessManager(QObject *parent = 0);

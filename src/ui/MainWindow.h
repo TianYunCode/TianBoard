@@ -60,12 +60,6 @@ public:
     void warning(QString windowTitle, QString text);
     /// 弹出一个只有“确定”按钮的信息框。
     void information(QString windowTitle, QString text);
-
-    /// 显示下载进度窗口（应用级模态）。
-    void showDownloadWidget();
-    /// 隐藏下载进度窗口。
-    void hideDownloadWidget();
-
 signals:
     /// 收到关闭请求时发出，由控制器决定后续动作；窗口自身保持打开。
     void closeEvent_Signal(QCloseEvent *event);

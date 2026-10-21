@@ -4,12 +4,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../src/core/Application.cpp" line="470"/>
+        <location filename="../../src/core/Application.cpp" line="452"/>
         <source>Page Size</source>
         <translation>页面尺寸</translation>
     </message>
     <message>
-        <location filename="../../src/core/Application.cpp" line="486"/>
+        <location filename="../../src/core/Application.cpp" line="468"/>
         <source>Screen Recording</source>
         <translation>录屏</translation>
     </message>
@@ -194,38 +194,38 @@
 <context>
     <name>DocumentController</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1804"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3526"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="556"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2276"/>
         <source>Trash</source>
         <translation>回收站</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1804"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="556"/>
         <source>Untitled Documents</source>
         <translation>未命名文档</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1878"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="630"/>
         <source>New Folder</source>
         <translation>新建文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2061"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="813"/>
         <source>Add Folder of Images</source>
         <translation>添加图片文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2062"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="814"/>
         <source>Add Images</source>
         <translation>添加图片</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2063"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="815"/>
         <source>Add Pages from File</source>
         <translation>从文件添加页面</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="2390"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1141"/>
         <source>duplicated %1 page</source>
         <comment>duplicated %1 pages</comment>
         <translation>
@@ -233,96 +233,96 @@
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2403"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1154"/>
         <source>Duplicating Document %1</source>
         <translation>正在复制文档 %1</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2407"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1158"/>
         <source>Document %1 copied</source>
         <translation>文档 %1 已复制</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2417"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1168"/>
         <source>Remove Item</source>
         <translation>删除条目</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2417"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1168"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation>确定要删除所选的条目吗？</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2944"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3050"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1694"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1800"/>
         <source>Open Supported File</source>
         <translation>打开支持的文件</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2975"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3065"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1725"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1815"/>
         <source>Importing file %1...</source>
         <translation>正在导入文件 %1……</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="2985"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3078"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1735"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1828"/>
         <source>Failed to import file ... </source>
         <translation>导入文件失败…… </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3001"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1751"/>
         <source>Import all Images from Folder</source>
         <translation>导入文件夹内的全部图片</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3015"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="1765"/>
         <source>Folder does not contain any image files</source>
         <translation>该文件夹里没有任何图片文件</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3264"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2014"/>
         <source>Open Document</source>
         <translation>打开文档</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3264"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2014"/>
         <source>The document &apos;%1&apos; has been generated with a newer version of TianBoard (%2). By opening it, you may lose some information. Do you want to proceed?</source>
         <translation>文档「%1」是用更新版本的 TianBoard（%2）生成的，打开它可能丢失部分内容。确定要继续吗？</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3317"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2067"/>
         <source>Add all Images to Document</source>
         <translation>把全部图片加入文档</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3317"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2067"/>
         <source>All Images (%1)</source>
         <translation>全部图片 (%1)</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3329"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2079"/>
         <source>Selection does not contain any image files!</source>
         <translation>所选内容里没有任何图片文件！</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3530"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2280"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3534"/>
-        <location filename="../../src/model/DocumentController.cpp" line="3538"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2284"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2288"/>
         <source>Empty</source>
         <translation>空</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3785"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2522"/>
         <source>Page %1</source>
         <translation>第 %1 页</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="3789"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="2526"/>
         <source>Title page</source>
         <translation>封面页</translation>
     </message>
@@ -372,22 +372,22 @@
 <context>
     <name>DocumentReplaceDialog</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="72"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="36"/>
         <source>Accept</source>
         <translation>接受</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="72"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="36"/>
         <source>Replace</source>
         <translation>替换</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="73"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="37"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="130"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="94"/>
         <source>The name %1 is allready used.
 Keeping this name will replace the document.
 Providing a new name will create a new document.</source>
@@ -399,17 +399,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeModel</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="323"/>
+        <location filename="../../src/model/DocumentTreeModel.cpp" line="206"/>
         <source>My documents</source>
         <translation>我的文档</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="325"/>
+        <location filename="../../src/model/DocumentTreeModel.cpp" line="208"/>
         <source>Trash</source>
         <translation>回收站</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="718"/>
+        <location filename="../../src/model/DocumentTreeModel.cpp" line="601"/>
         <source>%1 pages copied</source>
         <translation>
             <numerusform>已复制 %1 页</numerusform>
@@ -419,24 +419,24 @@ Providing a new name will create a new document.</source>
 <context>
     <name>DocumentTreeView</name>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1566"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="318"/>
         <source>Copying page %1/%2</source>
         <translation>正在复制第 %1/%2 页</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../src/model/DocumentController.cpp" line="1617"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="369"/>
         <source>%1 pages copied</source>
         <translation>
             <numerusform>已复制 %1 页</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1627"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="379"/>
         <source>Remove Item</source>
         <translation>删除条目</translation>
     </message>
     <message>
-        <location filename="../../src/model/DocumentController.cpp" line="1627"/>
+        <location filename="../../src/ui/DocumentController.cpp" line="379"/>
         <source>Are you sure you want to remove the selected item(s) ?</source>
         <translation>确定要删除所选的条目吗？</translation>
     </message>
@@ -622,17 +622,17 @@ Providing a new name will create a new document.</source>
         <translation>页</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="29"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="31"/>
         <source>Export as TianBoard Document</source>
         <translation>导出为 TianBoard 文档</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="65"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="67"/>
         <source>Exporting %1 %2 of %3</source>
         <translation>正在导出%1第 %2 页，共 %3 页</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportDocument.cpp" line="76"/>
+        <location filename="../../src/content/ExportDocument.cpp" line="78"/>
         <source>Export to TianBoard Format</source>
         <translation>导出为 TianBoard 格式</translation>
     </message>
@@ -675,12 +675,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportFullPDF</name>
     <message>
-        <location filename="../../src/content/ExportFullPDF.cpp" line="51"/>
+        <location filename="../../src/content/ExportFullPDF.cpp" line="53"/>
         <source>Export as PDF File</source>
         <translation>导出为 PDF 文件</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportFullPDF.cpp" line="111"/>
+        <location filename="../../src/content/ExportFullPDF.cpp" line="113"/>
         <source>Export to PDF</source>
         <translation>导出到 PDF</translation>
     </message>
@@ -693,22 +693,22 @@ Providing a new name will create a new document.</source>
         <translation>导出为 IWB</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="37"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="39"/>
         <source>Export as IWB File</source>
         <translation>导出为 IWB 文件</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="45"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="47"/>
         <source>Exporting document...</source>
         <translation>正在导出文档……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="53"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="55"/>
         <source>Export successful.</source>
         <translation>导出成功。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportIwb.cpp" line="58"/>
+        <location filename="../../src/content/ExportIwb.cpp" line="60"/>
         <source>Export failed.</source>
         <translation>导出失败。</translation>
     </message>
@@ -716,17 +716,17 @@ Providing a new name will create a new document.</source>
 <context>
     <name>ExportPDF</name>
     <message>
-        <location filename="../../src/content/ExportPDF.cpp" line="34"/>
+        <location filename="../../src/content/ExportPDF.cpp" line="36"/>
         <source>Export as PDF File</source>
         <translation>导出为 PDF 文件</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportPDF.cpp" line="72"/>
+        <location filename="../../src/content/ExportPDF.cpp" line="74"/>
         <source>Exporting page %1 of %2</source>
         <translation>正在导出第 %1 页，共 %2 页</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportPDF.cpp" line="128"/>
+        <location filename="../../src/content/ExportPDF.cpp" line="130"/>
         <source>Export to PDF</source>
         <translation>导出到 PDF</translation>
     </message>
@@ -739,27 +739,27 @@ Providing a new name will create a new document.</source>
         <translation>页</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="34"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="36"/>
         <source>Export as Web data</source>
         <translation>导出为网页数据</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="39"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="41"/>
         <source>Exporting document...</source>
         <translation>正在导出文档……</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="48"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="50"/>
         <source>Export successful.</source>
         <translation>导出完成。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="54"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="56"/>
         <source>Export failed.</source>
         <translation>导出失败。</translation>
     </message>
     <message>
-        <location filename="../../src/content/ExportWeb.cpp" line="63"/>
+        <location filename="../../src/content/ExportWeb.cpp" line="65"/>
         <source>Export to Web Browser</source>
         <translation>导出到网页浏览器</translation>
     </message>
@@ -1906,17 +1906,12 @@ Providing a new name will create a new document.</source>
 <context>
     <name>NetworkAccessManager</name>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="87"/>
-        <source>&lt;qt&gt;Enter username and password for &quot;%1&quot; at %2&lt;/qt&gt;</source>
-        <translation>&lt;qt&gt;请输入 %2 上「%1」的用户名和密码&lt;/qt&gt;</translation>
-    </message>
-    <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="128"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="137"/>
         <source>Failed to log to Proxy</source>
         <translation>登录代理失败</translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="155"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="164"/>
         <source>SSL Errors:
 
 %1
@@ -1933,12 +1928,12 @@ Do you want to ignore these errors for this host?</source>
 要忽略这台主机的这些错误吗？</translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="159"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="168"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../../src/core/NetworkAccessManager.cpp" line="160"/>
+        <location filename="../../src/core/NetworkAccessManager.cpp" line="169"/>
         <source>No</source>
         <translation>否</translation>
     </message>
@@ -1972,7 +1967,7 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PreferencesController</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1441"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1436"/>
         <source>Marker is pressure sensitive</source>
         <translation>荧光笔启用压感</translation>
     </message>
@@ -1980,263 +1975,263 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1136"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1134"/>
         <source>Preferences</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1137"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1135"/>
         <source>Default Settings</source>
         <translation>恢复默认设置</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1138"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1136"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1139"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1137"/>
         <source>version: %1</source>
         <translation>版本：%1</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1142"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1140"/>
         <source>TianBoard is copyright © %1. All rights reserved.</source>
         <translation>TianBoard 版权所有 © %1。</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1143"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1141"/>
         <source>Multi display</source>
         <translation>多显示器</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1144"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1142"/>
         <source>Swap control display and view display</source>
         <translation>交换控制屏与显示屏</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1145"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1143"/>
         <source>Show internal web page content on secondary screen or projector</source>
         <translation>在副屏或投影仪上显示内置网页内容</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1146"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1144"/>
         <source>Swap first and second view displays</source>
         <translation>交换第一与第二显示屏</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1147"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1145"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1148"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1146"/>
         <source>Mode to start in:</source>
         <translation>启动模式：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1149"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1147"/>
         <source>Board</source>
         <translation>演示板</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1150"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1148"/>
         <source>Desktop</source>
         <translation>桌面</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1152"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1150"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1154"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1152"/>
         <source>Stylus Palette</source>
         <translation>触控笔调色板</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1155"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1153"/>
         <source>Horizontal</source>
         <translation>水平</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1156"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1154"/>
         <source>Vertical</source>
         <translation>垂直</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1157"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1155"/>
         <source>Virtual Keyboard</source>
         <translation>虚拟键盘</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1158"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1156"/>
         <source>Built-in virtual keyboard button size:</source>
         <translation>内置虚拟键盘按钮尺寸：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1159"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1157"/>
         <source>Use system keyboard (recommended)</source>
         <translation>使用系统键盘（推荐）</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1160"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1158"/>
         <source>Toolbar</source>
         <translation>工具栏</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1161"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1159"/>
         <source>Positioned at the Top (recommended for tablets)</source>
         <translation>置于顶部（适合数位板，推荐）</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1162"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1160"/>
         <source>Positioned at the Bottom (recommended for white boards)</source>
         <translation>置于底部（适合电子白板，推荐）</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1163"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1161"/>
         <source>Display Text Under Button</source>
         <translation>在按钮下方显示文字</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1164"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1162"/>
         <source>Documents Mode</source>
         <translation>文档模式</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1165"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1163"/>
         <source>Display date column on alphabetical sort</source>
         <translation>按名称排序时显示日期列</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1166"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1164"/>
         <source>Empty trash for documents older than</source>
         <translation>清空回收站中早于</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1167"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1165"/>
         <source>days</source>
         <translation>天</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1168"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1166"/>
         <source>Display</source>
         <translation>显示</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1169"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1167"/>
         <source>On Light Background</source>
         <translation>浅色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1170"/>
-        <location filename="../../src/core/PreferencesController.cpp" line="1172"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1168"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1170"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1171"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1169"/>
         <source>On Dark Background</source>
         <translation>深色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1173"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1171"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1174"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1172"/>
         <source>Pen</source>
         <translation>钢笔</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1175"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1173"/>
         <source>Marker</source>
         <translation>记号笔</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1176"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1174"/>
         <source>Internet</source>
         <translation>互联网</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1177"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1175"/>
         <source>Show Page with External Browser</source>
         <translation>用外部浏览器打开页面</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1178"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1176"/>
         <source>Home Page:</source>
         <translation>主页：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1179"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1177"/>
         <source>Proxy User:</source>
         <translation>代理用户：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1180"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1178"/>
         <source>Pass:</source>
         <translation>密码：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1181"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1179"/>
         <source>Network</source>
         <translation>网络</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1182"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1180"/>
         <source>Cookies</source>
         <translation>Cookie 隐私</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1183"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1181"/>
         <source>Cookie policy:</source>
         <translation>Cookie 策略：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1184"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1182"/>
         <source>Accept all cookies</source>
         <translation>接受所有 Cookie</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1185"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1183"/>
         <source>Block third-party cookies</source>
         <translation>阻止第三方 Cookie</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1186"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1184"/>
         <source>Block all cookies</source>
         <translation>阻止所有 Cookie</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1187"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1185"/>
         <source>Delete cookies when TianBoard closes</source>
         <translation>退出 TianBoard 时清除 Cookie</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1188"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1186"/>
         <source>Keep cookies for these domains:</source>
         <translation>以下域名保留 Cookie：</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1189"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1187"/>
         <source>For example: .example.org, login.example.com</source>
         <translation>例如：.example.org、login.example.com</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1190"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1188"/>
         <source>Shortcuts</source>
         <translation>快捷键</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1191"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1189"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="1536"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="1534"/>
         <source>%1 cookie(s) will be deleted on exit.</source>
         <translation>退出时将清除 %1 个 Cookie。</translation>
     </message>
@@ -2262,6 +2257,11 @@ Do you want to ignore these errors for this host?</source>
         <location filename="../../src/ui/ProxyDialog.cpp" line="67"/>
         <source>Save username and password for future use</source>
         <translation>保存用户名和密码供以后使用</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/ProxyDialog.cpp" line="116"/>
+        <source>&lt;qt&gt;Enter username and password for &quot;%1&quot; at %2&lt;/qt&gt;</source>
+        <translation>&lt;qt&gt;请输入 %2 上「%1」的用户名和密码&lt;/qt&gt;</translation>
     </message>
 </context>
 <context>
@@ -2664,52 +2664,52 @@ Do you want to ignore these errors for this host?</source>
 <context>
     <name>brushProperties</name>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="357"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="355"/>
         <source>Pen is Pressure Sensitive</source>
         <translation>钢笔启用压感</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="358"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="356"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="359"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="357"/>
         <source>On Light Background</source>
         <translation>浅色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="360"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="358"/>
         <source>On Dark Background</source>
         <translation>深色背景上</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="361"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="359"/>
         <source>Line Width</source>
         <translation>线宽</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="362"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="360"/>
         <source>Medium</source>
         <translation>中</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="363"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="361"/>
         <source>Strong</source>
         <translation>粗</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="364"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="362"/>
         <source>Fine</source>
         <translation>细</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="365"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="363"/>
         <source>Show preview circle from</source>
         <translation>预览圆起始直径</translation>
     </message>
     <message>
-        <location filename="../../src/core/PreferencesController.cpp" line="366"/>
+        <location filename="../../src/ui/PreferencesController.cpp" line="364"/>
         <source>px</source>
         <translation>像素</translation>
     </message>

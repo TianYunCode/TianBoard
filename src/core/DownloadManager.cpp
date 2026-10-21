@@ -1,7 +1,6 @@
 #include "core/DownloadManager.h"
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
-#include "ui/MainWindow.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardPaletteManager.h"
 #include "model/DocumentProxy.h"
@@ -140,9 +139,8 @@ int DownloadManager::addFileToDownload(sDownloadFileDesc desc)
 
     if (desc.modal)
     {
-        // 模态任务要排在队首，并立即显示下载窗口。
+        // 模态任务排在队首；下载窗口自己从 fileAddedToDownload 之后查有没有模态任务决定显示。
         updateDownloadOrder();
-        Application::mainWindow->showDownloadWidget();
     }
     Application::boardController->paletteManager()->startDownloads();
 
@@ -370,35 +368,32 @@ void DownloadManager::releaseDownload(int id)
     }
 }
 
+bool DownloadManager::hasModalDownload() const
+{
+    for (const sDownloadFileDesc &desc : mCrntDL)
+    {
+        if (desc.modal)
+        {
+            return true;
+        }
+    }
+
+    for (const sDownloadFileDesc &desc : mPendingDL)
+    {
+        if (desc.modal)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void DownloadManager::checkIfModalRemains()
 {
-    bool bModal = false;
-    for (int i = 0; i < mCrntDL.size(); i++)
+    if (!hasModalDownload())
     {
-        if (mCrntDL.at(i).modal)
-        {
-            bModal = true;
-            break;
-        }
-    }
-
-    if (!bModal)
-    {
-        for (int j = 0; j < mPendingDL.size(); j++)
-        {
-            if (mPendingDL.at(j).modal)
-            {
-                bModal = true;
-                break;
-            }
-        }
-    }
-
-    if (!bModal)
-    {
-        // 没有模态任务了，关闭下载窗口并通知界面。
-        Application::mainWindow->hideDownloadWidget();
-
+        // 只剩事实要广播：下载窗口连着这个信号自己隐藏（见 ui/DownloadWidget）。
         emit downloadModalFinished();
     }
 }

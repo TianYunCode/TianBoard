@@ -12,8 +12,6 @@
 #include "platform/CredentialStore.h"
 #include "settings/Settings.h"
 
-#include "ui/ProxyDialog.h"
-
 NetworkAccessManager *NetworkAccessManager::sNetworkAccessManager = 0;
 
 NetworkAccessManager *NetworkAccessManager::defaultAccessManager()
@@ -77,35 +75,44 @@ QNetworkReply *NetworkAccessManager::get(const QNetworkRequest &request)
     return networkReply;
 }
 
+namespace
+{
+    NetworkAccessManager::CredentialPrompt gCredentialPrompt;
+} // namespace
+
+void NetworkAccessManager::installCredentialPrompt(CredentialPrompt prompt)
+{
+    gCredentialPrompt = std::move(prompt);
+}
+
 void NetworkAccessManager::authenticationRequired(QNetworkReply *reply, QAuthenticator *auth)
 {
-    QWidget *mainWindow = QApplication::activeWindow();
-
-    ProxyDialog dialog(mainWindow);
-    dialog.setWindowFlags(Qt::Sheet);
-
-    QString introMessage = tr("<qt>Enter username and password for \"%1\" at %2</qt>");
-    introMessage         = introMessage.arg((reply->url().toString()).toHtmlEscaped()).arg((reply->url().toString()).toHtmlEscaped());
-    dialog.setIntroText(introMessage);
-
-    // 用偏好设置里保存下来的凭据预填对话框；proxyAuthenticationRequired() 静默用的
-    // 也是同一对用户名/密码。
-    const ProxyCredentials stored = CredentialStore::proxyCredentials();
-    dialog.setUserName(stored.userName);
-    dialog.setPassword(stored.password);
-
-    if (dialog.exec() == QDialog::Accepted)
+    if (!gCredentialPrompt)
     {
-        if (auth)
-        {
-            auth->setUser(dialog.userName());
-            auth->setPassword(dialog.password());
-        }
+        qWarning() << "没有装上凭据征询钩子，站点要求的认证只能放弃：" << reply->url();
+        return;
+    }
 
-        if (dialog.shouldSaveCredentials())
-        {
-            CredentialStore::setProxyCredentials(dialog.userName(), dialog.password());
-        }
+    // 用凭据管理器里那对预填：代理是静默用的同一套，用户在这里改了也就一起改。
+    const ProxyCredentials stored   = CredentialStore::proxyCredentials();
+    QString                user     = stored.userName;
+    QString                password = stored.password;
+    bool                   remember = false;
+
+    if (!gCredentialPrompt(QApplication::activeWindow(), reply->url(), user, password, remember))
+    {
+        return;
+    }
+
+    if (auth)
+    {
+        auth->setUser(user);
+        auth->setPassword(password);
+    }
+
+    if (remember)
+    {
+        CredentialStore::setProxyCredentials(user, password);
     }
 }
 

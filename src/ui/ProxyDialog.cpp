@@ -107,3 +107,23 @@ bool ProxyDialog::shouldSaveCredentials() const
 {
     return d->saveCredentials->isChecked();
 }
+bool ProxyDialog::prompt(QWidget *parent, const QUrl &url, QString &user, QString &password, bool &remember)
+{
+    ProxyDialog dialog(parent);
+    dialog.setWindowFlags(Qt::Sheet);
+    // URL 出现两次是原样保留的写法：整串走 <qt>…</qt> 的富文本，两处都是同一句文案。
+    const QString escaped = url.toString().toHtmlEscaped();
+    dialog.setIntroText(tr("<qt>Enter username and password for \"%1\" at %2</qt>").arg(escaped, escaped));
+    dialog.setUserName(user);
+    dialog.setPassword(password);
+
+    if (dialog.exec() != QDialog::Accepted)
+    {
+        return false;
+    }
+
+    user     = dialog.userName();
+    password = dialog.password();
+    remember = dialog.shouldSaveCredentials();
+    return true;
+}

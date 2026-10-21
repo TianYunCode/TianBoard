@@ -67,6 +67,9 @@ public:
 private slots:
     /** @brief 有新下载加入时重建整个列表。 */
     void onFileAddedToDownload();
+
+    /// @brief 有模态任务在跑就显示、没有就隐藏：显示与否由界面自己决定，服务层不命令界面。
+    void syncModalVisibility();
     /**
      * @brief 按文件 id 更新对应进度行的数值。
      * @param id 下载任务 id

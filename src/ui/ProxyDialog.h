@@ -6,6 +6,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QUrl>
 
 #include <memory>
 
@@ -13,9 +14,9 @@
  * @brief 询问网络认证凭据的模态对话框。
  *
  * 界面上是“Connect to Proxy”标题、用户名与密码输入框（密码回显为圆点）、
- * “保存用户名和密码”复选框以及 OK/Cancel 按钮。由 NetworkAccessManager 在
- * 收到 authenticationRequired 时临时创建，exec() 后即销毁；用户在 OK 时
- * 读取输入值决定是否写入凭据存储。
+ * “保存用户名和密码”复选框以及 OK/Cancel 按钮。站点要认证时由
+ * NetworkAccessManager 的征询钩子经 prompt() 临时创建，exec() 后即销毁；
+ * 是否把凭据写进凭据管理器由调用方按 remember 决定（服务层存、界面层收）。
  */
 class ProxyDialog : public QDialog
 {
@@ -39,6 +40,16 @@ public:
     QString password() const;
     /// 返回用户是否勾选了“保存用户名和密码”。
     bool shouldSaveCredentials() const;
+
+    /**
+     * @brief 弹一次凭据框，供 NetworkAccessManager 的征询钩子调用（见 app/main.cpp）。
+     * @param parent 对话框父窗口（当前活动窗口），为空时居中显示。
+     * @param url 要认证的地址，写进说明文字。
+     * @param user password 进来是已存凭据的预填值，出去是用户确认的值。
+     * @param remember 用户是否勾选了“记住”。
+     * @return 用户点了确定返回 true；取消或没有输入返回 false。
+     */
+    static bool prompt(QWidget *parent, const QUrl &url, QString &user, QString &password, bool &remember);
 
 private:
     struct Private;

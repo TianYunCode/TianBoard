@@ -9,6 +9,8 @@
 #include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
 
+#include "core/NetworkAccessManager.h"
+#include "ui/ProxyDialog.h"
 #include "api/WebWidgetBoardAPI.h"
 #include "app/SelfTests.h"
 #include "core/Application.h"
@@ -89,6 +91,9 @@ int main(int argc, char *argv[])
     // 进程级无状态，装配点既不接管也不留悬挂指针。见 docs/architecture.md 拆环第 4 步。
     static DocumentFormatServices documentFormatServices;
     installDocumentFormatServices(&documentFormatServices);
+
+    // 服务层要问用户拿站点凭据，但它不认识对话框：装配点把 ProxyDialog 接上去。
+    NetworkAccessManager::installCredentialPrompt(&ProxyDialog::prompt);
 
     Application app("TianBoard", argc, argv);
     // 自检是装配层的活：分发表在 app/SelfTests.cpp，core 只有一个通用钩子。
