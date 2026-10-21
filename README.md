@@ -130,7 +130,7 @@ src/model        文档域：DocumentProxy、DocumentContainer、DocumentTreeMod
                  SortFilterProxyModel、Resources（工具光标与自定义字体清单）；文档模式的
                  界面装配 DocumentController 在 src/ui
 src/whiteboard   画板：BoardView/BoardController + 图形场景、图形项、绘图工具与
-                 PDF 页图形项/渲染器
+                 PDF 页图形项/渲染器，另有画板自己的两件界面控件 ToolWidget 与 Magnifier
 src/content      文档格式读写与导入导出：.tbz/.tbx、IWB 子集与转换、SVG/RDF 元数据、
                  缩略图数据块、PDF 导入导出、图片导入、Web 导出
 src/api          小部件与文档对外 API 门面（WebWidget*API）

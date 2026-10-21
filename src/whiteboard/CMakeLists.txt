@@ -2,6 +2,8 @@
 # whiteboard — 画板：BoardView/BoardController/DrawingController/
 #              BoardPaletteManager/FeaturesController + 图形场景与全部图形项
 #              （Graphics*Item、Undo 命令）+ 绘图工具（尺规、量角器、窗帘、缓存）。
+#              ToolWidget（浮动网页工具窗）与 Magnifier（放大镜）2026-10-21 从 ui/ 搬来：
+#              它们只认 BoardView/GraphicsScene/GraphicsWidgetItem，而画板本身又要造它们。
 #              原 board/ + domain/ + tools/ 三块合并（它们本就同属画板域，
 #              分开只让 include 前缀显得比实际耦合更干净）；pdf/ 那三个类
 #              （PDFRenderer/QPdfRenderer/PdfPageItem）也从 content/ 搬了进来——
@@ -93,6 +95,8 @@ add_library(tb_whiteboard OBJECT
     GraphicsWidgetItem.h
     GraphicsWidgetItemDelegate.cpp
     GraphicsWidgetItemDelegate.h
+    Magnifier.cpp
+    Magnifier.h
     Item.cpp
     Item.h
     PDFRenderer.cpp
@@ -109,6 +113,8 @@ add_library(tb_whiteboard OBJECT
     SnapIndicator.h
     SelectionFrame.cpp
     SelectionFrame.h
+    ToolWidget.cpp
+    ToolWidget.h
     ToolsManager.cpp
     ToolsManager.h
     UndoCommand.cpp

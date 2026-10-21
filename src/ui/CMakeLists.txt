@@ -1,6 +1,6 @@
 # ======================================================================
 # ui — 界面控件与调色板：MainWindow（+ 手写表单 MainWindowUi.h）、各类
-#      FloatingPalette / DockPalette / ToolWidget / 缩略图视图 / 消息框，
+#      FloatingPalette / DockPalette / 缩略图视图 / 消息框，
 #      以及原先根下 widgets/ 的内容（已并进来）与从 network/ 移来的
 #      ProxyDialog（它是对话框，不是服务）。屏幕键盘 KeyboardPalette* 与框选取图的
 #      CustomCaptureWindow* 也从 src/platform/ 移到了这里——它们是界面，平台层只留
@@ -9,10 +9,13 @@
 #      它建的是界面，model/ 只留纯文档域。
 #      偏好设置那一套（PreferencesDialog + PreferencesController + BrushPropertiesFrame）
 #      同一轮从 core/ 搬进来——一个 QDialog 与它的控制器不该住在服务层。Resources
-#      （工具光标与自定义字体清单）2026-10-21 反向搬去 model/：它自己的注释就写着
+#      ToolWidget（浮动网页工具窗）与 Magnifier（放大镜，原名 Magnifer 与类名不一致，
+#      顺手改齐）2026-10-21 搬去 whiteboard/：它们只认画板的 BoardView/GraphicsScene/
+#      GraphicsWidgetItem，画板反过来又得造它们，夹在两个模块之间只会把两条边都算成环。
+#      Resources（工具光标与自定义字体清单）同一轮反向搬去 model/：它自己的注释就写着
 #      “不参与界面绘制”，而 whiteboard/core/recording 有 13 处 include 走它。
 #
-# 允许依赖：model、utils、platform（都是单向向下）。仍然成环：ui <-> core（54/6）与
+# 允许依赖：model、utils、platform（都是单向向下）。仍然成环：ui <-> core（52/6）与
 # ui <-> whiteboard（39/43）——前者是 ui 里的界面反向认 Application/MainWindow 那套静态
 # 注册表，后者由第 8 步处理。对 model 已是单向：model 不再 include 本模块；
 # 对 content 与 api 零出边——content 那两个是从没被使用的死 include，api 那个是
@@ -68,8 +71,6 @@ add_library(tb_ui OBJECT
     KeyboardPalette.h
     LeftPalette.cpp
     LeftPalette.h
-    Magnifer.cpp
-    Magnifer.h
     MainWindow.cpp
     MainWindow.h
     MainWindowUi.h
@@ -103,8 +104,6 @@ add_library(tb_ui OBJECT
     ThumbnailWidget.h
     ToolbarButtonGroup.cpp
     ToolbarButtonGroup.h
-    ToolWidget.cpp
-    ToolWidget.h
     WebToolsPalette.cpp
     WebToolsPalette.h
     WidgetMirror.cpp

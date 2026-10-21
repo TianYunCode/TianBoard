@@ -1,5 +1,5 @@
 #include <QtWidgets>
-#include "ui/Magnifer.h"
+#include "whiteboard/Magnifier.h"
 
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"

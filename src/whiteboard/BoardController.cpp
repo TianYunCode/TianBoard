@@ -25,9 +25,9 @@
 #include "model/Resources.h"
 #include "ui/ToolbarButtonGroup.h"
 #include "ui/MainWindow.h"
-#include "ui/ToolWidget.h"
+#include "whiteboard/ToolWidget.h"
 #include "ui/KeyboardPalette.h"
-#include "ui/Magnifer.h"
+#include "whiteboard/Magnifier.h"
 #include "ui/DockPaletteWidget.h"
 
 #include "whiteboard/GraphicsPixmapItem.h"

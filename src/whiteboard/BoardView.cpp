@@ -21,7 +21,7 @@
 
 #include "ui/StylusPalette.h"
 #include "ui/RubberBand.h"
-#include "ui/ToolWidget.h"
+#include "whiteboard/ToolWidget.h"
 #include "model/Resources.h"
 #include "whiteboard/SnapIndicator.h"
 #include "ui/MainWindow.h"

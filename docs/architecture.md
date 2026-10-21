@@ -26,7 +26,8 @@ src/
   │                出边只剩 core/settings/utils（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
   │                图形项 + 绘图工具（原 board/ + domain/ + tools/）+ PDF 页图形项与
-  │                渲染器（PDFRenderer/QPdfRenderer/PdfPageItem，从原 pdf/ 搬来）
+  │                渲染器（PDFRenderer/QPdfRenderer/PdfPageItem，从原 pdf/ 搬来）+ ToolWidget 与
+  │                Magnifier（从 ui/ 搬来：它们只认画板的类型，画板又要造它们）
   ├─ content/      文档格式读写与导入导出：.tbz/.tbx 与 IWB 子集（IwbDocumentAdaptor /
   │                IwbSubsetAdaptor / ExportIwb / ImportIwb）、SVG/RDF 元数据、缩略图数据、
   │                PDF 导入导出（原 adaptors/；pdf/ 的图形项三家已归 whiteboard/）
@@ -34,10 +35,11 @@ src/
   ├─ web/          内嵌浏览器与网页控制器（原 web/ + web/browser/）
   ├─ desktop/      屏幕批注（平台无关部分）
   ├─ recording/    录屏：画面与声音采集、录制调色板、Windows Media 编码器（没有任何模块
-│                反向依赖它，真 STATIC）
+  │                反向依赖它，真 STATIC）
   ├─ ui/           全部界面控件与调色板（原 ui/ + widgets/ + network/ProxyDialog，
   │                加上从 platform/ 搬来的 KeyboardPalette* 与 CustomCaptureWindow*，
-  │                以及从 model/ 搬来的 DocumentController——文档模式的界面装配）
+  │                以及从 model/ 搬来的 DocumentController——文档模式的界面装配；Resources
+  │                搬去了 model/，ToolWidget 与 Magnifier 搬去了 whiteboard/）
   ├─ platform/     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
   │                KeyboardSender*、CredentialStore*（出边只有 utils）
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
@@ -161,9 +163,9 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 | 环 | 边数 | 典型出处 |
 |---|---|---|
 | `core` ↔ `whiteboard` | 30 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 6 / 54 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `core` ↔ `ui` | 6 / 52 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
 | `content` ↔ `core` | 44 / 16 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `ui` ↔ `whiteboard` | 39 / 43 | 调色板与画板互相认 |
+| `ui` ↔ `whiteboard` | 36 / 33 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model 之后） |
 | `core` ↔ `model` | 7 / 10 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
@@ -295,7 +297,8 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
    本来就只当窗口用；于是 recording 与 desktop 对 web 也归零，`tb_web` 收紧成 STATIC，双向环
    6 → 5。`--ui-smoke` 走网页模式、`--cookie-selftest` 直接量 `cookiesMarkedForDeletion()`，
    两条都覆盖这套装配；把 install 调用注释掉，应用构造期 qFatal、冒烟用例 exit 3 立刻判红。
-8. **`ui/` ↔ `whiteboard/`（最大的一组，39/43；`Resources` 搬去 `model/` 之后从 43/50 降到这里）**：拆成“画板拥有视图，调色板经
+8. **`ui/` ↔ `whiteboard/`（最大的一组，36/33：`Resources` 搬去 `model/`、`ToolWidget` 与 `Magnifier` 搬去
+   `whiteboard/` 之后从 43/50 一路降下来）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
 9. **`core/`**（进行中）：偏好设置对话框（`PreferencesDialog` + `PreferencesController` +
    `BrushPropertiesFrame`）已搬去 `ui/`——一个 QDialog 不该住在服务层。搬的时候顺手收掉两条
@@ -355,10 +358,10 @@ model       -> core:10, settings:5, utils:5
 platform    -> utils:1
 recording   -> core:6, model:1, platform:1, settings:3, ui:3, utils:3, whiteboard:4
 settings    -> utils:3
-ui          -> core:54, model:11, platform:11, settings:19, utils:11, whiteboard:39
+ui          -> core:52, model:11, platform:10, settings:18, utils:10, whiteboard:36
 utils       -> （无出边）
 web         -> core:20, platform:1, settings:5, ui:5, utils:3, whiteboard:5
-whiteboard  -> core:67, model:18, platform:5, settings:20, ui:39, utils:47
+whiteboard  -> core:69, model:18, platform:6, settings:21, ui:33, utils:48
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

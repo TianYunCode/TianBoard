@@ -12,7 +12,7 @@
 #include "ui/MainWindow.h"
 #include "ui/StylusPalette.h"
 #include "ui/KeyboardPalette.h"
-#include "ui/ToolWidget.h"
+#include "whiteboard/ToolWidget.h"
 #include "ui/ZoomPalette.h"
 #include "ui/WebToolsPalette.h"
 #include "ui/ActionPalette.h"

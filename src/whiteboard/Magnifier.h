@@ -1,5 +1,5 @@
 /**
- * @file Magnifer.h
+ * @file Magnifier.h
  * @brief 放大镜部件的声明：截取画布局部区域并放大显示，同时提供缩放、换形状与关闭等操作。
  */
 

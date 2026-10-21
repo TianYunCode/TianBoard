@@ -19,9 +19,9 @@
 #include "core/PersistenceManager.h"
 #include "core/TextTools.h"
 
-#include "ui/Magnifer.h"
+#include "whiteboard/Magnifier.h"
 #include "ui/MainWindow.h"
-#include "ui/ToolWidget.h"
+#include "whiteboard/ToolWidget.h"
 #include "model/Resources.h"
 
 #include "whiteboard/GraphicsRuler.h"
@@ -311,7 +311,7 @@ GraphicsScene::GraphicsScene(DocumentProxy *parent, bool enableUndoRedoStack)
     : CoreGraphicsScene(parent), mEraser(0), mPointer(0), mMarkerCircle(0), mPenCircle(0), mDocument(parent), mDarkBackground(false),
       mPageBackground(PageBackground::plain), mIsDesktopMode(false), mZoomFactor(1), mBackgroundObject(0), mPreviousWidth(0),
       mDistanceFromLastStrokePoint(0), mInputDeviceIsPressed(false), mArcPolygonItem(0), mRenderingContext(Screen), mCurrentStroke(0), mItemCount(0),
-      mUndoRedoStackEnabled(enableUndoRedoStack), magniferControlViewWidget(0), magniferDisplayViewWidget(0),
+      mUndoRedoStackEnabled(enableUndoRedoStack), magnifierControlViewWidget(0), magnifierDisplayViewWidget(0),
       mZLayerController(new ZLayerController(this)), mpLastPolygon(NULL), mCurrentPolygon(0), mTempPolygon(NULL), mSelectionFrame(0)
 {
     CoreGraphicsScene::setObjectName("BoardScene");
@@ -899,20 +899,20 @@ void GraphicsScene::hidePenCircle()
 // 放大镜模式下松开鼠标时调用：临时控件用完就得拆掉
 void GraphicsScene::DisposeMagnifierQWidgets()
 {
-    if (magniferControlViewWidget)
+    if (magnifierControlViewWidget)
     {
-        magniferControlViewWidget->hide();
-        magniferControlViewWidget->setParent(0);
-        delete magniferControlViewWidget;
-        magniferControlViewWidget = NULL;
+        magnifierControlViewWidget->hide();
+        magnifierControlViewWidget->setParent(0);
+        delete magnifierControlViewWidget;
+        magnifierControlViewWidget = NULL;
     }
 
-    if (magniferDisplayViewWidget)
+    if (magnifierDisplayViewWidget)
     {
-        magniferDisplayViewWidget->hide();
-        magniferDisplayViewWidget->setParent(0);
-        delete magniferDisplayViewWidget;
-        magniferDisplayViewWidget = NULL;
+        magnifierDisplayViewWidget->hide();
+        magnifierDisplayViewWidget->setParent(0);
+        delete magnifierDisplayViewWidget;
+        magnifierDisplayViewWidget = NULL;
     }
     // 关程序时本函数可能从析构里被调到，那一刻 Application 已经没了；
     // 这里宁可吞掉异常，也不能让退出流程崩在恢复光标上。
@@ -2330,7 +2330,7 @@ void GraphicsScene::addTriangle(QPointF center)
 void GraphicsScene::addMagnifier(MagnifierParams params)
 {
     // 放大镜同时只能有一个，重复调用直接忽略
-    if (magniferControlViewWidget)
+    if (magnifierControlViewWidget)
     {
         return;
     }
@@ -2354,43 +2354,43 @@ void GraphicsScene::addMagnifier(MagnifierParams params)
     QPoint cvPoint     = cView->mapFromGlobal(globalPoint);
     QPoint dvPoint(cvPoint.x() * wCoeff + dvZeroPoint.x(), cvPoint.y() * hCoeff + dvZeroPoint.y());
 
-    magniferControlViewWidget = new Magnifier((QWidget *)(Application::boardController->controlContainer()), true);
-    magniferControlViewWidget->setGrabView((QGraphicsView *)Application::boardController->controlView());
-    magniferControlViewWidget->setMoveView((QWidget *)(Application::boardController->controlContainer()));
-    magniferControlViewWidget->setSize(params.sizePercentFromScene);
-    magniferControlViewWidget->setZoom(params.zoom);
+    magnifierControlViewWidget = new Magnifier((QWidget *)(Application::boardController->controlContainer()), true);
+    magnifierControlViewWidget->setGrabView((QGraphicsView *)Application::boardController->controlView());
+    magnifierControlViewWidget->setMoveView((QWidget *)(Application::boardController->controlContainer()));
+    magnifierControlViewWidget->setSize(params.sizePercentFromScene);
+    magnifierControlViewWidget->setZoom(params.zoom);
 
-    magniferDisplayViewWidget = new Magnifier((QWidget *)(Application::boardController->displayView()), false);
-    magniferDisplayViewWidget->setGrabView((QGraphicsView *)Application::boardController->controlView());
-    magniferDisplayViewWidget->setMoveView((QGraphicsView *)Application::boardController->displayView());
-    magniferDisplayViewWidget->setSize(params.sizePercentFromScene);
-    magniferDisplayViewWidget->setZoom(params.zoom);
+    magnifierDisplayViewWidget = new Magnifier((QWidget *)(Application::boardController->displayView()), false);
+    magnifierDisplayViewWidget->setGrabView((QGraphicsView *)Application::boardController->controlView());
+    magnifierDisplayViewWidget->setMoveView((QGraphicsView *)Application::boardController->displayView());
+    magnifierDisplayViewWidget->setSize(params.sizePercentFromScene);
+    magnifierDisplayViewWidget->setZoom(params.zoom);
 
-    magniferControlViewWidget->grabNMove(globalPoint, globalPoint, true);
-    magniferDisplayViewWidget->grabNMove(globalPoint, dvPoint, true);
-    magniferControlViewWidget->show();
-    magniferDisplayViewWidget->show();
+    magnifierControlViewWidget->grabNMove(globalPoint, globalPoint, true);
+    magnifierDisplayViewWidget->grabNMove(globalPoint, dvPoint, true);
+    magnifierControlViewWidget->show();
+    magnifierDisplayViewWidget->show();
 
-    connect(magniferControlViewWidget, &Magnifier::magnifierMoved_Signal, this,
+    connect(magnifierControlViewWidget, &Magnifier::magnifierMoved_Signal, this,
         [this](QPoint newPos)
         {
             moveMagnifier(newPos);
         });
-    connect(magniferControlViewWidget, &Magnifier::magnifierClose_Signal, this, &GraphicsScene::closeMagnifier);
-    connect(magniferControlViewWidget, &Magnifier::magnifierZoomIn_Signal, this, &GraphicsScene::zoomInMagnifier);
-    connect(magniferControlViewWidget, &Magnifier::magnifierZoomOut_Signal, this, &GraphicsScene::zoomOutMagnifier);
-    connect(magniferControlViewWidget, &Magnifier::magnifierDrawingModeChange_Signal, this, &GraphicsScene::changeMagnifierMode);
-    connect(magniferControlViewWidget, &Magnifier::magnifierResized_Signal, this, &GraphicsScene::resizedMagnifier);
+    connect(magnifierControlViewWidget, &Magnifier::magnifierClose_Signal, this, &GraphicsScene::closeMagnifier);
+    connect(magnifierControlViewWidget, &Magnifier::magnifierZoomIn_Signal, this, &GraphicsScene::zoomInMagnifier);
+    connect(magnifierControlViewWidget, &Magnifier::magnifierZoomOut_Signal, this, &GraphicsScene::zoomOutMagnifier);
+    connect(magnifierControlViewWidget, &Magnifier::magnifierDrawingModeChange_Signal, this, &GraphicsScene::changeMagnifierMode);
+    connect(magnifierControlViewWidget, &Magnifier::magnifierResized_Signal, this, &GraphicsScene::resizedMagnifier);
 
     setModified(true);
 }
 
 void GraphicsScene::moveMagnifier()
 {
-    if (magniferControlViewWidget)
+    if (magnifierControlViewWidget)
     {
-        QPoint magnifierPos = QPoint(magniferControlViewWidget->pos().x() + magniferControlViewWidget->size().width() / 2,
-            magniferControlViewWidget->pos().y() + magniferControlViewWidget->size().height() / 2);
+        QPoint magnifierPos = QPoint(magnifierControlViewWidget->pos().x() + magnifierControlViewWidget->size().width() / 2,
+            magnifierControlViewWidget->pos().y() + magnifierControlViewWidget->size().height() / 2);
         moveMagnifier(magnifierPos, true);
         setModified(true);
     }
@@ -2416,8 +2416,8 @@ void GraphicsScene::moveMagnifier(QPoint newPos, bool forceGrab)
     QPoint cvPoint            = cView->mapFromGlobal(globalPoint);
     QPoint dvPoint(cvPoint.x() * wCoeff + dvZeroPoint.x(), cvPoint.y() * hCoeff + dvZeroPoint.y());
 
-    magniferControlViewWidget->grabNMove(globalPoint, globalPoint, forceGrab, false);
-    magniferDisplayViewWidget->grabNMove(globalPoint, dvPoint, forceGrab, true);
+    magnifierControlViewWidget->grabNMove(globalPoint, globalPoint, forceGrab, false);
+    magnifierDisplayViewWidget->grabNMove(globalPoint, dvPoint, forceGrab, true);
 
     setModified(true);
 }
@@ -2430,28 +2430,28 @@ void GraphicsScene::closeMagnifier()
 
 void GraphicsScene::zoomInMagnifier()
 {
-    if (magniferControlViewWidget->zoom() < 8)
+    if (magnifierControlViewWidget->zoom() < 8)
     {
-        magniferControlViewWidget->setZoom(magniferControlViewWidget->zoom() + 0.5);
-        magniferDisplayViewWidget->setZoom(magniferDisplayViewWidget->zoom() + 0.5);
+        magnifierControlViewWidget->setZoom(magnifierControlViewWidget->zoom() + 0.5);
+        magnifierDisplayViewWidget->setZoom(magnifierDisplayViewWidget->zoom() + 0.5);
     }
 }
 
 void GraphicsScene::zoomOutMagnifier()
 {
-    if (magniferControlViewWidget->zoom() > 1)
+    if (magnifierControlViewWidget->zoom() > 1)
     {
-        magniferControlViewWidget->setZoom(magniferControlViewWidget->zoom() - 0.5);
-        magniferDisplayViewWidget->setZoom(magniferDisplayViewWidget->zoom() - 0.5);
+        magnifierControlViewWidget->setZoom(magnifierControlViewWidget->zoom() - 0.5);
+        magnifierDisplayViewWidget->setZoom(magnifierDisplayViewWidget->zoom() - 0.5);
         setModified(true);
     }
 }
 
 void GraphicsScene::changeMagnifierMode(int mode)
 {
-    if (magniferControlViewWidget)
+    if (magnifierControlViewWidget)
     {
-        magniferControlViewWidget->setDrawingMode(mode);
+        magnifierControlViewWidget->setDrawingMode(mode);
     }
 }
 
@@ -2459,10 +2459,10 @@ void GraphicsScene::resizedMagnifier(qreal newPercent)
 {
     if (newPercent > 18 && newPercent < 50)
     {
-        magniferControlViewWidget->setSize(newPercent);
-        magniferControlViewWidget->grabPoint();
-        magniferDisplayViewWidget->setSize(newPercent);
-        magniferDisplayViewWidget->grabPoint();
+        magnifierControlViewWidget->setSize(newPercent);
+        magnifierControlViewWidget->grabPoint();
+        magnifierDisplayViewWidget->setSize(newPercent);
+        magnifierDisplayViewWidget->grabPoint();
         setModified(true);
     }
 }

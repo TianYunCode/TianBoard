@@ -754,8 +754,8 @@ private:
     bool mHasCache;
     bool mUndoRedoStackEnabled;
 
-    Magnifier *magniferControlViewWidget;
-    Magnifier *magniferDisplayViewWidget;
+    Magnifier *magnifierControlViewWidget;
+    Magnifier *magnifierDisplayViewWidget;
 
     ZLayerController    *mZLayerController;
     GraphicsPolygonItem *mpLastPolygon;

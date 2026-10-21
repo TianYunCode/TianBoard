@@ -1,7 +1,7 @@
 #include <QtWidgets>
 #include <QWebEngineView>
 
-#include "ui/ToolWidget.h"
+#include "whiteboard/ToolWidget.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 #include "core/Application.h"
