@@ -18,9 +18,7 @@
 #include "core/MimeData.h"
 #include "core/ForeignObjectsHandler.h"
 
-#include "content/ExportPDF.h"
-#include "content/ThumbnailAdaptor.h"
-#include "content/MetadataDcSubsetAdaptor.h"
+#include "model/IDocumentFormatServices.h"
 
 #include "ui/MousePressFilter.h"
 #include "ui/MessageWindow.h"
@@ -923,7 +921,7 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
             {
                 duplicatedProxy = PersistenceManager::persistenceManager()->duplicateDocument(nodeSource->proxyData());
                 duplicatedProxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-                MetadataDcSubsetAdaptor::persist(duplicatedProxy);
+                persistDocumentMetadata(duplicatedProxy);
             }
             clonedNodeSource = new DocumentTreeNode(nodeSource->nodeType(), nodeSource->nodeName(), nodeSource->displayName(), duplicatedProxy);
             break;
@@ -2088,14 +2086,13 @@ void DocumentController::setupViews()
         QMenu *exportMenu                = new QMenu(mDocumentWidget);
 
         DocumentManager *documentManager = DocumentManager::documentManager();
-        for (int i = 0; i < documentManager->supportedExportAdaptors().length(); i++)
+        for (int i = 0; i < documentManager->exportAdaptorCount(); ++i)
         {
-            ExportAdaptor *adaptor             = documentManager->supportedExportAdaptors()[i];
-            QAction       *currentExportAction = exportMenu->addAction(adaptor->exportName());
+            QAction *currentExportAction = exportMenu->addAction(documentManager->exportAdaptorName(i));
             currentExportAction->setData(i);
             connect(currentExportAction, &QAction::triggered, this, &DocumentController::exportDocument);
             exportMenu->addAction(currentExportAction);
-            adaptor->setAssociatedAction(currentExportAction);
+            documentManager->associateExportAction(i, currentExportAction);
         }
 
         foreach (QObject *associated, mMainWindow->ui().actionExport->associatedObjects())
@@ -2383,7 +2380,7 @@ void DocumentController::duplicateSelectedItem()
             duplicatePages(selectedSceneIndexes);
             emit documentThumbnailsUpdated(this);
             selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-            MetadataDcSubsetAdaptor::persist(selectedDocument());
+            persistDocumentMetadata(selectedDocument());
             int selectedThumbnail = selectedSceneIndexes.last() + selectedSceneIndexes.size();
             mDocumentsView->thumbnailWidget()->selectItemAt(selectedThumbnail);
             int sceneCount = selectedSceneIndexes.count();
@@ -2911,13 +2908,12 @@ void DocumentController::deleteIndexAndAssociatedData(const QModelIndex &pIndex)
 
 void DocumentController::exportDocument()
 {
-    QAction       *currentExportAction   = qobject_cast<QAction *>(sender());
-    QVariant       actionData            = currentExportAction->data();
-    ExportAdaptor *selectedExportAdaptor = DocumentManager::documentManager()->supportedExportAdaptors()[actionData.toInt()];
+    QAction  *currentExportAction = qobject_cast<QAction *>(sender());
+    const int adaptorIndex        = currentExportAction->data().toInt();
 
-    DocumentProxy *proxy                 = firstSelectedTreeProxy();
+    DocumentProxy *proxy          = firstSelectedTreeProxy();
 
-    selectedExportAdaptor->persist(proxy);
+    DocumentManager::documentManager()->exportDocumentWithAdaptor(adaptorIndex, proxy);
     emit exportDone();
 }
 
@@ -3018,7 +3014,7 @@ void DocumentController::addFolderOfImages()
             else
             {
                 document->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-                MetadataDcSubsetAdaptor::persist(document);
+                persistDocumentMetadata(document);
                 reloadThumbnails();
             }
         }
@@ -3071,7 +3067,7 @@ bool DocumentController::addFileToDocument(DocumentProxy *document)
         if (success)
         {
             document->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-            MetadataDcSubsetAdaptor::persist(document);
+            persistDocumentMetadata(document);
         }
         else
         {
@@ -3089,7 +3085,7 @@ void DocumentController::moveSceneToIndex(DocumentProxy *proxy, int source, int 
     if (DocumentContainer::movePageToIndex(source, target))
     {
         proxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-        MetadataDcSubsetAdaptor::persist(proxy);
+        persistDocumentMetadata(proxy);
 
         mDocumentsView->thumbnailWidget()->hightlightItem(target);
 
@@ -3227,7 +3223,7 @@ void DocumentController::addToDocument()
         mDocumentsView->thumbnailWidget()->selectItemAt(newActiveSceneIndex, false);
         selectDocument(mBoardController->selectedDocument());
         mBoardController->selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-        MetadataDcSubsetAdaptor::persist(mBoardController->selectedDocument());
+        persistDocumentMetadata(mBoardController->selectedDocument());
         mBoardController->reloadThumbnails();
 
         emit Application::boardController->documentThumbnailsUpdated(this);
@@ -3332,7 +3328,7 @@ void DocumentController::addImages()
             else
             {
                 document->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-                MetadataDcSubsetAdaptor::persist(document);
+                persistDocumentMetadata(document);
                 reloadThumbnails();
             }
         }
@@ -3472,7 +3468,7 @@ void DocumentController::updateActions()
     mMainWindow->ui().actionNewDocument->setEnabled(docModel->newNodeAllowed(selectedIndex));
     mMainWindow->ui().actionNewFolder->setEnabled(docModel->newNodeAllowed(selectedIndex));
     mMainWindow->ui().actionExport->setEnabled((docSelected || pageSelected || groupSelected) && !trashSelected);
-    updateExportSubActions(selectedIndex);
+    DocumentManager::documentManager()->refreshExportActions(selectedIndex);
 
     bool firstSceneSelected = false;
 
@@ -3543,19 +3539,6 @@ void DocumentController::updateActions()
     mMainWindow->ui().actionImport->setEnabled(!trashSelected);
 }
 
-void DocumentController::updateExportSubActions(const QModelIndex &selectedIndex)
-{
-    DocumentManager *documentManager = DocumentManager::documentManager();
-    for (int i = 0; i < documentManager->supportedExportAdaptors().length(); i++)
-    {
-        ExportAdaptor *adaptor = documentManager->supportedExportAdaptors()[i];
-        if (adaptor->associatedAction())
-        {
-            adaptor->associatedAction()->setEnabled(adaptor->associatedActionactionAvailableFor(selectedIndex));
-        }
-    }
-}
-
 void DocumentController::currentIndexMoved(const QModelIndex &newIndex, const QModelIndex &PreviousIndex)
 {
     Q_UNUSED(newIndex);
@@ -3597,7 +3580,7 @@ void DocumentController::deletePages(QList<QGraphicsItem *> itemsToDelete)
         emit Application::boardController->documentThumbnailsUpdated(this);
 
         proxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-        MetadataDcSubsetAdaptor::persist(proxy);
+        persistDocumentMetadata(proxy);
 
         int minIndex = proxy->pageCount() - 1;
         foreach (int i, sceneIndexes)
@@ -3754,7 +3737,7 @@ void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *)
 
     if (currentDocumentProxy)
     {
-        ThumbnailAdaptor::load(currentDocumentProxy, thumbs);
+        loadDocumentPageThumbnails(currentDocumentProxy, thumbs);
     }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -3796,7 +3779,7 @@ void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *)
 
     mDocumentsView->thumbnailWidget()->setGraphicsItems(items, itemsPath, labels, Application::mimeTypeBoardPage);
 
-    // ThumbnailAdaptor::get() 返回 new 出来的 QPixmap，SceneThumbnailPixmap 只是按值拷贝；
+    // documentPageThumbnail() 返回 new 出来的 QPixmap，SceneThumbnailPixmap 只是按值拷贝；
     // 不在这里释放的话，每刷新一次缩略图就泄漏 pageCount 个 QPixmap。
     qDeleteAll(thumbs);
     thumbs.clear();

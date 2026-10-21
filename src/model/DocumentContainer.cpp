@@ -1,5 +1,5 @@
 #include "model/DocumentContainer.h"
-#include "content/ThumbnailAdaptor.h"
+#include "model/IDocumentFormatServices.h"
 #include "core/PersistenceManager.h"
 
 DocumentContainer::DocumentContainer(QObject *parent) : QObject(parent), mCurrentDocument(NULL)
@@ -106,12 +106,12 @@ void DocumentContainer::deleteThumbPage(int index)
 
 void DocumentContainer::updateThumbPage(int index)
 {
-    // ThumbnailAdaptor::get 每次返回新分配的 QPixmap，替换前必须先释放旧图，
+    // documentPageThumbnail 每次返回新分配的 QPixmap，替换前必须先释放旧图，
     // 否则频繁编辑页面会持续泄漏缩略图内存。
     if (mDocumentThumbs.size() > index)
     {
         delete mDocumentThumbs.at(index);
-        mDocumentThumbs[index] = ThumbnailAdaptor::get(mCurrentDocument, index);
+        mDocumentThumbs[index] = documentPageThumbnail(mCurrentDocument, index);
         emit documentPageUpdated(index);
     }
     else
@@ -122,14 +122,14 @@ void DocumentContainer::updateThumbPage(int index)
 
 void DocumentContainer::insertThumbPage(int index)
 {
-    mDocumentThumbs.insert(index, ThumbnailAdaptor::get(mCurrentDocument, index));
+    mDocumentThumbs.insert(index, documentPageThumbnail(mCurrentDocument, index));
 }
 
 void DocumentContainer::reloadThumbnails()
 {
     if (mCurrentDocument)
     {
-        ThumbnailAdaptor::load(mCurrentDocument, mDocumentThumbs);
+        loadDocumentPageThumbnails(mCurrentDocument, mDocumentThumbs);
     }
     emit documentThumbnailsUpdated(this);
 }

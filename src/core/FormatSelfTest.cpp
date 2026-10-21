@@ -5,6 +5,8 @@
 #include "content/IwbDocumentAdaptor.h"
 #include "content/SvgSubsetAdaptor.h"
 #include "model/DocumentProxy.h"
+#include "model/IDocumentFormatServices.h"
+#include "settings/Settings.h"
 #include "utils/Enums.h"
 #include "whiteboard/GraphicsAxes.h"
 #include "whiteboard/GraphicsCompass.h"
@@ -26,6 +28,7 @@
 #include <QLineF>
 #include <QPainter>
 #include <QPen>
+#include <QPixmap>
 #include <QPointF>
 #include <QStringList>
 
@@ -446,6 +449,49 @@ namespace FormatSelfTest
                 failures << QStringLiteral("两轮存完页文件应有 1 个，实际 %1 个").arg(pagesAfterTwo.size());
             }
         }
+
+        // 元数据这一腿：标题、组名与页数写在 metadata.rdf 里，是 .tbz 契约的一部分。
+        // 写错一个 RDF 键名既不崩也不报错，表现只是“文档库里这份文档回到了默认名字”。
+        // 走的是模型侧的自由函数——与 DocumentController 保存、DocumentProxy 打开时同一条路，
+        // 顺带把装配点装上的格式服务也验一次（没装上时读回来的是空表）。
+        const QString selftestTitle = QStringLiteral("格式自检标题");
+        const QString selftestGroup = QStringLiteral("格式自检分组");
+
+        proxy->setMetaData(Settings::documentName, selftestTitle);
+        proxy->setMetaData(Settings::documentGroupName, selftestGroup);
+        persistDocumentMetadata(proxy);
+
+        DocumentProxy cold(documentDirectory); // 冷读：构造时从盘上的 RDF 取元数据
+
+        if (cold.metaData(Settings::documentName).toString() != selftestTitle)
+        {
+            failures << QStringLiteral("元数据标题没读回来：%1").arg(cold.metaData(Settings::documentName).toString());
+        }
+
+        if (cold.metaData(Settings::documentGroupName).toString() != selftestGroup)
+        {
+            failures << QStringLiteral("元数据组名没读回来：%1").arg(cold.metaData(Settings::documentGroupName).toString());
+        }
+
+        if (cold.metaData(Settings::documentPageCount) != QVariant(proxy->pageCount()))
+        {
+            failures << QStringLiteral("元数据页数与实际页数不一致：%1 对 %2")
+                            .arg(cold.metaData(Settings::documentPageCount).toString())
+                            .arg(proxy->pageCount());
+        }
+
+        // 缩略图同样走这条桥：取回来的必须是真图，不能是空白。
+        QList<const QPixmap *> thumbs;
+        loadDocumentPageThumbnails(&cold, thumbs);
+
+        for (const QPixmap *pix : thumbs)
+        {
+            if (!pix || pix->isNull() || pix->width() <= 0)
+            {
+                failures << QStringLiteral("桥取回来的缩略图是空图");
+            }
+        }
+        qDeleteAll(thumbs);
 
         if (failures.isEmpty())
         {

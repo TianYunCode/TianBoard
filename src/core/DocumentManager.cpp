@@ -317,9 +317,35 @@ DocumentProxy *DocumentManager::importDir(const QDir &pDir, const QString &pGrou
     return doc;
 }
 
-QList<ExportAdaptor *> DocumentManager::supportedExportAdaptors()
+int DocumentManager::exportAdaptorCount() const
 {
-    return mExportAdaptors;
+    return mExportAdaptors.size();
+}
+
+QString DocumentManager::exportAdaptorName(int index) const
+{
+    return mExportAdaptors.at(index)->exportName();
+}
+
+void DocumentManager::associateExportAction(int index, QAction *action)
+{
+    mExportAdaptors.at(index)->setAssociatedAction(action);
+}
+
+void DocumentManager::exportDocumentWithAdaptor(int index, DocumentProxy *proxy)
+{
+    mExportAdaptors.at(index)->persist(proxy);
+}
+
+void DocumentManager::refreshExportActions(const QModelIndex &selectedIndex)
+{
+    for (ExportAdaptor *adaptor : mExportAdaptors)
+    {
+        if (QAction *action = adaptor->associatedAction())
+        {
+            action->setEnabled(adaptor->associatedActionactionAvailableFor(selectedIndex));
+        }
+    }
 }
 
 void DocumentManager::emitDocumentUpdated(DocumentProxy *pDocument)

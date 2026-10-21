@@ -8,7 +8,7 @@
 #include "settings/Settings.h"
 #include "core/DocumentManager.h"
 
-#include "content/MetadataDcSubsetAdaptor.h"
+#include "model/IDocumentFormatServices.h"
 
 DocumentProxy::DocumentProxy() : mPageCount(0), mPageDpi(0), mPersistencePath("")
 {
@@ -28,7 +28,7 @@ DocumentProxy::DocumentProxy(const QString &pPersistancePath) : mPageCount(0), m
     init();
     setPersistencePath(pPersistancePath);
 
-    mMetaDatas = MetadataDcSubsetAdaptor::load(pPersistancePath);
+    mMetaDatas = loadDocumentMetadata(pPersistancePath);
 }
 
 DocumentProxy::DocumentProxy(const QString &pPersistancePath, QMap<QString, QVariant> metadatas) : mPageCount(0), mPageDpi(0)

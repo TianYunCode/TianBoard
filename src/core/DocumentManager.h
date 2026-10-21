@@ -9,7 +9,9 @@
 
 class ExportAdaptor;
 class ImportAdaptor;
+class QAction;
 class DocumentProxy;
+class QModelIndex;
 
 /**
  * @brief 文档管理器：持有全部导入/导出适配器，并按扩展名把请求分发给合适的适配器。
@@ -77,8 +79,16 @@ public:
      */
     int addImageDirToDocument(const QDir &pDir, DocumentProxy *pDocument);
 
-    /// 返回全部已注册的导出适配器，调用方不得删除。
-    QList<ExportAdaptor *> supportedExportAdaptors();
+    /// @brief 已注册的导出器个数；导出菜单按这个个数建项，索引就是这里的顺序。
+    int exportAdaptorCount() const;
+    /// @brief 第 index 个导出器展示给用户的名字（同时作为菜单项文案）。
+    QString exportAdaptorName(int index) const;
+    /// @brief 把第 index 个导出器与它对应的菜单动作绑起来；动作的所有权在调用方。
+    void associateExportAction(int index, QAction *action);
+    /// @brief 用第 index 个导出器导出这份文档（询问保存位置后写出）。
+    void exportDocumentWithAdaptor(int index, DocumentProxy *proxy);
+    /// @brief 按当前选中的树节点，逐个刷新各导出动作能不能用。
+    void refreshExportActions(const QModelIndex &selectedIndex);
     /// 对外转发 documentUpdated 信号。
     void emitDocumentUpdated(DocumentProxy *pDocument);
 

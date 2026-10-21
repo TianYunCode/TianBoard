@@ -11,6 +11,8 @@
 
 #include "api/WebWidgetBoardAPI.h"
 #include "core/Application.h"
+#include "content/DocumentFormatServices.h"
+#include "model/IDocumentFormatServices.h"
 #include "settings/Settings.h"
 #include "whiteboard/IBoardDropHandler.h"
 
@@ -80,6 +82,12 @@ int main(int argc, char *argv[])
         {
             return new WebWidgetBoardAPI(scene, widget);
         });
+
+    // 同一套路：模型只声明“要读元数据、要取缩略图”，实现是 content 里现成的两个读写器
+    // （content 本来就认识 DocumentProxy，反过来才行得通）。装的是 static 对象——
+    // 进程级无状态，装配点既不接管也不留悬挂指针。见 docs/architecture.md 拆环第 4 步。
+    static DocumentFormatServices documentFormatServices;
+    installDocumentFormatServices(&documentFormatServices);
 
     Application app("TianBoard", argc, argv);
 

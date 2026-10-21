@@ -12,6 +12,8 @@
 # ======================================================================
 
 add_library(tb_content OBJECT
+    DocumentFormatServices.cpp
+    DocumentFormatServices.h
     ExportAdaptor.cpp
     ExportAdaptor.h
     ExportDocument.cpp

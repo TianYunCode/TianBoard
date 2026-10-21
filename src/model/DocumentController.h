@@ -1030,9 +1030,6 @@ public slots:
     /** @brief 按当前选择刷新主窗口各动作的可用性与文案。 */
     void updateActions();
 
-    /** @brief 按当前选中项刷新导出子动作的可用性。 */
-    void updateExportSubActions(const QModelIndex &selectedIndex);
-
     /** @brief 当前文档节点被移动后的处理。 */
     void currentIndexMoved(const QModelIndex &newIndex, const QModelIndex &PreviousIndex);
 
