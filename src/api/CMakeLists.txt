@@ -6,12 +6,16 @@
 # 画板需要门面的那一件事（拖到小部件上的东西怎么进画板）经 whiteboard 自己的
 # IBoardDropHandler 接口回调过来，实现由装配点在启动时装上（见 app/main.cpp）。
 #
+# 除了装配点 app/ 之外没有任何模块反向 include api（api↔whiteboard 那组环断掉后就
+# 没长回来），所以本模块不在任何环里，按第四节那条非叶子规矩做成真正的
+# STATIC：越界 include 上层在编译期就失败。
+#
 # 已经删掉的 widget 门面 WebWidgetAPI/WebWidgetPreferenceAPI：Qt6 没有
 # addToJavaScriptWindowObject，注册它的那条 connect 在移植时就断了线，
 # 于是这两个类只剩"被一个从没接上的槽 new 出来"这一处引用。
 # ======================================================================
 
-add_library(tb_api OBJECT
+add_library(tb_api STATIC
     WebWidgetBoardAPI.cpp
     WebWidgetBoardAPI.h
     WebWidgetMessageAPI.cpp
