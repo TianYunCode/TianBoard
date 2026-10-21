@@ -17,6 +17,8 @@
 #include <QFileInfo>
 #include <QProcess>
 
+#include "TestProcessSandbox.h"
+
 class TestSmoke : public QObject
 {
     Q_OBJECT
@@ -92,6 +94,9 @@ void TestSmoke::applicationStartsAndStaysAlive()
 TestSmoke::Outcome TestSmoke::runOnce(const QString &exe, QByteArray *log, QString *reason)
 {
     QProcess app;
+    // 应用往 userDataDirectory() 下写文档与日志；不给它一个临时根目录，
+    // 每跑一次用例就在用户的真实文档库里多攒几份没人认领的文档。
+    TestProcessSandbox sandbox(app, QStringLiteral("smoke"));
     app.setProgram(exe);
     app.setWorkingDirectory(QFileInfo(exe).absolutePath());
     app.setProcessChannelMode(QProcess::MergedChannels);

@@ -143,7 +143,12 @@ public:
     static QString userLoginName();
 
     // 用户目录
-    /** @brief 用户数据根目录。 */
+    /**
+     * @brief 用户数据根目录：文档仓库、日志、缓存都在它下面。
+     * @note 取值优先看环境变量 `TIANBOARD_DATA_DIR`（测试进程用它把整个可写根目录
+     *       关进临时目录），其次是 `App/DataDirectory` 设置项，最后才是系统的
+     *       AppDataLocation。结果只算一次（函数内 static）。
+     */
     static QString userDataDirectory();
     /** @brief 用户文档目录。 */
     static QString userDocumentDirectory();

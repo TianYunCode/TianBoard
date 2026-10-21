@@ -12,6 +12,8 @@
 #include <QFileInfo>
 #include <QProcess>
 
+#include "TestProcessSandbox.h"
+
 class TestShortcuts : public QObject
 {
     Q_OBJECT
@@ -29,6 +31,9 @@ void TestShortcuts::shortcutRegistryRoundTripHolds()
     QVERIFY2(QFileInfo::exists(exe), qPrintable(QStringLiteral("missing executable: %1").arg(exe)));
 
     QProcess process;
+    // 应用往 userDataDirectory() 下写文档与日志；不给它一个临时根目录，
+    // 每跑一次用例就在用户的真实文档库里多攒几份没人认领的文档。
+    TestProcessSandbox sandbox(process, QStringLiteral("shortcuts"));
     process.setProcessChannelMode(QProcess::MergedChannels);
     process.start(exe, {QStringLiteral("--shortcut-selftest")});
     QVERIFY2(process.waitForStarted(20000), "TianBoard.exe 没能启动");

@@ -848,6 +848,20 @@ QString Settings::userDataDirectory()
     static QString dataDirPath = "";
     if (dataDirPath.isEmpty())
     {
+        // 自检与冒烟跑的是真应用：默认的 AppDataLocation 会把每次启动新建的那份文档
+        // 落进用户真实的文档库。给整个可写根目录留一个进程级入口，测试进程用后即弃。
+        const QString fromEnvironment = qEnvironmentVariable("TIANBOARD_DATA_DIR");
+        if (!fromEnvironment.isEmpty())
+        {
+            dataDirPath = fromEnvironment;
+            if (checkDirectory(dataDirPath))
+            {
+                return dataDirPath;
+            }
+            qCritical() << "TIANBOARD_DATA_DIR 指向的目录建不出来：" << fromEnvironment;
+            dataDirPath.clear();
+        }
+
         if (getAppSettings() && getAppSettings()->contains("App/DataDirectory"))
         {
             qDebug() << "getAppSettings()->contains(App/DataDirectory):" << getAppSettings()->contains("App/DataDirectory");

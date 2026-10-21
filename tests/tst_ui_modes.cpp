@@ -12,6 +12,8 @@
 #include <QFileInfo>
 #include <QProcess>
 
+#include "TestProcessSandbox.h"
+
 class TestUiModes : public QObject
 {
     Q_OBJECT
@@ -33,8 +35,11 @@ void TestUiModes::switchingMainModesExitsCleanly()
 
     for (int attempt = 1; attempt <= 3; ++attempt)
     {
-        QProcess      process;
-        QElapsedTimer elapsed;
+        QProcess process;
+        // 应用往 userDataDirectory() 下写文档与日志；不给它一个临时根目录，
+        // 每跑一次用例就在用户的真实文档库里多攒几份没人认领的文档。
+        TestProcessSandbox sandbox(process, QStringLiteral("ui-modes"));
+        QElapsedTimer      elapsed;
         elapsed.start();
         process.start(exe, {QStringLiteral("--ui-smoke")});
         QVERIFY2(process.waitForStarted(), "TianBoard.exe 没能启动");
