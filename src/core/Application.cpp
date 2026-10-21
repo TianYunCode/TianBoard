@@ -29,7 +29,7 @@
 #include "ui/DocumentController.h"
 
 #include "ui/MainWindow.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 #include "whiteboard/ToolsManager.h"
 #include "core/DisplayManager.h"

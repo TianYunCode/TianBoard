@@ -10,7 +10,7 @@
 #include "settings/Settings.h"
 #include "utils/Snapping.h"
 #include "core/Application.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 #include "ui/MainWindow.h"
 #include "core/Application.h"
 #include "whiteboard/BoardView.h"

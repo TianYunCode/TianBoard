@@ -2,7 +2,7 @@
 #include <QtSvg>
 #include <QtSvgWidgets>
 #include "utils/Enums.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/DrawingController.h"
 #include "core/Application.h"

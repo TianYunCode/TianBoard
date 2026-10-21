@@ -1,4 +1,4 @@
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 #include <QtWidgets>
 

@@ -10,7 +10,7 @@
 #include "ui/MainWindow.h"
 
 #include "ui/WebToolsPalette.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 #include "ui/IconButton.h"
 
 struct WebToolsPalette::Private

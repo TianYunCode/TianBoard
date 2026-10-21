@@ -126,7 +126,9 @@ src/app          可执行目标本体：main.cpp、TianBoard.rc、resource.h
 src/settings     设置项本身：Settings 注册表 + Setting<T> 模板
 src/core         应用与各类服务/控制器（Application、DisplayManager、
                  LanguageManager、PersistenceManager、DocumentManager…）
-src/model        文档域：DocumentProxy、DocumentContainer、DocumentController
+src/model        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel、
+                 SortFilterProxyModel、Resources（工具光标与自定义字体清单）；文档模式的
+                 界面装配 DocumentController 在 src/ui
 src/whiteboard   画板：BoardView/BoardController + 图形场景、图形项、绘图工具与
                  PDF 页图形项/渲染器
 src/content      文档格式读写与导入导出：.tbz/.tbx、IWB 子集与转换、SVG/RDF 元数据、

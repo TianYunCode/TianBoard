@@ -22,7 +22,7 @@
 #include "core/HttpGet.h"
 
 #include "ui/MessageWindow.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 #include "ui/ToolbarButtonGroup.h"
 #include "ui/MainWindow.h"
 #include "ui/ToolWidget.h"

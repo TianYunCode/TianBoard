@@ -3,7 +3,7 @@
 #include <QtWidgets>
 
 #include "whiteboard/GraphicsScene.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 #include "whiteboard/GraphicsDelegateFrame.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"

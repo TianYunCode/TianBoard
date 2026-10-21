@@ -4,7 +4,7 @@
 
 #include "core/Application.h"
 
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 #include "settings/Settings.h"
 

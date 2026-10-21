@@ -14,7 +14,7 @@
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsProxyWidget.h"
 
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 GraphicsDelegateFrame::GraphicsDelegateFrame(GraphicsItemDelegate *pDelegate, QRectF pRect, qreal pFrameWidth, bool respectRatio, bool hasTitleBar)
     : QGraphicsRectItem(), QObject(pDelegate), mCurrentTool(None), mDelegate(pDelegate), mVisible(true), mFrameWidth(pFrameWidth),

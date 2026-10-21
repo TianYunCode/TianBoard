@@ -3,7 +3,7 @@
 #include "whiteboard/GraphicsRuler.h"
 #include "whiteboard/GraphicsScene.h"
 #include "core/Application.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
 

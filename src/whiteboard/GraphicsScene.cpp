@@ -22,7 +22,7 @@
 #include "ui/Magnifer.h"
 #include "ui/MainWindow.h"
 #include "ui/ToolWidget.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 #include "whiteboard/GraphicsRuler.h"
 #include "whiteboard/GraphicsProtractor.h"

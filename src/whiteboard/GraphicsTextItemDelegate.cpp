@@ -6,7 +6,7 @@
 #include "whiteboard/GraphicsGroupContainerItem.h"
 #include "whiteboard/GraphicsTextItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
-#include "ui/Resources.h"
+#include "model/Resources.h"
 
 #include "whiteboard/GraphicsTextItem.h"
 #include "whiteboard/GraphicsDelegateFrame.h"

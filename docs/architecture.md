@@ -20,8 +20,9 @@ src/
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager +
   │                CookieJar（可枚举的 Cookie 镜像罐）、
   │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
-  ├─ model/        纯文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
-  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel，
+  ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
+  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel，另加
+  │                Resources（工具光标 + 自定义字体清单，2026-10-21 从 ui/ 搬来），
   │                出边只剩 core/settings/utils（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
   │                图形项 + 绘图工具（原 board/ + domain/ + tools/）+ PDF 页图形项与
@@ -160,10 +161,10 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 | 环 | 边数 | 典型出处 |
 |---|---|---|
 | `core` ↔ `whiteboard` | 30 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 7 / 55 | 只剩 `Application`(4) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `core` ↔ `ui` | 6 / 54 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
 | `content` ↔ `core` | 44 / 16 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `ui` ↔ `whiteboard` | 43 / 50 | 调色板与画板互相认 |
-| `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+| `ui` ↔ `whiteboard` | 39 / 43 | 调色板与画板互相认 |
+| `core` ↔ `model` | 7 / 10 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -257,7 +258,8 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
    `model/DocumentTreeModel.{h,cpp}`（原来声明寄在 `core/PersistenceManager.h`、实现写在
    控制器里），`ExportDocumentSetAdaptor` 改由调用方把选中的树节点当参数传进来
    （`persist(proxy, selectedTreeIndex)`），导出器不再 include 控制器。
-   搬完 `model` 的出边只有 core:9 / settings:4 / utils:4，两组环（`model↔ui`、
+   搬完 `model` 的出边只有 core:9 / settings:4 / utils:4（2026-10-21 又收进 Resources，
+   现为 core:10 / settings:5 / utils:5），两组环（`model↔ui`、
    `model↔whiteboard`）一起消失。**还收紧不了 STATIC**：`model↔core` 仍在，
    要等第 9 步把 `PersistenceManager`/`DocumentManager` 从 core 拆出来。
 
@@ -293,7 +295,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
    本来就只当窗口用；于是 recording 与 desktop 对 web 也归零，`tb_web` 收紧成 STATIC，双向环
    6 → 5。`--ui-smoke` 走网页模式、`--cookie-selftest` 直接量 `cookiesMarkedForDeletion()`，
    两条都覆盖这套装配；把 install 调用注释掉，应用构造期 qFatal、冒烟用例 exit 3 立刻判红。
-8. **`ui/` ↔ `whiteboard/`（最大的一组，40/48）**：拆成“画板拥有视图，调色板经
+8. **`ui/` ↔ `whiteboard/`（最大的一组，39/43；`Resources` 搬去 `model/` 之后从 43/50 降到这里）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
 9. **`core/`**（进行中）：偏好设置对话框（`PreferencesDialog` + `PreferencesController` +
    `BrushPropertiesFrame`）已搬去 `ui/`——一个 QDialog 不该住在服务层。搬的时候顺手收掉两条
@@ -333,7 +335,7 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
    五个 `*SelfTest` 与它们的分发表也已搬去 `app/`（2026-10-21，同一轮）：core 只剩一个通用钩子
    `Application::setSelfTestRun(延时, 入口)`，`app/SelfTests.cpp` 按命令行决定跑哪个、已有实例
    在跑就退 75。搬完 core 对 whiteboard 从 46 降到 30、对 content 从 19 降到 16；对 ui 经过
-   这几轮从 17 降到现在的 7。
+   这几轮从 17 降到现在的 6（`Resources` 搬去 `model/` 又去掉一条）。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -347,16 +349,16 @@ api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, content:4, core:17, desktop:1, model:6, platform:1, recording:1,
                settings:6, ui:7, utils:5, web:1, whiteboard:19
 content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:16, model:6, platform:6, settings:14, ui:7, utils:6, whiteboard:30
+core        -> content:16, model:7, platform:6, settings:14, ui:6, utils:6, whiteboard:30
 desktop     -> core:8, platform:3, settings:3, ui:11, whiteboard:8
-model       -> core:9, settings:4, utils:4
+model       -> core:10, settings:5, utils:5
 platform    -> utils:1
-recording   -> core:6, platform:1, settings:3, ui:4, utils:3, whiteboard:4
+recording   -> core:6, model:1, platform:1, settings:3, ui:3, utils:3, whiteboard:4
 settings    -> utils:3
-ui          -> core:55, model:10, platform:11, settings:20, utils:12, whiteboard:43
+ui          -> core:54, model:11, platform:11, settings:19, utils:11, whiteboard:39
 utils       -> （无出边）
 web         -> core:20, platform:1, settings:5, ui:5, utils:3, whiteboard:5
-whiteboard  -> core:67, model:7, platform:5, settings:20, ui:50, utils:47
+whiteboard  -> core:67, model:18, platform:5, settings:20, ui:39, utils:47
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
