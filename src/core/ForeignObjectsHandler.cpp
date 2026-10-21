@@ -4,7 +4,6 @@
 
 #include <QtWidgets>
 #include <QtXml>
-#include "settings/Settings.h"
 
 const QString tVideo          = "video";
 const QString tAudio          = "audio";

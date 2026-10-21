@@ -7,12 +7,7 @@
 
 #include "whiteboard/GraphicsDelegateFrame.h"
 
-#include "core/Application.h"
-#include "core/PersistenceManager.h"
-
 #include "whiteboard/BoardController.h"
-
-#include "utils/FileSystemUtils.h"
 
 GraphicsProxyWidget::GraphicsProxyWidget(QGraphicsItem *parent) : QGraphicsProxyWidget(parent, Qt::FramelessWindowHint)
 {

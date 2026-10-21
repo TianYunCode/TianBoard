@@ -6,9 +6,6 @@
 #include <QtWidgets>
 #include <QTextCodec>
 
-#include "platform/PlatformUtils.h"
-#include "utils/FileSystemUtils.h"
-
 #include "core/DisplayManager.h"
 #include "core/UserNotices.h"
 #include "ui/MainWindow.h"
@@ -25,7 +22,6 @@
 #include "content/DocumentFormatServices.h"
 #include "web/WebController.h"
 #include "desktop/DesktopAnnotationController.h"
-#include "model/IDocumentFormatServices.h"
 #include "recording/RecordingController.h"
 #include "settings/Settings.h"
 #include "whiteboard/IBoardDropHandler.h"

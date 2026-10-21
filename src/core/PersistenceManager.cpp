@@ -8,18 +8,15 @@
 #include <QXmlStreamWriter>
 #include <QModelIndex>
 
-#include "platform/PlatformUtils.h"
 #include "utils/FileSystemUtils.h"
 
 #include "core/Application.h"
 #include "settings/Settings.h"
-#include "settings/Setting.h"
 #include "core/ForeignObjectsHandler.h"
 
 #include "model/DocumentProxy.h"
 #include "model/DocumentTreeModel.h"
 
-#include "content/ExportPDF.h"
 #include "content/SvgSubsetAdaptor.h"
 #include "content/ThumbnailAdaptor.h"
 #include "content/MetadataDcSubsetAdaptor.h"
@@ -28,9 +25,6 @@
 #include "whiteboard/GraphicsWidgetItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsSvgItem.h"
-
-#include "whiteboard/BoardController.h"
-#include "whiteboard/BoardPaletteManager.h"
 
 namespace
 {

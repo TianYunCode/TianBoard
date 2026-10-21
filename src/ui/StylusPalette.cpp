@@ -6,9 +6,6 @@
 
 #include "core/Application.h"
 #include "settings/Settings.h"
-#include "core/ApplicationController.h"
-
-#include "whiteboard/DrawingController.h"
 
 #include "platform/PlatformUtils.h"
 

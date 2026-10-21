@@ -3,8 +3,6 @@
 #include "web/SearchLineEdit.h"
 #include "web/WebView.h"
 
-#include "utils/Globals.h"
-
 #include <QtWidgets>
 #include <QCompleter>
 #include <QLineEdit>

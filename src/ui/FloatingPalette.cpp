@@ -3,8 +3,6 @@
 
 #include "ui/FloatingPalette.h"
 
-#include "platform/PlatformUtils.h"
-
 #include "settings/Settings.h"
 
 struct FloatingPalette::Private

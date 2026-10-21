@@ -4,7 +4,6 @@
 
 #include "ui/CustomCaptureWindow.h"
 
-#include "platform/PlatformUtils.h"
 #include "ui/RubberBand.h"
 
 struct CustomCaptureWindow::Private

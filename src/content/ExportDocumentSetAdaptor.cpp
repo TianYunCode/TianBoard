@@ -2,16 +2,11 @@
 #include "model/DocumentTreeModel.h"
 #include "content/ExportDocument.h"
 
-#include "platform/PlatformUtils.h"
-
-#include "core/DocumentManager.h"
 #include "core/Application.h"
 
 #include "model/DocumentProxy.h"
 
-#include "utils/Globals.h"
 #include "core/PersistenceManager.h"
-#include "core/ForeignObjectsHandler.h"
 
 THIRD_PARTY_WARNINGS_DISABLE
 #include "quazip.h"

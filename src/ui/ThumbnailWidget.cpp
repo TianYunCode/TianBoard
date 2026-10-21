@@ -9,15 +9,11 @@
 
 #include <QWidget>
 
-#include "whiteboard/BoardController.h"
-
 #include "settings/Settings.h"
 #include "core/Application.h"
 
 #include "model/DocumentProxy.h"
 #include "ui/DocumentController.h"
-
-#include "whiteboard/BoardPaletteManager.h"
 
 struct ThumbnailWidget::Private
 {

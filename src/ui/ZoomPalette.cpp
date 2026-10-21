@@ -7,7 +7,6 @@
 #include "core/Application.h"
 
 #include "whiteboard/BoardController.h"
-#include "whiteboard/BoardView.h"
 
 struct ZoomPalette::Private
 {

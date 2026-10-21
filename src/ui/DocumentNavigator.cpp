@@ -11,9 +11,6 @@
 #include "ui/DocumentNavigator.h"
 #include "whiteboard/BoardController.h"
 #include "ui/DocumentController.h"
-#include "whiteboard/GraphicsScene.h"
-#include "whiteboard/BoardPaletteManager.h"
-#include "core/ApplicationController.h"
 
 struct DocumentNavigator::Private
 {

@@ -8,11 +8,6 @@
 
 #include "whiteboard/GraphicsScene.h"
 
-#include "settings/Settings.h"
-#include "core/Application.h"
-#include "core/ApplicationController.h"
-#include "core/DisplayManager.h"
-
 #include "whiteboard/GraphicsMediaItem.h"
 
 GraphicsMediaItemDelegate::GraphicsMediaItemDelegate(GraphicsMediaItem *pDelegated, QObject *parent)

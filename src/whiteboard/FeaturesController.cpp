@@ -10,9 +10,7 @@
 #include "settings/Settings.h"
 #include "whiteboard/ToolsManager.h"
 #include "utils/FileSystemUtils.h"
-#include "platform/PlatformUtils.h"
 
-#include "core/DownloadManager.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsSvgItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"

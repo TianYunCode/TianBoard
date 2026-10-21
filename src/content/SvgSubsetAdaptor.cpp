@@ -11,7 +11,6 @@
 
 #include "whiteboard/GraphicsSvgItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"
-#include "whiteboard/GraphicsProxyWidget.h"
 #include "whiteboard/GraphicsPolygonItem.h"
 #include "whiteboard/GraphicsMediaItem.h"
 #include "whiteboard/GraphicsWidgetItem.h"
@@ -21,7 +20,6 @@
 #include "whiteboard/GraphicsStroke.h"
 #include "whiteboard/GraphicsStrokesGroup.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
-#include "whiteboard/GraphicsGroupContainerItemDelegate.h"
 #include "whiteboard/Item.h"
 
 #include "whiteboard/GraphicsRuler.h"
@@ -34,17 +32,13 @@
 
 #include "model/DocumentProxy.h"
 
-#include "whiteboard/BoardView.h"
 #include "whiteboard/BoardController.h"
-#include "whiteboard/DrawingController.h"
-#include "whiteboard/BoardPaletteManager.h"
 
 #include "utils/FileSystemUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/FileSystemUtils.h"
 
 #include "settings/Settings.h"
-#include "settings/Setting.h"
 #include "core/PersistenceManager.h"
 #include "core/Application.h"
 #include "core/TextTools.h"

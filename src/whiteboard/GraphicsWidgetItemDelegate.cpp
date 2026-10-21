@@ -6,7 +6,6 @@
 #include "whiteboard/GraphicsScene.h"
 
 #include "core/Application.h"
-#include "ui/MainWindow.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 

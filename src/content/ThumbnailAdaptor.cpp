@@ -4,12 +4,8 @@
 
 #include "utils/FileSystemUtils.h"
 
-#include "core/PersistenceManager.h"
 #include "core/Application.h"
 #include "settings/Settings.h"
-
-#include "whiteboard/BoardController.h"
-#include "whiteboard/BoardPaletteManager.h"
 
 #include "model/DocumentProxy.h"
 

@@ -4,7 +4,6 @@
 
 #include "utils/FileSystemUtils.h"
 
-#include "utils/Enums.h"
 #include "settings/Setting.h"
 
 QPointer<Settings> Settings::sSingleton          = 0;

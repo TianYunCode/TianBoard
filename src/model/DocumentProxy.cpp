@@ -3,7 +3,6 @@
 
 #include "utils/StringUtils.h"
 
-#include "core/Application.h"
 #include "core/PersistenceManager.h"
 #include "settings/Settings.h"
 #include "core/DocumentManager.h"

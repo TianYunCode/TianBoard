@@ -10,17 +10,13 @@
 #include "core/Application.h"
 #include "utils/GeometryUtils.h"
 #include "utils/Snapping.h"
-#include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
 #include "settings/Settings.h"
-#include "core/ApplicationController.h"
-#include "core/DisplayManager.h"
 #include "core/PersistenceManager.h"
 #include "core/TextTools.h"
 
 #include "whiteboard/Magnifier.h"
-#include "ui/MainWindow.h"
 #include "whiteboard/ToolWidget.h"
 #include "model/Resources.h"
 

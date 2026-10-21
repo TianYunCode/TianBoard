@@ -11,13 +11,9 @@
 
 #include "whiteboard/BoardController.h"
 
-#include "core/ApplicationController.h"
-#include "core/Application.h"
 #include "settings/Settings.h"
 
 #include "utils/FileSystemUtils.h"
-
-#include "core/NetworkAccessManager.h"
 
 GraphicsWidgetItem::GraphicsWidgetItem(const QUrl &pWidgetUrl, QGraphicsItem *parent)
     : QGraphicsWidget(parent), mInitialLoadDone(false), mIsFreezable(true), mIsResizable(false), mCanBeContent(0), mCanBeTool(0),

@@ -10,16 +10,11 @@
 
 #include "core/Application.h"
 #include "settings/Settings.h"
-#include "settings/Setting.h"
 #include "core/PersistenceManager.h"
 
 #include "whiteboard/GraphicsScene.h"
-#include "whiteboard/GraphicsSvgItem.h"
-#include "whiteboard/GraphicsPDFItem.h"
 
 #include "model/DocumentProxy.h"
-
-#include "whiteboard/PdfPageItem.h"
 
 ExportPDF::ExportPDF(QObject *parent) : ExportAdaptor(parent)
 {

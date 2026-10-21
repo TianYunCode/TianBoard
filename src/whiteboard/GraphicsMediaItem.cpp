@@ -3,7 +3,6 @@
 #include "whiteboard/GraphicsMediaItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsDelegateFrame.h"
-#include "model/DocumentProxy.h"
 #include "core/Application.h"
 #include "whiteboard/BoardController.h"
 

@@ -158,15 +158,18 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 五、依赖债：现存的双向环
 
 下面是 `src/` 全量扫描出来的直接互相 include（数字 = 各方向的 include 处数，
-含头文件里的；`app/` 作为装配点不计）。
+含头文件里的；`app/` 作为装配点不计）。2026-10-21 又删掉 107 行确认无害的跨模块
+include：候选 286 处，其余 179 处被编译器证明仍在替调用方供给类型——判死只能靠编译，
+grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`Application::mainWindow->ui()`
+这类用法里类型名一次都不出现）。这五个环的边数因此全线下降。
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 30 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 6 / 52 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
-| `content` ↔ `core` | 44 / 16 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `ui` ↔ `whiteboard` | 36 / 33 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model 之后） |
-| `core` ↔ `model` | 7 / 10 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+| `core` ↔ `whiteboard` | 28 / 55 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 6 / 45 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `content` ↔ `core` | 35 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
+| `core` ↔ `model` | 7 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -348,20 +351,20 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 由 `src/` 全量扫描得到）：
 
 ```text
-api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
-app         -> api:1, content:4, core:17, desktop:1, model:6, platform:1, recording:1,
-               settings:6, ui:7, utils:5, web:1, whiteboard:19
-content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:16, model:7, platform:6, settings:14, ui:6, utils:6, whiteboard:30
+api         -> content:1, core:4, model:1, settings:1, utils:1, whiteboard:6
+app         -> api:1, content:4, core:17, desktop:1, model:5, recording:1, settings:6, ui:7,
+               utils:4, web:1, whiteboard:19
+content     -> core:35, model:21, platform:2, settings:7, utils:20, whiteboard:41
+core        -> content:15, model:7, platform:5, settings:11, ui:6, utils:6, whiteboard:28
 desktop     -> core:8, platform:3, settings:3, ui:11, whiteboard:8
-model       -> core:10, settings:5, utils:5
+model       -> core:9, settings:5, utils:5
 platform    -> utils:1
 recording   -> core:6, model:1, platform:1, settings:3, ui:3, utils:3, whiteboard:4
-settings    -> utils:3
-ui          -> core:52, model:11, platform:10, settings:18, utils:10, whiteboard:36
+settings    -> utils:2
+ui          -> core:45, model:10, platform:7, settings:16, utils:10, whiteboard:28
 utils       -> （无出边）
-web         -> core:20, platform:1, settings:5, ui:5, utils:3, whiteboard:5
-whiteboard  -> core:69, model:18, platform:6, settings:21, ui:33, utils:48
+web         -> core:16, platform:1, settings:4, ui:5, utils:2, whiteboard:4
+whiteboard  -> core:55, model:13, platform:3, settings:20, ui:30, utils:44
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

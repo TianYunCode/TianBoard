@@ -7,7 +7,6 @@
 #include "utils/FileSystemUtils.h"
 
 #include "settings/Settings.h"
-#include "settings/Setting.h"
 #include "core/Application.h"
 
 ExportAdaptor::ExportAdaptor(QObject *parent) : QObject(parent), mIsVerbose(true)

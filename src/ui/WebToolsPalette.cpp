@@ -3,14 +3,10 @@
 #include "platform/PlatformUtils.h"
 
 #include "core/Application.h"
-#include "settings/Settings.h"
-#include "core/ApplicationController.h"
-#include "core/DisplayManager.h"
 
 #include "ui/MainWindow.h"
 
 #include "ui/WebToolsPalette.h"
-#include "model/Resources.h"
 #include "ui/IconButton.h"
 
 struct WebToolsPalette::Private

@@ -4,8 +4,6 @@
 
 #include "ui/DockPalette.h"
 
-#include "platform/PlatformUtils.h"
-
 #include "settings/Settings.h"
 #include "core/Application.h"
 #include "ui/PreferencesController.h"

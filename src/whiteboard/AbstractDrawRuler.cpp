@@ -1,7 +1,6 @@
 #include "whiteboard/AbstractDrawRuler.h"
 #include <QtSvg>
 #include <QtSvgWidgets>
-#include "utils/Enums.h"
 #include "model/Resources.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/DrawingController.h"

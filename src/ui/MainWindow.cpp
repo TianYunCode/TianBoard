@@ -5,9 +5,6 @@
 #include "ui/MainWindow.h"
 #include "ui/DownloadWidget.h"
 #include "core/Application.h"
-#include "core/ApplicationController.h"
-#include "whiteboard/BoardController.h"
-#include "core/DisplayManager.h"
 #include "core/LanguageManager.h"
 #include "core/ShortcutManager.h"
 

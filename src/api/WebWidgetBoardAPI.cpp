@@ -4,7 +4,6 @@
 #include <QDomDocument>
 #include <QtWidgets>
 
-#include "utils/Enums.h"
 #include "core/Application.h"
 #include "settings/Settings.h"
 
@@ -12,7 +11,6 @@
 
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
-#include "whiteboard/BoardPaletteManager.h"
 
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsWidgetItem.h"

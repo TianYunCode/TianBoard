@@ -9,7 +9,6 @@
 
 #include "model/DocumentProxy.h"
 
-#include "whiteboard/Item.h"
 #include "whiteboard/GraphicsPolygonItem.h"
 #include "whiteboard/GraphicsStroke.h"
 #include "whiteboard/GraphicsTextItem.h"
@@ -22,14 +21,11 @@
 #include "whiteboard/GraphicsWidgetItem.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
 
-#include "utils/FileSystemUtils.h"
-
 #include "content/IwbSubsetAdaptor.h"
 #include "content/MetadataDcSubsetAdaptor.h"
 #include "content/ThumbnailAdaptor.h"
 #include "content/SvgSubsetAdaptor.h"
 
-#include "core/Application.h"
 #include "QFile"
 
 // IWB 内容 XML 的标签名。这里保留一份导入端专用的局部副本，语义与 IwbConstants.h

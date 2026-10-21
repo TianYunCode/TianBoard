@@ -8,8 +8,6 @@
 #include "settings/Settings.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsWidgetItem.h"
-#include "platform/PlatformUtils.h"
-#include "utils/FileSystemUtils.h"
 
 // 关闭/解除固定图标被所有浮动窗口共用，只加载一次。
 static QPixmap *sClosePixmap = 0;

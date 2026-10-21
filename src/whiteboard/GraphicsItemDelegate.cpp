@@ -14,12 +14,7 @@
 #include "whiteboard/BoardView.h"
 
 #include "core/Application.h"
-#include "core/ApplicationController.h"
-#include "core/DisplayManager.h"
 #include "settings/Settings.h"
-#include "core/PersistenceManager.h"
-
-#include "model/DocumentProxy.h"
 
 #include "whiteboard/GraphicsWidgetItem.h"
 
@@ -27,7 +22,6 @@
 #include "whiteboard/GraphicsMediaItem.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
 
-#include "utils/FileSystemUtils.h"
 #include "whiteboard/DrawingController.h"
 
 DelegateButton::DelegateButton(const QString &fileName, QGraphicsItem *pDelegated, QGraphicsItem *parent, Qt::WindowFrameSection section)

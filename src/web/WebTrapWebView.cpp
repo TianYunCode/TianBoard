@@ -6,10 +6,6 @@
 
 #include "web/WebKitUtils.h"
 
-#include "core/Application.h"
-#include "core/ApplicationController.h"
-#include "whiteboard/BoardController.h"
-
 struct WebTrapWebView::Private
 {
     QRect                          mDomElementRect;

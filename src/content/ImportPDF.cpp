@@ -1,8 +1,6 @@
 #include "content/ImportPDF.h"
 #include "core/VirtualDesktop.h"
 
-#include "model/DocumentProxy.h"
-
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
 

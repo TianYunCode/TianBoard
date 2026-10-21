@@ -5,8 +5,6 @@
 #include "core/VirtualDesktop.h"
 
 #include "settings/Settings.h"
-#include "core/Application.h"
-#include "whiteboard/BoardController.h"
 
 #include "model/DocumentProxy.h"
 

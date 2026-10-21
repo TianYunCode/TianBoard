@@ -10,11 +10,7 @@
 #include "core/VirtualDesktop.h"
 
 #include "settings/Settings.h"
-#include "settings/Setting.h"
 #include "core/Application.h"
-
-#include "core/NetworkAccessManager.h"
-#include "core/AutoSaver.h"
 
 #include "ui/MainWindow.h"
 
