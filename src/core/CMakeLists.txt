@@ -4,12 +4,17 @@
 #        （多屏）、LanguageManager（取词）、PersistenceManager（.tbz 落盘）、
 #        DocumentManager（文档库）、NetworkAccessManager/HttpGet/AutoSaver
 #        （原 network/；ProxyDialog 归 ui/）、MimeData、TextTools、IdleTimer、
-#        ForeignObjectsHandler。
+#        ForeignObjectsHandler、CookieJar、ShortcutManager。
+#        偏好设置对话框（PreferencesController + PreferencesDialog）不住这里——它是界面，
+#        2026-10 搬去 ui/。
 #        配置层 Settings/Setting 已经抽到 src/settings/；Enums.h 与 resource.h
 #        也不在这里：前者是纯定义（utils/），后者归可执行目标（app/）。
 #
-# 允许依赖：几乎所有模块 —— 服务层本来就是装配点。拆环时要先把它对 ui/
-# whiteboard 的具体类依赖换成接口（见 docs/architecture.md 的债表）。
+# 允许依赖：几乎所有模块 —— 服务层本来就是装配点。拆环时要先把它对 ui/whiteboard 的
+# 具体类依赖换成接口或构造期注入（见 docs/architecture.md 的债表与拆环第 9 步）：
+# 剩下的上边主要来自 Application/ApplicationController 这两个装配角色，加上
+# DocumentManager、PersistenceManager、DisplayManager、DownloadManager、
+# NetworkAccessManager 五处"服务伸手拿界面"的漏点。
 # ======================================================================
 
 add_library(tb_core OBJECT
@@ -45,8 +50,6 @@ add_library(tb_core OBJECT
     NetworkAccessManager.h
     PersistenceManager.cpp
     PersistenceManager.h
-    PreferencesController.cpp
-    PreferencesController.h
     SnapSelfTest.cpp
     SnapSelfTest.h
     SceneCache.cpp

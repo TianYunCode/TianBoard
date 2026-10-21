@@ -80,6 +80,18 @@ public slots:
     /// 从设置刷新界面后以模态方式显示对话框。
     void show();
 
+signals:
+    /**
+     * @brief Cookie 相关的设置变了（策略、是否清除、白名单）。
+     * @note 界面不去问浏览器那一层：谁来重装过滤器、数字从哪儿来，由装配层决定
+     *       （见 core/Application 里的连接）。装完策略后装配层会回推 setCookiesMarkedForDeletion()。
+     */
+    void cookieSettingsChanged();
+
+public slots:
+    /// @brief 装配层回填“退出时会清掉多少个 Cookie”，只改提示行文字。
+    void setCookiesMarkedForDeletion(int count);
+
 protected:
     /// 把界面控件与设置项、运行时对象连接起来。
     void wire();

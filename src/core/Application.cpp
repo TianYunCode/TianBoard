@@ -17,7 +17,7 @@
 #include "settings/Settings.h"
 #include "settings/Setting.h"
 #include "core/PersistenceManager.h"
-#include "core/PreferencesController.h"
+#include "ui/PreferencesController.h"
 #include "core/ApplicationController.h"
 
 #include "whiteboard/BoardController.h"
@@ -231,6 +231,21 @@ int Application::exec(const QString &pFileToImport)
     connect(mainWindow->ui().actionHideApplication, &QAction::triggered, mainWindow, &MainWindow::showMinimized);
 
     mPreferencesController = new PreferencesController(mainWindow);
+
+    // Cookie 那一组控件的下游都在浏览器层：界面发信号，这里去重装过滤器并把
+    // “退出会清掉几个”算回去。数字只统计本次会话镜像到的那些（内核列不出盘上的历史
+    // Cookie），所以是下界。
+    connect(mPreferencesController, &PreferencesController::cookieSettingsChanged, this,
+        [this]
+        {
+            if (!webController)
+            {
+                return;
+            }
+
+            webController->installCookiePolicy();
+            mPreferencesController->setCookiesMarkedForDeletion(webController->cookiesMarkedForDeletion());
+        });
 
     connect(mainWindow->ui().actionPreferences, &QAction::triggered, mPreferencesController, &PreferencesController::show);
 

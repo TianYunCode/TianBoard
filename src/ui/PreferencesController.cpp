@@ -1,4 +1,4 @@
-#include "core/PreferencesController.h"
+#include "ui/PreferencesController.h"
 
 #include <QDate>
 
@@ -17,7 +17,6 @@
 #include "ui/DocumentController.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/DrawingController.h"
-#include "recording/RecordingController.h"
 
 #include "ui/ColorPicker.h"
 #include "ui/ShortcutSettingsWidget.h"
@@ -25,7 +24,6 @@
 
 #include "core/VirtualDesktop.h"
 #include "utils/CookieRules.h"
-#include "web/WebController.h"
 
 qreal PreferencesController::sSliderRatio = 10.0;
 qreal PreferencesController::sMinPenWidth = 0.5;
@@ -1336,11 +1334,8 @@ void PreferencesController::wire()
         {
             Settings::settings()->webCookiePolicy->set(mPreferencesUI->cookiePolicyComboBox->currentData().toString());
 
-            // 策略改完立刻重装过滤器，不用重启应用；镜像连线在 WebController 里自己防重。
-            if (Application::webController)
-            {
-                Application::webController->installCookiePolicy();
-            }
+            // 策略改完立刻生效，不用重启应用——由装配层去重装过滤器（它才认识 WebController）。
+            emit cookieSettingsChanged();
         });
     connect(mPreferencesUI->cookieAutoDeleteCheckBox, &QCheckBox::clicked, settings->webCookieAutoDelete, &Setting::setBool);
     connect(mPreferencesUI->cookieAutoDeleteCheckBox, &QCheckBox::clicked, this, &PreferencesController::cookieCountChanged);
@@ -1530,10 +1525,13 @@ void PreferencesController::init()
 
 void PreferencesController::cookieCountChanged()
 {
-    // 只报本次会话镜像到的那些：内核不提供“列出盘上已有的 Cookie”，所以数字是下界。
-    const int marked = Application::webController ? Application::webController->cookiesMarkedForDeletion() : 0;
+    // 数字不在这里算：界面只报"设置变了"，装配层算好再回推（见 setCookiesMarkedForDeletion）。
+    emit cookieSettingsChanged();
+}
 
-    mPreferencesUI->cookieCountLabel->setText(PreferencesDialog::tr("%1 cookie(s) will be deleted on exit.").arg(marked));
+void PreferencesController::setCookiesMarkedForDeletion(int count)
+{
+    mPreferencesUI->cookieCountLabel->setText(PreferencesDialog::tr("%1 cookie(s) will be deleted on exit.").arg(count));
 }
 
 void PreferencesController::close()

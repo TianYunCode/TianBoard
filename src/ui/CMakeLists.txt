@@ -7,6 +7,8 @@
 #      下"怎么把一次按键交给系统"这一件事（platform/KeyboardSender）。文档模式的控制器
 #      DocumentController（+ 它的树视图/委托/重名对话框）也是 2026-10 从 model/ 搬进来的：
 #      它建的是界面，model/ 只留纯文档域。
+#      偏好设置那一套（PreferencesDialog + PreferencesController + BrushPropertiesFrame）
+#      同一轮从 core/ 搬进来——一个 QDialog 与它的控制器不该住在服务层。
 #
 # 允许依赖：model、utils、platform。尚未成立的边：ui <-> core / whiteboard。
 # （对 model 已是单向：model 不再 include 本模块；对 content 与 api 零出边——content
@@ -73,6 +75,8 @@ add_library(tb_ui OBJECT
     MousePressFilter.h
     PageNavigationWidget.cpp
     PageNavigationWidget.h
+    PreferencesController.cpp
+    PreferencesController.h
     PropertyPalette.cpp
     PropertyPalette.h
     ProxyDialog.cpp

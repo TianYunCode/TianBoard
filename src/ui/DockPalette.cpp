@@ -8,7 +8,7 @@
 
 #include "settings/Settings.h"
 #include "core/Application.h"
-#include "core/PreferencesController.h"
+#include "ui/PreferencesController.h"
 #include "core/DownloadManager.h"
 
 #include "whiteboard/BoardController.h"

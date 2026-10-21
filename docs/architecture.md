@@ -152,14 +152,14 @@ include。
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 33 / 65 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 20 / 49 | `core/Application.cpp`、`PersistenceManager.cpp`、`DownloadManager.cpp`、`DocumentManager.cpp` 直接认 `ui/MainWindow.h`；`ui/*.cpp` 反过来认 Application |
-| `content` ↔ `core` | 44 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
-| `ui` ↔ `whiteboard` | 40 / 50 | 调色板与画板互相认 |
-| `core` ↔ `model` | 8 / 9 | `core/DocumentManager` ↔ `model/DocumentProxy`；`model/*` 反过来认 PersistenceManager/Application/DocumentManager |
-| `core` ↔ `web` | 2 / 17 | `core/Application.cpp` 认 WebController |
+| `core` ↔ `whiteboard` | 46 / 67 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 17 / 54 | 五个服务伸手拿界面：`DocumentManager`、`PersistenceManager`（认 DocumentController/MainWindow）、`DisplayManager`（BlackoutWidget）、`DownloadManager`（MainWindow）、`NetworkAccessManager`（ProxyDialog），加上 `Application` 自己；`ui/*.cpp` 反过来认 Application |
+| `content` ↔ `core` | 44 / 19 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `ui` ↔ `whiteboard` | 43 / 50 | 调色板与画板互相认 |
+| `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+| `core` ↔ `web` | 3 / 19 | `core/Application.cpp` 认 WebController |
 | `core` ↔ `desktop` | 2 / 7 | `core/ApplicationController.cpp` 认 DesktopPalette |
-| `core` ↔ `recording` | 2 / 5 | ApplicationController/PreferencesController 认 RecordingController |
+| `core` ↔ `recording` | 1 / 5 | ApplicationController/PreferencesController 认 RecordingController |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -269,8 +269,17 @@ include。
    装配层的转发——录制按钮、批注宿主、`openInternetUrl`，见上一节）
 8. **`ui/` ↔ `whiteboard/`（最大的一组，40/48）**：拆成“画板拥有视图，调色板经
    接口回调解”。这组动作量大，且都在交互热路径上，必须单独排期、单独回归。
-9. **`core/`**（最后）：core 是装配点，`core` → `ui`/`whiteboard` 的边要换成接口 +
-   构造期注入，或者把 `ApplicationController` 上提到 `app/`，让 core 退化成纯服务集合。
+9. **`core/`**（进行中）：偏好设置对话框（`PreferencesDialog` + `PreferencesController` +
+   `BrushPropertiesFrame`）已搬去 `ui/`——一个 QDialog 不该住在服务层。搬的时候顺手收掉两条
+   向上够的边：`recording/RecordingController.h` 是从没用过的死 include（删），Cookie 那一组
+   控件不再自己去问 `WebController`，改成发 `cookieSettingsChanged()`、由 `core/Application`
+   重装过滤器并把"退出会清掉几个"回推给 `setCookiesMarkedForDeletion()`（ui 对 web/recording
+   因此归零，否则会新造两组环）。
+   **剩下 8 组环里 7 组都过 `core`**，主体是 `Application`/`ApplicationController` 这两个装配
+   角色，另有上面点名的五处"服务伸手拿界面"。收尾手法与前几刀同一路：服务只发信号或只收
+   `QWidget*`（`Application::dialogHost()` 已是这个形状），装配动作留在装配层；四个
+   `*SelfTest` 也该搬去 `app/`——它们本来就是装配层诊断，如今独占了 core 对 whiteboard 的
+   16 条边。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -283,14 +292,14 @@ include。
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:7
 app         -> api:1, content:1, core:1, model:1, platform:1, settings:1, utils:1, whiteboard:1
 content     -> core:44, model:23, platform:3, settings:12, utils:22, whiteboard:57
-core        -> content:19, desktop:2, model:8, platform:7, recording:2, settings:20, ui:20,
-               utils:10, web:4, whiteboard:49
+core        -> content:19, desktop:2, model:8, platform:6, recording:1, settings:18, ui:17,
+               utils:9, web:3, whiteboard:46
 desktop     -> core:7, platform:3, settings:3, ui:11, web:1, whiteboard:8
 model       -> core:9, settings:4, utils:4
 platform    -> utils:1
 recording   -> core:5, platform:1, settings:3, ui:4, utils:3, web:2, whiteboard:4
 settings    -> utils:3
-ui          -> core:49, model:10, platform:10, settings:18, utils:11, whiteboard:40
+ui          -> core:54, model:10, platform:11, settings:20, utils:12, whiteboard:43
 utils       -> （无出边）
 web         -> core:19, platform:1, settings:5, ui:5, utils:3, whiteboard:5
 whiteboard  -> core:67, model:7, platform:5, settings:20, ui:50, utils:47
