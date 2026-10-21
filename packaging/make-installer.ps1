@@ -45,13 +45,17 @@ if (-not $Version) {
 }
 "Version: $Version"
 
-$hardcoded = Select-String -Path (Join-Path $Root 'src\core\Application.cpp') -Pattern '"V\d+\.\d+\.\d+"'
+# 扫整个 src/ 而不是某一个文件：这条哨兵原来钉在 src/core/Application.cpp 上，
+# 那个文件搬到 app/ 之后 Select-String 只会静默扫不到东西，哨兵就变成摆设。
+$sources = Get-ChildItem -Path (Join-Path $Root 'src') -Recurse -Include *.cpp, *.h -File
+if (-not $sources) {
+    throw '在 src/ 下找不到任何 .cpp/.h：这条版本哨兵没法工作，先确认源码树还在原位。'
+}
+$hardcoded = $sources | Select-String -Pattern '"V\d+\.\d+\.\d+"'
 if ($hardcoded) {
-    throw @"
-src/core/Application.cpp 里又出现了硬编码版本串：$($hardcoded[0].Line.Trim())
+    throw "$($hardcoded[0].Path) 第 $($hardcoded[0].LineNumber) 行又出现了硬编码版本串：$($hardcoded[0].Line.Trim())
 版本号只能有一个来源（根 CMakeLists.txt 的 project VERSION，经 TIANBOARD_VERSION 编译进来），
-否则安装包版本、关于对话框、设置里的版本行会各说一套。
-"@
+否则安装包版本、关于对话框、设置里的版本行会各说一套。"
 }
 
 # ---- 1. Release 构建 ----

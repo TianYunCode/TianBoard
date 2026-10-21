@@ -3,12 +3,19 @@
 #       TianBoard.rc / resource.h（加速器与图标资源）、res/TianBoard.qrc。
 #
 # 这里只做装配：把各模块的 OBJECT 库并成一个 TianBoard.exe，再把运行期
-# 目录铺到可执行文件旁边。不放业务代码——但有两样"只有装配层能干"的东西，
-# 2026-10 起也住在这里：
+# 目录铺到可执行文件旁边。不放业务代码——但有三样"只有装配层能干"的东西：
 #   * 下层模块所需实现的注入（drop 处理器工厂、文档格式服务），见 main.cpp；
 #   * 四个 *SelfTest 与按命令行分发的 app/SelfTests.cpp——自检要同时伸手进
 #     model/whiteboard/content/web/ui，换任何别的模块都会新造一组环，
-#     core 那边只留一个通用钩子 Application::setSelfTestRun()。
+#     core 那边只留一个通用钩子 Application::setSelfTestRun()；
+#   * Application 与 ApplicationController 的实现（头文件在 core/）。这两个类的函数体
+#     就是"建主窗口、造四个控制器、把动作连上"，除了这里没别处能放：放进任何别的
+#     src/ 模块都会新造一组双向环。2026-10-21 把它们从 core/ 搬过来之后，core 对 ui
+#     的出边归零，core↔ui 那组环随之消失（docs/architecture.md 第五节第 9 步）。
+#
+# AUTOMOC 仍然按头文件走：Application.h / ApplicationController.h 列在 tb_core 里，
+# moc 产物进 tb_core，成员函数在下面的可执行目标里定义——最终只有一个 exe，
+# 符号在同一次链接里解得开。
 #
 # 运行期布局（FileSystemUtils::applicationResourcesDirectory() ==
 # applicationDirPath()）：etc/ library/ customizations/ Language/ 必须与
@@ -16,6 +23,8 @@
 # ======================================================================
 
 add_executable(TianBoard WIN32
+    Application.cpp
+    ApplicationController.cpp
     CookieSelfTest.cpp
     CookieSelfTest.h
     FormatSelfTest.cpp

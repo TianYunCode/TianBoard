@@ -12,14 +12,16 @@
 
 ```text
 src/
-  ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配
+  ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配、
+  │                五个 *SelfTest，以及 Application.cpp / ApplicationController.cpp
+  │                ——这两个装配角色的实现（头文件在 core/，见第四节）
   ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
   │                （只依赖 utils，与 utils 一样是真 STATIC）
-  ├─ core/         应用与各类服务/控制器（Application、ApplicationController、
-  │                DisplayManager、LanguageManager、PersistenceManager、
+  ├─ core/         各类服务/控制器（DisplayManager、LanguageManager、PersistenceManager、
   │                DocumentManager、SceneCache、DownloadManager、NetworkAccessManager +
   │                CookieJar（可枚举的 Cookie 镜像罐）、
-  │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
+  │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）；
+  │                Application 与 ApplicationController 只有头在这里，对 ui 的出边已归零
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
   │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel、
   │                ForeignObjectsHandler（文档包内被引用对象的搬运，从 core/ 搬来）、
@@ -138,22 +140,23 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 5 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 4 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
 
-已经做到的六个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
-（出边只有 utils）与 `tb_recording`、`tb_desktop`、`tb_web`（没有任何模块反向 include 它们，
-2026-10-21）。越界的 `#include` 在编译期就失败，而不是等到链接期靠符号缺失才发现——
-这个配方对其它模块同样成立，`settings` 与 `platform` 都是照着 `utils` 拆出来的。
+已经做到的七个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
+（出边只有 utils）与 `tb_recording`、`tb_desktop`、`tb_web`、`tb_api`（没有任何模块反向
+include 它们，2026-10-21）。越界的 `#include` 在编译期就失败，而不是等到链接期靠符号缺失
+才发现——这个配方对其它模块同样成立，`settings` 与 `platform` 都是照着 `utils` 拆出来的。
 
 换成 STATIC 的前置条件有两种，强度不同：
 
 * **叶子模块**要求出边全部落在比它低的层（下表），且没有对上的 include——这是终态。
 * **非叶子模块**只要"没有任何上层反向 include 它"（也就是不在任何环里）就可以先归档：
   它向上那几条边的符号在最终可执行里照样解得开，因为上层此刻还是 OBJECT、.obj 直接进
-  exe；`tb_recording`、`tb_desktop`、`tb_web` 就是这样先走了一步，它们仍认 core/ui/whiteboard。等那些模块也
+  exe；`tb_recording`、`tb_desktop`、`tb_web`、`tb_api` 就是这样先走了一步，它们仍认
+  core/ui/whiteboard。等那些模块也
   逐个 STATIC 时，再给它们补 `target_link_libraries` 声明，MSVC 的链接器对静态库顺序不
   敏感（反复扫描直到符号解完），不会变成一门链接参数的玄学。
 
@@ -169,11 +172,15 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 28 / 52 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 6 / 41 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `core` ↔ `whiteboard` | 17 / 52 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 | `content` ↔ `core` | 28 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
-| `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+
+`core` ↔ `ui` 已于 2026-10-21 归零（见下面第 9 步的收尾）：`Application.cpp` 与
+`ApplicationController.cpp` 两个实现搬到 `app/`，头文件仍留在 `core/`（每个模块都要从那里
+拿入口指针），于是 `src/core/` 里没有任何文件认识 `ui/`。`ui` 因此不再是环的一员，但它仍被
+`desktop`/`recording`/`web`/`whiteboard` 反向 include，还不能归档。
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -202,7 +209,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 `whiteboard` 现在对 `desktop`、`recording`、`api`、`content` 与 `web` 都是**零出边**（这五组环因此消失）：
 
 - 白板工具栏的“录制”按钮不再由 `BoardPaletteManager` 转发。这条 connect 挪到装配层
-  （`core/Application.cpp`），转发的槽换成 `ApplicationController::toggleRecordingPalette`
+  （`app/Application.cpp` 的 `exec()`），转发的槽换成 `ApplicationController::toggleRecordingPalette`
   ——装配层本来就认识 `RecordingController`，画板模块不必为它 include `recording/`。
   顺手删掉 `BoardController::toggleRecording`：它没有发送者，而且真按下去会懒建一个
   录制控制器，把“没启用录制也创建录制管线”这个老问题留着。
@@ -219,8 +226,8 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 - 拖放门面反向边：`GraphicsWidgetItem::processDropEvent` 过去 `new WebWidgetBoardAPI(...)`
   再调它，画板因此 include `api/`。现在画板只认自己这层的 `whiteboard/IBoardDropHandler`
   接口（一个纯虚函数 + 一个工厂指针），`WebWidgetBoardAPI` 实现它，实现由装配点
-  `app/main.cpp` 在启动时装上（`installBoardDropHandlerFactory`）。放在 `app/` 而不是
-  `core/Application.cpp`，是因为 api 本来就认 core，装上就会新造一组 `core` ↔ `api` 环；
+  `app/main.cpp` 在启动时装上（`installBoardDropHandlerFactory`）。放在装配点而不是
+  `Application` 的实现里，是因为 api 本来就认 core，装在 core 就会新造一组 `core` ↔ `api` 环；
   `app/` 是唯一允许认识所有模块的那一层。没装上也不会崩，只是不接拖放。
   同一次改动里删掉了 `WebWidgetAPI`/`WebWidgetPreferenceAPI` 两个门面与整条
   `javaScriptWindowObjectCleared` → `injectInlineJavaScript` 的死链：Qt6 没有
@@ -314,7 +321,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
    控件不再自己去问 `WebController`，改成发 `cookieSettingsChanged()`、由 `core/Application`
    重装过滤器并把"退出会清掉几个"回推给 `setCookiesMarkedForDeletion()`（ui 对 web/recording
    因此归零，否则会新造两组环）。
-   **剩下 8 组环里 7 组都过 `core`**，主体是 `Application`/`ApplicationController` 这两个装配
+   **当时剩下 8 组环里 7 组都过 `core`**，主体是 `Application`/`ApplicationController` 这两个装配
    角色，另有上面点名的五处"服务伸手拿界面"。收尾手法与前几刀同一路：服务只发信号或只收
    `QWidget*`（`Application::dialogHost()` 已是这个形状），装配动作留在装配层。已按这条路
    拆掉两处服务漏点：`NetworkAccessManager` 不再 include `ui/ProxyDialog.h`——站点要凭据时
@@ -347,6 +354,16 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
    `Application::setSelfTestRun(延时, 入口)`，`app/SelfTests.cpp` 按命令行决定跑哪个、已有实例
    在跑就退 75。搬完 core 对 whiteboard 从 46 降到 30、对 content 从 19 降到 16；对 ui 经过
    这几轮从 17 降到现在的 6（`Resources` 搬去 `model/` 又去掉一条）。
+   **最后这 6 条用"搬实现"收尾，没有新抽象。** `Application.cpp` 与 `ApplicationController.cpp`
+   整体 `git mv` 到 `app/`，两个头文件仍列在 `tb_core` 里。理由不是"core 太大"，而是这两个类
+   的函数体本来干的就是装配：建主窗口、造四个控制器、把 `QAction` 连到模式切换；`core` 里其余
+   的服务一个都不碰界面。把它们留在 `core` 会让"服务层不认识界面"这条永远不成立，而把它俩
+   的声明也一起搬去 `app` 更糟——200 多个调用点要从 `app/` 反向够进来，`app` 本来不计入环表，
+   那等于把耦合藏到指标后面。搬完 `core` → `ui` 归零，`core` ↔ `ui` 那组环消失（5 → 4 组），
+   顺带 `core` 对 whiteboard 17、model 6、platform 4、settings 7、utils 4 各降一截，这些边
+   全都挪进了 `app` 那一行。AUTOMOC 仍按头文件走：`moc_Application*.cpp` 在 `tb_core`，成员函数
+   在最终 exe 的目标里，同一次链接解得开（`tst_smoke` 与 `tst_ui_modes` 真把应用拉起来走完四个
+   模式，装配漏了会在构造期 `qFatal`，两条都还判绿）。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -357,10 +374,10 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:1, whiteboard:6
-app         -> api:1, content:4, core:17, desktop:1, model:5, recording:1, settings:6, ui:7,
-               utils:4, web:1, whiteboard:19
+app         -> api:1, content:4, core:32, desktop:1, model:7, platform:4, recording:1,
+               settings:10, ui:13, utils:6, web:1, whiteboard:30
 content     -> core:28, model:21, platform:8, settings:7, utils:21, whiteboard:41
-core        -> content:15, model:8, platform:8, settings:11, ui:6, utils:6, whiteboard:28
+core        -> content:15, model:6, platform:4, settings:7, utils:4, whiteboard:17
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> core:9, settings:5, utils:5
 platform    -> utils:1
@@ -373,6 +390,9 @@ whiteboard  -> core:52, model:13, platform:5, settings:20, ui:30, utils:45
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
+上面 `core` 那一行是 2026-10-21 把 `Application.cpp`/`ApplicationController.cpp` 搬去 `app/`
+之后重测的：core 对 ui 归零，对 whiteboard 28→17、model 8→6、platform 8→4、settings 11→7、
+utils 6→4，这些边全部转到了 `app` 那一行——`app` 是装配点，本来就该这么重。
 重跑这张表不需要脚本，一条 grep 就够：
 
 ```text

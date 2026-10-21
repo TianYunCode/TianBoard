@@ -30,12 +30,16 @@
 
 * **一个类一对同名文件**：`GraphicsStroke.h` + `GraphicsStroke.cpp`，文件名用
   PascalCase，与主类同名。AUTOMOC 靠这个配对决定 moc 谁。
+  唯一例外是装配角色：`Application` 与 `ApplicationController` 的头留在 `core/`（每个模块
+  都要从这里拿入口指针），实现搬到 `app/`（函数体干的就是装配）。判据是"这个类的成员函数
+  是不是只在建界面、连信号"，不是"这个文件太大"。
 * **只有头文件实现的（模板、inline-only 工具、接口）用 `.hpp`**。目前全仓 0 个 `.hpp`，
   新增这类文件一律 `.hpp`，别再出现“名字像类、其实是纯头文件”的 `.h`。
   例外：`Globals.h`、`Enums.h`、`MainWindowUi.h`、`IwbConstants.h` 这些是既有纯头文件，
   改名要单独排期（牵动 include 与 moc），不与功能改动混在一起。
-* **纯抽象接口用 `I<名字>.h`**：`IBoardDropHandler.h`（第一个例子）、后续的
-  `IDocumentStore.h`、`IThumbnailProvider.h`。
+* **纯抽象接口用 `I<名字>.h`**：现有四个——`whiteboard/IBoardDropHandler.h`（第一个）、
+  `model/IDocumentFormatServices.h`、`core/IDesktopAnnotation.h`、`core/IWebController.h`。
+  共同形状：接口住在**消费它的低层模块**，实现在高层，装配点在启动时把实现装上。
   拆依赖环时抽出来的接口一律走这个命名，一眼能看出它是“只有契约”的头。
   接口旁边可以带一对装配用的工厂声明（`installXxxFactory` / `createXxx`），
   实现由装配点在启动时装上；这类头不带任何 Qt 依赖，只用前置声明。
@@ -110,10 +114,13 @@ struct BlackoutWidget::Private
   不完整类型直接编译失败。
 * 带 `Q_OBJECT` 的宿主类，其头文件必须列进所属模块的 `CMakeLists.txt` 源文件清单——
   AUTOMOC 只自动配对同名 `.h`/`.cpp`，头文件不列上就不生成 moc，信号槽在运行期**静默失效**
-  （编译链接一句话都不报）。现存唯一需要特别当心的例子：`platform/WindowCapture.h` 有
-  `Q_OBJECT`，实现却在 `platform/WindowCapture_win.cpp`，没有 `WindowCapture.cpp`，
-  因此它必须被显式列出。其余头文件与 `.cpp` 都是同名配对，跨模块实现宿主类的情况现在是 0 例；
-  列头文件的规矩不要为了“看起来多余”而删掉。
+  （编译链接一句话都不报）。现存需要特别当心的例子有三个：`platform/WindowCapture.h` 有
+  `Q_OBJECT`，实现却在 `platform/WindowCapture_win.cpp`，没有 `WindowCapture.cpp`；
+  `core/Application.h` 与 `core/ApplicationController.h` 有 `Q_OBJECT`，实现住在 `app/`
+  （这两个装配角色的函数体就是"建主窗口、造四个控制器、连动作"，除了装配点没别处能放，
+  见 docs/architecture.md 第四节）。三处都靠"头文件显式列进本模块清单"拿到 moc：
+  `tb_core` 里照样生成 `moc_Application.cpp`，成员函数在 exe 目标里定义，同一次链接解得开。
+  列头文件的规矩不要为了"看起来多余"而删掉。
 * 哪些类该 Pimpl：**对外只该有接口、内部状态会牵动重编**的界面控件与控制器。
   纯数据/绘图热路径的小对象不必（`GraphicsStroke` 那种，一次 include 传播换来的是
   内联损失）。别为了统一而统一。
