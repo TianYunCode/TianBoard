@@ -12,7 +12,7 @@
 
 #include "core/Application.h"
 #include "settings/Settings.h"
-#include "core/ForeignObjectsHandler.h"
+#include "model/ForeignObjectsHandler.h"
 
 #include "model/DocumentProxy.h"
 #include "model/DocumentTreeModel.h"

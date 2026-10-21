@@ -2,7 +2,10 @@
 # utils — 纯工具：字符串 / 几何 / 版本 / 文件系统 / 全局类型定义
 #
 # 内容：StringUtils、GeometryUtils、Version、FileSystemUtils、Snapping、CookieRules、
-# Globals，外加 Enums.h（全局枚举与 typedef，原先住在 core/，与同类的 Globals.h 放一起）。
+# TextTools（SVG 文本度量与换行）、AutoSaver（到点自动保存的定时器）、Globals，
+# 外加 Enums.h（全局枚举与 typedef，原先住在 core/，与同类的 Globals.h 放一起）。
+# TextTools/AutoSaver 是 2026-10-21 从 core/ 搬来的：两者只 include 自己的头，
+# 放 utils 这一层不会给这个模块添任何出边（本模块出边仍然是零）。
 # 平台相关的 PlatformUtils* 在 src/platform/（对外接口名字没变，仍是
 # "platform/PlatformUtils.h"）。
 #
@@ -25,7 +28,11 @@ add_library(tb_utils STATIC
     Snapping.cpp
     Snapping.h
     StringUtils.cpp
+    AutoSaver.cpp
+    AutoSaver.h
     StringUtils.h
+    TextTools.cpp
+    TextTools.h
     Version.cpp
     Version.h
     Enums.h

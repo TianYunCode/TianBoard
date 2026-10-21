@@ -9,7 +9,7 @@
 #include "web/EditTableView.h"
 #include "web/SqueezeLabel.h"
 
-#include "core/AutoSaver.h"
+#include "utils/AutoSaver.h"
 #include "core/NetworkAccessManager.h"
 #include "utils/FileSystemUtils.h"
 

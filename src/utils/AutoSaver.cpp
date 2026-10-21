@@ -1,4 +1,4 @@
-#include "core/AutoSaver.h"
+#include "utils/AutoSaver.h"
 
 #include <QtCore>
 

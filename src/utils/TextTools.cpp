@@ -1,5 +1,5 @@
 #include <QDebug>
-#include "core/TextTools.h"
+#include "utils/TextTools.h"
 
 QString TextTools::cleanHtmlCData(const QString &_html)
 {

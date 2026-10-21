@@ -41,7 +41,7 @@
 #include "settings/Settings.h"
 #include "core/PersistenceManager.h"
 #include "core/Application.h"
-#include "core/TextTools.h"
+#include "utils/TextTools.h"
 
 #include "whiteboard/PDFRenderer.h"
 

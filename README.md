@@ -140,7 +140,8 @@ src/recording    录屏：画面与声音采集、录制调色板、Windows Medi
 src/ui           全部界面控件与调色板
 src/platform     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
                  KeyboardSender*、CredentialStore*、VirtualDesktop
-src/utils        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、Enums.h…
+src/utils        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils、Snapping、
+                 CookieRules、TextTools、AutoSaver、Enums.h…
 third/           内联的 quazip/zlib 与 qtsingleapplication
 res/             images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/           Qt Test 用例（16 个）

@@ -1,4 +1,4 @@
-#include "core/ForeignObjectsHandler.h"
+#include "model/ForeignObjectsHandler.h"
 #include <QRegularExpression>
 #include <QRegExp>
 

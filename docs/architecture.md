@@ -21,7 +21,8 @@ src/
   │                CookieJar（可枚举的 Cookie 镜像罐）、
   │                ShortcutManager（快捷键注册表与偏好设置那一页的模型）…）
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
-  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel，另加
+  │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel、
+  │                ForeignObjectsHandler（文档包内被引用对象的搬运，从 core/ 搬来）、
   │                Resources（工具光标 + 自定义字体清单，2026-10-21 从 ui/ 搬来），
   │                出边只剩 core/settings/utils（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
@@ -43,8 +44,9 @@ src/
   ├─ platform/     平台相关实现（不带界面的部分）：PlatformUtils*、WindowCapture*、
   │                KeyboardSender*、CredentialStore*、VirtualDesktop（出边只有 utils）
   └─ utils/        纯工具：StringUtils、GeometryUtils、Version、FileSystemUtils（含
-                   applicationResourcesDirectory）、Snapping、CookieRules、Globals、Enums.h
-                   （出边为零，最底一层）
+                   applicationResourcesDirectory）、Snapping、CookieRules、TextTools、
+                   AutoSaver、Globals、Enums.h（出边为零，最底一层；TextTools 与 AutoSaver
+                   2026-10-21 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
 tests/             Qt Test 用例（16 个）
@@ -167,11 +169,11 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 28 / 53 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `ui` | 6 / 42 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
-| `content` ↔ `core` | 29 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
+| `core` ↔ `whiteboard` | 28 / 52 | `core/ApplicationController.cpp` 认 BoardController；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `ui` | 6 / 41 | 只剩 `Application`(3) 与 `ApplicationController`(3) 这两个装配角色在主窗口上挂控制器、开偏好设置对话框；服务层的"伸手拿界面"已全部改成装配期钩子或事实信号（手法见第九步） |
+| `content` ↔ `core` | 28 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器 |
 | `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
-| `core` ↔ `model` | 7 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+| `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
 
 `utils` 的两条上边（`CryptoUtils.h`/`FileSystemUtils.cpp` → `core/Application.h`，以及
 `CoreGraphicsScene.cpp` → 两个图形项）与 `settings` 的那条（`Settings.cpp` →
@@ -357,17 +359,17 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 api         -> content:1, core:4, model:1, settings:1, utils:1, whiteboard:6
 app         -> api:1, content:4, core:17, desktop:1, model:5, recording:1, settings:6, ui:7,
                utils:4, web:1, whiteboard:19
-content     -> core:29, model:21, platform:8, settings:7, utils:20, whiteboard:41
-core        -> content:15, model:7, platform:8, settings:11, ui:6, utils:6, whiteboard:28
+content     -> core:28, model:21, platform:8, settings:7, utils:21, whiteboard:41
+core        -> content:15, model:8, platform:8, settings:11, ui:6, utils:6, whiteboard:28
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> core:9, settings:5, utils:5
 platform    -> utils:1
 recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:3, whiteboard:4
 settings    -> utils:2
-ui          -> core:42, model:10, platform:10, settings:16, utils:10, whiteboard:28
+ui          -> core:41, model:11, platform:10, settings:16, utils:10, whiteboard:28
 utils       -> （无出边）
-web         -> core:14, platform:3, settings:4, ui:5, utils:2, whiteboard:4
-whiteboard  -> core:53, model:13, platform:5, settings:20, ui:30, utils:44
+web         -> core:13, platform:3, settings:4, ui:5, utils:3, whiteboard:4
+whiteboard  -> core:52, model:13, platform:5, settings:20, ui:30, utils:45
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

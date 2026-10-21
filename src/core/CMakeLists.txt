@@ -22,8 +22,6 @@ add_library(tb_core OBJECT
     Application.h
     ApplicationController.cpp
     ApplicationController.h
-    AutoSaver.cpp
-    AutoSaver.h
     CookieJar.cpp
     CookieJar.h
     DisplayManager.cpp
@@ -32,8 +30,6 @@ add_library(tb_core OBJECT
     DocumentManager.h
     DownloadManager.cpp
     DownloadManager.h
-    ForeignObjectsHandler.cpp
-    ForeignObjectsHandler.h
     HttpGet.cpp
     HttpGet.h
     IDesktopAnnotation.h
@@ -54,8 +50,6 @@ add_library(tb_core OBJECT
     ShortcutManager.h
     UserNotices.cpp
     UserNotices.h
-    TextTools.cpp
-    TextTools.h
 )
 
 # 跨模块 include 一律写成 "模块/文件.h"，由这一条 src/ 路径解析；

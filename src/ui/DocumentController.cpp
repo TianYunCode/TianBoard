@@ -15,7 +15,7 @@
 #include "settings/Settings.h"
 #include "settings/Setting.h"
 #include "core/MimeData.h"
-#include "core/ForeignObjectsHandler.h"
+#include "model/ForeignObjectsHandler.h"
 
 #include "model/IDocumentFormatServices.h"
 
