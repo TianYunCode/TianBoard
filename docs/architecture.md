@@ -385,6 +385,30 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
    在最终 exe 的目标里，同一次链接解得开（`tst_smoke` 与 `tst_ui_modes` 真把应用拉起来走完四个
    模式，装配漏了会在构造期 `qFatal`，两条都还判绿）。
 
+10. **`content` ↔ `core` 与 `core` ↔ `model`**（2026-10-22 完成，环 4 → 2）：第四种形状，
+   **契约住在被依赖的那一层，实现由高层继承它，装配点（或实现自己的构造函数）装上**。
+   `model/IDocumentStore` 一次拆掉两组环：content 的导入导出器与 model 的容器/树模型都改走它，
+   `PersistenceManager` 继承并在构造首行 `installDocumentStore(this)`（构造扫描阶段就会用到，
+   晚上装一行就是启动瞬间的 `qFatal`）、析构核对身份再摘。接口里 `GraphicsScene` 与
+   `DocumentTreeModel` 一律只前置声明——否则 model 反过来 include whiteboard，新环当场造出来。
+   另一半力气花在**把挂错地方的数据搬下去**：`.tbz` 目录名与 `folders.xml` 词表进
+   `model/PackageLayout.hpp`、四个 MIME 类型名进 `model/MimeTypes.hpp`、静态对象宿主
+   `staticMemoryCleaner` 进 `utils/StaticMemory`、状态消息与对话框父窗口进 `utils/UserNotices`、
+   `core/MimeData` 按载荷类型拆成 `model/MimeData`（只装"哪份文档第几页"）与
+   `whiteboard/MimeDataGraphicsItem`（装图形项副本，析构要 `qDeleteAll(Item*)`，留在画板）。
+   落点不是凭感觉挑的：每个模块的 `CMakeLists.txt` 里那句"允许依赖"就是合同，搬完必须没人违约。
+11. **下一刀的形状已经量好了**（2026-10-22 收尾时测的）：剩 `core` ↔ `whiteboard`(16/25) 与
+   `ui` ↔ `whiteboard`(29/30)。`whiteboard` 对 `core` 的 25 条已经不多，成分是
+   `Application.h` 10（`mainWindow` 3 个文件、`applicationController` 5、`app()` 6、`undoStack` 5）、
+   `ApplicationController.h` 5、`PersistenceManager.h` 3，其余是各个服务各一条。
+   **最便宜的一条是"再还一个归属"**：全局撤销栈 `Application::undoStack`（39 处）本来就是画板的
+   撤销栈，搬成 `BoardController` 的成员即可，手法与 `BoardController::instance()` 那一刀完全相同
+   （那次一刀把 whiteboard 对 core 从 46 削到 25）。`verbose` 那个日志开关同理该去 `utils`。
+   真正难的是 `ui` ↔ `whiteboard`：`ui→whiteboard` 里 14 条是 `BoardController.h`（界面要问画板
+   要视图/场景/缩放），`whiteboard→ui` 里是 `MainWindow.h`/`StylusPalette.h`/`FeaturesWidget.h`
+   这些"画板回头去命令调色板"的方向——必须按第 8 步说的"画板拥有视图，调色板经接口回调解"来拆，
+   且全在交互热路径上，要单独排期、单独回归。
+
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
 ## 六、模块依赖边全表（现状态，供拆环时核对）
