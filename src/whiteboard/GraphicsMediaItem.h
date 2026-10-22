@@ -61,6 +61,14 @@ public:
     static GraphicsMediaItem *createMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent = 0);
 
     /**
+     * @brief 让一个媒体项跟着"当前活动页"的切换走（切走时自己停播）。
+     * @param item 已建好的媒体项；为空时什么都不做。
+     * @note 从盘上读回一页时由加载器调用它，而不是自己去连总控器的信号：连谁、怎么连
+     * 是画板内部的事，格式层只需要知道"新读进来的媒体要接上这套连线"。
+     */
+    static void observeActiveSceneChanges(GraphicsMediaItem *item);
+
+    /**
      * @brief 构造媒体项并初始化播放器。
      * @param pMediaFileUrl 媒体文件地址。
      * @param parent 父图形项，可为空。

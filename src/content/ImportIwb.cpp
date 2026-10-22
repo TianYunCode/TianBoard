@@ -1,10 +1,8 @@
 #include <QDir>
+#include "model/IDocumentStore.h"
 #include "utils/UserNotices.h"
 #include <QList>
 
-#include "core/PersistenceManager.h"
-#include "core/DocumentManager.h"
-#include "core/PersistenceManager.h"
 #include "model/DocumentProxy.h"
 #include "whiteboard/GraphicsPDFItem.h"
 #include "utils/FileSystemUtils.h"
@@ -86,14 +84,14 @@ bool ImportIwb::addFileToDocument(DocumentProxy *pDocument, const QFile &pFile)
     else
     {
         // 先建一个临时文档目录承接转换结果，成功后整体并入目标文档并删除临时目录。
-        DocumentProxy *destDocument = new DocumentProxy(PersistenceManager::persistenceManager()->generateUniqueDocumentPath());
+        DocumentProxy *destDocument = new DocumentProxy(documentStore()->generateUniqueDocumentPath());
         QDir           dir;
         dir.mkdir(destDocument->persistencePath());
 
         // 转换成功后把页面与资源并入现有文档，临时目录不再需要。
         if (IwbSubsetAdaptor::convertIwbFileToDocumentPackage(contentFile, destDocument))
         {
-            PersistenceManager::persistenceManager()->addDirectoryContentToDocument(destDocument->persistencePath(), pDocument);
+            documentStore()->addDirectoryContentToDocument(destDocument->persistencePath(), pDocument);
             FileSystemUtils::deleteDir(destDocument->persistencePath());
             delete destDocument;
             UserNotices::presentStatusMessage(tr("Import successful."));
@@ -241,7 +239,7 @@ DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup)
     else
     {
         // 转换器在解析第一页前就会写 metadata.rdf，因此版本/更新时间必须提前填好。
-        DocumentProxy *destDocument = new DocumentProxy(PersistenceManager::persistenceManager()->generateUniqueDocumentPath());
+        DocumentProxy *destDocument = new DocumentProxy(documentStore()->generateUniqueDocumentPath());
         QDir           dir;
         dir.mkdir(destDocument->persistencePath());
         if (pGroup.length() > 0)
@@ -260,8 +258,7 @@ DocumentProxy *ImportIwb::importFile(const QFile &pFile, const QString &pGroup)
         // 转换成功后再登记为正式文档；失败则整个临时目录丢弃。
         if (IwbSubsetAdaptor::convertIwbFileToDocumentPackage(contentFile, destDocument))
         {
-            newDocument =
-                PersistenceManager::persistenceManager()->createDocumentFromDir(destDocument->persistencePath(), "", "", false, false, true);
+            newDocument = documentStore()->createDocumentFromDir(destDocument->persistencePath(), "", "", false, false, true);
 
             UserNotices::presentStatusMessage(tr("Import successful."));
         }

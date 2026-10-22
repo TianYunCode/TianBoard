@@ -158,6 +158,13 @@ int main(int argc, char *argv[])
             }
         });
 
+    // 同一套路：导出器要弹"存到哪去"，但它不认识主窗口，只问这里要一个父窗口。
+    UserNotices::installDialogHostProvider(
+        []() -> QWidget *
+        {
+            return Application::mainWindow;
+        });
+
     // 黑屏表面：由界面层提供窗体，DisplayManager 只管铺到哪些屏幕、什么时候收回来。
     DisplayManager::installBlackoutSurfaceFactory(
         [](bool returnControlsVisible, const QRect &geometry, std::function<void()> onActivity) -> QWidget *

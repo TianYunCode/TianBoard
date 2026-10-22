@@ -2577,9 +2577,14 @@ void GraphicsScene::addCache()
 
         cache->setVisible(true);
         cache->setSelected(true);
-        Application::boardController->notifyCache(true);
+        notifyCacheEnabled();
         Application::boardController->notifyPageChanged();
     }
+}
+
+void GraphicsScene::notifyCacheEnabled()
+{
+    Application::boardController->notifyCache(true);
 }
 
 void GraphicsScene::addMask(const QPointF &center)

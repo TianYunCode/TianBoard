@@ -6,12 +6,14 @@
 #           src/whiteboard/：PdfPageItem 是 GraphicsPDFItem 的基类，三个类合起来
 #           是“一页 PDF 怎么变成画布上的图形”，没有任何格式读写以外的依赖。
 #
-# 允许依赖：model、utils、whiteboard。尚未成立的边：content <-> core（读写器到处认
-# Application 与 PersistenceManager）与 content <-> model。对 ui 已经是零出边：
-# 导出器只 emit exportWarnings，弹窗与对话框父窗口都交给认识界面的那层。
+# 允许依赖：utils、settings、platform、model、whiteboard（都是单向向下）。对 core 与 ui
+# 已经是零出边：对 ui 靠"导出器只 emit exportWarnings，对话框父窗口问装配层装的 provider
+# 要"；对 core 靠 model/IDocumentStore 这份契约（2026-10-22），仓库常量在 model/PackageLayout.hpp、
+# 状态消息在 utils/UserNotices，画板自己的通知走 GraphicsScene/GraphicsMediaItem 的入口。
+# 因此本模块不在任何环里，做成真正的 STATIC：越界 include 上层在编译期就失败。
 # ======================================================================
 
-add_library(tb_content OBJECT
+add_library(tb_content STATIC
     DocumentFormatServices.cpp
     DocumentFormatServices.h
     ExportAdaptor.cpp

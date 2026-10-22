@@ -10,6 +10,7 @@
 #include <functional>
 
 #include "core/SceneCache.h"
+#include "model/IDocumentStore.h"
 
 class QDomNode;
 class QDomElement;
@@ -17,7 +18,6 @@ class Document;
 class DocumentProxy;
 class GraphicsScene;
 class DocumentTreeNode;
-class DocumentTreeModel;
 
 /**
  * @brief 文档仓库的唯一入口：把内存中的文档代理与磁盘上的文档包对应起来。
@@ -25,10 +25,12 @@ class DocumentTreeModel;
  * 详细说明：进程级单例，父对象为 Application::staticMemoryCleaner，首次调用
  * persistenceManager() 时创建；持有文档树模型与场景缓存（LRU 式），文档代理归
  * 树节点所有。所有路径都在构造时从设置读取，运行期通过关闭/重开来重建。
+ * 同时实现 model/IDocumentStore 这份契约：构造时把自己装上、析构时摘下，content 的
+ * 导入导出器因此只认识 model 而不必反向 include 本模块（见 docs/architecture.md 第五节）。
  * 线程约束：全部操作都访问文件系统与 GUI 模型，只能在 GUI 线程调用；
  * documentFilePath() 例外地只解析路径，供工作线程准备复制目标。
  */
-class PersistenceManager : public QObject
+class PersistenceManager : public QObject, public IDocumentStore
 {
     Q_OBJECT
 
@@ -104,8 +106,8 @@ public:
      * @param promptDialogIfExists 重名时是否询问替换。
      * @return 文档代理；目录无效时为空。
      */
-    virtual DocumentProxy *createDocumentFromDir(const QString &pDocumentDirectory, const QString &pGroupName = "", const QString &pName = "",
-        bool withEmptyPage = false, bool addTitlePage = false, bool promptDialogIfExists = false);
+    DocumentProxy *createDocumentFromDir(const QString &pDocumentDirectory, const QString &pGroupName = "", const QString &pName = "",
+        bool withEmptyPage = false, bool addTitlePage = false, bool promptDialogIfExists = false) override;
 
     /// 把文档元数据写回磁盘。
     virtual DocumentProxy *persistDocumentMetadata(DocumentProxy *pDocumentProxy);
@@ -154,7 +156,7 @@ public:
      * @param useUndoRedoStack 是否把操作记入撤销栈。
      * @return 新页面场景，所有权归场景缓存。
      */
-    virtual GraphicsScene *createDocumentSceneAt(DocumentProxy *pDocumentProxy, int index, bool useUndoRedoStack = true);
+    GraphicsScene *createDocumentSceneAt(DocumentProxy *pDocumentProxy, int index, bool useUndoRedoStack = true) override;
 
     /**
      * @brief 把一个已有场景插入文档的指定下标。
@@ -179,9 +181,9 @@ public:
      * @param sceneIndex 页面下标。
      * @return 页面场景；加载失败时为空。
      */
-    virtual GraphicsScene *loadDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex);
+    GraphicsScene *loadDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex) override;
     /// 返回已缓存的页面场景；未缓存时为空，不会触发加载。
-    GraphicsScene *getDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex)
+    GraphicsScene *getDocumentScene(DocumentProxy *pDocumentProxy, int sceneIndex) override
     {
         return mSceneCache.value(pDocumentProxy, sceneIndex);
     }
@@ -204,12 +206,12 @@ public:
     virtual QStringList allWidgets(const QDir &dir);
 
     /// 在文档仓库下生成一个不冲突的文档目录路径。
-    QString generateUniqueDocumentPath();
+    QString generateUniqueDocumentPath() override;
     /**
      * @brief 在指定基础目录下生成一个不冲突的文档目录路径。
      * @param baseFolder 基础目录。
      */
-    QString generateUniqueDocumentPath(const QString &baseFolder);
+    QString generateUniqueDocumentPath(const QString &baseFolder) override;
 
     /**
      * @brief 把目录内容（图片等）导入为文档页面。
@@ -217,7 +219,7 @@ public:
      * @param pDocument 目标文档。
      * @return 是否至少导入了一个文件。
      */
-    bool addDirectoryContentToDocument(const QString &documentRootFolder, DocumentProxy *pDocument);
+    bool addDirectoryContentToDocument(const QString &documentRootFolder, DocumentProxy *pDocument) override;
 
     /// 扫描用户文档目录，重建文档树。
     void createDocumentProxiesStructure(bool interactive = false);
@@ -275,8 +277,14 @@ public:
      * @param data 非空时改为从内存写入。
      * @return 成功返回 true。
      */
-    bool addFileToDocument(
-        DocumentProxy *pDocumentProxy, QString path, const QString &subdir, QUuid objectUuid, QString &destinationPath, QByteArray *data = NULL);
+    bool addFileToDocument(DocumentProxy *pDocumentProxy, QString path, const QString &subdir, QUuid objectUuid, QString &destinationPath,
+        QByteArray *data = NULL) override;
+
+    /// @brief IDocumentStore 的树模型访问点；成员本身仍是公开的。
+    DocumentTreeModel *documentTreeModel() override
+    {
+        return mDocumentTreeStructureModel;
+    }
 
     /// 判断文档是否可能包含视频（用于界面提示）。
     bool mayHaveVideo(DocumentProxy *pDocumentProxy);

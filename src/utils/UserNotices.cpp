@@ -7,6 +7,7 @@ namespace
     UserNotices::WarningPresenter     gWarningPresenter;
     UserNotices::ModalNoticePresenter gModalNoticePresenter;
     UserNotices::StatusPresenter      gStatusPresenter;
+    UserNotices::DialogHostProvider   gDialogHostProvider;
 
     /// @brief 没装呈现方式时只报一次，免得导出批量失败时刷屏。
     template <typename Presenter> void warnOnce(const Presenter &presenter, const char *what)
@@ -44,6 +45,16 @@ namespace UserNotices
     bool hasStatusPresenter()
     {
         return static_cast<bool>(gStatusPresenter);
+    }
+
+    void installDialogHostProvider(DialogHostProvider provider)
+    {
+        gDialogHostProvider = std::move(provider);
+    }
+
+    QWidget *dialogHost()
+    {
+        return gDialogHostProvider ? gDialogHostProvider() : nullptr;
     }
 
     void presentWarnings(const QString &title, const QStringList &messages)

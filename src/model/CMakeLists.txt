@@ -31,6 +31,8 @@ add_library(tb_model OBJECT
     ForeignObjectsHandler.h
     IDocumentFormatServices.cpp
     IDocumentFormatServices.h
+    IDocumentStore.cpp
+    IDocumentStore.h
     PackageLayout.hpp
     Resources.cpp
     Resources.h

@@ -103,15 +103,6 @@ public:
     /// 主窗口，由 exec() 创建并在析构中删除。
     static MainWindow *mainWindow;
 
-    /**
-     * @brief 返回可充当对话框父窗口的控件，默认即主窗口。
-     * @return 主窗口指针，可能为空（exec() 之前）。
-     * @note 只把主窗口当"对话框挂在谁身上"用的下层模块（content 的导出对话框）取这个，
-     * 不必 include ui/MainWindow.h 去拿 MainWindow 的完整类型——见 docs/architecture.md
-     * 拆环顺序第 6 步。定义在 Application.cpp，那里认识界面。
-     */
-    static QWidget *dialogHost();
-
     /// 以具体类型返回 qApp；调用方需保证当前存在 Application 实例。
     static Application *app()
     {

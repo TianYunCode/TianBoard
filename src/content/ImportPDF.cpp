@@ -3,7 +3,6 @@
 #include "utils/UserNotices.h"
 #include "platform/VirtualDesktop.h"
 
-
 #include "whiteboard/GraphicsPDFItem.h"
 #include "whiteboard/GraphicsScene.h"
 

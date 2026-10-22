@@ -52,7 +52,20 @@ PersistenceManager::PersistenceManager(QObject *pParent) : QObject(pParent), mHa
     mDocumentTreeStructureModel = new DocumentTreeModel(this);
     createDocumentProxiesStructure();
 
+    // 把这份实现装进 model/IDocumentStore 的进程级槽位：content 的导入导出器经它访问仓库，
+    // 因此不必反向 include core（docs/architecture.md 第五节 content↔core 那一行）。
+    installDocumentStore(this);
+
     emit proxyListChanged();
+}
+
+PersistenceManager::~PersistenceManager()
+{
+    // 摘下时要核对装的确实是自己：Qt 父子关系析构顺序不保证，别把别人的实现误删。
+    if (documentStore() == this)
+    {
+        installDocumentStore(nullptr);
+    }
 }
 
 PersistenceManager *PersistenceManager::persistenceManager()
@@ -72,10 +85,6 @@ void PersistenceManager::destroy()
         delete sSingleton;
     }
     sSingleton = NULL;
-}
-
-PersistenceManager::~PersistenceManager()
-{
 }
 
 void PersistenceManager::createDocumentProxiesStructure(bool interactive)
@@ -255,7 +264,8 @@ QString PersistenceManager::adjustDocumentVirtualPath(const QString &str)
         pathList.append(PackageLayout::myDocumentsName);
     }
 
-    if (pathList.first() != PackageLayout::myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix && pathList.first() != PackageLayout::modelsName)
+    if (pathList.first() != PackageLayout::myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix &&
+        pathList.first() != PackageLayout::modelsName)
     {
         pathList.prepend(PackageLayout::myDocumentsName);
     }
@@ -733,15 +743,15 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index)
         GraphicsWidgetItem *widget = qgraphicsitem_cast<GraphicsWidgetItem *>(item);
         if (widget)
         {
-            QUuid   newUUid               = QUuid::createUuid();
-            QString newUUidString         = newUUid.toString().remove("{").remove("}");
-            QString actualUuidString      = widget->uuid().toString().remove("{").remove("}");
+            QUuid   newUUid                   = QUuid::createUuid();
+            QString newUUidString             = newUUid.toString().remove("{").remove("}");
+            QString actualUuidString          = widget->uuid().toString().remove("{").remove("}");
 
-            QString widgetSourcePath      = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/{" + actualUuidString + "}.wgt";
-            QString screenshotSourcePath  = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + actualUuidString + ".png";
+            QString widgetSourcePath          = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/{" + actualUuidString + "}.wgt";
+            QString screenshotSourcePath      = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + actualUuidString + ".png";
 
-            QString widgetDestinationPath = widgetSourcePath;
-            widgetDestinationPath         = widgetDestinationPath.replace(actualUuidString, newUUidString);
+            QString widgetDestinationPath     = widgetSourcePath;
+            widgetDestinationPath             = widgetDestinationPath.replace(actualUuidString, newUUidString);
             QString screenshotDestinationPath = screenshotSourcePath;
             screenshotDestinationPath         = screenshotDestinationPath.replace(actualUuidString, newUUidString);
 

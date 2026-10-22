@@ -1,12 +1,11 @@
 #include <QRegExp>
+#include "model/IDocumentStore.h"
 #include "model/PackageLayout.hpp"
 #include "platform/VirtualDesktop.h"
 #include <QSvgGenerator>
 #include <QSvgRenderer>
 #include <QPixmap>
 #include <QMap>
-
-#include "core/PersistenceManager.h"
 
 #include "model/DocumentProxy.h"
 
@@ -21,6 +20,7 @@
 #include "whiteboard/GraphicsTextItemDelegate.h"
 #include "whiteboard/GraphicsWidgetItem.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
+#include "whiteboard/GraphicsScene.h"
 
 #include "content/IwbSubsetAdaptor.h"
 #include "content/MetadataDcSubsetAdaptor.h"
@@ -1066,7 +1066,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgAudio(const QDomElement &element
     mRefToUuidMap.insert(element.attribute(aId), uuid);
 
     QString destFile;
-    bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
+    bool    b = documentStore()->addFileToDocument(
         mCurrentScene->document(), concreteUrl.toLocalFile(), PackageLayout::audioDirectory, QUuid(uuid), destFile);
     if (!b)
     {
@@ -1128,7 +1128,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgVideo(const QDomElement &element
     mRefToUuidMap.insert(element.attribute(aId), uuid);
 
     QString destFile;
-    bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
+    bool    b = documentStore()->addFileToDocument(
         mCurrentScene->document(), concreteUrl.toLocalFile(), PackageLayout::videoDirectory, QUuid(uuid), destFile);
     if (!b)
     {
@@ -1527,7 +1527,7 @@ void IwbSubsetAdaptor::IwbSubsetReader::repositionSvgItem(QGraphicsItem *item, q
 
 bool IwbSubsetAdaptor::IwbSubsetReader::createNewScene()
 {
-    mCurrentScene = PersistenceManager::persistenceManager()->createDocumentSceneAt(mProxy, mProxy->pageCount(), false);
+    mCurrentScene = documentStore()->createDocumentSceneAt(mProxy, mProxy->pageCount(), false);
     mCurrentScene->setSceneRect(mViewBox);
     if ((mCurrentScene->sceneRect().topLeft().x() >= 0) || (mCurrentScene->sceneRect().topLeft().y() >= 0))
     {
@@ -1560,7 +1560,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::persistScenes()
     }
     for (int i = 0; i < mProxy->pageCount(); i++)
     {
-        mCurrentScene = PersistenceManager::persistenceManager()->getDocumentScene(mProxy, i);
+        mCurrentScene = documentStore()->getDocumentScene(mProxy, i);
         if (!mCurrentScene)
         {
             qDebug() << "can't allocate scene, loading failed";

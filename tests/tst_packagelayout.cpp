@@ -49,8 +49,12 @@ void TestPackageLayout::catalogVocabulary()
 void TestPackageLayout::subDirectoryValuesAreDistinct()
 {
     const QStringList directories = {
-        PackageLayout::imageDirectory,  PackageLayout::objectDirectory, PackageLayout::widgetDirectory,
-        PackageLayout::videoDirectory,  PackageLayout::audioDirectory,  PackageLayout::fileDirectory,
+        PackageLayout::imageDirectory,
+        PackageLayout::objectDirectory,
+        PackageLayout::widgetDirectory,
+        PackageLayout::videoDirectory,
+        PackageLayout::audioDirectory,
+        PackageLayout::fileDirectory,
     };
 
     // 两个类型共用一个子目录会让对象互相覆盖，且 metadata 里的相对路径无法还原归属。

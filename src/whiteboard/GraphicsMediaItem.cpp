@@ -34,6 +34,16 @@ GraphicsMediaItem *GraphicsMediaItem::createMediaItem(const QUrl &pMediaFileUrl,
     return mediaItem;
 }
 
+void GraphicsMediaItem::observeActiveSceneChanges(GraphicsMediaItem *item)
+{
+    if (!item)
+    {
+        return;
+    }
+
+    QObject::connect(Application::boardController, &BoardController::activeSceneChanged, item, &GraphicsMediaItem::activeSceneChanged);
+}
+
 GraphicsMediaItem::GraphicsMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent)
     : QGraphicsRectItem(parent), mMuted(sIsMutedByDefault), mMutedByUserAction(sIsMutedByDefault), mStopped(false), mMediaFileUrl(pMediaFileUrl),
       mLinkedImage(NULL), mInitialPos(0)

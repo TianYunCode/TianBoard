@@ -25,6 +25,7 @@ class QTextBlockFormat;
 class QTextCharFormat;
 class QTextCursor;
 class GraphicsStrokesGroup;
+class GraphicsGroupContainerItem;
 
 /**
  * @brief IWB 导入适配器：把 IWB 页面解析成场景，再逐页写进文档包。

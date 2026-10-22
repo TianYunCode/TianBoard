@@ -1,11 +1,9 @@
 #include "content/ImportImage.h"
 
 #include "model/DocumentProxy.h"
+#include "whiteboard/GraphicsScene.h"
 
 #include "whiteboard/BoardController.h"
-
-#include "core/PersistenceManager.h"
-#include "core/DocumentManager.h"
 
 #include "whiteboard/GraphicsPixmapItem.h"
 

@@ -604,11 +604,6 @@ void Application::cleanup()
     documentController    = NULL;
 }
 
-QWidget *Application::dialogHost()
-{
-    return mainWindow;
-}
-
 QString Application::urlFromHtml(QString html)
 {
     QString            _html;

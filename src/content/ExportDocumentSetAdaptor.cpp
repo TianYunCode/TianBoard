@@ -1,11 +1,10 @@
 #include "content/ExportDocumentSetAdaptor.h"
+#include "model/IDocumentStore.h"
 #include "utils/UserNotices.h"
 #include "model/DocumentTreeModel.h"
 #include "content/ExportDocument.h"
 
 #include "model/DocumentProxy.h"
-
-#include "core/PersistenceManager.h"
 
 THIRD_PARTY_WARNINGS_DISABLE
 #include "quazip.h"
@@ -22,10 +21,10 @@ ExportDocumentSetAdaptor::~ExportDocumentSetAdaptor()
 
 void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QModelIndex &selectedTreeIndex)
 {
-    QModelIndex         treeViewParentIndex;
-    PersistenceManager *persistenceManager = PersistenceManager::persistenceManager();
-    DocumentTreeModel  *treeModel          = persistenceManager->mDocumentTreeStructureModel;
-    QString             filename;
+    QModelIndex        treeViewParentIndex;
+    IDocumentStore    *store     = documentStore();
+    DocumentTreeModel *treeModel = store->documentTreeModel();
+    QString            filename;
 
     if (pDocumentProxy)
     {
@@ -84,10 +83,10 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QMod
 
 bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QString filename)
 {
-    PersistenceManager *persistenceManager = PersistenceManager::persistenceManager();
-    DocumentTreeModel  *treeModel          = persistenceManager->mDocumentTreeStructureModel;
+    IDocumentStore    *store     = documentStore();
+    DocumentTreeModel *treeModel = store->documentTreeModel();
 
-    QModelIndex index                      = pRootIndex;
+    QModelIndex index            = pRootIndex;
 
     if (!index.isValid())
     {

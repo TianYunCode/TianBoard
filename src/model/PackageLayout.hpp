@@ -21,25 +21,25 @@
 namespace PackageLayout
 {
     /// @brief 位图与矢量图形的子目录名。
-    inline const QString imageDirectory   = "images";
+    inline const QString imageDirectory  = "images";
     /// @brief 通用对象（脚本、导出附件等）的子目录名。
-    inline const QString objectDirectory  = "objects";
+    inline const QString objectDirectory = "objects";
     /// @brief 小部件包的子目录名。
-    inline const QString widgetDirectory  = "widgets";
+    inline const QString widgetDirectory = "widgets";
     /// @brief 录制进文档的视频子目录名。
-    inline const QString videoDirectory   = "videos";
+    inline const QString videoDirectory  = "videos";
     /// @brief 录制进文档的音频子目录名。
-    inline const QString audioDirectory   = "audios";
+    inline const QString audioDirectory  = "audios";
     /// @brief 随文档携带的任意文件子目录名。
-    inline const QString fileDirectory    = "files";
+    inline const QString fileDirectory   = "files";
 
     /// @brief 文档仓库根分组的内部名（显示文案由界面自己 tr()，这里不是）。
-    inline const QString myDocumentsName  = "MyDocuments";
+    inline const QString myDocumentsName = "MyDocuments";
     /// @brief 模型/示例分组的内部名。
-    inline const QString modelsName       = "Models";
+    inline const QString modelsName      = "Models";
 
     /// @brief 目录树自身的文件名与它的 XML 标签名、属性名。
-    inline const QString foldersFile      = "folders.xml";
-    inline const QString folderTag        = "folder";
-    inline const QString nameAttribute    = "name";
+    inline const QString foldersFile     = "folders.xml";
+    inline const QString folderTag       = "folder";
+    inline const QString nameAttribute   = "name";
 } // namespace PackageLayout

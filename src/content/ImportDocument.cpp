@@ -1,11 +1,11 @@
 #include "content/ImportDocument.h"
+#include "model/IDocumentStore.h"
 #include "utils/UserNotices.h"
 #include "model/DocumentProxy.h"
 
 #include "utils/FileSystemUtils.h"
 
 #include "settings/Settings.h"
-#include "core/PersistenceManager.h"
 
 #include "utils/Globals.h"
 
@@ -50,7 +50,7 @@ bool ImportDocument::extractFileToDir(const QFile &pZipFile, const QString &pDir
 
     QFile out;
     char  c;
-    documentRoot = PersistenceManager::persistenceManager()->generateUniqueDocumentPath(pDir);
+    documentRoot = documentStore()->generateUniqueDocumentPath(pDir);
     for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile())
     {
         if (!zip.getCurrentFileInfo(&info))
@@ -148,7 +148,7 @@ DocumentProxy *ImportDocument::importFile(const QFile &pFile, const QString &pGr
         return NULL;
     }
 
-    DocumentProxy *newDocument = PersistenceManager::persistenceManager()->createDocumentFromDir(documentRootFolder, pGroup, "", false, false, true);
+    DocumentProxy *newDocument = documentStore()->createDocumentFromDir(documentRootFolder, pGroup, "", false, false, true);
     UserNotices::presentStatusMessage(tr("Import successful."));
     return newDocument;
 }
@@ -167,7 +167,7 @@ bool ImportDocument::addFileToDocument(DocumentProxy *pDocument, const QFile &pF
         return false;
     }
 
-    if (!PersistenceManager::persistenceManager()->addDirectoryContentToDocument(documentRootFolder, pDocument))
+    if (!documentStore()->addDirectoryContentToDocument(documentRootFolder, pDocument))
     {
         UserNotices::presentStatusMessage(tr("Import of file %1 failed.").arg(fi.baseName()));
         return false;

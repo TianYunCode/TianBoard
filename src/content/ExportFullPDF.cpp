@@ -7,8 +7,6 @@
 #include <QtSvgWidgets>
 #include <QPrinter>
 
-#include "core/Application.h"
-
 #include "model/DocumentProxy.h"
 
 #include "content/ExportPDF.h"
@@ -61,24 +59,13 @@ bool ExportFullPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QStrin
         previousOverlay.remove();
     }
 
-    mHasPDFBackgrounds = false;
-
+    // 批注层就是最终 PDF：矢量合并要外部合并库，本工程没接（见类注释），所以过去那个
+    // mHasPDFBackgrounds 分支永远走不到，连同标志位一起删掉。真要接合并器，从 git 历史
+    // 取回 saveOverlayPdf 之后那条分支即可。
     saveOverlayPdf(pDocumentProxy, overlayName);
 
-    if (!mHasPDFBackgrounds)
-    {
-        QFile f(overlayName);
-        f.rename(filename);
-    }
-    else
-    {
-        // PDF 背景与批注的矢量合并需要外部合并库；当前构建没有该依赖，
-        // mHasPDFBackgrounds 始终为 false，本分支只在将来接入合并器后才会走到。
-        if (!Application::app()->isVerbose())
-        {
-            QFile::remove(overlayName);
-        }
-    }
+    QFile f(overlayName);
+    f.rename(filename);
 
     return true;
 }

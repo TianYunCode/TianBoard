@@ -4,8 +4,6 @@
 
 #include "platform/PlatformUtils.h"
 
-#include "core/DocumentManager.h"
-
 #include "model/DocumentProxy.h"
 
 #include "utils/Globals.h"

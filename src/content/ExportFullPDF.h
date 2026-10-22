@@ -16,8 +16,8 @@ class DocumentProxy;
  *
  * 与 ExportPDF 的区别：背景为 PDF 的页面理论上应保留矢量背景并与批注合并，
  * 因此先把批注导出到 *_overlay.pdf，再调用外部合并器；合并器不可用时退化为
- * 纯批注 PDF（即 ExportPDF 的结果）。当前实现只保留退化路径，mHasPDFBackgrounds
- * 恒为 false，_overlay 文件会被重命名为最终文件。
+ * 纯批注 PDF（即 ExportPDF 的结果）。本工程没接那个合并器，所以只有退化路径：
+ * _overlay 文件直接重命名成最终文件。
  */
 class ExportFullPDF : public ExportAdaptor
 {
@@ -45,9 +45,6 @@ protected:
 
 private:
     /// 屏幕像素到 PDF 点（1/72 英寸）的换算系数。
-    float mScaleFactor;
-    /// 是否存在 PDF 背景；决定是否需要合并，当前合并路径未启用。
-    bool mHasPDFBackgrounds;
-
+    float      mScaleFactor;
     ExportPDF *mSimpleExporter;
 };

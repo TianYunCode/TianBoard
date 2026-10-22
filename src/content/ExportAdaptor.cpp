@@ -8,7 +8,6 @@
 #include "utils/FileSystemUtils.h"
 
 #include "settings/Settings.h"
-#include "core/Application.h"
 
 ExportAdaptor::ExportAdaptor(QObject *parent) : QObject(parent), mIsVerbose(true)
 {
@@ -28,7 +27,7 @@ QString ExportAdaptor::askForFileName(DocumentProxy *pDocument, const QString &p
 
     QString defaultPath  = Settings::settings()->lastExportFilePath->get().toString() + "/" + defaultName;
 
-    QString filename     = QFileDialog::getSaveFileName(Application::dialogHost(), pDialogTitle, defaultPath, QString());
+    QString filename     = QFileDialog::getSaveFileName(UserNotices::dialogHost(), pDialogTitle, defaultPath, QString());
 
     if (filename.size() == 0)
     {
@@ -51,7 +50,7 @@ QString ExportAdaptor::askForDirName(DocumentProxy *pDocument, const QString &pD
 {
     QString defaultPath = Settings::settings()->lastExportDirPath->get().toString();
 
-    QString container   = QFileDialog::getExistingDirectory(Application::dialogHost(), pDialogTitle, defaultPath);
+    QString container   = QFileDialog::getExistingDirectory(UserNotices::dialogHost(), pDialogTitle, defaultPath);
 
     QString dirname;
 

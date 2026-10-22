@@ -433,6 +433,12 @@ public:
     void addMask(const QPointF &center = QPointF());
     /// @brief 把单例缓存图元加入场景并选中
     void addCache();
+    /**
+     * @brief 通知总控器"这页出现了缓存图元"，让笔栏切到缓存态。
+     * @note 交互路径（addCache）与加载路径（从盘上读回一张带缓存的页）都要说这一句，
+     * 通知对象只有画板自己认识，因此谁都不必去拿全局控制器。
+     */
+    void notifyCacheEnabled();
 
     /// @brief 顶层图元的快速访问列表（组成员不在其中）
     QList<QGraphicsItem *> getFastAccessItems()

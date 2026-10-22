@@ -32,6 +32,7 @@
 #include "whiteboard/GraphicsCache.h"
 
 #include "model/DocumentProxy.h"
+#include "whiteboard/GraphicsScene.h"
 
 #include "whiteboard/BoardController.h"
 
@@ -40,8 +41,6 @@
 #include "utils/FileSystemUtils.h"
 
 #include "settings/Settings.h"
-#include "core/PersistenceManager.h"
-#include "core/Application.h"
 #include "utils/TextTools.h"
 
 #include "whiteboard/PDFRenderer.h"
@@ -784,7 +783,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                 {
                     mScene->addItem(cache);
                     mScene->registerTool(cache);
-                    Application::boardController->notifyCache(true);
+                    mScene->notifyCacheEnabled();
                 }
             }
             else if (mXmlReader.name() == "foreignObject")
@@ -2217,7 +2216,7 @@ GraphicsMediaItem *SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
     GraphicsMediaItem *audioItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
     if (audioItem)
     {
-        audioItem->connect(Application::boardController, &BoardController::activeSceneChanged, audioItem, &GraphicsMediaItem::activeSceneChanged);
+        GraphicsMediaItem::observeActiveSceneChanges(audioItem);
     }
 
     graphicsItemFromSvg(audioItem);
@@ -2256,7 +2255,7 @@ GraphicsMediaItem *SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
     GraphicsMediaItem *videoItem = GraphicsMediaItem::createMediaItem(QUrl::fromLocalFile(href));
     if (videoItem)
     {
-        QObject::connect(Application::boardController, &BoardController::activeSceneChanged, videoItem, &GraphicsMediaItem::activeSceneChanged);
+        GraphicsMediaItem::observeActiveSceneChanges(videoItem);
     }
 
     graphicsItemFromSvg(videoItem);

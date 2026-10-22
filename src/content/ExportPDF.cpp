@@ -1,4 +1,5 @@
 #include "content/ExportPDF.h"
+#include "model/IDocumentStore.h"
 #include "utils/UserNotices.h"
 #include "model/DocumentTreeModel.h"
 #include "platform/VirtualDesktop.h"
@@ -10,7 +11,6 @@
 #include <QPdfWriter>
 
 #include "settings/Settings.h"
-#include "core/PersistenceManager.h"
 
 #include "whiteboard/GraphicsScene.h"
 
@@ -65,7 +65,7 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
 
     for (int pageIndex = 0; pageIndex < existingPageCount; pageIndex++)
     {
-        GraphicsScene *scene = PersistenceManager::persistenceManager()->loadDocumentScene(pDocumentProxy, pageIndex);
+        GraphicsScene *scene = documentStore()->loadDocumentScene(pDocumentProxy, pageIndex);
         UserNotices::presentStatusMessage(tr("Exporting page %1 of %2").arg(pageIndex + 1).arg(existingPageCount));
 
         // 导出页不保留深色/网格背景：PDF 阅读器默认白底，深色背景会掩盖笔迹。

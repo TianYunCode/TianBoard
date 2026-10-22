@@ -1,11 +1,11 @@
 #include "content/ImportDocumentSetAdaptor.h"
+#include "model/IDocumentStore.h"
 
 #include "model/DocumentProxy.h"
 
 #include "utils/FileSystemUtils.h"
 
 #include "settings/Settings.h"
-#include "core/PersistenceManager.h"
 
 #include "utils/Globals.h"
 
@@ -60,7 +60,7 @@ QFileInfoList ImportDocumentSetAdaptor::importData(const QString &zipFile, const
         QString newFileName = readDir.fileName();
         if (QFileInfo(destination + "/" + readDir.fileName()).exists())
         {
-            newFileName = QFileInfo(PersistenceManager::persistenceManager()->generateUniqueDocumentPath(tmpDir)).fileName();
+            newFileName = QFileInfo(documentStore()->generateUniqueDocumentPath(tmpDir)).fileName();
         }
         QString newFilePath = destination + "/" + newFileName;
         if (FileSystemUtils::copy(readDir.absoluteFilePath(), newFilePath))

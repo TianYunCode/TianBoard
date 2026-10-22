@@ -35,7 +35,6 @@
 
 #include "ui/DocumentController.h"
 
-
 BoardPaletteManager::BoardPaletteManager(QWidget *container, BoardController *pBoardController)
     : QObject(container), mKeyboardPalette(0), mWebToolsCurrentPalette(0), mContainer(container), mBoardControler(pBoardController),
       mStylusPalette(0), mZoomPalette(0), mLeftPalette(NULL), mRightPalette(NULL), mBackgroundsPalette(0), mToolsPalette(0), mAddItemPalette(0),
