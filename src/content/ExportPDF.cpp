@@ -62,11 +62,19 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
     bool     painterNeedsBegin = true;
 
     int existingPageCount      = pDocumentProxy->pageCount();
+    int renderedPages          = 0;
 
     for (int pageIndex = 0; pageIndex < existingPageCount; pageIndex++)
     {
         GraphicsScene *scene = documentStore()->loadDocumentScene(pDocumentProxy, pageIndex);
         UserNotices::presentStatusMessage(tr("Exporting page %1 of %2").arg(pageIndex + 1).arg(existingPageCount));
+
+        if (!scene)
+        {
+            // 文档声称有这一页但盘上没有可读的页文件：跳过。为了让它"存在"而补一页就等于
+            // 在导出时改用户的文档（loadDocumentScene 过去就是这么干的，页数越导越胖）。
+            continue;
+        }
 
         // 导出页不保留深色/网格背景：PDF 阅读器默认白底，深色背景会掩盖笔迹。
         bool           isDark         = scene->isDarkBackground();
@@ -105,11 +113,20 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
 
         // 背景是临时改的，导出后恢复原状，避免屏幕上出现“白底”闪变。
         scene->setBackground(isDark, pageBackground);
+
+        renderedPages++;
     }
 
     if (!painterNeedsBegin)
     {
         pdfPainter.end();
+    }
+
+    // 一页都没画出来时不能只留一个空文件给用户：文档声称有页而盘上都没有可读的页文件，
+    // 这件事只有导出器自己知道（读不出页也不许为了凑数去改文档，见 loadDocumentScene）。
+    if (renderedPages == 0)
+    {
+        UserNotices::presentStatusMessage(tr("This document has no readable page; the PDF contains nothing"), false);
     }
 
     return true;

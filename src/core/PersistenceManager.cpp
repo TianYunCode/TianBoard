@@ -942,8 +942,17 @@ GraphicsScene *PersistenceManager::loadDocumentScene(DocumentProxy *proxy, int s
         GraphicsScene *scene = SvgSubsetAdaptor::loadScene(proxy, sceneIndex);
         if (!scene)
         {
-            createDocumentSceneAt(proxy, 0);
-            scene = SvgSubsetAdaptor::loadScene(proxy, 0);
+            // 盘上没有这一页可读的页文件。旧写法在这里 createDocumentSceneAt(proxy, 0) 补一页、
+            // 再读第 0 页并把第 0 页的内容挂到请求的那个页号上：文档凭空多一页、页号全体后移，
+            // 而且"第 N 页"显示的是第 1 页——导出因此不再是只读的（实测同一份缺页文档连导两趟，
+            // pageCount 从 3 涨到 4）。只有"这份文档一页都还没有"才该替它建第 0 页。
+            if (proxy->pageCount() == 0)
+            {
+                return createDocumentSceneAt(proxy, 0);
+            }
+
+            qWarning() << "文档里没有这一页可读的页文件，按空返回:" << proxy->persistencePath() << sceneIndex;
+            return nullptr;
         }
 
         if (scene)

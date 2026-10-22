@@ -557,14 +557,17 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
   PersistenceManager::createDocumentFromDir → registerDocumentProxy → removeRow →
   DocumentTreeModel::removeRows → DocumentTreeNode::findNode → parentNode`，触发条件是"导入一个
   与现有文档同名的包并答替换"——界面上就是重新导入自己刚导出的那份文档。改成声明处 `= nullptr`。
-- **未修（记在这里，别当已经好了）：`PersistenceManager::loadDocumentScene` 在某一页读不出来时
-  会改文档**。它 `createDocumentSceneAt(proxy, 0)` 插一页、再读第 0 页，然后把这页
+- **已修：`PersistenceManager::loadDocumentScene` 在某一页读不出来时会改文档**。旧写法
+  `createDocumentSceneAt(proxy, 0)` 插一页、再读第 0 页，然后把这页
   `mSceneCache.insert(proxy, sceneIndex, scene)` 挂到**请求的那个页号**上：既让 `pageCount` +1
   （页号全体后移），又把第 1 页的内容当成了"第 N 页"。实测证据：一份多出一页没有页文件的文档
   连导两趟 PDF，`pageCount` 从 3 涨到 4，第二次导出的 PDF 多一页——导出本该是只读的。
-  没顺手改的原因：要给"这一页确实不存在"一个不改文档的返回，得逐个查调用点能不能接住空场景
-  （`ApplicationController` 拿它是直接往下传的），是单独的一刀。自检这一腿现在用"每页都在盘上"
-  的健康文档，并加了"导一趟 PDF 前后 `pageCount` 必须不变"的断言，这条将来改坏了会变红。
+  现在只有"这份文档一页都还没有"才替它建第 0 页，其余情况记一条告警并返回空；四个产品调用点
+  （`ApplicationController`、`DocumentController`、`BoardController` 两处）本来就判了空，
+  `ExportPDF` 那条没判，补上"这页读不到就跳过、并且明确告诉用户这份文档没有可读的页"。
+  自检这一腿用"声称两页、盘上一页都没有"的文档（这样才不会被场景缓存挡掉），断言导出前后
+  `pageCount` 不变、不许补出页文件、也不许一声不吭；把 `loadDocumentScene` 改回旧写法，
+  这条立刻 3 处变红（反向对照实测）。
 - **API 脚枪：`createDocument(group, name, withEmptyPage, directory, pageCount)` 的两个页数参数是
   叠加的**——`pageCount` 只是先 `setPageCount()`，`withEmptyPage=true` 再插一页并 `incPageCount()`，
   所以 `pageCount=1 + withEmptyPage=true` 得到 2 页（两个自检都因此多出一页空页，已改成传 0 并在

@@ -9,6 +9,7 @@
 #include "model/DocumentTreeModel.h"
 #include "model/IDocumentStore.h"
 #include "platform/VirtualDesktop.h"
+#include "utils/UserNotices.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsTextItem.h"
@@ -25,6 +26,13 @@
 
 namespace
 {
+    /**
+     * @brief 导出器报给状态条的消息清单（第 4 条用例装的收集器往这里加）。
+     * @note 呈现方式注册表是进程级的，所以这里必须是命名空间作用域的容器而不是局部变量——
+     *       捕获局部的话，注册表比它活得久，之后任何一条状态消息都是悬垂引用。
+     */
+    QStringList gStatusMessages;
+
     /// @brief 本条自检里裁决钩子被问了几次。
     int gAsked = 0;
 
@@ -445,6 +453,59 @@ namespace ExportSelfTest
             PersistenceManager::persistenceManager()->deleteDocument(replacing);
         }
 
+        // ---- 4. 文档声称有页、盘上一页都读不到时：导出不许改文档，也不许一声不吭 ----
+        // 旧写法读不到某一页就当场 createDocumentSceneAt(proxy, 0) 补一页、再把第 1 页的内容
+        // 挂到请求的那个页号上：同一份文档连导两趟，pageCount 一路涨、页号全体后移，
+        // "第 N 页"其实是第 1 页。导出必须是只读操作。
+        // 这一条用"声称两页、一页都没有"的文档来验（场景缓存里没有那几页，才会真去读盘）。
+        const QString phantomDirectory = QDir(documentDirectory).filePath(QStringLiteral("phantom"));
+        QDir().mkpath(phantomDirectory);
+
+        gStatusMessages.clear();
+        UserNotices::installStatusPresenter(
+            [](const QString &message, bool)
+            {
+                gStatusMessages << message;
+            });
+
+        DocumentProxy *phantom = PersistenceManager::persistenceManager()->createDocument(
+            QString(), QStringLiteral("ExportSelfTestPhantom"), false, phantomDirectory, 2, false);
+        if (!phantom)
+        {
+            failures << QStringLiteral("建那份声称两页、盘上一页都没有的临时文档失败");
+        }
+        else
+        {
+            const QString phantomPdfPath = QDir(documentDirectory).filePath(QStringLiteral("export-phantom.pdf"));
+            ExportPDF     phantomExporter;
+            phantomExporter.persistsDocument(phantom, phantomPdfPath);
+
+            if (phantom->pageCount() != 2)
+            {
+                failures << QStringLiteral("导一趟没有可读页的文档之后页数被改成 %1（导出必须是只读的）").arg(phantom->pageCount());
+            }
+            if (!QDir(phantomDirectory).entryList({QStringLiteral("page*.svg")}, QDir::Files).isEmpty())
+            {
+                failures << QStringLiteral("导出替没有可读页的文档补出了页文件");
+            }
+
+            // 匹配的是 tr() 的源文本：这条自检跑的是英文源，不走翻译。
+            bool toldUser = false;
+            for (const QString &message : gStatusMessages)
+            {
+                if (message.contains(QStringLiteral("no readable page")))
+                {
+                    toldUser = true;
+                }
+            }
+            if (!toldUser)
+            {
+                failures << QStringLiteral("一页都没画出来，导出器却一声不吭（用户只会拿到一个空 PDF）");
+            }
+
+            QFile::remove(phantomPdfPath);
+        }
+
         QFile::remove(simplePdfPath);
         QFile::remove(fullPdfPath);
         QFile::remove(packagePath);
@@ -455,7 +516,7 @@ namespace ExportSelfTest
 
         if (failures.isEmpty())
         {
-            qInfo() << "export-selftest: OK PDF 两个导出器、.tbz 往返与同名替换四条都对得上账";
+            qInfo() << "export-selftest: OK PDF 两个导出器、.tbz 往返、同名替换与缺页只读五条都对得上账";
         }
 
         return bail(failures);
