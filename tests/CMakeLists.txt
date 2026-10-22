@@ -199,6 +199,16 @@ set_tests_properties(tst_pages PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 音视频插入端到端自检：应用带 --media-selftest 把文档外的 WAV 插进画板，验它真进了文档。
+add_executable(tst_media tst_media.cpp)
+target_compile_options(tst_media PRIVATE /MP /utf-8)
+target_link_libraries(tst_media PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_media TianBoard)
+add_test(NAME tst_media COMMAND tst_media)
+set_tests_properties(tst_media PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

@@ -1,4 +1,6 @@
 #include "whiteboard/GraphicsGroupContainerItem.h"
+#include "utils/Enums.h"
+#include "utils/FileSystemUtils.h"
 #include "utils/UserNotices.h"
 #include "whiteboard/GraphicsMediaItem.h"
 #include "whiteboard/GraphicsMediaItemDelegate.h"
@@ -12,25 +14,26 @@ bool GraphicsMediaItem::sIsMutedByDefault = false;
 
 GraphicsMediaItem *GraphicsMediaItem::createMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent)
 {
-    GraphicsMediaItem *mediaItem = nullptr;
-
-    // 通过路径中的 videos/audios 目录判断媒体种类；无法识别时返回空
-    QString mediaPath            = pMediaFileUrl.toString();
-    if ("" == mediaPath)
+    // 按路径里的 videos/audios 目录认媒体种类。这够用是因为所有能走到这里的媒体都已经被
+    // 复制进文档的那两个目录（BoardController::addVideo/addAudio 无条件复制）；按扩展名判断
+    // 在这条链路上是死代码——实测把它去掉，音视频自检的结果不变。
+    QString mediaPath = pMediaFileUrl.toString();
+    if (mediaPath.isEmpty())
     {
         mediaPath = pMediaFileUrl.toLocalFile();
     }
 
-    if (mediaPath.toLower().contains("videos"))
+    if (mediaPath.toLower().contains(QStringLiteral("videos")))
     {
-        mediaItem = new GraphicsVideoItem(pMediaFileUrl, parent);
-    }
-    else if (mediaPath.toLower().contains("audios"))
-    {
-        mediaItem = new GraphicsAudioItem(pMediaFileUrl, parent);
+        return new GraphicsVideoItem(pMediaFileUrl, parent);
     }
 
-    return mediaItem;
+    if (mediaPath.toLower().contains(QStringLiteral("audios")))
+    {
+        return new GraphicsAudioItem(pMediaFileUrl, parent);
+    }
+
+    return nullptr;
 }
 
 void GraphicsMediaItem::observeActiveSceneChanges(GraphicsMediaItem *item)

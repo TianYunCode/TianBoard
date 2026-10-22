@@ -1193,7 +1193,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
         else
         {
             qDebug() << sourceUrl.toString();
-            mediaVideoItem = addVideo(sourceUrl, false, pPos, true);
+            mediaVideoItem = addVideo(sourceUrl, false, pPos);
         }
 
         if (mediaVideoItem)
@@ -1238,7 +1238,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
         }
         else
         {
-            audioMediaItem = addAudio(sourceUrl, false, pPos, true);
+            audioMediaItem = addAudio(sourceUrl, false, pPos);
         }
 
         if (audioMediaItem)
@@ -2076,26 +2076,22 @@ void BoardController::grabScene(const QRectF &pSceneRect)
     }
 }
 
-GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startPlay, const QPointF &pos, bool bUseSource)
+GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startPlay, const QPointF &pos)
 {
-    QUuid uuid        = QUuid::createUuid();
-    QUrl  concreteUrl = pSourceUrl;
+    QUuid   uuid = QUuid::createUuid();
+    QString destFile;
 
-    // 未要求直接复用源文件时，先把媒体复制进文档目录。
-    if (!bUseSource)
+    // 媒体必须成为文档的一部分：页文件里的引用是 videos/<文件名> 这种文档内相对路径。
+    // 过去这里有个 bUseSource 参数可以跳过复制，而唯一用它的路径正是"拖本地文件进来"，
+    // 结果就是文档带着一个指向外部文件的悬空引用。
+    if (!PersistenceManager::persistenceManager()->addFileToDocument(
+            selectedDocument(), pSourceUrl.toLocalFile(), PackageLayout::videoDirectory, uuid, destFile))
     {
-        QString destFile;
-        bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-            selectedDocument(), pSourceUrl.toLocalFile(), PackageLayout::videoDirectory, uuid, destFile);
-        if (!b)
-        {
-            showMessage(tr("Add file operation failed: file copying error"));
-            return NULL;
-        }
-        concreteUrl = QUrl::fromLocalFile(destFile);
-    } // 否则直接沿用源文件 URL。
+        showMessage(tr("Add file operation failed: file copying error"));
+        return NULL;
+    }
 
-    GraphicsMediaItem *vi = mActiveScene->addMedia(concreteUrl, startPlay, pos);
+    GraphicsMediaItem *vi = mActiveScene->addMedia(QUrl::fromLocalFile(destFile), startPlay, pos);
     selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
     if (vi)
@@ -2107,26 +2103,20 @@ GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startP
     return vi;
 }
 
-GraphicsMediaItem *BoardController::addAudio(const QUrl &pSourceUrl, bool startPlay, const QPointF &pos, bool bUseSource)
+GraphicsMediaItem *BoardController::addAudio(const QUrl &pSourceUrl, bool startPlay, const QPointF &pos)
 {
-    QUuid uuid        = QUuid::createUuid();
-    QUrl  concreteUrl = pSourceUrl;
+    QUuid   uuid = QUuid::createUuid();
+    QString destFile;
 
-    // 未要求直接复用源文件时，先把媒体复制进文档目录。
-    if (!bUseSource)
+    // 同 addVideo：不复制进文档就是给文档留一个指向外部文件的引用。
+    if (!PersistenceManager::persistenceManager()->addFileToDocument(
+            selectedDocument(), pSourceUrl.toLocalFile(), PackageLayout::audioDirectory, uuid, destFile))
     {
-        QString destFile;
-        bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-            selectedDocument(), pSourceUrl.toLocalFile(), PackageLayout::audioDirectory, uuid, destFile);
-        if (!b)
-        {
-            showMessage(tr("Add file operation failed: file copying error"));
-            return NULL;
-        }
-        concreteUrl = QUrl::fromLocalFile(destFile);
-    } // 否则直接沿用源文件 URL。
+        showMessage(tr("Add file operation failed: file copying error"));
+        return NULL;
+    }
 
-    GraphicsMediaItem *ai = mActiveScene->addMedia(concreteUrl, startPlay, pos);
+    GraphicsMediaItem *ai = mActiveScene->addMedia(QUrl::fromLocalFile(destFile), startPlay, pos);
     selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
 
     if (ai)

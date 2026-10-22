@@ -9,6 +9,7 @@
 #include "app/ExportSelfTest.h"
 #include "app/FormatSelfTest.h"
 #include "app/ImportSelfTest.h"
+#include "app/MediaInsertSelfTest.h"
 #include "app/PageOperationsSelfTest.h"
 #include "app/RecordingSelfTest.h"
 #include "app/ShortcutSelfTest.h"
@@ -36,6 +37,7 @@ void installSelfTestFromArgs(Application &app)
         {"--undoredo-selftest",  UndoRedoSelfTest::run      }, // 撤销/重做全回路与换文档清栈（tst_undoredo）
         {"--autosave-selftest",  AutoSaveSelfTest::run      }, // 自动保存定时器起停与真落盘（tst_autosave）
         {"--pages-selftest",     PageOperationsSelfTest::run}, // 页面增删复制移动后逐页冷读对账（tst_pages）
+        {"--media-selftest",     MediaInsertSelfTest::run   }, // 音视频插入有没有变成文档的一部分（tst_media）
     };
 
     const QStringList args = app.arguments();

@@ -385,12 +385,15 @@ public slots:
      * @param pUrl 视频地址或本地路径。
      * @param startPlay 插入后是否立即播放。
      * @param pos 插入位置（场景坐标）。
-     * @param bUseSource 是否按来源 URL 而非缓存数据处理。
      * @return 新建的视频图元。
+     * @note 源文件总会被复制进文档的 videos/ 里：页文件写的是文档内相对引用
+     *       `videos/<文件名>`，不复制就等于把文档指向了外部文件，换台机器或对方
+     *       删掉原文件，这份文档就放不出来了（过去这里有个 bUseSource 参数可以跳过
+     *       复制，只有 downloadFinished 用，跳过的结果正是那个悬空引用）。
      */
-    GraphicsMediaItem *addVideo(const QUrl &pUrl, bool startPlay, const QPointF &pos, bool bUseSource = false);
+    GraphicsMediaItem *addVideo(const QUrl &pUrl, bool startPlay, const QPointF &pos);
     /// @brief 插入音频图元，参数含义同 addVideo()。
-    GraphicsMediaItem *addAudio(const QUrl &pUrl, bool startPlay, const QPointF &pos, bool bUseSource = false);
+    GraphicsMediaItem *addAudio(const QUrl &pUrl, bool startPlay, const QPointF &pos);
     /// @brief 插入网页小部件。
     GraphicsWidgetItem *addWebWidget(const QUrl &pUrl, const QPointF &pos);
     /// @brief 根据外接屏数量与位置重新安排演示视图。
