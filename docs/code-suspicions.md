@@ -578,3 +578,12 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
 `ExportFullPDF` 的 `*_overlay.pdf` 中间产物必须被改名掉、不许残留；同名替换之后"我的文档"根下该名字
 只剩一份。反向对照：把 `pdfWriter.newPage()` 短路，自检报页数不对（2 条）。
 
+同一轮把导入那一侧也接上了产物断言（`--import-selftest` 第 9、10 两条用例）：用 `QPdfWriter`
+现场造一份两页 PDF、用 `QPainter` 现场画一张 PNG，走界面上同一个入口 `DocumentManager::importFile`，
+断"PDF 导入后 2 页、每页恰好一个 `GraphicsPDFItem`、文档目录自包含、冷读回来图元还在"与
+"图片导入后 1 页、回来的像素与源文件指纹一致、`images/` 里有那张 PNG、冷读回来仍然一致"。
+两个反向对照：把 `ImportImage` 放进场景的位图换成空图 → 3 条红；把 `DocumentManager` 里导入时那次
+`folderToCopy` 短路 → **仍然全绿**，因为每存一页时 `pdfItemToLinkedPDF` 会把缺的 PDF 重新落盘
+（位图与 SVG 从这一轮起也是同样写法）。也就是说那条"文档目录自包含"的断言钉的是结果而不是手段，
+真正承重的是写出器；这一点在测试代码里也写明了，免得后人误读。
+

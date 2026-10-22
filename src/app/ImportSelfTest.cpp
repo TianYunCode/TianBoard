@@ -1,19 +1,32 @@
 #include "app/ImportSelfTest.h"
 
+#include "content/SvgSubsetAdaptor.h"
+#include "core/DocumentManager.h"
 #include "core/PersistenceManager.h"
 #include "model/DocumentProxy.h"
 #include "model/DocumentTreeModel.h"
+#include "model/PackageLayout.hpp"
 #include "settings/Settings.h"
 #include "utils/FileSystemUtils.h"
+#include "whiteboard/GraphicsPDFItem.h"
+#include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsTextItem.h"
 
 #include <QCoreApplication>
-#include <functional>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>
+#include <QImage>
+#include <QPdfWriter>
+#include <QPageSize>
+#include <QPainter>
+#include <QPen>
+#include <QPixmap>
 #include <QSize>
 #include <QStringList>
+
+#include <functional>
 
 namespace
 {
@@ -115,6 +128,73 @@ namespace
     {
         QDir(toDir).removeRecursively();
         return FileSystemUtils::copyDir(fromDir, toDir);
+    }
+
+    /**
+     * @brief 现场造一份两页 PDF：每页一块不同颜色的实心背景，导入回来才分得清页有没有串。
+     * @note 不依赖仓库里任何样例文件——导入这条路的输入必须是自检自己写的，才知道是谁坏了。
+     */
+    bool writeTwoPagePdf(const QString &path)
+    {
+        QPdfWriter writer(path);
+        writer.setPageSize(QPageSize(QSizeF(300, 200), QPageSize::Point));
+        writer.setPageMargins(QMarginsF(0, 0, 0, 0));
+
+        QPainter painter;
+        if (!painter.begin(&writer))
+        {
+            return false;
+        }
+
+        painter.fillRect(QRectF(0, 0, 300, 200), QColor(220, 40, 40));
+        painter.setPen(QPen(QColor(255, 255, 255), 6));
+        painter.drawLine(20, 20, 280, 180);
+
+        writer.newPage();
+
+        painter.fillRect(QRectF(0, 0, 300, 200), QColor(40, 120, 220));
+        painter.setPen(QPen(QColor(0, 0, 0), 6));
+        painter.drawLine(280, 20, 20, 180);
+        painter.end();
+
+        return QFileInfo(path).size() > 512;
+    }
+
+    /// @brief 字节指纹；空内容的 MD5 是 d41d8cd9…，读回一个空东西时一眼看得出来。
+    QString digest(const QByteArray &bytes)
+    {
+        return QString::fromLatin1(QCryptographicHash::hash(bytes, QCryptographicHash::Md5).toHex());
+    }
+
+    /// @brief 位图像素指纹（与格式/导出自检同一口径：先归一到 ARGB32 再取位）。
+    QString pixmapDigest(const QPixmap &pixmap)
+    {
+        if (pixmap.isNull())
+        {
+            return QStringLiteral("<null>");
+        }
+
+        const QImage     image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+        const QByteArray bits(reinterpret_cast<const char *>(image.constBits()), static_cast<int>(image.sizeInBytes()));
+        return digest(bits);
+    }
+
+    /// @brief 数一数场景里某类图元有几个（含背景对象：导入进来的 PDF/图片就是背景对象）。
+    template <typename T> int countItems(GraphicsScene *scene)
+    {
+        int count = 0;
+        if (!scene)
+        {
+            return 0;
+        }
+        foreach (QGraphicsItem *item, scene->items())
+        {
+            if (dynamic_cast<T *>(item))
+            {
+                ++count;
+            }
+        }
+        return count;
     }
 
     /// @brief 树里“我的文档”下的名字列表，用来数同名节点还剩几个。
@@ -502,6 +582,141 @@ namespace ImportSelfTest
                 }
             }
         }
+        // ---- 9. 导入一份真 PDF：页数、每页一个 PDF 图元、那份 PDF 有没有被搬进文档目录 ----
+        // 导入这条路过编译与冒烟从没验过产物：页数为 0、图元没建出来、或者页文件里的引用
+        // 指向一个没被拷贝进文档的 PDF，界面都只是"导入成功"然后页上一片空白。
+        {
+            gScript.clear();
+
+            const QString pdfPath = QDir(rootDir).filePath(prefix + QStringLiteral("导入-PDF.pdf"));
+            if (!writeTwoPagePdf(pdfPath))
+            {
+                failures << QStringLiteral("现场造那份两页 PDF 失败: %1").arg(pdfPath);
+            }
+            else
+            {
+                DocumentProxy *imported = DocumentManager::documentManager()->importFile(QFile(pdfPath), QString());
+                if (!imported)
+                {
+                    failures << QStringLiteral("导入一份两页 PDF 没产出文档（DocumentManager::importFile 返回空）");
+                }
+                else
+                {
+                    if (imported->pageCount() != 2)
+                    {
+                        failures << QStringLiteral("PDF 导入后应有 2 页，实际 %1 页").arg(imported->pageCount());
+                    }
+                    for (int i = 0; i < 2 && i < imported->pageCount(); i++)
+                    {
+                        const int items = countItems<GraphicsPDFItem>(pm->loadDocumentScene(imported, i));
+                        if (items != 1)
+                        {
+                            failures << QStringLiteral("PDF 导入后第 %1 页里的 PDF 图元不是 1 个（实际 %2 个）").arg(i + 1).arg(items);
+                        }
+                    }
+
+                    const QStringList objects =
+                        QDir(imported->persistencePath() + "/" + PackageLayout::objectDirectory).entryList({QStringLiteral("*.pdf")}, QDir::Files);
+                    if (objects.isEmpty())
+                    {
+                        failures << QStringLiteral("导入的 PDF 没被搬进文档目录的 %1/ 下，页文件里的引用是空头").arg(PackageLayout::objectDirectory);
+                    }
+                    // 注意这条断言钉的是"文档自包含"，不是"导入那一步做了拷贝"：实测把
+                    // DocumentManager 里那次 folderToCopy 短路掉它照样绿——每存一页时
+                    // pdfItemToLinkedPDF 都会把缺少的 PDF 重新落盘（位图与 SVG 现在同理）。
+                    if (!rootNames(model).contains(imported->name()))
+                    {
+                        failures << QStringLiteral("PDF 导入出来的文档没登记进树: %1").arg(imported->name());
+                    }
+
+                    // 冷读第 0 页：绕开场景缓存，从盘上的页文件重建，PDF 图元必须还在。
+                    DocumentProxy cold(imported->persistencePath());
+                    if (countItems<GraphicsPDFItem>(SvgSubsetAdaptor::loadScene(&cold, 0)) != 1)
+                    {
+                        failures << QStringLiteral("PDF 文档存盘再冷读回来，第 0 页的 PDF 图元没了");
+                    }
+                }
+            }
+        }
+
+        // ---- 10. 导入一张真 PNG：一页、一张位图、像素一致、资源落进 images/ ----
+        {
+            gScript.clear();
+
+            const QString pngPath = QDir(rootDir).filePath(prefix + QStringLiteral("导入-图片.png"));
+
+            QPixmap source(48, 36);
+            source.fill(Qt::transparent);
+            {
+                QPainter painter(&source);
+                painter.fillRect(0, 0, 48, 36, QColor(30, 200, 90));
+                painter.setPen(QPen(QColor(200, 30, 30), 4));
+                painter.drawLine(2, 2, 45, 33);
+            }
+
+            if (!source.save(pngPath, "PNG"))
+            {
+                failures << QStringLiteral("现场造那张 PNG 失败: %1").arg(pngPath);
+            }
+            else
+            {
+                DocumentProxy *imported = DocumentManager::documentManager()->importFile(QFile(pngPath), QString());
+                if (!imported)
+                {
+                    failures << QStringLiteral("导入一张 PNG 没产出文档");
+                }
+                else
+                {
+                    if (imported->pageCount() != 1)
+                    {
+                        failures << QStringLiteral("图片导入后应有 1 页，实际 %1 页").arg(imported->pageCount());
+                    }
+
+                    const QString want = pixmapDigest(source);
+
+                    QString        got;
+                    GraphicsScene *scene = pm->loadDocumentScene(imported, 0);
+                    foreach (QGraphicsItem *item, scene ? scene->items() : QList<QGraphicsItem *>())
+                    {
+                        if (GraphicsPixmapItem *pixmapItem = dynamic_cast<GraphicsPixmapItem *>(item))
+                        {
+                            got = pixmapDigest(pixmapItem->pixmap());
+                        }
+                    }
+                    if (got.isEmpty())
+                    {
+                        failures << QStringLiteral("图片导入后第 0 页里没有位图图元");
+                    }
+                    else if (got != want)
+                    {
+                        failures << QStringLiteral("图片导入回来的像素跟源文件不一致（%1 对 %2）").arg(got, want);
+                    }
+
+                    const QStringList images =
+                        QDir(imported->persistencePath() + "/" + PackageLayout::imageDirectory).entryList({QStringLiteral("*.png")}, QDir::Files);
+                    if (images.isEmpty())
+                    {
+                        failures << QStringLiteral("导入的位图没落进文档的 %1/ 目录").arg(PackageLayout::imageDirectory);
+                    }
+
+                    DocumentProxy  cold(imported->persistencePath());
+                    QString        coldDigest;
+                    GraphicsScene *coldScene = SvgSubsetAdaptor::loadScene(&cold, 0);
+                    foreach (QGraphicsItem *item, coldScene ? coldScene->items() : QList<QGraphicsItem *>())
+                    {
+                        if (GraphicsPixmapItem *pixmapItem = dynamic_cast<GraphicsPixmapItem *>(item))
+                        {
+                            coldDigest = pixmapDigest(pixmapItem->pixmap());
+                        }
+                    }
+                    if (coldDigest != want)
+                    {
+                        failures << QStringLiteral("图片文档存盘再冷读回来，位图不是那张源图（%1 对 %2）").arg(coldDigest, want);
+                    }
+                }
+            }
+        }
+
         purgeTestDocuments(pm, prefix);
         QCoreApplication::processEvents();
 
@@ -513,7 +728,7 @@ namespace ImportSelfTest
         if (failures.isEmpty())
         {
             QDir(rootDir).removeRecursively();
-            qInfo() << "import-selftest: OK 重名裁决的取消/改名/替换三条路径与整批导入都按预期落地";
+            qInfo() << "import-selftest: OK 重名裁决的取消/改名/替换三条路径与整批导入都按预期落地，PDF 与图片导入的产物也对得上";
         }
         else
         {
