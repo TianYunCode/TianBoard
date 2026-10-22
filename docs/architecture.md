@@ -514,9 +514,10 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
    搬完这些一个都没少，只是不再被 grep 看见。**所以真正的最后一刀是把“场景的生命周期”整个搬到画板**：
    契约留在 core（`GraphicsScene` 只前置声明，照 `model/IDocumentStore.h` 的写法），实现住在 whiteboard，
    上面那七个动作各变成契约上的一个方法；`loadDocumentScene` 本身**必须留在 core**（它调
-   `content/SvgSubsetAdaptor`，而画板对 content 要维持零出边）。外部调用点约 30 处
-   （`BoardController` 6、四个自检各 2-6、`ui/DocumentController` 4、`model/DocumentContainer` 4、
-   `content/ExportPDF` 3、`content/IwbSubsetAdaptor` 2、其余若干），是一次设计活，
+   `content/SvgSubsetAdaptor`，而画板对 content 要维持零出边）。调用点今天逐文件数过：
+   core 之外 52 处——`app/`（六个自检加 `ApplicationController`）20、`model/` 12（其中 7 处是
+   `IDocumentStore` 的声明）、`ui/` 8、`whiteboard/` 7、`content/` 5；core 内 29 处
+   （`PersistenceManager.cpp` 19 + `.h` 9 + `SceneCache.cpp` 1）。是一次设计活，
    **别在长时间会话末尾做这种抽象选择**——门禁抓得住编译与测试退化，抓不住“抽象选错了”。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
