@@ -241,6 +241,17 @@ set_tests_properties(tst_eraser PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 回收站端到端自检：移入、归属写回文档自己的 metadata.rdf、清空把包从盘上摘干净、
+# 退出前按天数只清过期那一份。
+add_executable(tst_trash tst_trash.cpp)
+target_compile_options(tst_trash PRIVATE /MP /utf-8)
+target_link_libraries(tst_trash PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_trash TianBoard)
+add_test(NAME tst_trash COMMAND tst_trash)
+set_tests_properties(tst_trash PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

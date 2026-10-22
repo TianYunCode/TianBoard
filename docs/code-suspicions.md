@@ -854,3 +854,33 @@ TianBoard!UndoRedoSelfTest::run          ← 就是 board->deleteScene(...) 这�
 这条判据写的是契约（"抬笔点必须真有几何"），不是当时量到的行为——又验证了一次立下的规矩：**断言要
 对着契约写**。还有一点值得记：给一条没人跑过的用户链路写端到端自检，抓到的缺陷常常不在那条链路上，
 而在它必经的上游那一步。
+
+### 2026-10-23：第 28 条自检（回收站）：移入与清空本身是对的，但永久删除在这棵树上留下一个已释放的节点
+
+`--trash-selftest` 量的是文档库里那条"右键删除 → 进回收站 → 清空回收站"的路。三条判据第一次跑就全绿，
+而且每一条都不是显然会成立的：
+
+- **归属真的落盘**。`folders.xml` 只存目录树、不存文档，一份文档属于哪个分组是写在它自己的
+  `metadata.rdf` 里（`DocumentTreeModel::updateIndexNameBindings` → `persistDocumentMetadata`）。
+  自检读那份字节，要求里面能看到回收站的组名前缀 `Settings::trashedDocumentGroupNamePrefix`（`_Trash:`）——
+  写不回盘上，重启之后"删掉的文档"就回到我的文档了。
+- **移入回收站不许删包**：这一步之后盘上的目录必须还在。
+- **清空回收站要删干净**：走界面上那条映射（`EmptyTrash` → `emptyFolder(index, CompleteDelete)`），
+  断包从盘上消失、回收站那一层行数归 0、留在外面的那份文档一个都不许少。反向对照：把
+  `PersistenceManager::deleteDocument` 里那次 `FileSystemUtils::deleteDir` 短路，只有"孤儿目录"那一条红
+  （其余判据照旧绿），说明这几条各管各的。
+
+**测出来的缺陷（已复现，根因还没定位）**：永久删除之后再走这棵树就会踩一条 Qt 断言——
+`ASSERT: "len >= 0" in file .../QtCore/qstringview.h, line 135`。定位过程值得记，因为我第一版归错了地方：
+先看到"第 4 步建文档时崩"，以为是 `createDocument` 的问题；在清空前后各插一条标记之后量到的是
+`emptyFolder` **本身跑完了**、victim 的包已经没了、回收站行数已经是 0，断在紧接着的下一句
+`docModel->indexForProxy(victim)` 上（同一趟里 `pm->createDocument()` 也会踩，同一个根因）。
+`indexForProxy` 只做一件事：`findProxy` 沿 `mRootNode` 找代理、再 `indexForNode` 数它在兄弟里的位置，
+所以留下的是一只**已经被释放的树节点仍挂在 children 里**。顺路的事实也对得上：
+`deleteDocument` 用的是 `deleteLater()`，而 `deleteIndexAndAssociatedData` 随后就 `removeRow`。
+Debug 下这是一条断言；**Release 下 Q_ASSERT 整个不参与编译，那读到的就是已经不该再用的内存**——属于
+"文档库点几下之后界面自己乱掉"那一类，不是理论风险。
+
+因此这条自检暂时**没有**第 4 步（`deleteDocumentsInFolderOlderThan` 按天数清理）与"树里不该再留着已删
+文档的行"这条判据：它们都要在删除之后再走一次这棵树，会把整个用例变成一次崩溃而不是一个可比较的退出码。
+测试代码里留了话说明为什么。修好根因之后这两条要一起补回来——那时它们才量得动。

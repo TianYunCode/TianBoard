@@ -17,6 +17,7 @@
 #include "app/RecordingSelfTest.h"
 #include "app/ShortcutSelfTest.h"
 #include "app/SnapSelfTest.h"
+#include "app/TrashSelfTest.h"
 #include "app/UndoRedoSelfTest.h"
 #include "core/Application.h"
 
@@ -44,6 +45,7 @@ void installSelfTestFromArgs(Application &app)
         {"--download-selftest",  DownloadSelfTest::run           }, // 本地下载端到端与跨层事实的应答连线（tst_download）
         {"--preflive-selftest",  PreferenceLiveApplySelfTest::run}, // 偏好设置改完当场生效，不重启不换页（tst_preflive）
         {"--eraser-selftest",    EraserSelfTest::run             }, // 橡皮切开一段笔迹的整条回路与存读对账（tst_eraser）
+        {"--trash-selftest",     TrashSelfTest::run              }, // 回收站：移入、归属落盘、清空删净、按天数清理（tst_trash）
     };
 
     const QStringList args = app.arguments();
