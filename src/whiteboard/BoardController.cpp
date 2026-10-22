@@ -128,6 +128,10 @@ void BoardController::init()
     connect(DownloadManager::downloadManager(), &DownloadManager::downloadsQueued, mPaletteManager, &BoardPaletteManager::startDownloads);
     connect(DownloadManager::downloadManager(), &DownloadManager::downloadsDrained, mPaletteManager, &BoardPaletteManager::stopDownloads);
 
+    // 自动保存间隔改完就得生效。旧写法只在换主模式时重排定时器，于是在偏好设置里把间隔改成
+    // 5 分钟（甚至改成关闭）之后，画板还要等下一次换模式才按新值走。
+    connect(Settings::settings()->autoSaveInterval, &Setting::changed, this, &BoardController::autoSaveIntervalChanged);
+
     // 文档被删掉时，BoardController 里缓存的 selectedDocument()（DocumentContainer 的
     // mCurrentDocument）指向的就是那个正在 deleteLater 的对象——PersistenceManager 一直
     // 在发这个信号，而接收端从来没连上，于是删掉当前文档之后每一次翻页/保存都在读已释放
@@ -1767,6 +1771,22 @@ void BoardController::autosaveTimeout()
 
 void BoardController::appMainModeChanged(ApplicationController::MainMode md)
 {
+    rearmAutosaveTimer(md);
+}
+
+void BoardController::autoSaveIntervalChanged()
+{
+    if (!Application::applicationController)
+    {
+        // 装配还没完成，谈不上“改完立刻生效”；随后的主模式回调会按新值把定时器装上。
+        return;
+    }
+
+    rearmAutosaveTimer(Application::applicationController->displayMode());
+}
+
+void BoardController::rearmAutosaveTimer(ApplicationController::MainMode mode)
+{
     const int autoSaveInterval = autosaveTimeoutFromSettings();
     if (!autoSaveInterval)
     {
@@ -1785,7 +1805,7 @@ void BoardController::appMainModeChanged(ApplicationController::MainMode md)
         connect(mAutosaveTimer, &QTimer::timeout, this, &BoardController::autosaveTimeout);
     }
 
-    if (md == ApplicationController::Board)
+    if (mode == ApplicationController::Board)
     {
         mAutosaveTimer->start(autoSaveInterval);
     }

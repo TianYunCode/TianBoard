@@ -81,9 +81,10 @@ namespace AutoSaveSelfTest
             failures << QStringLiteral("自动保存间隔不对：设置是 %1 分钟，定时器却是 %2 毫秒").arg(originalMinutes).arg(timers.first()->interval());
         }
 
-        // ---- 2. 改设置并走一次模式回调，间隔要跟着变 ----
+        // ---- 2. 改设置**当场**就要生效：不调任何模式回调 ----
+        // 旧写法里重排只发生在 appMainModeChanged()，所以改了间隔（或改成关闭）之后，
+        // 画板还要等下一次换主模式才按新值走——这里刻意不喂那次回调，量的就是"立刻"。
         intervalSetting->setInt(2);
-        board->appMainModeChanged(ApplicationController::Board);
 
         timers = activeAutosaveTimers(board);
         if (timers.count() != 1)
@@ -92,12 +93,11 @@ namespace AutoSaveSelfTest
         }
         else if (timers.first()->interval() != 2 * 60 * 1000)
         {
-            failures << QStringLiteral("设置改成 2 分钟之后定时器还是 %1 毫秒").arg(timers.first()->interval());
+            failures << QStringLiteral("设置改成 2 分钟之后定时器还是 %1 毫秒（改完没立刻重排）").arg(timers.first()->interval());
         }
 
-        // ---- 3. 设成 0 就是关掉：不许留一个在跑的定时器 ----
+        // ---- 3. 设成 0 就是关掉：当场不许留一个在跑的定时器 ----
         intervalSetting->setInt(0);
-        board->appMainModeChanged(ApplicationController::Board);
 
         timers = activeAutosaveTimers(board);
         if (!timers.isEmpty())
@@ -105,14 +105,28 @@ namespace AutoSaveSelfTest
             failures << QStringLiteral("间隔设成 0（关闭自动保存）之后还有 %1 个定时器在跑").arg(timers.count());
         }
 
-        // ---- 4. 恢复原值，定时器要重新起来 ----
+        // ---- 4. 恢复原值，定时器要当场重新起来 ----
         intervalSetting->setInt(originalMinutes > 0 ? originalMinutes : 3);
-        board->appMainModeChanged(ApplicationController::Board);
 
         timers = activeAutosaveTimers(board);
         if (timers.count() != 1)
         {
             failures << QStringLiteral("恢复设置之后自动保存定时器没能重新跑起来（%1 个）").arg(timers.count());
+        }
+
+        // ---- 4b. 主模式这一维仍然管得住：离开画板模式就停，回到画板模式就跑 ----
+        board->appMainModeChanged(ApplicationController::Document);
+        timers = activeAutosaveTimers(board);
+        if (!timers.isEmpty())
+        {
+            failures << QStringLiteral("切出画板模式之后还有 %1 个自动保存定时器在跑").arg(timers.count());
+        }
+
+        board->appMainModeChanged(ApplicationController::Board);
+        timers = activeAutosaveTimers(board);
+        if (timers.count() != 1)
+        {
+            failures << QStringLiteral("回到画板模式之后自动保存定时器没能重新跑起来（%1 个）").arg(timers.count());
         }
 
         // ---- 5. saveData 必须真把这一页写到盘上 ----

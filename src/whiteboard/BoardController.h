@@ -434,6 +434,12 @@ public slots:
 public slots:
     /// @brief 主模式（教学/桌面等）切换后的界面与视图调整。
     void appMainModeChanged(ApplicationController::MainMode);
+    /**
+     * @brief 自动保存间隔改动之后立刻重排定时器。
+     * @note 旧写法只在换主模式时重排，所以用户在偏好设置里改了间隔，画板要等下一次换模式
+     *       才按新间隔走（间隔改成 0 也照样按旧间隔继续写盘）。
+     */
+    void autoSaveIntervalChanged();
 
 signals:
     /// @brief 活动场景已切换。
@@ -494,6 +500,8 @@ private:
     void saveViewState();
     /// @brief 从设置读取自动保存间隔（毫秒）。
     int autosaveTimeoutFromSettings();
+    /// @brief 按“当前主模式 + 设置里的间隔”重排自动保存定时器；间隔为 0 或不在画板模式就停下来。
+    void rearmAutosaveTimer(ApplicationController::MainMode mode);
 
     MainWindow                              *mMainWindow;                   ///< 主窗口，不持有所有权
     GraphicsScene                           *mActiveScene;                  ///< 当前活动场景，归文档/场景所有
