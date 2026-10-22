@@ -102,20 +102,13 @@ void DocumentTreeView::dragLeaveEvent(QDragLeaveEvent *event)
 {
     Q_UNUSED(event);
 
-    DocumentTreeModel *docModel = 0;
+    DocumentTreeModel *docModel = documentModel();
 
-    SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
-
-    if (proxy)
+    if (docModel)
     {
-        docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
-    }
-    else
-    {
-        docModel = dynamic_cast<DocumentTreeModel *>(model());
+        docModel->setHighLighted(QModelIndex());
     }
 
-    docModel->setHighLighted(QModelIndex());
     update();
 }
 
@@ -131,22 +124,16 @@ void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event)
 
     if (event->mimeData()->hasFormat(MimeTypes::boardPage))
     {
-        SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
+        DocumentTreeModel *docModel    = documentModel();
+        QModelIndex        targetIndex = mapIndexToSource(indexAt(event->position().toPoint()));
 
-        DocumentTreeModel *docModel = 0;
-
-        if (proxy)
+        // 认不出文档模型就没有"目标是不是文档、在不在回收站"可谈，直接不收这趟拖放。
+        // 原来这条分支自己也写在 !docModel 里却去解引用 docModel。
+        if (!docModel)
         {
-            docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
+            acceptIt = false;
         }
-        else
-        {
-            docModel = dynamic_cast<DocumentTreeModel *>(model());
-        }
-
-        QModelIndex targetIndex = mapIndexToSource(indexAt(event->position().toPoint()));
-
-        if (!docModel || !docModel->isDocument(targetIndex) || docModel->inTrash(targetIndex))
+        else if (!docModel->isDocument(targetIndex) || docModel->inTrash(targetIndex))
         {
             event->ignore();
             event->setDropAction(Qt::IgnoreAction);
@@ -169,12 +156,13 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
 {
     event->ignore();
     event->setDropAction(Qt::IgnoreAction);
-    DocumentTreeModel *docModel = 0;
+    DocumentTreeModel *docModel = documentModel();
 
-    SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
-    if (proxy)
+    // 没有文档模型就什么都做不了。原来这里只在有代理时才赋值，
+    // 紧接着就无条件 docModel->inTrash(...)，代理缺失时是空指针解引用。
+    if (!docModel)
     {
-        docModel = dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
+        return;
     }
 
     QModelIndex     targetIndex = mapIndexToSource(indexAt(event->position().toPoint()));
@@ -290,7 +278,9 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
         }
     }
 
-    expand(proxy->mapFromSource(targetIndex));
+    // expand 收的是视图侧（代理）索引；这个视图没套代理时，源索引本身就是视图索引。
+    SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
+    expand(proxy ? proxy->mapFromSource(targetIndex) : targetIndex);
 
     QTreeView::dropEvent(event);
 
@@ -331,6 +321,18 @@ void DocumentTreeView::updateIndexEnvirons(const QModelIndex &index)
     const int multipler  = 3;
     updateRect.adjust(0, -updateRect.height() * multipler, 0, updateRect.height() * multipler);
     update(updateRect);
+}
+
+DocumentTreeModel *DocumentTreeView::documentModel() const
+{
+    SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
+
+    if (proxy)
+    {
+        return dynamic_cast<DocumentTreeModel *>(proxy->sourceModel());
+    }
+
+    return dynamic_cast<DocumentTreeModel *>(model());
 }
 
 QModelIndex DocumentTreeView::mapIndexToSource(const QModelIndex &index)

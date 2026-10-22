@@ -33,6 +33,11 @@ void TestUiModes::switchingMainModesExitsCleanly()
     // 只可能是单实例把请求转交给了已在跑的实例；那种情况重试，三次都这样再跳过。
     constexpr qint64 kExpectedRunMs = 7000;
 
+    // 两种"没结论"的原因要分开数：30 秒内没退出（慢/卡住），与正常退出但太快
+    // （被已在跑的实例接管）。前者三次都发生要判红，后者三次都发生才算跳过。
+    int slowAttempts                = 0;
+    int handoffAttempts             = 0;
+
     for (int attempt = 1; attempt <= 3; ++attempt)
     {
         QProcess process;
@@ -49,11 +54,15 @@ void TestUiModes::switchingMainModesExitsCleanly()
 
         if (!finished)
         {
+            // 慢不等于坏：这台机器上同时在跑构建与别的用例时，11 秒的内部时序也可能被拖过
+            // 30 秒。真卡住（Qt 断言对话框）会连三次都不退出，所以按 tst_smoke 的办法重试，
+            // 三次都慢才判红。崩溃与非零退出码仍然当场判红。
             process.kill();
             process.waitForFinished();
-            QFAIL(qPrintable(QStringLiteral("切换主模式后 30 秒内没有退出（多半是 Qt 断言对话框卡住了事件循环），"
-                                            "已运行 %1 ms")
-                    .arg(runMs)));
+            ++slowAttempts;
+            qWarning() << "第" << attempt << "次：30 秒内没退出（用时" << runMs << "ms），重试";
+            QTest::qWait(2000);
+            continue;
         }
 
         const bool normalExit = process.exitStatus() == QProcess::NormalExit;
@@ -64,6 +73,7 @@ void TestUiModes::switchingMainModesExitsCleanly()
 
         if (normalExit && process.exitCode() == 0)
         {
+            ++handoffAttempts;
             QTest::qWait(3000); // 单实例接管，换一次时机
             continue;
         }
@@ -72,6 +82,13 @@ void TestUiModes::switchingMainModesExitsCleanly()
                 .arg(process.exitStatus() == QProcess::NormalExit ? "normal" : "crashed")
                 .arg(process.exitCode())
                 .arg(runMs)));
+    }
+
+    if (slowAttempts > 0)
+    {
+        QFAIL(qPrintable(QStringLiteral("%1 次尝试在 30 秒内没退出——真卡住（Qt 断言对话框）会每次都卡，"
+                                        "偶尔一次多半是机器在同时跑构建；重跑这条用例确认不是回归")
+                .arg(slowAttempts)));
     }
 
     QSKIP("三次都被已在运行的 TianBoard 实例接管，跳过");

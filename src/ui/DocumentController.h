@@ -49,6 +49,14 @@ public:
     /** @brief 批量映射回源模型索引。 */
     QModelIndexList mapIndexesToSource(const QModelIndexList &indexes);
 
+    /**
+     * @brief 返回这个视图背后的文档树模型（排序过滤代理要穿到源模型）。
+     * @return 类型不对时为空；**调用方必须先判空再用**。
+     * @note 以前三处 drag/drop 处理器各自抄了一遍"先试代理、否则直接 take model()"，
+     *       其中两处还在自己的判空分支里把它解引用了——判空反而成了崩溃点。
+     */
+    DocumentTreeModel *documentModel() const;
+
 public slots:
     /**
      * @brief 选中并展开指定源索引。
