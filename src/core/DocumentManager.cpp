@@ -16,13 +16,33 @@
 #include "content/ImportDocumentSetAdaptor.h"
 
 #include "model/DocumentProxy.h"
-#include "whiteboard/BoardController.h"
 
 #include "core/Application.h"
 #include "settings/Settings.h"
 #include "core/PersistenceManager.h"
 
+namespace
+{
+    DocumentManager::PagesAppendedHandler gPagesAppendedHandler;
+} // namespace
+
 DocumentManager *DocumentManager::sDocumentManager = 0;
+
+void DocumentManager::installPagesAppendedHandler(DocumentManager::PagesAppendedHandler handler)
+{
+    gPagesAppendedHandler = std::move(handler);
+}
+
+void DocumentManager::notifyPagesAppended(DocumentProxy *document, int pageIndex)
+{
+    if (!gPagesAppendedHandler)
+    {
+        qWarning() << "追加页时没人同步缩略图（装配点应调用 DocumentManager::installPagesAppendedHandler）:" << pageIndex;
+        return;
+    }
+
+    gPagesAppendedHandler(document, pageIndex);
+}
 
 DocumentManager *DocumentManager::documentManager()
 {
@@ -251,7 +271,10 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
                         GraphicsScene *scene     = PersistenceManager::persistenceManager()->createDocumentSceneAt(document, pageIndex);
                         importAdaptor->placeImportedItemToScene(scene, page);
                         PersistenceManager::persistenceManager()->persistDocumentScene(document, scene, pageIndex);
-                        BoardController::instance()->insertThumbPage(pageIndex);
+                        // 缩略图列表属于画板：这里只报“这份文档多了一页”，由装配点装上的实现
+                        // 判断这份文档是不是画板当前那一份，是才插（旧写法无条件插进画板的列表，
+                        // 导入到别的文档时把别人的图挤位）。
+                        notifyPagesAppended(document, pageIndex);
                     }
 
                     PersistenceManager::persistenceManager()->persistDocumentMetadata(document);

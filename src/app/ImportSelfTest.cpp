@@ -8,6 +8,7 @@
 #include "model/PackageLayout.hpp"
 #include "settings/Settings.h"
 #include "utils/FileSystemUtils.h"
+#include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsPDFItem.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsScene.h"
@@ -195,6 +196,17 @@ namespace
             }
         }
         return count;
+    }
+
+    /// @brief 数一下画板容器里那份缩略图列表有多长（越界读到空为止，另有上限防脱缰）。
+    int thumbCount(BoardController *board, int stopAfter)
+    {
+        int thumbs = 0;
+        while (thumbs < stopAfter && board->pageAt(thumbs))
+        {
+            thumbs++;
+        }
+        return thumbs;
     }
 
     /// @brief 树里“我的文档”下的名字列表，用来数同名节点还剩几个。
@@ -717,6 +729,141 @@ namespace ImportSelfTest
             }
         }
 
+        // ---- 11. 往**当前打开的那份文档**追加一张图片（画板里拖文件进来走的就是这条路）----
+        {
+            gScript.clear();
+
+            BoardController *board = BoardController::instance();
+            if (!board)
+            {
+                failures << QStringLiteral("画板总控器还没装配，量不了「追加进当前文档」这条路");
+            }
+            else
+            {
+                const QString targetName = prefix + QStringLiteral("追加目标");
+                // withEmptyPage=true：画板要能真的装下这份文档（pageCount=1 但没有页文件时
+                // loadDocumentScene 返回空，setActiveDocumentScene 就不切文档），本条判据量的
+                // 就是"追加进当前打开的那份文档"，文档必须先是画板当前那一份。
+                DocumentProxy *target    = pm->createDocument(QString(), targetName, true, QDir(rootDir).filePath(QStringLiteral("L")), 0, false);
+                const QString  pngPath   = QDir(rootDir).filePath(prefix + QStringLiteral("追加-图片.png"));
+
+                QPixmap source(48, 36);
+                source.fill(Qt::transparent);
+                {
+                    QPainter painter(&source);
+                    painter.fillRect(0, 0, 48, 36, QColor(240, 120, 20));
+                    painter.setPen(QPen(QColor(20, 40, 200), 4));
+                    painter.drawLine(2, 2, 45, 33);
+                }
+
+                if (!target)
+                {
+                    failures << QStringLiteral("造不出「追加进当前文档」那条路的 target 文档");
+                }
+                else if (!source.save(pngPath, "PNG"))
+                {
+                    failures << QStringLiteral("现场造那张要追加的 PNG 失败: %1").arg(pngPath);
+                }
+                else
+                {
+                    board->setActiveDocumentScene(target, 0);
+
+                    if (board->selectedDocument() != target)
+                    {
+                        failures << QStringLiteral("画板没能切到「追加目标」这份文档，后面量的就不是「追加进当前文档」这条路");
+                    }
+
+                    const int pagesBefore = target->pageCount();
+                    const int imported    = DocumentManager::documentManager()->addFilesToDocument(target, {pngPath});
+
+                    if (imported != 1)
+                    {
+                        failures << QStringLiteral("往当前文档追加一张图片应当报告导入 1 个，实际 %1").arg(imported);
+                    }
+                    if (target->pageCount() != pagesBefore + 1)
+                    {
+                        failures << QStringLiteral("追加一张图片之后页数应当是 %1，实际 %2").arg(pagesBefore + 1).arg(target->pageCount());
+                    }
+                    else
+                    {
+                        const QString  want  = pixmapDigest(source);
+                        GraphicsScene *scene = pm->loadDocumentScene(target, pagesBefore);
+                        QString        got;
+
+                        foreach (QGraphicsItem *item, scene ? scene->items() : QList<QGraphicsItem *>())
+                        {
+                            if (GraphicsPixmapItem *pixmapItem = dynamic_cast<GraphicsPixmapItem *>(item))
+                            {
+                                got = pixmapDigest(pixmapItem->pixmap());
+                            }
+                        }
+
+                        if (got.isEmpty())
+                        {
+                            failures << QStringLiteral("追加进来的那一页上没有位图图元");
+                        }
+                        else if (got != want)
+                        {
+                            failures << QStringLiteral("追加的那一页像素不是源图（%1 对 %2）").arg(got, want);
+                        }
+
+                        const QStringList images =
+                            QDir(target->persistencePath() + "/" + PackageLayout::imageDirectory).entryList({QStringLiteral("*.png")}, QDir::Files);
+                        if (images.isEmpty())
+                        {
+                            failures << QStringLiteral("追加的位图没落进这份文档的 %1/ 目录").arg(PackageLayout::imageDirectory);
+                        }
+
+                        // 画板那一侧的缩略图列表必须跟着长一条：这条判据就是"追加完请画板补一张图"
+                        // 那句的对照物——core 现在只报"这份文档多了一页"，由装配点装上的实现去判断
+                        // 这份文档是不是画板当前那一份。
+                        const int thumbs = thumbCount(board, target->pageCount() + 8);
+                        if (thumbs != target->pageCount())
+                        {
+                            failures << QStringLiteral("追加一页之后画板的缩略图列表有 %1 条，页数是 %2——两边必须一样多")
+                                            .arg(thumbs)
+                                            .arg(target->pageCount());
+                        }
+
+                        // 反向：往**另一份**文档追加一页，画板那份列表不许跟着长
+                        // （旧写法是无条件插进画板的容器，被挤位的正是当前这份文档的图）。
+                        DocumentProxy *other = pm->createDocument(
+                            QString(), prefix + QStringLiteral("追加旁支"), true, QDir(rootDir).filePath(QStringLiteral("M")), 0, false);
+                        if (!other)
+                        {
+                            failures << QStringLiteral("造不出「往别的文档追加」那一案要用的文档");
+                        }
+                        else
+                        {
+                            board->setActiveDocumentScene(target, 0);
+                            if (board->selectedDocument() != target)
+                            {
+                                failures << QStringLiteral("画板没能停在「追加目标」这份文档，「往别的文档追加」那一案量不到东西");
+                            }
+                            else if (DocumentManager::documentManager()->addFilesToDocument(other, {pngPath}) != 1)
+                            {
+                                failures << QStringLiteral("往另一份文档追加图片没有报告导入成功");
+                            }
+                            else if (other->pageCount() != 2)
+                            {
+                                failures << QStringLiteral("另一份文档追加一页之后应当有 2 页，实际 %1").arg(other->pageCount());
+                            }
+                            else
+                            {
+                                const int thumbsNow = thumbCount(board, target->pageCount() + 8);
+                                if (thumbsNow != target->pageCount())
+                                {
+                                    failures << QStringLiteral("往别的文档追加一页，画板那份缩略图列表却被改成了 %1 条（当前文档只有 %2 页）")
+                                                    .arg(thumbsNow)
+                                                    .arg(target->pageCount());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         purgeTestDocuments(pm, prefix);
         QCoreApplication::processEvents();
 
@@ -728,7 +875,8 @@ namespace ImportSelfTest
         if (failures.isEmpty())
         {
             QDir(rootDir).removeRecursively();
-            qInfo() << "import-selftest: OK 重名裁决的取消/改名/替换三条路径与整批导入都按预期落地，PDF 与图片导入的产物也对得上";
+            qInfo() << "import-selftest: OK 重名裁决的取消/改名/替换三条路径与整批导入都按预期落地，PDF 与图片导入的产物也对得上，"
+                       "往当前文档追加一页时长的是画板那份缩略图、往别的文档追加时它不动";
         }
         else
         {

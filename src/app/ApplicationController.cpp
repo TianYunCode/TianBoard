@@ -69,6 +69,17 @@ ApplicationController::ApplicationController(
             BoardController *board = BoardController::instance();
             return board ? board->selectedDocument() : nullptr;
         });
+    // 追加整页之后要不要动那份缩略图列表，只有画板自己说得清：导入也可能落在别的文档上，
+    // 而列表是跟着画板当前文档走的（switch 文档时容器会整份重建它）。
+    DocumentManager::installPagesAppendedHandler(
+        [](DocumentProxy *document, int pageIndex)
+        {
+            BoardController *board = BoardController::instance();
+            if (board && document && document == board->selectedDocument())
+            {
+                board->insertThumbPage(pageIndex);
+            }
+        });
     // 槽第三个参数有默认值，成员指针形式要求参数个数不超过信号，这里显式补默认值
     connect(mDesktopAnnotation, &IDesktopAnnotation::imageCaptured, this,
         [this](const QPixmap &pixmap, bool pageMode)

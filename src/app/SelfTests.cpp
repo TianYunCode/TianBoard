@@ -31,7 +31,7 @@ void installSelfTestFromArgs(Application &app)
         {"--snap-selftest",      SnapSelfTest::run          }, // 网格吸线的场景侧接线（tst_snap）
         {"--shortcut-selftest",  ShortcutSelfTest::run      }, // 快捷键注册表的读写与冲突（tst_shortcuts）
         {"--cookie-selftest",    CookieSelfTest::run        }, // Cookie 镜像罐与退出清理计数（tst_cookies）
-        {"--import-selftest",    ImportSelfTest::run        }, // 导入重名裁决的三条路径（tst_import）
+        {"--import-selftest",    ImportSelfTest::run        }, // 导入重名裁决三条路径 + 导入产物对账（tst_import）
         {"--recording-selftest", RecordingSelfTest::run     }, // 录屏端到端：容器、时长与可播（tst_recording）
         {"--clipboard-selftest", ClipboardSelfTest::run     }, // 复制→粘贴→删原件→存读往返（tst_clipboard）
         {"--export-selftest",    ExportSelfTest::run        }, // PDF 页数/尺寸/内容与 .tbz 往返（tst_export）

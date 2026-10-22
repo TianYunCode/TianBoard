@@ -688,11 +688,25 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
 
 - **别把"看起来在维持同步的手工调用"当成承重墙**。要改它，先写一条会红的断言——这条断言现在红了不了，
   就说明它不是承重的那一层，真正的机制是那条 `connect`。
-- **反过来这也是拆环的出路**：`core/DocumentManager` 导入完请画板补缩略图那条
-  （`BoardController::instance()->insertThumbPage(pageIndex)`，core→whiteboard 剩下的三条之一）
-  要改成"只报事实"，机制本来就在——`documentSceneCreated` 已经在发。前提是先补一条**能红**的判据：
-  走界面上同一个入口 `addFilesToDocument` 往当前文档拖一张图，然后量页数、量这一页有没有那张图、
-  量缩略图列表与页数是否一样多；再拿它做反向对照决定那条 `insertThumbPage` 能不能直接删。
-  另外记一处可疑：那条命令写的是**画板的容器**，而同一个循环里 `createDocumentSceneAt`/
-  `persistDocumentScene` 用的是传进来的那份 `document`（文档库里选中的那一份），两者不是同一份文档时
-  插进去的是别人家的缩略图——这正是"服务层命令画板"这种写法藏问题的方式。
+- **反过来这也是拆环的一条出路，但那条 `documentSceneCreated` 用不得**：一开始以为
+  `core/DocumentManager` 那句 `BoardController::instance()->insertThumbPage(pageIndex)` 可以直接不发——
+  `documentSceneCreated` 本来就在发，画板连上去就行。查下来不行：那是**页级**事件，
+  `DocumentContainer::addPage`、`PersistenceManager::insertDocumentSceneAt`、`duplicateDocumentScene` 都在发它，
+  而 `addPage` 发完自己就 `insertThumbPage`，画板再挂一条同样的应答就是**插两次**。所以真正落地的是显式
+  处理器：core 只报"往这份文档追加了一页"（`DocumentManager::notifyPagesAppended`），实现由装配点装上。
+  教训：**别把"某个信号已经在发"当成"接线就能复用"**，先数清谁在发、发几次、现有应答方已经做了什么。
+- **顺带治掉的一处真可疑**：旧写法无条件把条目插进**画板容器**的列表，而同一个循环里
+  `createDocumentSceneAt`/`persistDocumentScene` 用的是传进来的那份 `document`——从文档库往**别的文档**
+  追加一页时，被挤位的正是画板当前那份文档的缩略图（文档库那一侧随后会 `reloadThumbnails()` 整份重建，
+  所以界面上看不出来）。现在装上去那一版只在"这份文档就是画板当前那一份"时才动列表。
+- **判据是先补的，而且是会红的**：`--import-selftest` 新增第 11 案，走界面上同一个入口
+  `addFilesToDocument` 往画板当前文档追加一张现画的 PNG，断页数 +1、那一页的位图像素与源图一致、
+  `images/` 里确有那份文件、画板缩略图列表跟着长一条；再往**另一份**文档追加一次，断画板那份列表
+  **不许**跟着长。两条反向对照各自只打红该红的那一条：去掉那次 `insertThumbPage`（等价于不装处理器）
+  →"列表 1 条 vs 页数 2"；去掉实现里"是不是当前文档"那道判断 →"往别的文档追加一页，画板那份列表
+  却被改成 3 条"。
+- **一条差点写错的判据**：第 11 案的 target 最初用 `createDocument(..., pageCount=1)` 造，看着是
+  "有 1 页的文档"，其实**没有页文件**——`loadDocumentScene` 返回空，`setActiveDocumentScene` 就不切文档，
+  于是"画板当前文档"一直是别人的那份，追加也确实没动画板的列表，红得毫无线索性。改成
+  `withEmptyPage=true` 并加一条前置断言"画板必须真的切到这份文档"，量的才是这条路本身。
+  **凡依赖"画板当前是哪份文档"的用例，都要显式断那句切换成功，不能假定。**

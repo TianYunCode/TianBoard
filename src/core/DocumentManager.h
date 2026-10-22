@@ -7,6 +7,8 @@
 
 #include <QtCore>
 
+#include <functional>
+
 class ExportAdaptor;
 class ImportAdaptor;
 class QAction;
@@ -27,6 +29,19 @@ public:
     /// 返回进程内唯一实例，首次调用时创建。
     static DocumentManager *documentManager();
     virtual ~DocumentManager();
+
+    /**
+     * @brief “往一份文档追加了整页”之后由谁去同步缩略图列表——实现者的签名。
+     *
+     * 详细说明：那份列表住在画板容器里，而导入这一侧只拿得到文档代理与页号。服务层不反过来
+     * 命令画板，所以这里只留一个口子：实现由装配点装上（app/ApplicationController），它自己判断
+     * “追加进的这份文档是不是画板当前打开的那一份”，是才动列表——旧写法是无条件插进画板的列表，
+     * 导入到别的文档时就把别人的缩略图挤位了。
+     */
+    using PagesAppendedHandler = std::function<void(DocumentProxy *document, int pageIndex)>;
+
+    /// @brief 装上缩略图同步的实现，只在装配阶段调用一次；没装上时追加页只打一条告警。
+    static void installPagesAppendedHandler(PagesAppendedHandler handler);
 
     /**
      * @brief 生成文件对话框用的导入过滤器。
@@ -97,6 +112,9 @@ public:
 private:
     /// 私有构造：注册全部导入/导出适配器并接好警告转发。
     DocumentManager(QObject *parent = 0);
+    /// 追加了一页之后请装配点装上的实现去同步缩略图；没装上时打一条告警（那是装配漏了，不是运行期状况）。
+    static void notifyPagesAppended(DocumentProxy *document, int pageIndex);
+
     QList<ExportAdaptor *> mExportAdaptors;
     QList<ImportAdaptor *> mImportAdaptors;
 
