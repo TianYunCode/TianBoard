@@ -189,6 +189,16 @@ set_tests_properties(tst_autosave PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 页面操作端到端自检：应用带 --pages-selftest 做新增/复制/移动/删除，每步都拿盘上冷读对账。
+add_executable(tst_pages tst_pages.cpp)
+target_compile_options(tst_pages PRIVATE /MP /utf-8)
+target_link_libraries(tst_pages PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_pages TianBoard)
+add_test(NAME tst_pages COMMAND tst_pages)
+set_tests_properties(tst_pages PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)
