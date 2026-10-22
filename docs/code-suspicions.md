@@ -182,6 +182,13 @@
   删它们要连 `emit` 一起删，属于「要么补上接收方、要么删掉」的判断，不适合和别的清理混
   在一批里做；`WebTrapWebView::objectCaptured`/`webElementCaptured` 则刻意留着——它们
   是「捕获网页」重写时的目标接口（见第一节第 4 条）。
+- **`core/IdleTimer` 已删**（2026-10-22）：它想做的事写在注释里很完整——“画板有焦点且 2 秒没有任何
+  输入就把鼠标指针藏掉”，实现也自洽（`eventFilter` 记时间、`timerEvent` 判断后
+  `setOverrideCursor(BlankCursor)`），但全仓除了它自己和 `src/core/CMakeLists.txt` 的源文件清单
+  一处都不认识它：没有构造点，也没人把它装成事件过滤器，所以这条功能从来没生效过。画板上真正
+  看得见的藏指针是另一条路（`whiteboard/BoardView.cpp:1133`、`whiteboard/GraphicsScene.cpp:862`
+  直接对 viewport `setCursor`）。它一删，`core` 对 `whiteboard` 少 2 条边。留这条记录是为了口径：
+  判死类要看**有没有构造/安装点**，不是看“某个方法没人调用”——前者才是运行时不存在。
 - 类名前缀本轮没换新的：既定决策是「去掉 `WB`/`UB` 前缀且**不换新的**」，所以新代码也别加
   `TianBoard::` 这类项目命名空间（见 [coding-style.md](coding-style.md) 第二章）。
   `src/` 下已 grep 核对：没有 `UB*`/`ub*`/`WB_*`/`eWB*` 标识符残留；后来补扫出另外几族

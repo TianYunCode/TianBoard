@@ -178,7 +178,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 16 / 22 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针。挂在 `Application` 上的两个全局画板物件已经还回去了：`boardController`→`BoardController::instance()`（一刀削掉 21 条上边）、`undoStack`→`BoardController::undoStack()`（再削 3 条）；剩下的主因是 `mainWindow` 与 `documentController` |
+| `core` ↔ `whiteboard` | 14 / 22 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针。挂在 `Application` 上的两个全局画板物件已经还回去了：`boardController`→`BoardController::instance()`（一刀削掉 21 条上边）、`undoStack`→`BoardController::undoStack()`（再削 3 条）；core→whiteboard 这侧 16→14 是删掉没人实例化的 `core/IdleTimer`（见第 13 步）。剩下的主因是 `mainWindow` 与 `documentController` |
 | `ui` ↔ `whiteboard` | 29 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
 
 `content` ↔ `core` 与 `core` ↔ `model` 两组环已于 2026-10-22 拆掉，手法都是同一个形状：
@@ -421,6 +421,14 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
    第 11 步顺带提的"`verbose` 同理该去 `utils`"量过之后是**空刀**：全仓只有 `app/main.cpp` 读它
    （装详细日志处理器），`content/ExportAdaptor` 另有一个自己的 verbose，`whiteboard`/`ui`
    一处都不碰——搬它只动 `app` 那一行，两组环一条边都不少。
+13. **`core` 对 `whiteboard` 少的那 2 条是删死类删出来的**（2026-10-22）：`core/IdleTimer.*` 在
+   `src/`、`tests/`、`res/`、`docs/` 里全量 grep 只剩它自己和 `src/core/CMakeLists.txt` 的源文件清单，
+   没有任何构造点——它想做的“画板有焦点且 2 秒无输入就把鼠标指针藏掉”从来没生效过（事件过滤器
+   没装上、定时器也不存在）。画板上真正看得见的藏指针是另一条路：`BoardView.cpp:1133` 与
+   `GraphicsScene.cpp:862` 直接对 viewport `setCursor(Qt::BlankCursor)`。所以删它不改变任何可观察
+   行为，只削掉它 `.cpp` 里那两条最没道理的上边（`whiteboard/BoardController.h`、
+   `whiteboard/BoardView.h`）。判死的规矩没变：grep 只给候选，删完六道门禁全绿、24 条 ctest 全绿、
+   `/W4 -Clean -Strict` 零告警才算数。环仍 2 组，`core` ↔ `whiteboard` 由 16/22 到 14/22。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -431,10 +439,10 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:3, whiteboard:6
-app         -> api:1, content:5, core:31, desktop:1, model:11, platform:4, recording:2,
-               settings:11, ui:13, utils:9, web:1, whiteboard:37
+app         -> api:1, content:12, core:37, desktop:1, model:21, platform:5, recording:2,
+               settings:13, ui:13, utils:11, web:1, whiteboard:57
 content     -> model:30, platform:8, settings:7, utils:31, whiteboard:45
-core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:16
+core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:14
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> settings:5, utils:8
 platform    -> utils:1
@@ -443,15 +451,20 @@ settings    -> utils:2
 ui          -> core:27, model:15, platform:10, settings:16, utils:11, whiteboard:29
 utils       -> （无出边）
 web         -> core:13, platform:3, settings:4, ui:5, utils:3, whiteboard:4
-whiteboard  -> core:22, model:21, platform:5, settings:20, ui:30, utils:52
+whiteboard  -> core:22, model:21, platform:5, settings:20, ui:30, utils:54
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
-2026-10-22 这张表重测过两次，都是上面这组数：`Application::boardController` 那一刀把
+2026-10-22 这张表重测过三次：`Application::boardController` 那一刀把
 `whiteboard` 对 `core` 从 46 削到 25、`ui` 从 33 到 27；`Application::undoStack` 那一刀再把它从
-25 削到 22（`SelectionFrame.cpp` 因此不再 include `core/Application.h`，还顺手删掉两行重复 include）。
-`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:37`、`model:11` 比旧表多
-出来的那几条是格式自检与剪贴板自检新 include 的图元头文件。
+25 削到 22（`SelectionFrame.cpp` 因此不再 include `core/Application.h`，还顺手删掉两行重复 include）；
+删掉没人实例化的 `core/IdleTimer` 把 `core` 对 `whiteboard` 从 16 削到 14。
+同一轮全表重测还纠正了两处旧数：`whiteboard` 对 `utils` 是 54 不是 52（`UserNotices` 下沉那一批
+改的就是这条边，当时只按直觉记了增量）。
+`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:57`、`model:21`、
+`content:12` 比旧表多出来的那几条，是这一轮新加的七个自检（录屏、剪贴板、导出、撤销重做、
+自动保存、页面、媒体）新 include 的图元与场景头文件——它们都住在 `src/app/`，所以这些边只长在
+装配点上，没有给任何一层加新账。
 2026-10-22 拆掉 `content` ↔ `core` 与 `core` ↔ `model` 两组环之后，`content` 与 `model` 都不再
 有对 core 的出边（`model` 如今只剩 settings 与 utils，是真叶子）；上表里 →model 变多的那几笔
 （content 30、whiteboard 21）是仓库常量、MIME 名字与拖放载荷搬进 model 的结果，方向合法。
