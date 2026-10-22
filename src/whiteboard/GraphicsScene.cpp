@@ -1038,7 +1038,8 @@ void GraphicsScene::eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth)
     typedef QList<QPolygonF> POLYGONSLIST;
     QList<POLYGONSLIST>      intersectedPolygons;
 
-#pragma omp parallel for
+    // 这个循环就是串行的：整个构建没有配 OpenMP（CMake 里搜不到 openmp，exe 的字节里连
+    // vcomp140.dll 这个名字都没有），原先那三处 #pragma omp 不起作用，留着会让人以为擦除是并行跑的。
     for (int i = 0; i < collidItems.size(); i++)
     {
         GraphicsPolygonItem *pi = qgraphicsitem_cast<GraphicsPolygonItem *>(collidItems[i]);
@@ -1052,22 +1053,17 @@ void GraphicsScene::eraseLineTo(const QPointF &pEndPoint, const qreal &pWidth)
 
         if (eraserPath.contains(itemPainterPath))
         {
-#pragma omp critical
-            {
-                // 整块都被擦掉了，不需要留残余
-                intersectedItems << pi;
-                intersectedPolygons << QList<QPolygonF>();
-            }
+            // 整块都被擦掉了，不需要留残余
+            intersectedItems << pi;
+            intersectedPolygons << QList<QPolygonF>();
         }
         else if (eraserPath.intersects(itemPainterPath))
         {
             itemPainterPath.setFillRule(Qt::WindingFill);
             QPainterPath newPath = itemPainterPath.subtracted(eraserPath);
-#pragma omp critical
-            {
-                intersectedItems << pi;
-                intersectedPolygons << newPath.simplified().toFillPolygons(pi->sceneTransform().inverted());
-            }
+
+            intersectedItems << pi;
+            intersectedPolygons << newPath.simplified().toFillPolygons(pi->sceneTransform().inverted());
         }
     }
 

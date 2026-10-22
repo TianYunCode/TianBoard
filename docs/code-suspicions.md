@@ -294,6 +294,16 @@
   并对 stage 里的必需文件做硬校验；`windeployqt` 的模块参数按 Qt6 的名字写
   （`-webenginewidgets`，Qt6 没有 `-webengine` 这个选项）。脚本尚未在装了 Inno Setup
   的机器上实跑过，第一次跑要人工看一遍 stage 清单。
+- **代码里写着并行，构建里根本没有 OpenMP**（2026-10-22 实测并删掉）：`GraphicsScene::eraseLineTo`
+  带着三处 `#pragma omp`（一处 `parallel for`、两处 `critical`），看起来擦除是按图元并行求交的。
+  全仓 CMake 搜不到任何 `openmp`（根与 `src/*/CMakeLists.txt`、`build/CMakeCache.txt`、生成的
+  `.vcxproj` 都没有），exe 的字节里也找不到 `vcomp140` 或 `omp_get` 这两个名字——MSVC 在没有
+  `/openmp` 时把这些 pragma 整个忽略，循环一直是串行跑的，`critical` 那两对花括号只是多余的作用域。
+  已删成明写的串行循环并留一句"为什么不是并行"。**可复算的判据**：
+  `grep -ri openmp build/CMakeCache.txt src/*/CMakeLists.txt CMakeLists.txt` 无匹配，加上
+  `python -c "print(open('build/bin/Debug/TianBoard.exe','rb').read().find(b'vcomp140'))"` 是 -1。
+  真要给擦除提速是性能工作：热点在 `items(rect)` 粗筛与 `QPainterPath::subtracted`，
+  得先量大页面耗时再决定，别和这类清理混在一批。
 
 ## 五、全量审计已修的缺陷（2026-10-20）
 
