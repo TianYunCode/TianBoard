@@ -6,12 +6,13 @@
 #pragma once
 
 #include <QtWidgets>
+#include "utils/StaticMemory.h"
 
 /**
  * @brief 应用级共享资源（光标与自定义字体）的单例。
  *
  * 不参与界面绘制，只提供一组预先构造好的 QCursor 和从用户字体目录加载的
- * 字体族名。首次调用 resources() 时创建，挂在 Application::staticMemoryCleaner
+ * 字体族名。首次调用 resources() 时创建，挂在 StaticMemory::cleaner()
  * 下随应用退出统一释放；白板视图、标尺、选择框等都从这里取光标，避免反复
  * 从磁盘加载图片。
  */

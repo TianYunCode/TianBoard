@@ -97,6 +97,8 @@ add_library(tb_whiteboard OBJECT
     GraphicsWidgetItemDelegate.h
     Magnifier.cpp
     Magnifier.h
+    MimeDataGraphicsItem.cpp
+    MimeDataGraphicsItem.h
     Item.cpp
     Item.h
     PDFRenderer.cpp

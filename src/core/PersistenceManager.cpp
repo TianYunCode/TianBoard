@@ -1,4 +1,6 @@
 #include "core/PersistenceManager.h"
+#include "utils/StaticMemory.h"
+#include "core/DocumentManager.h"
 #include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 #include <algorithm>
@@ -72,7 +74,7 @@ PersistenceManager *PersistenceManager::persistenceManager()
 {
     if (!sSingleton)
     {
-        sSingleton = new PersistenceManager(Application::staticMemoryCleaner);
+        sSingleton = new PersistenceManager(StaticMemory::cleaner());
     }
 
     return sSingleton;
@@ -85,6 +87,14 @@ void PersistenceManager::destroy()
         delete sSingleton;
     }
     sSingleton = NULL;
+}
+
+void PersistenceManager::documentUpdated(DocumentProxy *document)
+{
+    if (DocumentManager *documentManager = DocumentManager::documentManager())
+    {
+        documentManager->emitDocumentUpdated(document);
+    }
 }
 
 void PersistenceManager::createDocumentProxiesStructure(bool interactive)

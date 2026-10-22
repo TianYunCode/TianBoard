@@ -1,4 +1,6 @@
 #include "model/DocumentTreeModel.h"
+#include "model/MimeTypes.hpp"
+#include "model/IDocumentStore.h"
 #include "model/PackageLayout.hpp"
 
 #include <QApplication>
@@ -6,11 +8,9 @@
 #include <QMimeData>
 #include <QUrl>
 
-#include "core/Application.h"
-#include "core/ApplicationController.h"
-#include "core/MimeData.h"
+#include "model/MimeData.h"
+#include "utils/UserNotices.h"
 #include "model/IDocumentFormatServices.h"
-#include "core/PersistenceManager.h"
 #include "model/DocumentProxy.h"
 #include "settings/Setting.h"
 #include "settings/Settings.h"
@@ -573,14 +573,14 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
         return false;
     }
 
-    if (data->hasFormat(Application::mimeTypeBoardPage))
+    if (data->hasFormat(MimeTypes::boardPage))
     {
         DocumentTreeNode *curNode        = nodeFromIndex(index(row - 1, column, parent));
         DocumentProxy    *targetDocProxy = curNode->proxyData();
         const MimeData   *mimeValue      = qobject_cast<const MimeData *>(data);
         if (!targetDocProxy || !mimeValue || !mimeValue->items().count())
         {
-            qDebug() << "an error ocured while parsing " << Application::mimeTypeBoardPage;
+            qDebug() << "an error ocured while parsing " << MimeTypes::boardPage;
             return false;
         }
 
@@ -594,12 +594,12 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
             int            fromIndex = sourceItem.sceneIndex();
             int            toIndex   = targetDocProxy->pageCount();
 
-            PersistenceManager::persistenceManager()->copyDocumentScene(fromProxy, fromIndex, targetDocProxy, toIndex);
+            documentStore()->copyDocumentScene(fromProxy, fromIndex, targetDocProxy, toIndex);
         }
 
         QApplication::restoreOverrideCursor();
 
-        Application::applicationController->showMessage(tr("%1 pages copied", "", total).arg(total), false);
+        UserNotices::presentStatusMessage(tr("%1 pages copied", "", total).arg(total));
 
         return true;
     }
@@ -805,7 +805,7 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
             { // 新文档的引用关系也要一并迁移
                 mNewDocuments << clonedNodeSource->proxyData();
 
-                PersistenceManager::persistenceManager()->reassignDocProxy(clonedNodeSource->proxyData(), nodeSource->proxyData());
+                documentStore()->reassignDocProxy(clonedNodeSource->proxyData(), nodeSource->proxyData());
             }
             break;
 
@@ -814,7 +814,7 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
             DocumentProxy *duplicatedProxy = 0;
             if (nodeSource->nodeType() == DocumentTreeNode::Document && nodeSource->proxyData())
             {
-                duplicatedProxy = PersistenceManager::persistenceManager()->duplicateDocument(nodeSource->proxyData());
+                duplicatedProxy = documentStore()->duplicateDocument(nodeSource->proxyData());
                 duplicatedProxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
                 persistDocumentMetadata(duplicatedProxy);
             }
@@ -835,7 +835,7 @@ QPersistentModelIndex DocumentTreeModel::copyIndexToNewParent(const QModelIndex 
     {
         clonedNodeSource->proxyData()->setMetaData(Settings::documentGroupName, virtualPathForIndex(newParent));
         clonedNodeSource->proxyData()->setMetaData(Settings::documentName, newName);
-        PersistenceManager::persistenceManager()->persistDocumentMetadata(clonedNodeSource->proxyData());
+        persistDocumentMetadata(clonedNodeSource->proxyData());
     }
 
     addNode(clonedNodeSource, newParent);
@@ -1140,7 +1140,7 @@ void DocumentTreeModel::setNewName(const QModelIndex &index, const QString &newN
             indexNode->proxyData()->setMetaData(Settings::documentName, newName);
         }
 
-        PersistenceManager::persistenceManager()->persistDocumentMetadata(indexNode->proxyData());
+        persistDocumentMetadata(indexNode->proxyData());
     }
 }
 
@@ -1188,7 +1188,7 @@ void DocumentTreeModel::updateIndexNameBindings(DocumentTreeNode *nd)
         nd->proxyData()->setMetaData(Settings::documentGroupName, virtualPathForIndex(indexForNode(nd->parentNode())));
         nd->proxyData()->setMetaData(Settings::documentName, nd->nodeName());
         nd->proxyData()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
-        PersistenceManager::persistenceManager()->persistDocumentMetadata(nd->proxyData());
+        persistDocumentMetadata(nd->proxyData());
     }
 }
 

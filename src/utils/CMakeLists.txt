@@ -34,6 +34,8 @@ add_library(tb_utils STATIC
     AutoSaver.cpp
     AutoSaver.h
     StringUtils.h
+    StaticMemory.cpp
+    StaticMemory.h
     TextTools.cpp
     TextTools.h
     Version.cpp

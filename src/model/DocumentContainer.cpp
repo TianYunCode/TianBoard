@@ -1,6 +1,6 @@
 #include "model/DocumentContainer.h"
+#include "model/IDocumentStore.h"
 #include "model/IDocumentFormatServices.h"
-#include "core/PersistenceManager.h"
 
 DocumentContainer::DocumentContainer(QObject *parent) : QObject(parent), mCurrentDocument(NULL)
 {
@@ -33,7 +33,7 @@ void DocumentContainer::duplicatePages(QList<int> &pageIndexes)
     int offset = 0;
     foreach (int sceneIndex, pageIndexes)
     {
-        PersistenceManager::persistenceManager()->duplicateDocumentScene(mCurrentDocument, sceneIndex + offset);
+        documentStore()->duplicateDocumentScene(mCurrentDocument, sceneIndex + offset);
         offset++;
     }
 }
@@ -42,7 +42,7 @@ bool DocumentContainer::movePageToIndex(int source, int target)
 {
     // 持久化层完成场景移动后，本地缩略图缓存用“删源、插目标”同步即可，
     // 不必整份重新加载，避免大文档移动一页就重建全部缩略图。
-    PersistenceManager::persistenceManager()->moveSceneToIndex(mCurrentDocument, source, target);
+    documentStore()->moveSceneToIndex(mCurrentDocument, source, target);
     deleteThumbPage(source);
     insertThumbPage(target);
     emit documentThumbnailsUpdated(this);
@@ -53,7 +53,7 @@ void DocumentContainer::deletePages(QList<int> &pageIndexes)
 {
     // 先让持久化层批量删除，再按删除顺序逐页清理缓存：
     // 每删一页，后面页的索引就前移一位，用 offset 抵消即可。
-    PersistenceManager::persistenceManager()->deleteDocumentScenes(mCurrentDocument, pageIndexes);
+    documentStore()->deleteDocumentScenes(mCurrentDocument, pageIndexes);
     int offset = 0;
     foreach (int index, pageIndexes)
     {
@@ -65,7 +65,7 @@ void DocumentContainer::deletePages(QList<int> &pageIndexes)
 
 void DocumentContainer::addPage(int index)
 {
-    PersistenceManager::persistenceManager()->createDocumentSceneAt(mCurrentDocument, index);
+    documentStore()->createDocumentSceneAt(mCurrentDocument, index);
     insertThumbPage(index);
 
     emit documentThumbnailsUpdated(this);

@@ -77,7 +77,7 @@ public:
      */
     void setSelfTestRun(int delayMs, std::function<int()> runner);
 
-    /// 全局撤销栈，父对象为 staticMemoryCleaner。
+    /// 全局撤销栈，父对象为 StaticMemory::cleaner()。
     static QPointer<QUndoStack> undoStack;
 
     /**
@@ -91,7 +91,7 @@ public:
     /// 装上网页控制器的工厂，只在装配阶段调用一次。
     static void installWebControllerFactory(WebControllerFactory factory);
 
-    /// 应用控制器，由 exec() 创建，父对象为 staticMemoryCleaner。
+    /// 应用控制器，由 exec() 创建，父对象为 StaticMemory::cleaner()。
     static ApplicationController *applicationController;
     /// 画板控制器，父对象为主窗口。
     static BoardController *boardController;
@@ -109,20 +109,8 @@ public:
         return static_cast<Application *> qApp;
     }
 
-    /// 文档库条目的拖放 MIME 类型。
-    static const QString mimeTypeBoardDocument;
-    /// 单个页面的拖放 MIME 类型。
-    static const QString mimeTypeBoardPage;
-    /// 页面内图形条目的拖放 MIME 类型。
-    static const QString mimeTypeBoardPageItem;
-    /// 页面缩略图的拖放 MIME 类型。
-    static const QString mimeTypeBoardPageThumbnail;
-
     /// 启用或禁用画板交互；委托给 BoardController。
     static void setDisabled(bool disable);
-
-    /// 承载应用级静态对象（撤销栈等）的清理宿主，随 Application 析构删除。
-    static QObject *staticMemoryCleaner;
 
     /**
      * @brief 给动作对应的工具栏按钮挂上下拉菜单。

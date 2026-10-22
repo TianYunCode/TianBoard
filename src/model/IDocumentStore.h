@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <QList>
 #include <QString>
 #include <QUuid>
 
@@ -67,6 +68,34 @@ public:
 
     /// @brief 在指定下标新建一页场景；所有权归场景缓存。
     virtual GraphicsScene *createDocumentSceneAt(DocumentProxy *document, int index, bool useUndoRedoStack = true)                            = 0;
+
+    /// @brief 复制文档里某一页，插在其后。
+    virtual void duplicateDocumentScene(DocumentProxy *document, int index)                                                                   = 0;
+
+    /// @brief 把一页挪到另一个下标。
+    virtual void moveSceneToIndex(DocumentProxy *document, int source, int target)                                                            = 0;
+
+    /// @brief 删掉若干页。
+    virtual void deleteDocumentScenes(DocumentProxy *document, const QList<int> &indexes)                                                     = 0;
+
+    /**
+     * @brief 把一页原样复制到另一份文档的指定下标（文档库里的拖放）。
+     * @note 完成后由实现方发 documentSceneCreated，让认识画板的那一层决定要不要刷新视图。
+     */
+    virtual void copyDocumentScene(DocumentProxy *from, int fromIndex, DocumentProxy *to, int toIndex)                                        = 0;
+
+    /// @brief 整份复制一个文档（含目录与元数据）；失败时返回空。
+    virtual DocumentProxy *duplicateDocument(DocumentProxy *document)                                                                         = 0;
+
+    /// @brief 文档代理被替换后，把仓库里以旧代理为键的东西迁到新代理上。
+    virtual void reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument)                                                     = 0;
+
+    /**
+     * @brief 某份文档的元数据变了，请刷新文档库视图。
+     * @note 模型走这一跳而不是直接认识 core 的文档管理器：updatedAt 既用于排序也是
+     * “最近修改”列的依据，通知比让视图重扫磁盘便宜。
+     */
+    virtual void documentUpdated(DocumentProxy *document)                                                                                     = 0;
 
     /// @brief 文档目录树模型；导出文档集时需要按树里的位置拼文件名。
     virtual DocumentTreeModel *documentTreeModel()                                                                                            = 0;

@@ -1,4 +1,5 @@
 #include "whiteboard/BoardController.h"
+#include "model/MimeTypes.hpp"
 #include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 #include <QRandomGenerator>
@@ -18,7 +19,8 @@
 #include "core/PersistenceManager.h"
 #include "core/ApplicationController.h"
 #include "core/DocumentManager.h"
-#include "core/MimeData.h"
+#include "model/MimeData.h"
+#include "whiteboard/MimeDataGraphicsItem.h"
 #include "core/DownloadManager.h"
 
 #include "core/HttpGet.h"
@@ -1528,7 +1530,7 @@ void BoardController::ClearUndoStack()
     const QMimeData *data      = clipboard->mimeData();
     QList<QUrl>      sourceURLs;
 
-    if (data && data->hasFormat(Application::mimeTypeBoardPageItem))
+    if (data && data->hasFormat(MimeTypes::boardPageItem))
     {
         const MimeDataGraphicsItem *mimeDataGI = qobject_cast<const MimeDataGraphicsItem *>(data);
 
@@ -2161,7 +2163,7 @@ void BoardController::cut()
 
         MimeDataGraphicsItem *mimeGi = new MimeDataGraphicsItem(selected);
 
-        mimeGi->setData(Application::mimeTypeBoardPageItem, QByteArray());
+        mimeGi->setData(MimeTypes::boardPageItem, QByteArray());
         clipboard->setMimeData(mimeGi);
 
         selectedDocument()->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
@@ -2190,7 +2192,7 @@ void BoardController::copy()
 
         MimeDataGraphicsItem *mimeGi = new MimeDataGraphicsItem(selected);
 
-        mimeGi->setData(Application::mimeTypeBoardPageItem, QByteArray());
+        mimeGi->setData(MimeTypes::boardPageItem, QByteArray());
         clipboard->setMimeData(mimeGi);
     }
 }
@@ -2215,7 +2217,7 @@ bool zLevelLessThan(Item *s1, Item *s2)
 
 void BoardController::processMimeData(const QMimeData *pMimeData, const QPointF &pPos)
 {
-    if (pMimeData->hasFormat(Application::mimeTypeBoardPage))
+    if (pMimeData->hasFormat(MimeTypes::boardPage))
     {
         const MimeData *mimeData = qobject_cast<const MimeData *>(pMimeData);
 
@@ -2242,7 +2244,7 @@ void BoardController::processMimeData(const QMimeData *pMimeData, const QPointF 
         }
     }
 
-    if (pMimeData->hasFormat(Application::mimeTypeBoardPageItem))
+    if (pMimeData->hasFormat(MimeTypes::boardPageItem))
     {
         const MimeDataGraphicsItem *mimeData = qobject_cast<const MimeDataGraphicsItem *>(pMimeData);
 

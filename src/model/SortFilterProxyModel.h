@@ -6,7 +6,6 @@
 #pragma once
 
 #include <QSortFilterProxyModel>
-#include "core/PersistenceManager.h"
 
 /**
  * @brief 文档树排序代理：把排序职责从 DocumentTreeModel 中分离出来。

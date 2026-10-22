@@ -10,6 +10,7 @@
 #include "core/Application.h"
 #include "ui/DocumentNavigator.h"
 #include "whiteboard/BoardController.h"
+#include "whiteboard/GraphicsScene.h"
 #include "ui/DocumentController.h"
 
 struct DocumentNavigator::Private

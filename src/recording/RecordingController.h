@@ -6,6 +6,7 @@
 #pragma once
 
 #include <QtGui>
+#include "utils/StaticMemory.h"
 
 #include "recording/AbstractVideoEncoder.h"
 
@@ -22,7 +23,7 @@ class RecordingPalette;
  * 所有切换都经 setRecordingState() 发出 recordingStateChanged()，界面与调色板据此更新。
  * 采集源随主模式变化：白板模式取 BoardView、网页模式取 WebView、桌面模式取 VirtualDesktop；
  * 白板与网页通过 Paint 事件过滤器按帧率合并重绘区域，桌面则用定时器抓屏。
- * 本类为懒加载单例（instance()），对象挂在 Application::staticMemoryCleaner 下随进程退出回收；
+ * 本类为懒加载单例（instance()），对象挂在 StaticMemory::cleaner() 下随进程退出回收；
  * 编码器与调色板在首次使用时创建，停止录制或编码结束时 deleteLater。
  * 线程约束：全部逻辑运行在 GUI 线程，waveIn 回调只经排队连接把音频交回编码器。
  */

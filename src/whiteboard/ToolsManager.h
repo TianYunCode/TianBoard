@@ -6,13 +6,14 @@
 #pragma once
 
 #include <QtWidgets>
+#include "utils/StaticMemory.h"
 
 #include "core/Application.h"
 
 /**
  * @brief 工具注册表：集中登记尺、量角器、圆规、遮罩等内置工具的元数据。
  *
- * 单例通过 manager() 懒加载，父对象为 Application::staticMemoryCleaner，
+ * 单例通过 manager() 懒加载，父对象为 StaticMemory::cleaner()，
  * 因此随应用静态内存清理器统一销毁；destroy() 供提前释放使用。
  * 构造时填充描述符与图标映射，之后只读访问，仅在 GUI 线程使用。
  */

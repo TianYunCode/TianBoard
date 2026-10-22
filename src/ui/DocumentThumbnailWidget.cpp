@@ -1,7 +1,8 @@
 #include "ui/DocumentThumbnailWidget.h"
+#include "model/MimeTypes.hpp"
 
 #include "core/Application.h"
-#include "core/MimeData.h"
+#include "model/MimeData.h"
 
 #include "ui/DocumentController.h"
 
@@ -76,7 +77,7 @@ void DocumentThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
 void DocumentThumbnailWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (!event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
+    if (!event->mimeData()->hasFormat(MimeTypes::boardPage))
     {
         event->setDropAction(Qt::IgnoreAction);
         event->ignore();
@@ -207,7 +208,7 @@ void DocumentThumbnailWidget::dropEvent(QDropEvent *event)
         int targetIndex = d->mDropIsRight ? graphicItems().indexOf(d->mClosestDropItem) + 1 : graphicItems().indexOf(d->mClosestDropItem);
 
         QList<MimeDataItem> mimeDataItems;
-        if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
+        if (event->mimeData()->hasFormat(MimeTypes::boardPage))
         {
             const MimeData *mimeData = qobject_cast<const MimeData *>(event->mimeData());
             if (mimeData)

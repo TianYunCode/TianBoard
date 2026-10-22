@@ -11,7 +11,7 @@
 #include "platform/PlatformUtils.h"
 
 #include "settings/Settings.h"
-#include "core/MimeData.h"
+#include "model/MimeData.h"
 #include "core/Application.h"
 #include "settings/Setting.h"
 #include "core/PersistenceManager.h"

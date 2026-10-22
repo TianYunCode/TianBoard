@@ -1,11 +1,10 @@
 #include "model/DocumentProxy.h"
+#include "model/IDocumentStore.h"
 #include <QLocale>
 
 #include "utils/StringUtils.h"
 
-#include "core/PersistenceManager.h"
 #include "settings/Settings.h"
-#include "core/DocumentManager.h"
 
 #include "model/IDocumentFormatServices.h"
 
@@ -148,11 +147,7 @@ void DocumentProxy::setMetaData(const QString &pKey, const QVariant &pValue)
         // 让文档集合视图能在不重扫磁盘的情况下刷新。
         if (pKey == Settings::documentUpdatedAt)
         {
-            DocumentManager *documentManager = DocumentManager::documentManager();
-            if (documentManager)
-            {
-                documentManager->emitDocumentUpdated(this);
-            }
+            documentStore()->documentUpdated(this);
         }
     }
 }

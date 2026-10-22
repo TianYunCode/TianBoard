@@ -1,4 +1,5 @@
 #include "whiteboard/ToolsManager.h"
+#include "utils/StaticMemory.h"
 
 ToolsManager *ToolsManager::sManager = 0;
 
@@ -6,7 +7,7 @@ ToolsManager *ToolsManager::manager()
 {
     if (!sManager)
     {
-        sManager = new ToolsManager(Application::staticMemoryCleaner);
+        sManager = new ToolsManager(StaticMemory::cleaner());
     }
     return sManager;
 }

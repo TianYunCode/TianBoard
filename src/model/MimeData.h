@@ -1,14 +1,14 @@
 /**
  * @file MimeData.h
- * @brief 声明剪贴板/拖放使用的自定义 MIME 负载类型。
+ * @brief 声明"文档页面引用"这一种拖放载荷：文档代理 + 页面下标。
  */
 
 #pragma once
 
-#include <QtWidgets>
+#include <QMimeData>
+#include <QList>
 
 class DocumentProxy;
-class Item;
 
 /**
  * @brief 一条“文档页面”引用：文档代理 + 页面下标。
@@ -43,34 +43,11 @@ private:
 };
 
 /**
- * @brief 携带图形项副本的剪贴板数据。
+ * @brief 携带一组页面引用的剪贴板数据。
  *
- * 详细说明：构造时接管传入的 Item 指针副本，析构时统一释放；场景不拥有这些副本。
- */
-class MimeDataGraphicsItem : public QMimeData
-{
-    Q_OBJECT
-
-public:
-    /**
-     * @brief 接管一组图形项副本。
-     * @param pItems 图形项列表，所有权转移给本对象。
-     */
-    MimeDataGraphicsItem(QList<Item *> pItems);
-    virtual ~MimeDataGraphicsItem();
-
-    /// 返回持有的图形项副本。
-    QList<Item *> items() const
-    {
-        return mItems;
-    }
-
-private:
-    QList<Item *> mItems;
-};
-
-/**
- * @brief 携带一组页面引用的剪贴板数据，并声明页面拖放 MIME 类型。
+ * 详细说明：载荷里只有文档引用，所以它住在 model——文档库的树模型要解析它（拖页面进文档），
+ * 画板与界面也要造它。携带图形项*副本*的那一种是 whiteboard/MimeDataGraphicsItem，
+ * 那个必须留在画板模块里，因为它负责释放副本。
  */
 class MimeData : public QMimeData
 {

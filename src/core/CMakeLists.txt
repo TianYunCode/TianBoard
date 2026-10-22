@@ -2,7 +2,7 @@
 # core — 各类服务/控制器：DisplayManager（多屏）、LanguageManager（取词）、
 #        PersistenceManager（.tbz 落盘）、DocumentManager（文档库）、
 #        NetworkAccessManager/HttpGet/AutoSaver
-#        （原 network/；ProxyDialog 归 ui/）、MimeData、TextTools、IdleTimer、
+#        （原 network/；ProxyDialog 归 ui/）、TextTools、IdleTimer、
 #        ForeignObjectsHandler、CookieJar、ShortcutManager。
 #        Application（QApplication 子类，单实例）与 ApplicationController（启动与模式
 #        切换）的头文件在这里，实现住在 app/ —— 见下面"允许依赖"。
@@ -39,8 +39,6 @@ add_library(tb_core OBJECT
     IdleTimer.h
     LanguageManager.cpp
     LanguageManager.h
-    MimeData.cpp
-    MimeData.h
     NetworkAccessManager.cpp
     NetworkAccessManager.h
     PersistenceManager.cpp

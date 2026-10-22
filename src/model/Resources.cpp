@@ -1,8 +1,8 @@
 #include "model/Resources.h"
+#include "utils/StaticMemory.h"
 
 #include <QtWidgets>
 
-#include "core/Application.h"
 #include "settings/Settings.h"
 #include "utils/FileSystemUtils.h"
 
@@ -22,7 +22,7 @@ Resources *Resources::resources()
 {
     if (!sSingleton)
     {
-        sSingleton = new Resources(Application::staticMemoryCleaner);
+        sSingleton = new Resources(StaticMemory::cleaner());
         sSingleton->init();
         sSingleton->buildFontList();
     }

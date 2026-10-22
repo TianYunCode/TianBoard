@@ -31,7 +31,7 @@ class RightPalette;
  * @brief 应用模式总控器：决定当前显示哪种模式，并协调相关视图、调色板与多屏布局。
  *
  * 详细说明：位于装配层与 whiteboard/web/document 各控制器之间，Application::exec() 创建
- * 并把它挂在 staticMemoryCleaner 下；视图与主窗口都由外部传入，本类只使用、不拥有。
+ * 并把它挂在 StaticMemory::cleaner() 下；视图与主窗口都由外部传入，本类只使用、不拥有。
  * 实现不在 core/ 而在 app/ApplicationController.cpp —— 函数体直接操作主窗口的动作与工具栏，
  * 留在服务层就构成 core↔ui 那组环（见 docs/architecture.md 第四节）。
  * 线程约束：QObject 亲和于 GUI 线程，所有槽与信号都只能在 GUI 线程收发。

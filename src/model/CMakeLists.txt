@@ -15,12 +15,15 @@
 #         时画板为了知道图片放哪个子目录就得 include 持久化服务（GraphicsScene、
 #         GraphicsPixmapItem、BoardPaletteManager 各背一条反向边）。
 #
-# 允许依赖：utils、settings、core（还剩 DocumentProxy/树模型要用 Application 的
-# staticMemoryCleaner 与 PersistenceManager 这个仓库服务本身；仓库常量已经不再需要 core）。
-# 对 content 与 ui 已经零出边。
+# 允许依赖：utils、settings —— 对 core 的出边已于 2026-10-22 归零，所以本模块是真的叶子：
+# 页面操作与元数据通知改走 model/IDocumentStore（实现是 core 的 PersistenceManager，构造时
+# 把自己装上），静态对象宿主改住 utils/StaticMemory，MIME 类型名与拖放页面载荷留在本模块
+# （MimeTypes.hpp / MimeData，携带图形项副本的那个在 whiteboard，它得能释放副本）。
+# 对 content 与 ui 也已经是零出边。没有任何模块反向 include model 里的低层，做成 STATIC
+# 之后越界 include 上层在编译期就失败。
 # ======================================================================
 
-add_library(tb_model OBJECT
+add_library(tb_model STATIC
     DocumentContainer.cpp
     DocumentContainer.h
     DocumentProxy.cpp
@@ -33,6 +36,9 @@ add_library(tb_model OBJECT
     IDocumentFormatServices.h
     IDocumentStore.cpp
     IDocumentStore.h
+    MimeData.cpp
+    MimeData.h
+    MimeTypes.hpp
     PackageLayout.hpp
     Resources.cpp
     Resources.h

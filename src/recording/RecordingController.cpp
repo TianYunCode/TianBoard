@@ -1,4 +1,5 @@
 #include "recording/RecordingController.h"
+#include "utils/StaticMemory.h"
 #include "utils/UserNotices.h"
 #include "platform/VirtualDesktop.h"
 
@@ -199,7 +200,7 @@ RecordingController *RecordingController::instance()
 {
     if (!sInstance)
     {
-        sInstance = new RecordingController(Application::staticMemoryCleaner);
+        sInstance = new RecordingController(StaticMemory::cleaner());
     }
 
     return sInstance;

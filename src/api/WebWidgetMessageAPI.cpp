@@ -1,4 +1,5 @@
 #include <QWebEnginePage>
+#include "utils/StaticMemory.h"
 #include "api/WebWidgetMessageAPI.h"
 
 #include "core/Application.h"
@@ -52,7 +53,7 @@ WebWidgetMessageBroker *WebWidgetMessageBroker::instance()
     // 挂到 Application 的静态内存清理器上，保证退出阶段才释放
     if (!sInstance)
     {
-        sInstance = new WebWidgetMessageBroker(Application::staticMemoryCleaner);
+        sInstance = new WebWidgetMessageBroker(StaticMemory::cleaner());
     }
 
     return sInstance;

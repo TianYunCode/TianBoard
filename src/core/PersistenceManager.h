@@ -6,6 +6,7 @@
 #pragma once
 
 #include <QtCore>
+#include "utils/StaticMemory.h"
 
 #include <functional>
 
@@ -22,7 +23,7 @@ class DocumentTreeNode;
 /**
  * @brief 文档仓库的唯一入口：把内存中的文档代理与磁盘上的文档包对应起来。
  *
- * 详细说明：进程级单例，父对象为 Application::staticMemoryCleaner，首次调用
+ * 详细说明：进程级单例，父对象为 StaticMemory::cleaner()，首次调用
  * persistenceManager() 时创建；持有文档树模型与场景缓存（LRU 式），文档代理归
  * 树节点所有。所有路径都在构造时从设置读取，运行期通过关闭/重开来重建。
  * 同时实现 model/IDocumentStore 这份契约：构造时把自己装上、析构时摘下，content 的
@@ -113,7 +114,7 @@ public:
     virtual DocumentProxy *persistDocumentMetadata(DocumentProxy *pDocumentProxy);
 
     /// 复制文档包并登记副本。
-    virtual DocumentProxy *duplicateDocument(DocumentProxy *pDocumentProxy);
+    DocumentProxy *duplicateDocument(DocumentProxy *pDocumentProxy) override;
 
     /// 删除文档包及其在树中的节点。
     virtual void deleteDocument(DocumentProxy *pDocumentProxy);
@@ -123,14 +124,14 @@ public:
      * @param pDocumentProxy 目标文档。
      * @param indexes 待删除页面下标。
      */
-    virtual void deleteDocumentScenes(DocumentProxy *pDocumentProxy, const QList<int> &indexes);
+    void deleteDocumentScenes(DocumentProxy *pDocumentProxy, const QList<int> &indexes) override;
 
     /**
      * @brief 在文档内复制一页，副本插入到原页之后。
      * @param pDocumentProxy 目标文档。
      * @param index 源页下标。
      */
-    virtual void duplicateDocumentScene(DocumentProxy *pDocumentProxy, int index);
+    void duplicateDocumentScene(DocumentProxy *pDocumentProxy, int index) override;
 
     /**
      * @brief 把一页从一个文档复制到另一个文档。
@@ -139,7 +140,7 @@ public:
      * @param to 目标文档。
      * @param toIndex 目标插入位置。
      */
-    virtual void copyDocumentScene(DocumentProxy *from, int fromIndex, DocumentProxy *to, int toIndex);
+    void copyDocumentScene(DocumentProxy *from, int fromIndex, DocumentProxy *to, int toIndex) override;
 
     /**
      * @brief 把内存中的页面写入磁盘。
@@ -173,7 +174,7 @@ public:
      * @param source 源下标。
      * @param target 目标下标。
      */
-    virtual void moveSceneToIndex(DocumentProxy *pDocumentProxy, int source, int target);
+    void moveSceneToIndex(DocumentProxy *pDocumentProxy, int source, int target) override;
 
     /**
      * @brief 从缓存或磁盘加载指定页面。
@@ -188,7 +189,7 @@ public:
         return mSceneCache.value(pDocumentProxy, sceneIndex);
     }
     /// 文档代理被替换后，把缓存中的键迁移到新代理。
-    void reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument);
+    void reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument) override;
 
     //        QList<QPointer<DocumentProxy> > documentProxies;
     DocumentTreeNode  *mDocumentTreeStructure;
@@ -279,6 +280,9 @@ public:
      */
     bool addFileToDocument(DocumentProxy *pDocumentProxy, QString path, const QString &subdir, QUuid objectUuid, QString &destinationPath,
         QByteArray *data = NULL) override;
+
+    /// @brief 文档元数据变了：转告文档管理器，让文档库视图不重扫磁盘就能刷新。
+    void documentUpdated(DocumentProxy *document) override;
 
     /// @brief IDocumentStore 的树模型访问点；成员本身仍是公开的。
     DocumentTreeModel *documentTreeModel() override

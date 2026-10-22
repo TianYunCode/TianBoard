@@ -1,4 +1,5 @@
 #include "ui/DocumentController.h"
+#include "model/MimeTypes.hpp"
 #include "utils/UserNotices.h"
 
 #include <QtCore>
@@ -15,7 +16,7 @@
 #include "core/ApplicationController.h"
 #include "settings/Settings.h"
 #include "settings/Setting.h"
-#include "core/MimeData.h"
+#include "model/MimeData.h"
 #include "model/ForeignObjectsHandler.h"
 
 #include "model/IDocumentFormatServices.h"
@@ -129,7 +130,7 @@ void DocumentTreeView::dragMoveEvent(QDragMoveEvent *event)
 
     bool acceptIt = isAcceptable(index, indexAt(event->position().toPoint()));
 
-    if (event->mimeData()->hasFormat(Application::mimeTypeBoardPage))
+    if (event->mimeData()->hasFormat(MimeTypes::boardPage))
     {
         SortFilterProxyModel *proxy = dynamic_cast<SortFilterProxyModel *>(model());
 
@@ -180,7 +181,7 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
     QModelIndex     targetIndex = mapIndexToSource(indexAt(event->position().toPoint()));
     QModelIndexList dropIndex   = mapIndexesToSource(selectedIndexes());
 
-    bool isBoardPage            = event->mimeData()->hasFormat(Application::mimeTypeBoardPage);
+    bool isBoardPage            = event->mimeData()->hasFormat(MimeTypes::boardPage);
 
     bool targetIsInTrash        = docModel->inTrash(targetIndex) || docModel->trashIndex() == targetIndex;
     bool targetIsInMyDocuments  = docModel->inMyDocuments(targetIndex) || docModel->myDocumentsIndex() == targetIndex;
@@ -197,7 +198,7 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
         const MimeData *mimeValue     = qobject_cast<const MimeData *>(event->mimeData());
         if (!targetDocProxy || !mimeValue || !mimeValue->items().count())
         {
-            qDebug() << "an error ocured while parsing " << Application::mimeTypeBoardPage;
+            qDebug() << "an error ocured while parsing " << MimeTypes::boardPage;
             QTreeView::dropEvent(event);
             return;
         }
@@ -2390,7 +2391,7 @@ void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *)
 
     if (!current.isValid())
     {
-        mDocumentsView->thumbnailWidget()->setGraphicsItems(QList<QGraphicsItem *>(), QList<QUrl>(), QStringList(), Application::mimeTypeBoardPage);
+        mDocumentsView->thumbnailWidget()->setGraphicsItems(QList<QGraphicsItem *>(), QList<QUrl>(), QStringList(), MimeTypes::boardPage);
         return;
     }
 
@@ -2438,7 +2439,7 @@ void DocumentController::refreshDocumentThumbnailsView(DocumentContainer *)
         }
     }
 
-    mDocumentsView->thumbnailWidget()->setGraphicsItems(items, itemsPath, labels, Application::mimeTypeBoardPage);
+    mDocumentsView->thumbnailWidget()->setGraphicsItems(items, itemsPath, labels, MimeTypes::boardPage);
 
     // documentPageThumbnail() 返回 new 出来的 QPixmap，SceneThumbnailPixmap 只是按值拷贝；
     // 不在这里释放的话，每刷新一次缩略图就泄漏 pageCount 个 QPixmap。

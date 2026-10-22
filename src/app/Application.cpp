@@ -1,4 +1,6 @@
 #include "core/Application.h"
+#include "utils/StaticMemory.h"
+#include "model/MimeTypes.hpp"
 #include "platform/VirtualDesktop.h"
 #include <QWebEngineProfile>
 #include <QRegularExpression>
@@ -55,17 +57,8 @@ DocumentController    *Application::documentController    = 0;
 
 MainWindow *Application::mainWindow                       = 0;
 
-const QString Application::mimeTypeBoardDocument          = QString("application/vnd.tianboard-document");
-const QString Application::mimeTypeBoardPage              = QString("application/vnd.tianboard-page");
-const QString Application::mimeTypeBoardPageItem          = QString("application/vnd.tianboard-page-item");
-const QString Application::mimeTypeBoardPageThumbnail     = QString("application/vnd.tianboard-thumbnail");
-
-QObject *Application::staticMemoryCleaner                 = 0;
-
 Application::Application(const QString &id, int &argc, char **argv) : QtSingleApplication(id, argc, argv), mPreferencesController(NULL)
 {
-    staticMemoryCleaner = new QObject(0); // 由 Application 析构函数删除
-
     setOrganizationName("TianBoard");
     setOrganizationDomain("");
     setApplicationName("TianBoard");
@@ -85,7 +78,7 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
 
     if (!undoStack)
     {
-        undoStack = new QUndoStack(staticMemoryCleaner);
+        undoStack = new QUndoStack(StaticMemory::cleaner());
     }
 
     PlatformUtils::init();
@@ -133,8 +126,7 @@ Application::~Application()
 
     ToolsManager::destroy();
 
-    delete staticMemoryCleaner;
-    staticMemoryCleaner = 0;
+    StaticMemory::release();
 }
 
 void Application::setupTranslators(const QStringList &args)
@@ -215,8 +207,8 @@ int Application::exec(const QString &pFileToImport)
 
     DrawingController::drawingController()->setStylusTool((int)StylusTool::Pen);
 
-    applicationController = new ApplicationController(boardController->controlView(), boardController->displayView(), mainWindow, staticMemoryCleaner,
-        boardController->paletteManager()->rightPalette());
+    applicationController = new ApplicationController(boardController->controlView(), boardController->displayView(), mainWindow,
+        StaticMemory::cleaner(), boardController->paletteManager()->rightPalette());
 
     connect(
         applicationController, &ApplicationController::mainModeChanged, boardController->paletteManager(), &BoardPaletteManager::slot_changeMainMode);
