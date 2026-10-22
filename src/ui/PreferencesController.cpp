@@ -367,6 +367,7 @@ struct BrushPropertiesFrame::Ui
 
 struct BrushPropertiesFrame::Private
 {
+    QFrame              *owner = nullptr;
     Ui                   ui;
     QList<ColorPicker *> lightBackgroundColorPickers;
     QList<ColorPicker *> darkBackgroundColorPickers;
@@ -1221,8 +1222,7 @@ void PreferencesDialog::closeEvent(QCloseEvent *e)
 }
 
 PreferencesController::PreferencesController(QWidget *parent)
-    : QObject(parent), mPreferencesWindow(0), mPreferencesUI(0), mPenProperties(0), mMarkerProperties(0), mDarkBackgroundGridColorPicker(0),
-      mLightBackgroundGridColorPicker(0)
+    : QObject(parent), mPreferencesWindow(0), mPreferencesUI(0), mPenProperties(0), mMarkerProperties(0)
 {
     mDesktop           = VirtualDesktop::instance();
     mPreferencesWindow = new PreferencesDialog(this, parent, Qt::Dialog);
@@ -1372,18 +1372,12 @@ void PreferencesController::wire()
     QList<QColor> gridLightBackgroundColors = settings->boardGridLightBackgroundColors->colors();
     QColor        selectedCrossColorLightBackground(settings->boardCrossColorLightBackground->get().toString());
 
-    mLightBackgroundGridColorPicker = new ColorPicker(mPreferencesUI->crossColorLightBackgroundFrame);
-    mLightBackgroundGridColorPicker->setObjectName(QString::fromUtf8("crossColorLightBackgroundFrame"));
-    mLightBackgroundGridColorPicker->setMinimumSize(QSize(32, 32));
-    mLightBackgroundGridColorPicker->setFrameShape(QFrame::StyledPanel);
-    mLightBackgroundGridColorPicker->setFrameShadow(QFrame::Raised);
-
-    mPreferencesUI->crossColorLightBackgroundLayout->addWidget(mLightBackgroundGridColorPicker);
-    mLightBackgroundGridColorPicker->setColors(gridLightBackgroundColors);
-    mLightBackgroundGridColorPicker->setSelectedColorIndex(gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
+    mPreferencesUI->crossColorLightBackgroundColorPicker->setColors(gridLightBackgroundColors);
+    mPreferencesUI->crossColorLightBackgroundColorPicker->setSelectedColorIndex(gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
     mPreferencesUI->lightBackgroundOpacitySlider->setValue(selectedCrossColorLightBackground.alpha() * 100 / 255);
 
-    QObject::connect(mLightBackgroundGridColorPicker, &ColorPicker::colorSelected, this, &PreferencesController::setCrossColorOnLightBackground);
+    QObject::connect(mPreferencesUI->crossColorLightBackgroundColorPicker, &ColorPicker::colorSelected, this,
+        &PreferencesController::setCrossColorOnLightBackground);
     connect(
         mPreferencesUI->lightBackgroundOpacitySlider, &QSlider::valueChanged, this, &PreferencesController::lightBackgroundCrossOpacityValueChanged);
 
@@ -1391,18 +1385,12 @@ void PreferencesController::wire()
     QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
     QColor        selectedCrossColorDarkBackground(settings->boardCrossColorDarkBackground->get().toString());
 
-    mDarkBackgroundGridColorPicker = new ColorPicker(mPreferencesUI->crossColorDarkBackgroundFrame);
-    mDarkBackgroundGridColorPicker->setObjectName(QString::fromUtf8("crossColorDarkBackgroundFrame"));
-    mDarkBackgroundGridColorPicker->setMinimumSize(QSize(32, 32));
-    mDarkBackgroundGridColorPicker->setFrameShape(QFrame::StyledPanel);
-    mDarkBackgroundGridColorPicker->setFrameShadow(QFrame::Raised);
-
-    mPreferencesUI->crossColorDarkBackgroundLayout->addWidget(mDarkBackgroundGridColorPicker);
-    mDarkBackgroundGridColorPicker->setColors(gridDarkBackgroundColors);
-    mDarkBackgroundGridColorPicker->setSelectedColorIndex(gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
+    mPreferencesUI->crossColorDarkBackgroundColorPicker->setColors(gridDarkBackgroundColors);
+    mPreferencesUI->crossColorDarkBackgroundColorPicker->setSelectedColorIndex(gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
     mPreferencesUI->darkBackgroundOpacitySlider->setValue(selectedCrossColorDarkBackground.alpha() * 100 / 255);
 
-    QObject::connect(mDarkBackgroundGridColorPicker, &ColorPicker::colorSelected, this, &PreferencesController::setCrossColorOnDarkBackground);
+    QObject::connect(mPreferencesUI->crossColorDarkBackgroundColorPicker, &ColorPicker::colorSelected, this,
+        &PreferencesController::setCrossColorOnDarkBackground);
     connect(
         mPreferencesUI->darkBackgroundOpacitySlider, &QSlider::valueChanged, this, &PreferencesController::darkBackgroundCrossOpacityValueChanged);
 
@@ -1442,6 +1430,19 @@ void PreferencesController::wire()
     connect(mMarkerProperties->ui().strongSlider, &QSlider::valueChanged, this, &PreferencesController::widthSliderChanged);
     connect(mMarkerProperties->ui().pressureSensitiveCheckBox, &QCheckBox::clicked, settings, &Settings::setMarkerPressureSensitive);
     connect(mMarkerProperties->ui().opacitySlider, &QSlider::valueChanged, this, &PreferencesController::opacitySliderChanged);
+
+    // 运行期切语言时 PreferencesDialog 只重翻译它自己那份 Ui，这两个面板的文案各自装在
+    // BrushPropertiesFrame::Ui 里，以前从没人再刷它们——切完语言笔/荧光笔面板还是旧语言。
+    connect(LanguageManager::instance(), &LanguageManager::languageChanged, this,
+        [this](const QString &)
+        {
+            mPenProperties->retranslateUi();
+            mMarkerProperties->retranslateUi();
+
+            // 两份面板共用同一个 Ui 结构，里面写的是"笔"的文案；wire() 建好荧光笔面板后
+            // 也是这么覆盖那一行的，语言刷完要按同样的方式再覆盖一次。
+            mMarkerProperties->ui().pressureSensitiveCheckBox->setText(tr("Marker is pressure sensitive"));
+        });
 }
 
 void PreferencesController::init()
@@ -1640,8 +1641,9 @@ void PreferencesController::defaultSettings()
         QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
         QColor        selectedCrossColorDarkBackground(settings->boardCrossColorDarkBackground->get().toString());
 
-        mDarkBackgroundGridColorPicker->setColors(gridDarkBackgroundColors);
-        mDarkBackgroundGridColorPicker->setSelectedColorIndex(gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
+        mPreferencesUI->crossColorDarkBackgroundColorPicker->setColors(gridDarkBackgroundColors);
+        mPreferencesUI->crossColorDarkBackgroundColorPicker->setSelectedColorIndex(
+            gridDarkBackgroundColors.indexOf(selectedCrossColorDarkBackground));
         int darkBackgroundOpacity = selectedCrossColorDarkBackground.alpha() * 100 / 255;
         mPreferencesUI->darkBackgroundOpacitySlider->setValue(darkBackgroundOpacity);
         darkBackgroundCrossOpacityValueChanged(darkBackgroundOpacity);
@@ -1652,8 +1654,9 @@ void PreferencesController::defaultSettings()
         QList<QColor> gridLightBackgroundColors = settings->boardGridLightBackgroundColors->colors();
         QColor        selectedCrossColorLightBackground(settings->boardCrossColorLightBackground->get().toString());
 
-        mLightBackgroundGridColorPicker->setColors(gridLightBackgroundColors);
-        mLightBackgroundGridColorPicker->setSelectedColorIndex(gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
+        mPreferencesUI->crossColorLightBackgroundColorPicker->setColors(gridLightBackgroundColors);
+        mPreferencesUI->crossColorLightBackgroundColorPicker->setSelectedColorIndex(
+            gridLightBackgroundColors.indexOf(selectedCrossColorLightBackground));
         int lightBackgroundOpacity = selectedCrossColorLightBackground.alpha() * 100 / 255;
         mPreferencesUI->lightBackgroundOpacitySlider->setValue(lightBackgroundOpacity);
         lightBackgroundCrossOpacityValueChanged(lightBackgroundOpacity);
@@ -1667,11 +1670,20 @@ void PreferencesController::darkBackgroundCrossOpacityValueChanged(int value)
 
     QList<QColor> gridDarkBackgroundColors = settings->boardGridDarkBackgroundColors->colors();
 
-    int    index                           = mDarkBackgroundGridColorPicker->selectedColorIndex();
-    QColor currentColor                    = gridDarkBackgroundColors.at(index);
+    int index                              = mPreferencesUI->crossColorDarkBackgroundColorPicker->selectedColorIndex();
+    if (index < 0 || index >= gridDarkBackgroundColors.count())
+    {
+        // 配置里的交叉色不在这一组网格色中（旧配置或手改过 settings 就会这样）：色板里
+        // 没有任何一格是"当前色"，也就没有"改哪一格的透明度"可言。以前这里直接
+        // at(index)/replace(index) —— release 下 QList 不查边界，index 为 -1 就是越界读写。
+        qWarning() << "暗底网格色中找不到当前交叉色，跳过透明度调整";
+        return;
+    }
+
+    QColor currentColor = gridDarkBackgroundColors.at(index);
     currentColor.setAlpha(opacity);
     gridDarkBackgroundColors.replace(index, currentColor);
-    mDarkBackgroundGridColorPicker->setColors(gridDarkBackgroundColors);
+    mPreferencesUI->crossColorDarkBackgroundColorPicker->setColors(gridDarkBackgroundColors);
 
     settings->boardGridDarkBackgroundColors->setColor(index, currentColor);
 
@@ -1693,11 +1705,18 @@ void PreferencesController::lightBackgroundCrossOpacityValueChanged(int value)
 
     QList<QColor> gridLightBackgroundColors = settings->boardGridLightBackgroundColors->colors();
 
-    int    index                            = mLightBackgroundGridColorPicker->selectedColorIndex();
-    QColor currentColor                     = gridLightBackgroundColors.at(index);
+    int index                               = mPreferencesUI->crossColorLightBackgroundColorPicker->selectedColorIndex();
+    if (index < 0 || index >= gridLightBackgroundColors.count())
+    {
+        // 同暗底那一支：索引可能来自 indexOf() 没找到的 -1。
+        qWarning() << "亮底网格色中找不到当前交叉色，跳过透明度调整";
+        return;
+    }
+
+    QColor currentColor = gridLightBackgroundColors.at(index);
     currentColor.setAlpha(opacity);
     gridLightBackgroundColors.replace(index, currentColor);
-    mLightBackgroundGridColorPicker->setColors(gridLightBackgroundColors);
+    mPreferencesUI->crossColorLightBackgroundColorPicker->setColors(gridLightBackgroundColors);
 
     settings->boardGridLightBackgroundColors->setColor(index, currentColor);
 
@@ -1876,6 +1895,7 @@ BrushPropertiesFrame::BrushPropertiesFrame(QFrame *owner, const QList<QColor> &l
     const QList<QColor> &lightBackgroundSelectedColors, const QList<QColor> &darkBackgroundSelectedColors, PreferencesController *controller)
     : d(new Private)
 {
+    d->owner = owner;
     d->ui.setupUi(owner);
 
     Ui &ui                          = d->ui;
@@ -1952,6 +1972,11 @@ BrushPropertiesFrame::~BrushPropertiesFrame() = default;
 BrushPropertiesFrame::Ui &BrushPropertiesFrame::ui()
 {
     return d->ui;
+}
+
+void BrushPropertiesFrame::retranslateUi()
+{
+    d->ui.retranslateUi(d->owner);
 }
 
 QList<ColorPicker *> &BrushPropertiesFrame::lightBackgroundColorPickers()

@@ -29,9 +29,14 @@ public:
     ZoomPalette(QWidget *parent);
     virtual ~ZoomPalette();
 
-public slots:
-    /// 重写隐藏逻辑：仅在当前倍率接近 1 时才真正隐藏。
-    void hide();
+public:
+    /**
+     * @brief 只有当前倍率接近 1（视为“没缩放”）时才允许隐藏。
+     * @note 覆写的是 setVisible 而不是 hide：QWidget::hide()/show() 都不是虚函数，
+     *       但它们内部都会走虚的 setVisible —— 覆写 hide() 只对 ZoomPalette* 上的
+     *       直接调用有效，经基类指针或 setVisible(false) 来的就会绕过这条判断（以前正是如此）。
+     */
+    void setVisible(bool visible) override;
     /// 刷新倍率文本与位置，并按倍率决定显示还是延时隐藏。
     void refreshPalette();
 

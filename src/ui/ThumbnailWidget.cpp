@@ -43,7 +43,6 @@ struct ThumbnailWidget::Private
     QSet<QGraphicsItem *> mSelectedThumbnailItems;
     QSet<QGraphicsItem *> mPreviouslyIncrementalSelectedItemsX;
     QSet<QGraphicsItem *> mPreviouslyIncrementalSelectedItemsY;
-    QElapsedTimer         mClickTime;
 };
 
 struct Thumbnail::Private
@@ -286,7 +285,6 @@ QList<QGraphicsItem *> ThumbnailWidget::selectedItems()
 
 void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
 {
-    d->mClickTime.start();
     d->mMousePressPos          = event->pos();
 
     ThumbnailPixmap *sceneItem = dynamic_cast<ThumbnailPixmap *>(itemAt(d->mMousePressPos));
@@ -422,14 +420,16 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
         if (lassoRect.width() < d->mPrevLassoRect.width())
         {
-            if (!lassoSelectedThumbnailItems.contains(d->mPreviouslyIncrementalSelectedItemsX))
-            {
-                toUnset += d->mPreviouslyIncrementalSelectedItemsX - lassoSelectedThumbnailItems;
-            }
+            // 框收窄了：上一轮增量选中、这一轮已不在框里的项要取消。差集本身就覆盖
+            // 了各种情况，原来外面还套了一层 contains(上一轮整个集合)——QSet 没有
+            // "包含一个集合"这种重载，留着只会误导。
+            toUnset += d->mPreviouslyIncrementalSelectedItemsX - lassoSelectedThumbnailItems;
         }
-        d->mPreviouslyIncrementalSelectedItemsX  = lassoSelectedThumbnailItems;
 
+        // 累加选择要"这轮框里的 ∪ 上一轮框里的"，必须在覆盖旧值之前算——
+        // 原来先赋值再求并集，两个操作数已经是同一个集合，累积选择整个丢掉。
         toSet                                   += lassoSelectedThumbnailItems + d->mPreviouslyIncrementalSelectedItemsX;
+        d->mPreviouslyIncrementalSelectedItemsX  = lassoSelectedThumbnailItems;
 
         lassoSelectedThumbnailItems.clear();
 
@@ -452,14 +452,16 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
         if (lassoRect.height() < d->mPrevLassoRect.height())
         {
-            if (!lassoSelectedThumbnailItems.contains(d->mPreviouslyIncrementalSelectedItemsY))
-            {
-                toUnset += d->mPreviouslyIncrementalSelectedItemsY - lassoSelectedThumbnailItems;
-            }
+            // 框收窄了：上一轮增量选中、这一轮已不在框里的项要取消。差集本身就覆盖
+            // 了各种情况，原来外面还套了一层 contains(上一轮整个集合)——QSet 没有
+            // "包含一个集合"这种重载，留着只会误导。
+            toUnset += d->mPreviouslyIncrementalSelectedItemsY - lassoSelectedThumbnailItems;
         }
-        d->mPreviouslyIncrementalSelectedItemsY  = lassoSelectedThumbnailItems;
 
+        // 累加选择要"这轮框里的 ∪ 上一轮框里的"，必须在覆盖旧值之前算——
+        // 原来先赋值再求并集，两个操作数已经是同一个集合，累积选择整个丢掉。
         toSet                                   += lassoSelectedThumbnailItems + d->mPreviouslyIncrementalSelectedItemsY;
+        d->mPreviouslyIncrementalSelectedItemsY  = lassoSelectedThumbnailItems;
 
         toSet                                   -= toUnset;
 
@@ -478,9 +480,12 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
         if (Qt::ControlModifier & event->modifiers())
         {
-            for (int i = 0; i < d->mSelectedThumbnailItems.count() - 1; i++)
+            // 每一项都要选中，包括最后一项（原来上界写成 count() - 1，最后一项永远漏）；
+            // 而且 values() 每轮都重建一张临时表，先取一次再遍历。
+            const QList<QGraphicsItem *> incremental = d->mSelectedThumbnailItems.values();
+            for (QGraphicsItem *item : incremental)
             {
-                d->mSelectedThumbnailItems.values().at(i)->setSelected(true);
+                item->setSelected(true);
             }
         }
     }
@@ -532,15 +537,17 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent *event)
 
 void ThumbnailWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    int elapsedTimeSincePress = d->mClickTime.elapsed();
-    d->prevMoveMousePos       = QPoint();
+    d->prevMoveMousePos = QPoint();
     deleteLasso();
     QGraphicsView::mouseReleaseEvent(event);
 
-    if (elapsedTimeSincePress < STARTDRAGTIME)
-    {
-        emit mouseClick(itemAt(event->pos()), 0);
-    }
+    // 这里以前套着一个 elapsed() < STARTDRAGTIME(=1000000) 的判断：QElapsedTimer::elapsed()
+    // 的单位是毫秒，那个阈值等于 16.6 分钟，条件恒真。查过接收方再决定怎么处理这个"恒真"：
+    // DocumentController::pageClicked 把 item 与 index 都 Q_UNUSED 掉，只调
+    // pageSelectionChanged() 刷新动作可用性——框选结束正需要这一次刷新。所以既不照字面
+    // 去补一个时间阈值（那会把松手后的刷新丢掉），也不改成按位移判断（同理），
+    // 而是把恒真的判断删掉、直接发，语义与现在的实际行为一致，且不再谎称有防抖。
+    emit mouseClick(itemAt(event->pos()), 0);
 }
 
 void ThumbnailWidget::keyPressEvent(QKeyEvent *event)

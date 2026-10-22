@@ -387,7 +387,49 @@
   因此静默落空、当前节点继续抱着即将删除的旧节点；现在先挂新的再换旧的。
 
 
-### 2026-10-22：`src/ui` 的 D–M 段补审（上一轮这个模块因轮次上限没跑完）
+### 2026-10-22：`src/ui` 的 N–Z 段补审（D–M 那一段见下一节）
+
+同样先核实再动手，八条里修了七条：
+
+- **越界读写（最严重）**：`PreferencesController` 的两个"网格透明度"槽拿
+  `ColorPicker::selectedColorIndex()` 当下标，而该索引来自 `list.indexOf(当前交叉色)`——
+  配置里的交叉色不在那组网格色中时是 **-1**，于是 `colors.at(-1)` 与 `colors.replace(-1, …)`。
+  release 下 QList 不查边界，这是越界读加越界**写**。现在两支都先验索引再动手。
+- **恒真条件**：`ThumbnailWidget::mouseReleaseEvent` 判 `elapsed() < STARTDRAGTIME`，
+  而 `STARTDRAGTIME` 是 `1000000`——`elapsed()` 的单位是毫秒，等于 16.6 分钟，条件永远成立。
+  查过接收方才决定怎么处理：`DocumentController::pageClicked` 把 item 与 index 都 `Q_UNUSED`，
+  只调 `pageSelectionChanged()` 刷新动作可用性，而框选结束正需要这一次刷新——所以既不照字面
+  补一个时间阈值、也不改成按位移判断（那都会把松手后的刷新丢掉），而是删掉恒真判断直接发，
+  行为与现在完全一致，但不再谎称有防抖。顺带删掉只 start 从不读的 `mClickTime` 与那个宏。
+- **累积框选丢失**：同一个函数里先 `mPreviouslyIncrementalSelectedItemsX = 本轮集合`、
+  再 `toSet += 本轮 + mPreviously...`，两个操作数已是同一个集合，"往外拉框时累加之前选中的"
+  整个失效。改成先算并集再覆盖。X/Y 两支同错。
+- **`QSet::contains(整个集合)`**：那层守卫写的是"本轮集合是否包含上一轮整个集合"，
+  QSet 没有这种重载，且紧接着的差集本来就覆盖了这种情况；删掉。
+- **Ctrl 增量框选漏最后一项**：`for (i = 0; i < count() - 1; ++i)`，且每轮重建一次
+  `values()` 临时表。改成取一次、遍历全部。
+- **`ScreenMirror` 坐标系**：`mapToGlobal()` 要的是部件内部坐标，传的却是
+  `geometry().topLeft()`（父容器坐标系）→ 记下的抓屏矩形整体偏移。平时看不出来是因为
+  `ApplicationController` 随后会 `setSourceRect()` 覆盖一次；源部件析构后回退矩形抓屏用的
+  就是这一份错的。改用 `mapToGlobal(QPoint(0,0))` / `mapToGlobal(rect().bottomRight())`。
+- **`ZoomPalette::hide()` 不是重写**：`QWidget::hide()` 非虚，只有经 `ZoomPalette*` 的直接
+  调用才走派生逻辑。真虚的是 `QWidget::setVisible(bool)`，而 `hide()/show()` 内部都走它——
+  于是改成覆写 `setVisible()`，任何入口的判断都一致了。
+- **偏好设置里两个色板重复**：`setupUi` 已经建了 `crossColor{Light,Dark}BackgroundColorPicker`
+  并 addWidget，`wire()` 又 new 一对真的接了线的塞进同一布局 → Grid 页出现两个色块，
+  前面那个没有颜色列表也没有连接。现在统一用表单里那两个，多余的两个成员删掉。
+
+**没修的一条（需要人工验证，先记着）**：笔与荧光笔两个面板共用同一份
+`BrushPropertiesFrame::Ui`，切语言时以前只有对话框自己重翻译，面板文案停在旧语言。已经让
+`BrushPropertiesFrame` 自带 `retranslateUi()` 并在 `languageChanged` 上刷两个面板，但
+"切语言后面板确实变过来了"这件事只有真点一遍才算数——无头自检目前只覆盖主窗口与设置对话框
+的取词（`tst_language`）。
+
+另记一条测量事实：`tst_ui_modes` 与 `tst_recording` 在**同一时刻还有全量构建在跑**时
+出现过一次超时失败；单独重跑 12 次全绿。这台机器的负载会直接影响这两个用例，判红先确认
+当时是不是在并发构建（`tst_ui_modes` 现在对"慢"重试三次，见 §五 相应提交）。
+
+（上一轮这个模块因轮次上限没跑完）
 
 只读代理报回 7 条，逐条自己核实后修掉，其中三条是"写好了却从没被接上"的：
 

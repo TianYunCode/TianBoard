@@ -71,22 +71,27 @@ void ZoomPalette::goHundred()
     d->mBoardController->zoomRestore();
 }
 
-void ZoomPalette::hide()
+void ZoomPalette::setVisible(bool visible)
 {
-    qreal currentZoomFactor = d->mBoardController->currentZoom();
-
-    // 这个槽也挂在“无缩放后延时隐藏”上，用户此时若已重新缩放就不该隐藏。
-    bool showAsNoZoom       = (currentZoomFactor > 0.9 && currentZoomFactor < 1.1);
-    if (showAsNoZoom)
+    if (visible)
     {
-        FloatingPalette::hide();
+        FloatingPalette::setVisible(true);
+        return;
+    }
+
+    // “无缩放后延时 500ms 隐藏”这一路上，用户可能在这 500ms 里又缩放了：
+    // 那就该继续显示。判定与 refreshPalette 用同一个。
+    const qreal currentZoomFactor = d->mBoardController->currentZoom();
+    if (currentZoomFactor > 0.9 && currentZoomFactor < 1.1)
+    {
+        FloatingPalette::setVisible(false);
     }
 }
 
 void ZoomPalette::refreshPalette()
 {
     qreal currentZoomFactor = d->mBoardController->currentZoom();
-    // 与 hide() 使用同一判定：0.9~1.1 视为“没有缩放”，显示成整数 1x。
+    // 与 setVisible() 使用同一判定：0.9~1.1 视为“没有缩放”，显示成整数 1x。
     bool showAsNoZoom       = (currentZoomFactor > 0.9 && currentZoomFactor < 1.1);
     if (showAsNoZoom)
     {
@@ -99,7 +104,7 @@ void ZoomPalette::refreshPalette()
     // 无缩放时先显示 500ms 告知用户，再自动隐藏，避免长期占用画面角落。
     if (showAsNoZoom)
     {
-        QTimer::singleShot(500, this, &ZoomPalette::hide);
+        QTimer::singleShot(500, this, &QWidget::hide); // 虚分发会回到本类的 setVisible
     }
     else
     {

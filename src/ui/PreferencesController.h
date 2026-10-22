@@ -106,10 +106,6 @@ protected:
     BrushPropertiesFrame *mPenProperties;
     /// 荧光笔属性面板，由本类持有。
     BrushPropertiesFrame *mMarkerProperties;
-    /// 深色背景网格取色器；父对象是对应的 QFrame，随对话框一起销毁，本类不删除。
-    ColorPicker *mDarkBackgroundGridColorPicker;
-    /// 浅色背景网格取色器；父对象是对应的 QFrame，随对话框一起销毁，本类不删除。
-    ColorPicker *mLightBackgroundGridColorPicker;
 
 public slots:
     // BrushPropertiesFrame 在自己的构造函数里连它，必须对外可见
@@ -188,6 +184,14 @@ public:
 
     /// 返回界面控件集合。
     Ui &ui();
+
+    /**
+     * @brief 按当前语言重刷本面板的文案。
+     * @note 运行期切语言时 PreferencesDialog 只重翻译它自己那份 Ui；这两个笔/荧光笔面板
+     *       的文案住在各自的 Ui 里，必须由面板自己再走一遍 retranslateUi()，
+     *       否则切完语言面板上仍是旧语言（以前正是如此）。
+     */
+    void retranslateUi();
 
     /// 返回浅色背景下的颜色选择器列表。
     QList<ColorPicker *> &lightBackgroundColorPickers();

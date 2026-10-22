@@ -55,8 +55,12 @@ void ScreenMirror::grabPixmap()
         QWidget *sourceWidget = d->sourceWidget.data();
 
         // 先算出源部件当前所在的屏幕区域并记下来，供之后切换成矩形抓屏时复用。
-        QPoint topLeft        = sourceWidget->mapToGlobal(sourceWidget->geometry().topLeft());
-        QPoint bottomRight    = sourceWidget->mapToGlobal(sourceWidget->geometry().bottomRight());
+        // mapToGlobal 要的是部件内部坐标：以前传的是 geometry().topLeft()，那是**父容器**
+        // 坐标系，父不在原点时记下的矩形整体偏移一个父容器的位置（平时看不出来是因为
+        // ApplicationController 随后会用 setSourceRect 覆盖一次；源部件析构后回退到
+        // 矩形抓屏用的就是这里记下的一份）。
+        QPoint topLeft        = sourceWidget->mapToGlobal(QPoint(0, 0));
+        QPoint bottomRight    = sourceWidget->mapToGlobal(sourceWidget->rect().bottomRight());
 
         d->rect.setTopLeft(topLeft);
         d->rect.setBottomRight(bottomRight);

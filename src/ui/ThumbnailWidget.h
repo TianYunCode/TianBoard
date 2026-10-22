@@ -95,7 +95,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     /// 拖出橡皮筋框选，或在已有选择时发起拖拽。
     virtual void mouseMoveEvent(QMouseEvent *event);
-    /// 结束框选，若按下到松开时间很短则发出 mouseClick。
+    /// 结束框选并发出 mouseClick；接收方只看有没有发生点击，用它刷新动作可用性。
     virtual void mouseReleaseEvent(QMouseEvent *event);
     /// 尺寸变化后重新排版并发出 resized。
     virtual void resizeEvent(QResizeEvent *event);
