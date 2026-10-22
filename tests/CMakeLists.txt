@@ -231,6 +231,16 @@ set_tests_properties(tst_preflive PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 橡皮擦端到端自检：应用自己画两笔、竖着擦过其中一笔的中段、撤销重做、再存盘冷读对账。
+add_executable(tst_eraser tst_eraser.cpp)
+target_compile_options(tst_eraser PRIVATE /MP /utf-8)
+target_link_libraries(tst_eraser PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_eraser TianBoard)
+add_test(NAME tst_eraser COMMAND tst_eraser)
+set_tests_properties(tst_eraser PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

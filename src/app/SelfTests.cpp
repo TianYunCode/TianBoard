@@ -7,6 +7,7 @@
 #include "app/ClipboardSelfTest.h"
 #include "app/CookieSelfTest.h"
 #include "app/DownloadSelfTest.h"
+#include "app/EraserSelfTest.h"
 #include "app/ExportSelfTest.h"
 #include "app/FormatSelfTest.h"
 #include "app/ImportSelfTest.h"
@@ -42,6 +43,7 @@ void installSelfTestFromArgs(Application &app)
         {"--media-selftest",     MediaInsertSelfTest::run        }, // 音视频插入有没有变成文档的一部分（tst_media）
         {"--download-selftest",  DownloadSelfTest::run           }, // 本地下载端到端与跨层事实的应答连线（tst_download）
         {"--preflive-selftest",  PreferenceLiveApplySelfTest::run}, // 偏好设置改完当场生效，不重启不换页（tst_preflive）
+        {"--eraser-selftest",    EraserSelfTest::run             }, // 橡皮切开一段笔迹的整条回路与存读对账（tst_eraser）
     };
 
     const QStringList args = app.arguments();

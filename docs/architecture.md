@@ -13,7 +13,7 @@
 ```text
 src/
   ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配、
-  │                十四个 *SelfTest（外加 SelfTestAssets 那份共用合成素材），以及
+  │                十五个 *SelfTest（外加 SelfTestAssets 那份共用合成素材），以及
   │                Application.cpp / ApplicationController.cpp
   │                ——这两个装配角色的实现（头文件在 core/，见第四节）
   ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
@@ -57,7 +57,7 @@ src/
                    AutoSaver 与 UserNotices 2026-10-21/22 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（26 个）
+tests/             Qt Test 用例（27 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账

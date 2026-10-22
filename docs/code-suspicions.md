@@ -825,3 +825,32 @@ TianBoard!UndoRedoSelfTest::run          ← 就是 board->deleteScene(...) 这�
 `AutoSaveSelfTest`，偏好设置面板里没有这个控件（`res/i18n/*.ts` 里也没有任何相关文案，所以不是迁移
 丢的，是上游本来就没有）。上一轮把它的 `changed` 连上之后，"改间隔当场生效"这条在界面上其实走不到，
 只能改 INI。要不要补一个控件（连"关闭"这一档）是产品决策，见任务清单，不在这一批里顺手加。
+
+### 2026-10-22：第 27 条自检（橡皮擦）：擦除这一侧一次跑通，红点全在"落笔"——每一笔的尾巴被简化整批扔掉
+
+橡皮是画板上用得最多的工具之一，却从没被任何用例跑过（`src/app/*SelfTest.cpp` 里只有
+`ShortcutSelfTest` 提到过 `Eraser`，那是快捷键注册表那一层）。`--eraser-selftest` 按界面上那条路走：
+`DrawingController::setStylusTool` 切工具，`inputDevicePress`→`inputDeviceMove`→`inputDeviceRelease`
+画两笔，再竖着擦过第一笔的中段。**判据是几何不是包围盒**：把所有 `GraphicsPolygonItem` 用
+`sceneTransform()` 换成场景坐标，再问 `QPolygonF::containsPoint` "这个点上到底有没有笔迹"——于是
+擦除带中心必须没有几何、带的两头与另一笔必须有几何，缺一边都算红。同一趟还钉：一次抬笔只许压
+**一条**撤销命令（`Ctrl+Z` 一次要把整段擦除原样还回来，多边形块数也得对上）、重做又没掉、擦完存盘
+再绕开场景缓存冷读回来，盘上必须还是擦过的样子、笔迹组始终是 2 个。
+
+反向对照把 `GraphicsScene::eraseLineTo` 开头直接 `return`，**5 条断言同时变红**（"擦了个寂寞"、命令
+条数、撤销后块数、重做、冷读），所以擦除这一侧的判据没有空转的。而**擦除本身第一次跑就全绿**——
+切开、残片顶替、合成一条命令、撤销还原、存读一致，这条没人走过的路是干净的。
+
+红的是"落笔"那一侧，而且是一条人人踩中的截断：`inputDeviceRelease()` 原来在**简化之前**就把
+`mTempPolygon` 并进笔迹，而 `GraphicsStroke::simplify()` 是照 `mDrawnPoints` 重建多边形的——插值
+（`InterpolatePenStrokes` 默认 `true`）时贝塞尔只画到相邻落点的**中点**，真正的抬笔点从没进过那张点表，
+它只活在 `mTempPolygon` 里；于是 `simplifyCurrentStroke()` 那句"把当前笔迹的多边形整批扔掉、换成简化版"
+把这一小段一起扔了。简化同样是默认开的（`SimplifyPenStrokes=true`），所以**每一笔的尾巴都比笔尖停下的
+位置短**，缺的是最后一段步长的一半：三个采样点（x=270/400/530）那一笔的几何实测只到 465，短了 65 像素。
+改法是调顺序——先把 `mTempPolygon` 复制出来并摘掉，跑简化，再把尾巴 `addPolygonItemToCurrentStroke`
+并进去（顺带还更对了：半透明笔迹的自叠裁剪现在按简化**之后**的相邻段来减，原先减的是马上要被丢掉的
+那批段）。
+
+这条判据写的是契约（"抬笔点必须真有几何"），不是当时量到的行为——又验证了一次立下的规矩：**断言要
+对着契约写**。还有一点值得记：给一条没人跑过的用户链路写端到端自检，抓到的缺陷常常不在那条链路上，
+而在它必经的上游那一步。

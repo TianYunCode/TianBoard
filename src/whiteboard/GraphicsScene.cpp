@@ -699,12 +699,16 @@ bool GraphicsScene::inputDeviceRelease()
         }
         else if (mCurrentStroke)
         {
+            // 抬笔点那一小段只存在于 mTempPolygon 里：插值时贝塞尔只画到相邻落点的中点，
+            // 真正的落点从没进过 mCurrentStroke 的点表。所以它必须在简化**之后**才并入笔迹——
+            // simplify() 是按点表重建多边形的，先并进去就会被它整批扔掉，每一笔的尾巴都短一截
+            // （--eraser-selftest 画一笔再量抬笔点有没有几何，量的就是这件事）。
+            GraphicsPolygonItem *tailPolygon = mTempPolygon ? dynamic_cast<GraphicsPolygonItem *>(mTempPolygon->deepCopy()) : nullptr;
+
             if (mTempPolygon)
             {
-                GraphicsPolygonItem *poly = dynamic_cast<GraphicsPolygonItem *>(mTempPolygon->deepCopy());
                 removeItem(mTempPolygon);
                 mTempPolygon = NULL;
-                addPolygonItemToCurrentStroke(poly);
             }
 
             // 按设置把这一笔换成简化版（点更少、多边形更少）
@@ -712,6 +716,11 @@ bool GraphicsScene::inputDeviceRelease()
                 (currentTool == StylusTool::Marker && Settings::settings()->boardSimplifyMarkerStrokes->get().toBool()))
             {
                 simplifyCurrentStroke();
+            }
+
+            if (tailPolygon)
+            {
+                addPolygonItemToCurrentStroke(tailPolygon);
             }
 
             GraphicsStrokesGroup *pStrokes = new GraphicsStrokesGroup();
