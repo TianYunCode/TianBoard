@@ -25,17 +25,20 @@ src/
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
   │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel、
   │                ForeignObjectsHandler（文档包内被引用对象的搬运，从 core/ 搬来）、
-  │                PackageLayout.hpp（.tbz 包内的目录名与 folders.xml 词表，2026-10-22 从
-  │                PersistenceManager 的静态成员搬来）、
-  │                Resources（工具光标 + 自定义字体清单，2026-10-21 从 ui/ 搬来），
-  │                出边只剩 core/settings/utils（原 document/）
+  │                IDocumentStore（仓库契约：实现是 core 的 PersistenceManager）、
+  │                MimeData（拖放用的"哪份文档第几页"）、MimeTypes.hpp、
+  │                PackageLayout.hpp（.tbz 包内的目录名与 folders.xml 词表）、
+  │                Resources（工具光标 + 自定义字体清单，从 ui/ 搬来）。
+  │                出边只剩 settings/utils，2026-10-22 起是真叶子、真 STATIC（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
   │                图形项 + 绘图工具（原 board/ + domain/ + tools/）+ PDF 页图形项与
   │                渲染器（PDFRenderer/QPdfRenderer/PdfPageItem，从原 pdf/ 搬来）+ ToolWidget 与
-  │                Magnifier（从 ui/ 搬来：它们只认画板的类型，画板又要造它们）
+  │                Magnifier（从 ui/ 搬来：它们只认画板的类型，画板又要造它们）+ MimeDataGraphicsItem
+  │                （携带图形项副本的剪贴板载荷；它要能释放副本，所以不能在 model）
   ├─ content/      文档格式读写与导入导出：.tbz/.tbx 与 IWB 子集（IwbDocumentAdaptor /
   │                IwbSubsetAdaptor / ExportIwb / ImportIwb）、SVG/RDF 元数据、缩略图数据、
-  │                PDF 导入导出（原 adaptors/；pdf/ 的图形项三家已归 whiteboard/）
+  │                PDF 导入导出（原 adaptors/；pdf/ 的图形项三家已归 whiteboard/）。
+  │                对 core 零出边（走 model/IDocumentStore），真 STATIC
   ├─ api/          小部件与文档对外 API 门面（WebWidgetBoardAPI/WebWidgetMessageAPI）
   ├─ web/          内嵌浏览器与网页控制器（原 web/ + web/browser/）
   ├─ desktop/      屏幕批注（平台无关部分）
@@ -142,14 +145,15 @@ OpenSSL。换掉之后工程不再依赖 OpenSSL，`etc/TianBoard.config` 里也
 ## 四、为什么现在仍是 OBJECT 库而不是 STATIC 库
 
 目标是每个模块一个真正的静态库、依赖无环、链接顺序明确。**这一步整体还做不到**：
-代码里存在 4 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
+代码里存在 2 组双向 include（下一节全表 + 台账）。STATIC 库遇到环需要 `--start-group`
 之类的手段，等于把问题藏进链接参数里；OBJECT 库把所有 .obj 并进同一个可执行，环在
 链接期不成问题，于是本次调整可以只拿到两样确定性的东西——**每模块的显式文件清单**
 和**每模块的 include 白名单**——把拆环留到后续阶段。
 
-已经做到的七个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
-（出边只有 utils）与 `tb_recording`、`tb_desktop`、`tb_web`、`tb_api`（没有任何模块反向
-include 它们，2026-10-21）。越界的 `#include` 在编译期就失败，而不是等到链接期靠符号缺失
+已经做到的九个：`tb_utils`（出边为零）、`tb_settings`（出边只有 utils）、`tb_platform`
+（出边只有 utils）、`tb_model`（出边只有 settings 与 utils，2026-10-22 断掉对 core 的 9 条
+上边之后成为真叶子）与 `tb_recording`、`tb_desktop`、`tb_web`、`tb_api`、`tb_content`
+（没有任何模块反向 include 它们）。越界的 `#include` 在编译期就失败，而不是等到链接期靠符号缺失
 才发现——这个配方对其它模块同样成立，`settings` 与 `platform` 都是照着 `utils` 拆出来的。
 
 换成 STATIC 的前置条件有两种，强度不同：
@@ -157,8 +161,8 @@ include 它们，2026-10-21）。越界的 `#include` 在编译期就失败，�
 * **叶子模块**要求出边全部落在比它低的层（下表），且没有对上的 include——这是终态。
 * **非叶子模块**只要"没有任何上层反向 include 它"（也就是不在任何环里）就可以先归档：
   它向上那几条边的符号在最终可执行里照样解得开，因为上层此刻还是 OBJECT、.obj 直接进
-  exe；`tb_recording`、`tb_desktop`、`tb_web`、`tb_api` 就是这样先走了一步，它们仍认
-  core/ui/whiteboard。等那些模块也
+  exe；`tb_recording`、`tb_desktop`、`tb_web`、`tb_api`、`tb_content` 就是这样先走了一步，
+  它们仍认 core/ui/whiteboard。等那些模块也
   逐个 STATIC 时，再给它们补 `target_link_libraries` 声明，MSVC 的链接器对静态库顺序不
   敏感（反复扫描直到符号解完），不会变成一门链接参数的玄学。
 
@@ -174,10 +178,15 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 17 / 48 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
-| `content` ↔ `core` | 16 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器。2026-10-22 把"向用户报一句"下沉成 `utils/UserNotices`，9 个导入导出器不再为了一条状态消息认识应用对象 |
-| `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
+| `core` ↔ `whiteboard` | 16 / 46 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 的全局指针（mainWindow/boardController 那两个静态成员是主因） |
+| `ui` ↔ `whiteboard` | 29 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
+
+`content` ↔ `core` 与 `core` ↔ `model` 两组环已于 2026-10-22 拆掉，手法都是同一个形状：
+**契约住在被依赖的那一层，实现由高层提供，装配点（或实现自己的构造函数）把它装上**。
+前者抽成 `model/IDocumentStore`（建文档、取场景、搬对象、页面操作、树模型），后者让模型也
+改走同一份契约，另外把两个本来就不该挂在 `Application` 上的东西搬走：`.tbz` 目录名与 MIME
+类型名进 `model`，静态对象宿主进 `utils/StaticMemory`。`MimeData` 那个文件里其实混着两层
+载荷，按载荷类型拆到 `model` 与 `whiteboard` 各一半。
 
 `.tbz` 的磁盘布局常量 2026-10-22 从 `PersistenceManager` 的静态成员搬进
 `model/PackageLayout.hpp`（见第一节 model 那一行）。这一刀把**向上**的边削掉四条——三个画板
@@ -384,23 +393,26 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
 由 `src/` 全量扫描得到）：
 
 ```text
-api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:6
-app         -> api:1, content:4, core:31, desktop:1, model:7, platform:4, recording:1,
-               settings:10, ui:13, utils:8, web:1, whiteboard:30
-content     -> core:16, model:24, platform:8, settings:7, utils:31, whiteboard:42
-core        -> content:15, model:8, platform:4, settings:7, utils:7, whiteboard:17
+api         -> content:1, core:4, model:1, settings:1, utils:3, whiteboard:6
+app         -> api:1, content:4, core:31, desktop:1, model:8, platform:4, recording:1,
+               settings:10, ui:13, utils:9, web:1, whiteboard:30
+content     -> model:30, platform:8, settings:7, utils:31, whiteboard:45
+core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:16
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
-model       -> core:9, settings:5, utils:5
+model       -> settings:5, utils:8
 platform    -> utils:1
-recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:4, whiteboard:4
+recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:6, whiteboard:4
 settings    -> utils:2
-ui          -> core:35, model:11, platform:10, settings:16, utils:11, whiteboard:28
+ui          -> core:33, model:15, platform:10, settings:16, utils:11, whiteboard:29
 utils       -> （无出边）
 web         -> core:13, platform:3, settings:4, ui:5, utils:3, whiteboard:4
-whiteboard  -> core:48, model:18, platform:5, settings:20, ui:30, utils:49
+whiteboard  -> core:46, model:21, platform:5, settings:20, ui:30, utils:51
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
+2026-10-22 拆掉 `content` ↔ `core` 与 `core` ↔ `model` 两组环之后，`content` 与 `model` 都不再
+有对 core 的出边（`model` 如今只剩 settings 与 utils，是真叶子）；上表里 →model 变多的那几笔
+（content 30、whiteboard 21）是仓库常量、MIME 名字与拖放载荷搬进 model 的结果，方向合法。
 上面 `core` 那一行是 2026-10-21 把 `Application.cpp`/`ApplicationController.cpp` 搬去 `app/`
 之后重测的：core 对 ui 归零，对 whiteboard 28→17、model 8→6、platform 8→4、settings 11→7，
 这些边全部转到了 `app` 那一行——`app` 是装配点，本来就该这么重。

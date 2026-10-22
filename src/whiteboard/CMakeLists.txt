@@ -10,7 +10,10 @@
 #              PdfPageItem 是 GraphicsPDFItem 的基类，合起来是"一页 PDF 怎么变成
 #              画布上的图形"，不是文档格式读写。
 #
-# 允许依赖：model、utils。尚未成立的边：whiteboard <-> core / ui / platform。
+# 允许依赖：model、utils、settings、platform（platform 对画板零出边，是单向向下）。
+# 尚未成立的边只剩两组：whiteboard <-> core（46/16）与 whiteboard <-> ui（30/29）——
+# 前者绝大部分是本模块的控件反向认 Application 的那几个全局静态指针（mainWindow、
+# boardController、documentController），后者见 docs/architecture.md 第五节第 8 步。
 # 对 api、desktop、recording、content 与 web 已经是零出边：录制按钮的转发、桌面批注
 # 宿主与浏览器跳转都挪到了 core 装配层，拖放门面改经本模块的 IBoardDropHandler 接口回调。
 # 绘制热路径在本模块，改动要盯性能。

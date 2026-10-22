@@ -15,9 +15,10 @@
 #      Resources（工具光标与自定义字体清单）同一轮反向搬去 model/：它自己的注释就写着
 #      “不参与界面绘制”，而 whiteboard/core/recording 有 13 处 include 走它。
 #
-# 允许依赖：model、utils、platform（都是单向向下）。仍然成环：ui <-> core（52/6）与
-# ui <-> whiteboard（39/43）——前者是 ui 里的界面反向认 Application/MainWindow 那套静态
-# 注册表，后者由第 8 步处理。对 model 已是单向：model 不再 include 本模块；
+# 允许依赖：model、utils、platform（都是单向向下），core 也是单向向下（core 对 ui 的出边
+# 已归零，见 src/core/CMakeLists.txt）。仍然成环的只剩 ui <-> whiteboard（29/30，第 8 步），
+# 主因是界面里的控件反向认 Application::mainWindow / boardController 那套全局指针。
+# 对 model 已是单向：model 不再 include 本模块；
 # 对 content 与 api 零出边——content 那两个是从没被使用的死 include，api 那个是
 # FeaturesWidget 里从不使用的 boardApi。
 # ======================================================================

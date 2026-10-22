@@ -151,12 +151,15 @@ scripts/         build.ps1 / format.ps1 / verify.ps1
 ```
 
 每个模块的 `CMakeLists.txt` 显式列出全部源文件（不用 GLOB），新增文件不改清单就不进构建。
-`src/utils`（出边为零）、`src/settings` 与 `src/platform`（都只依赖 utils）、`src/recording`、
-`src/desktop`、`src/web` 与 `src/api`（都没有任何模块反向 include 它们）已经从 `OBJECT`
-收紧成真 `STATIC` 库；其余模块因为还有 4 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
+`src/utils`（出边为零）、`src/settings` 与 `src/platform`（都只依赖 utils）、`src/model`
+（只依赖 settings 与 utils）、`src/recording`、`src/desktop`、`src/web`、`src/api` 与
+`src/content`（后几个没有任何模块反向 include 它们）已经从 `OBJECT` 收紧成真 `STATIC` 库；
+`core`、`ui`、`whiteboard` 因为还有 2 组双向 include 而暂时保持 `OBJECT`，拆环顺序见
 [docs/architecture.md](docs/architecture.md) 第四、五节。`core` 对 `ui` 的出边已归零：
 `Application`/`ApplicationController` 这两个装配角色的实现住在 `src/app`，头文件留在
-`src/core` 供各模块拿入口指针。
+`src/core` 供各模块拿入口指针。格式层与模型都不再认识 `core`：仓库契约
+`model/IDocumentStore` 由 `PersistenceManager` 实现并在构造时装上，"向用户报一句"与
+对话框落点走 `utils/UserNotices`，`.tbz` 目录名与 MIME 类型名在 `model`。
 
 代码风格由根目录 `.clang-format` 兜住：全仓（`src/` + `tests/`，388 个文件）已用
 clang-format 22.1.8 排过一次，日常提交前跑 `.\scripts\format.ps1 -Check`（0 才是干净）。
