@@ -1,4 +1,5 @@
 #include "whiteboard/GraphicsPixmapItem.h"
+#include "model/PackageLayout.hpp"
 
 #include <QtWidgets>
 #include <QMimeData>
@@ -11,7 +12,6 @@
 #include "utils/FileSystemUtils.h"
 
 #include "core/Application.h"
-#include "core/PersistenceManager.h"
 
 #include "whiteboard/BoardController.h"
 
@@ -146,7 +146,7 @@ qreal GraphicsPixmapItem::opacity() const
 
 void GraphicsPixmapItem::clearSource()
 {
-    QString fileName = PersistenceManager::imageDirectory + "/" + uuid().toString() + ".png";
+    QString fileName = PackageLayout::imageDirectory + "/" + uuid().toString() + ".png";
     QString diskPath = Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
     FileSystemUtils::deleteFile(diskPath);
 }

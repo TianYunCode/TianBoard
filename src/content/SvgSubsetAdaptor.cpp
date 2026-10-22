@@ -1,4 +1,5 @@
 #include "content/SvgSubsetAdaptor.h"
+#include "model/PackageLayout.hpp"
 #include <algorithm>
 #include <QElapsedTimer>
 #include "platform/VirtualDesktop.h"
@@ -2025,7 +2026,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pixmapItemToLinkedImage(GraphicsPixmapIt
 {
     mXmlWriter.writeStartElement("image");
 
-    QString fileName = PersistenceManager::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
+    QString fileName = PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
 
     QString path     = mDocumentPath + "/" + fileName;
 
@@ -2063,7 +2064,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::svgItemToLinkedSvg(GraphicsSvgItem *svgI
 {
     mXmlWriter.writeStartElement("image");
 
-    QString fileName = PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+    QString fileName = PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
 
     mXmlWriter.writeAttribute(nsXLink, "href", fileName);
 
@@ -2100,14 +2101,14 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pdfItemToLinkedPDF(GraphicsPDFItem *pdfI
     mXmlWriter.writeStartElement("foreignObject");
     mXmlWriter.writeAttribute("requiredExtensions", "http://ns.adobe.com/pdf/1.3/");
 
-    QString fileName = PersistenceManager::objectDirectory + "/" + pdfItem->fileUuid().toString() + ".pdf";
+    QString fileName = PackageLayout::objectDirectory + "/" + pdfItem->fileUuid().toString() + ".pdf";
 
     QString path     = mDocumentPath + "/" + fileName;
 
     if (!QFile::exists(path))
     {
         QDir dir;
-        dir.mkdir(mDocumentPath + "/" + PersistenceManager::objectDirectory);
+        dir.mkdir(mDocumentPath + "/" + PackageLayout::objectDirectory);
 
         QFile file(path);
         if (!file.open(QIODevice::WriteOnly))
@@ -2455,7 +2456,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::graphicsWidgetToSvg(GraphicsWidgetItem *
 {
     QUrl    widgetRootUrl       = item->widgetUrl();
     QString uuid                = StringUtils::toCanonicalUuid(item->uuid());
-    QString widgetDirectoryPath = PersistenceManager::widgetDirectory;
+    QString widgetDirectoryPath = PackageLayout::widgetDirectory;
     if (widgetRootUrl.toString().startsWith("file://"))
     {
         QString   widgetRootDir = widgetRootUrl.toLocalFile();
@@ -2591,7 +2592,7 @@ GraphicsWebWidgetItem *SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromS
     GraphicsWebWidgetItem *widgetItem = new GraphicsWebWidgetItem(QUrl::fromLocalFile(href));
 
     QStringView uuid                  = mXmlReader.attributes().value(mNamespaceUri, "uuid");
-    QString     pixPath               = mDocumentPath + "/" + PersistenceManager::widgetDirectory + "/" + uuid.toString() + ".png";
+    QString     pixPath               = mDocumentPath + "/" + PackageLayout::widgetDirectory + "/" + uuid.toString() + ".png";
 
     QPixmap snapshot(pixPath);
     if (!snapshot.isNull())

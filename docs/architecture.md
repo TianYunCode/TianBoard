@@ -25,6 +25,8 @@ src/
   ├─ model/        文档域：DocumentProxy、DocumentContainer、DocumentTreeModel
   │                （树节点 + 目录树模型 + 内部拖放载荷）、SortFilterProxyModel、
   │                ForeignObjectsHandler（文档包内被引用对象的搬运，从 core/ 搬来）、
+  │                PackageLayout.hpp（.tbz 包内的目录名与 folders.xml 词表，2026-10-22 从
+  │                PersistenceManager 的静态成员搬来）、
   │                Resources（工具光标 + 自定义字体清单，2026-10-21 从 ui/ 搬来），
   │                出边只剩 core/settings/utils（原 document/）
   ├─ whiteboard/   画板：BoardView/BoardController/DrawingController + 图形场景与全部
@@ -51,7 +53,7 @@ src/
                    AutoSaver 与 UserNotices 2026-10-21/22 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（16 个）
+tests/             Qt Test 用例（17 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账
@@ -172,10 +174,18 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 17 / 52 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application/DocumentController |
-| `core` ↔ `model` | 6 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
-| `content` ↔ `core` | 17 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器。2026-10-22 把"向用户报一句"下沉成 `utils/UserNotices`，9 个导入导出器不再为了一条状态消息认识应用对象 |
+| `core` ↔ `whiteboard` | 17 / 48 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application/DocumentController |
+| `core` ↔ `model` | 8 / 9 | `core/DocumentManager`/`PersistenceManager` ↔ `model/DocumentProxy`；model 反过来认 PersistenceManager/Application/DocumentManager |
+| `content` ↔ `core` | 16 / 15 | `content/ExportAdaptor.cpp` 认 core；`core/PersistenceManager.cpp` 认 content 的读写器。2026-10-22 把"向用户报一句"下沉成 `utils/UserNotices`，9 个导入导出器不再为了一条状态消息认识应用对象 |
 | `ui` ↔ `whiteboard` | 28 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
+
+`.tbz` 的磁盘布局常量 2026-10-22 从 `PersistenceManager` 的静态成员搬进
+`model/PackageLayout.hpp`（见第一节 model 那一行）。这一刀把**向上**的边削掉四条——三个画板
+图形项文件与 `content/ImportPDF.cpp` 不再为了一个目录名 include 持久化服务（whiteboard → core
+51→48、content → core 17→16），代价是**向下**多了几条合法的边（whiteboard → model 13→18、
+content → model 21→24、core → model 6→8）。环的数量不变，但每一组环里"够不着的那一边"更短了。
+新增的 `tst_packagelayout` 钉住这些字面量：往返自检存读用的是同一份常量，改名字对它自洽，
+只有钉在字面量上才会变红（实测：把 `images` 改成 `image`，`tst_format` 全绿、`tst_packagelayout` 红）。
 
 `core` ↔ `ui` 已于 2026-10-21 归零（见下面第 9 步的收尾）：`Application.cpp` 与
 `ApplicationController.cpp` 两个实现搬到 `app/`，头文件仍留在 `core/`（每个模块都要从那里
@@ -377,8 +387,8 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 api         -> content:1, core:4, model:1, settings:1, utils:2, whiteboard:6
 app         -> api:1, content:4, core:31, desktop:1, model:7, platform:4, recording:1,
                settings:10, ui:13, utils:8, web:1, whiteboard:30
-content     -> core:17, model:21, platform:8, settings:7, utils:31, whiteboard:41
-core        -> content:15, model:6, platform:4, settings:7, utils:7, whiteboard:17
+content     -> core:16, model:24, platform:8, settings:7, utils:31, whiteboard:42
+core        -> content:15, model:8, platform:4, settings:7, utils:7, whiteboard:17
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> core:9, settings:5, utils:5
 platform    -> utils:1
@@ -387,7 +397,7 @@ settings    -> utils:2
 ui          -> core:35, model:11, platform:10, settings:16, utils:11, whiteboard:28
 utils       -> （无出边）
 web         -> core:13, platform:3, settings:4, ui:5, utils:3, whiteboard:4
-whiteboard  -> core:51, model:13, platform:5, settings:20, ui:30, utils:49
+whiteboard  -> core:48, model:18, platform:5, settings:20, ui:30, utils:49
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。

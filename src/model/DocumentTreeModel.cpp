@@ -1,4 +1,5 @@
 #include "model/DocumentTreeModel.h"
+#include "model/PackageLayout.hpp"
 
 #include <QApplication>
 #include <QDebug>
@@ -203,7 +204,7 @@ DocumentTreeModel::DocumentTreeModel(QObject *parent) : QAbstractItemModel(paren
 
     QString trashName            = Settings::trashedDocumentGroupNamePrefix;
 
-    DocumentTreeNode *myDocsNode = new DocumentTreeNode(DocumentTreeNode::Catalog, PersistenceManager::myDocumentsName, tr("My documents"));
+    DocumentTreeNode *myDocsNode = new DocumentTreeNode(DocumentTreeNode::Catalog, PackageLayout::myDocumentsName, tr("My documents"));
     rootNode->addChild(myDocsNode);
     DocumentTreeNode *trashNode = new DocumentTreeNode(DocumentTreeNode::Catalog, trashName, tr("Trash"));
     rootNode->addChild(trashNode);
@@ -1004,10 +1005,10 @@ QModelIndex DocumentTreeModel::goTo(const QString &dir)
         return myDocumentsIndex();
     }
 
-    if (pathList.first() != PersistenceManager::myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix &&
-        pathList.first() != PersistenceManager::modelsName)
+    if (pathList.first() != PackageLayout::myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix &&
+        pathList.first() != PackageLayout::modelsName)
     {
-        pathList.prepend(PersistenceManager::myDocumentsName);
+        pathList.prepend(PackageLayout::myDocumentsName);
     }
 
     QModelIndex parentIndex;

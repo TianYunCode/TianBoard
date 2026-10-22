@@ -1,4 +1,5 @@
 #include "whiteboard/GraphicsScene.h"
+#include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 
 #include <QtWidgets>
@@ -1632,14 +1633,14 @@ GraphicsPixmapItem *GraphicsScene::addPixmap(
         documentPath = Application::boardController->selectedDocument()->persistencePath();
     }
 
-    QString fileName = PersistenceManager::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
+    QString fileName = PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
 
     QString path     = documentPath + "/" + fileName;
 
     if (!QFile::exists(path))
     {
         QDir dir;
-        dir.mkdir(documentPath + "/" + PersistenceManager::imageDirectory);
+        dir.mkdir(documentPath + "/" + PackageLayout::imageDirectory);
 
         pixmapItem->pixmap().toImage().save(path, "PNG");
     }
@@ -1887,14 +1888,14 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
     // 场景里会留下一条永远不会被持久化的条目，调用方拿到的却还是 NULL。
     QString documentPath = Application::boardController->selectedDocument()->persistencePath();
 
-    QString fileName     = PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+    QString fileName     = PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
 
     QString completePath = documentPath + "/" + fileName;
 
     if (!QFile::exists(completePath))
     {
         QDir dir;
-        dir.mkdir(documentPath + "/" + PersistenceManager::imageDirectory);
+        dir.mkdir(documentPath + "/" + PackageLayout::imageDirectory);
 
         QFile file(completePath);
         if (!file.open(QIODevice::WriteOnly))
@@ -2626,7 +2627,7 @@ QList<QUrl> GraphicsScene::relativeDependencies() const
         if (videoItem)
         {
             QString completeFileName = QFileInfo(videoItem->mediaFileUrl().toLocalFile()).fileName();
-            QString path             = PersistenceManager::videoDirectory + "/";
+            QString path             = PackageLayout::videoDirectory + "/";
             relativePathes << QUrl(path + completeFileName);
             continue;
         }
@@ -2635,7 +2636,7 @@ QList<QUrl> GraphicsScene::relativeDependencies() const
         if (audioItem)
         {
             QString completeFileName = QFileInfo(audioItem->mediaFileUrl().toLocalFile()).fileName();
-            QString path             = PersistenceManager::audioDirectory + "/";
+            QString path             = PackageLayout::audioDirectory + "/";
             relativePathes << QUrl(path + completeFileName);
             continue;
         }
@@ -2643,8 +2644,8 @@ QList<QUrl> GraphicsScene::relativeDependencies() const
         GraphicsWidgetItem *widget = qgraphicsitem_cast<GraphicsWidgetItem *>(item);
         if (widget)
         {
-            QString widgetPath     = PersistenceManager::widgetDirectory + "/" + widget->uuid().toString() + ".wgt";
-            QString screenshotPath = PersistenceManager::widgetDirectory + "/" + widget->uuid().toString().remove("{").remove("}") + ".png";
+            QString widgetPath     = PackageLayout::widgetDirectory + "/" + widget->uuid().toString() + ".wgt";
+            QString screenshotPath = PackageLayout::widgetDirectory + "/" + widget->uuid().toString().remove("{").remove("}") + ".png";
             relativePathes << QUrl(widgetPath);
             relativePathes << QUrl(screenshotPath);
             continue;
@@ -2653,14 +2654,14 @@ QList<QUrl> GraphicsScene::relativeDependencies() const
         GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
         if (pixmapItem)
         {
-            relativePathes << QUrl(PersistenceManager::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png");
+            relativePathes << QUrl(PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png");
             continue;
         }
 
         GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
         if (svgItem)
         {
-            relativePathes << QUrl(PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg");
+            relativePathes << QUrl(PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg");
             continue;
         }
     }

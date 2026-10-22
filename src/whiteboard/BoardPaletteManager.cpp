@@ -1,4 +1,5 @@
 #include "whiteboard/BoardPaletteManager.h"
+#include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 
 #include "platform/PlatformUtils.h"
@@ -34,7 +35,6 @@
 
 #include "ui/DocumentController.h"
 
-#include "core/PersistenceManager.h"
 
 BoardPaletteManager::BoardPaletteManager(QWidget *container, BoardController *pBoardController)
     : QObject(container), mKeyboardPalette(0), mWebToolsCurrentPalette(0), mContainer(container), mBoardControler(pBoardController),
@@ -771,7 +771,7 @@ void BoardPaletteManager::addItemToCurrentPage()
         GraphicsPixmapItem *item = Application::boardController->activeScene()->addPixmap(mPixmap, NULL, mPos, mScaleFactor);
 
         QString documentPath     = Application::boardController->selectedDocument()->persistencePath();
-        QString fileName         = PersistenceManager::imageDirectory + "/" + item->uuid().toString() + ".png";
+        QString fileName         = PackageLayout::imageDirectory + "/" + item->uuid().toString() + ".png";
         QString path             = documentPath + "/" + fileName;
 
         item->setSourceUrl(QUrl(path));

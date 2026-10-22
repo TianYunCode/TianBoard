@@ -1,4 +1,5 @@
 #include "core/PersistenceManager.h"
+#include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 #include <algorithm>
 
@@ -32,34 +33,21 @@ namespace
     PersistenceManager::DuplicateNameResolver gDuplicateNameResolver;
 } // namespace
 
-const QString PersistenceManager::imageDirectory   = "images";  // added to PersistenceManager::mAllDirectories
-const QString PersistenceManager::objectDirectory  = "objects"; // added to PersistenceManager::mAllDirectories
-const QString PersistenceManager::widgetDirectory  = "widgets"; // added to PersistenceManager::mAllDirectories
-const QString PersistenceManager::videoDirectory   = "videos";  // added to PersistenceManager::mAllDirectories
-const QString PersistenceManager::audioDirectory   = "audios";  // added to
-const QString PersistenceManager::fileDirectory    = "files";   // Issue 1683 (Evolution) - AOU - 20131206
-
-const QString PersistenceManager::myDocumentsName  = "MyDocuments";
-const QString PersistenceManager::modelsName       = "Models";
-const QString PersistenceManager::fFolders         = "folders.xml";
-const QString PersistenceManager::tFolder          = "folder";
-const QString PersistenceManager::aName            = "name";
-
 PersistenceManager *PersistenceManager::sSingleton = 0;
 
 PersistenceManager::PersistenceManager(QObject *pParent) : QObject(pParent), mHasPurgedDocuments(false)
 {
     xmlFolderStructureFilename = "model";
 
-    mDocumentSubDirectories << imageDirectory;
-    mDocumentSubDirectories << objectDirectory;
-    mDocumentSubDirectories << widgetDirectory;
-    mDocumentSubDirectories << videoDirectory;
-    mDocumentSubDirectories << audioDirectory;
-    mDocumentSubDirectories << fileDirectory; // Issue 1683 (Evolution) - AOU - 20131206
+    mDocumentSubDirectories << PackageLayout::imageDirectory;
+    mDocumentSubDirectories << PackageLayout::objectDirectory;
+    mDocumentSubDirectories << PackageLayout::widgetDirectory;
+    mDocumentSubDirectories << PackageLayout::videoDirectory;
+    mDocumentSubDirectories << PackageLayout::audioDirectory;
+    mDocumentSubDirectories << PackageLayout::fileDirectory; // Issue 1683 (Evolution) - AOU - 20131206
 
     mDocumentRepositoryPath     = Settings::userDocumentDirectory();
-    mFoldersXmlStorageName      = mDocumentRepositoryPath + "/" + fFolders;
+    mFoldersXmlStorageName      = mDocumentRepositoryPath + "/" + PackageLayout::foldersFile;
 
     mDocumentTreeStructureModel = new DocumentTreeModel(this);
     createDocumentProxiesStructure();
@@ -264,12 +252,12 @@ QString PersistenceManager::adjustDocumentVirtualPath(const QString &str)
 
     if (pathList.isEmpty())
     {
-        pathList.append(myDocumentsName);
+        pathList.append(PackageLayout::myDocumentsName);
     }
 
-    if (pathList.first() != myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix && pathList.first() != modelsName)
+    if (pathList.first() != PackageLayout::myDocumentsName && pathList.first() != Settings::trashedDocumentGroupNamePrefix && pathList.first() != PackageLayout::modelsName)
     {
-        pathList.prepend(myDocumentsName);
+        pathList.prepend(PackageLayout::myDocumentsName);
     }
 
     return pathList.join("/");
@@ -749,8 +737,8 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index)
             QString newUUidString         = newUUid.toString().remove("{").remove("}");
             QString actualUuidString      = widget->uuid().toString().remove("{").remove("}");
 
-            QString widgetSourcePath      = proxy->persistencePath() + "/" + PersistenceManager::widgetDirectory + "/{" + actualUuidString + "}.wgt";
-            QString screenshotSourcePath  = proxy->persistencePath() + "/" + PersistenceManager::widgetDirectory + "/" + actualUuidString + ".png";
+            QString widgetSourcePath      = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/{" + actualUuidString + "}.wgt";
+            QString screenshotSourcePath  = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + actualUuidString + ".png";
 
             QString widgetDestinationPath = widgetSourcePath;
             widgetDestinationPath         = widgetDestinationPath.replace(actualUuidString, newUUidString);
@@ -770,7 +758,7 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index)
         GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
         if (pixmapItem)
         {
-            QString source      = proxy->persistencePath() + "/" + PersistenceManager::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
+            QString source      = proxy->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
             QString destination = source;
             QUuid   newUuid     = QUuid::createUuid();
             QString fileName    = QFileInfo(source).completeBaseName();
@@ -783,7 +771,7 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index)
         GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
         if (svgItem)
         {
-            QString source      = proxy->persistencePath() + "/" + PersistenceManager::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+            QString source      = proxy->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
             QString destination = source;
             QUuid   newUuid     = QUuid::createUuid();
             QString fileName    = QFileInfo(source).completeBaseName();
@@ -1240,7 +1228,7 @@ bool PersistenceManager::addGraphicsWidgetToDocument(DocumentProxy *pDocumentPro
     QString widgetRootDir = path;
     QString extension     = QFileInfo(widgetRootDir).suffix();
 
-    destinationPath       = pDocumentProxy->persistencePath() + "/" + widgetDirectory + "/" + objectUuid.toString() + "." + extension;
+    destinationPath       = pDocumentProxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + objectUuid.toString() + "." + extension;
 
     if (!QFile::exists(destinationPath))
     {
@@ -1290,8 +1278,8 @@ void PersistenceManager::saveFoldersTreeToXml(QXmlStreamWriter &writer, const QM
         QModelIndex currentIndex = mDocumentTreeStructureModel->index(i, 0, parentIndex);
         if (mDocumentTreeStructureModel->isCatalog(currentIndex))
         {
-            writer.writeStartElement(tFolder);
-            writer.writeAttribute(aName, mDocumentTreeStructureModel->nodeFromIndex(currentIndex)->nodeName());
+            writer.writeStartElement(PackageLayout::folderTag);
+            writer.writeAttribute(PackageLayout::nameAttribute, mDocumentTreeStructureModel->nodeFromIndex(currentIndex)->nodeName());
             saveFoldersTreeToXml(writer, currentIndex);
             writer.writeEndElement();
         }
@@ -1304,9 +1292,9 @@ void PersistenceManager::loadFolderTreeFromXml(const QString &path, const QDomEl
     while (!iterElement.isNull())
     {
         QString leafPath;
-        if (tFolder == iterElement.tagName())
+        if (PackageLayout::folderTag == iterElement.tagName())
         {
-            leafPath = iterElement.attribute(aName);
+            leafPath = iterElement.attribute(PackageLayout::nameAttribute);
 
             if (!leafPath.isEmpty())
             {
@@ -1323,21 +1311,21 @@ void PersistenceManager::loadFolderTreeFromXml(const QString &path, const QDomEl
 
 bool PersistenceManager::mayHaveVideo(DocumentProxy *pDocumentProxy)
 {
-    QDir videoDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::videoDirectory);
+    QDir videoDir(pDocumentProxy->persistencePath() + "/" + PackageLayout::videoDirectory);
 
     return videoDir.exists() && videoDir.entryInfoList().length() > 0;
 }
 
 bool PersistenceManager::mayHaveAudio(DocumentProxy *pDocumentProxy)
 {
-    QDir audioDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::audioDirectory);
+    QDir audioDir(pDocumentProxy->persistencePath() + "/" + PackageLayout::audioDirectory);
 
     return audioDir.exists() && audioDir.entryInfoList().length() > 0;
 }
 
 bool PersistenceManager::mayHavePDF(DocumentProxy *pDocumentProxy)
 {
-    QDir objectDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::objectDirectory);
+    QDir objectDir(pDocumentProxy->persistencePath() + "/" + PackageLayout::objectDirectory);
 
     QStringList filters;
     filters << "*.pdf";
@@ -1347,7 +1335,7 @@ bool PersistenceManager::mayHavePDF(DocumentProxy *pDocumentProxy)
 
 bool PersistenceManager::mayHaveSVGImages(DocumentProxy *pDocumentProxy)
 {
-    QDir imageDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::imageDirectory);
+    QDir imageDir(pDocumentProxy->persistencePath() + "/" + PackageLayout::imageDirectory);
 
     QStringList filters;
     filters << "*.svg";
@@ -1357,7 +1345,7 @@ bool PersistenceManager::mayHaveSVGImages(DocumentProxy *pDocumentProxy)
 
 bool PersistenceManager::mayHaveWidget(DocumentProxy *pDocumentProxy)
 {
-    QDir widgetDir(pDocumentProxy->persistencePath() + "/" + PersistenceManager::widgetDirectory);
+    QDir widgetDir(pDocumentProxy->persistencePath() + "/" + PackageLayout::widgetDirectory);
 
     return widgetDir.exists() && widgetDir.entryInfoList(QDir::Dirs).length() > 0;
 }

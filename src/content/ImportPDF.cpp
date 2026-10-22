@@ -1,10 +1,11 @@
 #include "content/ImportPDF.h"
+#include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 #include "platform/VirtualDesktop.h"
 
-#include "core/PersistenceManager.h"
 
 #include "whiteboard/GraphicsPDFItem.h"
+#include "whiteboard/GraphicsScene.h"
 
 #include "whiteboard/PDFRenderer.h"
 
@@ -66,5 +67,5 @@ void ImportPDF::placeImportedItemToScene(GraphicsScene *scene, GraphicsItem *ite
 
 const QString &ImportPDF::folderToCopy()
 {
-    return PersistenceManager::objectDirectory;
+    return PackageLayout::objectDirectory;
 }

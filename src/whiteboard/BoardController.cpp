@@ -1,4 +1,5 @@
 #include "whiteboard/BoardController.h"
+#include "model/PackageLayout.hpp"
 #include "utils/UserNotices.h"
 #include <QRandomGenerator>
 #include <QRegularExpression>
@@ -1146,7 +1147,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
         {
             QString destFile;
             bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-                selectedDocument(), sourceUrl.toString(), PersistenceManager::videoDirectory, uuid, destFile, &pData);
+                selectedDocument(), sourceUrl.toString(), PackageLayout::videoDirectory, uuid, destFile, &pData);
             if (!b)
             {
                 showMessage(tr("Add file operation failed: file copying error"));
@@ -1192,7 +1193,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
         {
             QString destFile;
             bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-                selectedDocument(), sourceUrl.toString(), PersistenceManager::audioDirectory, uuid, destFile, &pData);
+                selectedDocument(), sourceUrl.toString(), PackageLayout::audioDirectory, uuid, destFile, &pData);
             if (!b)
             {
                 showMessage(tr("Add file operation failed: file copying error"));
@@ -2044,7 +2045,7 @@ GraphicsMediaItem *BoardController::addVideo(const QUrl &pSourceUrl, bool startP
     {
         QString destFile;
         bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-            selectedDocument(), pSourceUrl.toLocalFile(), PersistenceManager::videoDirectory, uuid, destFile);
+            selectedDocument(), pSourceUrl.toLocalFile(), PackageLayout::videoDirectory, uuid, destFile);
         if (!b)
         {
             showMessage(tr("Add file operation failed: file copying error"));
@@ -2075,7 +2076,7 @@ GraphicsMediaItem *BoardController::addAudio(const QUrl &pSourceUrl, bool startP
     {
         QString destFile;
         bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-            selectedDocument(), pSourceUrl.toLocalFile(), PersistenceManager::audioDirectory, uuid, destFile);
+            selectedDocument(), pSourceUrl.toLocalFile(), PackageLayout::audioDirectory, uuid, destFile);
         if (!b)
         {
             showMessage(tr("Add file operation failed: file copying error"));
@@ -2118,7 +2119,7 @@ GraphicsWidgetItem *BoardController::addWebWidget(const QUrl &pUrl, const QPoint
         webWidgetItem->setSourceUrl(pUrl);
 
         QString struuid      = StringUtils::toCanonicalUuid(uuid);
-        QString snapshotPath = selectedDocument()->persistencePath() + "/" + PersistenceManager::widgetDirectory + "/" + struuid + ".png";
+        QString snapshotPath = selectedDocument()->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + struuid + ".png";
         webWidgetItem->setSnapshotPath(QUrl::fromLocalFile(snapshotPath));
         GraphicsWidgetItem *tmpItem = dynamic_cast<GraphicsWidgetItem *>(webWidgetItem);
         if (tmpItem && tmpItem->scene())

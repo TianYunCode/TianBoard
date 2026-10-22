@@ -32,6 +32,12 @@ tianboard_add_test(tst_cookierules
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/CookieRules.cpp
     LIBS    Qt6::Core)
 
+# .tbz 的磁盘布局常量是纯数据（model/PackageLayout.hpp 里没有一行实现），所以这个用例
+# 不链任何源文件。它钉的是字面量取值：往返自检存读用的是同一份常量，改了名对它自洽、
+# 对用户盘上已有的文档却是灾难，只有钉在这里才会变红。
+tianboard_add_test(tst_packagelayout
+    LIBS    Qt6::Core)
+
 tianboard_add_test(tst_geometryutils
     SOURCES ${CMAKE_SOURCE_DIR}/src/utils/GeometryUtils.cpp
     LIBS    Qt6::Core Qt6::Gui Qt6::Widgets)

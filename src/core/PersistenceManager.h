@@ -39,30 +39,6 @@ private:
 public:
     virtual ~PersistenceManager();
 
-    /// 文档包内存放图片的子目录名。
-    static const QString imageDirectory;
-    /// 文档包内存放普通对象的子目录名。
-    static const QString objectDirectory;
-    /// 文档包内存放视频的子目录名。
-    static const QString videoDirectory;
-    /// 文档包内存放音频的子目录名。
-    static const QString audioDirectory;
-    /// 文档包内存放控件的子目录名。
-    static const QString widgetDirectory;
-    /// 文档包内存放其它附件的子目录名。
-    static const QString fileDirectory;
-
-    /// 文档树中“我的文档”根分组的名称。
-    static const QString myDocumentsName;
-    /// 文档树中“模型”根分组的名称。
-    static const QString modelsName;
-    /// 目录结构 XML 的文件名。
-    static const QString fFolders;
-    /// 目录结构 XML 中分组元素的标签名。
-    static const QString tFolder;
-    /// 目录结构 XML 中名称属性的属性名。
-    static const QString aName;
-
     /// 返回进程内唯一实例，首次调用时创建并扫描文档仓库。
     static PersistenceManager *persistenceManager();
     /// 销毁单例并置空指针。

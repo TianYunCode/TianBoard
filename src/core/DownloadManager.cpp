@@ -1,4 +1,5 @@
 #include "core/DownloadManager.h"
+#include "model/PackageLayout.hpp"
 #include "core/Application.h"
 #include "core/PersistenceManager.h"
 #include "whiteboard/BoardController.h"
@@ -46,11 +47,11 @@ bool AsyncLocalFileDownloader::prepare()
     QString destDirectory;
     if (MimeType::Video == itemMimeType)
     {
-        destDirectory = PersistenceManager::videoDirectory;
+        destDirectory = PackageLayout::videoDirectory;
     }
     else if (MimeType::Audio == itemMimeType)
     {
-        destDirectory = PersistenceManager::audioDirectory;
+        destDirectory = PackageLayout::audioDirectory;
     }
 
     mDesc.srcUrl = src;

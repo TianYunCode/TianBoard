@@ -10,8 +10,14 @@
 #         就写着“不参与界面绘制”，却有 13 处跨模块 include 走它，把 whiteboard/core/
 #         recording 各自对 ui 的边白白拖长一截。
 #
-# 允许依赖：utils、settings、core（DocumentProxy/树模型要用 Application 的静态内存清理器
-# 与 PersistenceManager 的仓库常量）。对 content 与 ui 已经零出边。
+#         PackageLayout.hpp（.tbz 包内的目录名与 folders.xml 的词表）2026-10-22 从
+#         core/PersistenceManager 的静态成员里搬出来：这些是文档域的磁盘词汇，挂在服务类上
+#         时画板为了知道图片放哪个子目录就得 include 持久化服务（GraphicsScene、
+#         GraphicsPixmapItem、BoardPaletteManager 各背一条反向边）。
+#
+# 允许依赖：utils、settings、core（还剩 DocumentProxy/树模型要用 Application 的
+# staticMemoryCleaner 与 PersistenceManager 这个仓库服务本身；仓库常量已经不再需要 core）。
+# 对 content 与 ui 已经零出边。
 # ======================================================================
 
 add_library(tb_model OBJECT
@@ -25,6 +31,7 @@ add_library(tb_model OBJECT
     ForeignObjectsHandler.h
     IDocumentFormatServices.cpp
     IDocumentFormatServices.h
+    PackageLayout.hpp
     Resources.cpp
     Resources.h
     SortFilterProxyModel.cpp

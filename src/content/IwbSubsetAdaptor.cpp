@@ -1,4 +1,5 @@
 #include <QRegExp>
+#include "model/PackageLayout.hpp"
 #include "platform/VirtualDesktop.h"
 #include <QSvgGenerator>
 #include <QSvgRenderer>
@@ -1066,7 +1067,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgAudio(const QDomElement &element
 
     QString destFile;
     bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-        mCurrentScene->document(), concreteUrl.toLocalFile(), PersistenceManager::audioDirectory, QUuid(uuid), destFile);
+        mCurrentScene->document(), concreteUrl.toLocalFile(), PackageLayout::audioDirectory, QUuid(uuid), destFile);
     if (!b)
     {
         return false;
@@ -1128,7 +1129,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgVideo(const QDomElement &element
 
     QString destFile;
     bool    b = PersistenceManager::persistenceManager()->addFileToDocument(
-        mCurrentScene->document(), concreteUrl.toLocalFile(), PersistenceManager::videoDirectory, QUuid(uuid), destFile);
+        mCurrentScene->document(), concreteUrl.toLocalFile(), PackageLayout::videoDirectory, QUuid(uuid), destFile);
     if (!b)
     {
         return false;
