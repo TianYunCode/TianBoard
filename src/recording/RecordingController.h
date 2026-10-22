@@ -70,6 +70,15 @@ public:
         Stopping     ///< 正在收尾，等待编码器发出 encodingFinished。
     };
 
+    /** @brief 当前录制状态；自检与界面都问这一个，不必去猜信号序列。 */
+    RecordingState recordingState() const
+    {
+        return mRecordingState;
+    }
+
+    /** @brief 这一段是否真的在采音频；没有麦克风时为 false，而录像仍正常。 */
+    bool isCapturingAudio() const;
+
 signals:
     /** @brief 录制状态发生变化，参数为新状态。 */
     void recordingStateChanged(RecordingController::RecordingState);

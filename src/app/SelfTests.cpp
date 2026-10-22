@@ -6,6 +6,7 @@
 #include "app/CookieSelfTest.h"
 #include "app/FormatSelfTest.h"
 #include "app/ImportSelfTest.h"
+#include "app/RecordingSelfTest.h"
 #include "app/ShortcutSelfTest.h"
 #include "app/SnapSelfTest.h"
 #include "core/Application.h"
@@ -19,11 +20,12 @@ void installSelfTestFromArgs(Application &app)
     };
 
     static const SelfTestMode selfTestModes[] = {
-        {"--format-selftest",   FormatSelfTest::run  }, // 文档格式读写往返（tst_format）
-        {"--snap-selftest",     SnapSelfTest::run    }, // 网格吸线的场景侧接线（tst_snap）
-        {"--shortcut-selftest", ShortcutSelfTest::run}, // 快捷键注册表的读写与冲突（tst_shortcuts）
-        {"--cookie-selftest",   CookieSelfTest::run  }, // Cookie 镜像罐与退出清理计数（tst_cookies）
-        {"--import-selftest",   ImportSelfTest::run  }, // 导入重名裁决的三条路径（tst_import）
+        {"--format-selftest",    FormatSelfTest::run   }, // 文档格式读写往返（tst_format）
+        {"--snap-selftest",      SnapSelfTest::run     }, // 网格吸线的场景侧接线（tst_snap）
+        {"--shortcut-selftest",  ShortcutSelfTest::run }, // 快捷键注册表的读写与冲突（tst_shortcuts）
+        {"--cookie-selftest",    CookieSelfTest::run   }, // Cookie 镜像罐与退出清理计数（tst_cookies）
+        {"--import-selftest",    ImportSelfTest::run   }, // 导入重名裁决的三条路径（tst_import）
+        {"--recording-selftest", RecordingSelfTest::run}, // 录屏端到端：容器、时长与可播（tst_recording）
     };
 
     const QStringList args = app.arguments();

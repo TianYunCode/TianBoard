@@ -50,6 +50,11 @@ RecordingController::RecordingController(QObject *pParent)
     connect(Application::app(), &QApplication::lastWindowClosed, this, &RecordingController::applicationAboutToQuit);
 }
 
+bool RecordingController::isCapturingAudio() const
+{
+    return mVideoEncoder && mVideoEncoder->isCapturingAudio();
+}
+
 RecordingController::~RecordingController()
 {
     // 刻意留空
@@ -273,11 +278,17 @@ void RecordingController::start()
                 connect(mVideoEncoder, &AbstractVideoEncoder::audioLevelChanged, mRecordingPalette, &RecordingPalette::audioLevelChanged);
             }
 
-            mVideoEncoder->setRecordAudio(!mNoAudioInputDeviceAction->isChecked());
+            // 这一组动作是录制调色板懒建的（audioRecordingDevicesActions），而"没建过"不等于
+            // "没值可读"：audioRecordingDevice() 就是按空指针当出厂默认处理的，这里必须一致。
+            // 之前这两行直接 ->isChecked()，于是任何在调色板建起来之前启动录制的路径
+            // （自检、以桌面批注启动后直接按录制）都在读到空 QAction。
+            const bool audioRequested = !mNoAudioInputDeviceAction || !mNoAudioInputDeviceAction->isChecked();
+
+            mVideoEncoder->setRecordAudio(audioRequested);
 
             QString recordingDevice = "";
 
-            if (!mNoAudioInputDeviceAction->isChecked() && !mDefaultAudioInputDeviceAction->isChecked())
+            if (audioRequested && mDefaultAudioInputDeviceAction && !mDefaultAudioInputDeviceAction->isChecked())
             {
                 foreach (QAction *audioDevice, mAudioInputDevicesActions)
                 {

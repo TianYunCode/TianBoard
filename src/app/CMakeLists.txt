@@ -31,6 +31,8 @@ add_executable(TianBoard WIN32
     FormatSelfTest.h
     ImportSelfTest.cpp
     ImportSelfTest.h
+    RecordingSelfTest.cpp
+    RecordingSelfTest.h
     main.cpp
     resource.h
     SelfTests.cpp

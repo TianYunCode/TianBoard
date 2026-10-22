@@ -66,6 +66,12 @@ public:
         return mLastErrorMessage;
     }
 
+    /// @brief 麦克风真的起来并在采时才为真；设备打不开时这个恒为 false。
+    virtual bool isCapturingAudio() const override
+    {
+        return mWaveRecorder != nullptr;
+    }
+
     /** @brief 开关音频；录制中切换会增删到写入器的连接。 */
     virtual void setRecordAudio(bool pRecordAudio);
 

@@ -56,7 +56,7 @@ src/
                    AutoSaver 与 UserNotices 2026-10-21/22 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（17 个）
+tests/             Qt Test 用例（18 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账

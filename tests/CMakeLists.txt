@@ -139,6 +139,16 @@ set_tests_properties(tst_cookies PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 录屏端到端自检：应用带 --recording-selftest 真录约两秒屏幕，再验容器头、时长与可播性。
+add_executable(tst_recording tst_recording.cpp)
+target_compile_options(tst_recording PRIVATE /MP /utf-8)
+target_link_libraries(tst_recording PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_recording TianBoard)
+add_test(NAME tst_recording COMMAND tst_recording)
+set_tests_properties(tst_recording PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

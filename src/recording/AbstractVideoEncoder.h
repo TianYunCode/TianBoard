@@ -107,6 +107,16 @@ public:
         mVideoSize = pSize;
     }
 
+    /**
+     * @brief 本段录制是否真的在采集音频。
+     * @note 没有麦克风时录像是照常工作的（音频是可选能力），所以"录制成功"不等于
+     * "带音轨"。自检需要一个能问的事实，而不是靠人去猜日志。默认不带。
+     */
+    virtual bool isCapturingAudio() const
+    {
+        return false;
+    }
+
     /** @brief 当前输出画面尺寸。 */
     virtual QSize videoSize() const
     {

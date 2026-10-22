@@ -991,7 +991,11 @@ QString Settings::userRecordingDirectory()
                 qCritical() << "failed to create dir " << dirPath;
             }
         }
-        dirPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+        // 没配 Recording/RecordingDirectory 时录进应用自己的数据目录，不写用户桌面：
+        // 录屏是应用产生的数据，和文档仓库同源同目录，退出清理与自检沙箱（TIANBOARD_DATA_DIR）
+        // 也都管得到它。想换位置就在配置里写 Recording/RecordingDirectory（支持
+        // {Documents}/{Home}/{Desktop} 通配）。
+        dirPath = userDataDirectory() + "/recordings";
         checkDirectory(dirPath);
     }
     return dirPath;
