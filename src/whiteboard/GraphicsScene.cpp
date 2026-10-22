@@ -867,6 +867,10 @@ void GraphicsScene::drawPenCircle(const QPointF &pPoint)
     }
     else
     {
+        // 这一支也要把圈收掉：图元一直在场景里，只显示与否是每次悬笔重新算的，
+        // 不算干净的话，取消勾选之后圈还挂在最后一次显示的位置上，要等指针离开这一页才收。
+        hidePenCircle();
+
         if (controlView())
         {
             if (controlView()->viewport())
@@ -3117,22 +3121,21 @@ void GraphicsScene::createMarkerCircle()
 
 void GraphicsScene::createPenCircle()
 {
-    if (Settings::settings()->showPenPreviewCircle->get().toBool())
-    {
-        mPenCircle = new QGraphicsEllipseItem();
+    // 建不建这个图元不看设置：设置是可以在运行中改的，而这一页建好之后不会再建第二次。
+    // 圈显不显示归 drawPenCircle 每次悬笔按设置算，改完偏好下一次悬笔就落下来（--preflive-selftest）。
+    mPenCircle = new QGraphicsEllipseItem(); // 内存交给场景，随场景一起销毁
 
-        mPenCircle->setRect(QRect(0, 0, 0, 0));
-        mPenCircle->setVisible(false);
+    mPenCircle->setRect(QRect(0, 0, 0, 0));
+    mPenCircle->setVisible(false);
 
-        mPenCircle->setPen(Qt::DotLine);
-        updatePenCircleColor();
+    mPenCircle->setPen(Qt::DotLine);
+    updatePenCircleColor();
 
-        mPenCircle->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
-        mPenCircle->setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::Eraiser));
+    mPenCircle->setData(GraphicsItemData::ItemLayerType, QVariant(ItemLayerType::Control));
+    mPenCircle->setData(GraphicsItemData::itemLayerType, QVariant(itemLayerType::Eraiser));
 
-        mTools << mPenCircle;
-        addItem(mPenCircle);
-    }
+    mTools << mPenCircle;
+    addItem(mPenCircle);
 }
 
 void GraphicsScene::updateEraserColor()

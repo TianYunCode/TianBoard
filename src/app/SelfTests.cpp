@@ -12,6 +12,7 @@
 #include "app/ImportSelfTest.h"
 #include "app/MediaInsertSelfTest.h"
 #include "app/PageOperationsSelfTest.h"
+#include "app/PreferenceLiveApplySelfTest.h"
 #include "app/RecordingSelfTest.h"
 #include "app/ShortcutSelfTest.h"
 #include "app/SnapSelfTest.h"
@@ -27,19 +28,20 @@ void installSelfTestFromArgs(Application &app)
     };
 
     static const SelfTestMode selfTestModes[] = {
-        {"--format-selftest",    FormatSelfTest::run        }, // 文档格式读写往返（tst_format）
-        {"--snap-selftest",      SnapSelfTest::run          }, // 网格吸线的场景侧接线（tst_snap）
-        {"--shortcut-selftest",  ShortcutSelfTest::run      }, // 快捷键注册表的读写与冲突（tst_shortcuts）
-        {"--cookie-selftest",    CookieSelfTest::run        }, // Cookie 镜像罐与退出清理计数（tst_cookies）
-        {"--import-selftest",    ImportSelfTest::run        }, // 导入重名裁决三条路径 + 导入产物对账（tst_import）
-        {"--recording-selftest", RecordingSelfTest::run     }, // 录屏端到端：容器、时长与可播（tst_recording）
-        {"--clipboard-selftest", ClipboardSelfTest::run     }, // 复制→粘贴→删原件→存读往返（tst_clipboard）
-        {"--export-selftest",    ExportSelfTest::run        }, // PDF 页数/尺寸/内容与 .tbz 往返（tst_export）
-        {"--undoredo-selftest",  UndoRedoSelfTest::run      }, // 撤销/重做全回路与换文档清栈（tst_undoredo）
-        {"--autosave-selftest",  AutoSaveSelfTest::run      }, // 自动保存定时器起停与真落盘（tst_autosave）
-        {"--pages-selftest",     PageOperationsSelfTest::run}, // 页面增删复制移动后逐页冷读对账（tst_pages）
-        {"--media-selftest",     MediaInsertSelfTest::run   }, // 音视频插入有没有变成文档的一部分（tst_media）
-        {"--download-selftest",  DownloadSelfTest::run      }, // 本地下载端到端与跨层事实的应答连线（tst_download）
+        {"--format-selftest",    FormatSelfTest::run             }, // 文档格式读写往返（tst_format）
+        {"--snap-selftest",      SnapSelfTest::run               }, // 网格吸线的场景侧接线（tst_snap）
+        {"--shortcut-selftest",  ShortcutSelfTest::run           }, // 快捷键注册表的读写与冲突（tst_shortcuts）
+        {"--cookie-selftest",    CookieSelfTest::run             }, // Cookie 镜像罐与退出清理计数（tst_cookies）
+        {"--import-selftest",    ImportSelfTest::run             }, // 导入重名裁决三条路径 + 导入产物对账（tst_import）
+        {"--recording-selftest", RecordingSelfTest::run          }, // 录屏端到端：容器、时长与可播（tst_recording）
+        {"--clipboard-selftest", ClipboardSelfTest::run          }, // 复制→粘贴→删原件→存读往返（tst_clipboard）
+        {"--export-selftest",    ExportSelfTest::run             }, // PDF 页数/尺寸/内容与 .tbz 往返（tst_export）
+        {"--undoredo-selftest",  UndoRedoSelfTest::run           }, // 撤销/重做全回路与换文档清栈（tst_undoredo）
+        {"--autosave-selftest",  AutoSaveSelfTest::run           }, // 自动保存定时器起停与真落盘（tst_autosave）
+        {"--pages-selftest",     PageOperationsSelfTest::run     }, // 页面增删复制移动后逐页冷读对账（tst_pages）
+        {"--media-selftest",     MediaInsertSelfTest::run        }, // 音视频插入有没有变成文档的一部分（tst_media）
+        {"--download-selftest",  DownloadSelfTest::run           }, // 本地下载端到端与跨层事实的应答连线（tst_download）
+        {"--preflive-selftest",  PreferenceLiveApplySelfTest::run}, // 偏好设置改完当场生效，不重启不换页（tst_preflive）
     };
 
     const QStringList args = app.arguments();

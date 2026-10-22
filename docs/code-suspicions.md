@@ -757,3 +757,61 @@ TianBoard!UndoRedoSelfTest::run          ← 就是 board->deleteScene(...) 这�
 丢掉，下一轮遍历才不会读已释放内存。所以那句看起来像收尾的清栈**不是装饰，是这条链路的承重墙**，
 而它原先只在换页/换文档时"顺路"被调到，从来没有用例钉过。现在第 6 案钉住了：去掉它就红（异常退出），
 留着它就绿。
+
+### 2026-10-22：第 26 条自检（偏好当场生效）：预览圈的图元不该在建页时定生死
+
+先做了一遍全量核对，免得下次从头数：偏好设置里真能改的是 40 个设置项，逐项去数它们在 `src/` 里的读者
+（去掉 `src/settings/` 与 `PreferencesController` 本身），再看那个读者是**每次动作都跑**还是**只在装配
+或建页时跑一次**。口径可以复算：`grep -oP '^\s+(Setting|ColorListSetting) \*\w+' src/settings/Settings.h`
+取全部注册项（`new Setting`/`new ColorListSetting` 各 104 个，与 `Settings.h` 里的成员一一对应；门禁那个
+"155 个设置项"还含只走 `value/setValue` 的遗留键），与 `grep -oP 'settings->\w+' src/ui/PreferencesController.cpp` 取交集＝**40 个**
+界面上真能改的，再对每一项在 `src/` 里数读者。结论：
+
+- **绝大多数每次读，所以当场生效**：网页那一组（外部浏览器、主页、镜像屏立即显示）在每次进入网页模式
+  时读；工具条位置/文字/方向、屏幕键盘键值、日期列、下载起止与解除黑屏各有显式 `changed` 连线或界面侧
+  的成对连线；笔宽、颜色、压感、网格与十字色在落笔与绘制时读。
+- **按设计就是下一次才算的两项**：`appStartMode` 只在 `Application::exec` 读一次（"启动模式"讲的就是
+  下一次启动），`emptyTrashForOlderDocuments`/`emptyTrashDaysValue` 在 `Application::closing()` 里算
+  （讲的是"退出时清多久以前的回收站"）。
+- **界面上根本没有控件、只能改 INI 的一批**：`App/HideSwapDisplayScreens`（默认 `true`，直接把那个
+  勾选框藏起来，于是 `DisplayManager::swapDisplayScreens` 这个槽在默认配置下没有任何发送者）、
+  `ShowMarkerPreviewCircle`、`ShowEraserPreviewCircle`、`historyLimit`、`pageCacheSize`、`libIconSize`、
+  `mirroringRefreshRateInFps`、`boardZoomFactor`、`angleTolerance`。其中几个确实只在建页/装配时读一次，
+  但既然界面上没有入口，"改了要重启"就不构成界面上的失灵，这一轮不动它们。
+
+真修掉的这一条是**不对称**的失灵，只靠眼睛看不出来：`GraphicsScene::createPenCircle()` 过去把
+`Board/ShowPenPreviewCircle`（默认 `true`）当作"这一页要不要有那个图元"的开关，而显示与否又是
+`drawPenCircle()` 每次悬笔重新算的。于是在"取消勾选"期间建好的那些页上**压根没有圈可显示**，把勾选框
+重新打开只对新页生效；反过来取消勾选是"下一次悬笔不再显示"，看着像是当场生效（只有已经显示着的那只圈
+会留到指针离开这一页才收）。同一条链路上两个方向的生效条件不一样，界面上的表现就是
+"勾了没用，得重启，而且旧页永远不会有"。
+
+改法是把决定权挪干净：`createPenCircle()` 不再看设置，图元跟荧光笔预览圈同口径地一直建出来（它记在
+`mTools` 里、图层标成 `Control`，存页与导出都被剔除，所以多建一个隐藏图元不改变盘上格式），显示与否
+只在 `drawPenCircle()` 每次算；顺带把它那一直只设光标、不收图元的 `else` 支补上一次 `hidePenCircle()`
+——否则取消勾选之后圈会挂在最后一次显示的位置上，直到鼠标离开这一页。
+改完专门查过一件本来会担心的事：圈挂在 `Control` 层（Z=2000，压在笔迹之上），可见时
+`BoardView` 的 `scene()->itemAt(...)` 会先命中它，而 `BoardView::mousePressEvent` 是**先取 `movingItem`
+再调 `inputDevicePress`**（那里才 `hidePenCircle()`）。这个面不是新引入的：`ShowPenPreviewCircle` 的默认值
+本来就是 `true`，开机就建的那些页一直是这个形状。圈本身也没有任何交互标志，并且
+`BoardView::itemShouldBeMoved` 是按 `item->type()` 走 switch 的，plain 椭圆不命中任何 case，落到最后的
+`return false`——所以它被当成 `movingItem` 也拖不动。这一刀改变的只是"设置该不该对每一页都算数"，
+没有改变圈与命中测试的关系。
+
+判据用公开入口跑真链路：`Settings::setPenPreviewCircle` 就是勾选框连的那个槽，悬笔走
+`GraphicsScene::inputDeviceMove`（工具切到钢笔、不落笔），观察量取 `tools()` 里**挂在 `Control` 层的可见
+椭圆图元**个数（按层级键先排掉指针那只圈——它挂 `Tool` 层，而且 `hideTool()` 不收它；橡皮与荧光笔那两只
+这条链路不会点亮）。同一份临时文档里建两页，唯一区别是建它的时候设置是什么：开着时建的那页必须看得见
+圈（**这条改前也是绿的**，它的作用是证明"看不见"确实是页上没有图元，而不是判据空转），关闭时建的那页
+把设置打开之后也必须看得见；再加阈值那一维（抬到笔宽之上必须归 0、调回 0 必须又出现）与取消勾选
+（必须归 0）。改前 2 处红、改后 0 处；两处修法各自单独退回过一遍，各只打红自己那一条
+（退回 `createPenCircle` 的无条件建 →"旧页画不出圈"；退回 `else` 支那次 `hidePenCircle()` →"取消勾选后
+圈还在"），所以这两条断言是各自独立的，不是一条覆盖两处。
+
+荧光笔与橡皮的预览圈**故意没跟着改**：它们的 `drawMarkerCircle`/`drawEraser` 只看图元在不在，不再读
+设置，把创建改成无条件等于让那两个 INI 开关失效——那是行为退化，不是修 bug。
+
+同一趟核对里记下一条待决：`Board/AutoSaveIntervalInMinutes`（`autoSaveInterval`）全仓唯一的写者是
+`AutoSaveSelfTest`，偏好设置面板里没有这个控件（`res/i18n/*.ts` 里也没有任何相关文案，所以不是迁移
+丢的，是上游本来就没有）。上一轮把它的 `changed` 连上之后，"改间隔当场生效"这条在界面上其实走不到，
+只能改 INI。要不要补一个控件（连"关闭"这一档）是产品决策，见任务清单，不在这一批里顺手加。

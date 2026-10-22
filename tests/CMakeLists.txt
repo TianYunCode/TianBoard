@@ -220,6 +220,17 @@ set_tests_properties(tst_download PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 偏好当场生效自检：在真场景上按界面上那条路改设置，当场量效果——读早了不崩不报错，
+# 只表现为"勾了没用，得重启"，只能靠断言盯着。
+add_executable(tst_preflive tst_preflive.cpp)
+target_compile_options(tst_preflive PRIVATE /MP /utf-8)
+target_link_libraries(tst_preflive PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_preflive TianBoard)
+add_test(NAME tst_preflive COMMAND tst_preflive)
+set_tests_properties(tst_preflive PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

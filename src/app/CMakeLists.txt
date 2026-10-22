@@ -5,8 +5,8 @@
 # 这里只做装配：把各模块的 OBJECT 库并成一个 TianBoard.exe，再把运行期
 # 目录铺到可执行文件旁边。不放业务代码——但有三样"只有装配层能干"的东西：
 #   * 下层模块所需实现的注入（drop 处理器工厂、文档格式服务），见 main.cpp；
-#   * 十三个 *SelfTest 与按命令行分发的 app/SelfTests.cpp（格式/吸附/快捷键/Cookie/
-#     导入/录屏/剪贴板/导出/撤销/自动保存/页面操作/音视频插入/本地下载），外加
+#   * 十四个 *SelfTest 与按命令行分发的 app/SelfTests.cpp（格式/吸附/快捷键/Cookie/
+#     导入/录屏/剪贴板/导出/撤销/自动保存/页面操作/音视频插入/本地下载/偏好当场生效），外加
 #     app/SelfTestAssets 这份共用合成素材——自检要同时伸手进
 #     model/whiteboard/content/web/ui，换任何别的模块都会新造一组环，
 #     core 那边只留一个通用钩子 Application::setSelfTestRun()；
@@ -44,6 +44,8 @@ add_executable(TianBoard WIN32
     MediaInsertSelfTest.h
     PageOperationsSelfTest.cpp
     PageOperationsSelfTest.h
+    PreferenceLiveApplySelfTest.cpp
+    PreferenceLiveApplySelfTest.h
     ImportSelfTest.h
     RecordingSelfTest.cpp
     RecordingSelfTest.h
