@@ -5,6 +5,7 @@
 
 #include "app/ClipboardSelfTest.h"
 #include "app/CookieSelfTest.h"
+#include "app/ExportSelfTest.h"
 #include "app/FormatSelfTest.h"
 #include "app/ImportSelfTest.h"
 #include "app/RecordingSelfTest.h"
@@ -28,6 +29,7 @@ void installSelfTestFromArgs(Application &app)
         {"--import-selftest",    ImportSelfTest::run   }, // 导入重名裁决的三条路径（tst_import）
         {"--recording-selftest", RecordingSelfTest::run}, // 录屏端到端：容器、时长与可播（tst_recording）
         {"--clipboard-selftest", ClipboardSelfTest::run}, // 复制→粘贴→删原件→存读往返（tst_clipboard）
+        {"--export-selftest",    ExportSelfTest::run   }, // PDF 页数/尺寸/内容与 .tbz 往返（tst_export）
     };
 
     const QStringList args = app.arguments();

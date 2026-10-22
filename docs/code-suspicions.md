@@ -543,3 +543,35 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
 副本沿用源 UUID → 2 条不一致；写出器不补字节 → 2 条；空 URL 也算匹配 → 2 条（盘上留下
 本该随原件删掉的 2 份文件，最后 images/ 是 4 个而不是 2 个）。
 
+### 2026-10-22：第 20 条自检（导出端到端）撞出一处崩溃，并钉住一条改文档的读页路
+
+`--export-selftest` 把一份两页文档真导成 PDF 与 `.tbz` 再读回来对账（导出器唯一的非交互入口是
+`persistsDocument()`，过去界面点"导出"只看得到"没报错"）。第一次跑就是段错误。
+
+- **已修：`DocumentTreeModel::mCurrentNode` 从来没被初始化**。构造函数只管建根节点，从没碰这个
+  成员；`setCurrentNode()` 全仓只有一个调用点（`goTo()` 里）。于是任何一次在任何一次 `goTo()`
+  之前的 `removeRows` 都会走进 `if (mCurrentNode && (curChildNode == mCurrentNode ||
+  curChildNode->findNode(mCurrentNode)))`——Debug 下它的值是调试堆的 `0xCD…` 填充（探针实测
+  `current 0xcdcdcdcdcdcdcdcd`）恒"非空"，紧接着拿它去走父链就是野指针解引用；Release 下取值
+  取决于堆上正好残留了什么。崩溃栈：`ExportSelfTest::run → ImportDocument::importFile →
+  PersistenceManager::createDocumentFromDir → registerDocumentProxy → removeRow →
+  DocumentTreeModel::removeRows → DocumentTreeNode::findNode → parentNode`，触发条件是"导入一个
+  与现有文档同名的包并答替换"——界面上就是重新导入自己刚导出的那份文档。改成声明处 `= nullptr`。
+- **未修（记在这里，别当已经好了）：`PersistenceManager::loadDocumentScene` 在某一页读不出来时
+  会改文档**。它 `createDocumentSceneAt(proxy, 0)` 插一页、再读第 0 页，然后把这页
+  `mSceneCache.insert(proxy, sceneIndex, scene)` 挂到**请求的那个页号**上：既让 `pageCount` +1
+  （页号全体后移），又把第 1 页的内容当成了"第 N 页"。实测证据：一份多出一页没有页文件的文档
+  连导两趟 PDF，`pageCount` 从 3 涨到 4，第二次导出的 PDF 多一页——导出本该是只读的。
+  没顺手改的原因：要给"这一页确实不存在"一个不改文档的返回，得逐个查调用点能不能接住空场景
+  （`ApplicationController` 拿它是直接往下传的），是单独的一刀。自检这一腿现在用"每页都在盘上"
+  的健康文档，并加了"导一趟 PDF 前后 `pageCount` 必须不变"的断言，这条将来改坏了会变红。
+- **API 脚枪：`createDocument(group, name, withEmptyPage, directory, pageCount)` 的两个页数参数是
+  叠加的**——`pageCount` 只是先 `setPageCount()`，`withEmptyPage=true` 再插一页并 `incPageCount()`，
+  所以 `pageCount=1 + withEmptyPage=true` 得到 2 页（两个自检都因此多出一页空页，已改成传 0 并在
+  调用处注明）。产品路径 `createDocument(group)` 用默认 `pageCount=0`，没有这个问题。
+
+顺带钉住几条现状（以后动导出就得对得上）：PDF 每页尺寸 = 场景像素 × 72 /
+`VirtualDesktop::physicalDpi()`；导出会临时把深色底改成白底、画完再恢复（恢复没做就是屏幕上白一下）；
+`ExportFullPDF` 的 `*_overlay.pdf` 中间产物必须被改名掉、不许残留；同名替换之后"我的文档"根下该名字
+只剩一份。反向对照：把 `pdfWriter.newPage()` 短路，自检报页数不对（2 条）。
+

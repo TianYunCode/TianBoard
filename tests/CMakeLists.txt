@@ -159,6 +159,16 @@ set_tests_properties(tst_clipboard PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 导出端到端自检：应用带 --export-selftest 把两页文档导成 PDF 与 .tbz，再读回来对账。
+add_executable(tst_export tst_export.cpp)
+target_compile_options(tst_export PRIVATE /MP /utf-8)
+target_link_libraries(tst_export PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_export TianBoard)
+add_test(NAME tst_export COMMAND tst_export)
+set_tests_properties(tst_export PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

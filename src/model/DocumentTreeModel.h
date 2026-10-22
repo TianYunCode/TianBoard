@@ -497,8 +497,10 @@ signals:
 private:
     /** @brief 根节点，模型拥有其所有权。 */
     DocumentTreeNode *mRootNode;
-    /** @brief 当前节点，视图切换文档时更新。 */
-    DocumentTreeNode *mCurrentNode;
+    /** @brief 当前节点，视图切换文档时更新；没有当前文档时为空。
+     *  必须显式初始化：构造函数过去不碰它，Debug 下它一直是调试堆的 0xCD… 填充值，
+     *  于是 removeRows 里那句 `mCurrentNode && …` 恒真，紧接着拿它去走父链就是崩溃。 */
+    DocumentTreeNode *mCurrentNode = nullptr;
 
     /** @brief 在子树中递归查找持有指定代理的节点。 */
     DocumentTreeNode *findProxy(DocumentProxy *pSearch, DocumentTreeNode *pParent) const;

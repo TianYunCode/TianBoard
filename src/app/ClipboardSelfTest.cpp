@@ -150,8 +150,9 @@ namespace ClipboardSelfTest
         QDir(documentDirectory).removeRecursively();
         QDir().mkpath(documentDirectory);
 
+        // pageCount 传 0：withEmptyPage 已经插了一页，两个参数是叠加的（见 PersistenceManager::createDocument）。
         DocumentProxy *proxy = PersistenceManager::persistenceManager()->createDocument(
-            QString(), QStringLiteral("ClipboardSelfTest"), true, documentDirectory, 1, false);
+            QString(), QStringLiteral("ClipboardSelfTest"), true, documentDirectory, 0, false);
         if (!proxy)
         {
             qWarning() << "clipboard-selftest: 建临时文档失败";
