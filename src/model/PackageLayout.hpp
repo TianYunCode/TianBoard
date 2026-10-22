@@ -4,7 +4,8 @@
  *
  * 这些字符串全部属于磁盘格式契约：取值决定文档包里的目录叫什么、目录树文件里的节点怎么写，
  * 改动会让既有文档读不出来。新增图元类型需要新子目录时，必须同时登记进
- * `PersistenceManager::mAllDirectories`，否则该目录不会被创建、也不会被打包。
+ * `PersistenceManager::mDocumentSubDirectories`（构造时按这份常量逐条填），否则该目录
+ * 不会被创建、也不会被打包。
  *
  * 为什么住在 model 而不是 core/PersistenceManager：这些名字是"文档域"的词汇，不是某个服务的
  * 内部细节。挂在服务类上时，画板为了知道图片放哪个子目录就得 include 持久化服务

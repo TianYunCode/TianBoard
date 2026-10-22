@@ -4,14 +4,15 @@
 #include "recording/RecordingController.h"
 #include "settings/Settings.h"
 
+#include <QAudioDevice>
 #include <QDeadlineTimer>
 #include <QDir>
 #include <QEventLoop>
 #include <QFile>
 #include <QFileInfo>
-#include <QAudioDevice>
 #include <QMediaDevices>
 #include <QMediaPlayer>
+#include <QMetaObject>
 #include <QStringList>
 #include <QTimer>
 #include <QUrl>
@@ -19,6 +20,14 @@
 
 namespace
 {
+    /**
+     * @brief 状态序列记在进程级静态量上，不记在 run() 的局部变量里。
+     * @note RecordingController 是单例，活得比这个函数久。收尾超时那条路上录制还在跑，
+     * 函数返回后它再发一次 recordingStateChanged，按引用捕获局部容器就是往已析构的
+     * QVector 里写。下面照样会显式断开连接，静态量是第二道保险。
+     */
+    QVector<RecordingController::RecordingState> gTransitions;
+
     /// @brief 让事件循环转 ms 毫秒：抓屏定时器、跨线程的音频队列与收尾都要靠这段时间跑。
     void pump(int ms)
     {
@@ -52,20 +61,44 @@ namespace RecordingSelfTest
     {
         QStringList failures;
 
-        const QString     recordingDirectory = Settings::userRecordingDirectory();
-        const QStringList before             = QDir(recordingDirectory).entryList(QDir::Files);
+        const QString recordingDirectory = Settings::userRecordingDirectory();
 
         qInfo() << "recording-selftest: 录制目录" << recordingDirectory;
         qInfo() << "recording-selftest: 可用麦克风数量" << QMediaDevices::audioInputs().size();
 
+        /**
+         * @brief 每个出口都走这里：先把每条不一致打到日志，再返回条数。
+         * @note 少了打印这一步，提前 return 的那几条失败就丢了——外层用例只会说
+         * "录屏链路有 1 处不一致"加上一整屏正常启动噪音，把人往错的方向带。
+         */
+        auto finish = [&failures]()
+        {
+            for (const QString &failure : failures)
+            {
+                qWarning() << "recording-selftest:" << failure;
+            }
+
+            return failures.count();
+        };
+
+        // 先记下目录现状；名字里带 Recording- 的残留只报不改，别人的文件不由自检来删。
+        const QStringList before = QDir(recordingDirectory).entryList(QDir::Files);
+        for (const QString &stale : before)
+        {
+            if (stale.startsWith(QStringLiteral("Recording-")))
+            {
+                qWarning() << "recording-selftest: 录制目录里留有上一次的" << stale << "（本自检不删别人的文件）";
+            }
+        }
+
         // 控制器是懒建单例（构造函数是 private 的）：界面那条路也是走 instance()。
         RecordingController *controller = RecordingController::instance();
 
-        QVector<RecordingController::RecordingState> transitions;
-        QObject::connect(controller, &RecordingController::recordingStateChanged,
-            [&transitions](RecordingController::RecordingState state)
+        gTransitions.clear();
+        const QMetaObject::Connection watcher = QObject::connect(controller, &RecordingController::recordingStateChanged,
+            [](RecordingController::RecordingState state)
             {
-                transitions.append(state);
+                gTransitions.append(state);
             });
 
         // ---- 1. 启动：抓屏与编码器必须真的开起来 ----
@@ -73,7 +106,8 @@ namespace RecordingSelfTest
         if (controller->recordingState() != RecordingController::Recording)
         {
             failures << QStringLiteral("start() 之后状态不是 Recording（实际 %1），录屏根本没起来").arg(controller->recordingState());
-            return failures.count();
+            QObject::disconnect(watcher);
+            return finish();
         }
 
         // 音频只是诊断：没麦克风时退化成一趟"只录画面"，那是设计好的路径。
@@ -86,7 +120,7 @@ namespace RecordingSelfTest
 
         QDeadlineTimer finalizeDeadline(15000);
         if (!waitFor(finalizeDeadline, 100,
-                [&controller]
+                [controller]
                 {
                     return controller->recordingState() == RecordingController::Stopped;
                 }))
@@ -94,16 +128,18 @@ namespace RecordingSelfTest
             failures << QStringLiteral("stop() 之后 15 秒还没回到 Stopped：编码器收尾没走完");
         }
 
+        // 观察要到这儿才撤：再早一次就把收尾那次 Stopped 从序列里抹掉了。
+        QObject::disconnect(watcher);
+
         // ---- 3. 状态序列 ----
-        if (!transitions.contains(RecordingController::Recording) || !transitions.contains(RecordingController::Stopped))
+        if (!gTransitions.contains(RecordingController::Recording) || !gTransitions.contains(RecordingController::Stopped))
         {
-            failures << QStringLiteral("recordingStateChanged 没把 起→停 都报出来（收到 %1 次）").arg(transitions.size());
+            failures << QStringLiteral("recordingStateChanged 没把 起→停 都报出来（收到 %1 次）").arg(gTransitions.size());
         }
 
         // ---- 4. 盘上必须多出一个 .wmv ----
-        const QStringList after = QDir(recordingDirectory).entryList(QDir::Files);
-        QStringList       fresh;
-        for (const QString &name : after)
+        QStringList fresh;
+        for (const QString &name : QDir(recordingDirectory).entryList(QDir::Files))
         {
             if (!before.contains(name))
             {
@@ -113,8 +149,8 @@ namespace RecordingSelfTest
 
         if (fresh.isEmpty())
         {
-            failures << QStringLiteral("录制目录里没出现新文件（%1 个文件，无新增）").arg(after.size());
-            return failures.count();
+            failures << QStringLiteral("录制目录里没出现新文件");
+            return finish();
         }
         if (fresh.size() > 1)
         {
@@ -158,65 +194,65 @@ namespace RecordingSelfTest
         }
 
         // ---- 6. 交给多媒体后端读一遍：能读出正数时长才算真录出来了 ----
-        QMediaPlayer player;
-
-        QMediaPlayer::MediaStatus status = QMediaPlayer::NoMedia;
-        QObject::connect(&player, &QMediaPlayer::mediaStatusChanged,
-            [&status](QMediaPlayer::MediaStatus s)
-            {
-                status = s;
-            });
-
-        player.setSource(QUrl::fromLocalFile(filePath));
-
-        QDeadlineTimer probeDeadline(15000);
-        const bool     loaded = waitFor(probeDeadline, 100,
-            [&status]
-            {
-                return status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::InvalidMedia;
-            });
-
-        if (!loaded)
+        // 这个作用域必须在删文件之前结束：播放器背后的 ffmpeg 还握着文件句柄时 Windows 删不掉，
+        // 而那会被记成一条自检失败——其实录制本身是好的。
         {
-            failures << QStringLiteral("15 秒内多媒体后端没给出结论（status=%1）").arg(status);
+            QMediaPlayer player;
+
+            QMediaPlayer::MediaStatus status = QMediaPlayer::NoMedia;
+            QObject::connect(&player, &QMediaPlayer::mediaStatusChanged,
+                [&status](QMediaPlayer::MediaStatus s)
+                {
+                    status = s;
+                });
+
+            player.setSource(QUrl::fromLocalFile(filePath));
+
+            QDeadlineTimer probeDeadline(15000);
+            const bool     loaded = waitFor(probeDeadline, 100,
+                [&status]
+                {
+                    return status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::InvalidMedia;
+                });
+
+            if (!loaded)
+            {
+                failures << QStringLiteral("15 秒内多媒体后端没给出结论（status=%1）").arg(status);
+            }
+            else if (status == QMediaPlayer::InvalidMedia)
+            {
+                failures << QStringLiteral("录出来的文件被多媒体后端判为无效: %1").arg(player.errorString());
+            }
+            else
+            {
+                const qint64 duration = player.duration();
+                qInfo() << "recording-selftest: 时长" << duration << "ms，文件大小" << size << "字节";
+
+                if (duration < 500)
+                {
+                    failures << QStringLiteral("时长只有 %1 ms（录了约 2 秒），说明帧没真进容器").arg(duration);
+                }
+            }
+
+            player.stop();
         }
-        else if (status == QMediaPlayer::InvalidMedia)
-        {
-            failures << QStringLiteral("录出来的文件被多媒体后端判为无效: %1").arg(player.errorString());
-        }
-        else
-        {
-            const qint64 duration = player.duration();
-            qInfo() << "recording-selftest: 时长" << duration << "ms，文件大小" << size << "字节";
 
-            if (duration < 500)
+        // ---- 收尾：这一趟产生的文件全部删掉 ----
+        pump(150); // 给后端一点时间把句柄交还
+        for (const QString &name : fresh)
+        {
+            const QString path = QDir(recordingDirectory).filePath(name);
+
+            if (!QFile::remove(path))
             {
-                failures << QStringLiteral("时长只有 %1 ms（录了约 2 秒），说明帧没真进容器").arg(duration);
+                pump(500);
+                if (!QFile::remove(path))
+                {
+                    failures << QStringLiteral("自检没能删掉自己的产物: %1").arg(path);
+                }
             }
         }
 
-        player.stop();
-
-        // ---- 收尾：别把测试产物留在用户机器上 ----
-        // 播放器必须已经析构：它背后的 ffmpeg 还握着文件句柄时，Windows 上删不掉，
-        // 而这会被记成一条自检失败（其实录制本身是好的）。
-        player.setSource(QUrl());
-        pump(150);
-
-        if (!QFile::remove(filePath))
-        {
-            pump(500);
-            if (!QFile::remove(filePath))
-            {
-                failures << QStringLiteral("自检没能删掉自己的产物: %1").arg(filePath);
-            }
-        }
-
-        for (const QString &failure : failures)
-        {
-            qWarning() << "recording-selftest:" << failure;
-        }
-
-        return failures.count();
+        return finish();
     }
 } // namespace RecordingSelfTest

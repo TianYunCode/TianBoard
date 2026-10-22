@@ -194,6 +194,14 @@
 
 ## 四、构建与仓库层面的坑（记下来免得踩回去）
 
+**删掉一个 Qt 信号 / 改动带 `Q_OBJECT` 类的元数据之后，增量构建可以产出一个"看起来全新、
+其实启动就崩"的二进制**（2026-10-22 实测）：把 `DocumentManager` 的 `documentUpdated` 信号
+连同它唯一的 `signals:` 段删掉后，`build/` 增量链接出的 exe 在 `main` 之前就崩
+（栈顶是 `__scrt_initialize_type_info` → `pre_c_initialization`），8 个拉起应用的用例全红；
+`rm -rf build` 重新 configure + 构建之后同一份源码全绿。门禁查不出来，因为新鲜度判据比的是
+"源码不比产物旧"，而这个产物确实比源码新。**规矩：动过 `Q_OBJECT` 类的信号/槽或虚表组成之后，
+先用干净的构建树跑一遍再判断是不是自己的代码错了**（`scripts/warnings.ps1 -Clean` 或删 `build/`）。
+
 - **产物目录必须是 `${CMAKE_BINARY_DIR}/bin/<Config>/`，不能钉死到单一 `build/bin/`**。
   静态库属于 ARCHIVE 输出，多配置生成器下 Debug 与 Release 的 `tb_quazip.lib` 同名，
   钉死就互相覆盖：实测先构建 Release 再构建 Debug，Debug 会链到 Release 的 `.obj`，

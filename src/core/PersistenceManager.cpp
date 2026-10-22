@@ -48,15 +48,18 @@ PersistenceManager::PersistenceManager(QObject *pParent) : QObject(pParent), mHa
     mDocumentSubDirectories << PackageLayout::audioDirectory;
     mDocumentSubDirectories << PackageLayout::fileDirectory; // Issue 1683 (Evolution) - AOU - 20131206
 
-    mDocumentRepositoryPath     = Settings::userDocumentDirectory();
-    mFoldersXmlStorageName      = mDocumentRepositoryPath + "/" + PackageLayout::foldersFile;
+    mDocumentRepositoryPath = Settings::userDocumentDirectory();
+    mFoldersXmlStorageName  = mDocumentRepositoryPath + "/" + PackageLayout::foldersFile;
+
+    // 第一件事就是把自己装上：紧接着扫描仓库就会造文档、写元数据，槽位晚一行为空，
+    // 那条路上的 documentStore() 就是启动瞬间的 qFatal。
+    installDocumentStore(this);
 
     mDocumentTreeStructureModel = new DocumentTreeModel(this);
     createDocumentProxiesStructure();
 
-    // 把这份实现装进 model/IDocumentStore 的进程级槽位：content 的导入导出器经它访问仓库，
+    // 这份实现装进 model/IDocumentStore 的进程级槽位：content 的导入导出器经它访问仓库，
     // 因此不必反向 include core（docs/architecture.md 第五节 content↔core 那一行）。
-    installDocumentStore(this);
 
     emit proxyListChanged();
 }
@@ -87,14 +90,6 @@ void PersistenceManager::destroy()
         delete sSingleton;
     }
     sSingleton = NULL;
-}
-
-void PersistenceManager::documentUpdated(DocumentProxy *document)
-{
-    if (DocumentManager *documentManager = DocumentManager::documentManager())
-    {
-        documentManager->emitDocumentUpdated(document);
-    }
 }
 
 void PersistenceManager::createDocumentProxiesStructure(bool interactive)

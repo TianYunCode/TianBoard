@@ -22,7 +22,7 @@ class GraphicsScene;
  * 反向认识应用服务层，构成 `content` ↔ `core` 这组双向 include；而现在 content 本来就认识
  * model（DocumentProxy 就在 model），走这份契约只留向下的边。
  *
- * 这里只列**格式层真正用到的**八件事，不是 PersistenceManager 的全集：它的界面交互、目录树
+ * 这里只列**格式层与模型真正用到的**那些事，不是 PersistenceManager 的全集：它的界面交互、目录树
  * 重建、撤销栈与缓存淘汰一概不在契约内，那些是服务自己的事。
  *
  * 生命周期：实现者是进程级单例 `PersistenceManager`，构造时装上、析构时摘下（摘之前会核对
@@ -89,13 +89,6 @@ public:
 
     /// @brief 文档代理被替换后，把仓库里以旧代理为键的东西迁到新代理上。
     virtual void reassignDocProxy(DocumentProxy *newDocument, DocumentProxy *oldDocument)                                                     = 0;
-
-    /**
-     * @brief 某份文档的元数据变了，请刷新文档库视图。
-     * @note 模型走这一跳而不是直接认识 core 的文档管理器：updatedAt 既用于排序也是
-     * “最近修改”列的依据，通知比让视图重扫磁盘便宜。
-     */
-    virtual void documentUpdated(DocumentProxy *document)                                                                                     = 0;
 
     /// @brief 文档目录树模型；导出文档集时需要按树里的位置拼文件名。
     virtual DocumentTreeModel *documentTreeModel()                                                                                            = 0;

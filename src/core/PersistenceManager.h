@@ -281,9 +281,6 @@ public:
     bool addFileToDocument(DocumentProxy *pDocumentProxy, QString path, const QString &subdir, QUuid objectUuid, QString &destinationPath,
         QByteArray *data = NULL) override;
 
-    /// @brief 文档元数据变了：转告文档管理器，让文档库视图不重扫磁盘就能刷新。
-    void documentUpdated(DocumentProxy *document) override;
-
     /// @brief IDocumentStore 的树模型访问点；成员本身仍是公开的。
     DocumentTreeModel *documentTreeModel() override
     {

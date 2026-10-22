@@ -17,8 +17,8 @@ class QObject;
  * 为什么住在 utils 而不是 core/Application：它只是一个 QObject，不牵扯任何应用状态；挂在
  * 应用对象上时，`model/Resources` 这类只要个父对象的地方就得 include 最上层，`core` ↔ `model`
  * 那组环里有它一条。
- * 生命周期：release() 由应用在关闭流程里调用（app/Application.cpp 的 shutDown）；在那之后
- * 再调 cleaner() 会再造一个，所以别在退出之后再创建单例。
+ * 生命周期：release() 由 ~Application 调用（app/Application.cpp）；在那之后再调 cleaner()
+ * 会再造一个宿主，所以别在退出流程开始之后才创建这些单例。
  * 线程约束：只在 GUI 线程使用（所有被托管的单例都住在 GUI 线程）。
  */
 namespace StaticMemory

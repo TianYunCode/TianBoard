@@ -341,8 +341,3 @@ void DocumentManager::refreshExportActions(const QModelIndex &selectedIndex)
         }
     }
 }
-
-void DocumentManager::emitDocumentUpdated(DocumentProxy *pDocument)
-{
-    emit documentUpdated(pDocument);
-}

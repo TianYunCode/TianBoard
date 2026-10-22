@@ -1,5 +1,4 @@
 #include "model/DocumentProxy.h"
-#include "model/IDocumentStore.h"
 #include <QLocale>
 
 #include "utils/StringUtils.h"
@@ -143,12 +142,6 @@ void DocumentProxy::setMetaData(const QString &pKey, const QVariant &pValue)
     {
         mIsModified = true;
         mMetaDatas.insert(pKey, pValue);
-        // updatedAt 是树模型排序与“最近修改”列的依据，单独通知文档管理器，
-        // 让文档集合视图能在不重扫磁盘的情况下刷新。
-        if (pKey == Settings::documentUpdatedAt)
-        {
-            documentStore()->documentUpdated(this);
-        }
     }
 }
 

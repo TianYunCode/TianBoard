@@ -93,12 +93,6 @@ public:
     void exportDocumentWithAdaptor(int index, DocumentProxy *proxy, const QModelIndex &selectedTreeIndex);
     /// @brief 按当前选中的树节点，逐个刷新各导出动作能不能用。
     void refreshExportActions(const QModelIndex &selectedIndex);
-    /// 对外转发 documentUpdated 信号。
-    void emitDocumentUpdated(DocumentProxy *pDocument);
-
-signals:
-    /// 文档内容或元数据已更新。
-    void documentUpdated(DocumentProxy *pDocument);
 
 private:
     /// 私有构造：注册全部导入/导出适配器并接好警告转发。
