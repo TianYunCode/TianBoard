@@ -15,18 +15,12 @@
 #include "content/ImportIwb.h"
 #include "content/ImportDocumentSetAdaptor.h"
 
-#include "whiteboard/GraphicsScene.h"
-#include "whiteboard/GraphicsSvgItem.h"
-#include "whiteboard/GraphicsPixmapItem.h"
-
 #include "model/DocumentProxy.h"
 #include "whiteboard/BoardController.h"
 
 #include "core/Application.h"
 #include "settings/Settings.h"
 #include "core/PersistenceManager.h"
-
-#include "content/ExportWeb.h"
 
 DocumentManager *DocumentManager::sDocumentManager = 0;
 
