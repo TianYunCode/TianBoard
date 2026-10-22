@@ -4,6 +4,7 @@
 #include "core/PersistenceManager.h"
 #include "model/DocumentProxy.h"
 #include "model/IDocumentStore.h"
+#include "model/PackageLayout.hpp"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 #include "whiteboard/GraphicsScene.h"
@@ -12,7 +13,9 @@
 #include <QCryptographicHash>
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QImage>
+#include <QMap>
 #include <QPainter>
 #include <QPen>
 
@@ -98,6 +101,68 @@ namespace
         }
 
         return pageSignature(SvgSubsetAdaptor::loadScene(proxy, pageXml));
+    }
+
+    /**
+     * @brief 这一页里每个位图图元指向的包内文件（绝对路径）。
+     * @note 内容清单比的是像素，两页共用同一份文件它看不出来；这份清单钉的是**资源归属**。
+     */
+    QStringList pageImageFiles(PersistenceManager *pm, DocumentProxy *proxy, int index)
+    {
+        QStringList    files;
+        GraphicsScene *scene = pm->loadDocumentScene(proxy, index);
+
+        if (!scene)
+        {
+            return files;
+        }
+
+        foreach (QGraphicsItem *item, scene->items())
+        {
+            if (!item->isVisible() || scene->isBackgroundObject(item))
+            {
+                continue;
+            }
+
+            if (GraphicsPixmapItem *pixmapItem = dynamic_cast<GraphicsPixmapItem *>(item))
+            {
+                files << QDir(proxy->persistencePath())
+                             .filePath(QStringLiteral("%1/%2.png").arg(PackageLayout::imageDirectory, pixmapItem->uuid().toString()));
+            }
+        }
+
+        return files;
+    }
+
+    /// @brief 逐页钉资源归属：每一份包内文件只许属于一页，而且必须真的在盘上。
+    void auditResourceOwnership(QStringList &failures, PersistenceManager *pm, DocumentProxy *proxy, const QString &stage)
+    {
+        QMap<QString, int> ownerPageIndex;
+
+        for (int i = 0; i < proxy->pageCount(); i++)
+        {
+            foreach (const QString &file, pageImageFiles(pm, proxy, i))
+            {
+                if (!QFile::exists(file))
+                {
+                    failures << QStringLiteral("%1 之后第 %2 页引用的包内文件根本不在盘上：%3").arg(stage).arg(i + 1).arg(file);
+                    continue;
+                }
+
+                if (ownerPageIndex.contains(file))
+                {
+                    failures << QStringLiteral("%1 之后第 %2 页与第 %3 页共用同一份包内文件 %4——"
+                                               "副本必须自己有一份，否则删掉一页就把另一页的图带坏")
+                                    .arg(stage)
+                                    .arg(ownerPageIndex.value(file) + 1)
+                                    .arg(i + 1)
+                                    .arg(file);
+                    continue;
+                }
+
+                ownerPageIndex.insert(file, i);
+            }
+        }
     }
 
     /**
@@ -204,6 +269,7 @@ namespace PageOperationsSelfTest
 
         board->duplicateScene(0);
         auditPages(failures, board, pm, proxy, QStringLiteral("复制第 1 页"), 4);
+        auditResourceOwnership(failures, pm, proxy, QStringLiteral("复制第 1 页"));
 
         if (proxy->pageCount() == 4 && liveSignature(pm, proxy, 1) != pageZeroBefore)
         {
@@ -251,6 +317,7 @@ namespace PageOperationsSelfTest
 
         board->deleteScene(1);
         auditPages(failures, board, pm, proxy, QStringLiteral("删掉第 2 页"), 3);
+        auditResourceOwnership(failures, pm, proxy, QStringLiteral("删掉第 2 页"));
 
         if (proxy->pageCount() == 3)
         {

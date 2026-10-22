@@ -82,6 +82,16 @@ public:
     /** @brief 把引用的 SVG 图片栅格化，避免导出/播放时依赖外部 SVG。 */
     static void convertSvgImagesToImages(DocumentProxy *proxy);
 
+    /**
+     * @brief 给这一页里每个图元补出一份它自有的包内文件，并把图元换成新的 UUID。
+     * @param proxy 这一页所属的文档（包内路径按它的目录算）。
+     * @param scene 已加载回来的那一页，**必须是场景缓存里的那一个**；本函数改完并置 modified，
+     *              调用方负责 persistScene。
+     * @note 页面复制是按 XML 原样再写一遍实现的，副本因此与原件共用同一份按 UUID 命名的文件；
+     *       谁认得这些命名规则（就是各个写出器）谁负责补这份对照，持久化服务不必回头认图元类型。
+     */
+    static void duplicateItemResources(DocumentProxy *proxy, GraphicsScene *scene);
+
     /// SVG 命名空间。
     static const QString nsSvg;
     /// xlink 命名空间，媒体与图片的 href 使用它。

@@ -3337,3 +3337,96 @@ void SvgSubsetAdaptor::convertSvgImagesToImages(DocumentProxy *proxy)
         }
     }
 }
+
+/**
+ * @brief 把这一页里每个图元**自有的包内文件**补出一份，并给图元换上新的 UUID。
+ *
+ * 详细说明：复制一页走的是"把页 XML 原样写到新页号再加载回来"，于是副本图元一开始和原件
+ * 指向同一份包内文件——位图、内嵌 SVG、音视频与小部件都是按 UUID 命名的，共用一份就会在任一侧
+ * 改写或删除时把另一侧带坏。这里按类型把包内文件补出来并换号，调用方随后 persistScene 落盘。
+ * 四种类型的命名规则与写出器（pixmapItemToLinkedImage/svgItemToLinkedSvg/音视频与小部件那几支）
+ * 一一对照，所以这件事住在页写出器这里，而不是让持久化服务回头去认图元类型。
+ * @param proxy 这一页所属的文档（包内路径按它的 persistencePath 算）。
+ * @param scene 已经加载回来的那一页；本函数会改它并置 modified。
+ * @note 调用方负责 persistScene，且必须把**场景缓存里的那一个**传进来：另造一个场景改完落盘，
+ *       缓存里那份还带着旧 UUID。
+ */
+void SvgSubsetAdaptor::duplicateItemResources(DocumentProxy *proxy, GraphicsScene *scene)
+{
+    if (!proxy || !scene)
+    {
+        return;
+    }
+
+    foreach (QGraphicsItem *item, scene->items())
+    {
+        // 音频与视频图元各自回报 Type，qgraphicsitem_cast 认不出抽象基类，
+        // 所以这里要按类型逐个问；早先正因为漏了视频分支，副本页会和原页共用同一个媒体文件。
+        GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem *>(item);
+
+        if (mediaItem)
+        {
+            QString source      = mediaItem->mediaFileUrl().toLocalFile();
+            QString destination = source;
+            QUuid   newUuid     = QUuid::createUuid();
+            QString fileName    = QFileInfo(source).completeBaseName();
+            destination         = destination.replace(fileName, newUuid.toString());
+            QFile::copy(source, destination);
+            mediaItem->setMediaFileUrl(QUrl::fromLocalFile(destination));
+            continue;
+        }
+
+        GraphicsWidgetItem *widget = qgraphicsitem_cast<GraphicsWidgetItem *>(item);
+        if (widget)
+        {
+            QUuid   newUUid                   = QUuid::createUuid();
+            QString newUUidString             = newUUid.toString().remove("{").remove("}");
+            QString actualUuidString          = widget->uuid().toString().remove("{").remove("}");
+
+            QString widgetSourcePath          = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/{" + actualUuidString + "}.wgt";
+            QString screenshotSourcePath      = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + actualUuidString + ".png";
+
+            QString widgetDestinationPath     = widgetSourcePath;
+            widgetDestinationPath             = widgetDestinationPath.replace(actualUuidString, newUUidString);
+            QString screenshotDestinationPath = screenshotSourcePath;
+            screenshotDestinationPath         = screenshotDestinationPath.replace(actualUuidString, newUUidString);
+
+            FileSystemUtils::copyDir(widgetSourcePath, widgetDestinationPath);
+            QFile::copy(screenshotSourcePath, screenshotDestinationPath);
+
+            widget->setUuid(newUUid);
+
+            widget->widgetUrl(QUrl::fromLocalFile(widgetDestinationPath));
+
+            continue;
+        }
+
+        GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
+        if (pixmapItem)
+        {
+            QString source      = proxy->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
+            QString destination = source;
+            QUuid   newUuid     = QUuid::createUuid();
+            QString fileName    = QFileInfo(source).completeBaseName();
+            destination         = destination.replace(fileName, newUuid.toString());
+            QFile::copy(source, destination);
+            pixmapItem->setUuid(newUuid);
+            continue;
+        }
+
+        GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
+        if (svgItem)
+        {
+            QString source      = proxy->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+            QString destination = source;
+            QUuid   newUuid     = QUuid::createUuid();
+            QString fileName    = QFileInfo(source).completeBaseName();
+            destination         = destination.replace(fileName, newUuid.toString());
+            QFile::copy(source, destination);
+            svgItem->setUuid(newUuid);
+            continue;
+        }
+    }
+
+    scene->setModified(true);
+}

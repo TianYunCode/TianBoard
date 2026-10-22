@@ -179,7 +179,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 7 / 22 | `core/PersistenceManager`/`DocumentManager`/`SceneCache` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针。挂在 `Application` 上的两个全局画板物件已经还回去了：`boardController`→`BoardController::instance()`（一刀削掉 21 条上边）、`undoStack`→`BoardController::undoStack()`（再削 3 条）；core→whiteboard 这侧 16→14 是删掉没人实例化的 `core/IdleTimer`（见第 13 步），14→10 是把 `DisplayManager`/`DownloadManager` 改成"只报事实"（见第 14 步），10→7 是 `DocumentManager` 里三条"其实不存在"的 include（见第 15 步）。剩下的 7 条是一簇：`PersistenceManager` 4、`SceneCache` 2、`DocumentManager` 1，都得等场景生命周期搬到画板；`whiteboard` 那侧的主因仍是 `mainWindow` 与 `documentController` |
+| `core` ↔ `whiteboard` | 3 / 22 | `core/PersistenceManager`/`DocumentManager`/`SceneCache` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针。挂在 `Application` 上的两个全局画板物件已经还回去了：`boardController`→`BoardController::instance()`（一刀削掉 21 条上边）、`undoStack`→`BoardController::undoStack()`（再削 3 条）；core→whiteboard 这侧 16→14 是删掉没人实例化的 `core/IdleTimer`（第 13 步），14→10 是把 `DisplayManager`/`DownloadManager` 改成"只报事实"（第 14 步），10→7 是 `DocumentManager` 里三条"其实不存在"的 include（第 15 步），7→3 是把页复制时的图元资源搬移整段搬回 content 的写出器（第 16 步）。剩下 3 条同一件事：`SceneCache` 2（缓存并造出 GraphicsScene）+ `DocumentManager` 1（导入完请画板补缩略图）；`whiteboard` 那侧的主因仍是 `mainWindow` 与 `documentController` |
 | `ui` ↔ `whiteboard` | 29 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
 
 `content` ↔ `core` 与 `core` ↔ `model` 两组环已于 2026-10-22 拆掉，手法都是同一个形状：
@@ -464,6 +464,22 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
    （`model/IDocumentStore.h` 已经这么干了），实现住在画板——见任务表，这一刀要单独排期，因为
    `loadDocumentScene` 留在 core 是有理由的：它调 `content/SvgSubsetAdaptor`，而画板对 content
    必须保持零出边（第 6 步刚把那一组环拆掉）。
+16. **图元资源复制整段搬回“认得命名规则的那一层”，core→whiteboard 7→3**（2026-10-22）：
+   `PersistenceManager::duplicateDocumentScene` 里那段 70 行的循环——按 `GraphicsMediaItem`/
+   `GraphicsWidgetItem`/`GraphicsPixmapItem`/`GraphicsSvgItem` 四种类型把包内文件补出一份、再给图元
+   换新 UUID——搬成 `SvgSubsetAdaptor::duplicateItemResources(proxy, scene)`。**这一刀不需要新契约**：
+   `core → content` 本来就是合法的向下边，而“图元 ↔ 包内文件叫什么名、摆在哪个目录”这套知识一直住在
+   content（`pixmapItemToLinkedImage`/`svgItemToLinkedSvg`/`pdfItemToLinkedPDF` 与音视频那几支写出器都是它），
+   复制这一侧只是同一份知识的另一个方向——留在 core 等于把知识抄一遍。搬的时候有一条必须钉住：
+   **传进去的必须是场景缓存里的那一个场景**，另 `loadScene` 一份改完再落盘，缓存里那份还带着旧 UUID；
+   这条写进了函数注释与头文件的 `@note`。
+   顺带补的债：`--pages-selftest` 原来只比“每一页的内容清单”，而**内容清单看不出两页共用同一份文件**
+   （像素一样、文本一样，只有删掉一页时另一页的图才跟着没）。现在每一步之后再加一条**资源归属**判据：
+   每份 `images/<UUID>.png` 只许属于一页，且必须真在盘上。反向对照：把 `duplicateItemResources` 开头
+   短路，`tst_pages` 立刻 2 处红（“复制第 1 页之后第 1 页与第 2 页共用同一份包内文件”，
+   “删掉第 2 页之后”同一句）——搬过去的代码从此有人钉。
+   还剩 3 条：`SceneCache.h`/`.cpp` 各一条（缓存并 `new` 出 GraphicsScene、存取 `SceneViewState`），
+   以及 `DocumentManager` 那条 `insertThumbPage`。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -474,10 +490,10 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:3, whiteboard:6
-app         -> api:1, content:12, core:43, desktop:1, model:23, platform:5, recording:2,
+app         -> api:1, content:12, core:43, desktop:1, model:24, platform:5, recording:2,
                settings:13, ui:15, utils:11, web:1, whiteboard:58
 content     -> model:30, platform:8, settings:7, utils:31, whiteboard:45
-core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:7
+core        -> content:14, model:9, platform:4, settings:7, utils:9, whiteboard:3
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> settings:5, utils:8
 platform    -> utils:1
@@ -490,15 +506,17 @@ whiteboard  -> core:22, model:21, platform:5, settings:20, ui:30, utils:54
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
-2026-10-22 这张表重测过五次：`Application::boardController` 那一刀把
+2026-10-22 这张表重测过六次：`Application::boardController` 那一刀把
 `whiteboard` 对 `core` 从 46 削到 25、`ui` 从 33 到 27；`Application::undoStack` 那一刀再把它从
 25 削到 22（`SelectionFrame.cpp` 因此不再 include `core/Application.h`，还顺手删掉两行重复 include）；
 删掉没人实例化的 `core/IdleTimer` 把 `core` 对 `whiteboard` 从 16 削到 14；
 `DisplayManager`/`DownloadManager` 改成只报事实再削 4 条（14→10）；
-`DocumentManager` 里三条“其实不存在”的 include 再削 3 条（10→7）。
-同一轮全表重测还纠正了两处旧数：`whiteboard` 对 `utils` 是 54 不是 52（`UserNotices` 下沉那一批
-改的就是这条边，当时只按直觉记了增量）。
-`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:58`、`model:23`、
+`DocumentManager` 里三条“其实不存在”的 include 再削 3 条（10→7）；
+图元资源复制整段搬回 content 的写出器再削 4 条（7→3）。
+同一轮全表重测还纠正了三处旧数：`whiteboard` 对 `utils` 是 54 不是 52（`UserNotices` 下沉那一批
+改的就是这条边，当时只按直觉记了增量）；`core` 对 `content` 是 14 不是 15（第 15 步删那行重复
+`content/ExportWeb.h` 时就该跟着改，只按显眼的方向记了数）。
+`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:58`、`model:24`、
 `core:43`、`ui:15`、`content:12` 比旧表多出来的那几条，是这一轮新加的八个自检（录屏、剪贴板、导出、
 撤销重做、自动保存、页面、媒体、本地下载）新 include 的图元、场景与界面头文件——它们都住在
 `src/app/`，所以这些边只长在装配点上，没有给任何一层加新账。

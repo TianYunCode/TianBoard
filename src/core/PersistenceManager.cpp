@@ -24,11 +24,6 @@
 #include "content/ThumbnailAdaptor.h"
 #include "content/MetadataDcSubsetAdaptor.h"
 
-#include "whiteboard/GraphicsMediaItem.h"
-#include "whiteboard/GraphicsWidgetItem.h"
-#include "whiteboard/GraphicsPixmapItem.h"
-#include "whiteboard/GraphicsSvgItem.h"
-
 namespace
 {
     /// 重名裁决钩子；由装配点装入界面实现，为空时重名一律不登记。
@@ -727,76 +722,9 @@ void PersistenceManager::duplicateDocumentScene(DocumentProxy *proxy, int index)
         return;
     }
 
-    foreach (QGraphicsItem *item, scene->items())
-    {
-        // 音频与视频图元各自回报 Type，qgraphicsitem_cast 认不出抽象基类，
-        // 所以这里要按类型逐个问；早先正因为漏了视频分支，副本页会和原页共用同一个媒体文件。
-        GraphicsMediaItem *mediaItem = dynamic_cast<GraphicsMediaItem *>(item);
-
-        if (mediaItem)
-        {
-            QString source      = mediaItem->mediaFileUrl().toLocalFile();
-            QString destination = source;
-            QUuid   newUuid     = QUuid::createUuid();
-            QString fileName    = QFileInfo(source).completeBaseName();
-            destination         = destination.replace(fileName, newUuid.toString());
-            QFile::copy(source, destination);
-            mediaItem->setMediaFileUrl(QUrl::fromLocalFile(destination));
-            continue;
-        }
-
-        GraphicsWidgetItem *widget = qgraphicsitem_cast<GraphicsWidgetItem *>(item);
-        if (widget)
-        {
-            QUuid   newUUid                   = QUuid::createUuid();
-            QString newUUidString             = newUUid.toString().remove("{").remove("}");
-            QString actualUuidString          = widget->uuid().toString().remove("{").remove("}");
-
-            QString widgetSourcePath          = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/{" + actualUuidString + "}.wgt";
-            QString screenshotSourcePath      = proxy->persistencePath() + "/" + PackageLayout::widgetDirectory + "/" + actualUuidString + ".png";
-
-            QString widgetDestinationPath     = widgetSourcePath;
-            widgetDestinationPath             = widgetDestinationPath.replace(actualUuidString, newUUidString);
-            QString screenshotDestinationPath = screenshotSourcePath;
-            screenshotDestinationPath         = screenshotDestinationPath.replace(actualUuidString, newUUidString);
-
-            FileSystemUtils::copyDir(widgetSourcePath, widgetDestinationPath);
-            QFile::copy(screenshotSourcePath, screenshotDestinationPath);
-
-            widget->setUuid(newUUid);
-
-            widget->widgetUrl(QUrl::fromLocalFile(widgetDestinationPath));
-
-            continue;
-        }
-
-        GraphicsPixmapItem *pixmapItem = qgraphicsitem_cast<GraphicsPixmapItem *>(item);
-        if (pixmapItem)
-        {
-            QString source      = proxy->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
-            QString destination = source;
-            QUuid   newUuid     = QUuid::createUuid();
-            QString fileName    = QFileInfo(source).completeBaseName();
-            destination         = destination.replace(fileName, newUuid.toString());
-            QFile::copy(source, destination);
-            pixmapItem->setUuid(newUuid);
-            continue;
-        }
-
-        GraphicsSvgItem *svgItem = qgraphicsitem_cast<GraphicsSvgItem *>(item);
-        if (svgItem)
-        {
-            QString source      = proxy->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
-            QString destination = source;
-            QUuid   newUuid     = QUuid::createUuid();
-            QString fileName    = QFileInfo(source).completeBaseName();
-            destination         = destination.replace(fileName, newUuid.toString());
-            QFile::copy(source, destination);
-            svgItem->setUuid(newUuid);
-            continue;
-        }
-    }
-    scene->setModified(true);
+    // 副本图元与原件共用同一份按 UUID 命名的包内文件；谁认得这些命名规则（就是各个写出器）
+    // 谁补这一份对照，所以这一步住在 content 里，持久化服务不再回头认图元类型。
+    SvgSubsetAdaptor::duplicateItemResources(proxy, scene);
 
     persistDocumentScene(proxy, scene, index + 1);
 
