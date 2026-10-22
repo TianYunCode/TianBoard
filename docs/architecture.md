@@ -499,6 +499,25 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
    core 对 whiteboard 只剩 `SceneCache.h`/`.cpp` 那 2 条（缓存并造出 GraphicsScene、存取 `SceneViewState`），
    要归零就得把**场景的生命周期搬到画板**：契约留在 core 按指针传、实现住在 whiteboard，且
    `loadDocumentScene` 必须留在 core（它调 `content/SvgSubsetAdaptor`，画板对 content 要维持零出边）。
+18. **最后 2 条边的真实代价已经量出来了，别用"搬文件"糊过去**（2026-10-22 收尾时量的）：
+   `core → whiteboard` 只剩 `SceneCache.h`/`.cpp` 两条 include，看上去一次 `git mv` 就能归零——
+   `content/` 是被允许认识画板的层（`SvgSubsetAdaptor::loadScene` 本来就在那儿把页字节造成场景），
+   把缓存搬过去，core 只 include `content/SceneCache.h`，那条 grep 当场就是 0。**但这是糊数字**：
+   `content/SceneCache.h` 仍然 `#include "whiteboard/GraphicsScene.h"`，而 `PersistenceManager.cpp`
+   正是靠这条传递包含拿到 `GraphicsScene` 的完整类型——它手里那些点全都要这个类型：
+   - `createDocumentSceneAt`：`newScene->setBackground(...)`、`setBackgroundGridSize(...)`
+   - `insertDocumentSceneAt`：`scene->setDocument(proxy)`
+   - `persistDocumentScene`：`pScene->deselectAllItems()`、`isModified()`、`setModified(false)`
+   - 搬对象那一支：`scene->relativeDependencies()`、`scene->document()`
+   - 判空那一支：`theSoleScene->isEmpty()`
+   外加 `SceneCache` 自己的 `new GraphicsScene(...)`、`viewState()/setViewState()`、`isActive()`。
+   搬完这些一个都没少，只是不再被 grep 看见。**所以真正的最后一刀是把“场景的生命周期”整个搬到画板**：
+   契约留在 core（`GraphicsScene` 只前置声明，照 `model/IDocumentStore.h` 的写法），实现住在 whiteboard，
+   上面那七个动作各变成契约上的一个方法；`loadDocumentScene` 本身**必须留在 core**（它调
+   `content/SvgSubsetAdaptor`，而画板对 content 要维持零出边）。外部调用点约 30 处
+   （`BoardController` 6、四个自检各 2-6、`ui/DocumentController` 4、`model/DocumentContainer` 4、
+   `content/ExportPDF` 3、`content/IwbSubsetAdaptor` 2、其余若干），是一次设计活，
+   **别在长时间会话末尾做这种抽象选择**——门禁抓得住编译与测试退化，抓不住“抽象选错了”。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
