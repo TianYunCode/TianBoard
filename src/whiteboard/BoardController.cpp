@@ -1617,7 +1617,10 @@ void BoardController::ClearUndoStack()
         }
     }
 
-    // 清空撤销栈，命令对象随之释放。
+    // 清空撤销栈，命令对象随之释放。这一句是承重的：上面那个循环会把"既不在场景也不在剪贴板"
+    // 的图元直接 delete 掉，命令若留着，它们抱着的就是已释放的图元——下一次 ClearUndoStack 再走
+    // 一遍 findUniquesItems 就是读悬垂指针（实测崩在 QGraphicsItem::parentItem）。
+    // --undoredo-selftest 第 6 案（画一笔→删掉当前这一页）钉着它。
     BoardController::undoStack()->clear();
 }
 

@@ -717,3 +717,23 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
   于是"画板当前文档"一直是别人的那份，追加也确实没动画板的列表，红得毫无线索性。改成
   `withEmptyPage=true` 并加一条前置断言"画板必须真的切到这份文档"，量的才是这条路本身。
   **凡依赖"画板当前是哪份文档"的用例，都要显式断那句切换成功，不能假定。**
+
+### 2026-10-22：撤销/重做自检补第 6 案——`ClearUndoStack` 末尾那次清栈是删页链路的承重墙
+
+`--undoredo-selftest` 加了"画一笔 → 在翻页条上删掉当前这一页 → 再撤销、再画一笔"之后，做的反向对照
+是把 `BoardController::ClearUndoStack()` 末尾那句 `undoStack()->clear()` 注释掉——进程**直接段错误**。
+`cdb` 抓到的栈（符号未优化，函数名清楚）：
+
+```text
+Qt6Widgetsd!QGraphicsItem::parentItem
+TianBoard!BoardController::findUniquesItems
+TianBoard!BoardController::ClearUndoStack
+TianBoard!BoardController::setActiveDocumentScene
+TianBoard!UndoRedoSelfTest::run          ← 就是 board->deleteScene(...) 这一步
+```
+
+机制读清楚了，值得记：**`ClearUndoStack` 那个循环会把"既不在场景也不在剪贴板"的图元直接 delete**
+（那是剪贴板/撤销占用的图元唯一的释放点），而命令对象还抱着它们；只有末尾那次 `clear()` 把命令一起
+丢掉，下一轮遍历才不会读已释放内存。所以那句看起来像收尾的清栈**不是装饰，是这条链路的承重墙**，
+而它原先只在换页/换文档时"顺路"被调到，从来没有用例钉过。现在第 6 案钉住了：去掉它就红（异常退出），
+留着它就绿。
