@@ -283,11 +283,20 @@ void GraphicsMediaItem::setSourceUrl(const QUrl &pSourceUrl)
 
 void GraphicsMediaItem::clearSource()
 {
+    // 拿不到归属就干脆不动手：退出期 BoardController 可能已析构，selectedDocument() 也可能是空。
+    BoardController *board    = BoardController::instance();
+    DocumentProxy   *document = board ? board->selectedDocument() : nullptr;
+    if (!document)
+    {
+        qWarning() << "媒体图元找不到所属文档，跳过资源清理:" << mediaFileUrl();
+        return;
+    }
+
     QString path = mediaFileUrl().toLocalFile();
     // 相对路径需要补上文档目录；已经是绝对路径时不要再拼接
-    if (!path.contains(BoardController::instance()->selectedDocument()->persistencePath()))
+    if (!path.contains(document->persistencePath()))
     {
-        path = BoardController::instance()->selectedDocument()->persistencePath() + "/" + path;
+        path = document->persistencePath() + "/" + path;
     }
 
     if (!FileSystemUtils::deleteFile(path))

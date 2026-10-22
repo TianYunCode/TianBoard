@@ -145,7 +145,16 @@ qreal GraphicsPixmapItem::opacity() const
 
 void GraphicsPixmapItem::clearSource()
 {
-    QString fileName = PackageLayout::imageDirectory + "/" + uuid().toString() + ".png";
-    QString diskPath = BoardController::instance()->selectedDocument()->persistencePath() + "/" + fileName;
+    // 归属拿不到就干脆不动手：退出期 BoardController 可能已经析构，selectedDocument() 也可能是空。
+    // 另一层问题仍记在台账里：这里按"画板当前文档"算路径，删的是非当前文档里的图元时会漏。
+    BoardController *board    = BoardController::instance();
+    DocumentProxy   *document = board ? board->selectedDocument() : nullptr;
+    if (!document)
+    {
+        qWarning() << "位图图元找不到所属文档，跳过资源清理:" << uuid();
+        return;
+    }
+
+    const QString diskPath = document->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + uuid().toString() + ".png";
     FileSystemUtils::deleteFile(diskPath);
 }

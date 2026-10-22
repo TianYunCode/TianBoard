@@ -517,8 +517,18 @@
   本来就发了新 UUID，`deepCopy` 又 `setUuid(this->uuid())` 改回去，两份于是共用同一个按 UUID 命名的
   文件；而 `CoreGraphicsScene::deleteItem` 会调 `clearSource()` 按 UUID 删文件——删掉任一份，
   另一份引用的文件就没了。现在保留构造函数发的新 UUID，副本自己的文件由写出器补齐。
-  `clearSource()` 本身仍按"当前选中的文档"算路径（图元此刻已不在场景里，拿不到归属文档），
-  所以跨文档删除时它可能删空、留下一个孤儿文件——文件随文档目录整体删除，暂不处理。
+  `clearSource()` 这一族今天又量深了一层，两件事记清楚：
+  ① 它按"画板当前选中的文档"算路径（图元此刻已从场景移除，拿不到归属文档），删非当前文档里的图元时
+     会删空、留下一个孤儿文件；文件随文档目录整体删除，暂不处理。要真修，该让
+     `CoreGraphicsScene::deleteItem` 把**自己那份文档**传进去（`clearSource(DocumentProxy *)`）——
+     调用方手上有场景，归属本来就该由它给。
+  ② 更靠前的一层：`BoardController::ClearUndoStack()` 只对 `mActiveScene->deleteItem(item)` 动手，
+     而图元的"待删登记"在它自己那个场景里；跨文档时这一步返回 false，于是直接 `delete item`，
+     `clearSource()` 根本没被调到——文件同样留下。两处是同一个根：**撤销栈与释放点都按"当前"算，
+     而图元的归属是"它自己那一份"**。
+  今天只把三处 `BoardController::instance()->selectedDocument()->persistencePath()` 这条不判空的链
+  加了守卫（退出期 `instance()` 已析构或当前没有文档时记一条告警再返回，不再空指针解引用），
+  归属机制本身一字未动。
 
 验证：`tst_format` 的 `buildScene` 现在多了一个内嵌 SVG 与它的 `deepCopy` 副本，`sceneFacts` 按
 SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路成 `false` 重新构建，自检立刻报

@@ -203,7 +203,15 @@ void GraphicsSvgItem::setUuid(const QUuid &pUuid)
 
 void GraphicsSvgItem::clearSource()
 {
-    QString fileName = PackageLayout::imageDirectory + "/" + uuid().toString() + ".svg";
-    QString diskPath = BoardController::instance()->selectedDocument()->persistencePath() + "/" + fileName;
+    // 与位图那一份同一个口径：拿不到归属就不动手（退出期 BoardController 可能已析构）。
+    BoardController *board    = BoardController::instance();
+    DocumentProxy   *document = board ? board->selectedDocument() : nullptr;
+    if (!document)
+    {
+        qWarning() << "内嵌 SVG 图元找不到所属文档，跳过资源清理:" << uuid();
+        return;
+    }
+
+    const QString diskPath = document->persistencePath() + "/" + PackageLayout::imageDirectory + "/" + uuid().toString() + ".svg";
     FileSystemUtils::deleteFile(diskPath);
 }
