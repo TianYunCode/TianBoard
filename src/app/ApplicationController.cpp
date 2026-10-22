@@ -11,6 +11,7 @@
 #include "settings/Setting.h"
 #include "core/DocumentManager.h"
 #include "core/DisplayManager.h"
+#include "core/DownloadManager.h"
 
 #include "whiteboard/BoardView.h"
 #include "whiteboard/BoardController.h"
@@ -59,6 +60,15 @@ ApplicationController::ApplicationController(
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mDesktopAnnotation, &IDesktopAnnotation::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &IWebController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, BoardController::instance(), &BoardController::adjustDisplayViews);
+    // 黑屏解除后要把画板上的网页小部件解冻；多屏服务只回报“黑屏没了”，应答方由装配点连上。
+    connect(mDisplayManager, &DisplayManager::blackoutLifted, BoardController::instance(), &BoardController::blackoutLifted);
+    // 本地拖进来的文件在进下载队列前就要算出它在文档包里的落点，而“当前是哪份文档”只有画板知道。
+    DownloadManager::installTargetDocumentProvider(
+        []()
+        {
+            BoardController *board = BoardController::instance();
+            return board ? board->selectedDocument() : nullptr;
+        });
     // 槽第三个参数有默认值，成员指针形式要求参数个数不超过信号，这里显式补默认值
     connect(mDesktopAnnotation, &IDesktopAnnotation::imageCaptured, this,
         [this](const QPixmap &pixmap, bool pageMode)
@@ -106,7 +116,13 @@ void ApplicationController::initScreenLayout(bool useMultiscreen)
     mDisplayManager->setControlWidget(mMainWindow);
     mDisplayManager->setDisplayWidget(mDisplayView);
 
-    mDisplayManager->setPreviousDisplaysWidgets(mPreviousViews);
+    // 多屏服务只用到窗口的几何与全屏能力，不认画板视图：装配点按视图顺序交一份 QWidget 列表。
+    QList<QWidget *> previousWidgets;
+    for (BoardView *view : mPreviousViews)
+    {
+        previousWidgets.append(view);
+    }
+    mDisplayManager->setPreviousDisplaysWidgets(previousWidgets);
     mDisplayManager->setDesktopWidget(mDesktopAnnotation->drawingView());
 
     mDisplayManager->setUseMultiScreen(useMultiscreen);

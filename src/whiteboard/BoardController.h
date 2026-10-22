@@ -292,6 +292,12 @@ public slots:
     void showKeyboard(bool show);
     /// @brief 进入黑屏（息屏）状态。
     void blackout();
+    /**
+     * @brief 黑屏解除：把黑屏期间冻结的网页小部件重新跑起来。
+     * @note 由装配点连到 DisplayManager::blackoutLifted()——多屏服务只回报事实，解冻画板上的
+     *       小部件是画板自己的决定。
+     */
+    void blackoutLifted();
     /// @brief 在当前文档末尾新建一页。
     void addScene();
     /**

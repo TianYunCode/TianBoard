@@ -209,6 +209,17 @@ set_tests_properties(tst_media PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 本地下载端到端自检：应用带 --download-selftest 把文档外的文件交给下载队列，
+# 验它真按字节进了文档包，并点名数一遍跨层事实的应答连线。
+add_executable(tst_download tst_download.cpp)
+target_compile_options(tst_download PRIVATE /MP /utf-8)
+target_link_libraries(tst_download PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_download TianBoard)
+add_test(NAME tst_download COMMAND tst_download)
+set_tests_properties(tst_download PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

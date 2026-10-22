@@ -1,5 +1,6 @@
 #include "app/MediaInsertSelfTest.h"
 
+#include "app/SelfTestAssets.h"
 #include "content/SvgSubsetAdaptor.h"
 #include "core/PersistenceManager.h"
 #include "model/DocumentProxy.h"
@@ -11,7 +12,6 @@
 
 #include <QByteArray>
 #include <QCoreApplication>
-#include <QDataStream>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -19,32 +19,6 @@
 
 namespace
 {
-    /// @brief 合成一个合法的 8bit 单声道 WAV（0.1 秒）；当作用户桌面上那个"要拖进画板的音频"。
-    QByteArray buildWav()
-    {
-        const int  sampleCount = 800;
-        QByteArray body(sampleCount, '\0');
-        for (int i = 0; i < sampleCount; ++i)
-        {
-            body[i] = static_cast<char>(128 + (i % 32) - 16);
-        }
-
-        QByteArray  wav;
-        QDataStream out(&wav, QIODevice::WriteOnly);
-        out.setByteOrder(QDataStream::LittleEndian);
-
-        out.writeRawData("RIFF", 4);
-        out << qint32(36 + body.size());
-        out.writeRawData("WAVE", 4);
-        out.writeRawData("fmt ", 4);
-        out << qint32(16) << quint16(1) << quint16(1) << qint32(8000) << qint32(8000) << quint16(1) << quint16(8);
-        out.writeRawData("data", 4);
-        out << qint32(body.size());
-        out.writeRawData(body.constData(), body.size());
-
-        return wav;
-    }
-
     /// @brief 场景里媒体图元的个数：只数顶层图元（每个媒体图元还挂着子图元，一起数会翻倍）。
     int countMediaItems(GraphicsScene *scene)
     {
@@ -78,18 +52,14 @@ namespace
         const QString stage      = withData ? QStringLiteral("带着字节插入") : QStringLiteral("只给文件路径插入");
 
         const QString sourcePath = QDir(outsideDir).filePath(fileName);
+        if (!SelfTestAssets::writeBytes(sourcePath, SelfTestAssets::toneWav()))
         {
-            QFile sourceFile(sourcePath);
-            if (!sourceFile.open(QIODevice::WriteOnly))
-            {
-                failures << QStringLiteral("%1：造不出源媒体文件 %2").arg(stage, sourcePath);
-                return;
-            }
-            sourceFile.write(buildWav());
+            failures << QStringLiteral("%1：造不出源媒体文件 %2").arg(stage, sourcePath);
+            return;
         }
 
         const QUrl       sourceUrl = QUrl::fromLocalFile(sourcePath);
-        const QByteArray payload   = withData ? buildWav() : QByteArray();
+        const QByteArray payload   = withData ? SelfTestAssets::toneWav() : QByteArray();
 
         Item *created =
             board->downloadFinished(true, sourceUrl, QUrl(), QStringLiteral("audio/x-wav"), payload, QPointF(300, 300), QSize(), false, false);

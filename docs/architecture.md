@@ -13,7 +13,8 @@
 ```text
 src/
   ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配、
-  │                十二个 *SelfTest，以及 Application.cpp / ApplicationController.cpp
+  │                十三个 *SelfTest（外加 SelfTestAssets 那份共用合成素材），以及
+  │                Application.cpp / ApplicationController.cpp
   │                ——这两个装配角色的实现（头文件在 core/，见第四节）
   ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
   │                （只依赖 utils，与 utils 一样是真 STATIC）
@@ -56,7 +57,7 @@ src/
                    AutoSaver 与 UserNotices 2026-10-21/22 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（24 个）
+tests/             Qt Test 用例（25 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账
@@ -178,7 +179,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 14 / 22 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针。挂在 `Application` 上的两个全局画板物件已经还回去了：`boardController`→`BoardController::instance()`（一刀削掉 21 条上边）、`undoStack`→`BoardController::undoStack()`（再削 3 条）；core→whiteboard 这侧 16→14 是删掉没人实例化的 `core/IdleTimer`（见第 13 步）。剩下的主因是 `mainWindow` 与 `documentController` |
+| `core` ↔ `whiteboard` | 10 / 22 | `core/PersistenceManager`/`DocumentManager`/`SceneCache` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针。挂在 `Application` 上的两个全局画板物件已经还回去了：`boardController`→`BoardController::instance()`（一刀削掉 21 条上边）、`undoStack`→`BoardController::undoStack()`（再削 3 条）；core→whiteboard 这侧 16→14 是删掉没人实例化的 `core/IdleTimer`（见第 13 步），14→10 是把 `DisplayManager`/`DownloadManager` 改成"只报事实"（见第 14 步）。剩下的 10 条全在"页与图元"这一簇：`DocumentManager` 4、`PersistenceManager` 4、`SceneCache` 2；`whiteboard` 那侧的主因仍是 `mainWindow` 与 `documentController` |
 | `ui` ↔ `whiteboard` | 29 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
 
 `content` ↔ `core` 与 `core` ↔ `model` 两组环已于 2026-10-22 拆掉，手法都是同一个形状：
@@ -429,6 +430,29 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
    行为，只削掉它 `.cpp` 里那两条最没道理的上边（`whiteboard/BoardController.h`、
    `whiteboard/BoardView.h`）。判死的规矩没变：grep 只给候选，删完六道门禁全绿、24 条 ctest 全绿、
    `/W4 -Clean -Strict` 零告警才算数。环仍 2 组，`core` ↔ `whiteboard` 由 16/22 到 14/22。
+14. **`DisplayManager` 与 `DownloadManager` 改成“只报事实”，core→whiteboard 14→10**（2026-10-22）：
+   这两处是第 11 步列的最后两类“服务层回头命令画板”，形状与第 8 步拆 `content`→`ui` 那一刀完全相同。
+   - `DisplayManager::setPreviousDisplaysWidgets(QList<BoardView *>)` 收的其实是**窗口**：它只调
+     `hide()`/`setGeometry()`/全屏，所以签名换成 `QList<QWidget *>`，由装配点按视图顺序交进来；
+     `whiteboard/BoardView.h` 这条 include 随之删除（顺带发现 `core/ApplicationController.h` 在这个
+     .cpp 里一处都不用，也删了）。
+   - `unBlackout()` 过去直接 `BoardController::instance()->freezeWebWidgets(false)`；现在只
+     `emit blackoutLifted()`，应答方 `BoardController::blackoutLifted()` 由 `app/ApplicationController`
+     连上——与同一处已经存在的 `adjustDisplayViewsRequired`→`adjustDisplayViews` 是同一个模式。
+   - `DownloadManager` 里两处 `BoardController::instance()->paletteManager()->startDownloads()/
+     stopDownloads()` 换成 `downloadsQueued()`/`downloadsDrained()` 两条事实，由画板在
+     `BoardController::init()` 里把调色板的应答连上（连线两端都在画板内部，不必绕装配点）。
+   - `AsyncLocalFileDownloader::prepare()` 需要“当前打开的是哪份文档”才能算出复制的目标路径，而这是
+     画板的状态。这里改成第 11 步那个“再还一个归属”的变体：**被依赖的一层留口子，实现由装配点装上**
+     （`DownloadManager::installTargetDocumentProvider`，仿的是同目录里已有的
+     `DisplayManager::installBlackoutSurfaceFactory`）。**顺带修掉一处真隐患**：旧写法两处
+     `BoardController::instance()->…` 都不判空，画板还没诞生（或已经析构）时就是空指针解引用；
+     钩子给不出文档时现在打一条告警并让这次下载按失败收尾。
+   第 25 条自检 `--download-selftest`（`tst_download`）盯的就是这套新接线，量的是产物与界面状态而不是
+   调用关系：入队时右侧面板那个下载标签页出现、文件按字节落进这份文档的 `audios/`、排空后标签页收回、
+   源文件仍在，外加事实各报几次。三条反向对照各自只打红该红的那一条——不装提供者钩子 4 处红（文件
+   无处可去）、摘掉画板对下载起止的两条连线只有“标签页没出现”1 处红（下载本身照旧成功）、去掉
+   `emit blackoutLifted()` 只有“报了几次”1 处红。环仍 2 组，`core` ↔ `whiteboard` 10/22。
 
 `docs/code-suspicions.md` 记的是另一类问题（可疑行为），与这里的依赖债分开。
 
@@ -439,10 +463,10 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:3, whiteboard:6
-app         -> api:1, content:12, core:37, desktop:1, model:21, platform:5, recording:2,
-               settings:13, ui:13, utils:11, web:1, whiteboard:57
+app         -> api:1, content:12, core:43, desktop:1, model:23, platform:5, recording:2,
+               settings:13, ui:15, utils:11, web:1, whiteboard:58
 content     -> model:30, platform:8, settings:7, utils:31, whiteboard:45
-core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:14
+core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:10
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
 model       -> settings:5, utils:8
 platform    -> utils:1
@@ -455,16 +479,17 @@ whiteboard  -> core:22, model:21, platform:5, settings:20, ui:30, utils:54
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
-2026-10-22 这张表重测过三次：`Application::boardController` 那一刀把
+2026-10-22 这张表重测过四次：`Application::boardController` 那一刀把
 `whiteboard` 对 `core` 从 46 削到 25、`ui` 从 33 到 27；`Application::undoStack` 那一刀再把它从
 25 削到 22（`SelectionFrame.cpp` 因此不再 include `core/Application.h`，还顺手删掉两行重复 include）；
-删掉没人实例化的 `core/IdleTimer` 把 `core` 对 `whiteboard` 从 16 削到 14。
+删掉没人实例化的 `core/IdleTimer` 把 `core` 对 `whiteboard` 从 16 削到 14；
+`DisplayManager`/`DownloadManager` 改成只报事实再削 4 条（14→10）。
 同一轮全表重测还纠正了两处旧数：`whiteboard` 对 `utils` 是 54 不是 52（`UserNotices` 下沉那一批
 改的就是这条边，当时只按直觉记了增量）。
-`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:57`、`model:21`、
-`content:12` 比旧表多出来的那几条，是这一轮新加的七个自检（录屏、剪贴板、导出、撤销重做、
-自动保存、页面、媒体）新 include 的图元与场景头文件——它们都住在 `src/app/`，所以这些边只长在
-装配点上，没有给任何一层加新账。
+`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:58`、`model:23`、
+`core:43`、`ui:15`、`content:12` 比旧表多出来的那几条，是这一轮新加的八个自检（录屏、剪贴板、导出、
+撤销重做、自动保存、页面、媒体、本地下载）新 include 的图元、场景与界面头文件——它们都住在
+`src/app/`，所以这些边只长在装配点上，没有给任何一层加新账。
 2026-10-22 拆掉 `content` ↔ `core` 与 `core` ↔ `model` 两组环之后，`content` 与 `model` 都不再
 有对 core 的出边（`model` 如今只剩 settings 与 utils，是真叶子）；上表里 →model 变多的那几笔
 （content 30、whiteboard 21）是仓库常量、MIME 名字与拖放载荷搬进 model 的结果，方向合法。

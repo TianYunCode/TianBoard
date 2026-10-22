@@ -96,9 +96,9 @@ public:
      * @param isInit 是否为启动时的初始化调用（跳过部分动画）。
      */
     void changeMode(DockWidgetMode newMode, bool isInit = false);
-    /// @brief 开始跟踪下载进度并在界面上显示。
+    /// @brief 有下载进入队列：把“下载”页签放到右侧面板上（应答 DownloadManager::downloadsQueued）。
     void startDownloads();
-    /// @brief 停止下载进度显示。
+    /// @brief 下载队列排空或被取消：收起“下载”页签（应答 DownloadManager::downloadsDrained）。
     void stopDownloads();
 
 public slots:

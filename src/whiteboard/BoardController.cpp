@@ -124,6 +124,10 @@ void BoardController::init()
             downloadFinished(pSuccess, sourceUrl, contentUrl, pHeader, pData, pPos, pSize, isBackground);
         });
 
+    // “下载”页签的出没由画板自己应答：下载服务只回报队列起止这两个事实，不再反过来命令画板。
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadsQueued, mPaletteManager, &BoardPaletteManager::startDownloads);
+    connect(DownloadManager::downloadManager(), &DownloadManager::downloadsDrained, mPaletteManager, &BoardPaletteManager::stopDownloads);
+
     // 文档被删掉时，BoardController 里缓存的 selectedDocument()（DocumentContainer 的
     // mCurrentDocument）指向的就是那个正在 deleteLater 的对象——PersistenceManager 一直
     // 在发这个信号，而接收端从来没连上，于是删掉当前文档之后每一次翻页/保存都在读已释放
@@ -772,6 +776,11 @@ void BoardController::libraryDialogClosed(int ret)
 void BoardController::blackout()
 {
     Application::applicationController->blackout();
+}
+
+void BoardController::blackoutLifted()
+{
+    freezeWebWidgets(false);
 }
 
 void BoardController::showKeyboard(bool show)

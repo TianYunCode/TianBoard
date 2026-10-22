@@ -7,7 +7,6 @@
 
 #include <QtWidgets>
 
-class BoardView;
 class VirtualDesktop;
 
 /**
@@ -63,10 +62,12 @@ public:
     void setDesktopWidget(QWidget *pControlWidget);
 
     /**
-     * @brief 注册历史屏使用的画板视图列表。
-     * @param pPreviousViews 与历史屏按下标一一对应的视图列表。
+     * @brief 注册历史屏使用的窗口列表。
+     * @param pPreviousViews 与历史屏按下标一一对应的窗口列表。
+     * @note 这里只要求 QWidget 的几何与全屏能力，不认画板视图——服务层不该认识画板；
+     *       谁造的窗口由装配点（app/ApplicationController）负责，它按序把视图交进来。
      */
-    void setPreviousDisplaysWidgets(QList<BoardView *> pPreviousViews);
+    void setPreviousDisplaysWidgets(QList<QWidget *> pPreviousViews);
 
     /// 是否存在可用的控制屏。
     bool hasControl()
@@ -130,6 +131,12 @@ signals:
     void screenLayoutChanged();
     /// 展示视图需要重新适配其所在屏幕。
     void adjustDisplayViewsRequired();
+    /**
+     * @brief 黑屏已经解除。
+     * @note 黑屏期间网页小部件被冻结以省开销，解冻是画板的事：本服务只回报“黑屏没了”这个事实，
+     *       由装配点把这条信号接到 BoardController::blackoutLifted()（见 app/ApplicationController）。
+     */
+    void blackoutLifted();
 
 public slots:
     /**
@@ -147,7 +154,7 @@ public slots:
     /// 在所有可见屏幕上覆盖黑屏窗口。
     void blackout();
 
-    /// 关闭全部黑屏窗口并解除网页控件冻结。
+    /// 关闭全部黑屏窗口，并回报黑屏已解除（网页小部件的解冻由画板应答）。
     void unBlackout();
 
     /**
@@ -186,7 +193,7 @@ private:
 
     QWidget *mDesktopWidget;
 
-    QList<BoardView *> mPreviousDisplayWidgets;
+    QList<QWidget *> mPreviousDisplayWidgets;
 
     QList<QWidget *> mBlackoutWidgets;
 

@@ -12,11 +12,7 @@ void DisplayManager::installBlackoutSurfaceFactory(DisplayManager::BlackoutSurfa
 
 #include "platform/PlatformUtils.h"
 
-#include "core/ApplicationController.h"
 #include "settings/Settings.h"
-
-#include "whiteboard/BoardView.h"
-#include "whiteboard/BoardController.h"
 
 #include "platform/VirtualDesktop.h"
 
@@ -151,7 +147,7 @@ void DisplayManager::setDisplayWidget(QWidget *pDisplayWidget)
     }
 }
 
-void DisplayManager::setPreviousDisplaysWidgets(QList<BoardView *> pPreviousViews)
+void DisplayManager::setPreviousDisplaysWidgets(QList<QWidget *> pPreviousViews)
 {
     mPreviousDisplayWidgets = pPreviousViews;
 }
@@ -276,7 +272,9 @@ void DisplayManager::unBlackout()
         mBlackoutWidgets.takeFirst()->close();
     }
 
-    BoardController::instance()->freezeWebWidgets(false);
+    // 黑屏期间被冻结的是画板上的网页小部件，解冻归画板：这里只回报“黑屏没了”，
+    // 谁应答由装配点连上（app/ApplicationController 把它接到 BoardController::blackoutLifted）。
+    emit blackoutLifted();
 }
 
 void DisplayManager::setRoleToScreen(DisplayRole role, int screenIndex)

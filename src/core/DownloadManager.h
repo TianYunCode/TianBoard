@@ -12,7 +12,11 @@
 #include <QVector>
 #include <QDropEvent>
 
+#include <functional>
+
 #include "core/HttpGet.h"
+
+class DocumentProxy;
 
 #define SIMULTANEOUS_DOWNLOAD 2
 
@@ -181,12 +185,35 @@ public:
      */
     bool hasModalDownload() const;
 
+    /**
+     * @brief 下载落点所在文档的提供者签名。
+     *
+     * 详细说明：本地文件拖进画板时，复制的目标路径必须在**进队列之前**于 GUI 线程算好
+     * （AsyncLocalFileDownloader 在工作线程里只做 copy），而“当前打开的是哪一份文档”是画板的状态。
+     * 下载服务不反过来命令画板，所以这里只留一个口子：实现由装配点装上（app/ApplicationController），
+     * 返回画板当前选中的文档。
+     */
+    using TargetDocumentProvider = std::function<DocumentProxy *()>;
+
+    /// @brief 装上目标文档提供者，只在装配阶段调用一次。
+    static void installTargetDocumentProvider(TargetDocumentProvider provider);
+
+    /// @brief 下载落点所在的文档；没装上提供者或画板当前没有文档时返回空指针。
+    static DocumentProxy *targetDocument();
+
     /// 销毁单例并置空指针。
     static void destroy();
 
 signals:
     /// 有新任务加入队列。
     void fileAddedToDownload();
+    /**
+     * @brief 有下载进入队列：右侧面板该出现“下载”页签。
+     * @note 页签是画板的东西，由 BoardController 在装配时把这条接到画板自己的应答。
+     */
+    void downloadsQueued();
+    /// 下载队列排空或被取消：画板可以收起“下载”页签。
+    void downloadsDrained();
     /// 任务进度更新（字节）。
     void downloadUpdated(int id, qint64 crnt, qint64 total);
     /// 任务结束（仅编号）。

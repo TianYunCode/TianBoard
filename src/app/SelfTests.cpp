@@ -6,6 +6,7 @@
 #include "app/AutoSaveSelfTest.h"
 #include "app/ClipboardSelfTest.h"
 #include "app/CookieSelfTest.h"
+#include "app/DownloadSelfTest.h"
 #include "app/ExportSelfTest.h"
 #include "app/FormatSelfTest.h"
 #include "app/ImportSelfTest.h"
@@ -38,6 +39,7 @@ void installSelfTestFromArgs(Application &app)
         {"--autosave-selftest",  AutoSaveSelfTest::run      }, // 自动保存定时器起停与真落盘（tst_autosave）
         {"--pages-selftest",     PageOperationsSelfTest::run}, // 页面增删复制移动后逐页冷读对账（tst_pages）
         {"--media-selftest",     MediaInsertSelfTest::run   }, // 音视频插入有没有变成文档的一部分（tst_media）
+        {"--download-selftest",  DownloadSelfTest::run      }, // 本地下载端到端与跨层事实的应答连线（tst_download）
     };
 
     const QStringList args = app.arguments();

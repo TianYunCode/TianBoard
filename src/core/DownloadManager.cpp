@@ -1,11 +1,23 @@
 #include "core/DownloadManager.h"
 #include "model/PackageLayout.hpp"
-#include "core/Application.h"
 #include "core/PersistenceManager.h"
-#include "whiteboard/BoardController.h"
-#include "whiteboard/BoardPaletteManager.h"
 #include "model/DocumentProxy.h"
 #include "utils/FileSystemUtils.h"
+
+namespace
+{
+    DownloadManager::TargetDocumentProvider gTargetDocumentProvider;
+} // namespace
+
+void DownloadManager::installTargetDocumentProvider(DownloadManager::TargetDocumentProvider provider)
+{
+    gTargetDocumentProvider = std::move(provider);
+}
+
+DocumentProxy *DownloadManager::targetDocument()
+{
+    return gTargetDocumentProvider ? gTargetDocumentProvider() : nullptr;
+}
 
 AsyncLocalFileDownloader::AsyncLocalFileDownloader(sDownloadFileDesc desc, QObject *parent) : QThread(parent), mDesc(desc), mAborting(0)
 {
@@ -60,9 +72,18 @@ bool AsyncLocalFileDownloader::prepare()
         mDesc.originalSrcUrl = src;
     }
 
-    mFrom = src;
-    mTo   = PersistenceManager::persistenceManager()->documentFilePath(
-        BoardController::instance()->selectedDocument(), destDirectory, QUuid::createUuid(), QFileInfo(src).suffix());
+    mFrom                 = src;
+
+    DocumentProxy *target = DownloadManager::targetDocument();
+    if (!target)
+    {
+        // 目标文档由装配点装上的提供者给出；给不出就是当前没有能接收下载的文档。
+        // 旧写法是 BoardController::instance()->selectedDocument()，画板还没诞生时这里就是空指针解引用。
+        qWarning() << "本地复制找不到目标文档，放弃这次下载:" << src;
+        return false;
+    }
+
+    mTo = PersistenceManager::persistenceManager()->documentFilePath(target, destDirectory, QUuid::createUuid(), QFileInfo(src).suffix());
 
     return !mTo.isEmpty() && QFile::exists(mFrom);
 }
@@ -143,7 +164,7 @@ int DownloadManager::addFileToDownload(sDownloadFileDesc desc)
         // 模态任务排在队首；下载窗口自己从 fileAddedToDownload 之后查有没有模态任务决定显示。
         updateDownloadOrder();
     }
-    BoardController::instance()->paletteManager()->startDownloads();
+    emit downloadsQueued();
 
     emit fileAddedToDownload();
 
@@ -430,7 +451,7 @@ void DownloadManager::onDownloadError(int id)
 
 void DownloadManager::finishDownloads(bool cancel)
 {
-    BoardController::instance()->paletteManager()->stopDownloads();
+    emit downloadsDrained();
     if (cancel)
     {
         emit cancelAllDownloads();
