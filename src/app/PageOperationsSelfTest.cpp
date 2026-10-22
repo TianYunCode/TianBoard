@@ -198,6 +198,41 @@ namespace
         }
     }
 
+    /**
+     * @brief 画板容器里那份缩略图列表的体检：条数必须等于页数，每一页都得有一张图。
+     *
+     * 详细说明：翻页条与文档库显示的就是这份列表。它一旦与页数脱节，页还是那些页、内容对账
+     * 一切正常，只有界面上第 N 张图指向了别的页——属于用户看得见、测试看不见的那类问题。
+     * 实测（把 `duplicateScene` 里那次 `insertThumbPage` 注释掉，这几条照旧全绿）：真正兜住同步的
+     * 不是各处手工插入，而是 `documentSceneCreated` → `DocumentController::documentSceneChanged`
+     * 里那次 `reloadThumbnails()` 整份重建。所以这几条钉的是**用户看得见的那个不变量**
+     * （列表与页数一样多、副本的图与原件一样），不是某一次插入；将来谁把整份重建改成增量更新，
+     * 它们就是那条路的安全网。
+     */
+    void auditThumbParity(QStringList &failures, BoardController *board, DocumentProxy *proxy, const QString &stage)
+    {
+        const int pageCount = proxy->pageCount();
+
+        for (int i = 0; i < pageCount; i++)
+        {
+            if (!board->pageAt(i))
+            {
+                failures << QStringLiteral("%1 之后第 %2 页在缩略图列表里没有对应条目（页数 %3，列表却短了）").arg(stage).arg(i + 1).arg(pageCount);
+            }
+        }
+
+        int thumbs = 0;
+        while (board->pageAt(thumbs) && thumbs < pageCount + 8)
+        {
+            thumbs++;
+        }
+
+        if (thumbs != pageCount)
+        {
+            failures << QStringLiteral("%1 之后缩略图列表有 %2 条，页数是 %3——两边必须一样多").arg(stage).arg(thumbs).arg(pageCount);
+        }
+    }
+
     /// @brief 把已攒下的不一致逐条报出来再退场（自检的退出码就是条数）。
     int bail(const QStringList &failures)
     {
@@ -263,6 +298,7 @@ namespace PageOperationsSelfTest
         }
 
         auditPages(failures, board, pm, proxy, QStringLiteral("新增两页"), 3);
+        auditThumbParity(failures, board, proxy, QStringLiteral("新增两页"));
 
         // ---- 2. 复制第 0 页：副本落在第 1 页，页数 +1，两页内容都该是第 0 页那套 ----
         const QStringList pageZeroBefore = liveSignature(pm, proxy, 0);
@@ -274,6 +310,14 @@ namespace PageOperationsSelfTest
         if (proxy->pageCount() == 4 && liveSignature(pm, proxy, 1) != pageZeroBefore)
         {
             failures << QStringLiteral("复制出来的第 2 页内容与第 1 页不同（副本应当是原件的拷贝）");
+        }
+
+        auditThumbParity(failures, board, proxy, QStringLiteral("复制第 1 页"));
+
+        // 副本的缩略图是在页文件复制之后现取的，内容相同就应当长得一样
+        if (proxy->pageCount() == 4 && board->pageAt(0) && board->pageAt(1) && pixmapDigest(*board->pageAt(0)) != pixmapDigest(*board->pageAt(1)))
+        {
+            failures << QStringLiteral("复制第 1 页之后第 1、2 页的缩略图不同（这两页内容一模一样）");
         }
 
         // ---- 3. 把第 0 页移到第 2 页：内容按"取出再插到目标位"重排 ----
@@ -289,6 +333,7 @@ namespace PageOperationsSelfTest
 
         board->moveSceneToIndex(0, 2);
         auditPages(failures, board, pm, proxy, QStringLiteral("把第 1 页移到第 3 页"), 4);
+        auditThumbParity(failures, board, proxy, QStringLiteral("把第 1 页移到第 3 页"));
 
         if (proxy->pageCount() == 4)
         {
@@ -318,6 +363,7 @@ namespace PageOperationsSelfTest
         board->deleteScene(1);
         auditPages(failures, board, pm, proxy, QStringLiteral("删掉第 2 页"), 3);
         auditResourceOwnership(failures, pm, proxy, QStringLiteral("删掉第 2 页"));
+        auditThumbParity(failures, board, proxy, QStringLiteral("删掉第 2 页"));
 
         if (proxy->pageCount() == 3)
         {

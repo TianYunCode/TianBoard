@@ -671,3 +671,28 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
   收尾），所以 `addFileToDownload()` 返回时"排空"已经报过、页签也已经收回，"入队后页签该出现"这条会跟着红。
   正常路径下复制在工作线程里，这条才量得到页签的出没。判据要对着**时序契约**写，否则一次反向对照就会
   报出比预期更多的红，看着像"改坏了两处"。
+
+### 2026-10-22：缩略图列表其实是被整份重建的，各处手工 `insertThumbPage` 是冗余的（量出来才敢说）
+
+`--pages-selftest` 加了"缩略图列表条数 == 页数、每页都有一只图、副本的图与原件一样"这三条之后，
+做的第一条反向对照是**把 `BoardController::duplicateScene` 里那次 `insertThumbPage(nIndex)` 注释掉**——
+预期应当红（少一条），实际**全绿**。红不了的原因查出来了：
+
+- `PersistenceManager::createDocumentSceneAt`/`insertDocumentSceneAt`/`duplicateDocumentScene` 都会发
+  `documentSceneCreated(proxy, index)`；
+- `ui/DocumentController` 早就连着它（`DocumentController.cpp:844`），槽里做的是
+  `if (proxy == selectedDocumentProxy()) reloadThumbnails();`——**整份重建**，把列表按当前文档的页数重取一遍。
+
+所以那几处手工 `insertThumbPage`/`deleteThumbPage`（`DocumentContainer::addPage`、`movePageToIndex`、
+`BoardController::duplicateScene`）在这个应用里都处在"被一次全量重建覆盖"的位置上。两点结论：
+
+- **别把"看起来在维持同步的手工调用"当成承重墙**。要改它，先写一条会红的断言——这条断言现在红了不了，
+  就说明它不是承重的那一层，真正的机制是那条 `connect`。
+- **反过来这也是拆环的出路**：`core/DocumentManager` 导入完请画板补缩略图那条
+  （`BoardController::instance()->insertThumbPage(pageIndex)`，core→whiteboard 剩下的三条之一）
+  要改成"只报事实"，机制本来就在——`documentSceneCreated` 已经在发。前提是先补一条**能红**的判据：
+  走界面上同一个入口 `addFilesToDocument` 往当前文档拖一张图，然后量页数、量这一页有没有那张图、
+  量缩略图列表与页数是否一样多；再拿它做反向对照决定那条 `insertThumbPage` 能不能直接删。
+  另外记一处可疑：那条命令写的是**画板的容器**，而同一个循环里 `createDocumentSceneAt`/
+  `persistDocumentScene` 用的是传进来的那份 `document`（文档库里选中的那一份），两者不是同一份文档时
+  插进去的是别人家的缩略图——这正是"服务层命令画板"这种写法藏问题的方式。
