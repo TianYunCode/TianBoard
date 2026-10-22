@@ -517,3 +517,29 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
 同批把日志串里带上游错字与粗话的 22 处换成中文（`an error ocured`、`for wrighting`、
 `starting converion`、`embeded`、`cannot make sens of`、`Who the hell are you ?` 等）；
 其余约 200 条英文日志没有错字，只是与新增代码的中文日志不一致，要不要整体统一是单独的决定。
+
+### 2026-10-22：第 19 条自检（剪贴板端到端）又抓出两处
+
+`--clipboard-selftest` 把"复制→粘贴→删原件→存读往返"整趟跑了一遍（这条路以前只过编译），
+过程中查出两个真缺陷：
+
+- **`ClearUndoStack` 用来源 URL 当"还在剪贴板上"的替身，而空 URL 也算匹配**：`sourceURLs`
+  只在剪贴板装着 `boardPageItem` 时才填，填进去的是各图元的 `sourceUrl()`；画板里大半图元
+  根本没有来源地址（贴上去的位图、内嵌 SVG、文本、笔迹都是），于是 `sourceURLs.contains(空)`
+  对**每一个**无来源的已删图元都成立——它们全被当成"还在剪贴板上"，一个都不释放。已经移出
+  场景、又不在撤销命令之外任何地方，切几次页就在内存里攒下一批。改成空 URL 不算匹配
+  （`!ubi->sourceUrl().isEmpty() && …`）；这条改动安全的前提正是上一节那个写出器补写：
+  剪下来又还没粘回去的图元现在会真被释放，连它按 UUID 命名的资源文件一起清掉，
+  而那份文件的原主（副本）自己在下次存页时把字节重新落回盘上。
+- **`ui/DocumentNavigator` 两处裸解引用缩略图**：`updateSpecificThumbnail` 直接
+  `*BoardController::instance()->pageAt(iPage)`，而 `pageAt()` 越界返回 `nullptr`（Release 下
+  `QList::at()` 也不查边界，紧接着那句 `d->mThumbsWithLabels.at(iPage)` 同样裸用）；
+  重建那趟循环里写着 `Q_ASSERT(!pix->isNull())`——缩略图还没生成出来时（盘上那张 PNG 缺失或
+  读不出，`documentPageThumbnail` 给的是一张空图）Debug 直接 abort，实测 control A 就撞在
+  这里：`ASSERT: "!pix->isNull()" in src/ui/DocumentNavigator.cpp`。数据缺失不该让应用没命，
+  改成记一条告警、这一格按空图摆着等下一轮刷新，越界那两处判过再走。
+
+反向对照三条都过（各自短路掉一处修复，`--clipboard-selftest` 立刻变红、恢复即绿）：
+副本沿用源 UUID → 2 条不一致；写出器不补字节 → 2 条；空 URL 也算匹配 → 2 条（盘上留下
+本该随原件删掉的 2 份文件，最后 images/ 是 4 个而不是 2 个）。
+

@@ -1586,7 +1586,10 @@ void BoardController::ClearUndoStack()
 
         bool  inClipboard = false;
         Item *ubi         = dynamic_cast<Item *>(item);
-        if (ubi && sourceURLs.contains(ubi->sourceUrl()))
+        // 空 URL 不算匹配：图元大半没有来源地址（画板里贴的图、内嵌 SVG、文本、笔迹都是），
+        // 只要剪贴板里有一份无来源的图元，"contains(空)"就把所有无来源的已删图元一并当成
+        // 还在剪贴板上，于是没有一个被释放——切几次页就在内存里攒下一批。
+        if (ubi && !ubi->sourceUrl().isEmpty() && sourceURLs.contains(ubi->sourceUrl()))
         {
             inClipboard = true;
         }

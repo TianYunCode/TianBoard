@@ -129,7 +129,7 @@ Item *GraphicsSvgItem::deepCopy() const
     GraphicsSvgItem *copy = new GraphicsSvgItem(this->fileData());
 
     // 构造函数已经给副本发了自己的 UUID，这里不再改回源图元那一份：文件名按 UUID 取，
-    // 两份图元共用一个文件时，删掉任一份会把另一份的内容也带走（保存再打开就成了空图元）。
+    // 两份图元共用一个文件时，删掉任一份会把另一份引用的文件也删掉（见 clearSource）。
     // 副本自己的文件由写出器在保存这一页时落盘（见 SvgSubsetAdaptor 的 svgItemToLinkedSvg）。
     copyItemParameters(copy);
 

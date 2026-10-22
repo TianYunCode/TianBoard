@@ -149,6 +149,16 @@ set_tests_properties(tst_recording PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 图元剪贴板端到端自检：应用带 --clipboard-selftest 走完复制→粘贴→删原件→存读往返。
+add_executable(tst_clipboard tst_clipboard.cpp)
+target_compile_options(tst_clipboard PRIVATE /MP /utf-8)
+target_link_libraries(tst_clipboard PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_clipboard TianBoard)
+add_test(NAME tst_clipboard COMMAND tst_clipboard)
+set_tests_properties(tst_clipboard PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

@@ -13,7 +13,7 @@
 ```text
 src/
   ├─ app/          可执行目标本体：main.cpp、TianBoard.rc、resource.h、启动装配、
-  │                五个 *SelfTest，以及 Application.cpp / ApplicationController.cpp
+  │                七个 *SelfTest，以及 Application.cpp / ApplicationController.cpp
   │                ——这两个装配角色的实现（头文件在 core/，见第四节）
   ├─ settings/     设置项本身：Settings（全部 Setting 的注册表）+ Setting<T> 模板
   │                （只依赖 utils，与 utils 一样是真 STATIC）
@@ -56,7 +56,7 @@ src/
                    AutoSaver 与 UserNotices 2026-10-21/22 从 core/ 搬来，搬完出边仍然是零）
 third/             内联第三方：quazip+zlib、qtsingleapplication
 res/               images / etc / library / customizations / style / i18n(.ts) / qrc
-tests/             Qt Test 用例（18 个）
+tests/             Qt Test 用例（19 个）
 packaging/         Inno Setup 脚本与打包脚本
 scripts/           build.ps1 / format.ps1 / verify.ps1
 docs/              本文与编码规范、疑点台账
@@ -431,8 +431,8 @@ content → model 21→24、core → model 6→8）。环的数量不变，但�
 
 ```text
 api         -> content:1, core:4, model:1, settings:1, utils:3, whiteboard:6
-app         -> api:1, content:4, core:30, desktop:1, model:8, platform:4, recording:2,
-               settings:11, ui:13, utils:9, web:1, whiteboard:31
+app         -> api:1, content:5, core:31, desktop:1, model:11, platform:4, recording:2,
+               settings:11, ui:13, utils:9, web:1, whiteboard:37
 content     -> model:30, platform:8, settings:7, utils:31, whiteboard:45
 core        -> content:15, model:9, platform:4, settings:7, utils:9, whiteboard:16
 desktop     -> core:7, platform:4, settings:3, ui:11, whiteboard:8
@@ -450,8 +450,8 @@ whiteboard  -> core:22, model:21, platform:5, settings:20, ui:30, utils:52
 2026-10-22 这张表重测过两次，都是上面这组数：`Application::boardController` 那一刀把
 `whiteboard` 对 `core` 从 46 削到 25、`ui` 从 33 到 27；`Application::undoStack` 那一刀再把它从
 25 削到 22（`SelectionFrame.cpp` 因此不再 include `core/Application.h`，还顺手删掉两行重复 include）。
-`app` 那一行本来就该最重（它是装配点），`whiteboard:31` 比旧表多的那一条是格式自检新 include
-的 `GraphicsSvgItem.h`。
+`app` 那一行本来就该最重（它是装配点，自检也从这里伸手进各层）：`whiteboard:37`、`model:11` 比旧表多
+出来的那几条是格式自检与剪贴板自检新 include 的图元头文件。
 2026-10-22 拆掉 `content` ↔ `core` 与 `core` ↔ `model` 两组环之后，`content` 与 `model` 都不再
 有对 core 的出边（`model` 如今只剩 settings 与 utils，是真叶子）；上表里 →model 变多的那几笔
 （content 30、whiteboard 21）是仓库常量、MIME 名字与拖放载荷搬进 model 的结果，方向合法。

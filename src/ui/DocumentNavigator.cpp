@@ -132,10 +132,19 @@ void DocumentNavigator::generateThumbnails(DocumentContainer *source)
         }
 
         const QPixmap *pix = source->pageAt(i);
-        Q_ASSERT(!pix->isNull());
+
+        // 缩略图还没生成出来时不许停在这里：Debug 下 Q_ASSERT 就是 abort，等于
+        // "文档库里有一页预览缺失，整个应用跟着没"。这一格按空图摆着，下一轮刷新会补上。
+        if (!pix || pix->isNull())
+        {
+            qWarning() << "文档导航器第" << (i + 1) << "页没有可用缩略图，这一格先留空";
+        }
+
+        const QPixmap thumbnail               = pix ? *pix : QPixmap();
+
         int pageIndex                         = DocumentContainer::pageFromSceneIndex(i);
 
-        SceneThumbnailNavigPixmap *pixmapItem = new SceneThumbnailNavigPixmap(*pix, source->selectedDocument(), i);
+        SceneThumbnailNavigPixmap *pixmapItem = new SceneThumbnailNavigPixmap(thumbnail, source->selectedDocument(), i);
 
         QString            label              = tr("Page %0").arg(pageIndex);
         ThumbnailTextItem *labelItem          = new ThumbnailTextItem(label);
@@ -190,7 +199,21 @@ void DocumentNavigator::onScrollToSelectedPage(int index)
 
 void DocumentNavigator::updateSpecificThumbnail(int iPage)
 {
-    const QPixmap             *pix     = BoardController::instance()->pageAt(iPage);
+    // 两处越界都得挡住：pageAt() 越界返回 nullptr，QList::at() 在 Release 下不查边界。
+    // 原来两个都直接用，页号一超就是一个空指针解引用。
+    const QPixmap *pix = BoardController::instance()->pageAt(iPage);
+    if (!pix)
+    {
+        qWarning() << "文档导航器要刷新第" << (iPage + 1) << "页，容器里没有这一页的缩略图，跳过";
+        return;
+    }
+
+    if (iPage < 0 || iPage >= d->mThumbsWithLabels.size())
+    {
+        qWarning() << "文档导航器要刷新第" << (iPage + 1) << "页，界面上一共只有" << d->mThumbsWithLabels.size() << "格，跳过";
+        return;
+    }
+
     SceneThumbnailNavigPixmap *newItem = new SceneThumbnailNavigPixmap(*pix, BoardController::instance()->selectedDocument(), iPage);
 
     // 用新条目原位替换旧缩略图，避免整页重建。
