@@ -10,8 +10,10 @@ DockDownloadWidget::DockDownloadWidget(QWidget *parent, const char *name) : Dock
 
     SET_STYLE_SHEET();
 
-    setIconToLeft(QPixmap(":images/general_open.png"));
-    setIconToRight(QPixmap(":images/general_close.png"));
+    // 方向约定跟 PageNavigationWidget 一致，DockPalette 按它挑箭头：
+    // 收起态显示 iconToRight（朝外＝可以展开），展开态显示 iconToLeft（朝内＝可以收起）。
+    setIconToRight(QPixmap(":images/general_open.png"));
+    setIconToLeft(QPixmap(":images/general_close.png"));
 
     mpLayout = new QVBoxLayout(this);
     setLayout(mpLayout);

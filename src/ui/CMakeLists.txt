@@ -79,8 +79,6 @@ add_library(tb_ui OBJECT
     MessagesDialog.h
     MessageWindow.cpp
     MessageWindow.h
-    MousePressFilter.cpp
-    MousePressFilter.h
     PageNavigationWidget.cpp
     PageNavigationWidget.h
     PreferencesController.cpp

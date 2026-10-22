@@ -21,7 +21,6 @@
 
 #include "model/IDocumentFormatServices.h"
 
-#include "ui/MousePressFilter.h"
 #include "ui/MessageWindow.h"
 #include "ui/MainWindow.h"
 #include "ui/DocumentThumbnailWidget.h"
@@ -475,6 +474,13 @@ DocumentController::~DocumentController()
 {
     // mDocumentsView 挂在 mDocumentWidget 的控件树里，随该容器一起由 Qt 销毁，
     // 这里不能再次 delete。
+}
+
+void DocumentController::closing()
+{
+    // 关闭流程里还要删文档、动选择树；这些都会把信号打回 pageSelectionChanged() 与
+    // updateActions()，而那时界面正在拆。置了这个标记，那两处就在此收工。
+    mIsClosing = true;
 }
 
 void DocumentController::createNewDocument()
@@ -1453,14 +1459,12 @@ void DocumentController::deleteDocumentsInFolderOlderThan(const QModelIndex &ind
 {
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    QModelIndexList list;
-    for (int i = 0; i < docModel->rowCount(index); i++)
+    // 倒着走，而且每一轮都现取索引：deleteDocument 会删模型里的行，正着遍历的话
+    // 后面每个索引都往前跳一格，轻则漏掉过期文档，重则把没检查过的那一项当成已检查。
+    for (int i = docModel->rowCount(index) - 1; i >= 0; i--)
     {
-        list << docModel->index(i, 0, index);
-    }
+        QModelIndex child            = docModel->index(i, 0, index);
 
-    foreach (QModelIndex child, list)
-    {
         DocumentProxy *documentProxy = docModel->proxyForIndex(child);
 
         if (documentProxy)
@@ -1484,31 +1488,25 @@ void DocumentController::deleteEmptyFolders(const QModelIndex &index)
 {
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    QModelIndexList list;
-    for (int i = 0; i < docModel->rowCount(index); i++)
-    {
-        list << docModel->index(i, 0, index);
-    }
+    const int childCount        = docModel->rowCount(index);
 
-    if (list.length() > 0)
+    // 同上：deleteIndexAndAssociatedData 删的就是正在处理这一行，倒着走才不会错位。
+    for (int i = childCount - 1; i >= 0; i--)
     {
-        foreach (QModelIndex child, list)
+        QModelIndex child = docModel->index(i, 0, index);
+
+        if (docModel->isCatalog(child))
         {
-            if (docModel->isCatalog(child))
+            if (!docModel->containsDocuments(child))
             {
-                if (!docModel->containsDocuments(child))
-                {
-                    deleteIndexAndAssociatedData(child);
-                }
+                deleteIndexAndAssociatedData(child);
             }
         }
     }
-    else
+
+    if (childCount == 0 && docModel->isCatalog(index))
     {
-        if (docModel->isCatalog(index))
-        {
-            deleteIndexAndAssociatedData(index);
-        }
+        deleteIndexAndAssociatedData(index);
     }
 }
 
@@ -2210,9 +2208,13 @@ void DocumentController::currentIndexMoved(const QModelIndex &newIndex, const QM
     DocumentProxy     *newProxy = docModel->proxyData(newIndex);
     if (newProxy)
     {
-        DocumentProxy *cp = new DocumentProxy(*newProxy); // 不能直接交 newProxy：模型随后销毁它，必须先拷一份
-        pureSetDocument(cp);
-        mBoardController->pureSetDocument(cp);
+        // 这个槽只在文档树内部拖拽换父级（MoveAction）时被发，newIndex 指向的是刚克隆到
+        // 新位置的那个节点——它的生命周期归树节点，不会马上被销毁。真正即将消失的是
+        // 源节点那一份，而 removeRows 会把容器与画板一起带走。
+        // 原来这里 new 了一份 DocumentProxy 拷进容器、又把画板改回 newProxy：拷出来的那份
+        // 从此没人接管（每拖一次漏一个代理），而容器还留在它上面，等于让文档库控制器
+        // 认了一个不在树里的幽灵文档。
+        pureSetDocument(newProxy);
         mBoardController->pureSetDocument(newProxy);
     }
     mCurrentIndexMoved = true;

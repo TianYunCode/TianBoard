@@ -378,6 +378,48 @@
   旧的、后 `addDocument` 新的，中间界面被叫去"选中那个还不在树里的新文档"，`setCurrentDocument`
   因此静默落空、当前节点继续抱着即将删除的旧节点；现在先挂新的再换旧的。
 
+
+### 2026-10-22：`src/ui` 的 D–M 段补审（上一轮这个模块因轮次上限没跑完）
+
+只读代理报回 7 条，逐条自己核实后修掉，其中三条是"写好了却从没被接上"的：
+
+- **`DocumentController::closing()` 连定义都没有**，`mIsClosing` 只在构造里置 false，
+  于是 `pageSelectionChanged()` 与 `updateActions()` 里那两道"关闭时别再动界面"的守卫
+  **永远不生效**。而 `Application::closing()` 第一件事就是清回收站——删文档、动选择树，
+  信号正好打回这两处。现在补上定义并在清回收站之前调用它（与 `webController->closing()`
+  同一个套路）。
+- **`DocumentNavigator` 从没 `setAcceptDrops(true)`**：`dragEnterEvent`/`dragMoveEvent`/
+  `dropEvent` 三个处理器一直是写好的，但 `QGraphicsView` 默认不收拖放，所以"长按缩略图
+  拖动换页序"这条功能整体是死的。开起来的同时补了三道守卫——原来 `dragEnterEvent` 对
+  外部拖进来的东西走 `acceptProposedAction()`，而 `dragMoveEvent`/`dropEvent` 直接解引用
+  `mDropSource`，一旦真收了外来拖放就是空指针崩溃；现在只接自己发起的那一趟。
+  **注意**：这条改动把一段从没运行过的交互代码接上了，无头环境模拟不了 `QDrag::exec`，
+  所以换序本身还没被人真按过一次，只是不会再崩。
+- **`MousePressFilter`（"长按转双击"）全仓零实例化**，只剩 `DocumentController.cpp` 一句
+  include；而且它内部三处都坏：把 `QMouseEvent` 静态转成 `QTabletEvent` 读 `globalPosition()`
+  （成员偏移不同）、`mObject` 是裸指针且 1 秒后可能已析构、用 `SLOT()` 字符串连接（违反本仓
+  函数指针规矩）。半截功能按惯例删掉，要接回从 git 历史取。
+
+另外四条是真缺陷：
+
+- **`currentIndexMoved` 每拖一次漏一个 `DocumentProxy`**，而且漏的那个还留在容器上：它
+  `new DocumentProxy(*newProxy)` 交给 `pureSetDocument`，最后只把**画板**改回 `newProxy`，
+  文档库控制器却从此认着一个不在树里的幽灵副本。注释说"模型随后会销毁 newProxy"不成立——
+  这个信号只在 `MoveAction` 时发、`newIndex` 指向刚克隆到新位置的那个节点， doomed 的是源
+  节点那一份。`pureSetDocument` 也只是赋值，不删任何东西。改成两处都直接接 `newProxy`。
+- **`deleteDocumentsInFolderOlderThan` / `deleteEmptyFolders` 先把整层子节点快照成普通
+  `QModelIndex` 再逐个删**：删一行就把后面每个索引往前挪一格。前者会漏检过期文档（低风险），
+  后者更糟——`containsDocuments(child)` 拿过期索引判断"这个目录是空的吗"，判错就可能删掉
+  还有文档的目录。两处都改成**倒序遍历、每轮现取索引**，删除只会影响已处理过的行号。
+- **`generateThumbnails` 用 `scene->items()` 的下标当页号**恢复选中态：每页在场景里占两个
+  条目（缩略图 + 标签），`mDropBar` 还排在最前，所以每次重建后高亮落到别的页或直接丢失。
+  改成按对象身份先查出页号。
+- **`DockDownloadWidget` 的左右箭头图标与 `PageNavigationWidget` 正好相反**：`DockPalette`
+  按"收起态取 iconToRight（朝外＝可展开）、展开态取 iconToLeft（朝内＝可收起）"选图，
+  下载面板因此把两个状态画反。
+
+补审后仍留在台账里的低置信度项见下一段。
+
 仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
 `PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。

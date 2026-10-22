@@ -404,6 +404,14 @@ void Application::closeEvent(QCloseEvent *event)
 
 void Application::closing()
 {
+    // 先跟文档控制器打招呼：下面清空回收站那一路会删文档、动选择，而那些信号最终会回到
+    // pageSelectionChanged()/updateActions() 去摸正在拆的界面。它的 mIsClosing 守卫一直
+    // 写着，只是从没被置起来过（closing() 连定义都没有），所以以前这段全靠运气。
+    if (documentController)
+    {
+        documentController->closing();
+    }
+
     if (Settings::settings()->emptyTrashForOlderDocuments->get().toBool())
     {
         DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;

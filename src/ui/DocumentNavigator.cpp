@@ -48,6 +48,11 @@ DocumentNavigator::DocumentNavigator(QWidget *parent, const char *name) : QGraph
     d->mScene = new QGraphicsScene(this);
     // 缩略图按列排布，横向滚动没有意义，只保留纵向滚动。
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // 长按拖动换序：三个 drag/drop 事件处理器一直是写好的，但本视图从没声明收拖放，
+    // QGraphicsView 默认不收，所以这条路整条从没被走过（跟文档树那侧一样，视图和
+    // viewport 都要开）。
+    setAcceptDrops(true);
+    viewport()->setAcceptDrops(true);
     setScene(d->mScene);
 
     d->mThumbnailWidth = width() - 2 * border();
@@ -83,8 +88,21 @@ DocumentNavigator::~DocumentNavigator()
 
 void DocumentNavigator::generateThumbnails(DocumentContainer *source)
 {
+    // 之前选中的是哪一页——必须按对象身份去查。scene->items() 的下标当不了页号：
+    // 每页在场景里占两个条目（缩略图与标签），还有一条拖拽指示条排在最前，
+    // 用它去索引 mThumbsWithLabels 会在每次重建后高亮到别的页（或干脆丢掉选中）。
+    int selectedIndex = -1;
+    for (int i = 0; i < d->mThumbsWithLabels.size(); i += 1)
+    {
+        QGraphicsItem *thumbnail = d->mThumbsWithLabels.at(i).getThumbnail();
+        if (thumbnail && thumbnail->isSelected())
+        {
+            selectedIndex = i;
+            break;
+        }
+    }
+
     d->mThumbsWithLabels.clear();
-    int selectedIndex    = -1;
     int lastClickedIndex = -1;
     if (d->mLastClickedThumbnail)
     {
@@ -96,10 +114,6 @@ void DocumentNavigator::generateThumbnails(DocumentContainer *source)
     for (int i = 0; i < graphicsItemList.size(); i += 1)
     {
         QGraphicsItem *item = graphicsItemList.at(i);
-        if (item->isSelected())
-        {
-            selectedIndex = i;
-        }
 
         if (item != d->mDropBar)
         {
@@ -343,21 +357,28 @@ void DocumentNavigator::mousePressAndHoldEvent()
 
 void DocumentNavigator::dragEnterEvent(QDragEnterEvent *event)
 {
-    d->mDropBar->show();
-
-    if (event->source() == this)
+    // 只接自己发起的那一趟拖拽（长按缩略图）。外部拖进来的东西这里没有可用的
+    // mDropSource，收下只会在 dragMoveEvent/dropEvent 里读到空指针。
+    if (event->source() == this && d->mDropSource)
     {
+        d->mDropBar->show();
         event->setDropAction(Qt::MoveAction);
         event->accept();
     }
     else
     {
-        event->acceptProposedAction();
+        event->ignore();
     }
 }
 
 void DocumentNavigator::dragMoveEvent(QDragMoveEvent *event)
 {
+    if (!d->mDropSource)
+    {
+        event->ignore();
+        return;
+    }
+
     QPointF position        = event->position();
 
     // 拖到上下边缘附近时自动滚动视图。
@@ -415,7 +436,8 @@ void DocumentNavigator::dropEvent(QDropEvent *event)
 {
     Q_UNUSED(event);
 
-    if (d->mDropSource->sceneIndex() != d->mDropTarget->sceneIndex())
+    // 两个端点都得在才谈得上换序：拖到没有缩略图的位置时 mDropTarget 可能还是空的。
+    if (d->mDropSource && d->mDropTarget && d->mDropSource->sceneIndex() != d->mDropTarget->sceneIndex())
     {
         Application::boardController->moveSceneToIndex(d->mDropSource->sceneIndex(), d->mDropTarget->sceneIndex());
     }
