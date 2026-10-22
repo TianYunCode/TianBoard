@@ -21,9 +21,9 @@
 - **建议**：确认这是废弃协议还是待实现；废弃就删掉声明与调用点，待实现就补测试。
 
 ### 2. Flash / NPAPI 小部件包装还在链路里，运行时却放不出东西
-- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:862/880/899`（`freezedWidgetWrapper.html`、
+- **位置**：`src/whiteboard/GraphicsWidgetItem.cpp:1025/1047/1068`（`freezedWidgetWrapper.html`、
   按 `npapi-wrapper*` 前缀挑包装页、读 `etc/npapi-wrapper.config.xml`）与
-  `src/content/IwbSubsetAdaptor.cpp:891`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
+  `src/content/IwbSubsetAdaptor.cpp:1016`（`createNPAPIWrapperInDir(flashPath, ..., "application/x-shockwave-flash", ...)`）
 - **现象**：Qt6 WebEngine 没有 NPAPI/Flash 插件接口，这套包装页只能显示一张“无法播放”的
   静态图；但代码路径是活的，旧文档里的 flash 条目会走到这里。
 - **建议**：要么把 flash 条目明确降级成“不支持的媒体”并提示用户，要么连同
@@ -60,7 +60,7 @@
 ### 4. 「捕获网页」(Web Trap) 在 Qt6 下整条命中测试链是空的
 - **位置**：`src/web/WebTrapWebView.cpp`（`trapElementAtPos()` 现在是空实现，函数里用中文
   注明了为什么；`highliteElementAtPos()` 依赖 `page()->webChannel()`，而全仓没有任何
-  `setWebChannel` 调用）、`src/web/TabWidget.cpp:328/333`（等着 `pixmapCaptured`/
+  `setWebChannel` 调用）、`src/web/TabWidget.cpp:394/400`（等着 `pixmapCaptured`/
   `embedCodeCaptured`，永远等不到）
 - **现象**：Qt5 那套靠 `QWebHitTestResult` 取"页面上这块图/这个嵌入代码"的能力，Qt6
   WebEngine 没有对应 API（要自己发 JS 到页面里取元素信息）。按钮点亮后只是切换一个内部
@@ -177,10 +177,13 @@
 - **`MimeType::AppleWidget`** 自己的注释写着 “mime type invented by us :-()”，
   却和 `GraphicsWidgetItem` 一路共享 “widget” 语义。名字里的 Apple 商标与实现无关，
   但改它要连写进 `.tbz` 的 mime 字符串一起看，属于协议层，先记。
-- **一批「发出来但没人听」的信号留着没删**（本轮只删了既不发也没人连的那些声明）：
+- **一批「发出来但没人听」的信号留着没删**（本轮只删了既不发也没人连的那些声明；名单 2026-10-22
+  逐条重测过——`grep connect` 为空才算"没人听"）：
   `PersistenceManager::proxyListChanged`/`documentCreated`/`documentMetadataChanged`、
-  `DocumentManager::documentUpdated`、`DownloadManager::cancelAllDownloads`/
-  `allDownloadsFinished`、`GraphicsCurtainItem::removed`、`KeyboardPalette::localeChanged`。
+  `DownloadManager::cancelAllDownloads`、`GraphicsCurtainItem::removed`（它的注释还写着"供场景在删除前
+  统一通知观察者"，可没有任何观察者）、`KeyboardPalette::localeChanged`。
+  原先列在这里的两条已经不再成立，别再照旧名单动手：`allDownloadsFinished` 现在有人听着
+  （`ui/DockPalette.cpp:112`），`DocumentManager::documentUpdated` 这个信号早已随一轮清理消失。
   删它们要连 `emit` 一起删，属于「要么补上接收方、要么删掉」的判断，不适合和别的清理混
   在一批里做；`WebTrapWebView::objectCaptured`/`webElementCaptured` 则刻意留着——它们
   是「捕获网页」重写时的目标接口（见第一节第 4 条）。
