@@ -1758,9 +1758,15 @@ void BoardController::autosaveTimeout()
 
 void BoardController::appMainModeChanged(ApplicationController::MainMode md)
 {
-    int autoSaveInterval = autosaveTimeoutFromSettings();
+    const int autoSaveInterval = autosaveTimeoutFromSettings();
     if (!autoSaveInterval)
     {
+        // 0 分钟就是关掉自动保存。旧写法在这里直接 return，正在跑的定时器不会被停下来——
+        // 用户在偏好设置里关掉了，画板其实还在按旧间隔往盘上写。
+        if (mAutosaveTimer)
+        {
+            mAutosaveTimer->stop();
+        }
         return;
     }
 

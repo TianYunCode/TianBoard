@@ -179,6 +179,16 @@ set_tests_properties(tst_undoredo PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 自动保存端到端自检：应用带 --autosave-selftest 验定时器随设置起停、saveData 真落盘。
+add_executable(tst_autosave tst_autosave.cpp)
+target_compile_options(tst_autosave PRIVATE /MP /utf-8)
+target_link_libraries(tst_autosave PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_autosave TianBoard)
+add_test(NAME tst_autosave COMMAND tst_autosave)
+set_tests_properties(tst_autosave PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)

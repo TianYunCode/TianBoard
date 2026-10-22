@@ -3,6 +3,7 @@
 #include <QLatin1String>
 #include <QTimer>
 
+#include "app/AutoSaveSelfTest.h"
 #include "app/ClipboardSelfTest.h"
 #include "app/CookieSelfTest.h"
 #include "app/ExportSelfTest.h"
@@ -32,6 +33,7 @@ void installSelfTestFromArgs(Application &app)
         {"--clipboard-selftest", ClipboardSelfTest::run}, // 复制→粘贴→删原件→存读往返（tst_clipboard）
         {"--export-selftest",    ExportSelfTest::run   }, // PDF 页数/尺寸/内容与 .tbz 往返（tst_export）
         {"--undoredo-selftest",  UndoRedoSelfTest::run }, // 撤销/重做全回路与换文档清栈（tst_undoredo）
+        {"--autosave-selftest",  AutoSaveSelfTest::run }, // 自动保存定时器起停与真落盘（tst_autosave）
     };
 
     const QStringList args = app.arguments();
