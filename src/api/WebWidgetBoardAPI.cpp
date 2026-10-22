@@ -82,7 +82,7 @@ QObject *WebWidgetBoardAPI::datastore()
 
 void WebWidgetBoardAPI::setTool(const QString &toolString)
 {
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
@@ -113,7 +113,7 @@ void WebWidgetBoardAPI::setTool(const QString &toolString)
 
 void WebWidgetBoardAPI::setPenColor(const QString &penColor)
 {
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
@@ -127,8 +127,8 @@ void WebWidgetBoardAPI::setPenColor(const QString &penColor)
 
     if (conversionState && index > 0 && index <= 4)
     {
-        Application::boardController->setPenColorOnDarkBackground(settings->penColors(true).at(index - 1));
-        Application::boardController->setPenColorOnLightBackground(settings->penColors(false).at(index - 1));
+        BoardController::instance()->setPenColorOnDarkBackground(settings->penColors(true).at(index - 1));
+        BoardController::instance()->setPenColorOnLightBackground(settings->penColors(false).at(index - 1));
     }
     else
     {
@@ -136,15 +136,15 @@ void WebWidgetBoardAPI::setPenColor(const QString &penColor)
         svgColor = QColor::fromString(penColor);
         if (svgColor.isValid())
         {
-            Application::boardController->setPenColorOnDarkBackground(svgColor);
-            Application::boardController->setPenColorOnLightBackground(svgColor);
+            BoardController::instance()->setPenColorOnDarkBackground(svgColor);
+            BoardController::instance()->setPenColorOnLightBackground(svgColor);
         }
     }
 }
 
 void WebWidgetBoardAPI::setMarkerColor(const QString &penColor)
 {
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
@@ -157,8 +157,8 @@ void WebWidgetBoardAPI::setMarkerColor(const QString &penColor)
 
     if (conversionState && index > 0 && index <= 4)
     {
-        Application::boardController->setMarkerColorOnDarkBackground(settings->markerColors(true).at(index - 1));
-        Application::boardController->setMarkerColorOnLightBackground(settings->markerColors(false).at(index - 1));
+        BoardController::instance()->setMarkerColorOnDarkBackground(settings->markerColors(true).at(index - 1));
+        BoardController::instance()->setMarkerColorOnLightBackground(settings->markerColors(false).at(index - 1));
     }
     else
     {
@@ -166,8 +166,8 @@ void WebWidgetBoardAPI::setMarkerColor(const QString &penColor)
         svgColor = QColor::fromString(penColor);
         if (svgColor.isValid())
         {
-            Application::boardController->setMarkerColorOnDarkBackground(svgColor);
-            Application::boardController->setMarkerColorOnLightBackground(svgColor);
+            BoardController::instance()->setMarkerColorOnDarkBackground(svgColor);
+            BoardController::instance()->setMarkerColorOnLightBackground(svgColor);
         }
     }
 }
@@ -177,12 +177,12 @@ void WebWidgetBoardAPI::addObject(QString pUrl, int width, int height, int x, in
     // 脚本调用只给 URL，真正的下载与落盘交给 BoardController；
     // 宽高为 0 时由控制器按对象类型选择默认尺寸
 
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
 
-    Application::boardController->downloadURL(QUrl(pUrl), QString(), QPointF(x, y), QSize(width, height), background);
+    BoardController::instance()->downloadURL(QUrl(pUrl), QString(), QPointF(x, y), QSize(width, height), background);
 }
 
 void WebWidgetBoardAPI::setBackground(bool pIsDark, bool pIsCrossed)
@@ -254,12 +254,12 @@ void WebWidgetBoardAPI::zoom(const qreal factor, const qreal x, const qreal y)
         return;
     }
 
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
 
-    Application::boardController->zoom(factor, QPointF(x, y));
+    BoardController::instance()->zoom(factor, QPointF(x, y));
 }
 
 void WebWidgetBoardAPI::centerOn(const qreal x, const qreal y)
@@ -269,12 +269,12 @@ void WebWidgetBoardAPI::centerOn(const qreal x, const qreal y)
         return;
     }
 
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
 
-    Application::boardController->centerOn(QPointF(x, y));
+    BoardController::instance()->centerOn(QPointF(x, y));
 }
 
 void WebWidgetBoardAPI::move(const qreal x, const qreal y)
@@ -284,12 +284,12 @@ void WebWidgetBoardAPI::move(const qreal x, const qreal y)
         return;
     }
 
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
 
-    Application::boardController->handScroll(x, y);
+    BoardController::instance()->handScroll(x, y);
 }
 
 void WebWidgetBoardAPI::addText(const QString &text, const qreal x, const qreal y, const int size, const QString &font, bool bold, bool italic)
@@ -299,7 +299,7 @@ void WebWidgetBoardAPI::addText(const QString &text, const qreal x, const qreal 
         return;
     }
 
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return;
     }
@@ -324,12 +324,12 @@ int WebWidgetBoardAPI::pageCount()
 
 int WebWidgetBoardAPI::currentPageNumber()
 {
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return -1;
     }
 
-    return Application::boardController->activeSceneIndex() + 1;
+    return BoardController::instance()->activeSceneIndex() + 1;
 }
 
 QString WebWidgetBoardAPI::getObjDir()
@@ -340,17 +340,17 @@ QString WebWidgetBoardAPI::getObjDir()
 
 void WebWidgetBoardAPI::showMessage(const QString &message)
 {
-    Application::boardController->showMessage(message, false);
+    BoardController::instance()->showMessage(message, false);
 }
 
 QString WebWidgetBoardAPI::pageThumbnail(const int pageNumber)
 {
-    if (Application::boardController->activeScene() != mScene)
+    if (BoardController::instance()->activeScene() != mScene)
     {
         return "";
     }
 
-    DocumentProxy *doc = Application::boardController->selectedDocument();
+    DocumentProxy *doc = BoardController::instance()->selectedDocument();
 
     if (!doc)
     {
@@ -477,7 +477,7 @@ void WebWidgetBoardAPI::sendFileMetadata(QString metaData)
         QDomElement valueElem       = dataNode.firstChildElement("value");
         qmMetaDatas[keyElem.text()] = valueElem.text();
     }
-    Application::boardController->displayMetaData(qmMetaDatas);
+    BoardController::instance()->displayMetaData(qmMetaDatas);
 }
 
 void WebWidgetBoardAPI::enableDropOnWidget(bool enable)

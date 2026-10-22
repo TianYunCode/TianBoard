@@ -5,7 +5,6 @@
 #include "ui/DockPalette.h"
 
 #include "settings/Settings.h"
-#include "core/Application.h"
 #include "ui/PreferencesController.h"
 #include "core/DownloadManager.h"
 
@@ -112,8 +111,8 @@ DockPalette::DockPalette(DockPaletteType paletteType, QWidget *parent, const cha
     connect(Settings::settings()->appToolBarPositionedAtTop, &Setting::changed, this, &DockPalette::onToolbarPosUpdated);
     connect(DownloadManager::downloadManager(), &DownloadManager::allDownloadsFinished, this, &DockPalette::onAllDownloadsFinished);
 
-    connect(Application::boardController, &DocumentContainer::documentSet, this, &DockPalette::onDocumentSet);
-    connect(this, &DockPalette::pageSelectionChangedRequired, Application::boardController, &BoardController::selectionChanged);
+    connect(BoardController::instance(), &DocumentContainer::documentSet, this, &DockPalette::onDocumentSet);
+    connect(this, &DockPalette::pageSelectionChangedRequired, BoardController::instance(), &BoardController::selectionChanged);
 }
 
 DockPalette::~DockPalette()

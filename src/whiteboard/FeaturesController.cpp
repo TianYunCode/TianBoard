@@ -4,7 +4,6 @@
 #include <QPointF>
 #include <QtWidgets>
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/FeaturesController.h"
 #include "settings/Settings.h"
@@ -831,12 +830,12 @@ void FeaturesController::addNewFolder(QString name)
 
 void FeaturesController::addItemToPage(const Feature &item)
 {
-    Application::boardController->downloadURL(item.getFullPath());
+    BoardController::instance()->downloadURL(item.getFullPath());
 }
 
 void FeaturesController::addItemAsBackground(const Feature &item)
 {
-    Application::boardController->downloadURL(item.getFullPath(), QString(), QPointF(), QSize(), true);
+    BoardController::instance()->downloadURL(item.getFullPath(), QString(), QPointF(), QSize(), true);
 }
 
 Feature FeaturesController::getDestinationFeatureForUrl(const QUrl &url)

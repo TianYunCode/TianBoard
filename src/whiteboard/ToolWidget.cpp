@@ -4,7 +4,6 @@
 #include "whiteboard/ToolWidget.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
-#include "core/Application.h"
 #include "settings/Settings.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsWidgetItem.h"
@@ -143,13 +142,13 @@ void ToolWidget::mouseReleaseEvent(QMouseEvent *event)
 
     if (event->pos().x() >= 0 && event->pos().x() < sClosePixmap->width() && event->pos().y() >= 0 && event->pos().y() < sClosePixmap->height())
     {
-        Application::boardController->removeTool(this);
+        BoardController::instance()->removeTool(this);
         event->accept();
     }
     else if (d->mToolWidget->canBeContent() && event->pos().x() >= d->mContentMargin &&
              event->pos().x() < d->mContentMargin + sUnpinPixmap->width() && event->pos().y() >= 0 && event->pos().y() < sUnpinPixmap->height())
     {
-        Application::boardController->moveToolWidgetToScene(this);
+        BoardController::instance()->moveToolWidgetToScene(this);
         event->accept();
     }
     else

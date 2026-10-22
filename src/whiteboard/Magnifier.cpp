@@ -1,7 +1,6 @@
 #include <QtWidgets>
 #include "whiteboard/Magnifier.h"
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/BoardView.h"
@@ -389,7 +388,7 @@ void Magnifier::slot_refresh()
 
 void Magnifier::grabPoint()
 {
-    QTransform transM  = Application::boardController->controlView()->transform();
+    QTransform transM  = BoardController::instance()->controlView()->transform();
     QPointF    itemPos = d->gView->mapFromGlobal(d->updPointGrab);
 
     qreal zWidth       = width() / (d->params.zoom * transM.m11());
@@ -397,7 +396,7 @@ void Magnifier::grabPoint()
     qreal zHeight      = height() / (d->params.zoom * transM.m22());
     qreal zHeightHalf  = zHeight / 2;
 
-    QPointF pfScLtF(Application::boardController->controlView()->mapToScene(QPoint(itemPos.x(), itemPos.y())));
+    QPointF pfScLtF(BoardController::instance()->controlView()->mapToScene(QPoint(itemPos.x(), itemPos.y())));
 
     float x = pfScLtF.x() - zWidthHalf;
     float y = pfScLtF.y() - zHeightHalf;
@@ -409,7 +408,7 @@ void Magnifier::grabPoint()
     QPixmap  newPixMap(QSize(width(), height()));
     QPainter painter(&newPixMap);
 
-    Application::boardController->activeScene()->render(&painter, QRectF(0, 0, width(), height()), srcRect);
+    BoardController::instance()->activeScene()->render(&painter, QRectF(0, 0, width(), height()), srcRect);
     painter.end();
 
     d->pMap.fill(Qt::transparent);
@@ -421,7 +420,7 @@ void Magnifier::grabPoint()
 
 void Magnifier::grabPoint(const QPoint &pGrab)
 {
-    QTransform transM = Application::boardController->controlView()->transform();
+    QTransform transM = BoardController::instance()->controlView()->transform();
     d->updPointGrab   = pGrab;
     QPointF itemPos   = d->gView->mapFromGlobal(pGrab);
 
@@ -432,7 +431,7 @@ void Magnifier::grabPoint(const QPoint &pGrab)
     qreal zHeightHalf = zHeight / 2;
 
     // 把镜面中心映射到场景坐标，再向四周扩出源矩形。
-    QPointF pfScLtF(Application::boardController->controlView()->mapToScene(QPoint(itemPos.x(), itemPos.y())));
+    QPointF pfScLtF(BoardController::instance()->controlView()->mapToScene(QPoint(itemPos.x(), itemPos.y())));
 
     float x = pfScLtF.x() - zWidthHalf;
     float y = pfScLtF.y() - zHeightHalf;
@@ -445,7 +444,7 @@ void Magnifier::grabPoint(const QPoint &pGrab)
     QPainter painter(&newPixMap);
 
     // 只渲染源矩形，并把它铺满整块镜面画布，得到放大的效果。
-    Application::boardController->activeScene()->render(&painter, QRectF(0, 0, width(), height()), srcRect);
+    BoardController::instance()->activeScene()->render(&painter, QRectF(0, 0, width(), height()), srcRect);
     painter.end();
 
     d->pMap = newPixMap;
@@ -515,7 +514,7 @@ void Magnifier::setDrawingMode(int mode)
     calculateButtonsPositions();
     if (d->mView && d->gView)
     {
-        Application::boardController->controlView()->scene()->moveMagnifier();
+        BoardController::instance()->controlView()->scene()->moveMagnifier();
     }
 
     createMask();

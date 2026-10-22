@@ -61,12 +61,20 @@
 
 #include "settings/Settings.h"
 
+BoardController *BoardController::sInstance = nullptr;
+
+BoardController *BoardController::instance()
+{
+    return sInstance;
+}
+
 BoardController::BoardController(MainWindow *mainWindow)
     : DocumentContainer(mainWindow->centralWidget()), mMainWindow(mainWindow), mActiveScene(0), mActiveSceneIndex(-1), mPaletteManager(0),
       mMessageWindow(0), mControlView(0), mDisplayView(0), mControlContainer(0), mControlLayout(0), mZoomFactor(1.0), mIsClosing(false),
       mSystemScaleFactor(1.0), mCleanupDone(false), mCacheWidgetIsEnabled(false), mDeletingSceneIndex(-1), mMovingSceneIndex(-1),
       mActionGroupText(tr("Group")), mActionUngroupText(tr("Ungroup")), mAutosaveTimer(0)
 {
+    sInstance                     = this; // 属归这个类自己：画板与装配点都经 instance() 取它
     mZoomFactor                   = Settings::settings()->boardZoomFactor->get().toDouble();
 
     int penColorIndex             = Settings::settings()->penColorIndex();
@@ -117,6 +125,12 @@ void BoardController::init()
 
 BoardController::~BoardController()
 {
+    // 摘下时核对确实是自己：Qt 父子关系的销毁顺序不保证，别把别人的实例误清。
+    if (sInstance == this)
+    {
+        sInstance = nullptr;
+    }
+
     delete mDisplayView;
 }
 
@@ -1632,7 +1646,7 @@ void BoardController::boardViewResized(QResizeEvent *event)
 
     mPaletteManager->containerResized();
 
-    Application::boardController->controlView()->scene()->moveMagnifier();
+    BoardController::instance()->controlView()->scene()->moveMagnifier();
 }
 
 void BoardController::documentWillBeDeleted(DocumentProxy *pProxy)
@@ -2470,7 +2484,7 @@ void BoardController::freezeWebWidgets(bool freeze)
 {
     if (mActiveSceneIndex >= 0)
     {
-        QList<QGraphicsItem *> list = Application::boardController->activeScene()->getFastAccessItems();
+        QList<QGraphicsItem *> list = BoardController::instance()->activeScene()->getFastAccessItems();
         foreach (QGraphicsItem *item, list)
         {
             freezeWebWidget(item, freeze);

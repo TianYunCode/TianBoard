@@ -17,7 +17,8 @@
 #
 # 允许依赖：model、utils、platform（都是单向向下），core 也是单向向下（core 对 ui 的出边
 # 已归零，见 src/core/CMakeLists.txt）。仍然成环的只剩 ui <-> whiteboard（29/30，第 8 步），
-# 主因是界面里的控件反向认 Application::mainWindow / boardController 那套全局指针。
+# 主因是界面里的控件反向认 Application::mainWindow 那套全局指针（boardController 已归还给
+# BoardController::instance()）。
 # 对 model 已是单向：model 不再 include 本模块；
 # 对 content 与 api 零出边——content 那两个是从没被使用的死 include，api 那个是
 # FeaturesWidget 里从不使用的 boardApi。

@@ -419,8 +419,8 @@ bool GraphicsScene::inputDevicePress(const QPointF &scenePos, const qreal &press
                 width = DrawingController::drawingController()->currentToolWidth();
             }
 
-            width /= Application::boardController->systemScaleFactor();
-            width /= Application::boardController->currentZoom();
+            width /= BoardController::instance()->systemScaleFactor();
+            width /= BoardController::instance()->currentZoom();
 
             mAddedItems.clear();
             mRemovedItems.clear();
@@ -445,8 +445,8 @@ bool GraphicsScene::inputDevicePress(const QPointF &scenePos, const qreal &press
             moveTo(scenePos);
 
             qreal eraserWidth  = Settings::settings()->currentEraserWidth();
-            eraserWidth       /= Application::boardController->systemScaleFactor();
-            eraserWidth       /= Application::boardController->currentZoom();
+            eraserWidth       /= BoardController::instance()->systemScaleFactor();
+            eraserWidth       /= BoardController::instance()->currentZoom();
 
             eraseLineTo(scenePos, eraserWidth);
             drawEraser(scenePos, mInputDeviceIsPressed);
@@ -527,8 +527,8 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
                 width = dc->currentToolWidth();
             }
 
-            width /= Application::boardController->systemScaleFactor();
-            width /= Application::boardController->currentZoom();
+            width /= BoardController::instance()->systemScaleFactor();
+            width /= BoardController::instance()->currentZoom();
 
             if (currentTool == StylusTool::Line || dc->mActiveRuler)
             {
@@ -591,10 +591,10 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
 
                 // 太短的一段不生成多边形：少画几块是一方面，主要是短段的斜接看着毛刺。
 
-                qreal antiScaleRatio = 1. / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+                qreal antiScaleRatio          = 1. / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
                 // 阈值按缩放反算，屏幕上始终约 10 像素；取值是经验值，需要可调再进设置。
-                qreal MIN_DISTANCE   = 10 * antiScaleRatio;
-                qreal distance       = QLineF(mPreviousPoint, scenePos).length();
+                qreal MIN_DISTANCE            = 10 * antiScaleRatio;
+                qreal distance                = QLineF(mPreviousPoint, scenePos).length();
 
                 mDistanceFromLastStrokePoint += distance;
 
@@ -630,8 +630,8 @@ bool GraphicsScene::inputDeviceMove(const QPointF &scenePos, const qreal &pressu
         else if (currentTool == StylusTool::Eraser)
         {
             qreal eraserWidth  = Settings::settings()->currentEraserWidth();
-            eraserWidth       /= Application::boardController->systemScaleFactor();
-            eraserWidth       /= Application::boardController->currentZoom();
+            eraserWidth       /= BoardController::instance()->systemScaleFactor();
+            eraserWidth       /= BoardController::instance()->currentZoom();
 
             eraseLineTo(position, eraserWidth);
         }
@@ -777,8 +777,8 @@ void GraphicsScene::drawEraser(const QPointF &pPoint, bool pressed)
     if (mEraser)
     {
         qreal eraserWidth   = Settings::settings()->currentEraserWidth();
-        eraserWidth        /= Application::boardController->systemScaleFactor();
-        eraserWidth        /= Application::boardController->currentZoom();
+        eraserWidth        /= BoardController::instance()->systemScaleFactor();
+        eraserWidth        /= BoardController::instance()->currentZoom();
 
         qreal eraserRadius  = eraserWidth / 2;
 
@@ -817,7 +817,7 @@ void GraphicsScene::hideEraser()
 
 void GraphicsScene::drawPointer(const QPointF &pPoint, bool isFirstDraw)
 {
-    qreal pointerDiameter = Settings::pointerDiameter / Application::boardController->currentZoom();
+    qreal pointerDiameter = Settings::pointerDiameter / BoardController::instance()->currentZoom();
     qreal pointerRadius   = pointerDiameter / 2;
 
     if (mPointer)
@@ -835,8 +835,8 @@ void GraphicsScene::drawMarkerCircle(const QPointF &pPoint)
     if (mMarkerCircle)
     {
         qreal markerDiameter  = Settings::settings()->currentMarkerWidth();
-        markerDiameter       /= Application::boardController->systemScaleFactor();
-        markerDiameter       /= Application::boardController->currentZoom();
+        markerDiameter       /= BoardController::instance()->systemScaleFactor();
+        markerDiameter       /= BoardController::instance()->currentZoom();
         qreal markerRadius    = markerDiameter / 2;
 
         mMarkerCircle->setRect(QRectF(pPoint.x() - markerRadius, pPoint.y() - markerRadius, markerDiameter, markerDiameter));
@@ -850,8 +850,8 @@ void GraphicsScene::drawPenCircle(const QPointF &pPoint)
         Settings::settings()->currentPenWidth() >= Settings::settings()->penPreviewFromSize->get().toInt())
     {
         qreal penDiameter  = Settings::settings()->currentPenWidth();
-        penDiameter       /= Application::boardController->systemScaleFactor();
-        penDiameter       /= Application::boardController->currentZoom();
+        penDiameter       /= BoardController::instance()->systemScaleFactor();
+        penDiameter       /= BoardController::instance()->currentZoom();
         qreal penRadius    = penDiameter / 2;
 
         mPenCircle->setRect(QRectF(pPoint.x() - penRadius, pPoint.y() - penRadius, penDiameter, penDiameter));
@@ -1126,8 +1126,8 @@ void GraphicsScene::drawArcTo(const QPointF &pCenterPoint, qreal pSpanAngle)
         mArcPolygonItem = 0;
     }
     qreal penWidth   = Settings::settings()->currentPenWidth();
-    penWidth        /= Application::boardController->systemScaleFactor();
-    penWidth        /= Application::boardController->currentZoom();
+    penWidth        /= BoardController::instance()->systemScaleFactor();
+    penWidth        /= BoardController::instance()->currentZoom();
 
     mArcPolygonItem  = arcToPolygonItem(QLineF(pCenterPoint, mPreviousPoint), pSpanAngle, penWidth);
     mArcPolygonItem->setFillRule(Qt::WindingFill);
@@ -1259,13 +1259,13 @@ void GraphicsScene::initPolygonItem(GraphicsPolygonItem *polygonItem)
 
     if (DrawingController::drawingController()->stylusTool() == StylusTool::Marker)
     {
-        colorOnDarkBG  = Application::boardController->markerColorOnDarkBackground();
-        colorOnLightBG = Application::boardController->markerColorOnLightBackground();
+        colorOnDarkBG  = BoardController::instance()->markerColorOnDarkBackground();
+        colorOnLightBG = BoardController::instance()->markerColorOnLightBackground();
     }
     else // 判的是“当前工具等于画笔”，再兜一层底，取不到工具时不误判
     {
-        colorOnDarkBG  = Application::boardController->penColorOnDarkBackground();
-        colorOnLightBG = Application::boardController->penColorOnLightBackground();
+        colorOnDarkBG  = BoardController::instance()->penColorOnDarkBackground();
+        colorOnLightBG = BoardController::instance()->penColorOnLightBackground();
     }
 
     if (mDarkBackground)
@@ -1630,7 +1630,7 @@ GraphicsPixmapItem *GraphicsScene::addPixmap(
     }
     else
     {
-        documentPath = Application::boardController->selectedDocument()->persistencePath();
+        documentPath = BoardController::instance()->selectedDocument()->persistencePath();
     }
 
     QString fileName = PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
@@ -1675,7 +1675,7 @@ GraphicsMediaItem *GraphicsScene::addMedia(const QUrl &pMediaFileUrl, bool shoul
         return NULL;
     }
 
-    connect(Application::boardController, &BoardController::activeSceneChanged, mediaItem, &GraphicsMediaItem::activeSceneChanged);
+    connect(BoardController::instance(), &BoardController::activeSceneChanged, mediaItem, &GraphicsMediaItem::activeSceneChanged);
 
     mediaItem->setPos(pPos);
 
@@ -1755,7 +1755,7 @@ void GraphicsScene::addGraphicsWidget(GraphicsWidgetItem *graphicsWidget, const 
 
     addItem(graphicsWidget);
 
-    qreal ssf = 1 / Application::boardController->systemScaleFactor();
+    qreal ssf = 1 / BoardController::instance()->systemScaleFactor();
 
     graphicsWidget->setTransform(QTransform::fromScale(ssf, ssf), true);
 
@@ -1776,10 +1776,10 @@ void GraphicsScene::addGraphicsWidget(GraphicsWidgetItem *graphicsWidget, const 
     }
     else
     {
-        Application::boardController->moveGraphicsWidgetToControlView(graphicsWidget);
+        BoardController::instance()->moveGraphicsWidgetToControlView(graphicsWidget);
     }
 
-    Application::boardController->controlView()->setFocus();
+    BoardController::instance()->controlView()->setFocus();
 }
 
 GraphicsGroupContainerItem *GraphicsScene::createGroup(QList<QGraphicsItem *> items)
@@ -1877,7 +1877,7 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
     svgItem->setFlag(QGraphicsItem::ItemIsMovable, true);
     svgItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-    qreal sscale = 1 / Application::boardController->systemScaleFactor();
+    qreal sscale = 1 / BoardController::instance()->systemScaleFactor();
     svgItem->setTransform(QTransform::fromScale(sscale, sscale), true);
 
     QPointF half(svgItem->boundingRect().width() / 2, svgItem->boundingRect().height() / 2);
@@ -1886,7 +1886,7 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
 
     // 先把内嵌 svg 落盘再入场景：写失败时若已经 addItem 并压了 undo 命令，
     // 场景里会留下一条永远不会被持久化的条目，调用方拿到的却还是 NULL。
-    QString documentPath = Application::boardController->selectedDocument()->persistencePath();
+    QString documentPath = BoardController::instance()->selectedDocument()->persistencePath();
 
     QString fileName     = PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
 
@@ -2053,7 +2053,7 @@ void GraphicsScene::removeItem(QGraphicsItem *item)
 {
     item->setSelected(false);
     CoreGraphicsScene::removeItem(item);
-    Application::boardController->freezeWebWidget(item, true);
+    BoardController::instance()->freezeWebWidget(item, true);
 
     if (!mTools.contains(item))
     {
@@ -2333,9 +2333,9 @@ void GraphicsScene::addMagnifier(MagnifierParams params)
         return;
     }
 
-    QWidget       *cContainer = (QWidget *)(Application::boardController->controlContainer());
-    QGraphicsView *cView      = (QGraphicsView *)Application::boardController->controlView();
-    QGraphicsView *dView      = (QGraphicsView *)Application::boardController->displayView();
+    QWidget       *cContainer = (QWidget *)(BoardController::instance()->controlContainer());
+    QGraphicsView *cView      = (QGraphicsView *)BoardController::instance()->controlView();
+    QGraphicsView *dView      = (QGraphicsView *)BoardController::instance()->displayView();
 
     QPoint dvZeroPoint        = dView->mapToGlobal(QPoint(0, 0));
 
@@ -2352,15 +2352,15 @@ void GraphicsScene::addMagnifier(MagnifierParams params)
     QPoint cvPoint     = cView->mapFromGlobal(globalPoint);
     QPoint dvPoint(cvPoint.x() * wCoeff + dvZeroPoint.x(), cvPoint.y() * hCoeff + dvZeroPoint.y());
 
-    magnifierControlViewWidget = new Magnifier((QWidget *)(Application::boardController->controlContainer()), true);
-    magnifierControlViewWidget->setGrabView((QGraphicsView *)Application::boardController->controlView());
-    magnifierControlViewWidget->setMoveView((QWidget *)(Application::boardController->controlContainer()));
+    magnifierControlViewWidget = new Magnifier((QWidget *)(BoardController::instance()->controlContainer()), true);
+    magnifierControlViewWidget->setGrabView((QGraphicsView *)BoardController::instance()->controlView());
+    magnifierControlViewWidget->setMoveView((QWidget *)(BoardController::instance()->controlContainer()));
     magnifierControlViewWidget->setSize(params.sizePercentFromScene);
     magnifierControlViewWidget->setZoom(params.zoom);
 
-    magnifierDisplayViewWidget = new Magnifier((QWidget *)(Application::boardController->displayView()), false);
-    magnifierDisplayViewWidget->setGrabView((QGraphicsView *)Application::boardController->controlView());
-    magnifierDisplayViewWidget->setMoveView((QGraphicsView *)Application::boardController->displayView());
+    magnifierDisplayViewWidget = new Magnifier((QWidget *)(BoardController::instance()->displayView()), false);
+    magnifierDisplayViewWidget->setGrabView((QGraphicsView *)BoardController::instance()->controlView());
+    magnifierDisplayViewWidget->setMoveView((QGraphicsView *)BoardController::instance()->displayView());
     magnifierDisplayViewWidget->setSize(params.sizePercentFromScene);
     magnifierDisplayViewWidget->setZoom(params.zoom);
 
@@ -2396,9 +2396,9 @@ void GraphicsScene::moveMagnifier()
 
 void GraphicsScene::moveMagnifier(QPoint newPos, bool forceGrab)
 {
-    QWidget       *cContainer = (QWidget *)(Application::boardController->controlContainer());
-    QGraphicsView *cView      = (QGraphicsView *)Application::boardController->controlView();
-    QGraphicsView *dView      = (QGraphicsView *)Application::boardController->displayView();
+    QWidget       *cContainer = (QWidget *)(BoardController::instance()->controlContainer());
+    QGraphicsView *cView      = (QGraphicsView *)BoardController::instance()->controlView();
+    QGraphicsView *dView      = (QGraphicsView *)BoardController::instance()->displayView();
 
     QPoint dvZeroPoint        = dView->mapToGlobal(QPoint(0, 0));
 
@@ -2467,7 +2467,7 @@ void GraphicsScene::resizedMagnifier(qreal newPercent)
 
 bool GraphicsScene::isSnapping() const
 {
-    return Application::boardController && Application::boardController->isSnapping();
+    return BoardController::instance() && BoardController::instance()->isSnapping();
 }
 
 QPointF GraphicsScene::snapToGrid(const QPointF &point) const
@@ -2578,13 +2578,13 @@ void GraphicsScene::addCache()
         cache->setVisible(true);
         cache->setSelected(true);
         notifyCacheEnabled();
-        Application::boardController->notifyPageChanged();
+        BoardController::instance()->notifyPageChanged();
     }
 }
 
 void GraphicsScene::notifyCacheEnabled()
 {
-    Application::boardController->notifyCache(true);
+    BoardController::instance()->notifyCache(true);
 }
 
 void GraphicsScene::addMask(const QPointF &center)
@@ -2594,7 +2594,7 @@ void GraphicsScene::addMask(const QPointF &center)
 
     addItem(curtain);
 
-    QRectF rect = Application::boardController->activeScene()->normalizedSceneRect();
+    QRectF rect = BoardController::instance()->activeScene()->normalizedSceneRect();
     rect.setRect(center.x() - rect.width() / 4, center.y() - rect.height() / 4, rect.width() / 2, rect.height() / 2);
     curtain->setRect(rect);
     curtain->setVisible(true);

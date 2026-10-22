@@ -135,7 +135,7 @@ GraphicsItemDelegate::GraphicsItemDelegate(QGraphicsItem *pDelegated, QObject *p
 {
     setFrameFlags(fls);
     // 视图缩放变化时所有委托都要重新摆放选择框
-    connect(Application::boardController, &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
+    connect(BoardController::instance(), &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
 }
 
 void GraphicsItemDelegate::createControls()
@@ -229,7 +229,7 @@ void GraphicsItemDelegate::freeControls()
 void GraphicsItemDelegate::showControls()
 {
     // 控件按屏幕像素绘制，需要抵消系统缩放与画板缩放
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
     positionHandles();
 }
 
@@ -240,9 +240,9 @@ bool GraphicsItemDelegate::controlsExist() const
 
 GraphicsItemDelegate::~GraphicsItemDelegate()
 {
-    if (Application::boardController)
+    if (BoardController::instance())
     {
-        disconnect(Application::boardController, &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
+        disconnect(BoardController::instance(), &BoardController::zoomChanged, this, &GraphicsItemDelegate::onZoomChanged);
     }
     // 不在此处释放 mMimeData：交给 QDrag 后其所有权已转移，
     // 未交给 QDrag 的情况由下一次 setMimeData() 负责回收。
@@ -286,7 +286,7 @@ QVariant GraphicsItemDelegate::itemChange(QGraphicsItem::GraphicsItemChange chan
                 break;
             }
             // 几何变化后选择框要跟随，并标记文档已修改
-            mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+            mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
             positionHandles();
             if (ownerScene)
             {
@@ -556,7 +556,7 @@ bool GraphicsItemDelegate::isLocked() const
 
 void GraphicsItemDelegate::duplicate()
 {
-    Application::boardController->duplicateItem(dynamic_cast<Item *>(delegated()));
+    BoardController::instance()->duplicateItem(dynamic_cast<Item *>(delegated()));
 }
 
 void GraphicsItemDelegate::increaseZLevelUp()
@@ -704,7 +704,7 @@ void GraphicsItemDelegate::commitUndoStep()
 void GraphicsItemDelegate::onZoomChanged()
 {
     // 缩放后重新计算反缩放系数并刷新框架，保证把手屏幕尺寸不变
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
 
     positionHandles();
 }
@@ -786,14 +786,14 @@ void GraphicsItemDelegate::showMenu()
 {
     if (!mMenu)
     {
-        mMenu = new QMenu(Application::boardController->controlView());
+        mMenu = new QMenu(BoardController::instance()->controlView());
         decorateMenu(mMenu);
     }
 
     updateMenuActionState();
 
     // 菜单在控制视图上弹出，锚点为菜单按钮右下角
-    BoardView *cv     = Application::boardController->controlView();
+    BoardView *cv     = BoardController::instance()->controlView();
     QRect      pinPos = cv->mapFromScene(mMenuButton->sceneBoundingRect()).boundingRect();
 
     mMenu->exec(cv->mapToGlobal(pinPos.bottomRight()));

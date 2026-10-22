@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "ui/ActionPalette.h"
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
 

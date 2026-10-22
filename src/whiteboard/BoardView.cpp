@@ -12,7 +12,6 @@
 
 #include "settings/Settings.h"
 #include "model/MimeData.h"
-#include "core/Application.h"
 #include "settings/Setting.h"
 #include "core/PersistenceManager.h"
 #include "utils/Enums.h"
@@ -1005,7 +1004,7 @@ void BoardView::longPressEvent()
     }
     else if (StylusTool::Eraser == currentTool)
     {
-        Application::boardController->paletteManager()->toggleErasePalette(true);
+        BoardController::instance()->paletteManager()->toggleErasePalette(true);
     }
 }
 

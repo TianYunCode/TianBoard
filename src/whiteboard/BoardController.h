@@ -47,6 +47,15 @@ class BoardController : public DocumentContainer
     Q_OBJECT
 
 public:
+    /**
+     * @brief 进程内唯一的画板总控器；没有建之前返回空指针。
+     * @note 以前这个指针挂在 `core/Application` 上（`BoardController::instance()`，270 处调用），
+     *       于是画板自己的 24 个文件要 include 最上层才能拿到本模块的对象——`core` ↔ `whiteboard`
+     *       那组环里最大的一块就是这么来的。归属应当在这个类自己手上：构造时装上、析构时核对
+     *       身份再摘下（Qt 父子关系的销毁顺序不保证，别把别人的实例误清）。
+     */
+    static BoardController *instance();
+
     /// @brief 保存选项位标志。
     enum SaveFlag
     {
@@ -454,6 +463,8 @@ private slots:
     void autosaveTimeout();
 
 private:
+    /// @brief 进程内唯一实例；构造时装上、析构时摘下，详见 instance()。
+    static BoardController *sInstance;
     /// @brief 初始化背景网格尺寸。
     void initBackgroundGridSize();
     /// @brief 刷新页面尺寸相关动作的勾选状态。

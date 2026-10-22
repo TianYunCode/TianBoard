@@ -257,7 +257,7 @@ int DocumentManager::addFilesToDocument(DocumentProxy *document, QStringList fil
                         GraphicsScene *scene     = PersistenceManager::persistenceManager()->createDocumentSceneAt(document, pageIndex);
                         importAdaptor->placeImportedItemToScene(scene, page);
                         PersistenceManager::persistenceManager()->persistDocumentScene(document, scene, pageIndex);
-                        Application::boardController->insertThumbPage(pageIndex);
+                        BoardController::instance()->insertThumbPage(pageIndex);
                     }
 
                     PersistenceManager::persistenceManager()->persistDocumentMetadata(document);

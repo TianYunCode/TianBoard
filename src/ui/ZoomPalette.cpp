@@ -4,8 +4,6 @@
 #include <QPushButton>
 #include <math.h>
 
-#include "core/Application.h"
-
 #include "whiteboard/BoardController.h"
 
 struct ZoomPalette::Private
@@ -20,7 +18,7 @@ struct ZoomPalette::Private
 
 ZoomPalette::ZoomPalette(QWidget *parent) : FloatingPalette(Qt::BottomRightCorner, parent), d(new Private)
 {
-    d->mBoardController   = Application::boardController;
+    d->mBoardController   = BoardController::instance();
     QLayout *layout       = new QVBoxLayout(this);
     d->mCurrentZoomButton = new QPushButton(parent);
     d->mCurrentZoomButton->setStyleSheet(QString("QPushButton { color: white; background-color: transparent; border: none; font-family: "

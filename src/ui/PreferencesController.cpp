@@ -1689,9 +1689,9 @@ void PreferencesController::darkBackgroundCrossOpacityValueChanged(int value)
 
     Settings::settings()->boardCrossColorDarkBackground->set(currentColor.name(QColor::HexArgb));
 
-    if (Application::boardController && Application::boardController->activeScene())
+    if (BoardController::instance() && BoardController::instance()->activeScene())
     {
-        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
+        foreach (QGraphicsView *view, BoardController::instance()->activeScene()->views())
         {
             view->resetCachedContent();
         }
@@ -1722,9 +1722,9 @@ void PreferencesController::lightBackgroundCrossOpacityValueChanged(int value)
 
     Settings::settings()->boardCrossColorLightBackground->set(currentColor.name(QColor::HexArgb));
 
-    if (Application::boardController && Application::boardController->activeScene())
+    if (BoardController::instance() && BoardController::instance()->activeScene())
     {
-        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
+        foreach (QGraphicsView *view, BoardController::instance()->activeScene()->views())
         {
             view->resetCachedContent();
         }
@@ -1840,9 +1840,9 @@ void PreferencesController::setCrossColorOnDarkBackground(const QColor &color)
 
     mPreferencesUI->darkBackgroundOpacitySlider->setValue(color.alpha() * 100 / 255);
 
-    if (Application::boardController && Application::boardController->activeScene())
+    if (BoardController::instance() && BoardController::instance()->activeScene())
     {
-        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
+        foreach (QGraphicsView *view, BoardController::instance()->activeScene()->views())
         {
             view->resetCachedContent();
         }
@@ -1855,9 +1855,9 @@ void PreferencesController::setCrossColorOnLightBackground(const QColor &color)
 
     mPreferencesUI->lightBackgroundOpacitySlider->setValue(color.alpha() * 100 / 255);
 
-    if (Application::boardController && Application::boardController->activeScene())
+    if (BoardController::instance() && BoardController::instance()->activeScene())
     {
-        foreach (QGraphicsView *view, Application::boardController->activeScene()->views())
+        foreach (QGraphicsView *view, BoardController::instance()->activeScene()->views())
         {
             view->resetCachedContent();
         }

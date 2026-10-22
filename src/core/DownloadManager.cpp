@@ -62,7 +62,7 @@ bool AsyncLocalFileDownloader::prepare()
 
     mFrom = src;
     mTo   = PersistenceManager::persistenceManager()->documentFilePath(
-        Application::boardController->selectedDocument(), destDirectory, QUuid::createUuid(), QFileInfo(src).suffix());
+        BoardController::instance()->selectedDocument(), destDirectory, QUuid::createUuid(), QFileInfo(src).suffix());
 
     return !mTo.isEmpty() && QFile::exists(mFrom);
 }
@@ -143,7 +143,7 @@ int DownloadManager::addFileToDownload(sDownloadFileDesc desc)
         // 模态任务排在队首；下载窗口自己从 fileAddedToDownload 之后查有没有模态任务决定显示。
         updateDownloadOrder();
     }
-    Application::boardController->paletteManager()->startDownloads();
+    BoardController::instance()->paletteManager()->startDownloads();
 
     emit fileAddedToDownload();
 
@@ -430,7 +430,7 @@ void DownloadManager::onDownloadError(int id)
 
 void DownloadManager::finishDownloads(bool cancel)
 {
-    Application::boardController->paletteManager()->stopDownloads();
+    BoardController::instance()->paletteManager()->stopDownloads();
     if (cancel)
     {
         emit cancelAllDownloads();

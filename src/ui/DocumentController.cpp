@@ -455,7 +455,7 @@ void DocumentTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 
 DocumentController::DocumentController(MainWindow *mainWindow)
     : DocumentContainer(mainWindow->centralWidget()), mSelectionType(None), mParentWidget(mainWindow->centralWidget()),
-      mBoardController(Application::boardController), mDocumentsView(0), mMainWindow(mainWindow), mDocumentWidget(0), mIsClosing(false),
+      mBoardController(BoardController::instance()), mDocumentsView(0), mMainWindow(mainWindow), mDocumentWidget(0), mIsClosing(false),
       mToolsPalette(0), mToolsPalettePositionned(false), mDocumentTrashGroupName(tr("Trash")), mDefaultDocumentGroupName(tr("Untitled Documents")),
       mCurrentIndexMoved(false)
 {
@@ -1888,7 +1888,7 @@ void DocumentController::addToDocument()
         persistDocumentMetadata(mBoardController->selectedDocument());
         mBoardController->reloadThumbnails();
 
-        emit Application::boardController->documentThumbnailsUpdated(this);
+        emit BoardController::instance() -> documentThumbnailsUpdated(this);
         Application::applicationController->showBoard();
 
         mBoardController->setActiveDocumentScene(newActiveSceneIndex);
@@ -2243,7 +2243,7 @@ void DocumentController::deletePages(QList<QGraphicsItem *> itemsToDelete)
             }
         }
         DocumentContainer::deletePages(sceneIndexes);
-        emit Application::boardController->documentThumbnailsUpdated(this);
+        emit BoardController::instance() -> documentThumbnailsUpdated(this);
 
         proxy->setMetaData(Settings::documentUpdatedAt, StringUtils::toUtcIsoDateTime(QDateTime::currentDateTime()));
         persistDocumentMetadata(proxy);

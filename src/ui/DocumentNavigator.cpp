@@ -7,7 +7,6 @@
 #include <QGraphicsItem>
 #include <QGraphicsPixmapItem>
 
-#include "core/Application.h"
 #include "ui/DocumentNavigator.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
@@ -68,9 +67,9 @@ DocumentNavigator::DocumentNavigator(QWidget *parent, const char *name) : QGraph
 
     setFrameShadow(QFrame::Plain);
 
-    connect(Application::boardController, &DocumentContainer::documentThumbnailsUpdated, this, &DocumentNavigator::generateThumbnails);
-    connect(Application::boardController, &DocumentContainer::documentPageUpdated, this, &DocumentNavigator::updateSpecificThumbnail);
-    connect(Application::boardController, &BoardController::pageSelectionChanged, this, &DocumentNavigator::onScrollToSelectedPage);
+    connect(BoardController::instance(), &DocumentContainer::documentThumbnailsUpdated, this, &DocumentNavigator::generateThumbnails);
+    connect(BoardController::instance(), &DocumentContainer::documentPageUpdated, this, &DocumentNavigator::updateSpecificThumbnail);
+    connect(BoardController::instance(), &BoardController::pageSelectionChanged, this, &DocumentNavigator::onScrollToSelectedPage);
 
     connect(&d->mLongPressTimer, &QTimer::timeout, this, &DocumentNavigator::longPressTimeout, Qt::UniqueConnection);
 
@@ -191,8 +190,8 @@ void DocumentNavigator::onScrollToSelectedPage(int index)
 
 void DocumentNavigator::updateSpecificThumbnail(int iPage)
 {
-    const QPixmap             *pix     = Application::boardController->pageAt(iPage);
-    SceneThumbnailNavigPixmap *newItem = new SceneThumbnailNavigPixmap(*pix, Application::boardController->selectedDocument(), iPage);
+    const QPixmap             *pix     = BoardController::instance()->pageAt(iPage);
+    SceneThumbnailNavigPixmap *newItem = new SceneThumbnailNavigPixmap(*pix, BoardController::instance()->selectedDocument(), iPage);
 
     // 用新条目原位替换旧缩略图，避免整页重建。
     SceneThumbnailNavigPixmap *oldItem = d->mThumbsWithLabels.at(iPage).getThumbnail();
@@ -280,10 +279,10 @@ void DocumentNavigator::mousePressEvent(QMouseEvent *event)
         if (d->mLastClickedThumbnail)
         {
             // 先保存当前页的视图位置与场景状态，再切到目标页并恢复其中心点。
-            Application::boardController->persistViewPositionOnCurrentScene();
-            Application::boardController->persistCurrentScene();
-            Application::boardController->setActiveDocumentScene(d->mLastClickedThumbnail->sceneIndex());
-            Application::boardController->centerOn(Application::boardController->activeScene()->lastCenter());
+            BoardController::instance()->persistViewPositionOnCurrentScene();
+            BoardController::instance()->persistCurrentScene();
+            BoardController::instance()->setActiveDocumentScene(d->mLastClickedThumbnail->sceneIndex());
+            BoardController::instance()->centerOn(BoardController::instance()->activeScene()->lastCenter());
         }
     }
 }
@@ -439,7 +438,7 @@ void DocumentNavigator::dropEvent(QDropEvent *event)
     // 两个端点都得在才谈得上换序：拖到没有缩略图的位置时 mDropTarget 可能还是空的。
     if (d->mDropSource && d->mDropTarget && d->mDropSource->sceneIndex() != d->mDropTarget->sceneIndex())
     {
-        Application::boardController->moveSceneToIndex(d->mDropSource->sceneIndex(), d->mDropTarget->sceneIndex());
+        BoardController::instance()->moveSceneToIndex(d->mDropSource->sceneIndex(), d->mDropTarget->sceneIndex());
     }
 
     d->mDropSource           = NULL;

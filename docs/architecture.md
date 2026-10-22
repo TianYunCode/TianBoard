@@ -178,7 +178,7 @@ grep 筛出来的多数是误报（`utils/Enums.h` 被非限定枚举名用、`A
 
 | 环 | 边数 | 典型出处 |
 |---|---|---|
-| `core` ↔ `whiteboard` | 16 / 46 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 的全局指针（mainWindow/boardController 那两个静态成员是主因） |
+| `core` ↔ `whiteboard` | 16 / 25 | `core/PersistenceManager`/`DocumentManager`/`SceneCache`/`DisplayManager` 认图形项与画板场景；`whiteboard/*.cpp` 认 Application 剩下的全局指针（`mainWindow` 与 `documentController` 是主因——`boardController` 那个 2026-10-22 搬回了 `BoardController::instance()`，一刀削掉 21 条上边） |
 | `ui` ↔ `whiteboard` | 29 / 30 | 调色板与画板互相认（ToolWidget/Magnifier 搬去画板、Resources 搬去 model，又删掉一批真正没人用的跨模块 include 之后） |
 
 `content` ↔ `core` 与 `core` ↔ `model` 两组环已于 2026-10-22 拆掉，手法都是同一个形状：
@@ -403,13 +403,16 @@ model       -> settings:5, utils:8
 platform    -> utils:1
 recording   -> core:5, model:1, platform:2, settings:3, ui:3, utils:6, whiteboard:4
 settings    -> utils:2
-ui          -> core:33, model:15, platform:10, settings:16, utils:11, whiteboard:29
+ui          -> core:27, model:15, platform:10, settings:16, utils:11, whiteboard:29
 utils       -> （无出边）
 web         -> core:13, platform:3, settings:4, ui:5, utils:3, whiteboard:4
-whiteboard  -> core:46, model:21, platform:5, settings:20, ui:30, utils:51
+whiteboard  -> core:25, model:21, platform:5, settings:20, ui:30, utils:51
 ```
 
 `core` 还另有 1 处 `#include "third/singleapp/…"`（见第三节），那是内联第三方而不是模块。
+2026-10-22 另有一刀只动了"谁持有指针"：`Application::boardController` 那个全局静态搬到
+`BoardController::instance()`（core 原先挂着一个指向画板对象的全局指针，画板自己的 24 个文件
+要 include 最上层才能拿到本模块的东西）。`whiteboard` 对 `core` 从 46 降到 25、`ui` 从 33 到 27。
 2026-10-22 拆掉 `content` ↔ `core` 与 `core` ↔ `model` 两组环之后，`content` 与 `model` 都不再
 有对 core 的出边（`model` 如今只剩 settings 与 utils，是真叶子）；上表里 →model 变多的那几笔
 （content 30、whiteboard 21）是仓库常量、MIME 名字与拖放载荷搬进 model 的结果，方向合法。

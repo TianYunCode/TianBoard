@@ -7,8 +7,6 @@
 
 #include "utils/Globals.h"
 
-#include "core/Application.h"
-
 struct DownloadWidget::Private
 {
     QVBoxLayout             *mpLayout{nullptr};

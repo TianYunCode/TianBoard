@@ -1,6 +1,5 @@
 #include "app/SnapSelfTest.h"
 
-#include "core/Application.h"
 #include "core/PersistenceManager.h"
 #include "model/DocumentProxy.h"
 #include "utils/Enums.h"
@@ -46,8 +45,8 @@ namespace SnapSelfTest
         scene->setBackground(false, PageBackground::plain);
         scene->setBackgroundGridSize(50);
 
-        const bool snappingWasOn = Application::boardController->isSnapping();
-        Application::boardController->setSnapping(true);
+        const bool snappingWasOn = BoardController::instance()->isSnapping();
+        BoardController::instance()->setSnapping(true);
 
         if (!scene->isSnapping())
         {
@@ -110,13 +109,13 @@ namespace SnapSelfTest
         }
 
         // 关掉开关后必须一点都不吸。
-        Application::boardController->setSnapping(false);
+        BoardController::instance()->setSnapping(false);
         if (!same(scene->snapToGrid(QPointF(112, 74)), QPointF(0, 0)))
         {
             failures << QStringLiteral("吸附关着还在吸");
         }
 
-        Application::boardController->setSnapping(snappingWasOn);
+        BoardController::instance()->setSnapping(snappingWasOn);
 
         for (const QString &failure : failures)
         {

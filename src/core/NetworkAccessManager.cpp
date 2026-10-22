@@ -8,7 +8,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "core/Application.h"
 #include "core/ApplicationController.h"
 #include "platform/CredentialStore.h"
 #include "settings/Settings.h"

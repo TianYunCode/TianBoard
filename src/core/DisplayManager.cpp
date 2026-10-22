@@ -12,7 +12,6 @@ void DisplayManager::installBlackoutSurfaceFactory(DisplayManager::BlackoutSurfa
 
 #include "platform/PlatformUtils.h"
 
-#include "core/Application.h"
 #include "core/ApplicationController.h"
 #include "settings/Settings.h"
 
@@ -277,7 +276,7 @@ void DisplayManager::unBlackout()
         mBlackoutWidgets.takeFirst()->close();
     }
 
-    Application::boardController->freezeWebWidgets(false);
+    BoardController::instance()->freezeWebWidgets(false);
 }
 
 void DisplayManager::setRoleToScreen(DisplayRole role, int screenIndex)

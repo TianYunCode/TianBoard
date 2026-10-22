@@ -1,6 +1,5 @@
 #include "whiteboard/GraphicsAxes.h"
 
-#include "core/Application.h"
 #include "utils/GeometryUtils.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
@@ -37,7 +36,7 @@ GraphicsAxes::GraphicsAxes()
         QVariant(itemLayerType::CppTool)); // 必须设好图层类型，Z 值才会被分到正确的层
 
     // 把手与按钮是按屏幕像素反缩放出来的，视图缩放一变就要重算本体形状。
-    connect(Application::boardController, &BoardController::zoomChanged, this,
+    connect(BoardController::instance(), &BoardController::zoomChanged, this,
         [this](qreal)
         {
             setRect(mBounds);
@@ -75,7 +74,7 @@ void GraphicsAxes::setRect(qreal x, qreal y, qreal w, qreal h)
 {
     mBounds           = QRectF(x, y, w, h);
 
-    mAntiScaleRatio   = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio   = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
     const qreal range = sItemWidth * mAntiScaleRatio;
 
     // 本体是一个十字形：只把四臂留出可点区域，中心留空，免得整块板面都被它抢去命中。
@@ -111,7 +110,7 @@ void GraphicsAxes::paint(QPainter *painter, const QStyleOptionGraphicsItem *styl
     Q_UNUSED(styleOption);
     Q_UNUSED(widget);
 
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
 
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);

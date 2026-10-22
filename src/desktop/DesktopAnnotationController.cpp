@@ -32,7 +32,7 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
       mPendingEraserButtonPressed(false), mbArrowClicked(false), mBoardStylusTool(DrawingController::drawingController()->stylusTool()),
       mDesktopStylusTool(DrawingController::drawingController()->stylusTool())
 {
-    mTransparentDrawingView = new BoardView(Application::boardController, static_cast<QWidget *>(0), false,
+    mTransparentDrawingView = new BoardView(BoardController::instance(), static_cast<QWidget *>(0), false,
         true); // deleted in DesktopAnnotationController::destructor
     mTransparentDrawingView->setAttribute(Qt::WA_TranslucentBackground, true);
     mTransparentDrawingView->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Window | Qt::NoDropShadowWindowHint);
@@ -57,7 +57,7 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
 
     if (PlatformUtils::hasVirtualKeyboard())
     {
-        connect(Application::boardController->paletteManager()->mKeyboardPalette, &KeyboardPalette::keyboardActivated, mTransparentDrawingView,
+        connect(BoardController::instance()->paletteManager()->mKeyboardPalette, &KeyboardPalette::keyboardActivated, mTransparentDrawingView,
             &BoardView::virtualKeyboardActivated);
     }
 
@@ -120,8 +120,8 @@ DesktopAnnotationController::DesktopAnnotationController(QObject *parent, RightP
         {
             eraseDesktopAnnotations();
         });
-    connect(Application::boardController, &BoardController::backgroundChanged, this, &DesktopAnnotationController::updateColors);
-    connect(Application::boardController, &BoardController::activeSceneChanged, this, &DesktopAnnotationController::updateColors);
+    connect(BoardController::instance(), &BoardController::backgroundChanged, this, &DesktopAnnotationController::updateColors);
+    connect(BoardController::instance(), &BoardController::activeSceneChanged, this, &DesktopAnnotationController::updateColors);
     connect(&mHoldTimerPen, &QTimer::timeout, this, &DesktopAnnotationController::penActionReleased);
     connect(&mHoldTimerMarker, &QTimer::timeout, this, &DesktopAnnotationController::markerActionReleased);
     connect(&mHoldTimerEraser, &QTimer::timeout, this, &DesktopAnnotationController::eraserActionReleased);
@@ -137,7 +137,7 @@ DesktopAnnotationController::~DesktopAnnotationController()
 
 void DesktopAnnotationController::updateColors()
 {
-    if (Application::boardController->activeScene()->isDarkBackground())
+    if (BoardController::instance()->activeScene()->isDarkBackground())
     {
         mTransparentDrawingScene->setBackground(true, PageBackground::plain);
     }
@@ -708,17 +708,17 @@ void DesktopAnnotationController::relayout()
 
 void DesktopAnnotationController::onTransparentWidgetResized()
 {
-    int rW = Application::boardController->paletteManager()->rightPalette()->width();
-    int lW = Application::boardController->paletteManager()->leftPalette()->width();
+    int rW = BoardController::instance()->paletteManager()->rightPalette()->width();
+    int lW = BoardController::instance()->paletteManager()->leftPalette()->width();
 
     int rH = mTransparentDrawingView->height();
 
     // 先加 1 像素再恢复原宽，强制侧栏按新高度重新布局；单纯同尺寸 resize 会被 Qt 忽略。
-    Application::boardController->paletteManager()->rightPalette()->resize(rW + 1, rH);
-    Application::boardController->paletteManager()->rightPalette()->resize(rW, rH);
+    BoardController::instance()->paletteManager()->rightPalette()->resize(rW + 1, rH);
+    BoardController::instance()->paletteManager()->rightPalette()->resize(rW, rH);
 
-    Application::boardController->paletteManager()->leftPalette()->resize(lW + 1, rH);
-    Application::boardController->paletteManager()->leftPalette()->resize(lW, rH);
+    BoardController::instance()->paletteManager()->leftPalette()->resize(lW + 1, rH);
+    BoardController::instance()->paletteManager()->leftPalette()->resize(lW, rH);
 }
 
 void DesktopAnnotationController::onToolClicked()

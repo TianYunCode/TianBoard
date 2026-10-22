@@ -8,8 +8,6 @@
 #include <QtWidgets>
 #include "utils/StaticMemory.h"
 
-#include "core/Application.h"
-
 /**
  * @brief 工具注册表：集中登记尺、量角器、圆规、遮罩等内置工具的元数据。
  *

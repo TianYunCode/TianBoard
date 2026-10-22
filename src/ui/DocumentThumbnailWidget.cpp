@@ -1,7 +1,6 @@
 #include "ui/DocumentThumbnailWidget.h"
 #include "model/MimeTypes.hpp"
 
-#include "core/Application.h"
 #include "model/MimeData.h"
 
 #include "ui/DocumentController.h"

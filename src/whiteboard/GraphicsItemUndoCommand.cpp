@@ -4,8 +4,6 @@
 
 #include "whiteboard/GraphicsScene.h"
 
-#include "core/Application.h"
-
 #include "whiteboard/BoardController.h"
 
 #include "whiteboard/GraphicsGroupContainerItem.h"
@@ -22,13 +20,13 @@ GraphicsItemUndoCommand::GraphicsItemUndoCommand(
     QSetIterator<QGraphicsItem *> itAdded(mAddedItems);
     while (itAdded.hasNext())
     {
-        Application::boardController->freezeWebWidget(itAdded.next(), true);
+        BoardController::instance()->freezeWebWidget(itAdded.next(), true);
     }
 
     QSetIterator<QGraphicsItem *> itRemoved(mRemovedItems);
     while (itRemoved.hasNext())
     {
-        Application::boardController->freezeWebWidget(itRemoved.next(), false);
+        BoardController::instance()->freezeWebWidget(itRemoved.next(), false);
     }
 }
 
@@ -66,7 +64,7 @@ void GraphicsItemUndoCommand::undo()
     {
         QGraphicsItem *item = itAdded.next();
 
-        Application::boardController->freezeWebWidget(item, true);
+        BoardController::instance()->freezeWebWidget(item, true);
         item->setSelected(false);
 
         // 笔迹多边形可能挂在组合下，移出场景前要记住其场景变换并脱离组合，
@@ -126,7 +124,7 @@ void GraphicsItemUndoCommand::undo()
                 }
             }
 
-            Application::boardController->freezeWebWidget(item, false);
+            BoardController::instance()->freezeWebWidget(item, false);
         }
     }
 
@@ -251,7 +249,7 @@ void GraphicsItemUndoCommand::redo()
                 item->setTransform(t);
             }
 
-            Application::boardController->freezeWebWidget(item, true);
+            BoardController::instance()->freezeWebWidget(item, true);
         }
 
         // 3) 重做“新增”
@@ -261,7 +259,7 @@ void GraphicsItemUndoCommand::redo()
             QGraphicsItem *item = itAdded.next();
             if (item)
             {
-                Application::boardController->freezeWebWidget(item, false);
+                BoardController::instance()->freezeWebWidget(item, false);
 
                 if (ItemLayerType::FixedBackground == item->data(GraphicsItemData::ItemLayerType))
                 {

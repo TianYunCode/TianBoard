@@ -11,8 +11,6 @@
 
 #include "utils/FileSystemUtils.h"
 
-#include "core/Application.h"
-
 #include "whiteboard/BoardController.h"
 
 GraphicsPixmapItem::GraphicsPixmapItem(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
@@ -147,6 +145,6 @@ qreal GraphicsPixmapItem::opacity() const
 void GraphicsPixmapItem::clearSource()
 {
     QString fileName = PackageLayout::imageDirectory + "/" + uuid().toString() + ".png";
-    QString diskPath = Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
+    QString diskPath = BoardController::instance()->selectedDocument()->persistencePath() + "/" + fileName;
     FileSystemUtils::deleteFile(diskPath);
 }

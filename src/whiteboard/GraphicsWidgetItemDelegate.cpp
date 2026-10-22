@@ -5,7 +5,6 @@
 #include "whiteboard/GraphicsWidgetItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 
@@ -25,7 +24,7 @@ GraphicsWidgetItemDelegate::~GraphicsWidgetItemDelegate()
 
 void GraphicsWidgetItemDelegate::pin()
 {
-    Application::boardController->moveGraphicsWidgetToControlView(delegated());
+    BoardController::instance()->moveGraphicsWidgetToControlView(delegated());
 }
 
 void GraphicsWidgetItemDelegate::updateMenuActionState()

@@ -68,7 +68,7 @@ void DrawingController::setStylusTool(int tool)
 {
     if (tool != mStylusTool)
     {
-        Application::boardController->activeScene()->deselectAllItems();
+        BoardController::instance()->activeScene()->deselectAllItems();
         if (mStylusTool == StylusTool::Pen || mStylusTool == StylusTool::Marker || mStylusTool == StylusTool::Line)
         {
             mLatestDrawingTool = mStylusTool;

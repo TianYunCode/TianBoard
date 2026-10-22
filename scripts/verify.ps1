@@ -27,6 +27,11 @@ param(
     [ValidateSet('debug', 'release')]
     [string]$Configuration = 'debug',
     [switch]$SkipFormat,
+    # 删掉构建树重来。动过 Q_OBJECT 类的信号/槽、或类的静态成员之后要用它：MSBuild 增量
+    # 链接会产出一个"比所有源码都新、但启动就在 main 之前崩"的 exe（实测栈顶
+    # __scrt_initialize_type_info），而下面那条新鲜度门禁抓不到——产物确实是新的。
+    # 症状很好认：所有拉起 TianBoard.exe 的用例一起红。
+    [switch]$Clean,
     [string]$CMake = 'D:\Qt\Tools\CMake_64\bin\cmake.exe',
     [string]$QtRoot = 'D:\Qt\6.9.3\msvc2022_64'
 )
@@ -78,6 +83,10 @@ if ($Configuration -eq 'release') {
     }
 } else {
     $BuildDir = Join-Path $Root 'build'
+    if ($Clean -and (Test-Path $BuildDir)) {
+        Write-Host "==> clean $BuildDir" -ForegroundColor Cyan
+        Remove-Item -Recurse -Force $BuildDir
+    }
     $Exe = Join-Path $BuildDir 'bin\Debug\TianBoard.exe'
     $Log = Join-Path $env:TEMP 'tianboard-verify-debug.log'
 

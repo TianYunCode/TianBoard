@@ -1,6 +1,5 @@
 #include "whiteboard/GraphicsCompass.h"
 #include "whiteboard/GraphicsScene.h"
-#include "core/Application.h"
 #include "settings/Settings.h"
 #include "model/Resources.h"
 #include "whiteboard/GraphicsScene.h"
@@ -49,7 +48,7 @@ GraphicsCompass::GraphicsCompass()
         QVariant(itemLayerType::CppTool)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlag(QGraphicsItem::ItemIsSelectable, false);
 
-    connect(Application::boardController, &BoardController::penColorChanged, this, &GraphicsCompass::penColorChanged);
+    connect(BoardController::instance(), &BoardController::penColorChanged, this, &GraphicsCompass::penColorChanged);
     connect(DrawingController::drawingController(), &DrawingController::lineWidthIndexChanged, this,
         [this](int)
         {
@@ -89,7 +88,7 @@ void GraphicsCompass::paint(QPainter *painter, const QStyleOptionGraphicsItem *s
 
     painter->setBrush(edgeFillColor());
 
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);
 
@@ -133,11 +132,11 @@ void GraphicsCompass::paint(QPainter *painter, const QStyleOptionGraphicsItem *s
 
     if (scene()->isDarkBackground())
     {
-        painter->fillPath(pencilShape(), Application::boardController->penColorOnDarkBackground());
+        painter->fillPath(pencilShape(), BoardController::instance()->penColorOnDarkBackground());
     }
     else
     {
-        painter->fillPath(pencilShape(), Application::boardController->penColorOnLightBackground());
+        painter->fillPath(pencilShape(), BoardController::instance()->penColorOnLightBackground());
     }
 
     painter->fillPath(pencilBaseShape(), middleFillColor());
@@ -429,7 +428,7 @@ void GraphicsCompass::paintAngleDisplay(QPainter *painter)
 
 void GraphicsCompass::paintRadiusDisplay(QPainter *painter)
 {
-    double pixelsPerCentimeter  = Application::boardController->activeScene()->backgroundGridSize();
+    double pixelsPerCentimeter  = BoardController::instance()->activeScene()->backgroundGridSize();
 
     qreal   radiusInCentimeters = rect().width() / pixelsPerCentimeter;
     QString format              = rect().width() >= sDisplayRadiusUnitMinLength ? "%1 cm" : "%1";

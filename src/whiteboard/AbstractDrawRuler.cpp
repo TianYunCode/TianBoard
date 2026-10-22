@@ -4,7 +4,6 @@
 #include "model/Resources.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/DrawingController.h"
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 
 const QColor AbstractDrawRuler::sLightBackgroundMiddleFillColor = QColor(0x72, 0x72, 0x72, sFillTransparency);
@@ -23,7 +22,7 @@ const int AbstractDrawRuler::sRoundingRadius                    = sLeftEdgeMargi
 
 AbstractDrawRuler::AbstractDrawRuler() : mShowButtons(false), mAntiScaleRatio(1.0)
 {
-    sPixelsPerCentimeter = Application::boardController->activeScene()->backgroundGridSize();
+    sPixelsPerCentimeter = BoardController::instance()->activeScene()->backgroundGridSize();
 }
 
 void AbstractDrawRuler::create(QGraphicsItem &item)
@@ -101,7 +100,7 @@ void AbstractDrawRuler::EndLine()
 
 void AbstractDrawRuler::paint()
 {
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);
 

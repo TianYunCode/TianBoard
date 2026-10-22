@@ -163,7 +163,7 @@ FeaturesWidget::FeaturesWidget(QWidget *parent, const char *name) : DockPaletteW
 
     connect(d->mActionBar, &FeaturesActionBar::rescanModel, this, &FeaturesWidget::rescanModel);
     connect(d->pathListView, &FeaturesListView::clicked, this, &FeaturesWidget::currentSelected);
-    connect(Application::boardController, &BoardController::displayMetadata, this, &FeaturesWidget::onDisplayMetadata);
+    connect(BoardController::instance(), &BoardController::displayMetadata, this, &FeaturesWidget::onDisplayMetadata);
     connect(DownloadManager::downloadManager(), &DownloadManager::addDownloadedFileToLibrary, this, &FeaturesWidget::onAddDownloadedFileToLibrary);
     connect(d->centralWidget, &FeaturesCentralWidget::lockMainWidget, this, &FeaturesWidget::lockIt);
     connect(d->centralWidget, &FeaturesCentralWidget::createNewFolderSignal, d->controller, &FeaturesController::addNewFolder);

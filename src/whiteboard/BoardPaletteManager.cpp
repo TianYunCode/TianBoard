@@ -165,7 +165,7 @@ void BoardPaletteManager::setupPalettes()
     // 除停靠调色板外，再创建自由浮动的笔、缩放等调色板。
     mStylusPalette =
         new StylusPalette(mContainer, Settings::settings()->appToolBarOrientationVertical->get().toBool() ? Qt::Vertical : Qt::Horizontal);
-    connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked), Application::boardController,
+    connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked), BoardController::instance(),
         &BoardController::stylusToolDoubleClicked, Qt::UniqueConnection);
     mStylusPalette->show(); // 启动时笔调色板必须露出来，否则用户找不到切换笔的地方
 
@@ -421,7 +421,7 @@ void BoardPaletteManager::containerResized()
         mZoomPalette->refreshPalette();
     }
 
-    if (isFirstResized && mKeyboardPalette && mKeyboardPalette->parent() == Application::boardController->controlContainer())
+    if (isFirstResized && mKeyboardPalette && mKeyboardPalette->parent() == BoardController::instance()->controlContainer())
     {
         isFirstResized = false;
         mKeyboardPalette->move(userLeft + (userWidth - mKeyboardPalette->width()) / 2, userTop + (userHeight - mKeyboardPalette->height()) / 2);
@@ -443,32 +443,32 @@ void BoardPaletteManager::changeBackground()
 {
     if (Application::mainWindow->ui().actionCrossedLightBackground->isChecked())
     {
-        Application::boardController->changeBackground(false, PageBackground::crossed);
+        BoardController::instance()->changeBackground(false, PageBackground::crossed);
     }
 
     else if (Application::mainWindow->ui().actionRuledLightBackground->isChecked())
     {
-        Application::boardController->changeBackground(false, PageBackground::ruled);
+        BoardController::instance()->changeBackground(false, PageBackground::ruled);
     }
 
     else if (Application::mainWindow->ui().actionPlainDarkBackground->isChecked())
     {
-        Application::boardController->changeBackground(true, PageBackground::plain);
+        BoardController::instance()->changeBackground(true, PageBackground::plain);
     }
 
     else if (Application::mainWindow->ui().actionCrossedDarkBackground->isChecked())
     {
-        Application::boardController->changeBackground(true, PageBackground::crossed);
+        BoardController::instance()->changeBackground(true, PageBackground::crossed);
     }
 
     else if (Application::mainWindow->ui().actionRuledDarkBackground->isChecked())
     {
-        Application::boardController->changeBackground(true, PageBackground::ruled);
+        BoardController::instance()->changeBackground(true, PageBackground::ruled);
     }
 
     else
     {
-        Application::boardController->changeBackground(false, PageBackground::plain);
+        BoardController::instance()->changeBackground(false, PageBackground::plain);
     }
 
     mBackgroundsPalette->backgroundChanged();
@@ -476,8 +476,8 @@ void BoardPaletteManager::changeBackground()
 
 void BoardPaletteManager::activeSceneChanged()
 {
-    GraphicsScene *activeScene = Application::boardController->activeScene();
-    int            pageIndex   = Application::boardController->activeSceneIndex();
+    GraphicsScene *activeScene = BoardController::instance()->activeScene();
+    int            pageIndex   = BoardController::instance()->activeSceneIndex();
 
     if (mStylusPalette)
     {
@@ -587,7 +587,7 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit)
             // 启动阶段 mAddItemPalette 可能尚未创建。
             if (mAddItemPalette)
             {
-                mAddItemPalette->setParent(Application::boardController->controlContainer());
+                mAddItemPalette->setParent(BoardController::instance()->controlContainer());
             }
             mLeftPalette->assignParent(mContainer);
             mRightPalette->assignParent(mContainer);
@@ -599,12 +599,12 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit)
                 if (mKeyboardPalette->keyboardVisible())
                 {
                     mKeyboardPalette->hide();
-                    mKeyboardPalette->setParent(Application::boardController->controlContainer());
+                    mKeyboardPalette->setParent(BoardController::instance()->controlContainer());
                     mKeyboardPalette->show();
                 }
                 else
                 {
-                    mKeyboardPalette->setParent(Application::boardController->controlContainer());
+                    mKeyboardPalette->setParent(BoardController::instance()->controlContainer());
                 }
             }
 
@@ -740,7 +740,7 @@ void BoardPaletteManager::changeMode(DockWidgetMode newMode, bool isInit)
 
     if (!isInit)
     {
-        Application::boardController->notifyPageChanged();
+        BoardController::instance()->notifyPageChanged();
     }
 }
 
@@ -763,13 +763,13 @@ void BoardPaletteManager::addItemToCurrentPage()
     mAddItemPalette->hide();
     if (mPixmap.isNull())
     {
-        Application::boardController->downloadURL(mItemUrl);
+        BoardController::instance()->downloadURL(mItemUrl);
     }
     else
     {
-        GraphicsPixmapItem *item = Application::boardController->activeScene()->addPixmap(mPixmap, NULL, mPos, mScaleFactor);
+        GraphicsPixmapItem *item = BoardController::instance()->activeScene()->addPixmap(mPixmap, NULL, mPos, mScaleFactor);
 
-        QString documentPath     = Application::boardController->selectedDocument()->persistencePath();
+        QString documentPath     = BoardController::instance()->selectedDocument()->persistencePath();
         QString fileName         = PackageLayout::imageDirectory + "/" + item->uuid().toString() + ".png";
         QString path             = documentPath + "/" + fileName;
 
@@ -782,7 +782,7 @@ void BoardPaletteManager::addItemToCurrentPage()
 
 void BoardPaletteManager::addItemToNewPage()
 {
-    Application::boardController->addScene();
+    BoardController::instance()->addScene();
     addItemToCurrentPage();
 }
 
@@ -885,7 +885,7 @@ void BoardPaletteManager::changeStylusPaletteOrientation(QVariant var)
         mStylusPalette = new StylusPalette(mContainer, Qt::Horizontal);
     }
 
-    connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked), Application::boardController,
+    connect(mStylusPalette, qOverload<int>(&StylusPalette::stylusToolDoubleClicked), BoardController::instance(),
         &BoardController::stylusToolDoubleClicked, Qt::UniqueConnection);
     mStylusPalette->setVisible(bVisible); // 启动时笔调色板必须露出来，否则用户找不到切换笔的地方
 }

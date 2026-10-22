@@ -26,9 +26,9 @@ SelectionFrame::SelectionFrame()
         QVariant(itemLayerType::SelectionFrame)); // 必须设好图层类型，Z 值才会被分到正确的层
     setFlags(QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsSelectable | ItemIsMovable);
 
-    connect(Application::boardController, &BoardController::zoomChanged, this, &SelectionFrame::onZoomChanged);
+    connect(BoardController::instance(), &BoardController::zoomChanged, this, &SelectionFrame::onZoomChanged);
 
-    onZoomChanged(Application::boardController->currentZoom());
+    onZoomChanged(BoardController::instance()->currentZoom());
 }
 
 void SelectionFrame::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -143,7 +143,7 @@ void SelectionFrame::updateRect()
 
 void SelectionFrame::updateScale()
 {
-    setScale(-Application::boardController->currentZoom());
+    setScale(-BoardController::instance()->currentZoom());
 }
 
 void SelectionFrame::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -267,7 +267,7 @@ void SelectionFrame::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
 
 void SelectionFrame::onZoomChanged(qreal pZoom)
 {
-    mAntiscaleRatio = 1 / (Application::boardController->systemScaleFactor() * pZoom);
+    mAntiscaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * pZoom);
 }
 
 void SelectionFrame::remove()
@@ -455,7 +455,7 @@ inline GraphicsScene *SelectionFrame::graphicsScene()
 
 void SelectionFrame::setCursorFromAngle(QString angle)
 {
-    QWidget *controlViewport = Application::boardController->controlView()->viewport();
+    QWidget *controlViewport = BoardController::instance()->controlView()->viewport();
 
     QSize cursorSize(45, 30);
 

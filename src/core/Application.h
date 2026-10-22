@@ -93,8 +93,6 @@ public:
 
     /// 应用控制器，由 exec() 创建，父对象为 StaticMemory::cleaner()。
     static ApplicationController *applicationController;
-    /// 画板控制器，父对象为主窗口。
-    static BoardController *boardController;
     /// 网页控制器，父对象是主窗口的中央控件；类型是 core 自己的契约。
     static IWebController *webController;
     /// 文档库控制器，父对象为主窗口。

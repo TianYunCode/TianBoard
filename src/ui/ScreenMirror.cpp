@@ -99,7 +99,7 @@ void ScreenMirror::start()
 {
     qDebug() << "mirroring START";
     // 镜像期间冻结网页控件，避免每帧抓屏都触发网页重绘而拖慢整体帧率。
-    Application::boardController->freezeWebWidgets(true);
+    BoardController::instance()->freezeWebWidgets(true);
     if (d->timerID == 0)
     {
         int ms = 125;
@@ -124,7 +124,7 @@ void ScreenMirror::start()
 void ScreenMirror::stop()
 {
     qDebug() << "mirroring STOP";
-    Application::boardController->freezeWebWidgets(false);
+    BoardController::instance()->freezeWebWidgets(false);
     if (d->timerID != 0)
     {
         killTimer(d->timerID);

@@ -1,6 +1,5 @@
 #include "app/RecordingSelfTest.h"
 
-#include "core/Application.h"
 #include "recording/RecordingController.h"
 #include "settings/Settings.h"
 

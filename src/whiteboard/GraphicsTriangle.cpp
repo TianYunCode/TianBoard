@@ -2,7 +2,6 @@
 #include <QtWidgets/QGraphicsPolygonItem>
 
 #include "whiteboard/GraphicsTriangle.h"
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
 #include "whiteboard/GraphicsScene.h"
@@ -317,7 +316,7 @@ void GraphicsTriangle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     paintGraduations(painter);
 
-    mAntiScaleRatio = 1 / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1 / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
     QTransform antiScaleTransform;
     antiScaleTransform.scale(mAntiScaleRatio, mAntiScaleRatio);
 
@@ -376,7 +375,7 @@ void GraphicsTriangle::paintGraduations(QPainter *painter)
     QFontMetricsF fontMetrics(painter->font());
 
     // 让“一厘米”与背景网格宽度一致（无论网格是否显示）。
-    sPixelsPerCentimeter           = Application::boardController->activeScene()->backgroundGridSize();
+    sPixelsPerCentimeter           = BoardController::instance()->activeScene()->backgroundGridSize();
     double pixelsPerMillimeter     = sPixelsPerCentimeter / 10.0;
 
     // 一厘米太窄时只显示每 5 个数字与每 5 毫米刻度，避免文字重叠。

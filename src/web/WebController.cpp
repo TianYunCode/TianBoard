@@ -141,7 +141,7 @@ void WebController::setupPalettes()
     if (!mToolsCurrentPalette)
     {
         mToolsCurrentPalette = new WebToolsPalette(Application::mainWindow);
-        Application::boardController->paletteManager()->setCurrentWebToolsPalette(mToolsCurrentPalette);
+        BoardController::instance()->paletteManager()->setCurrentWebToolsPalette(mToolsCurrentPalette);
 
         connect(mMainWindow->ui().actionWebCustomCapture, &QAction::triggered, this,
             [this]

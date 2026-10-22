@@ -2,7 +2,6 @@
 
 #include <QtWidgets>
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/GraphicsScene.h"
 
@@ -24,7 +23,7 @@ void PageSizeUndoCommand::undo()
         return;
     }
 
-    Application::boardController->setPageSize(mPreviousSize);
+    BoardController::instance()->setPageSize(mPreviousSize);
     // 强制刷新：Qt 触发重绘偏慢（耗时疑与项数量的平方成正比？）
     mScene->update(mScene->sceneRect());
 }
@@ -40,7 +39,7 @@ void PageSizeUndoCommand::redo()
             return;
         }
 
-        Application::boardController->setPageSize(mNewSize);
+        BoardController::instance()->setPageSize(mNewSize);
         // 强制刷新：Qt 触发重绘偏慢（耗时疑与项数量的平方成正比）
         mScene->update(mScene->sceneRect());
     }

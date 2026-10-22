@@ -2,7 +2,6 @@
 
 #include "whiteboard/GraphicsRuler.h"
 #include "whiteboard/GraphicsScene.h"
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
 
@@ -135,7 +134,7 @@ void GraphicsRuler::paintGraduations(QPainter *painter)
     QFontMetricsF fontMetrics(painter->font());
 
     // 让一个“厘米”的宽度与背景网格一致（无论网格是否显示）
-    sPixelsPerCentimeter           = Application::boardController->activeScene()->backgroundGridSize();
+    sPixelsPerCentimeter           = BoardController::instance()->activeScene()->backgroundGridSize();
 
     qreal pixelsPerMillimeter      = sPixelsPerCentimeter / 10.0;
     int   rulerLengthInMillimeters = (rect().width() - sLeftEdgeMargin - sRoundingRadius) / pixelsPerMillimeter;

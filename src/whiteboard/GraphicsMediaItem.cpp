@@ -4,7 +4,6 @@
 #include "whiteboard/GraphicsMediaItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsDelegateFrame.h"
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 
 #include <QGraphicsVideoItem>
@@ -41,7 +40,7 @@ void GraphicsMediaItem::observeActiveSceneChanges(GraphicsMediaItem *item)
         return;
     }
 
-    QObject::connect(Application::boardController, &BoardController::activeSceneChanged, item, &GraphicsMediaItem::activeSceneChanged);
+    QObject::connect(BoardController::instance(), &BoardController::activeSceneChanged, item, &GraphicsMediaItem::activeSceneChanged);
 }
 
 GraphicsMediaItem::GraphicsMediaItem(const QUrl &pMediaFileUrl, QGraphicsItem *parent)
@@ -283,9 +282,9 @@ void GraphicsMediaItem::clearSource()
 {
     QString path = mediaFileUrl().toLocalFile();
     // 相对路径需要补上文档目录；已经是绝对路径时不要再拼接
-    if (!path.contains(Application::boardController->selectedDocument()->persistencePath()))
+    if (!path.contains(BoardController::instance()->selectedDocument()->persistencePath()))
     {
-        path = Application::boardController->selectedDocument()->persistencePath() + "/" + path;
+        path = BoardController::instance()->selectedDocument()->persistencePath() + "/" + path;
     }
 
     if (!FileSystemUtils::deleteFile(path))
@@ -316,7 +315,7 @@ GraphicsScene *GraphicsMediaItem::scene()
 
 void GraphicsMediaItem::activeSceneChanged()
 {
-    if (Application::boardController->activeScene() != scene())
+    if (BoardController::instance()->activeScene() != scene())
     {
         mMediaObject->pause();
     }
@@ -447,7 +446,7 @@ void GraphicsMediaItem::copyItemParameters(Item *copy) const
         cp->setZValue(this->zValue());
 
         // 副本也需要跟随活动场景切换而暂停
-        connect(Application::boardController, &BoardController::activeSceneChanged, cp, &GraphicsMediaItem::activeSceneChanged);
+        connect(BoardController::instance(), &BoardController::activeSceneChanged, cp, &GraphicsMediaItem::activeSceneChanged);
     }
 }
 
@@ -603,8 +602,8 @@ void GraphicsVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 QVariant GraphicsVideoItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     // 首次可见且位于当前活动场景时才绑定视频输出，满足 setVideoSink 的调用时机要求
-    if (change == QGraphicsItem::ItemVisibleChange && value.toBool() && !mHasVideoOutput && Application::app()->boardController &&
-        Application::app()->boardController->activeScene() == scene())
+    if (change == QGraphicsItem::ItemVisibleChange && value.toBool() && !mHasVideoOutput && BoardController::instance() &&
+        BoardController::instance()->activeScene() == scene())
     {
         mMediaObject->setVideoSink(mVideoItem->videoSink());
         mHasVideoOutput = true;
@@ -650,7 +649,7 @@ void GraphicsVideoItem::activeSceneChanged()
     setPlaceholderVisible(!mErrorString.isEmpty());
 
     // 若视频可见且尚未建立输出，则在成为活动场景时补上 setVideoSink
-    if (!mHasVideoOutput && Application::boardController->activeScene() == scene())
+    if (!mHasVideoOutput && BoardController::instance()->activeScene() == scene())
     {
         mMediaObject->setSource(mMediaFileUrl);
         mMediaObject->setVideoSink(mVideoItem->videoSink());

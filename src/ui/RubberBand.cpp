@@ -6,7 +6,6 @@
 
 #include "whiteboard/BoardView.h"
 
-#include "core/Application.h"
 #include "whiteboard/BoardController.h"
 
 RubberBand::RubberBand(Shape s, QWidget *p)
@@ -128,7 +127,7 @@ void RubberBand::mousePressEvent(QMouseEvent *event)
     if (None == mResizingMode)
     {
         // 在选区内部按下：让视图把落在框内的对象加入选择集。
-        Application::boardController->controlView()->rubberItems();
+        BoardController::instance()->controlView()->rubberItems();
         setCursor(QCursor(Qt::SizeAllCursor));
     }
 }
@@ -139,7 +138,7 @@ void RubberBand::mouseMoveEvent(QMouseEvent *event)
 
     if (mMouseIsPressed)
     {
-        BoardView *view            = Application::boardController->controlView();
+        BoardView *view            = BoardController::instance()->controlView();
         QRect      currentGeometry = geometry();
 
         QPoint pressPoint(event->pos());

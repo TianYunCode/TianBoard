@@ -227,7 +227,7 @@ void GraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     QGraphicsTextItem::paint(painter, &styleOption, widget);
 
-    if (widget == Application::boardController->controlView()->viewport() && !isSelected())
+    if (widget == BoardController::instance()->controlView()->viewport() && !isSelected())
     {
         setTextInteractionFlags(Qt::NoTextInteraction);
         if (toPlainText().isEmpty())

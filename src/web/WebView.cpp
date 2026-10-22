@@ -241,7 +241,7 @@ void WebView::downloadRequested(QWebEngineDownloadRequest *item)
         if (messageBox.clickedButton() == addButton)
         {
             Application::applicationController->showBoard();
-            Application::boardController->downloadURL(item->url());
+            BoardController::instance()->downloadURL(item->url());
             item->cancel();
             return;
         }

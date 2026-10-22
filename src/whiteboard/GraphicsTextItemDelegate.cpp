@@ -2,7 +2,6 @@
 #include <QtSvg>
 #include <QtSvgWidgets>
 
-#include "core/Application.h"
 #include "whiteboard/GraphicsGroupContainerItem.h"
 #include "whiteboard/GraphicsTextItemDelegate.h"
 #include "whiteboard/GraphicsScene.h"
@@ -323,7 +322,7 @@ void GraphicsTextItemDelegate::pickFont()
     if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0)
     {
         // 显式带上控制视图作父窗口，绕开 https://bugreports.qt.io/browse/QTBUG-79637
-        QFontDialog fontDialog(static_cast<QGraphicsView *>(Application::boardController->controlView()));
+        QFontDialog fontDialog(static_cast<QGraphicsView *>(BoardController::instance()->controlView()));
 
         fontDialog.setOption(QFontDialog::DontUseNativeDialog);
         fontDialog.setCurrentFont(delegated()->textCursor().charFormat().font());
@@ -356,7 +355,7 @@ void GraphicsTextItemDelegate::pickColor()
 {
     if (mDelegated && mDelegated->scene() && mDelegated->scene()->views().size() > 0)
     {
-        QColorDialog colorDialog(delegated()->defaultTextColor(), static_cast<QGraphicsView *>(Application::boardController->controlView()));
+        QColorDialog colorDialog(delegated()->defaultTextColor(), static_cast<QGraphicsView *>(BoardController::instance()->controlView()));
         colorDialog.setWindowTitle(tr("Text Color"));
         colorDialog.setOption(QColorDialog::DontUseNativeDialog);
         if (Settings::settings()->isDarkBackground())

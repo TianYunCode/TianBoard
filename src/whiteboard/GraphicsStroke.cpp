@@ -3,7 +3,6 @@
 #include "whiteboard/GraphicsPolygonItem.h"
 
 #include "whiteboard/BoardController.h"
-#include "core/Application.h"
 #include "whiteboard/GraphicsScene.h"
 
 #include "utils/GeometryUtils.h"
@@ -12,7 +11,7 @@ typedef QPair<QPointF, qreal> strokePoint;
 
 GraphicsStroke::GraphicsStroke(GraphicsScene *scene) : mScene(scene)
 {
-    mAntiScaleRatio = 1. / (Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    mAntiScaleRatio = 1. / (BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
 }
 
 GraphicsStroke::~GraphicsStroke()

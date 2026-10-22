@@ -51,7 +51,6 @@ void Application::installWebControllerFactory(WebControllerFactory factory)
 QPointer<QUndoStack> Application::undoStack;
 
 ApplicationController *Application::applicationController = 0;
-BoardController       *Application::boardController       = 0;
 IWebController        *Application::webController         = 0;
 DocumentController    *Application::documentController    = 0;
 
@@ -194,7 +193,8 @@ int Application::exec(const QString &pFileToImport)
     connect(mainWindow->ui().actionQuit, &QAction::triggered, this, &Application::closing);
     connect(mainWindow, &MainWindow::closeEvent_Signal, this, &Application::closeEvent);
 
-    boardController = new BoardController(mainWindow);
+    // 总控器把自已装进 BoardController::instance()：画板那 24 个文件不必再为了拿它而 include core。
+    BoardController *boardController = new BoardController(mainWindow);
     boardController->init();
 
     // 网页控制器是四个主模式之一：装配点没装上工厂就是装配漏了，立刻大声失败。
@@ -338,12 +338,12 @@ void Application::onScreenCountChanged(int newCount)
 
 void Application::startScript()
 {
-    this->boardController->freezeWebWidgets(false);
+    BoardController::instance()->freezeWebWidgets(false);
 }
 
 void Application::stopScript()
 {
-    this->boardController->freezeWebWidgets(true);
+    BoardController::instance()->freezeWebWidgets(true);
 }
 
 void Application::showBoard()
@@ -422,9 +422,9 @@ void Application::closing()
         }
     }
 
-    if (boardController)
+    if (BoardController *controller = BoardController::instance())
     {
-        boardController->closing();
+        controller->closing();
     }
 
     if (applicationController)
@@ -447,7 +447,7 @@ void Application::closing()
 
 void Application::setDisabled(bool disable)
 {
-    boardController->setDisabled(disable);
+    BoardController::instance()->setDisabled(disable);
 }
 
 void Application::decorateActionMenu(QAction *action)
@@ -539,17 +539,17 @@ bool Application::eventFilter(QObject *obj, QEvent *event)
 
     if (event->type() == QEvent::TabletLeaveProximity)
     {
-        if (boardController && boardController->controlView())
+        if (BoardController::instance() && BoardController::instance()->controlView())
         {
-            boardController->controlView()->forcedTabletRelease();
+            BoardController::instance()->controlView()->forcedTabletRelease();
         }
     }
 
     if (event->type() == QEvent::ApplicationActivate)
     {
-        if (boardController && boardController->controlView())
+        if (BoardController::instance() && BoardController::instance()->controlView())
         {
-            boardController->controlView()->setMultiselection(false);
+            BoardController::instance()->controlView()->setMultiselection(false);
         }
     }
 
@@ -585,9 +585,9 @@ void Application::cleanup()
     {
         delete applicationController;
     }
-    if (boardController)
+    if (BoardController *controller = BoardController::instance())
     {
-        delete boardController;
+        delete controller;
     }
     if (webController)
     {
@@ -599,7 +599,6 @@ void Application::cleanup()
     }
 
     applicationController = NULL;
-    boardController       = NULL;
     webController         = NULL;
     documentController    = NULL;
 }

@@ -58,7 +58,7 @@ ApplicationController::ApplicationController(
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, this, &ApplicationController::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, mDesktopAnnotation, &IDesktopAnnotation::screenLayoutChanged);
     connect(mDisplayManager, &DisplayManager::screenLayoutChanged, Application::webController, &IWebController::screenLayoutChanged);
-    connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, Application::boardController, &BoardController::adjustDisplayViews);
+    connect(mDisplayManager, &DisplayManager::adjustDisplayViewsRequired, BoardController::instance(), &BoardController::adjustDisplayViews);
     // 槽第三个参数有默认值，成员指针形式要求参数个数不超过信号，这里显式补默认值
     connect(mDesktopAnnotation, &IDesktopAnnotation::imageCaptured, this,
         [this](const QPixmap &pixmap, bool pageMode)
@@ -68,7 +68,7 @@ ApplicationController::ApplicationController(
 
     for (int i = 0; i < mDisplayManager->numPreviousViews(); i++)
     {
-        BoardView *previousView = new BoardView(Application::boardController, ItemLayerType::FixedBackground, ItemLayerType::Tool, 0);
+        BoardView *previousView = new BoardView(BoardController::instance(), ItemLayerType::FixedBackground, ItemLayerType::Tool, 0);
         previousView->setInteractive(false);
         mPreviousViews.append(previousView);
     }
@@ -123,11 +123,11 @@ void ApplicationController::screenLayoutChanged()
 
     if (mDisplayManager->hasDisplay())
     {
-        Application::boardController->setBoxing(mDisplayView->geometry());
+        BoardController::instance()->setBoxing(mDisplayView->geometry());
     }
     else
     {
-        Application::boardController->setBoxing(QRect());
+        BoardController::instance()->setBoxing(QRect());
     }
 
     adjustPreviousViews(0, 0);
@@ -162,7 +162,7 @@ void ApplicationController::adaptToolBar()
         }
     }
 
-    Application::boardController->setToolbarTexts();
+    BoardController::instance()->setToolbarTexts();
 
     Application::webController->adaptToolBar();
 }
@@ -173,7 +173,7 @@ void ApplicationController::adjustDisplayView()
     {
         qreal systemDisplayViewScaleFactor = 1.0;
 
-        QSize pageSize                     = Application::boardController->activeScene()->nominalSize();
+        QSize pageSize                     = BoardController::instance()->activeScene()->nominalSize();
         QSize displaySize                  = mDisplayView->size();
 
         qreal hFactor                      = ((qreal)displaySize.width()) / ((qreal)pageSize.width());
@@ -182,7 +182,7 @@ void ApplicationController::adjustDisplayView()
         systemDisplayViewScaleFactor       = qMin(hFactor, vFactor);
 
         QTransform tr;
-        qreal      scaleFactor = systemDisplayViewScaleFactor * Application::boardController->currentZoom();
+        qreal      scaleFactor = systemDisplayViewScaleFactor * BoardController::instance()->currentZoom();
 
         tr.scale(scaleFactor, scaleFactor);
 
@@ -243,11 +243,11 @@ void ApplicationController::addCapturedPixmap(const QPixmap &pPixmap, bool pageM
 {
     if (!pPixmap.isNull())
     {
-        qreal sf              = Application::boardController->systemScaleFactor();
+        qreal sf              = BoardController::instance()->systemScaleFactor();
         qreal scaledWidth     = ((qreal)pPixmap.width()) / sf;
         qreal scaledHeight    = ((qreal)pPixmap.height()) / sf;
 
-        QSize pageNominalSize = Application::boardController->activeScene()->nominalSize();
+        QSize pageNominalSize = BoardController::instance()->activeScene()->nominalSize();
 
         int newWidth          = qMin((int)scaledWidth, pageNominalSize.width());
         int newHeight         = qMin((int)scaledHeight, pageNominalSize.height());
@@ -269,7 +269,7 @@ void ApplicationController::addCapturedPixmap(const QPixmap &pPixmap, bool pageM
             pos.setY(pageNominalSize.height() / -2 + scaledSize.height() / 2);
         }
 
-        Application::boardController->paletteManager()->addItem(pPixmap, pos, scaleFactor, sourceUrl);
+        BoardController::instance()->paletteManager()->addItem(pPixmap, pos, scaleFactor, sourceUrl);
     }
 }
 
@@ -290,7 +290,7 @@ void ApplicationController::addCapturedEmbedCode(const QString &embedCode)
 
         if (widgetPath.length() > 0)
         {
-            Application::boardController->downloadURL(QUrl::fromLocalFile(widgetPath));
+            BoardController::instance()->downloadURL(QUrl::fromLocalFile(widgetPath));
         }
     }
 }
@@ -306,7 +306,7 @@ void ApplicationController::showBoard()
         int selectedSceneIndex = Application::documentController->getSelectedItemIndex();
         if (selectedSceneIndex != -1)
         {
-            Application::boardController->setActiveDocumentScene(Application::documentController->selectedDocument(), selectedSceneIndex, true);
+            BoardController::instance()->setActiveDocumentScene(Application::documentController->selectedDocument(), selectedSceneIndex, true);
         }
     }
 
@@ -318,9 +318,9 @@ void ApplicationController::showBoard()
 
     mMainWindow->switchToBoardWidget();
 
-    if (Application::boardController)
+    if (BoardController::instance())
     {
-        Application::boardController->show();
+        BoardController::instance()->show();
     }
 
     mIsShowingDesktop = false;
@@ -332,15 +332,15 @@ void ApplicationController::showBoard()
 
     emit mainModeChanged(Board);
 
-    Application::boardController->freezeWebWidgets(false);
+    BoardController::instance()->freezeWebWidgets(false);
 }
 
 void ApplicationController::showInternet()
 {
-    if (Application::boardController)
+    if (BoardController::instance())
     {
-        Application::boardController->persistCurrentScene();
-        Application::boardController->hide();
+        BoardController::instance()->persistCurrentScene();
+        BoardController::instance()->hide();
     }
 
     if (Settings::settings()->webUseExternalBrowser->get().toBool())
@@ -387,13 +387,13 @@ void ApplicationController::showDocument()
 
     mMainWindow->switchToDocumentsWidget();
 
-    if (Application::boardController)
+    if (BoardController::instance())
     {
-        if (Application::boardController->activeScene()->isModified())
+        if (BoardController::instance()->activeScene()->isModified())
         {
-            Application::boardController->persistCurrentScene();
+            BoardController::instance()->persistCurrentScene();
         }
-        Application::boardController->hide();
+        BoardController::instance()->hide();
     }
 
     if (Application::documentController)
@@ -413,9 +413,9 @@ void ApplicationController::showDesktop(bool dontSwitchFrontProcess)
 {
     int desktopWidgetIndex = VirtualDesktop::instance()->screenNumber(mMainWindow);
 
-    if (Application::boardController)
+    if (BoardController::instance())
     {
-        Application::boardController->hide();
+        BoardController::instance()->hide();
     }
 
     mMainWindow->hide();
@@ -551,13 +551,13 @@ void ApplicationController::showMessage(const QString &message, bool showSpinnin
     {
         if (mMainMode == Document)
         {
-            Application::boardController->hideMessage();
+            BoardController::instance()->hideMessage();
             Application::documentController->showMessage(message, showSpinningWheel);
         }
         else
         {
             Application::documentController->hideMessage();
-            Application::boardController->showMessage(message, showSpinningWheel);
+            BoardController::instance()->showMessage(message, showSpinningWheel);
         }
     }
 }
@@ -583,9 +583,9 @@ void ApplicationController::importFile(const QString &pFilePath)
     {
         if (mMainMode == Board || mMainMode == Internet)
         {
-            if (Application::boardController)
+            if (BoardController::instance())
             {
-                Application::boardController->setActiveDocumentScene(document, 0);
+                BoardController::instance()->setActiveDocumentScene(document, 0);
                 showBoard();
             }
         }
@@ -625,7 +625,7 @@ void ApplicationController::actionCut()
     {
         if (mMainMode == Board)
         {
-            Application::boardController->cut();
+            BoardController::instance()->cut();
         }
         else if (mMainMode == Internet)
         {
@@ -640,7 +640,7 @@ void ApplicationController::actionCopy()
     {
         if (mMainMode == Board)
         {
-            Application::boardController->copy();
+            BoardController::instance()->copy();
         }
         else if (mMainMode == Internet)
         {
@@ -655,7 +655,7 @@ void ApplicationController::actionPaste()
     {
         if (mMainMode == Board)
         {
-            Application::boardController->paste();
+            BoardController::instance()->paste();
         }
         else if (mMainMode == Internet)
         {

@@ -119,7 +119,7 @@ void FavoriteToolPalette::addFavorite()
         QVariant widgetPathVar = action->data();
         if (!widgetPathVar.isNull())
         {
-            Application::boardController->downloadURL(widgetPathVar.toUrl());
+            BoardController::instance()->downloadURL(widgetPathVar.toUrl());
         }
     }
 }

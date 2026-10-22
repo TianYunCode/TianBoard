@@ -1152,28 +1152,28 @@ void SceneThumbnailNavigPixmap::deletePage()
             QObject::tr("Remove Page"), QObject::tr("Are you sure you want to remove 1 page from the selected document '%0'?")
                                             .arg(proxy()->metaData(Settings::documentName).toString())))
     {
-        Application::boardController->deleteScene(sceneIndex());
+        BoardController::instance()->deleteScene(sceneIndex());
     }
 }
 
 void SceneThumbnailNavigPixmap::duplicatePage()
 {
-    Application::boardController->duplicateScene(sceneIndex());
+    BoardController::instance()->duplicateScene(sceneIndex());
 }
 
 void SceneThumbnailNavigPixmap::moveUpPage()
 {
     if (sceneIndex() != 0)
     {
-        Application::boardController->moveSceneToIndex(sceneIndex(), sceneIndex() - 1);
+        BoardController::instance()->moveSceneToIndex(sceneIndex(), sceneIndex() - 1);
     }
 }
 
 void SceneThumbnailNavigPixmap::moveDownPage()
 {
-    if (sceneIndex() < Application::boardController->selectedDocument()->pageCount() - 1)
+    if (sceneIndex() < BoardController::instance()->selectedDocument()->pageCount() - 1)
     {
-        Application::boardController->moveSceneToIndex(sceneIndex(), sceneIndex() + 1);
+        BoardController::instance()->moveSceneToIndex(sceneIndex(), sceneIndex() + 1);
     }
 }
 

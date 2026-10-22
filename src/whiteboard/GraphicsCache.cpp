@@ -2,8 +2,6 @@
 
 #include "whiteboard/GraphicsCache.h"
 
-#include "core/Application.h"
-
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
 #include "whiteboard/GraphicsScene.h"
@@ -23,7 +21,7 @@ GraphicsCache::GraphicsCache(GraphicsScene *scene)
     : QGraphicsRectItem(), mMaskColor(Qt::black), mMaskShape(eMaskShape_Circle), mShapeWidth(100), mDrawMask(false), mScene(scene)
 {
     // 获取画板尺寸，用于设置遮罩矩形的范围
-    QRect boardRect = Application::boardController->displayView()->rect();
+    QRect boardRect = BoardController::instance()->displayView()->rect();
     setRect(-15 * boardRect.width(), -15 * boardRect.height(), 30 * boardRect.width(), 30 * boardRect.height());
     setData(Qt::UserRole, QVariant("Cache"));
     setData(GraphicsItemData::itemLayerType,

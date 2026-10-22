@@ -164,9 +164,9 @@ void RecordingController::setSourceWidget(QWidget *pWidget)
             // 白板源按场景渲染并跟随活动页/背景变化；网页与桌面源按控件重绘或定时抓屏。
             if (bv)
             {
-                connect(Application::boardController, &BoardController::activeSceneChanged, this, &RecordingController::activeSceneChanged);
-                connect(Application::boardController, &BoardController::backgroundChanged, this, &RecordingController::sceneBackgroundChanged);
-                connect(Application::boardController, &BoardController::controlViewportChanged, this, &RecordingController::activeSceneChanged);
+                connect(BoardController::instance(), &BoardController::activeSceneChanged, this, &RecordingController::activeSceneChanged);
+                connect(BoardController::instance(), &BoardController::backgroundChanged, this, &RecordingController::sceneBackgroundChanged);
+                connect(BoardController::instance(), &BoardController::controlViewportChanged, this, &RecordingController::activeSceneChanged);
 
                 activeSceneChanged();
             }
@@ -180,9 +180,9 @@ void RecordingController::setSourceWidget(QWidget *pWidget)
 
                 mViewToVideoTransform.translate(offsetX / scale, offsetY / scale);
 
-                disconnect(Application::boardController, &BoardController::activeSceneChanged, this, &RecordingController::activeSceneChanged);
-                disconnect(Application::boardController, &BoardController::backgroundChanged, this, &RecordingController::sceneBackgroundChanged);
-                disconnect(Application::boardController, &BoardController::controlViewportChanged, this, &RecordingController::activeSceneChanged);
+                disconnect(BoardController::instance(), &BoardController::activeSceneChanged, this, &RecordingController::activeSceneChanged);
+                disconnect(BoardController::instance(), &BoardController::backgroundChanged, this, &RecordingController::sceneBackgroundChanged);
+                disconnect(BoardController::instance(), &BoardController::controlViewportChanged, this, &RecordingController::activeSceneChanged);
 
                 mSourceScene = 0;
 
@@ -241,11 +241,11 @@ void RecordingController::start()
         }
         else if (mFullVideoSizeAction && mFullVideoSizeAction->isChecked())
         {
-            recommendedSize            = Application::boardController->controlView()->size();
+            recommendedSize            = BoardController::instance()->controlView()->size();
             mVideoBitsPerSecondAtStart = fullBitRate;
         }
 
-        QSize scaledboardSize = Application::boardController->controlView()->size();
+        QSize scaledboardSize = BoardController::instance()->controlView()->size();
         scaledboardSize.scale(recommendedSize, Qt::KeepAspectRatio);
 
         // 视频宽高必须是 4 的倍数，否则编码器可能拒绝该媒体类型；向下取整到 4 的倍数。
@@ -499,7 +499,7 @@ void RecordingController::activeSceneChanged()
         disconnect(mSourceScene, &QGraphicsScene::changed, this, &RecordingController::sceneChanged);
     }
 
-    mSourceScene = Application::boardController->activeScene();
+    mSourceScene = BoardController::instance()->activeScene();
 
     connect(mSourceScene, &QGraphicsScene::changed, this, &RecordingController::sceneChanged);
 
@@ -660,7 +660,7 @@ void RecordingController::applicationMainModeChanged(ApplicationController::Main
     }
     else
     {
-        setSourceWidget(Application::boardController->controlView());
+        setSourceWidget(BoardController::instance()->controlView());
     }
 }
 
@@ -815,12 +815,12 @@ void RecordingController::toggleRecordingPalette(bool visible)
         mRecordingPalette->adjustSizeAndPosition();
         mRecordingPalette->setCustomPosition(true);
 
-        int left = Application::boardController->controlView()->width() * 0.75 - mRecordingPalette->width() / 2;
+        int left = BoardController::instance()->controlView()->width() * 0.75 - mRecordingPalette->width() / 2;
 
-        int top  = Application::boardController->controlView()->height() - mRecordingPalette->height() - Settings::boardMargin;
+        int top  = BoardController::instance()->controlView()->height() - mRecordingPalette->height() - Settings::boardMargin;
 
         QPoint controlViewPoint(left, top);
-        QPoint mainWindowsPoint = Application::boardController->controlView()->mapTo(Application::mainWindow, controlViewPoint);
+        QPoint mainWindowsPoint = BoardController::instance()->controlView()->mapTo(Application::mainWindow, controlViewPoint);
 
         mRecordingPalette->move(mainWindowsPoint);
 

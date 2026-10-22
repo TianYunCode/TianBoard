@@ -103,8 +103,8 @@ CachePropertiesWidget::CachePropertiesWidget(QWidget *parent, const char *name)
     connect(mpCircleButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
     connect(mpSquareButton, &QPushButton::clicked, this, &CachePropertiesWidget::updateShapeButtons);
     connect(mpSizeSlider, &QSlider::valueChanged, this, &CachePropertiesWidget::onSizeChanged);
-    connect(Application::boardController, &BoardController::activeSceneChanged, this, &CachePropertiesWidget::updateCurrentCache);
-    connect(Application::boardController, &BoardController::cacheEnabled, this, &CachePropertiesWidget::onCacheEnabled);
+    connect(BoardController::instance(), &BoardController::activeSceneChanged, this, &CachePropertiesWidget::updateCurrentCache);
+    connect(BoardController::instance(), &BoardController::cacheEnabled, this, &CachePropertiesWidget::onCacheEnabled);
 }
 
 CachePropertiesWidget::~CachePropertiesWidget()
@@ -199,7 +199,7 @@ void CachePropertiesWidget::onCloseClicked()
         mCaches.remove(mCaches.indexOf(mpCurrentCache));
 
         // 从白板页面移除遮罩
-        Application::boardController->activeScene()->removeItem(mpCurrentCache);
+        BoardController::instance()->activeScene()->removeItem(mpCurrentCache);
         mpCurrentCache = NULL;
 
         emit hideTab(this);
@@ -278,7 +278,7 @@ void CachePropertiesWidget::updateCurrentCache()
     if (isBoardMode)
     {
         // 取当前页上的缓存条目
-        QList<QGraphicsItem *> items = Application::boardController->activeScene()->items();
+        QList<QGraphicsItem *> items = BoardController::instance()->activeScene()->items();
         foreach (QGraphicsItem *it, items)
         {
             if ("Cache" == it->data(Qt::UserRole).toString())

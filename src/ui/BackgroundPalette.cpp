@@ -1,4 +1,5 @@
 #include "ui/BackgroundPalette.h"
+#include "core/Application.h"
 
 #include "ui/MainWindow.h"
 
@@ -137,7 +138,7 @@ void BackgroundPalette::showEvent(QShowEvent *event)
 {
     backgroundChanged();
 
-    d->mSlider->setValue(Application::boardController->activeScene()->backgroundGridSize());
+    d->mSlider->setValue(BoardController::instance()->activeScene()->backgroundGridSize());
     // 每次显示都重新连接；Qt 会忽略同一对信号的重复连接，不会造成多次回调。
     connect(d->mSlider, &QSlider::valueChanged, this, &BackgroundPalette::sliderValueChanged);
 
@@ -146,7 +147,7 @@ void BackgroundPalette::showEvent(QShowEvent *event)
 
 void BackgroundPalette::sliderValueChanged(int value)
 {
-    Application::boardController->activeScene()->setBackgroundGridSize(value);
+    BoardController::instance()->activeScene()->setBackgroundGridSize(value);
     // 切换场景时会经由 refresh() 间接回到这里，所以设置里保存的始终是当前场景的值。
     Settings::settings()->crossSize = value;
 }
@@ -159,7 +160,7 @@ void BackgroundPalette::defaultBackgroundGridSize()
 
 void BackgroundPalette::backgroundChanged()
 {
-    bool dark = Application::boardController->activeScene()->isDarkBackground();
+    bool dark = BoardController::instance()->activeScene()->isDarkBackground();
 
     if (dark)
     {
@@ -174,5 +175,5 @@ void BackgroundPalette::backgroundChanged()
 void BackgroundPalette::refresh()
 {
     backgroundChanged();
-    d->mSlider->setValue(Application::boardController->activeScene()->backgroundGridSize());
+    d->mSlider->setValue(BoardController::instance()->activeScene()->backgroundGridSize());
 }

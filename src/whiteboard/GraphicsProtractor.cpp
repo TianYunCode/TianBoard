@@ -1,5 +1,4 @@
 #include "whiteboard/GraphicsProtractor.h"
-#include "core/Application.h"
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/DrawingController.h"
@@ -316,7 +315,7 @@ void GraphicsProtractor::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
 qreal GraphicsProtractor::antiScale() const
 {
-    return 1 / (mScaleFactor * Application::boardController->systemScaleFactor() * Application::boardController->currentZoom());
+    return 1 / (mScaleFactor * BoardController::instance()->systemScaleFactor() * BoardController::instance()->currentZoom());
 }
 
 QRectF GraphicsProtractor::resetButtonRect() const

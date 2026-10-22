@@ -5,7 +5,6 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "core/Application.h"
 #include "core/ApplicationController.h"
 #include "whiteboard/BoardController.h"
 #include "whiteboard/BoardView.h"
@@ -42,8 +41,8 @@ void IdleTimer::timerEvent(QTimerEvent *event)
 
     bool hasWaitCuror = (QApplication::overrideCursor() && (QApplication::overrideCursor()->shape() == Qt::WaitCursor));
 
-    if (!mCursorIsHidden && (mLastInputEventTime.secsTo(QDateTime::currentDateTime()) >= 2) && Application::boardController &&
-        Application::boardController->controlView() && Application::boardController->controlView()->hasFocus() && !hasWaitCuror)
+    if (!mCursorIsHidden && (mLastInputEventTime.secsTo(QDateTime::currentDateTime()) >= 2) && BoardController::instance() &&
+        BoardController::instance()->controlView() && BoardController::instance()->controlView()->hasFocus() && !hasWaitCuror)
     {
         QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
         mCursorIsHidden = true;

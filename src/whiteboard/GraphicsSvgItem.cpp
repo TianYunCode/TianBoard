@@ -7,8 +7,6 @@
 #include "whiteboard/GraphicsItemDelegate.h"
 #include "whiteboard/GraphicsPixmapItem.h"
 
-#include "core/Application.h"
-
 #include "whiteboard/BoardController.h"
 
 #include "utils/FileSystemUtils.h"
@@ -199,6 +197,6 @@ void GraphicsSvgItem::setUuid(const QUuid &pUuid)
 void GraphicsSvgItem::clearSource()
 {
     QString fileName = PackageLayout::imageDirectory + "/" + uuid().toString() + ".svg";
-    QString diskPath = Application::boardController->selectedDocument()->persistencePath() + "/" + fileName;
+    QString diskPath = BoardController::instance()->selectedDocument()->persistencePath() + "/" + fileName;
     FileSystemUtils::deleteFile(diskPath);
 }

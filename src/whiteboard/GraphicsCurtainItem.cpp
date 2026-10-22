@@ -95,7 +95,7 @@ void GraphicsCurtainItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 {
     QColor color = drawColor();
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-    if (widget == Application::boardController->controlView()->viewport())
+    if (widget == BoardController::instance()->controlView()->viewport())
     {
         color = Settings::paletteColor;
         if (!Application::applicationController->displayManager()->hasDisplay())

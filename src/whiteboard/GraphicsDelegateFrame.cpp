@@ -4,7 +4,6 @@
 #include <QtSvg>
 #include <QtSvgWidgets>
 
-#include "core/Application.h"
 #include "settings/Settings.h"
 
 #include "whiteboard/BoardController.h"
@@ -208,7 +207,7 @@ void GraphicsDelegateFrame::setCursorFromAngle(QString angle)
 {
     if (mCurrentTool == Rotate)
     {
-        QWidget *controlViewport = Application::boardController->controlView()->viewport();
+        QWidget *controlViewport = BoardController::instance()->controlView()->viewport();
 
         QSize cursorSize(45, 30);
 
