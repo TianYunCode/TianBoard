@@ -37,7 +37,8 @@ public:
      * @brief 从磁盘上的 SVG 文件构造。
      * @param pFile SVG 文件路径，构造时会整份读入 mFileData。
      * @param parent 父图元，可为空。
-     * @note 文件打不开时不报错也不重试，mFileData 留空，之后的深拷贝会得到空图元。
+     * @note 文件打不开时不重试也不抛错，只记一条告警：mFileData 留空，渲染出来是一个
+     *       不到一像素的空图元，深拷贝得到的也是空内容。
      */
     GraphicsSvgItem(const QString &pFile, QGraphicsItem *parent = 0);
 

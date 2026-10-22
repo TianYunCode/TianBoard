@@ -12,7 +12,7 @@
 /**
  * @brief 所有画板撤销命令的基类，用 getType() 区分命令种类。
  *
- * 命令由各功能模块创建后压入 Application::undoStack；命令对象归撤销栈所有，
+ * 命令由各功能模块创建后压入 BoardController::undoStack()；命令对象归撤销栈所有，
  * 在栈清理或应用退出时被释放。撤销/重做回调运行在 GUI 线程。
  * 派生类通过重写 undo()/redo() 实现状态回滚。
  */

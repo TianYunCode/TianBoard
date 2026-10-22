@@ -1,6 +1,7 @@
 #include "whiteboard/BoardController.h"
 #include "model/MimeTypes.hpp"
 #include "model/PackageLayout.hpp"
+#include "utils/StaticMemory.h"
 #include "utils/UserNotices.h"
 #include <QRandomGenerator>
 #include <QRegularExpression>
@@ -63,9 +64,16 @@
 
 BoardController *BoardController::sInstance = nullptr;
 
+QPointer<QUndoStack> BoardController::sUndoStack;
+
 BoardController *BoardController::instance()
 {
     return sInstance;
+}
+
+QUndoStack *BoardController::undoStack()
+{
+    return sUndoStack.data();
 }
 
 BoardController::BoardController(MainWindow *mainWindow)
@@ -74,7 +82,15 @@ BoardController::BoardController(MainWindow *mainWindow)
       mSystemScaleFactor(1.0), mCleanupDone(false), mCacheWidgetIsEnabled(false), mDeletingSceneIndex(-1), mMovingSceneIndex(-1),
       mActionGroupText(tr("Group")), mActionUngroupText(tr("Ungroup")), mAutosaveTimer(0)
 {
-    sInstance                     = this; // 属归这个类自己：画板与装配点都经 instance() 取它
+    sInstance = this; // 属归这个类自己：画板与装配点都经 instance() 取它
+
+    // 撤销栈记的是画板图元的动作，由画板总控器创建；父对象用退出时的共用宿主，
+    // 因为文档与场景晚于界面销毁，那段窗口里场景还要往栈里压收尾命令。
+    if (!sUndoStack)
+    {
+        sUndoStack = new QUndoStack(StaticMemory::cleaner());
+    }
+
     mZoomFactor                   = Settings::settings()->boardZoomFactor->get().toDouble();
 
     int penColorIndex             = Settings::settings()->penColorIndex();
@@ -91,9 +107,9 @@ void BoardController::init()
     setupViews();
     setupToolbar();
 
-    connect(Application::undoStack, &QUndoStack::canUndoChanged, this, &BoardController::undoRedoStateChange);
+    connect(BoardController::undoStack(), &QUndoStack::canUndoChanged, this, &BoardController::undoRedoStateChange);
 
-    connect(Application::undoStack, &QUndoStack::canRedoChanged, this, &BoardController::undoRedoStateChange);
+    connect(BoardController::undoStack(), &QUndoStack::canRedoChanged, this, &BoardController::undoRedoStateChange);
 
     connect(DrawingController::drawingController(), &DrawingController::stylusToolChanged, this, &BoardController::setToolCursor);
 
@@ -294,8 +310,8 @@ void BoardController::connectToolbar()
     connect(mMainWindow->ui().actionEraseAnnotations, &QAction::triggered, this, &BoardController::clearSceneAnnotation);
     connect(mMainWindow->ui().actionEraseBackground, &QAction::triggered, this, &BoardController::clearSceneBackground);
 
-    connect(mMainWindow->ui().actionUndo, &QAction::triggered, Application::undoStack, &QUndoStack::undo);
-    connect(mMainWindow->ui().actionRedo, &QAction::triggered, Application::undoStack, &QUndoStack::redo);
+    connect(mMainWindow->ui().actionUndo, &QAction::triggered, BoardController::undoStack(), &QUndoStack::undo);
+    connect(mMainWindow->ui().actionRedo, &QAction::triggered, BoardController::undoStack(), &QUndoStack::redo);
     connect(mMainWindow->ui().actionRedo, &QAction::triggered, this, &BoardController::startScript);
     connect(mMainWindow->ui().actionBack, &QAction::triggered, this, &BoardController::previousScene);
     connect(mMainWindow->ui().actionForward, &QAction::triggered, this, &BoardController::nextScene);
@@ -649,7 +665,7 @@ GraphicsItem *BoardController::duplicateItem(Item *item)
         if (mActiveScene->isURStackIsEnabled())
         { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(mActiveScene, 0, graphicsRetItem);
-            Application::undoStack->push(uc);
+            BoardController::undoStack()->push(uc);
         }
         return retItem;
     }
@@ -1012,7 +1028,7 @@ void BoardController::downloadURL(
         if (mActiveScene->isURStackIsEnabled())
         { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(mActiveScene, oldBackgroundObject, mActiveScene->backgroundObject());
-            Application::undoStack->push(uc);
+            BoardController::undoStack()->push(uc);
         }
     }
 }
@@ -1422,7 +1438,7 @@ void BoardController::setActiveDocumentScene(DocumentProxy *pDocumentProxy, cons
         }
         else
         {
-            Application::undoStack->clear();
+            BoardController::undoStack()->clear();
         }
 
         mActiveScene      = targetScene;
@@ -1533,9 +1549,9 @@ void BoardController::ClearUndoStack()
 {
     QSet<QGraphicsItem *> uniqueItems;
     // 遍历撤销栈里的每条命令，收集其引用到的图元。
-    for (int i = 0; i < Application::undoStack->count(); i++)
+    for (int i = 0; i < BoardController::undoStack()->count(); i++)
     {
-        findUniquesItems(Application::undoStack->command(i), uniqueItems);
+        findUniquesItems(BoardController::undoStack()->command(i), uniqueItems);
     }
 
     // 先取得剪贴板中图元的来源 URL：被剪切但尚未粘贴的图元不在场景里，也不能删。
@@ -1586,7 +1602,7 @@ void BoardController::ClearUndoStack()
     }
 
     // 清空撤销栈，命令对象随之释放。
-    Application::undoStack->clear();
+    BoardController::undoStack()->clear();
 }
 
 void BoardController::adjustDisplayViews()
@@ -1686,8 +1702,8 @@ void BoardController::undoRedoStateChange(bool canUndo)
 {
     Q_UNUSED(canUndo);
 
-    mMainWindow->ui().actionUndo->setEnabled(Application::undoStack->canUndo());
-    mMainWindow->ui().actionRedo->setEnabled(Application::undoStack->canRedo());
+    mMainWindow->ui().actionUndo->setEnabled(BoardController::undoStack()->canUndo());
+    mMainWindow->ui().actionRedo->setEnabled(BoardController::undoStack()->canRedo());
 
     updateActionStates();
 }
@@ -1917,7 +1933,7 @@ void BoardController::setWidePageSize(bool checked)
     if (mActiveScene->nominalSize() != newSize)
     {
         PageSizeUndoCommand *uc = new PageSizeUndoCommand(mActiveScene, mActiveScene->nominalSize(), newSize);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
 
         setPageSize(newSize);
     }
@@ -1931,7 +1947,7 @@ void BoardController::setRegularPageSize(bool checked)
     if (mActiveScene->nominalSize() != newSize)
     {
         PageSizeUndoCommand *uc = new PageSizeUndoCommand(mActiveScene, mActiveScene->nominalSize(), newSize);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
 
         setPageSize(newSize);
     }

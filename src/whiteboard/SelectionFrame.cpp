@@ -9,9 +9,7 @@
 #include "whiteboard/BoardController.h"
 #include "settings/Settings.h"
 #include "utils/Snapping.h"
-#include "core/Application.h"
 #include "model/Resources.h"
-#include "core/Application.h"
 #include "whiteboard/BoardView.h"
 #include "whiteboard/DrawingController.h"
 
@@ -255,12 +253,12 @@ void SelectionFrame::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
 
     if (mOperationMode == om_moving || mOperationMode == om_rotating)
     {
-        Application::undoStack->beginMacro(Settings::undoCommandTransactionName);
+        BoardController::undoStack()->beginMacro(Settings::undoCommandTransactionName);
         foreach (GraphicsItemDelegate *d, mEnclosedtems)
         {
             d->commitUndoStep();
         }
-        Application::undoStack->endMacro();
+        BoardController::undoStack()->endMacro();
     }
     mOperationMode = om_idle;
 }
@@ -272,12 +270,12 @@ void SelectionFrame::onZoomChanged(qreal pZoom)
 
 void SelectionFrame::remove()
 {
-    Application::undoStack->beginMacro(Settings::undoCommandTransactionName);
+    BoardController::undoStack()->beginMacro(Settings::undoCommandTransactionName);
     foreach (GraphicsItemDelegate *d, mEnclosedtems)
     {
         d->remove(true);
     }
-    Application::undoStack->endMacro();
+    BoardController::undoStack()->endMacro();
 
     updateRect();
 }
@@ -289,7 +287,7 @@ static bool sortByZ(GraphicsItemDelegate *A, GraphicsItemDelegate *B)
 
 void SelectionFrame::duplicate()
 {
-    Application::undoStack->beginMacro(Settings::undoCommandTransactionName);
+    BoardController::undoStack()->beginMacro(Settings::undoCommandTransactionName);
 
     // mEnclosedtems 是按选中先后排的，复制前必须按 Z 序重排，
     // 否则副本之间原本的上下层关系会被选中顺序覆盖掉。
@@ -299,7 +297,7 @@ void SelectionFrame::duplicate()
     {
         d->duplicate();
     }
-    Application::undoStack->endMacro();
+    BoardController::undoStack()->endMacro();
 
     updateRect();
 }
@@ -366,7 +364,7 @@ void SelectionFrame::addSelectionUndo(QList<QGraphicsItem *> items, ZLayerContro
     {
         qreal                          topItemLevel = items.at(0)->data(GraphicsItemData::ItemOwnZValue).toReal();
         GraphicsItemZLevelUndoCommand *cmd          = new GraphicsItemZLevelUndoCommand(graphicsScene(), items, topItemLevel, dest);
-        Application::undoStack->push(cmd);
+        BoardController::undoStack()->push(cmd);
     }
 }
 

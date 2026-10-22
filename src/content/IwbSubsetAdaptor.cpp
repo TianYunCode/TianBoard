@@ -357,7 +357,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolygon(const QDomElement &eleme
             }
             else
             {
-                qDebug() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "'point' 值看不明白:" << sCoord;
             }
         }
     }
@@ -479,7 +479,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgPolyline(const QDomElement &elem
             }
             else
             {
-                qDebug() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "'point' 值看不明白:" << sCoord;
             }
         }
     }

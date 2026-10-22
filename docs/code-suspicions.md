@@ -457,10 +457,21 @@
   文档库控制器却从此认着一个不在树里的幽灵副本。注释说"模型随后会销毁 newProxy"不成立——
   这个信号只在 `MoveAction` 时发、`newIndex` 指向刚克隆到新位置的那个节点， doomed 的是源
   节点那一份。`pureSetDocument` 也只是赋值，不删任何东西。改成两处都直接接 `newProxy`。
-- **`deleteDocumentsInFolderOlderThan` / `deleteEmptyFolders` 先把整层子节点快照成普通
-  `QModelIndex` 再逐个删**：删一行就把后面每个索引往前挪一格。前者会漏检过期文档（低风险），
-  后者更糟——`containsDocuments(child)` 拿过期索引判断"这个目录是空的吗"，判错就可能删掉
-  还有文档的目录。两处都改成**倒序遍历、每轮现取索引**，删除只会影响已处理过的行号。
+  **复核订正（2026-10-22）：这条泄漏在当前装配下跑不到。** `currentIndexMoved` 全仓只有一个
+  emit 点——`DocumentTreeModel::dropMimeData` 的 `Qt::MoveAction` 分支，而绑定这棵树模型的唯一
+  视图 `DocumentTreeView::dropEvent` 开头就把 `dropAction` 设成 `IgnoreAction`，`dropMimeData`
+  第一行据此 return false；真正在用的换组路径是它自己调的 `docModel->moveIndexes()`（移动节点、
+  不改代理身份，因此不需要重指）。于是 `dropMimeData` 的文档树分支＋`currentIndexMoved`
+  信号/槽/连接是一簇不可达代码。**没顺手删的原因**：拖放换组是用户可见功能，无头环境模拟不了
+  `QDrag::exec()`，删错了没人看得见；先记着，等有手动验证条件再一起处理。
+- **`deleteEmptyFolders` 先把整层子节点快照成普通 `QModelIndex` 再逐个删**：`deleteIndexAndAssociatedData`
+  会 `removeRow` 掉正在处理那一行，同父节点下靠后的行号全体前移一位，于是
+  `containsDocuments(child)` 拿过期索引判断"这个目录是空的吗"，判错就可能删掉还有文档的目录。
+  改成**倒序遍历、每轮现取索引**。（复核订正：同一批改动里的 `deleteDocumentsInFolderOlderThan`
+  原本被记成"正向遍历会漏检过期文档"，**不成立**——`deleteDocument` 不碰模型行，代理走
+  `deleteLater`、行由 `deleteEmptyFolders` 那一路摘，循环期间 `rowCount` 恒定，正倒序等价；
+  那里保留倒序只为别扫到循环中新插入的行。另外两版的"删掉自己这一层"分支都进不去：
+  唯一调用点先用 `hasChildren(trashIndex)` 把关，而 `childCount` 在入口取。）
 - **`generateThumbnails` 用 `scene->items()` 的下标当页号**恢复选中态：每页在场景里占两个
   条目（缩略图 + 标签），`mDropBar` 还排在最前，所以每次重建后高亮落到别的页或直接丢失。
   改成按对象身份先查出页号。
@@ -473,3 +484,36 @@
 仍未处理的审计发现（低置信度或产品决策）：`PreferencesController` 对
 `selectedColorIndex() == -1` 未判空（只有配置里的颜色不在调色板时触发）、
 `PersistenceManager` 垃圾箱重命名用源文档页数（Windows 上退化为无操作）。
+
+### 2026-10-22：从 `--format-selftest` 日志里抓出的资源落盘簇
+
+跑自检时日志里出现 `Cannot open file '<文档目录>/images/{uuid}.svg'`，顺着这条线查出三处同族缺陷，
+都在"图元的资源文件"与"页文件里的引用"之间的关系上：
+
+- **`SvgSubsetAdaptor` 的两个写出器只写引用、不写字节**：`pixmapItemToLinkedImage` 与
+  `svgItemToLinkedSvg` 往页文件里落 `xlink:href="images/{uuid}.png|svg"`，但都不保证那份文件
+  真在盘上（前者的 `path` 局部变量算出来根本没用，是这条证据）。同文件的 `pdfItemToLinkedPDF`
+  一直是"没有就写"，所以这是不一致而不是设计。**后果实测**：保存再打开，图元读回来是一个
+  0.9×0.9 的空东西，内容指纹正是空串的 MD5（`d41d8cd9…`）——不崩、不报错，只是东西没了。
+  触发条件是"这一页上有没经过 `GraphicsScene::addPixmap`/`addSvg` 进场景的图元"，也就是
+  粘贴/复制（`deepCopy`）与跨文档导入那两条路。现在两个写出器都改成缺文件就补写。
+- **`GraphicsScene::addSvg` 把资源写进"当前选中的文档"而不是这一页所属的文档**：它取
+  `BoardController::instance()->selectedDocument()->persistencePath()`，而 `addPixmap` 早就有
+  `useProxyForDocumentPath` 走 `this->document()`（`ImportImage`、`IwbSubsetAdaptor`、自检都传 true）。
+  IWB 导入用 `mCurrentScene->addSvg(...)` 导入到另一份文档时，字节落进了正在显示的那份文档，
+  这一页的引用成了空头——上面那条 `Cannot open file` 就是它。改成优先按场景自己的 `mDocument` 落，
+  没有归属文档时记一条告警（图元仍留在内存里，只是保存后这一页会丢它）。
+- **`deepCopy` 让副本沿用源图元的 UUID**：`GraphicsPixmapItem` 与 `GraphicsSvgItem` 的构造函数
+  本来就发了新 UUID，`deepCopy` 又 `setUuid(this->uuid())` 改回去，两份于是共用同一个按 UUID 命名的
+  文件；而 `CoreGraphicsScene::deleteItem` 会调 `clearSource()` 按 UUID 删文件——删掉任一份，
+  另一份引用的文件就没了。现在保留构造函数发的新 UUID，副本自己的文件由写出器补齐。
+  `clearSource()` 本身仍按"当前选中的文档"算路径（图元此刻已不在场景里，拿不到归属文档），
+  所以跨文档删除时它可能删空、留下一个孤儿文件——文件随文档目录整体删除，暂不处理。
+
+验证：`tst_format` 的 `buildScene` 现在多了一个内嵌 SVG 与它的 `deepCopy` 副本，`sceneFacts` 按
+SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路成 `false` 重新构建，自检立刻报
+`读回后缺少: svg|770.0,500.0,…` 与 `读回后多出: svg|769.1,499.1,0.9,0.9|d41d8cd9…`，恢复后 18/18 全绿。
+
+同批把日志串里带上游错字与粗话的 22 处换成中文（`an error ocured`、`for wrighting`、
+`starting converion`、`embeded`、`cannot make sens of`、`Who the hell are you ?` 等）；
+其余约 200 条英文日志没有错字，只是与新增代码的中文日志不一致，要不要整体统一是单独的决定。

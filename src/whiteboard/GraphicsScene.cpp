@@ -13,7 +13,6 @@
 #include "utils/GeometryUtils.h"
 #include "utils/Snapping.h"
 
-#include "core/Application.h"
 #include "settings/Settings.h"
 #include "core/PersistenceManager.h"
 #include "utils/TextTools.h"
@@ -329,7 +328,7 @@ GraphicsScene::GraphicsScene(DocumentProxy *parent, bool enableUndoRedoStack)
 
     mBackgroundGridSize = Settings::settings()->crossSize;
 
-    connect(Application::undoStack.data(), &QUndoStack::indexChanged, this, &GraphicsScene::updateSelectionFrameWrapper);
+    connect(BoardController::undoStack(), &QUndoStack::indexChanged, this, &GraphicsScene::updateSelectionFrameWrapper);
 }
 
 GraphicsScene::~GraphicsScene()
@@ -748,9 +747,9 @@ bool GraphicsScene::inputDeviceRelease()
         {                                                                                                   // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *udcmd = new GraphicsItemUndoCommand(this, mRemovedItems, mAddedItems); // deleted by the undoStack
 
-            if (Application::undoStack)
+            if (BoardController::undoStack())
             {
-                Application::undoStack->push(udcmd);
+                BoardController::undoStack()->push(udcmd);
             }
         }
 
@@ -1574,7 +1573,7 @@ void GraphicsScene::clearContent(clearCase pCase)
     { // 等场景自带撤销栈之后这段就该整体删掉
 
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, removedItems, QSet<QGraphicsItem *>(), groupsMap);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     if (pCase == clearBackground)
@@ -1603,7 +1602,7 @@ GraphicsPixmapItem *GraphicsScene::addPixmap(
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, replaceFor, pixmapItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     pixmapItem->setTransform(QTransform::fromScale(pScaleFactor, pScaleFactor), true);
@@ -1653,7 +1652,7 @@ void GraphicsScene::textUndoCommandAdded(GraphicsTextItem *textItem)
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsTextItemUndoCommand *uc = new GraphicsTextItemUndoCommand(textItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 }
 GraphicsMediaItem *GraphicsScene::addMedia(const QUrl &pMediaFileUrl, bool shouldPlayAsap, const QPointF &pPos)
@@ -1689,7 +1688,7 @@ GraphicsMediaItem *GraphicsScene::addMedia(const QUrl &pMediaFileUrl, bool shoul
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, mediaItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     if (shouldPlayAsap)
@@ -1769,7 +1768,7 @@ void GraphicsScene::addGraphicsWidget(GraphicsWidgetItem *graphicsWidget, const 
         if (mUndoRedoStackEnabled)
         { // 等场景自带撤销栈之后这段就该整体删掉
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, graphicsWidget);
-            Application::undoStack->push(uc);
+            BoardController::undoStack()->push(uc);
         }
 
         setDocumentUpdated();
@@ -1823,7 +1822,7 @@ GraphicsGroupContainerItem *GraphicsScene::createGroup(QList<QGraphicsItem *> it
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemGroupUndoCommand *uc = new GraphicsItemGroupUndoCommand(this, groupItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     setDocumentUpdated();
@@ -1854,7 +1853,7 @@ void GraphicsScene::addGroup(GraphicsGroupContainerItem *groupItem)
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, groupItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     setDocumentUpdated();
@@ -1886,13 +1885,16 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
 
     // 先把内嵌 svg 落盘再入场景：写失败时若已经 addItem 并压了 undo 命令，
     // 场景里会留下一条永远不会被持久化的条目，调用方拿到的却还是 NULL。
-    QString documentPath = BoardController::instance()->selectedDocument()->persistencePath();
+    // 落点必须按"这一页属于哪份文档"算：导入别的文档时画板当前选中的是另一份，
+    // 跟着选中走会把资源写进无关文档，这一页再读就找不到图元（实测过）。
+    DocumentProxy *ownerDocument = mDocument ? mDocument : BoardController::instance()->selectedDocument();
+    QString        documentPath  = ownerDocument ? ownerDocument->persistencePath() : QString();
 
-    QString fileName     = PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+    QString fileName             = PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
 
-    QString completePath = documentPath + "/" + fileName;
+    QString completePath         = documentPath + "/" + fileName;
 
-    if (!QFile::exists(completePath))
+    if (!documentPath.isEmpty() && !QFile::exists(completePath))
     {
         QDir dir;
         dir.mkdir(documentPath + "/" + PackageLayout::imageDirectory);
@@ -1900,7 +1902,7 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
         QFile file(completePath);
         if (!file.open(QIODevice::WriteOnly))
         {
-            qWarning() << "cannot open file for writing embeded svg content " << completePath;
+            qWarning() << "内嵌 SVG 没法落盘，图元将被丢弃:" << completePath;
             delete svgItem;
             return nullptr;
         }
@@ -1908,13 +1910,17 @@ GraphicsSvgItem *GraphicsScene::addSvg(const QUrl &pSvgFileUrl, const QPointF &p
         file.write(svgItem->fileData());
         file.close();
     }
+    else if (documentPath.isEmpty())
+    {
+        qWarning() << "场景没有归属文档，内嵌 SVG 只能留在内存里，保存后这一页会丢图元";
+    }
 
     addItem(svgItem);
 
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, svgItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     setDocumentUpdated();
@@ -1973,7 +1979,7 @@ GraphicsTextItem *GraphicsScene::addTextWithFont(
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, textItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     connect(textItem, &GraphicsTextItem::textUndoCommandAdded, this, &GraphicsScene::textUndoCommandAdded);
@@ -1998,7 +2004,7 @@ GraphicsTextItem *GraphicsScene::addTextHtml(const QString &pString, const QPoin
     if (mUndoRedoStackEnabled)
     { // 等场景自带撤销栈之后这段就该整体删掉
         GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(this, 0, textItem);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     connect(textItem, &GraphicsTextItem::textUndoCommandAdded, this, &GraphicsScene::textUndoCommandAdded);
@@ -2744,7 +2750,7 @@ qreal GraphicsScene::changeZLevelTo(QGraphicsItem *item, ZLayerController::moveD
     if (addUndo)
     {
         GraphicsItemZLevelUndoCommand *uc = new GraphicsItemZLevelUndoCommand(this, item, previousZVal, dest);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 
     return res;

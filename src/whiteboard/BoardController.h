@@ -56,6 +56,16 @@ public:
      */
     static BoardController *instance();
 
+    /**
+     * @brief 全局撤销栈；画板装配之前与退出收尾之后返回空指针。
+     * @note 以前这条栈挂在 `core/Application` 的静态成员上，于是画板里每一处 push 都要
+     *       include 最上层——撤销栈记录的正是画板图元的动作，归属本来就在画板自己手上。
+     *       创建在 BoardController 的构造函数里，但父对象仍是 StaticMemory::cleaner()：
+     *       文档与场景在 ~Application 里晚于界面销毁，那段窗口里场景仍可能往栈里压收尾命令，
+     *       不能让栈跟着总控器一起消失（销毁顺序见 app/Application.cpp 的析构）。
+     */
+    static QUndoStack *undoStack();
+
     /// @brief 保存选项位标志。
     enum SaveFlag
     {
@@ -465,6 +475,8 @@ private slots:
 private:
     /// @brief 进程内唯一实例；构造时装上、析构时摘下，详见 instance()。
     static BoardController *sInstance;
+    /// @brief 全局撤销栈；见 undoStack()，由 StaticMemory::cleaner() 托管销毁。
+    static QPointer<QUndoStack> sUndoStack;
     /// @brief 初始化背景网格尺寸。
     void initBackgroundGridSize();
     /// @brief 刷新页面尺寸相关动作的勾选状态。

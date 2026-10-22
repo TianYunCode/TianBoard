@@ -102,8 +102,9 @@ Item *GraphicsPixmapItem::deepCopy() const
 {
     GraphicsPixmapItem *copy = new GraphicsPixmapItem();
 
-    copy->setUuid(this->uuid()); // 只要位图内容不可变，副本沿用同一 UUID 就是安全的
-
+    // 构造函数已经给副本发了自己的 UUID，这里不再改回源图元那一份：PNG 按 UUID 命名，
+    // 两份图元共用一个文件时，删掉任一份（CoreGraphicsScene::deleteItem → clearSource）
+    // 会把另一份引用的文件也删掉。副本自己的文件由写出器在保存这一页时补上。
     copyItemParameters(copy);
 
     return copy;

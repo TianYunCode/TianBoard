@@ -544,7 +544,7 @@ void GraphicsItemDelegate::remove(bool canUndo)
         {
             // 删除命令持有该项，撤销时重新插回场景
             GraphicsItemUndoCommand *uc = new GraphicsItemUndoCommand(scene, mDelegated, 0);
-            Application::undoStack->push(uc);
+            BoardController::undoStack()->push(uc);
         }
     }
 }
@@ -654,7 +654,7 @@ void GraphicsItemDelegate::setAsBackground()
         // 单独记录一次变换撤销步骤，使“设为背景”可回退
         GraphicsItemTransformUndoCommand *uc =
             new GraphicsItemTransformUndoCommand(mDelegated, mPreviousPosition, mPreviousTransform, mPreviousZValue, mPreviousSize, true);
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 }
 
@@ -697,7 +697,7 @@ void GraphicsItemDelegate::commitUndoStep()
         GraphicsItemTransformUndoCommand *uc =
             new GraphicsItemTransformUndoCommand(mDelegated, mPreviousPosition, mPreviousTransform, mPreviousZValue, mPreviousSize);
 
-        Application::undoStack->push(uc);
+        BoardController::undoStack()->push(uc);
     }
 }
 

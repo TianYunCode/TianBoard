@@ -48,8 +48,6 @@ void Application::installWebControllerFactory(WebControllerFactory factory)
     gWebControllerFactory = std::move(factory);
 }
 
-QPointer<QUndoStack> Application::undoStack;
-
 ApplicationController *Application::applicationController = 0;
 IWebController        *Application::webController         = 0;
 DocumentController    *Application::documentController    = 0;
@@ -74,11 +72,6 @@ Application::Application(const QString &id, int &argc, char **argv) : QtSingleAp
     setupTranslators(args);
 
     Resources::resources();
-
-    if (!undoStack)
-    {
-        undoStack = new QUndoStack(StaticMemory::cleaner());
-    }
 
     PlatformUtils::init();
 

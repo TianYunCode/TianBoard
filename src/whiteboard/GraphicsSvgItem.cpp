@@ -22,6 +22,12 @@ GraphicsSvgItem::GraphicsSvgItem(const QString &pFilePath, QGraphicsItem *parent
         mFileData = f.readAll();
         f.close();
     }
+    else
+    {
+        // 基类拿不到字节就画成一个不到一像素的东西，既不崩也不报错；不留一行日志的话，
+        // 用户只会看到"页上那个对象没了"，而盘上的页文件里其实还留着它的引用。
+        qWarning() << "SVG 图元的资源读不到，这一页上的这个对象会是空的:" << pFilePath;
+    }
 }
 
 GraphicsSvgItem::GraphicsSvgItem(const QByteArray &pFileData, QGraphicsItem *parent) : QGraphicsSvgItem(parent)
@@ -122,8 +128,9 @@ Item *GraphicsSvgItem::deepCopy() const
 {
     GraphicsSvgItem *copy = new GraphicsSvgItem(this->fileData());
 
-    copy->setUuid(this->uuid()); // 副本沿用同一 UUID；源文件按 UUID 命名，删除其一会连带影响另一份。
-
+    // 构造函数已经给副本发了自己的 UUID，这里不再改回源图元那一份：文件名按 UUID 取，
+    // 两份图元共用一个文件时，删掉任一份会把另一份的内容也带走（保存再打开就成了空图元）。
+    // 副本自己的文件由写出器在保存这一页时落盘（见 SvgSubsetAdaptor 的 svgItemToLinkedSvg）。
     copyItemParameters(copy);
 
     return copy;

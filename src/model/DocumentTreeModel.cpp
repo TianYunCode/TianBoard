@@ -580,7 +580,7 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
         const MimeData   *mimeValue      = qobject_cast<const MimeData *>(data);
         if (!targetDocProxy || !mimeValue || !mimeValue->items().count())
         {
-            qDebug() << "an error ocured while parsing " << MimeTypes::boardPage;
+            qDebug() << "解析时出错: " << MimeTypes::boardPage;
             return false;
         }
 
@@ -607,7 +607,7 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
     const DocumentTreeMimeData *mimeData = qobject_cast<const DocumentTreeMimeData *>(data);
     if (!mimeData)
     {
-        qDebug() << "Incorrect mimeData, only internal one supported";
+        qDebug() << "拖放数据不是本模块内部的类型，忽略";
         return false;
     }
 
@@ -707,7 +707,7 @@ bool DocumentTreeModel::containsDocuments(const QModelIndex &index)
         }
         else
         {
-            qDebug() << "Who the hell are you ?";
+            qDebug() << "文档树里出现既不是目录也不是文档的行";
         }
     }
 

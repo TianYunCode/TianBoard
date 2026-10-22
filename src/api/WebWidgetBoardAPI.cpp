@@ -567,7 +567,7 @@ void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc
 
     if (!pSuccess)
     {
-        qDebug() << "can't download the whole data. An error occured";
+        qDebug() << "整块数据没下完，中途出错";
         return;
     }
 
@@ -595,7 +595,7 @@ void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc
 
     if (!destFile.open(QIODevice::WriteOnly))
     {
-        qDebug() << "can't open" << destFileName << "for wrighting";
+        qDebug() << "以写入方式打开文件失败:" << destFileName;
         return;
     }
 

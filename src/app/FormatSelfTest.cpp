@@ -19,6 +19,7 @@
 #include "whiteboard/GraphicsScene.h"
 #include "whiteboard/GraphicsStroke.h"
 #include "whiteboard/GraphicsStrokesGroup.h"
+#include "whiteboard/GraphicsSvgItem.h"
 #include "whiteboard/GraphicsTextItem.h"
 
 #include <QCryptographicHash>
@@ -46,10 +47,21 @@ namespace
     const QColor kStrokeColor(220, 40, 40);
     const QColor kStrokeOnDark(240, 120, 110);
     const QColor kStrokeOnLight(180, 20, 20);
-    const qreal  kStrokeWidth   = 7;
+    const qreal  kStrokeWidth     = 7;
 
     /// @brief 自检文本；摆图元与比对 IWB 结果两端共用一份，不各写一遍字面量。
-    const QString kSelftestText = QStringLiteral("格式自检 Aa 一 1");
+    const QString kSelftestText   = QStringLiteral("格式自检 Aa 一 1");
+
+    /**
+     * @brief 一页里要塞进去的内嵌 SVG 图元内容。
+     * @note 验的是"引用与字节都得落下"：SVG 图元的原始字节只在内存里，页文件里只留
+     *       images/{uuid}.svg 这个引用，写出器早期只写引用不写字节——于是保存再打开，
+     *       读回来的是一个渲染不出任何东西的空图元（实测：0.9×0.9，内容指纹是空串的 MD5），
+     *       既不崩也不报错，用户只看到"对象没了"。
+     */
+    const QByteArray kSelftestSvg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                                    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"60\" height=\"40\">"
+                                    "<rect x=\"2\" y=\"2\" width=\"56\" height=\"36\" fill=\"#00a000\"/></svg>";
 
     /// @brief 按 0.1 取整，吸收写出器两位小数的坐标精度损失。
     qreal quantise(qreal v)
@@ -136,6 +148,13 @@ namespace
             else if (GraphicsPolygonItem *polygon = dynamic_cast<GraphicsPolygonItem *>(item))
             {
                 facts << segmentFact(polygon);
+            }
+            else if (GraphicsSvgItem *svgItem = dynamic_cast<GraphicsSvgItem *>(item))
+            {
+                // 页文件里只有一个 images/{uuid}.svg 的引用，比对这些字节才验得出
+                // 内容真写进了这一份文档，而不是留在内存或写去了别的文档。
+                const QString digest = QString::fromLatin1(QCryptographicHash::hash(svgItem->fileData(), QCryptographicHash::Md5).toHex());
+                facts << QStringLiteral("svg|%1|%2").arg(rectOf(svgItem), digest);
             }
             else
             {
@@ -236,7 +255,7 @@ namespace
         scene->addItem(group);
     }
 
-    /// @brief 攒出一页有代表性的内容：笔迹、文本、图片与三件工具图元。
+    /// @brief 攒出一页有代表性的内容：笔迹、文本、图片、内嵌 SVG 与三件工具图元。
     GraphicsScene *buildScene(DocumentProxy *proxy)
     {
         GraphicsScene *scene = new GraphicsScene(proxy, false);
@@ -253,7 +272,23 @@ namespace
         text->setPos(420, 120);
         scene->addItem(text);
 
-        scene->addPixmap(makeTestPixmap(), nullptr, QPointF(460, 300), 1.0, false, true);
+        GraphicsPixmapItem *pixmapItem = scene->addPixmap(makeTestPixmap(), nullptr, QPointF(460, 300), 1.0, false, true);
+        GraphicsSvgItem    *svgItem    = scene->addSvg(QUrl(), QPointF(700, 430), kSelftestSvg);
+
+        // 再各留一份 deepCopy 出来的副本：粘贴/复制图元走的就是这条路，副本有自己新的 UUID，
+        // 而这条路上没人替它把资源写进文档目录——写出器必须自己在保存这一页时补上字节，
+        // 否则读回来就是一个空图元。旧写法让副本沿用源的 UUID，于是删掉任一份会把另一份
+        // 引用的文件一起删掉（deepCopy 见 GraphicsPixmapItem/GraphicsSvgItem）。
+        if (GraphicsPixmapItem *pixmapCopy = pixmapItem ? dynamic_cast<GraphicsPixmapItem *>(pixmapItem->deepCopy()) : nullptr)
+        {
+            pixmapCopy->setPos(QPointF(460, 470));
+            scene->addItem(pixmapCopy);
+        }
+        if (GraphicsSvgItem *svgCopy = svgItem ? dynamic_cast<GraphicsSvgItem *>(svgItem->deepCopy()) : nullptr)
+        {
+            svgCopy->setPos(QPointF(770, 500));
+            scene->addItem(svgCopy);
+        }
 
         scene->addAxes(QPointF(900, 200));
 
@@ -275,7 +310,8 @@ namespace
      *
      * 这一段验的是互操作链路（`IwbDocumentAdaptor` + `IwbSubsetAdaptor`）而不是原生页格式。
      * IWB 只认 text / image / polyline / polygon / rect / group，尺子量角器圆规这些工具图元本来
-     * 就不在规范里，所以这里只要求文本、图片与笔迹颜色活着回来，并检查图片不是空位图。
+     * 就不在规范里，所以这里只要求文本、图片与笔迹颜色活着回来，并检查图片不是空位图；
+     * 页上的内嵌 SVG 对象在 IWB 里只能以位图身份回来，算进"图片"那一档。
      */
     QStringList iwbFacts(const QString &documentDirectory, QStringList &failures)
     {
@@ -363,6 +399,17 @@ namespace FormatSelfTest
         const bool        expectedDark       = scene->isDarkBackground();
         const int         expectedBackground = static_cast<int>(scene->pageBackground());
         const int         expectedGridSize   = scene->backgroundGridSize();
+
+        // 这一页必须真的带上 SVG 图元：addSvg 落不下文件会返回空，那时存前存后都没有它，
+        // 下面的比对就成了自己跟自己对空。
+        if (!std::any_of(expectedFacts.cbegin(), expectedFacts.cend(),
+                [](const QString &line)
+                {
+                    return line.startsWith(QStringLiteral("svg|"));
+                }))
+        {
+            failures << QStringLiteral("自检这一页里没有 SVG 图元（addSvg 没成功），比对失去意义");
+        }
 
         scene->setModified(true);
         PersistenceManager::persistenceManager()->persistDocumentScene(proxy, scene, 0);
@@ -552,9 +599,11 @@ namespace FormatSelfTest
             {
                 failures << QStringLiteral("IWB 往返后应有 1 条自检文本，实际 %1 条").arg(texts);
             }
-            if (images != 1)
+            if (images != 4)
             {
-                failures << QStringLiteral("IWB 往返后应有 1 张图片，实际 %1 张").arg(images);
+                // IWB 里没有"矢量对象"这一类，页上的内嵌 SVG 过一趟 IWB 会变成一张位图；
+                // buildScene 这一页摆的是位图 + 位图副本 + SVG + SVG 副本，四样都以 image 回来。
+                failures << QStringLiteral("IWB 往返后应有 4 张图片（两张位图与两个被栅格化的 SVG），实际 %1 张").arg(images);
             }
             if (strokes < 1)
             {

@@ -185,7 +185,7 @@ void DocumentTreeView::dropEvent(QDropEvent *event)
         const MimeData *mimeValue     = qobject_cast<const MimeData *>(event->mimeData());
         if (!targetDocProxy || !mimeValue || !mimeValue->items().count())
         {
-            qDebug() << "an error ocured while parsing " << MimeTypes::boardPage;
+            qDebug() << "解析时出错: " << MimeTypes::boardPage;
             QTreeView::dropEvent(event);
             return;
         }
@@ -1461,8 +1461,10 @@ void DocumentController::deleteDocumentsInFolderOlderThan(const QModelIndex &ind
 {
     DocumentTreeModel *docModel = PersistenceManager::persistenceManager()->mDocumentTreeStructureModel;
 
-    // 倒着走，而且每一轮都现取索引：deleteDocument 会删模型里的行，正着遍历的话
-    // 后面每个索引都往前跳一格，轻则漏掉过期文档，重则把没检查过的那一项当成已检查。
+    // 每一轮都现取索引，并倒着走。这里其实不会错位——deleteDocument 只删盘上的文件和场景，
+    // 模型行留着（代理走 deleteLater，行由 deleteEmptyFolders 那一路摘），所以行号在整个循环里
+    // 是稳的；倒着走的好处是万一有别的路径往这一层插了新行（删到当前活动文档时
+    // documentWillBeDeleted 会造一份新文档），那些行不会被顺手扫到。
     for (int i = docModel->rowCount(index) - 1; i >= 0; i--)
     {
         QModelIndex child            = docModel->index(i, 0, index);
@@ -1492,7 +1494,10 @@ void DocumentController::deleteEmptyFolders(const QModelIndex &index)
 
     const int childCount        = docModel->rowCount(index);
 
-    // 同上：deleteIndexAndAssociatedData 删的就是正在处理这一行，倒着走才不会错位。
+    // 倒着走，而且每一轮都现取索引：deleteIndexAndAssociatedData 会 removeRow 掉正在处理这一行，
+    // 同一父节点下比它靠后的行号全体前移一位。旧写法先把整层快照成 QModelIndexList 再逐个删，
+    // 于是 containsDocuments() 拿到的是移过位的过期索引——判"这个目录是空的吗"判错就会
+    // 删掉还有文档的目录。倒序保证未处理的行号不会变，现取保证索引不是过期的，两者缺一不可。
     for (int i = childCount - 1; i >= 0; i--)
     {
         QModelIndex child = docModel->index(i, 0, index);

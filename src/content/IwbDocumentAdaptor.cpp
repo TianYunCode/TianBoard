@@ -23,12 +23,12 @@ IwbDocumentAdaptor::IwbDocumentAdaptor()
 
 bool IwbDocumentAdaptor::convertPageToIwb(const QString &from, const QString &to)
 {
-    qDebug() << "starting converion from" << from << "to" << to;
+    qDebug() << "开始转换:" << from << "->" << to;
 
     QString source = QString();
     if (QFileInfo(from).isDir() && QFile::exists(from))
     {
-        qDebug() << "File specified is dir, continuing convertion";
+        qDebug() << "给的是目录，继续转换";
         source = from;
     }
     else
@@ -36,7 +36,7 @@ bool IwbDocumentAdaptor::convertPageToIwb(const QString &from, const QString &to
         source = uncompressZip(from);
         if (!source.isNull())
         {
-            qDebug() << "File specified is zip file. Uncompressed to tmp dir, continuing convertion";
+            qDebug() << "给的是 zip 包，已解压到临时目录，继续转换";
         }
     }
     if (source.isNull())

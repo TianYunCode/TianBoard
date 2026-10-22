@@ -1,16 +1,14 @@
 /**
  * @file Application.h
- * @brief 声明应用对象：进程入口、全局控制器持有者以及跨模块共享的 MIME 类型。
+ * @brief 声明应用对象：进程入口与跨模块共享的控制器的全局指针。
  */
 
 #pragma once
 
 #include <QtWidgets>
-#include <QUndoStack>
 #include <functional>
 #include <QToolBar>
 #include <QMenu>
-#include <functional>
 
 #include "third/singleapp/qtsingleapplication.h"
 
@@ -31,7 +29,7 @@ class DocumentController;
 class MainWindow;
 
 /**
- * @brief 应用对象：程序的单一入口，持有主窗口、撤销栈与各模式控制器的全局指针。
+ * @brief 应用对象：程序的单一入口，持有主窗口与各模式控制器的全局指针。
  *
  * 详细说明：处于架构最外层（装配层），在 exec() 中按“主窗口 → 各控制器 → 信号连线”的顺序
  * 完成组装，并负责退出时的销毁顺序；其它模块通过本类的静态成员与静态函数访问共享状态。
@@ -76,9 +74,6 @@ public:
      *       块缓冲的，最后几条日志会跟进程一起丢。
      */
     void setSelfTestRun(int delayMs, std::function<int()> runner);
-
-    /// 全局撤销栈，父对象为 StaticMemory::cleaner()。
-    static QPointer<QUndoStack> undoStack;
 
     /**
      * @brief 网页控制器的工厂：exec() 要建它，但不认识 web 里的实现类。

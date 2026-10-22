@@ -368,7 +368,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                     }
                     else
                     {
-                        qWarning() << "cannot make sense of 'viewBox' value " << svgViewBox.toString();
+                        qWarning() << "'viewBox' 值看不明白: " << svgViewBox.toString();
                     }
                 }
 
@@ -465,7 +465,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                     }
                     else
                     {
-                        qWarning() << "cannot make sense of 'nominal-size' value " << pageNominalSize.toString();
+                        qWarning() << "'nominal-size' 值看不明白: " << pageNominalSize.toString();
                     }
                 }
             }
@@ -1708,13 +1708,13 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromPolygonSv
             }
             else
             {
-                qDebug() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "'point' 值看不明白:" << sCoord;
             }
         }
     }
     else
     {
-        qWarning() << "cannot make sense of 'points' value " << svgPoints.toString();
+        qWarning() << "'points' 值看不明白: " << svgPoints.toString();
     }
 
     polygonItem->setPolygon(polygon);
@@ -1817,7 +1817,7 @@ GraphicsPolygonItem *SvgSubsetAdaptor::SvgSubsetReader::polygonItemFromLineSvg(c
     }
     else
     {
-        qWarning() << "cannot make sense of 'line' value";
+        qWarning() << "'line' 值看不明白";
         return 0;
     }
 
@@ -1998,7 +1998,7 @@ QList<GraphicsPolygonItem *> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFrom
             }
             else
             {
-                qDebug() << "cannot make sense of a 'point' value" << sCoord;
+                qDebug() << "'point' 值看不明白:" << sCoord;
             }
         }
 
@@ -2015,7 +2015,7 @@ QList<GraphicsPolygonItem *> SvgSubsetAdaptor::SvgSubsetReader::polygonItemsFrom
     }
     else
     {
-        qWarning() << "cannot make sense of 'points' value " << svgPoints.toString();
+        qWarning() << "'points' 值看不明白: " << svgPoints.toString();
     }
 
     return polygonItems;
@@ -2028,6 +2028,17 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pixmapItemToLinkedImage(GraphicsPixmapIt
     QString fileName = PackageLayout::imageDirectory + "/" + pixmapItem->uuid().toString() + ".png";
 
     QString path     = mDocumentPath + "/" + fileName;
+
+    // 光写引用不够：图元未必是从这份文档的 addPixmap 进来的（导进来的是别的文档、
+    // 深拷贝出来的副本换了 UUID），那时盘上并没有这张图，读回来是一个静默的空图元。
+    if (!QFile::exists(path) && !pixmapItem->pixmap().isNull())
+    {
+        QDir().mkpath(mDocumentPath + "/" + PackageLayout::imageDirectory);
+        if (!pixmapItem->pixmap().toImage().save(path, "PNG"))
+        {
+            qWarning() << "位图资源写不进文档:" << path;
+        }
+    }
 
     mXmlWriter.writeAttribute(nsXLink, "href", fileName);
 
@@ -2050,7 +2061,7 @@ GraphicsPixmapItem *SvgSubsetAdaptor::SvgSubsetReader::pixmapItemFromSvg()
     }
     else
     {
-        qWarning() << "cannot make sens of image href value";
+        qWarning() << "image 元素没有 href，还原不出图元";
         return 0;
     }
 
@@ -2064,6 +2075,25 @@ void SvgSubsetAdaptor::SvgSubsetWriter::svgItemToLinkedSvg(GraphicsSvgItem *svgI
     mXmlWriter.writeStartElement("image");
 
     QString fileName = PackageLayout::imageDirectory + "/" + svgItem->uuid().toString() + ".svg";
+
+    QString path     = mDocumentPath + "/" + fileName;
+
+    // 同上：SVG 的原始字节存在图元里，落这份字节才是这一页能读回图元的前提。
+    if (!QFile::exists(path) && !svgItem->fileData().isEmpty())
+    {
+        QDir().mkpath(mDocumentPath + "/" + PackageLayout::imageDirectory);
+
+        QFile file(path);
+        if (!file.open(QIODevice::WriteOnly))
+        {
+            qWarning() << "SVG 资源写不进文档:" << path;
+        }
+        else
+        {
+            file.write(svgItem->fileData());
+            file.close();
+        }
+    }
 
     mXmlWriter.writeAttribute(nsXLink, "href", fileName);
 
@@ -2086,7 +2116,7 @@ GraphicsSvgItem *SvgSubsetAdaptor::SvgSubsetReader::svgItemFromSvg()
     }
     else
     {
-        qWarning() << "cannot make sens of image href value";
+        qWarning() << "image 元素没有 href，还原不出图元";
         return 0;
     }
 
@@ -2112,7 +2142,7 @@ void SvgSubsetAdaptor::SvgSubsetWriter::pdfItemToLinkedPDF(GraphicsPDFItem *pdfI
         QFile file(path);
         if (!file.open(QIODevice::WriteOnly))
         {
-            qWarning() << "cannot open file for writing embeded pdf content " << path;
+            qWarning() << "PDF 资源写不进文档: " << path;
             return;
         }
 
@@ -2199,7 +2229,7 @@ GraphicsMediaItem *SvgSubsetAdaptor::SvgSubsetReader::audioItemFromSvg()
 
     if (audioHref.isNull())
     {
-        qWarning() << "cannot make sens of video href value";
+        qWarning() << "video 元素没有 href，还原不出媒体图元";
         return 0;
     }
 
@@ -2238,7 +2268,7 @@ GraphicsMediaItem *SvgSubsetAdaptor::SvgSubsetReader::videoItemFromSvg()
 
     if (videoHref.isNull())
     {
-        qWarning() << "cannot make sens of video href value";
+        qWarning() << "video 元素没有 href，还原不出媒体图元";
         return 0;
     }
 
@@ -2550,7 +2580,7 @@ GraphicsAppleWidgetItem *SvgSubsetAdaptor::SvgSubsetReader::graphicsAppleWidgetF
 
     if (widgetUrl.isNull())
     {
-        qWarning() << "cannot make sens of widget src value";
+        qWarning() << "widget 元素没有 src，还原不出小部件";
         return 0;
     }
 
@@ -2576,7 +2606,7 @@ GraphicsWebWidgetItem *SvgSubsetAdaptor::SvgSubsetReader::graphicsWebWidgetFromS
 
     if (widgetUrl.isNull())
     {
-        qWarning() << "cannot make sens of widget src value";
+        qWarning() << "widget 元素没有 src，还原不出小部件";
         return 0;
     }
 
