@@ -11,6 +11,7 @@
 #include "app/RecordingSelfTest.h"
 #include "app/ShortcutSelfTest.h"
 #include "app/SnapSelfTest.h"
+#include "app/UndoRedoSelfTest.h"
 #include "core/Application.h"
 
 void installSelfTestFromArgs(Application &app)
@@ -30,6 +31,7 @@ void installSelfTestFromArgs(Application &app)
         {"--recording-selftest", RecordingSelfTest::run}, // 录屏端到端：容器、时长与可播（tst_recording）
         {"--clipboard-selftest", ClipboardSelfTest::run}, // 复制→粘贴→删原件→存读往返（tst_clipboard）
         {"--export-selftest",    ExportSelfTest::run   }, // PDF 页数/尺寸/内容与 .tbz 往返（tst_export）
+        {"--undoredo-selftest",  UndoRedoSelfTest::run }, // 撤销/重做全回路与换文档清栈（tst_undoredo）
     };
 
     const QStringList args = app.arguments();

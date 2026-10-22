@@ -169,6 +169,16 @@ set_tests_properties(tst_export PROPERTIES
     ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
     TIMEOUT 300)
 
+# 撤销/重做端到端自检：应用带 --undoredo-selftest 在真实场景里跑加、撤、重做、删、清空、换文档。
+add_executable(tst_undoredo tst_undoredo.cpp)
+target_compile_options(tst_undoredo PRIVATE /MP /utf-8)
+target_link_libraries(tst_undoredo PRIVATE Qt6::Test Qt6::Core)
+add_dependencies(tst_undoredo TianBoard)
+add_test(NAME tst_undoredo COMMAND tst_undoredo)
+set_tests_properties(tst_undoredo PROPERTIES
+    ENVIRONMENT "TIANBOARD_EXE=$<TARGET_FILE:TianBoard>"
+    TIMEOUT 300)
+
 # 语言包测试：加载 lrelease 产出的 .qm，验证上下文名与取词结果。
 if(TARGET TianBoardTranslations)
     add_executable(tst_language tst_language.cpp)
