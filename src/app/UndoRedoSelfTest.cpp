@@ -12,6 +12,7 @@
 #include <QCryptographicHash>
 #include <QCoreApplication>
 #include <QDir>
+#include <QEvent>
 #include <QImage>
 #include <QUndoStack>
 #include <QPainter>
@@ -281,9 +282,11 @@ namespace UndoRedoSelfTest
 
             board->deleteScene(deleteIndex);
 
-            // 两次事件循环：让 deleteLater 真的把那一页的场景（连同它的图元）释放掉，
-            // 否则悬垂指针还没变成野内存，这一条量不到东西。
+            // 把挂起的 DeferredDelete 真的投递出去：Qt 明写 processEvents() 不处理 DeferredDelete，
+            // 只有回到主事件循环或显式 sendPostedEvents 才释放——不补这一手，那一页的场景其实还没没，
+            // 悬垂指针也没变成野内存，这一案就量不到它想量的东西。
             QCoreApplication::processEvents();
+            QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
             QCoreApplication::processEvents();
 
             if (second->pageCount() != pagesBeforeDelete - 1)

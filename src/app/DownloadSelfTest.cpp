@@ -20,6 +20,7 @@
 #include <QFileInfo>
 #include <QIODevice>
 #include <QStringList>
+#include <QThread>
 #include <QUrl>
 
 #include <functional>
@@ -29,13 +30,16 @@ namespace
     /**
      * @brief 有界地等事件循环把跨线程的下载完成信号送进来。
      * @param settled 判定“等到了”的谓词。
-     * @return 等到为 true；200 轮 × 50ms（约 10 秒）后仍不满足为 false。
+     * @return 等到为 true；200 轮 ×（处理事件 + 睡 50ms）≈ 10 秒后仍不满足为 false。
+     * @note 只 processEvents 不睡觉是不够的：没有待处理事件时它立刻返回，200 轮就是一圈忙等，
+     *       工作线程那次 copy 还没落地就已经超时。
      */
     bool waitUntil(const std::function<bool()> &settled)
     {
         for (int tick = 0; tick < 200 && !settled(); ++tick)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+            QThread::msleep(50);
         }
 
         return settled();

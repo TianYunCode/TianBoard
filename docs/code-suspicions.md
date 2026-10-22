@@ -85,7 +85,7 @@
   那样**按需创建**，不要在构造期拿“当时的活动场景”（见第三节）。
 
 ### 6. `.iwb` 的命名空间校验只打日志、不拒绝
-- **位置**：`src/content/IwbSubsetAdaptor.cpp:1097/1105/1124/1202` 四条"incorrect … namespace,
+- **位置**：`src/content/IwbSubsetAdaptor.cpp:1278/1288/1312/1422` 四条"incorrect … namespace,
   incorrect document"
 - **现象**：命名空间对不上照样往下导，每个节点各打一条日志。代码里原来紧跟的
   `//return false;` 已经在注释清理那轮删掉（删的是注释，行为没变），各处补了一句中文
@@ -123,7 +123,7 @@
 
 另有两处不是 TODO 但同样别顺手改：
 
-- `src/ui/MainWindow.cpp:1285`：导出时文件对话框的 `// HACK`（注释说明了为什么不能改成
+- `src/ui/MainWindow.cpp:1247`：导出时文件对话框的 `// HACK`（注释说明了为什么不能改成
   常规写法）。
 - 文档格式相关的常量与旧键名，见下面第三节。
 
@@ -692,22 +692,26 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
   正常路径下复制在工作线程里，这条才量得到页签的出没。判据要对着**时序契约**写，否则一次反向对照就会
   报出比预期更多的红，看着像"改坏了两处"。
 
-### 2026-10-22：缩略图列表其实是被整份重建的，各处手工 `insertThumbPage` 是冗余的（量出来才敢说）
+### 2026-10-22：翻页条会自己把缺的缩略图补回来，"手工插入是不是冗余"必须按路径各自量
 
 `--pages-selftest` 加了"缩略图列表条数 == 页数、每页都有一只图、副本的图与原件一样"这三条之后，
 做的第一条反向对照是**把 `BoardController::duplicateScene` 里那次 `insertThumbPage(nIndex)` 注释掉**——
-预期应当红（少一条），实际**全绿**。红不了的原因查出来了：
+预期应当红（少一条），实际**全绿**。真正兜住的是翻页条自己数一遍就地补：
 
-- `PersistenceManager::createDocumentSceneAt`/`insertDocumentSceneAt`/`duplicateDocumentScene` 都会发
-  `documentSceneCreated(proxy, index)`；
-- `ui/DocumentController` 早就连着它（`DocumentController.cpp:844`），槽里做的是
-  `if (proxy == selectedDocumentProxy()) reloadThumbnails();`——**整份重建**，把列表按当前文档的页数重取一遍。
+- `ui/DocumentNavigator.cpp:70` 把 `DocumentContainer::documentThumbnailsUpdated` 连到
+  `generateThumbnails()`，那里有一句 `if (i >= source->pageCount() || !source->pageAt(i)) source->insertThumbPage(i);`
+  （`:129-131`），并且它自己就带着一条 TODO（`:127`）：“文档的页数与容器里的页数本应一致，现在却要
+  各自数一遍，缺页只能就地补”。`duplicateScene` 结尾正好 `emit documentThumbnailsUpdated(this)`，
+  把这条兜底走了一遍。
+- 文档库那侧是**另一份**列表：`DocumentController` 也是 `DocumentContainer` 的子类，它槽里的
+  `reloadThumbnails()` 重建的是自己那份，碰不到画板的。
+  **我第一版把机制记在 `documentSceneCreated → DocumentController::reloadThumbnails` 上，是错的**——
+  看到一条 connect 不等于它改的是同一个对象：同一个基类的两个实例各有一份 `mDocumentThumbs`。
+  教训比原来那条更硬：**读代码读出来的"机制"也要有一条会红的判据撑着**，否则连"为什么红不了"都能记错。
 
-所以那几处手工 `insertThumbPage`/`deleteThumbPage`（`DocumentContainer::addPage`、`movePageToIndex`、
-`BoardController::duplicateScene`）在这个应用里都处在"被一次全量重建覆盖"的位置上。两点结论：
+所以"手工插入是不是冗余"得按路径各自量，答案确实不一样：`addFilesToDocument` 那条就**不**冗余——
+它不发 `documentThumbnailsUpdated`，把 `insertThumbPage` 去掉后 `--import-selftest` 第 11 案立刻红。
 
-- **别把"看起来在维持同步的手工调用"当成承重墙**。要改它，先写一条会红的断言——这条断言现在红了不了，
-  就说明它不是承重的那一层，真正的机制是那条 `connect`。
 - **反过来这也是拆环的一条出路，但那条 `documentSceneCreated` 用不得**：一开始以为
   `core/DocumentManager` 那句 `BoardController::instance()->insertThumbPage(pageIndex)` 可以直接不发——
   `documentSceneCreated` 本来就在发，画板连上去就行。查下来不行：那是**页级**事件，
@@ -717,7 +721,7 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
   教训：**别把"某个信号已经在发"当成"接线就能复用"**，先数清谁在发、发几次、现有应答方已经做了什么。
 - **顺带治掉的一处真可疑**：旧写法无条件把条目插进**画板容器**的列表，而同一个循环里
   `createDocumentSceneAt`/`persistDocumentScene` 用的是传进来的那份 `document`——从文档库往**别的文档**
-  追加一页时，被挤位的正是画板当前那份文档的缩略图（文档库那一侧随后会 `reloadThumbnails()` 整份重建，
+  追加一页时，被挤位的正是画板当前那份文档的缩略图（翻页条下次生成缩略图时会自己补回来，
   所以界面上看不出来）。现在装上去那一版只在"这份文档就是画板当前那一份"时才动列表。
 - **判据是先补的，而且是会红的**：`--import-selftest` 新增第 11 案，走界面上同一个入口
   `addFilesToDocument` 往画板当前文档追加一张现画的 PNG，断页数 +1、那一页的位图像素与源图一致、

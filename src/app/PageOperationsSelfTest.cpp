@@ -203,11 +203,14 @@ namespace
      *
      * 详细说明：翻页条与文档库显示的就是这份列表。它一旦与页数脱节，页还是那些页、内容对账
      * 一切正常，只有界面上第 N 张图指向了别的页——属于用户看得见、测试看不见的那类问题。
-     * 实测（把 `duplicateScene` 里那次 `insertThumbPage` 注释掉，这几条照旧全绿）：真正兜住同步的
-     * 不是各处手工插入，而是 `documentSceneCreated` → `DocumentController::documentSceneChanged`
-     * 里那次 `reloadThumbnails()` 整份重建。所以这几条钉的是**用户看得见的那个不变量**
-     * （列表与页数一样多、副本的图与原件一样），不是某一次插入；将来谁把整份重建改成增量更新，
-     * 它们就是那条路的安全网。
+     * 实测（把 `duplicateScene` 里那次 `insertThumbPage` 注释掉，这几条照旧全绿）：兜住这一维的
+     * 不是各处手工插入，而是翻页条自己数一遍就地补——`DocumentNavigator` 连着
+     * `documentThumbnailsUpdated`，`generateThumbnails()` 里有一句
+     * `if (i >= source->pageCount() || !source->pageAt(i)) source->insertThumbPage(i);`
+     * （它自己带着那条 TODO：“文档的页数与容器里的页数本应一致，现在却要各自数一遍”）。
+     * 所以这几条钉的是**用户看得见的那个不变量**（列表与页数一样多、副本的图与原件一样），
+     * 不是某一次插入；`addFilesToDocument` 那条路径就不一样——它不发那个信号，
+     * 去掉插入就立刻被 `--import-selftest` 第 11 案抓到。
      */
     void auditThumbParity(QStringList &failures, BoardController *board, DocumentProxy *proxy, const QString &stage)
     {
