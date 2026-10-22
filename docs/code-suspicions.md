@@ -92,18 +92,20 @@
   说明“这里刻意放行”。这既可能是"故意容忍旧文档"，也可能是"当年为了导入某个坏文件
   临时关掉校验忘了恢复"，属于行为问题，别在日志清理的提交里顺手改。
 
-### 7. 代码里剩下的 `TODO`（全仓 14 处，`WebWidgetBoardAPI` 那两处见第一节，不重复列）
-- `src/core/PersistenceManager.cpp:163`（双击打开文档包时的等待光标绕法）、`:217`（临时 if）
-  与 `:612`（复制页面时磁盘对象只能靠“再存一遍”顺带搬走）：上游遗留的临时分支。
-- `src/settings/Settings.cpp:17`：`maxCrossSize` 是否开放给用户自行设置。
-- `src/ui/DocumentNavigator.cpp:112`：文档页数与容器页数各数一遍，缺页就地补——
+### 7. 代码里剩下的 `TODO`（全仓 12 处，2026-10-22 重新数过；`WebWidgetBoardAPI` 那两处见第一节，不重复列）
+- `src/core/PersistenceManager.cpp:718`（复制页面时磁盘对象只能靠“再存一遍”顺带搬走，缺一套
+  正式的引用复制机制）：上游遗留。今天动过它一半——那段按图元类型搬包内文件的循环已经搬进
+  `content/SvgSubsetAdaptor::duplicateItemResources`，但“靠再存一遍搬”这个机制本身没变。
+  （原先这里还记着另外两条：双击打开文档包的等待光标绕法与一处临时 if，改造中已被别的工作消掉。）
+- `src/settings/Settings.cpp:15`：`maxCrossSize` 是否开放给用户自行设置。
+- `src/ui/DocumentNavigator.cpp:127`：文档的页数与容器里的页数各数一遍、缺页就地补——
   临时绕法暴露的是结构问题。
 - `src/whiteboard/FeaturesController.cpp:64`（`favoritePath` 该由控制器下发还是公开静态成员）、
-  `:242`（库条目权限机制要重新设计）。
-- `src/whiteboard/GraphicsTextItem.cpp:26`（控件本该按需创建却在构造期建）、
-  `GraphicsStrokesGroup.cpp:34`（组缺统一管理机制）、`GraphicsDelegateFrame.cpp:777`
-  （三个变换可合并成一次）、`GraphicsScene.cpp:653`（压感插值不平滑，起收笔有台阶）、
-  `GraphicsStroke.cpp:152`（简化算法只会删近共线点，弯弧段简不掉）：绘制热路径上的算法欠账。
+  `:278`（库条目权限机制要重新设计）。
+- `src/whiteboard/GraphicsTextItem.cpp:23`（控件本该按需创建却在构造期建）、
+  `GraphicsStrokesGroup.cpp:36`（组缺统一管理机制）、`GraphicsDelegateFrame.cpp:916`
+  （三个变换可合并成一次）、`GraphicsScene.cpp:729`（压感插值不平滑，起收笔有台阶）、
+  `GraphicsStroke.cpp:184`（简化算法只会删近共线点，弯弧段简不掉）：绘制热路径上的算法欠账。
 
 注释清理那一轮删掉了三处只写着“这里还没实现”的 `//TODO` 行，坑本身还在，记在这里免得被忘掉：
 
@@ -158,8 +160,8 @@
 
 ## 三、命名与形态遗留
 
-- **`src/app/resource.h` 是全仓唯一保留 `#ifndef` 守卫的头**（`src/` 下 170 个头文件里
-  169 个已经是 `#pragma once`）：`rc.exe` 不认识 `#pragma once`，把它改掉会让图标与
+- **`src/app/resource.h` 是全仓唯一保留 `#ifndef` 守卫的头**（`src/` 下 199 个头文件里
+  198 个已经是 `#pragma once`）：`rc.exe` 不认识 `#pragma once`，把它改掉会让图标与
   版本信息静默丢失。另外 `TianBoard.rc` 是 UTF-16，改这两个文件必须用字节级工具，
   别用文本编辑器——编码一变整个文件就是二进制乱码，而 `rc.exe` 仍可能返回 0，
   只在产出的 `.res` 体积上露馅。
@@ -273,8 +275,9 @@
   `文件:行号`，一次 clang-format 全量重排就让它们**全部指偏**（多数偏 10–300 行，
   个别落到完全无关的代码上）。核对不用肉眼：
   `grep -oE "src/[a-z/]+\.cpp:[0-9]+" docs/code-suspicions.md` 列出来，再
-  `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“170 个头/169 个
-  `#pragma once`”“全仓 21 处 TODO”这类计数也是派生数字，改完要重测。
+  `awk -v N=n 'NR==N' 文件` 打印那一行看是不是描述的事物。同理“199 个头/198 个
+  `#pragma once`”“全仓 12 处 TODO”这类计数也是派生数字，改完要重测（今天实测：头文件数
+  从 170 涨到 199、TODO 从 14 掉到 12，两处旧数字都在这次核对里被换掉）。
 - **构建报错不会让 ctest 变红**：MSBuild `/m` 下某个工程编译失败时其它工程继续，
   `TianBoard.exe` 沿用上一次链接好的旧文件，`ctest` 拿旧产物照样全绿。本轮
   实证踩过一次（删掉一个成员函数、漏改类内两处非限定调用，坏的提交已经进了历史）。

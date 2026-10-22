@@ -67,7 +67,7 @@
 
 ## 三、防重复包含
 
-`src/` 下 170 个头文件里 169 个用 `#pragma once`，新增头文件也一律用它，不要再写
+`src/` 下 199 个头文件里 198 个用 `#pragma once`（2026-10-22 实数），新增头文件也一律用它，不要再写
 `#ifndef` 守卫。
 
 **唯一例外是 `src/app/resource.h`**：它只被 `TianBoard.rc` include，而 `rc.exe` 的
