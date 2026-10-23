@@ -131,7 +131,7 @@ void DownloadItem::init()
     // 绑定（或重试后重新绑定）网络回复：下载项的整个状态机都由这些信号驱动。
     m_url = m_reply->url();
 
-    qDebug() << "DownloadItem::init() with url:" << m_url;
+    qDebug() << "DownloadItem::init() 要下载:" << m_url;
 
     m_reply->setParent(this);
     connect(m_reply, &QNetworkReply::readyRead, this, &DownloadItem::downloadReadyRead);
@@ -200,7 +200,7 @@ QString DownloadItem::saveFileName(const QString &directory) const
     if (baseName.isEmpty())
     {
         baseName = QLatin1String("unnamed_download");
-        qDebug() << "DownloadManager:: downloading unknown file:" << m_url;
+        qDebug() << "下载管理器收到一个不认识的文件:" << m_url;
     }
     QString name = directory + baseName + QLatin1Char('.') + endName;
     if (QFile::exists(name))
@@ -299,7 +299,7 @@ void DownloadItem::downloadReadyRead()
 
 void DownloadItem::error(QNetworkReply::NetworkError)
 {
-    qDebug() << "DownloadItem::error" << m_reply->errorString() << m_url;
+    qDebug() << "DownloadItem 出错:" << m_reply->errorString() << m_url;
     d->downloadInfoLabel->setText(tr("Network Error: %1").arg(m_reply->errorString()));
     d->tryAgainButton->setEnabled(true);
     d->tryAgainButton->setVisible(true);
@@ -307,7 +307,7 @@ void DownloadItem::error(QNetworkReply::NetworkError)
 
 void DownloadItem::metaDataChanged()
 {
-    qDebug() << "DownloadItem::metaDataChanged: not handled.";
+    qDebug() << "DownloadItem::metaDataChanged: 没有处理。";
 }
 
 void DownloadItem::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -596,9 +596,9 @@ void WebDownloadManager::processDownloadedContent(QNetworkReply *reply, bool req
 
     // 到这里内容类型不认识，先看看是不是个重定向
 
-    qDebug() << "redirect" << reply->header(QNetworkRequest::LocationHeader);
-    qDebug() << "ContentTypeHeader" << reply->header(QNetworkRequest::ContentTypeHeader);
-    qDebug() << "DownloadManager::handleUnsupportedContent" << reply->url() << "requestFileName" << requestFileName;
+    qDebug() << "重定向到" << reply->header(QNetworkRequest::LocationHeader);
+    qDebug() << "内容类型" << reply->header(QNetworkRequest::ContentTypeHeader);
+    qDebug() << "DownloadManager 处理不支持的内容:" << reply->url() << "请求的文件名" << requestFileName;
 
     DownloadItem *item = new DownloadItem(reply, requestFileName, this, customDownloadPath);
     addItem(item);

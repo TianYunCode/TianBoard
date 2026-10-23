@@ -153,7 +153,7 @@ QVariant DocumentProxy::metaData(const QString &pKey) const
     }
     else
     {
-        qDebug() << "Unknown metadata key" << pKey;
+        qDebug() << "不认识的元数据键:" << pKey;
         // 返回空字符串而不是无效 QVariant：调用方大量直接 .toString()，
         // 这样至少能拿到空文本而不会解出意外类型。
         return QString("");

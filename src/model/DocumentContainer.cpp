@@ -116,7 +116,7 @@ void DocumentContainer::updateThumbPage(int index)
     }
     else
     {
-        qDebug() << "error [updateThumbPage] : index > mDocumentThumbs' size.";
+        qDebug() << "错误 [updateThumbPage]：索引比 mDocumentThumbs 的长度还大。";
     }
 }
 

@@ -620,7 +620,7 @@ bool DocumentTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
 
     if (!newParentNode)
     {
-        qDebug() << "incorrect incoming parent node;";
+        qDebug() << "传进来的父节点不对";
         return false;
     }
 

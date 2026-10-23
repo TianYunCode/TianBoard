@@ -46,7 +46,7 @@ uint Version::toUInt() const
             revision = parts.at(4).toUInt();
             break;
         default: // 不是读写器会写出的串：当“没有可用版本”，而不是猜一个
-            qWarning() << "Unknown version format:" << mString;
+            qWarning() << "版本格式不认识:" << mString;
             return 0;
     }
 

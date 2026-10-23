@@ -152,7 +152,7 @@ void WebView::loadFinished(bool ok)
 {
     if (100 != mProgress)
     {
-        qDebug() << "Received finished signal while progress is still:" << progress() << "Url:" << url();
+        qDebug() << "进度还没走完就收到 finished 信号:" << progress() << "地址:" << url();
     }
 
     QString error;
@@ -162,14 +162,14 @@ void WebView::loadFinished(bool ok)
         error = "with error";
     }
 
-    qDebug() << "page loaded in" << mLoadStartTime.elapsed() << "ms" << url().toString() << error;
+    qDebug() << "页面加载耗时" << mLoadStartTime.elapsed() << "毫秒" << url().toString() << error;
 
     mProgress = 0;
 }
 
 void WebView::load(const QUrl &url)
 {
-    qDebug() << "loading " << url.toString();
+    qDebug() << "正在加载:" << url.toString();
 
     mInitialUrl = url;
 

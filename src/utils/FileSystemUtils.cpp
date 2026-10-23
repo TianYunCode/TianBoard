@@ -63,7 +63,7 @@ bool FileSystemUtils::copyFile(const QString &source, const QString &destination
 {
     if (!QFile::exists(source))
     {
-        qDebug() << "file" << source << "does not present in fs";
+        qDebug() << "文件系统里没有这个文件:" << source;
         return false;
     }
 
@@ -84,7 +84,7 @@ bool FileSystemUtils::copyFile(const QString &source, const QString &destination
             QString newpath = normalizedDestination.left(pos);
             if (!QDir().mkpath(newpath))
             {
-                qDebug() << "can't create a new path at " << newpath;
+                qDebug() << "在这个位置创建不了新目录:" << newpath;
             }
         }
     }
@@ -170,7 +170,7 @@ void FileSystemUtils::deleteAllTempDirCreatedDuringSession()
 {
     foreach (QString dirPath, sTempDirToCleanUp)
     {
-        qDebug() << "will delete" << dirPath;
+        qDebug() << "将要删除:" << dirPath;
 
         deleteDir(dirPath);
     }
@@ -1025,15 +1025,15 @@ bool FileSystemUtils::compressDirInZip(
             QFile inFile(file.absoluteFilePath());
             if (!inFile.open(QIODevice::ReadOnly))
             {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: inFile.open(): " << inFile.errorString();
+                qWarning() << "压缩文件失败，打不开输入文件:" << inFile.fileName() << inFile.errorString();
                 return false;
             }
 
-            qDebug() << "will open" << pDestPath << file.fileName() << inFile.fileName();
+            qDebug() << "准备写进压缩包:" << pDestPath << file.fileName() << inFile.fileName();
 
             if (!pOutZipFile->open(QIODevice::WriteOnly, QuaZipNewInfo(pDestPath + file.fileName(), inFile.fileName())))
             {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: outFile.open(): " << pOutZipFile->getZipError();
+                qWarning() << "压缩文件失败，打不开输出文件:" << inFile.fileName() << "zip 错误码" << pOutZipFile->getZipError();
                 inFile.close();
                 return false;
             }
@@ -1041,7 +1041,7 @@ bool FileSystemUtils::compressDirInZip(
             pOutZipFile->write(inFile.readAll());
             if (pOutZipFile->getZipError() != UNZ_OK)
             {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: outFile.write(): " << pOutZipFile->getZipError();
+                qWarning() << "压缩文件失败，写出出错:" << inFile.fileName() << "zip 错误码" << pOutZipFile->getZipError();
 
                 inFile.close();
                 pOutZipFile->close();
@@ -1051,7 +1051,7 @@ bool FileSystemUtils::compressDirInZip(
             pOutZipFile->close();
             if (pOutZipFile->getZipError() != UNZ_OK)
             {
-                qWarning() << "Compression of file" << inFile.fileName() << " failed. Cause: outFile.close(): " << pOutZipFile->getZipError();
+                qWarning() << "压缩文件失败，收尾出错:" << inFile.fileName() << "zip 错误码" << pOutZipFile->getZipError();
 
                 inFile.close();
                 return false;
@@ -1070,7 +1070,7 @@ bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetD
 
     if (!zip.open(QuaZip::mdUnzip))
     {
-        qWarning() << "ZIP expand failed. Cause zip.open(): " << zip.getZipError();
+        qWarning() << "解压失败，打不开压缩包，zip 错误码:" << zip.getZipError();
         return false;
     }
 
@@ -1091,19 +1091,19 @@ bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetD
     {
         if (!zip.getCurrentFileInfo(&info))
         {
-            qWarning() << "ZIP expand failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
+            qWarning() << "解压失败，取当前条目信息出错，zip 错误码:" << zip.getZipError();
             return false;
         }
 
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "ZIP expand failed. Cause: file.open(): " << zip.getZipError();
+            qWarning() << "解压失败，打不开条目，zip 错误码:" << zip.getZipError();
             return false;
         }
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "ZIP expand failed. Cause: file.getFileName(): " << zip.getZipError();
+            qWarning() << "解压失败，取条目文件名出错，zip 错误码:" << zip.getZipError();
             return false;
         }
 
@@ -1132,13 +1132,13 @@ bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetD
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "ZIP expand failed. Cause: " << zip.getZipError();
+            qWarning() << "解压失败，zip 错误码:" << zip.getZipError();
             return false;
         }
 
         if (!file.atEnd())
         {
-            qWarning() << "ZIP expand failed. Cause: read all but not EOF";
+            qWarning() << "解压失败：读完全部字节却没到文件末尾";
             return false;
         }
 
@@ -1146,7 +1146,7 @@ bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetD
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "ZIP expand failed. Cause: file.close(): " << file.getZipError();
+            qWarning() << "解压失败，关闭条目出错，zip 错误码:" << file.getZipError();
             return false;
         }
     }
@@ -1155,7 +1155,7 @@ bool FileSystemUtils::expandZipToDir(const QFile &pZipFile, const QDir &pTargetD
 
     if (zip.getZipError() != UNZ_OK)
     {
-        qWarning() << "ZIP expand failed. Cause: zip.close(): " << zip.getZipError();
+        qWarning() << "解压失败，关闭压缩包出错，zip 错误码:" << zip.getZipError();
         return false;
     }
 

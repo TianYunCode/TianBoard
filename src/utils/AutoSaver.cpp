@@ -14,7 +14,7 @@ AutoSaver::~AutoSaver()
 {
     if (mTimer.isActive())
     {
-        qWarning() << "AutoSaver: still active when destroyed, changes not saved.";
+        qWarning() << "AutoSaver: 析构时定时器还在跑，改动没来得及保存。";
     }
 }
 
@@ -59,6 +59,6 @@ void AutoSaver::saveIfNeccessary()
 
     if (!QMetaObject::invokeMethod(parent(), "save", Qt::DirectConnection))
     {
-        qWarning() << "AutoSaver: error invoking slot save() on parent";
+        qWarning() << "AutoSaver: 调用父对象的 save() 槽失败";
     }
 }

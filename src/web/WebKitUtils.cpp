@@ -38,7 +38,7 @@ QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage *frame
                 int width = res.toInt(&ok);
                 if (width == 0 || !ok)
                 {
-                    qDebug() << "Width is not defined in pixel. 640 will be used";
+                    qDebug() << "宽度不是像素值，改用 640";
                     width = 640;
                 }
 
@@ -47,7 +47,7 @@ QList<WebKitUtils::HtmlObject> WebKitUtils::objectsInFrame(QWebEnginePage *frame
                 int heigth = res.toInt(&ok);
                 if (heigth == 0 || !ok)
                 {
-                    qDebug() << "Height is not defined in pixel. 480 will be used";
+                    qDebug() << "高度不是像素值，改用 480";
                     heigth = 480;
                 }
                 res = frame->runJavaScript(querySource);

@@ -864,7 +864,7 @@ QRect TabWidget::addTabButtonRect()
     }
     else
     {
-        qDebug() << "TabWidget::addTabButtonRect() - unsupported tab posion";
+        qDebug() << "TabWidget::addTabButtonRect() - 不支持的页签位置";
     }
 
     // 下面的偏移与宽高和样式表中 QTabBar 的规则保持一致，改样式时需同步修改。

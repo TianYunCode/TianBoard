@@ -51,14 +51,14 @@ static bool rm_r(const QString &rmPath)
     QFileInfo fi(rmPath);
     if (!fi.exists())
     {
-        qDebug() << rmPath << "does not exist";
+        qDebug() << "路径不存在:" << rmPath;
         return false;
     }
     else if (fi.isFile())
     {
         if (!QFile::remove(rmPath))
         {
-            qDebug() << "can't remove file" << rmPath;
+            qDebug() << "删不掉文件:" << rmPath;
             return false;
         }
         return true;
@@ -72,7 +72,7 @@ static bool rm_r(const QString &rmPath)
         }
         if (!QDir().rmdir(rmPath))
         {
-            qDebug() << "can't remove dir" << rmPath;
+            qDebug() << "删不掉目录:" << rmPath;
             return false;
         }
         return true;
@@ -87,7 +87,7 @@ static bool cp_rf(const QString &what, const QString &where)
 
     if (!whatFi.exists())
     {
-        qDebug() << what << "does not exist" << Q_FUNC_INFO;
+        qDebug() << "路径不存在:" << what << Q_FUNC_INFO;
         return false;
     }
     else if (whatFi.isFile())
@@ -108,7 +108,7 @@ static bool cp_rf(const QString &what, const QString &where)
         }
         if (!QFile::copy(what, newFilePath))
         {
-            qDebug() << "can't copy" << what << "to" << where << Q_FUNC_INFO;
+            qDebug() << "复制不了:" << what << "->" << where << Q_FUNC_INFO;
             return false;
         }
         return true;
@@ -117,7 +117,7 @@ static bool cp_rf(const QString &what, const QString &where)
     {
         if (whereFi.isFile() && whereFi.fileName().toLower() == whatFi.fileName().toLower())
         {
-            qDebug() << "can't copy dir" << what << "to file" << where << Q_FUNC_INFO;
+            qDebug() << "要把目录复制成一个文件，做不到:" << what << "->" << where << Q_FUNC_INFO;
             return false;
         }
         else if (whereFi.isDir())
@@ -178,15 +178,15 @@ static QDomDocument createDomFromSvg(const QString &svgUrl)
             }
             else
             {
-                qDebug() << "Error reading content of " << mFoldersXmlStorageName << Qt::endl
-                         << "Error:" << inFile.errorString() << "Line:" << parseResult.errorLine << "Column:" << parseResult.errorColumn
+                qDebug() << "读不出文档目录树的内容:" << mFoldersXmlStorageName << Qt::endl
+                         << "错误:" << inFile.errorString() << "行:" << parseResult.errorLine << "列:" << parseResult.errorColumn
                          << parseResult.errorMessage;
             }
             inFile.close();
         }
         else
         {
-            qDebug() << "Error reading" << mFoldersXmlStorageName << Qt::endl << "Error:" << inFile.errorString();
+            qDebug() << "读不出文档目录树:" << mFoldersXmlStorageName << Qt::endl << "错误:" << inFile.errorString();
         }
     }
 
@@ -240,7 +240,7 @@ public:
             }
         }
 
-        qDebug() << "Ok on cure";
+        qDebug() << "顺手删掉了空掉的父目录";
     }
 
 private:
@@ -261,7 +261,7 @@ private:
         while (!nextElement.isNull())
         {
             QString nextTag = nextElement.tagName();
-            qDebug() << "Tag name of the next parsed element is" << nextTag;
+            qDebug() << "下一个解析到的元素标签是:" << nextTag;
             if (nextTag == tGroups)
             {
                 nextElement = nextElement.firstChildElement("group");
@@ -515,7 +515,7 @@ public:
         QFile        fl(svgTo);
         if (!fl.open(QIODevice::WriteOnly))
         {
-            qDebug() << Q_FUNC_INFO << "can't open" << fl.fileName() << "for writing";
+            qDebug() << Q_FUNC_INFO << "打不开这个文件写入:" << fl.fileName();
             return;
         }
         cureIdsFromSvgDom(dd);
@@ -534,7 +534,7 @@ private:
         QDomElement nextElement = dom.documentElement().firstChildElement();
         while (!nextElement.isNull())
         {
-            qDebug() << "Tag name of the next parsed element is" << nextElement.tagName();
+            qDebug() << "下一个解析到的元素标签是:" << nextElement.tagName();
             QString nextTag = nextElement.tagName();
             cureFromText(nextTag, nextElement);
             nextElement = nextElement.nextSiblingElement();
