@@ -125,7 +125,7 @@ QString DocumentManager::importFileFilter(bool notUbx)
             }
         }
     }
-    qDebug() << "import file filter" << result;
+    qDebug() << "导入文件用的过滤器:" << result;
     return result;
 }
 

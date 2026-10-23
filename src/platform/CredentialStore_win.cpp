@@ -63,7 +63,7 @@ void CredentialStore::write(const QString &targetName, const QString &userName, 
     const int passwordBytes = static_cast<int>(password.size() * sizeof(wchar_t));
     if (passwordBytes > CRED_MAX_CREDENTIAL_BLOB_SIZE)
     {
-        qWarning() << "Secret is too long for the credential store; nothing was saved for" << targetName;
+        qWarning() << "凭据太长，凭据管理器存不下，这一条没有写入:" << targetName;
         return;
     }
 
@@ -77,7 +77,7 @@ void CredentialStore::write(const QString &targetName, const QString &userName, 
 
     if (!CredWriteW(&record, 0))
     {
-        qWarning() << "Failed to write" << targetName << "to the credential store";
+        qWarning() << "写不进凭据管理器:" << targetName;
     }
 }
 

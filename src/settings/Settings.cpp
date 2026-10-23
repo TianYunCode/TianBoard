@@ -144,7 +144,7 @@ QSettings *Settings::getAppSettings()
 
         Settings::sAppSettings = new QSettings(appSettings, QSettings::IniFormat, 0);
 
-        qDebug() << "sAppSettings location: " << appSettings;
+        qDebug() << "应用设置文件的位置:" << appSettings;
     }
 
     return Settings::sAppSettings;
@@ -495,7 +495,7 @@ void Settings::save()
     // 立即同步到文件，不等 QSettings 析构
     mUserSettings->sync();
 
-    qDebug() << "User settings saved";
+    qDebug() << "用户设置已保存";
 }
 
 int Settings::penWidthIndex()
@@ -864,7 +864,7 @@ QString Settings::userDataDirectory()
 
         if (getAppSettings() && getAppSettings()->contains("App/DataDirectory"))
         {
-            qDebug() << "getAppSettings()->contains(App/DataDirectory):" << getAppSettings()->contains("App/DataDirectory");
+            qDebug() << "应用设置里有没有 App/DataDirectory 这一项:" << getAppSettings()->contains("App/DataDirectory");
             dataDirPath = getAppSettings()->value("App/DataDirectory").toString();
             dataDirPath = replaceWildcard(dataDirPath);
 
@@ -874,7 +874,7 @@ QString Settings::userDataDirectory()
             }
             else
             {
-                qCritical() << "Impossible to create datadirpath " << dataDirPath;
+                qCritical() << "创建不了数据目录:" << dataDirPath;
             }
         }
         dataDirPath = FileSystemUtils::normalizeFilePath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
@@ -902,7 +902,7 @@ QString Settings::userImageDirectory()
             }
             else
             {
-                qCritical() << "failed to create image directory " << imageDirectory;
+                qCritical() << "创建不了图片目录:" << imageDirectory;
             }
         }
 
@@ -927,7 +927,7 @@ QString Settings::userVideoDirectory()
             }
             else
             {
-                qCritical() << "failed to create video directory " << videoDirectory;
+                qCritical() << "创建不了视频目录:" << videoDirectory;
             }
         }
 
@@ -963,7 +963,7 @@ QString Settings::userAudioDirectory()
             }
             else
             {
-                qCritical() << "failed to create image directory " << audioDirectory;
+                qCritical() << "创建不了音频目录:" << audioDirectory;
             }
         }
 
@@ -988,7 +988,7 @@ QString Settings::userRecordingDirectory()
             }
             else
             {
-                qCritical() << "failed to create dir " << dirPath;
+                qCritical() << "创建不了目录:" << dirPath;
             }
         }
         // 没配 Recording/RecordingDirectory 时录进应用自己的数据目录，不写用户桌面：
@@ -1128,7 +1128,7 @@ QString Settings::userInteractiveDirectory()
             }
             else
             {
-                qCritical() << "failed to create directory " << interactiveDirectory;
+                qCritical() << "创建不了交互内容目录:" << interactiveDirectory;
             }
         }
         interactiveDirectory = userDataDirectory() + "/interactive content";

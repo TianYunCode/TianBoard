@@ -112,15 +112,15 @@ void PersistenceManager::createDocumentProxiesStructure(bool interactive)
             }
             else
             {
-                qDebug() << "Error reading content of " << mFoldersXmlStorageName << Qt::endl
-                         << "Error:" << inFile.errorString() << "Line:" << parseResult.errorLine << "Column:" << parseResult.errorColumn
+                qDebug() << "读不出文档目录树的内容:" << mFoldersXmlStorageName << Qt::endl
+                         << "错误:" << inFile.errorString() << "行:" << parseResult.errorLine << "列:" << parseResult.errorColumn
                          << parseResult.errorMessage;
             }
             inFile.close();
         }
         else
         {
-            qDebug() << "Error reading" << mFoldersXmlStorageName << Qt::endl << "Error:" << inFile.errorString();
+            qDebug() << "读不出文档目录树:" << mFoldersXmlStorageName << Qt::endl << "错误:" << inFile.errorString();
         }
     }
 }
@@ -138,8 +138,7 @@ void PersistenceManager::createDocumentProxiesStructure(const QFileInfoList &con
 
         if (docName.isEmpty())
         {
-            qDebug() << "Group name and document name are empty in "
-                        "PersistenceManager::createDocumentProxiesStructure()";
+            qDebug() << "重建文档树时遇到一份既没有分组名也没有文档名的文档";
             continue;
         }
 
@@ -293,7 +292,7 @@ void PersistenceManager::closing()
     }
     else
     {
-        qDebug() << "failed to open document" << mFoldersXmlStorageName << "for writing" << Qt::endl << "Error string:" << outFile.errorString();
+        qDebug() << "打不开文档目录树写入:" << mFoldersXmlStorageName << Qt::endl << "错误:" << outFile.errorString();
     }
 }
 
@@ -737,7 +736,7 @@ void PersistenceManager::copyDocumentScene(DocumentProxy *from, int fromIndex, D
 {
     if (from == to && toIndex <= fromIndex)
     {
-        qDebug() << "operation is not supported" << Q_FUNC_INFO;
+        qDebug() << "这个操作不支持:" << Q_FUNC_INFO;
         return;
     }
 
@@ -1044,7 +1043,7 @@ bool PersistenceManager::addDirectoryContentToDocument(const QString &documentRo
 
     foreach (QString dir, mDocumentSubDirectories)
     {
-        qDebug() << "copying " << documentRootFolder << "/" << dir << " to " << pDocument->persistencePath() << "/" + dir;
+        qDebug() << "正在把文档包里的目录复制过去:" << documentRootFolder << "/" << dir << "->" << pDocument->persistencePath() << "/" + dir;
 
         QDir srcDir(documentRootFolder + "/" + dir);
         if (srcDir.exists())

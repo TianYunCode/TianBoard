@@ -90,7 +90,7 @@ void ShortcutManager::registerActions(Group group, const QList<QAction *> &actio
         // objectName 是持久化键名的一部分，没有它这条动作既存不下也读不回。
         if (objectName.isEmpty())
         {
-            qWarning() << "ShortcutManager: action without objectName is ignored:" << action->text();
+            qWarning() << "ShortcutManager: 没有 objectName 的动作会被忽略:" << action->text();
             continue;
         }
 

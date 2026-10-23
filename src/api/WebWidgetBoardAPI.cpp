@@ -544,7 +544,7 @@ void WebWidgetBoardAPI::processDropEvent(QGraphicsSceneDragDropEvent *event)
 
                 if (!FileSystemUtils::copyFile(fileName, destFileName))
                 {
-                    qDebug() << "can't copy from" << fileName << "to" << destFileName;
+                    qDebug() << "无法把文件复制过去:" << fileName << "->" << destFileName;
                     return;
                 }
                 downloaded = true;
@@ -576,7 +576,7 @@ void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc
 
     if (!supportedTypeHeader(contentType))
     {
-        qDebug() << "actions for mime type" << contentType << "are not supported";
+        qDebug() << "这个 MIME 类型的动作不支持:" << contentType;
         return;
     }
 
@@ -585,7 +585,7 @@ void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc
     {
         if (!QDir().mkpath(objDir))
         {
-            qDebug() << "can't create objects directory path. Check the permissions";
+            qDebug() << "创建不了 objects 目录路径，检查一下权限";
             return;
         }
     }
@@ -601,7 +601,7 @@ void WebWidgetBoardAPI::onDownloadFinished(bool pSuccess, sDownloadFileDesc desc
 
     if (destFile.write(pData) == -1)
     {
-        qDebug() << "can't implement data writing";
+        qDebug() << "写数据这条路还没实现";
         return;
     }
 
@@ -642,7 +642,7 @@ QString WebWidgetBoardAPI::createMimeText(bool downloaded, const QString &mimeTy
         }
         if (!QFile::exists(fileName))
         {
-            qDebug() << "file" << fileName << "doesn't exist";
+            qDebug() << "文件不存在:" << fileName;
             return QString();
         }
 

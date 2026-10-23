@@ -206,7 +206,7 @@ QStringList WaveRecorder::waveInDevices()
         }
         else
         {
-            qDebug() << "Cannot get wave in device " + QString("%1").arg(i) + " capacities";
+            qDebug() << "读不到录音设备的能力:" << i;
         }
     }
 
@@ -219,7 +219,7 @@ QStringList WaveRecorder::waveInDevices()
 
         if (mixerGetDevCaps(i, &mixerCaps, sizeof(mixerCaps)) == MMSYSERR_NOERROR)
         {
-            qDebug() << "Mixer: " << QString::fromWCharArray(caps.szPname);
+            qDebug() << "混音器:" << QString::fromWCharArray(caps.szPname);
         }
     }
 

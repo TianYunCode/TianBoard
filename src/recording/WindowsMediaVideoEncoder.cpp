@@ -115,7 +115,7 @@ void WindowsMediaVideoEncoder::newPixmap(const QImage &pPix, long timestamp)
     {
         if (!mWMVideo->appendVideoFrame(pPix, timestamp))
         {
-            qWarning() << "Error adding new video frame" << mWMVideo->lastErrorMessage();
+            qWarning() << "追加新的视频帧失败:" << mWMVideo->lastErrorMessage();
         }
     }
 }

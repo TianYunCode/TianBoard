@@ -72,7 +72,7 @@ void HttpGet::requestFinished()
 
     if (mReply->error() != QNetworkReply::NoError)
     {
-        qWarning() << mReply->url().toString() << "get finished with error : " << mReply->error();
+        qWarning() << "GET 请求带着错误结束了:" << mReply->url().toString() << "错误码" << mReply->error();
 
         mDownloadedBytes.clear();
 
@@ -82,7 +82,7 @@ void HttpGet::requestFinished()
     }
     else
     {
-        qDebug() << mReply->url().toString() << "http get finished ...";
+        qDebug() << "HTTP GET 结束:" << mReply->url().toString();
 
         if (mReply->header(QNetworkRequest::LocationHeader).isValid() && mRedirectionCount < 10)
         {
