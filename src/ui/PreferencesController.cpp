@@ -1777,7 +1777,7 @@ void PreferencesController::widthSliderChanged(int value)
     }
     else
     {
-        qDebug() << "widthSliderChanged : unknown sender ... ignoring event";
+        qDebug() << "widthSliderChanged：发送者不认识，忽略这次事件";
     }
 
     if (display)

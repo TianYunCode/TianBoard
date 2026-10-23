@@ -36,7 +36,7 @@ bool ExportDocument::persistsDocument(DocumentProxy *pDocumentProxy, const QStri
     zip.setFileNameCodec("UTF-8");
     if (!zip.open(QuaZip::mdCreate))
     {
-        qWarning("Export failed. Cause: zip.open(): %d", zip.getZipError());
+        qWarning("导出失败，压缩包打不开，zip 错误码: %d", zip.getZipError());
         return false;
     }
 
@@ -49,7 +49,7 @@ bool ExportDocument::persistsDocument(DocumentProxy *pDocumentProxy, const QStri
 
     if (zip.getZipError() != 0)
     {
-        qWarning("Export failed. Cause: zip.close(): %d", zip.getZipError());
+        qWarning("导出失败，关闭压缩包出错，zip 错误码: %d", zip.getZipError());
         return false;
     }
 

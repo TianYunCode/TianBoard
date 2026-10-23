@@ -174,23 +174,23 @@ void GraphicsCompass::mousePressEvent(QGraphicsSceneMouseEvent *event)
         mResizing = true;
         mRotating = false;
         event->accept();
-        qDebug() << "resizing";
+        qDebug() << "按住调整柄改大小";
     }
     else if (hingeRect().contains(event->pos()))
     {
         mRotating = true;
         mResizing = false;
         event->accept();
-        qDebug() << "hinge";
+        qDebug() << "按住铰链转动圆规";
     }
     else if (!closeButtonRect().contains(event->pos()))
     {
-        qDebug() << "the rest";
+        qDebug() << "落在其余区域";
 
         mDrawing = event->pos().x() > rect().right() - sPencilLength - sPencilBaseLength;
         if (mDrawing)
         {
-            qDebug() << "drawing";
+            qDebug() << "开始画弧";
             mSpanAngleInDegrees = 0;
             mSceneArcStartPoint = mapToScene(pencilPosition());
             scene()->initStroke();

@@ -1216,7 +1216,7 @@ QString Settings::userInteractiveFavoritesDirectory()
             }
             else
             {
-                qCritical() << "failed to create directory " << dirPath;
+                qCritical() << "创建不了交互收藏目录:" << dirPath;
             }
         }
 

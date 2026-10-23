@@ -301,7 +301,7 @@ void GraphicsMediaItem::clearSource()
 
     if (!FileSystemUtils::deleteFile(path))
     {
-        qDebug() << "cannot delete file: " << path;
+        qDebug() << "媒体文件删不掉:" << path;
     }
 }
 

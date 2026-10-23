@@ -41,21 +41,21 @@ bool IwbDocumentAdaptor::convertPageToIwb(const QString &from, const QString &to
     }
     if (source.isNull())
     {
-        qDebug() << "File specified is not a dir or a zip file, stopping covretion";
+        qDebug() << "给的路径既不是目录也不是 zip 包，停止转换";
         return false;
     }
 
     QString tmpDestination = createNewTmpDir();
     if (tmpDestination.isNull())
     {
-        qDebug() << "can't create temp destination folder. Stopping parsing...";
+        qDebug() << "建不出临时目标目录，停止解析";
         return false;
     }
 
     ToIwbConverter tmpConvertrer(source, tmpDestination);
     if (!tmpConvertrer)
     {
-        qDebug() << "The convertrer class is invalid, stopping conversion. Error message" << tmpConvertrer.lastErrStr();
+        qDebug() << "转换器对象不可用，停止转换，错误信息:" << tmpConvertrer.lastErrStr();
         return false;
     }
 
@@ -70,7 +70,7 @@ bool IwbDocumentAdaptor::convertPageToIwb(const QString &from, const QString &to
 
     if (!compressZip(tmpDestination, to))
     {
-        qDebug() << "error in compression";
+        qDebug() << "压缩打包出错";
     }
 
     // 源是 .tbz 时解压出来的是临时目录，转换完立即删除；源本身是目录时保留。
@@ -78,13 +78,13 @@ bool IwbDocumentAdaptor::convertPageToIwb(const QString &from, const QString &to
     {
         if (!freeDir(source))
         {
-            qDebug() << "can't delete tmp directory" << QDir(source).absolutePath() << "try to delete them manually";
+            qDebug() << "删不掉临时目录" << QDir(source).absolutePath() << "（请手动删除）";
         }
     }
 
     if (!freeDir(tmpDestination))
     {
-        qDebug() << "can't delete tmp directory" << QDir(tmpDestination).absolutePath() << "try to delete them manually";
+        qDebug() << "删不掉临时目录" << QDir(tmpDestination).absolutePath() << "（请手动删除）";
     }
 
     return true;
@@ -96,7 +96,7 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
 
     if (!zip.open(QuaZip::mdUnzip))
     {
-        qWarning() << "Import failed. Cause zip.open(): " << zip.getZipError();
+        qWarning() << "导入失败，压缩包打不开，zip 错误码:" << zip.getZipError();
         return QString();
     }
 
@@ -108,7 +108,7 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
 
     if (documentRootFolder.isNull())
     {
-        qDebug() << "can't create tmp directory for zip file" << zipFile;
+        qDebug() << "为 zip 包建不出临时目录:" << zipFile;
         return QString();
     }
 
@@ -120,7 +120,7 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
     {
         if (!zip.getCurrentFileInfo(&info))
         {
-            qWarning() << "Import failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
+            qWarning() << "导入失败，读不到当前条目信息，zip 错误码:" << zip.getZipError();
             allOk = false;
             break;
         }
@@ -131,7 +131,7 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
         }
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: file.getFileName(): " << zip.getZipError();
+            qWarning() << "导入失败，取条目名出错，zip 错误码:" << zip.getZipError();
             allOk = false;
             break;
         }
@@ -153,13 +153,13 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: " << zip.getZipError();
+            qWarning() << "导入失败，zip 错误码:" << zip.getZipError();
             allOk = false;
             break;
         }
         if (!file.atEnd())
         {
-            qWarning() << "Import failed. Cause: read all but not EOF";
+            qWarning() << "导入失败，内容读完了却没到文件末尾";
             allOk = false;
             break;
         }
@@ -167,7 +167,7 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: file.close(): " << file.getZipError();
+            qWarning() << "导入失败，关闭压缩包里的文件出错，zip 错误码:" << file.getZipError();
             allOk = false;
             break;
         }
@@ -183,7 +183,7 @@ QString IwbDocumentAdaptor::uncompressZip(const QString &zipFile)
 
     if (zip.getZipError() != UNZ_OK)
     {
-        qWarning() << "Import failed. Cause: zip.close(): " << zip.getZipError();
+        qWarning() << "导入失败，关闭压缩包出错，zip 错误码:" << zip.getZipError();
         return QString();
     }
 
@@ -197,7 +197,7 @@ bool IwbDocumentAdaptor::compressZip(const QString &source, const QString &desti
     {
         if (!QDir().mkpath(toDir.absolutePath()))
         {
-            qDebug() << "can't create destination folder to uncompress file";
+            qDebug() << "建不出解压文件的目标目录";
             return false;
         }
     }
@@ -206,7 +206,7 @@ bool IwbDocumentAdaptor::compressZip(const QString &source, const QString &desti
     zip.setFileNameCodec("UTF-8");
     if (!zip.open(QuaZip::mdCreate))
     {
-        qDebug("Export failed. Cause: zip.open(): %d", zip.getZipError());
+        qDebug("导出失败，压缩包打不开，zip 错误码: %d", zip.getZipError());
         return false;
     }
 
@@ -243,7 +243,7 @@ bool IwbDocumentAdaptor::compressDir(const QString &dirName, const QString &pare
         {
             if (!compressDir(curFile.absoluteFilePath(), parentDir + curFile.fileName() + "/", outZip))
             {
-                qDebug() << "error at compressing dir" << curFile.absoluteFilePath();
+                qDebug() << "压缩目录出错:" << curFile.absoluteFilePath();
                 return false;
             }
         }
@@ -265,13 +265,13 @@ bool IwbDocumentAdaptor::compressFile(const QString &fileName, const QString &pa
 
     if (!sourceFile.open(QIODevice::ReadOnly))
     {
-        qDebug() << "Compression of file" << sourceFile.fileName() << " failed. Cause: inFile.open(): " << sourceFile.errorString();
+        qDebug() << "压缩文件" << sourceFile.fileName() << "失败，源文件打不开，原因:" << sourceFile.errorString();
         return false;
     }
 
     if (!outZip->open(QIODevice::WriteOnly, QuaZipNewInfo(parentDir + QFileInfo(fileName).fileName(), sourceFile.fileName())))
     {
-        qDebug() << "Compression of file" << sourceFile.fileName() << " failed. Cause: outFile.open(): " << outZip->getZipError();
+        qDebug() << "压缩文件" << sourceFile.fileName() << "失败，压缩包里的输出打不开，zip 错误码:" << outZip->getZipError();
         sourceFile.close();
         return false;
     }
@@ -279,7 +279,7 @@ bool IwbDocumentAdaptor::compressFile(const QString &fileName, const QString &pa
     outZip->write(sourceFile.readAll());
     if (outZip->getZipError() != UNZ_OK)
     {
-        qDebug() << "Compression of file" << sourceFile.fileName() << " failed. Cause: outFile.write(): " << outZip->getZipError();
+        qDebug() << "压缩文件" << sourceFile.fileName() << "失败，写入压缩包内容出错，zip 错误码:" << outZip->getZipError();
 
         sourceFile.close();
         outZip->close();
@@ -288,7 +288,7 @@ bool IwbDocumentAdaptor::compressFile(const QString &fileName, const QString &pa
 
     if (outZip->getZipError() != UNZ_OK)
     {
-        qWarning() << "Compression of file" << sourceFile.fileName() << " failed. Cause: outFile.close(): " << outZip->getZipError();
+        qWarning() << "压缩文件" << sourceFile.fileName() << "失败，关闭压缩包输出出错，zip 错误码:" << outZip->getZipError();
 
         sourceFile.close();
         outZip->close();
@@ -319,13 +319,13 @@ QString IwbDocumentAdaptor::createNewTmpDir()
             }
             else
             {
-                qDebug() << "Can't create temporary dir maybe due to permissions";
+                qDebug() << "建不出临时目录，可能是权限不够";
                 return QString();
             }
         }
         else if (tmpNumber == 10)
         {
-            qWarning() << "Import failed. Failed to create temporary file ";
+            qWarning() << "导入失败，建不出临时文件";
             return QString();
         }
         tmpNumber++;
@@ -421,16 +421,16 @@ bool IwbDocumentAdaptor::ToIwbConverter::parse()
 {
     if (!isValid())
     {
-        qDebug() << "document metadata is not valid. Can't parse";
+        qDebug() << "文档元数据无效，没法解析";
         return false;
     }
 
-    qDebug() << "begin parsing tbz";
+    qDebug() << "开始解析 tbz";
 
     QFile outFile(contentIWBFileName());
     if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        qDebug() << "can't open output file for writing";
+        qDebug() << "输出文件打不开，写不进去";
         errorStr = "createXMLOutputPatternError";
         return false;
     }
@@ -470,7 +470,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parse()
 
     outFile.close();
 
-    qDebug() << "finished with success";
+    qDebug() << "解析完成";
 
     return true;
 }
@@ -488,8 +488,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseMetadata()
                  mDataModel->setContent(metaDataFile.readAll(), QDomDocument::ParseOption::UseNamespaceProcessing);
         !parseResult)
     {
-        qWarning() << "Error:Parseerroratline" << parseResult.errorLine << ","
-                   << "column" << parseResult.errorColumn << ":" << parseResult.errorMessage;
+        qWarning() << "解析 XML 出错，行:" << parseResult.errorLine << "列:" << parseResult.errorColumn << ":" << parseResult.errorMessage;
         return false;
     }
 
@@ -533,7 +532,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseMetadata()
                     }
                     else
                     {
-                        qDebug() << "can't interpret svg section size";
+                        qDebug() << "读不出 svg 部分的尺寸";
                         errorStr = "InterpretSvgSizeError";
                         return false;
                     }
@@ -564,7 +563,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseContent()
 
     if (!pageList.count())
     {
-        qDebug() << "can't find any content file";
+        qDebug() << "找不到任何内容文件";
         errorStr = "ErrorContentFile";
         return false;
     }
@@ -606,20 +605,19 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseContent()
 
 QDomElement IwbDocumentAdaptor::ToIwbConverter::parsePage(const QString &pageFileName)
 {
-    qDebug() << "begin parsing page" + pageFileName;
+    qDebug() << "开始解析页面：" + pageFileName;
     mSvgElements.clear();
 
     QFile pageFile(sourcePath + "/" + pageFileName);
     if (!pageFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "can't open file" << pageFileName << "for reading";
+        qDebug() << "打不开文件" << pageFileName << "来读取";
         return QDomElement();
     }
     else if (QDomDocument::ParseResult parseResult = mDataModel->setContent(pageFile.readAll(), QDomDocument::ParseOption::UseNamespaceProcessing);
         !parseResult)
     {
-        qWarning() << "Error:Parseerroratline" << parseResult.errorLine << ","
-                   << "column" << parseResult.errorColumn << ":" << parseResult.errorMessage;
+        qWarning() << "解析 XML 出错，行:" << parseResult.errorLine << "列:" << parseResult.errorColumn << ":" << parseResult.errorMessage;
         pageFile.close();
         return QDomElement();
     }
@@ -636,7 +634,7 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parsePage(const QString &pageFil
             page = parseSvgPageSection(nextTopElement);
             if (page.isNull())
             {
-                qDebug() << "The page is empty.";
+                qDebug() << "这一页是空的。";
                 pageFile.close();
                 return QDomElement();
             }
@@ -646,7 +644,7 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parsePage(const QString &pageFil
             group = parseGroupsPageSection(nextTopElement);
             if (group.isNull())
             {
-                qDebug() << "Page doesn't contains any groups.";
+                qDebug() << "这一页里没有任何分组。";
                 pageFile.close();
                 return QDomElement();
             }
@@ -807,7 +805,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::writeExtendedIwbSection()
 {
     if (!mExtendedElements.count())
     {
-        qDebug() << "extended iwb content list is empty";
+        qDebug() << "iwb 扩展内容列表是空的";
         errorStr = "EmptyExtendedIwbSectionContentError";
         return false;
     }
@@ -824,7 +822,7 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parseGroupsPageSection(const QDo
 {
     if (!groupRoot.hasChildNodes())
     {
-        qDebug() << "Group root is empty";
+        qDebug() << "分组根节点是空的";
         return QDomElement();
     }
 
@@ -848,7 +846,7 @@ QDomElement IwbDocumentAdaptor::ToIwbConverter::parseGroupsPageSection(const QDo
         groupElement = groupElement.nextSiblingElement();
     }
 
-    qDebug() << "parsing tbz group section";
+    qDebug() << "解析 tbz 的分组部分";
     return groupRoot;
 }
 
@@ -1124,7 +1122,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::ibwAddLine(int x1, int y1, int x2, int 
 
     if (!bRet)
     {
-        qDebug() << "|error at creating crosses on background";
+        qDebug() << "|创建背景网格出错";
         errorStr = "CreatingCrossedBackgroundParsingError.";
     }
 
@@ -1305,7 +1303,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::setContentFromPageElement(const QDomEle
 
     if (!bRet)
     {
-        qDebug() << "format is not supported by IWB";
+        qDebug() << "IWB 不支持这种格式";
     }
 
     return bRet;
@@ -1584,7 +1582,7 @@ QDomNode IwbDocumentAdaptor::ToIwbConverter::findNodeByTagName(const QDomNode &n
 
 bool IwbDocumentAdaptor::ToIwbConverter::createBackground(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "|creating element background";
+    qDebug() << "|创建元素背景";
 
     QDomDocument doc;
 
@@ -1624,7 +1622,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::createBackground(const QDomElement &ele
     }
     else
     {
-        qDebug() << "|error at creating element background";
+        qDebug() << "|创建元素背景出错";
         errorStr = "CreatingElementBackgroundParsingError.";
         return false;
     }
@@ -1733,11 +1731,11 @@ bool IwbDocumentAdaptor::ToIwbConverter::createPngFromSvg(QString &svgPath, QStr
 
 bool IwbDocumentAdaptor::ToIwbConverter::parseSVGGGroup(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "|parsing g section";
+    qDebug() << "|解析 g 分组部分";
     QDomElement nextElement = element.firstChildElement();
     if (nextElement.isNull())
     {
-        qDebug() << "Empty g element";
+        qDebug() << "g 元素是空的";
         errorStr = "EmptyGSection";
         return false;
     }
@@ -1793,7 +1791,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseSVGGGroup(const QDomElement &eleme
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePageImage(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "|parsing image";
+    qDebug() << "|解析 image 元素";
 
     QDomDocument doc;
 
@@ -1812,7 +1810,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageImage(const QDomElement &eleme
     }
     else
     {
-        qDebug() << "|error at image parsing";
+        qDebug() << "|解析 image 出错";
         errorStr = "ImageParsingError";
         return false;
     }
@@ -1820,7 +1818,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageImage(const QDomElement &eleme
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePageVideo(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "|parsing video";
+    qDebug() << "|解析 video 元素";
 
     QDomDocument doc;
 
@@ -1854,7 +1852,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageVideo(const QDomElement &eleme
     }
     else
     {
-        qDebug() << "|error at video parsing";
+        qDebug() << "|解析 video 出错";
         errorStr = "VideoParsingError";
         return false;
     }
@@ -1862,7 +1860,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageVideo(const QDomElement &eleme
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePageAudio(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "|parsing audio";
+    qDebug() << "|解析 audio 元素";
 
     QDomDocument doc;
 
@@ -1926,7 +1924,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageAudio(const QDomElement &eleme
     }
     else
     {
-        qDebug() << "|error at audio parsing";
+        qDebug() << "|解析 audio 出错";
         errorStr = "AudioParsingError";
         return false;
     }
@@ -1939,7 +1937,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseForeignObject(const QDomElement &e
         return parsePageText(element, dstSvgList);
     }
 
-    qDebug() << "|parsing foreign object";
+    qDebug() << "|解析 foreign object 元素";
 
     QDomDocument doc;
 
@@ -1957,7 +1955,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseForeignObject(const QDomElement &e
     }
     else
     {
-        qDebug() << "|error at parsing foreign object";
+        qDebug() << "|解析 foreign object 出错";
         errorStr = "ForeignObjectParsingError";
         return false;
     }
@@ -1965,7 +1963,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parseForeignObject(const QDomElement &e
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePageText(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "|parsing text";
+    qDebug() << "|解析 text 元素";
 
     QDomDocument doc;
 
@@ -2013,7 +2011,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageText(const QDomElement &elemen
     }
     else
     {
-        qDebug() << "|error at text parsing";
+        qDebug() << "|解析 text 出错";
         errorStr = "TextParsingError";
         return false;
     }
@@ -2021,7 +2019,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageText(const QDomElement &elemen
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolygon(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "||parsing polygon";
+    qDebug() << "||解析 polygon 元素";
 
     QDomDocument doc;
 
@@ -2050,7 +2048,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolygon(const QDomElement &ele
     }
     else
     {
-        qDebug() << "||error at parsing polygon";
+        qDebug() << "||解析 polygon 出错";
         errorStr = "PolygonParsingError";
         return false;
     }
@@ -2058,7 +2056,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolygon(const QDomElement &ele
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolyline(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "||parsing polyline";
+    qDebug() << "||解析 polyline 元素";
     QDomElement resElement;
 
     QDomDocument doc;
@@ -2089,7 +2087,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolyline(const QDomElement &el
     }
     else
     {
-        qDebug() << "||error at parsing polygon";
+        qDebug() << "||解析 polygon 出错";
         errorStr = "PolylineParsingError";
         return false;
     }
@@ -2097,7 +2095,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePagePolyline(const QDomElement &el
 
 bool IwbDocumentAdaptor::ToIwbConverter::parsePageLine(const QDomElement &element, QMultiMap<int, QDomElement> &dstSvgList)
 {
-    qDebug() << "||parsing line";
+    qDebug() << "||解析 line 元素";
     QDomElement  resElement;
     QDomDocument doc;
 
@@ -2120,7 +2118,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::parsePageLine(const QDomElement &elemen
     }
     else
     {
-        qDebug() << "||error at parsing polygon";
+        qDebug() << "||解析 polygon 出错";
         errorStr = "LineParsingError";
         return false;
     }
@@ -2164,7 +2162,7 @@ bool IwbDocumentAdaptor::ToIwbConverter::isValid() const
 
     if (!result)
     {
-        qDebug() << "specified data is not valid";
+        qDebug() << "传进来的数据无效";
         errorStr = "ValidateDataError";
     }
 

@@ -150,7 +150,7 @@ void Application::setupTranslators(const QStringList &args)
         languages->setLanguage(QStringLiteral("en"));
     }
 
-    qDebug() << "Running application in:" << languages->currentLanguage();
+    qDebug() << "应用现在用的语言:" << languages->currentLanguage();
 }
 
 int Application::exec(const QString &pFileToImport)
@@ -551,15 +551,15 @@ bool Application::eventFilter(QObject *obj, QEvent *event)
 
 bool Application::handleOpenMessage(const QString &pMessage)
 {
-    qDebug() << "received message" << pMessage;
+    qDebug() << "收到另一个实例发来的消息:" << pMessage;
 
     if (pMessage == Settings::appPingMessage)
     {
-        qDebug() << "received ping";
+        qDebug() << "收到另一个实例的 ping";
         return true;
     }
 
-    qDebug() << "importing file" << pMessage;
+    qDebug() << "正在导入文件:" << pMessage;
 
     Application::applicationController->importFile(pMessage);
 

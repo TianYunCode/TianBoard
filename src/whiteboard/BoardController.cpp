@@ -967,7 +967,7 @@ void BoardController::lastScene()
 void BoardController::downloadURL(
     const QUrl &url, QString contentSourceUrl, const QPointF &pPos, const QSize &pSize, bool isBackground, bool internalData)
 {
-    qDebug() << "something has been dropped on the board! Url is: " << url.toString();
+    qDebug() << "有内容被放到白板上，地址:" << url.toString();
     QString sUrl                       = url.toString();
 
     QGraphicsItem *oldBackgroundObject = NULL;
@@ -1080,7 +1080,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
 
     if (MimeType::RasterImage == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "as raster image";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按位图图像接收";
 
         QPixmap pix;
         if (pData.length() == 0)
@@ -1111,12 +1111,12 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::VectorImage == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "as vecto image";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按矢量图像接收";
 
         GraphicsSvgItem *svgItem = mActiveScene->addSvg(sourceUrl, pPos, pData);
         if (!svgItem)
         {
-            qWarning() << "cannot store embedded svg content, dropping it";
+            qWarning() << "内嵌的 SVG 内容存不下来，只能丢弃";
             return nullptr;
         }
         svgItem->setSourceUrl(sourceUrl);
@@ -1135,7 +1135,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::AppleWidget == itemMimeType) // mime type invented by us :-(
     {
-        qDebug() << "accepting mime type" << mimeType << "as Apple widget";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按 Apple 小部件接收";
 
         QUrl widgetUrl = sourceUrl;
 
@@ -1161,7 +1161,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::WebWidget == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "as W3C widget";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按 W3C 小部件接收";
         QUrl widgetUrl = sourceUrl;
 
         if (pData.length() > 0)
@@ -1184,7 +1184,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::Video == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "as video";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按视频接收";
 
         GraphicsMediaItem *mediaVideoItem = 0;
         QUuid              uuid           = QUuid::createUuid();
@@ -1229,7 +1229,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::Audio == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "as audio";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按音频接收";
 
         GraphicsMediaItem *audioMediaItem = 0;
 
@@ -1274,8 +1274,8 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::PDF == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "as PDF";
-        qDebug() << "pdf data length: " << pData.size();
+        qDebug() << "接受 MIME 类型" << mimeType << "，按 PDF 接收";
+        qDebug() << "PDF 数据长度:" << pData.size();
         qDebug() << "sourceurl : " + sourceUrl.toString();
         int result = 0;
         if (!sourceUrl.isEmpty())
@@ -1304,7 +1304,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (MimeType::NativeTool == itemMimeType)
     {
-        qDebug() << "accepting mime type" << mimeType << "TianBoard Tool";
+        qDebug() << "接受 MIME 类型" << mimeType << "，按 TianBoard 内置工具接收";
 
         if (sourceUrl.toString() == ToolsManager::manager()->compass.id)
         {
@@ -1358,7 +1358,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     }
     else if (sourceUrl.toString().contains("edumedia-sciences.com"))
     {
-        qDebug() << "accepting url " << sourceUrl.toString() << "as eduMedia content";
+        qDebug() << "接受这个地址:" << sourceUrl.toString() << "，按 eduMedia 内容接收";
 
         QTemporaryFile eduMediaZipFile("XXXXXX.edumedia");
         if (eduMediaZipFile.open())
@@ -1413,7 +1413,7 @@ Item *BoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl cont
     else
     {
         showMessage(tr("Unknown content type %1").arg(pContentTypeHeader));
-        qWarning() << "ignoring mime type" << pContentTypeHeader;
+        qWarning() << "不予处理 MIME 类型:" << pContentTypeHeader;
     }
 
     return NULL;

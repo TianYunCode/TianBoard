@@ -97,7 +97,7 @@ void ScreenMirror::setSourceRect(const QRect &pRect)
 
 void ScreenMirror::start()
 {
-    qDebug() << "mirroring START";
+    qDebug() << "镜像开始";
     // 镜像期间冻结网页控件，避免每帧抓屏都触发网页重绘而拖慢整体帧率。
     BoardController::instance()->freezeWebWidgets(true);
     if (d->timerID == 0)
@@ -117,13 +117,13 @@ void ScreenMirror::start()
     }
     else
     {
-        qDebug() << "ScreenMirror::start() : Timer already running ...";
+        qDebug() << "ScreenMirror::start()：定时器已经在跑…";
     }
 }
 
 void ScreenMirror::stop()
 {
-    qDebug() << "mirroring STOP";
+    qDebug() << "镜像停止";
     BoardController::instance()->freezeWebWidgets(false);
     if (d->timerID != 0)
     {

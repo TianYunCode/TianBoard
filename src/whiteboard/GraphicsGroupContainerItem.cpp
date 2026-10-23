@@ -34,12 +34,12 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
 {
     if (!item)
     {
-        qWarning("GraphicsGroupContainerItem::addToGroup: cannot add null item");
+        qWarning("GraphicsGroupContainerItem::addToGroup: 加不了空图元");
         return;
     }
     if (item == this)
     {
-        qWarning("GraphicsGroupContainerItem::addToGroup: cannot add a group to itself");
+        qWarning("GraphicsGroupContainerItem::addToGroup: 不能把组合加进它自己");
         return;
     }
 
@@ -78,8 +78,8 @@ void GraphicsGroupContainerItem::addToGroup(QGraphicsItem *item)
 
     if (!ok)
     {
-        qWarning("GraphicsGroupContainerItem::addToGroup: could not find a valid transformation from item to "
-                 "group coordinates");
+        qWarning("GraphicsGroupContainerItem::addToGroup: 求不出图元到"
+                 "组合坐标系的有效变换");
         return;
     }
 
@@ -136,7 +136,7 @@ void GraphicsGroupContainerItem::removeFromGroup(QGraphicsItem *item)
 {
     if (!item)
     {
-        qDebug() << "can't specify the item because of the null pointer";
+        qDebug() << "传进来的图元是空指针，无法移出组合";
         return;
     }
 
@@ -323,7 +323,7 @@ void GraphicsGroupContainerItem::pRemoveFromGroup(QGraphicsItem *item)
 {
     if (!item)
     {
-        qWarning("QGraphicsItemGroup::removeFromGroup: cannot remove null item");
+        qWarning("QGraphicsItemGroup::removeFromGroup: 移不出空图元");
         return;
     }
 

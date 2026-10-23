@@ -1261,7 +1261,7 @@ ThumbnailUI::ThumbnailUIIcon *ThumbnailUI::addIcon(const QString &thumbnailIcon,
     using namespace ThumbnailUI::_private;
     if (!newIcon)
     {
-        qDebug() << "cannot add Icon : check path : " + thumbnailIconPath;
+        qDebug() << "加不上图标，检查这个路径:" + thumbnailIconPath;
     }
     else
     {
@@ -1276,7 +1276,7 @@ ThumbnailUI::ThumbnailUIIcon *ThumbnailUI::getIcon(const QString &thumbnailIcon)
     using namespace ThumbnailUI::_private;
     if (!catalog.contains(thumbnailIcon))
     {
-        qDebug() << "cannot get Icon: check path ':images/" + thumbnailIcon + ".svg'";
+        qDebug() << "取不到图标，检查这个路径 ':images/" + thumbnailIcon + ".svg'";
     }
 
     return catalog.value(thumbnailIcon, NULL);

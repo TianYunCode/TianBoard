@@ -36,7 +36,7 @@ ToolWidget::ToolWidget(const QUrl &pUrl, QWidget *pParent) : QWidget(pParent, Qt
     }
     else
     {
-        qDebug() << "ToolWidget::ToolWidget: Unknown widget Type";
+        qDebug() << "ToolWidget::ToolWidget: 不认识的小部件种类";
     }
 
     initialize();

@@ -46,7 +46,7 @@ bool ExportPDF::persistsDocument(DocumentProxy *pDocumentProxy, const QString &f
 {
     QPdfWriter pdfWriter(filename);
 
-    qDebug() << "exporting document to PDF" << filename;
+    qDebug() << "把文档导出成 PDF，目标文件:" << filename;
 
     pdfWriter.setResolution(Settings::settings()->pdfResolution->get().toInt());
     pdfWriter.setPageMargins(QMarginsF());

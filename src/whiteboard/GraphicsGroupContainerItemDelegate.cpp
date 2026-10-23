@@ -83,6 +83,6 @@ bool GraphicsGroupContainerItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEv
 
 void GraphicsGroupContainerItemDelegate::destroyGroup()
 {
-    qDebug() << "Destroying group";
+    qDebug() << "开始销毁整个组合";
     delegated()->destroy();
 }

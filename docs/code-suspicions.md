@@ -549,7 +549,7 @@ SVG 原始字节做指纹；把写出器那条"缺文件就补写"临时短路�
 
 同批把日志串里带上游错字与粗话的 22 处换成中文（`an error ocured`、`for wrighting`、
 `starting converion`、`embeded`、`cannot make sens of`、`Who the hell are you ?` 等）；
-其余约 200 条英文日志没有错字，只是与新增代码的中文日志不一致，要不要整体统一是单独的决定。
+其余英文日志没有错字，只是与新增代码的中文日志不一致——2026-10-23 用户定了"整体统一"：按语句实测 342 条（先前那句"约 200 条"是估的，作废），其中 307 条换成中文、35 条按口径保留标签，细节见下面那节。
 
 ### 2026-10-22：第 19 条自检（剪贴板端到端）又抓出两处
 
@@ -884,3 +884,37 @@ Debug 下这是一条断言；**Release 下 Q_ASSERT 整个不参与编译，那
 因此这条自检暂时**没有**第 4 步（`deleteDocumentsInFolderOlderThan` 按天数清理）与"树里不该再留着已删
 文档的行"这条判据：它们都要在删除之后再走一次这棵树，会把整个用例变成一次崩溃而不是一个可比较的退出码。
 测试代码里留了话说明为什么。修好根因之后这两条要一起补回来——那时它们才量得动。
+
+
+### 2026-10-23：日志串语言统一做完（实测 342 条，不是先前估的约 200 条）
+
+口径先立清楚，免得下次各自理解：
+
+- 只改 `qDebug/qWarning/qInfo/qCritical` 的字符串实参。`tr()` 的源文本一个字不动（那是要进翻译
+  目录的 UI 文案）；写进盘上或协议里的字符串一个字不动（XML 标签与属性名、命名空间、MIME、
+  `images`/`objects`/`widgets`/`videos`/`audios`/`files`、`folders.xml`、配置键）。**这条口径是机器
+  核对过的**：一次性脚本 `check_ui_strings.py` 把每个改过的文件与 `git show HEAD:<file>` 对照，抽出
+  全部 `tr(...)` 字面量、以及"没有空格且含 `./:+%` 的串"逐个比，任何一条消失就报非零——所有改过的
+  文件都是 0 problems 才提交。
+- **"标签 + 值"的转储保留原样，共 35 条**：14 个自检的 `--xxx-selftest:` 前缀、
+  `SceneCache::dumpCacheContent:`、`mRecordingPath:`、`userDocumentDirectory()`、
+  `FeaturesWidget.cpp:1224` 那串 `str1..str4`、`qDebug("JavaScript> %s (%s:%d)")`。它们不是英文散文，
+  翻成中文只会让以后按标签 grep 的人找不到东西。计数脚本 `count_english_logs.py`（一次性，在 `%TEMP%`）
+  数的就是"还带英文散文的日志语句"，做完之后从 342 降到 35，且这 35 条全在上面的口径里。
+- 被 `<<` 拆成几段的英文句子按中文语序重排，不留"中文 变量 中文"的直译拼接。
+
+跟着修掉两处**日志在说谎**：`GraphicsItemDelegate.cpp:1403/1408` 打的是 `QLCDNumber::setNumDigits`，
+可这个类是 `MediaTimer : public QGraphicsRectItem`，跟 QLCDNumber 没有继承关系（抄 Qt 源码留下的名字）；
+`Settings.cpp:966` 创建**音频**目录失败却报 "failed to create image directory"（同文件里图片目录那条
+才是它）。
+
+也记一条**看着像谎话其实不是**的，免得下次被"顺手修好"：`ImportDocument.cpp:69` 那类
+`if (file.getZipError() != UNZ_OK) { qWarning() << "……取条目名出错" }`——条件确实是 `getZipError`，
+但紧跟着的下一句就是 `file.getActualFileName()`，这是"报下一步要做的事"的写法，不是把守卫条件说错了。
+
+分工与复核：`src/whiteboard`(63 条) 与 `src/content`(141 条) 各派一个只改文字的后台代理并行做（不许
+构建、不许碰 git、不许出各自目录），其余 103 条我自己改。两个代理的产物我逐条复核：`git diff --numstat`
+（whiteboard +65/-69、content +144/-147——差的那几行是把 clang-format 拆开的相邻字面量并回一行）、
+`check_ui_strings.py` 全部 0 problems、再全量构建 + 六道门禁 + `/W4`。代理报回 10 条"日志说谎"，只有
+上面那两处成立，其余按"报下一步要做的事"这条理由判为不成立——**代理的结论要复核，也包括它说"没问题"
+的部分**。

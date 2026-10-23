@@ -199,7 +199,7 @@ void FeaturesWidget::currentSelected(const QModelIndex &current)
 {
     if (!current.isValid())
     {
-        qWarning() << "SLOT:currentSelected, invalid index catched";
+        qWarning() << "currentSelected 槽：抓到非法索引";
         return;
     }
 
@@ -207,7 +207,7 @@ void FeaturesWidget::currentSelected(const QModelIndex &current)
 
     if (objName.isEmpty())
     {
-        qWarning() << "incorrect sender";
+        qDebug() << "发送者不对";
     }
     else if (objName == objNamePathList)
     {
@@ -738,8 +738,7 @@ void FeaturesCentralWidget::showAdditionalData(AddWidget pWidgetType, AddWidgetS
 {
     if (!d->mAdditionalDataContainer->widget(pWidgetType))
     {
-        qDebug() << "can't find widget specified by FeaturesCentralWidget::showAdditionalData(AddWidget "
-                    "pWidgetType, AddWidgetState pState)";
+        qDebug() << "找不到 showAdditionalData(AddWidget pWidgetType, AddWidgetState pState) 指定的那个控件";
         return;
     }
 
@@ -1237,7 +1236,7 @@ void FeatureProperties::onSetAsBackground()
     FeaturesWidget *featuresWidget = qobject_cast<FeaturesWidget *>(w);
     if (!featuresWidget)
     {
-        qWarning() << "FeatureProperties is not nested under FeaturesWidget; ignoring background request";
+        qWarning() << "FeatureProperties 不在 FeaturesWidget 之下，这个背景色请求被忽略";
         return;
     }
     featuresWidget->getFeaturesController()->addItemAsBackground(*d->mpElement);
@@ -1369,7 +1368,7 @@ bool FeaturesModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
         QList<QUrl> urlList = mimeData->urls();
         foreach (QUrl curUrl, urlList)
         {
-            qDebug() << "URl catched is " << curUrl.toLocalFile();
+            qDebug() << "抓到的 URL 是:" << curUrl.toLocalFile();
             curController->moveExternalData(curUrl, parentFeature);
         }
     }
@@ -1419,7 +1418,7 @@ void FeaturesModel::deleteItem(const Feature &feature)
     int i = d->featuresList->indexOf(feature);
     if (i == -1)
     {
-        qDebug() << "library item vanished while deleting";
+        qDebug() << "删除过程中这个库条目已经不见了";
         return;
     }
     removeRow(i, QModelIndex());
@@ -1473,7 +1472,7 @@ void FeaturesModel::moveData(const Feature &source, const Feature &destination, 
 
     if (sourceType == FEATURE_INTERNAL)
     {
-        qWarning() << "Built-in tools cannot be moved";
+        qWarning() << "内置工具不能被移动";
         return;
     }
 

@@ -588,7 +588,7 @@ void TabDockPalette::paintEvent(QPaintEvent *)
     int nTabs = d->dock->d->mTabWidgets.size();
     if (nTabs <= 0)
     {
-        qDebug() << "not enough tabs";
+        qDebug() << "页签数量不够";
         return;
     }
 
@@ -703,7 +703,7 @@ void TabDockPalette::mouseMoveEvent(QMouseEvent *event)
         // 标签条可浮动时，纵向大幅移动按平移标签处理。
         if (qAbs(d->dock->d->mMousePressPos.y() - p.y()) > 10 && d->mFlotable)
         {
-            qDebug() << "y differences" << d->dock->d->mMousePressPos.y() << p.y();
+            qDebug() << "Y 方向差值:" << d->dock->d->mMousePressPos.y() << p.y();
             d->mVerticalOffset += p.y() - d->dock->d->mMousePressPos.y();
             move(this->pos().x(), p.y());
         }

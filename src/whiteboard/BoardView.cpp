@@ -1531,11 +1531,11 @@ void BoardView::forcedTabletRelease()
 {
     if (d->mMouseButtonIsPressed || d->mTabletStylusIsPressed || d->mPendingStylusReleaseEvent)
     {
-        qDebug() << "dirty mouse/tablet state:";
+        qDebug() << "鼠标/数位板的状态没复位:";
         qDebug() << "mMouseButtonIsPressed =" << d->mMouseButtonIsPressed;
         qDebug() << "mTabletStylusIsPressed = " << d->mTabletStylusIsPressed;
         qDebug() << "mPendingStylusReleaseEvent" << d->mPendingStylusReleaseEvent;
-        qDebug() << "forcing device release";
+        qDebug() << "强制设备抬起";
 
         scene()->inputDeviceRelease();
 

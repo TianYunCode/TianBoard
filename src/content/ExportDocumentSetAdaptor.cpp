@@ -31,7 +31,7 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QMod
         treeViewParentIndex = treeModel->indexForProxy(pDocumentProxy);
         if (!treeViewParentIndex.isValid())
         {
-            qDebug() << "failed to export";
+            qDebug() << "导出失败";
             UserNotices::presentStatusMessage(tr("Failed to export..."));
             return;
         }
@@ -42,7 +42,7 @@ void ExportDocumentSetAdaptor::persist(DocumentProxy *pDocumentProxy, const QMod
         treeViewParentIndex = selectedTreeIndex;
         if (!treeViewParentIndex.isValid())
         {
-            qDebug() << "failed to export";
+            qDebug() << "导出失败";
             UserNotices::presentStatusMessage(tr("Failed to export..."));
             return;
         }
@@ -98,7 +98,7 @@ bool ExportDocumentSetAdaptor::persistData(const QModelIndex &pRootIndex, QStrin
 
     if (!zip.open(QuaZip::mdCreate))
     {
-        qWarning("Export failed. Cause: zip.open(): %d", zip.getZipError());
+        qWarning("导出失败，压缩包打不开，zip 错误码: %d", zip.getZipError());
         return false;
     }
 
@@ -143,7 +143,7 @@ bool ExportDocumentSetAdaptor::addDocumentToZip(const QModelIndex &pIndex, Docum
 
         if (zip.getZipError() != 0)
         {
-            qWarning("Export failed. Cause: zip.close(): %d", zip.getZipError());
+            qWarning("导出失败，关闭压缩包出错，zip 错误码: %d", zip.getZipError());
         }
     }
 

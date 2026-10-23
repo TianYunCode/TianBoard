@@ -121,7 +121,7 @@ QDomDocument SvgSubsetAdaptor::loadSceneDocument(DocumentProxy *proxy, const int
     {
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "Cannot open file " << fileName << " for reading ...";
+            qWarning() << "打不开文件" << fileName << "来读取";
             return doc;
         }
 
@@ -148,21 +148,21 @@ void SvgSubsetAdaptor::setSceneUuid(DocumentProxy *proxy, const int pageIndex, Q
     int         uuidIndex  = xmlContent.indexOf("uuid");
     if (-1 == uuidIndex)
     {
-        qWarning() << "Cannot read UUID from file" << fileName << "to set new UUID";
+        qWarning() << "读不出文件里的 UUID：" << fileName << "，没法写入新 UUID";
         file.close();
         return;
     }
     int quoteStartIndex = xmlContent.indexOf('"', uuidIndex);
     if (-1 == quoteStartIndex)
     {
-        qWarning() << "Cannot read UUID from file" << fileName << "to set new UUID";
+        qWarning() << "读不出文件里的 UUID：" << fileName << "，没法写入新 UUID";
         file.close();
         return;
     }
     int quoteEndIndex = xmlContent.indexOf('"', quoteStartIndex + 1);
     if (-1 == quoteEndIndex)
     {
-        qWarning() << "Cannot read UUID from file" << fileName << "to set new UUID";
+        qWarning() << "读不出文件里的 UUID：" << fileName << "，没法写入新 UUID";
         file.close();
         return;
     }
@@ -181,7 +181,7 @@ void SvgSubsetAdaptor::setSceneUuid(DocumentProxy *proxy, const int pageIndex, Q
     }
     else
     {
-        qWarning() << "Cannot open file" << fileName << "to write UUID";
+        qWarning() << "打不开文件" << fileName << "来写入 UUID";
     }
 }
 
@@ -195,7 +195,7 @@ GraphicsScene *SvgSubsetAdaptor::loadScene(DocumentProxy *proxy, const int pageI
     {
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "Cannot open file " << fileName << " for reading ...";
+            qWarning() << "打不开文件" << fileName << "来读取";
             return 0;
         }
 
@@ -219,7 +219,7 @@ QByteArray SvgSubsetAdaptor::loadSceneAsText(DocumentProxy *proxy, const int pag
     {
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "Cannot open file " << fileName << " for reading ...";
+            qWarning() << "打不开文件" << fileName << "来读取";
             return "";
         }
 
@@ -242,7 +242,7 @@ QUuid SvgSubsetAdaptor::sceneUuid(DocumentProxy *proxy, const int pageIndex)
     {
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "Cannot open file " << fileName << " for reading ...";
+            qWarning() << "打不开文件" << fileName << "来读取";
             return QUuid();
         }
 
@@ -290,7 +290,7 @@ SvgSubsetAdaptor::SvgSubsetReader::SvgSubsetReader(DocumentProxy *pProxy, const 
 
 GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy)
 {
-    qDebug() << "loadScene() : starting reading...";
+    qDebug() << "loadScene()：开始读取";
     QElapsedTimer time;
     time.start();
     mScene                               = 0;
@@ -676,7 +676,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                     }
                     else
                     {
-                        qWarning() << "don't know what to do with href value " << href;
+                        qWarning() << "这个 href 值不认得，不知道怎么处理:" << href;
                     }
                 }
             }
@@ -882,7 +882,7 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
                 }
                 else
                 {
-                    qWarning() << "Ignoring unknown foreignObject:" << href;
+                    qWarning() << "跳过不认识的 foreignObject:" << href;
                 }
             }
             else if (currentWidget && (mXmlReader.name() == "preference"))
@@ -924,10 +924,10 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
 
     if (mXmlReader.hasError())
     {
-        qWarning() << "error parsing file " << mXmlReader.errorString();
+        qWarning() << "解析文件出错：" << mXmlReader.errorString();
     }
 
-    qDebug() << "Number of detected strokes: " << mStrokesList.count();
+    qDebug() << "识别到的笔画数:" << mStrokesList.count();
     QHashIterator<QString, GraphicsStrokesGroup *> iterator(mStrokesList);
     while (iterator.hasNext())
     {
@@ -941,8 +941,8 @@ GraphicsScene *SvgSubsetAdaptor::SvgSubsetReader::loadScene(DocumentProxy *proxy
         mScene->enableUndoRedoStack();
     }
 
-    qDebug() << "loadScene() : created scene and read file";
-    qDebug() << "spent milliseconds: " << time.elapsed();
+    qDebug() << "loadScene()：场景已建好，文件也读完了";
+    qDebug() << "耗时毫秒:" << time.elapsed();
     return mScene;
 }
 
@@ -1243,7 +1243,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
                             mXmlWriter.writeAttribute("transform", toSvgTransform(matrix));
                         }
 
-                        qDebug() << "Attributes written";
+                        qDebug() << "属性已写入";
 
                         groupHoldsInfo = true;
                     }
@@ -1450,7 +1450,7 @@ bool SvgSubsetAdaptor::SvgSubsetWriter::persistScene(DocumentProxy *proxy, int p
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
-        qCritical() << "cannot open " << fileName << " for writing ...";
+        qCritical() << "文件打不开：" << fileName << "来写入";
         return false;
     }
     file.write(buffer.data());
@@ -2165,7 +2165,7 @@ GraphicsPDFItem *SvgSubsetAdaptor::SvgSubsetReader::pdfItemFromPDF()
     QStringList parts        = href.split("#page=");
     if (parts.count() != 2)
     {
-        qWarning() << "invalid pdf href value" << href;
+        qWarning() << "pdf 的 href 值无效:" << href;
         return 0;
     }
 
@@ -2746,12 +2746,12 @@ GraphicsTextItem *SvgSubsetAdaptor::SvgSubsetReader::textItemFromSvg()
                     {
                         qreal pixelsPerPoint = textItem->pixelsPerPoint();
 
-                        qDebug() << "Pixels per point: original/current" << originalPixelsPerPoint << "/" << pixelsPerPoint;
+                        qDebug() << "每点像素数，原始/当前:" << originalPixelsPerPoint << "/" << pixelsPerPoint;
                         qreal ratio = originalPixelsPerPoint / pixelsPerPoint;
 
                         if (ratio != 1)
                         {
-                            qDebug() << "Scaling text by " << ratio;
+                            qDebug() << "文字缩放系数:" << ratio;
                             GraphicsTextItemDelegate *textDelegate = dynamic_cast<GraphicsTextItemDelegate *>(textItem->Delegate());
                             if (textDelegate)
                             {

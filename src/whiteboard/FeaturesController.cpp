@@ -217,7 +217,7 @@ QString Feature::getNameFromVirtualPath(const QString &pVirtPath)
     }
     else
     {
-        qDebug() << "Feature: incorrect virtual path parameter specified";
+        qDebug() << "Feature: 传进来的虚拟路径参数不对";
     }
 
     return result;
@@ -233,7 +233,7 @@ QString Feature::getVirtualDirFromVirtualPath(const QString &pVirtPath)
     }
     else
     {
-        qDebug() << "Feature: incorrect virtual path parameter specified";
+        qDebug() << "Feature: 传进来的虚拟路径参数不对";
     }
 
     return result;
@@ -484,7 +484,7 @@ QString FeaturesController::uniqNameForFeature(const Feature &feature, const QSt
     QString     parentVirtualPath = feature.getFullVirtualPath();
     QString     resultName;
 
-    qDebug() << "start";
+    qDebug() << "开始为目标条目生成不冲突的名称";
     foreach (Feature curFeature, *featuresList)
     {
         if (curFeature.getFullVirtualPath().startsWith(feature.getFullVirtualPath()))
@@ -532,7 +532,7 @@ QString FeaturesController::uniqNameForFeature(const Feature &feature, const QSt
             }
         }
     }
-    qDebug() << "result name is " << resultName;
+    qDebug() << "最终定下来的名称:" << resultName;
 
     return resultName;
 }
@@ -795,7 +795,7 @@ QStringList FeaturesController::getFileNamesInFolders()
         QModelIndex ind = curListModel->index(i, 0);
         if (!ind.isValid())
         {
-            qDebug() << "incorrect model index catched";
+            qDebug() << "碰到了无效的模型索引";
             continue;
         }
         Feature curFeature = curListModel->data(ind, Qt::UserRole + 1).value<Feature>();
@@ -1100,7 +1100,7 @@ void FeaturesController::deleteItem(const QUrl &url)
         {
             if (!FileSystemUtils::deleteDir(thumbnailPath))
             {
-                qDebug() << "Not able to delete directory";
+                qDebug() << "缩略图目录删不掉";
             }
         }
     }

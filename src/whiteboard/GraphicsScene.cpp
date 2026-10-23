@@ -81,7 +81,7 @@ qreal ZLayerController::generateZLevel(itemLayerType::Enum key)
 {
     if (!scopeMap.contains(key))
     {
-        qDebug() << "Number is out of layer scope";
+        qDebug() << "图层种类不在已登记的区间里";
         return errorNumber;
     }
 
@@ -95,7 +95,7 @@ qreal ZLayerController::generateZLevel(itemLayerType::Enum key)
         // 只有区间上下限不重合（即该层能容纳多个值）时，用尽才值得告警
         if (scopeMap.value(key).topLimit != scopeMap.value(key).bottomLimit)
         {
-            qDebug() << "new values are over for the scope" << key;
+            qDebug() << "这一层的 Z 值区间已经用尽:" << key;
         }
         result = top - incrementalStep;
     }
@@ -122,7 +122,7 @@ qreal ZLayerController::changeZLevelTo(QGraphicsItem *item, moveDestination dest
     itemLayerType::Enum curItemLayerType = typeForData(item);
     if (curItemLayerType == itemLayerType::NoLayer)
     {
-        qDebug() << "item's layer is out of the scope. Can't implement z-layer changing operation";
+        qDebug() << "这个图元没有可用的图层区间，改不了 Z 图层";
         return errorNum();
     }
 
@@ -142,7 +142,7 @@ qreal ZLayerController::changeZLevelTo(QGraphicsItem *item, moveDestination dest
     // 层里只有它自己时无事可做，直接返回其自身 Z 值
     if (sortedItems.count() == 1 && sortedItems.values().first() == item)
     {
-        qDebug() << "only one item exists in layer. Have nothing to change";
+        qDebug() << "这一层只有它一个图元，没什么可换的";
         return item->data(GraphicsItemData::ItemOwnZValue).toReal();
     }
 
@@ -370,8 +370,8 @@ bool GraphicsScene::inputDevicePress(const QPointF &scenePos, const qreal &press
 
     if (mInputDeviceIsPressed)
     {
-        qDebug() << "scene received input device pressed, without input device release, muting event as "
-                    "input device move";
+        qDebug() << "场景还没收到抬起就又收到了按下，"
+                    "把这个事件当成移动处理";
         accepted = inputDeviceMove(scenePos, pressure);
     }
     else
@@ -1734,7 +1734,7 @@ GraphicsWidgetItem *GraphicsScene::addWidget(const QUrl &pWidgetUrl, const QPoin
     }
     else
     {
-        qDebug() << "GraphicsScene::addWidget: Unknown widget Type";
+        qDebug() << "GraphicsScene::addWidget: 不认识的小部件种类";
         return 0;
     }
 }
@@ -1800,7 +1800,7 @@ GraphicsGroupContainerItem *GraphicsScene::createGroup(QList<QGraphicsItem *> it
         if (!item)
         {
             // 调用方可能按 UUID 找图元，找不到就是 0；这里必须挡住，否则下面 item->type() 直接崩。
-            qWarning() << "createGroup: ignoring a null member item";
+            qWarning() << "createGroup: 成员里有空图元，跳过它";
             continue;
         }
 

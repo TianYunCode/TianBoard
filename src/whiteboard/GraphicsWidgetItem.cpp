@@ -866,7 +866,7 @@ QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(
         {
             if (!FileSystemUtils::deleteDir(widgetLibraryDir.path()))
             {
-                qWarning() << "Cannot delete old widget " << widgetLibraryDir.path();
+                qWarning() << "旧的小部件删不掉:" << widgetLibraryDir.path();
             }
         }
 
@@ -883,7 +883,7 @@ QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(
 
         if (!configFile.open(QIODevice::WriteOnly))
         {
-            qWarning() << "Cannot open file " << configFile.fileName();
+            qWarning() << "小部件包里的文件打不开，写不进去:" << configFile.fileName();
             return QString();
         }
 
@@ -897,7 +897,7 @@ QString GraphicsWebWidgetItem::createNPAPIWrapperInDir(
 
         if (!indexFile.open(QIODevice::WriteOnly))
         {
-            qWarning() << "Cannot open file " << indexFile.fileName();
+            qWarning() << "小部件包里的文件打不开，写不进去:" << indexFile.fileName();
             return QString();
         }
 
@@ -935,7 +935,7 @@ QString GraphicsWebWidgetItem::createHtmlWrapperInDir(const QString &html, const
 
     if (!configFile.open(QIODevice::WriteOnly))
     {
-        qWarning() << "Cannot open file " << configFile.fileName();
+        qWarning() << "小部件包里的文件打不开，写不进去:" << configFile.fileName();
         return "";
     }
 
@@ -967,7 +967,7 @@ QString GraphicsWebWidgetItem::createHtmlWrapperInDir(const QString &html, const
     }
     if (!widgetHtmlFile.open(QIODevice::WriteOnly))
     {
-        qWarning() << "cannot open file " << widgetHtmlFile.fileName();
+        qWarning() << "小部件入口 HTML 打不开，写不进去:" << widgetHtmlFile.fileName();
         return QString();
     }
 
@@ -999,7 +999,7 @@ QString GraphicsWebWidgetItem::freezedWidgetPage()
         QFile   wrapperFile(freezedWidgetDefaultContentFilePath);
         if (!wrapperFile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            qDebug() << "can't open wrapper file " + freezedWidgetDefaultContentFilePath;
+            qDebug() << "打不开冻结小部件的默认内容文件:" + freezedWidgetDefaultContentFilePath;
             defaultcontent = "";
         }
         else
@@ -1011,7 +1011,7 @@ QString GraphicsWebWidgetItem::freezedWidgetPage()
             }
             else
             {
-                qDebug() << "content of " + freezedWidgetDefaultContentFilePath + "is empty";
+                qDebug() << "这个冻结小部件的默认内容文件是空的:" + freezedWidgetDefaultContentFilePath + "，只能退回空内容";
                 defaultcontent = QString();
             }
         }

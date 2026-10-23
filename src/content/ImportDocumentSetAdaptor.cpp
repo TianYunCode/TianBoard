@@ -81,7 +81,7 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
 
     if (!zip.open(QuaZip::mdUnzip))
     {
-        qWarning() << "Import failed. Cause zip.open(): " << zip.getZipError();
+        qWarning() << "导入失败，压缩包打不开，zip 错误码:" << zip.getZipError();
         return false;
     }
 
@@ -97,19 +97,19 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
     {
         if (!zip.getCurrentFileInfo(&info))
         {
-            qWarning() << "Import failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
+            qWarning() << "导入失败，读不到当前条目信息，zip 错误码:" << zip.getZipError();
             return false;
         }
 
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "Import failed. Cause: file.open(): " << zip.getZipError();
+            qWarning() << "导入失败，压缩包里的文件打不开，zip 错误码:" << zip.getZipError();
             return false;
         }
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: file.getFileName(): " << zip.getZipError();
+            qWarning() << "导入失败，取条目名出错，zip 错误码:" << zip.getZipError();
             return false;
         }
 
@@ -130,7 +130,7 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
         QByteArray outFileContent = file.readAll();
         if (out.write(outFileContent) == -1)
         {
-            qWarning() << "Import failed. Cause: Unable to write file";
+            qWarning() << "导入失败，写不出文件";
             out.close();
             return false;
         }
@@ -144,13 +144,13 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: " << zip.getZipError();
+            qWarning() << "导入失败，zip 错误码:" << zip.getZipError();
             return false;
         }
 
         if (!file.atEnd())
         {
-            qWarning() << "Import failed. Cause: read all but not EOF";
+            qWarning() << "导入失败，内容读完了却没到文件末尾";
             return false;
         }
 
@@ -158,7 +158,7 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: file.close(): " << file.getZipError();
+            qWarning() << "导入失败，关闭压缩包里的文件出错，zip 错误码:" << file.getZipError();
             return false;
         }
     }
@@ -167,7 +167,7 @@ bool ImportDocumentSetAdaptor::extractFileToDir(const QFile &pZipFile, const QSt
 
     if (zip.getZipError() != UNZ_OK)
     {
-        qWarning() << "Import failed. Cause: zip.close(): " << zip.getZipError();
+        qWarning() << "导入失败，关闭压缩包出错，zip 错误码:" << zip.getZipError();
         return false;
     }
 

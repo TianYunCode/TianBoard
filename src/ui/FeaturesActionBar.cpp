@@ -233,7 +233,7 @@ void FeaturesActionBar::dropEvent(QDropEvent *event)
 
     if (!fMimeData)
     {
-        qWarning() << "data came from not supported widget";
+        qWarning() << "数据来自一个不支持的控件";
         event->ignore();
         return;
     }
@@ -247,7 +247,7 @@ void FeaturesActionBar::dropEvent(QDropEvent *event)
         {
             if (!curFeature.isDeletable())
             {
-                qWarning() << "Undeletable feature found, stopping deleting process";
+                qWarning() << "遇到不可删除的功能，删除流程停下来";
                 event->ignore();
                 return;
             }

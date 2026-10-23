@@ -355,7 +355,7 @@ void SelectionFrame::groupItems()
 
     groupItem->setSelected(true);
     DrawingController::drawingController()->setStylusTool(StylusTool::Selector);
-    qDebug() << "Grouping items";
+    qDebug() << "开始把选中的图元合成一组";
 }
 
 void SelectionFrame::addSelectionUndo(QList<QGraphicsItem *> items, ZLayerController::moveDestination dest)

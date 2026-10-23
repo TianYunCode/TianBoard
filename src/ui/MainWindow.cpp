@@ -1209,7 +1209,7 @@ void MainWindow::switchToWebWidget()
 {
     if (d->webWidget)
     {
-        qDebug() << "popped out from StackedLayout size height: " << d->webWidget->height() << " width: " << d->webWidget->width();
+        qDebug() << "从 StackedLayout 弹出来，高:" << d->webWidget->height() << "宽:" << d->webWidget->width();
         d->stackedLayout->setCurrentWidget(d->webWidget);
     }
 }

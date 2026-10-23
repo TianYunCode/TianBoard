@@ -49,7 +49,7 @@ void AlignTextButton::setKind(int pKind)
 {
     if (mHideMixed && pKind == k_mixed)
     {
-        qDebug() << "Mixed button is hidden, can't process it";
+        qDebug() << "混合状态按钮是隐藏的，处理不了";
         return;
     }
     mKind                = pKind;
@@ -399,12 +399,12 @@ void GraphicsTextItemDelegate::increaseSize()
 
 void GraphicsTextItemDelegate::alignButtonProcess()
 {
-    qDebug() << "alignButtonProcess() clicked";
+    qDebug() << "alignButtonProcess() 被点击";
     QObject *sndr = sender();
 
     if (sndr == mAlignButton)
     {
-        qDebug() << "Align button";
+        qDebug() << "点的是对齐按钮";
         AlignTextButton *asAlText = static_cast<AlignTextButton *>(mAlignButton);
         if (asAlText->nextKind() == AlignTextButton::k_mixed)
         {
@@ -436,7 +436,7 @@ void GraphicsTextItemDelegate::alignButtonProcess()
         delegated()->setFocus();
     }
 
-    qDebug() << "sender process" << sndr;
+    qDebug() << "信号发送者:" << sndr;
 }
 
 void GraphicsTextItemDelegate::onContentChanged()
@@ -494,8 +494,8 @@ void GraphicsTextItemDelegate::updateMenuActionState()
 bool GraphicsTextItemDelegate::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     mSelectionData.mButtonIsPressed = true;
-    qDebug() << "Reporting selection  of the cursor (mouse press)" << delegated()->textCursor().selection().isEmpty();
-    qDebug() << QString("Anchor: %1\nposition: %2 (mouse press)").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
+    qDebug() << "按下鼠标，报告光标有没有选区:" << delegated()->textCursor().selection().isEmpty();
+    qDebug() << QString("锚点 %1\n光标位置 %2（按下鼠标）").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
 
     if (!GraphicsItemDelegate::mousePressEvent(event))
     {
@@ -509,10 +509,8 @@ bool GraphicsTextItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (mSelectionData.mButtonIsPressed)
     {
-        qDebug() << "Reporting selection of the cursor (mouse move)" << delegated()->textCursor().selection().isEmpty();
-        qDebug() << QString("Anchor: %1\nposition: %2 (mouse mouse move)")
-                        .arg(delegated()->textCursor().anchor())
-                        .arg(delegated()->textCursor().position());
+        qDebug() << "拖动鼠标，报告光标有没有选区:" << delegated()->textCursor().selection().isEmpty();
+        qDebug() << QString("锚点 %1\n光标位置 %2（拖动鼠标）").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
     }
 
     if (!GraphicsItemDelegate::mouseMoveEvent(event))
@@ -526,10 +524,8 @@ bool GraphicsTextItemDelegate::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 bool GraphicsTextItemDelegate::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     mSelectionData.mButtonIsPressed = false;
-    qDebug() << "Reporting selection of the cursor (mouse release)" << delegated()->textCursor().selection().isEmpty();
-    qDebug() << QString("Anchor: %1\nposition: %2 (mouse mouse release)")
-                    .arg(delegated()->textCursor().anchor())
-                    .arg(delegated()->textCursor().position());
+    qDebug() << "松开鼠标，报告光标有没有选区:" << delegated()->textCursor().selection().isEmpty();
+    qDebug() << QString("锚点 %1\n光标位置 %2（松开鼠标）").arg(delegated()->textCursor().anchor()).arg(delegated()->textCursor().position());
     updateAlighButtonState();
 
     if (!GraphicsItemDelegate::mouseReleaseEvent(event))
@@ -770,7 +766,7 @@ void GraphicsTextItemDelegate::updateAlighButtonState()
         return;
     }
 
-    qDebug() << "new cursor position" << delegated()->textCursor().position();
+    qDebug() << "新的光标位置:" << delegated()->textCursor().position();
     AlignTextButton *asAlBtn = static_cast<AlignTextButton *>(mAlignButton);
 
     if (!oneBlockSelection())
@@ -784,7 +780,7 @@ void GraphicsTextItemDelegate::updateAlighButtonState()
     asAlBtn->setMixedButtonVisible(false);
 
     Qt::Alignment cf = delegated()->textCursor().blockFormat().alignment();
-    qDebug() << "getting alignment" << cf;
+    qDebug() << "取到的对齐方式:" << cf;
 
     if (cf & Qt::AlignCenter)
     {

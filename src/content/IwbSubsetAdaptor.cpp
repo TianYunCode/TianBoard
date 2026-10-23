@@ -101,7 +101,7 @@ bool IwbSubsetAdaptor::convertIwbFileToDocumentPackage(QString &iwbSourceFile, D
 
     if (!file.open(QIODevice::ReadOnly))
     {
-        qWarning() << "Cannot open file " << iwbSourceFile << " for reading ...";
+        qWarning() << "打不开文件" << iwbSourceFile << "来读取";
         return false;
     }
 
@@ -116,15 +116,14 @@ IwbSubsetAdaptor::IwbSubsetReader::IwbSubsetReader(DocumentProxy *proxy, QFile *
     QDomDocument::ParseResult parseResult = mDOMdoc.setContent(content, QDomDocument::ParseOption::UseNamespaceProcessing);
     if (!parseResult)
     {
-        qWarning() << "Error:Parseerroratline" << parseResult.errorLine << ","
-                   << "column" << parseResult.errorColumn << ":" << parseResult.errorMessage;
+        qWarning() << "解析 XML 出错，行:" << parseResult.errorLine << "列:" << parseResult.errorColumn << ":" << parseResult.errorMessage;
     }
     else
     {
-        qDebug() << "well parsed to DOM";
+        qDebug() << "已经解析成 DOM";
         pwdContent = QFileInfo(content->fileName()).dir().absolutePath();
     }
-    qDebug() << "tmp path is" << pwdContent;
+    qDebug() << "临时路径是:" << pwdContent;
 }
 bool IwbSubsetAdaptor::IwbSubsetReader::parse()
 {
@@ -947,13 +946,13 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgImage(const QDomElement &element
         QString imagePath = pwdContent + "/" + itemRefPath;
         if (!QFile::exists(imagePath))
         {
-            qDebug() << "can't load file" << pwdContent + "/" + itemRefPath << "maybe file corrupted";
+            qDebug() << "读不出文件:" << pwdContent + "/" + itemRefPath << "（文件可能损坏了）";
             return false;
         }
         pix.load(imagePath);
         if (pix.isNull())
         {
-            qDebug() << "can't create pixmap for file" << pwdContent + "/" + itemRefPath << "maybe format does not supported";
+            qDebug() << "给这个文件建不出位图:" << pwdContent + "/" + itemRefPath << "（格式可能不支持）";
         }
     }
 
@@ -1001,7 +1000,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgFlash(const QDomElement &element
         flashPath = pwdContent + "/" + itemRefPath;
         if (!QFile::exists(flashPath))
         {
-            qDebug() << "can't load file" << pwdContent + "/" + itemRefPath << "maybe file corrupted";
+            qDebug() << "读不出文件:" << pwdContent + "/" + itemRefPath << "（文件可能损坏了）";
             return false;
         }
         urlPath = QUrl::fromLocalFile(flashPath);
@@ -1009,7 +1008,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgFlash(const QDomElement &element
     QDir tmpFlashDir(mTmpFlashDir);
     if (!tmpFlashDir.exists())
     {
-        qDebug() << "Can't create temporary directory to put flash";
+        qDebug() << "建不出存放 flash 的临时目录";
         return false;
     }
 
@@ -1056,7 +1055,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgAudio(const QDomElement &element
         QString audioPath = pwdContent + "/" + itemRefPath;
         if (!QFile::exists(audioPath))
         {
-            qDebug() << "can't load file" << pwdContent + "/" + itemRefPath << "maybe file corrupted";
+            qDebug() << "读不出文件:" << pwdContent + "/" + itemRefPath << "（文件可能损坏了）";
             return false;
         }
         concreteUrl = QUrl::fromLocalFile(audioPath);
@@ -1118,7 +1117,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgVideo(const QDomElement &element
         QString videoPath = pwdContent + "/" + itemRefPath;
         if (!QFile::exists(videoPath))
         {
-            qDebug() << "can't load file" << pwdContent + "/" + itemRefPath << "maybe file corrupted";
+            qDebug() << "读不出文件:" << pwdContent + "/" + itemRefPath << "（文件可能损坏了）";
             return false;
         }
         concreteUrl = QUrl::fromLocalFile(videoPath);
@@ -1185,7 +1184,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvgElement(const QDomElement &paren
     if (parent.namespaceURI() != svgNS)
     {
         // 只告警不中断：部分工具会改写命名空间前缀或 URI，但元素结构仍可解析。
-        qWarning() << "Incorrect namespace, error at content file, line number" << parent.lineNumber();
+        qWarning() << "命名空间不对，内容文件在这一行出错:" << parent.lineNumber();
     }
 
     if (tagName == tG && !parseGSection(parent))
@@ -1275,7 +1274,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseIwbMeta(const QDomElement &element)
     if (element.namespaceURI() != iwbNS)
     {
         // 元数据不影响页面几何，命名空间不符时继续导入。
-        qWarning() << "incorrect meta namespace, incorrect document";
+        qWarning() << "meta 命名空间不对，文档有问题";
     }
 
     return true;
@@ -1285,7 +1284,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseSvg(const QDomElement &svgSection)
     if (svgSection.namespaceURI() != svgNS)
     {
         // 与 parseSvgElement 相同：命名空间异常只影响严格校验，不阻断解析。
-        qWarning() << "incorrect svg namespace, incorrect document";
+        qWarning() << "svg 命名空间不对，文档有问题";
     }
 
     parseSvgSectionAttr(svgSection);
@@ -1309,7 +1308,7 @@ GraphicsGroupContainerItem *IwbSubsetAdaptor::IwbSubsetReader::parseIwbGroup(QDo
     // 引用 id 比 UUID 长说明这一条是多边形笔迹，需要合并成 GraphicsStrokesGroup。
     if (parent.namespaceURI() != iwbNS)
     {
-        qWarning() << "incorrect iwb group namespace, incorrect document";
+        qWarning() << "iwb 分组命名空间不对，文档有问题";
     }
 
     GraphicsGroupContainerItem               *group = new GraphicsGroupContainerItem();
@@ -1351,7 +1350,7 @@ GraphicsGroupContainerItem *IwbSubsetAdaptor::IwbSubsetReader::parseIwbGroup(QDo
                     else
                     {
                         // 引用指向页内不存在的图元（例如背景元素）：丢掉这个成员而不是把 0 塞进组里。
-                        qWarning() << "iwb group references an unknown item" << uuid;
+                        qWarning() << "iwb 分组引用了一个不存在的条目:" << uuid;
                     }
                 }
             }
@@ -1419,7 +1418,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::parseIwbElement(QDomElement &element)
     if (element.namespaceURI() != iwbNS)
     {
         // 扩展段命名空间不符时宁可少锁几个图元，也不要让整页导入失败。
-        qWarning() << "incorrect iwb element namespace, incorrect document";
+        qWarning() << "iwb 元素命名空间不对，文档有问题";
     }
 
     bool locked         = false;
@@ -1555,7 +1554,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::persistScenes()
 {
     if (!mProxy->pageCount())
     {
-        qDebug() << "No pages created";
+        qDebug() << "一页都没建出来";
         return false;
     }
     for (int i = 0; i < mProxy->pageCount(); i++)
@@ -1563,7 +1562,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::persistScenes()
         mCurrentScene = documentStore()->getDocumentScene(mProxy, i);
         if (!mCurrentScene)
         {
-            qDebug() << "can't allocate scene, loading failed";
+            qDebug() << "分配不到场景，加载失败";
             return false;
         }
 
@@ -1573,7 +1572,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::persistScenes()
         {
             // 刚写出去的页读不回来（文件缺失、打不开或解析失败都会返回 0）：跳过缩略图这一环，
             // 不能拿着空指针继续走，否则整次 IWB 导入直接崩掉。
-            qWarning() << "cannot reload page" << i << "right after persisting it";
+            qWarning() << "刚存完就想重新加载，第" << i << "页失败";
             mCurrentScene->setModified(false);
             continue;
         }
@@ -1723,7 +1722,7 @@ bool IwbSubsetAdaptor::IwbSubsetReader::getTempFileName()
         tmpNumber++;
         if (tmpNumber == 100000)
         {
-            qWarning() << "Import failed. Failed to create temporary file for svg objects";
+            qWarning() << "导入失败，为 svg 对象建不出临时文件";
             return false;
         }
     }
@@ -1745,13 +1744,13 @@ bool IwbSubsetAdaptor::IwbSubsetReader::createTempFlashPath()
             }
             else
             {
-                qDebug() << "Can't create temporary dir maybe due to permissions";
+                qDebug() << "建不出临时目录，可能是权限不够";
                 return false;
             }
         }
         else if (tmpNumber == 1000)
         {
-            qWarning() << "Import failed. Failed to create temporary file for svg objects";
+            qWarning() << "导入失败，为 svg 对象建不出临时文件";
             return false;
         }
     }

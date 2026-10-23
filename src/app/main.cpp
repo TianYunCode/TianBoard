@@ -224,12 +224,12 @@ int main(int argc, char *argv[])
         }
     }
 
-    qDebug() << "file name argument" << fileToOpen;
+    qDebug() << "命令行里带来的文件名:" << fileToOpen;
     int result = app.exec(fileToOpen);
 
     app.cleanup();
 
-    qDebug() << "application is quitting";
+    qDebug() << "应用正在退出";
 
     return result;
 }

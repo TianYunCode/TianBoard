@@ -113,7 +113,7 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir)
 
     if (!zip.open(QuaZip::mdUnzip))
     {
-        qWarning() << "Import failed. Cause zip.open(): " << zip.getZipError();
+        qWarning() << "导入失败，压缩包打不开，zip 错误码:" << zip.getZipError();
         return "";
     }
 
@@ -136,13 +136,13 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir)
         tmpNumber++;
         if (tmpNumber == 100000)
         {
-            qWarning() << "Import failed. Failed to create temporary directory for iwb file";
+            qWarning() << "导入失败，为 iwb 文件建不出临时目录";
             return "";
         }
     }
     if (!rootDir.mkdir(documentRootFolder))
     {
-        qWarning() << "Import failed. Couse: failed to create temp folder for iwb package";
+        qWarning() << "导入失败，为 iwb 包建不出临时目录";
     }
 
     QFile out;
@@ -151,14 +151,14 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir)
     {
         if (!zip.getCurrentFileInfo(&info))
         {
-            qWarning() << "Import failed. Cause: getCurrentFileInfo(): " << zip.getZipError();
+            qWarning() << "导入失败，读不到当前条目信息，zip 错误码:" << zip.getZipError();
             return "";
         }
         // 解压失败已在上面返回；此处打开失败按 zip 条目损坏处理。
         file.open(QIODevice::ReadOnly);
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: file.getFileName(): " << zip.getZipError();
+            qWarning() << "导入失败，取条目名出错，zip 错误码:" << zip.getZipError();
             return "";
         }
 
@@ -179,12 +179,12 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir)
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: " << zip.getZipError();
+            qWarning() << "导入失败，zip 错误码:" << zip.getZipError();
             return "";
         }
         if (!file.atEnd())
         {
-            qWarning() << "Import failed. Cause: read all but not EOF";
+            qWarning() << "导入失败，内容读完了却没到文件末尾";
             return "";
         }
 
@@ -192,7 +192,7 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir)
 
         if (file.getZipError() != UNZ_OK)
         {
-            qWarning() << "Import failed. Cause: file.close(): " << file.getZipError();
+            qWarning() << "导入失败，关闭压缩包里的文件出错，zip 错误码:" << file.getZipError();
             return "";
         }
     }
@@ -201,7 +201,7 @@ QString ImportIwb::expandFileToDir(const QFile &pZipFile, const QString &pDir)
 
     if (zip.getZipError() != UNZ_OK)
     {
-        qWarning() << "Import failed. Cause: zip.close(): " << zip.getZipError();
+        qWarning() << "导入失败，关闭压缩包出错，zip 错误码:" << zip.getZipError();
         return "";
     }
 

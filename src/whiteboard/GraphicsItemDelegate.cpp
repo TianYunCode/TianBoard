@@ -1400,12 +1400,12 @@ void MediaTimer::setNumDigits(int numDigits)
 {
     if (numDigits > 99)
     {
-        qWarning("QLCDNumber::setNumDigits: Max 99 digits allowed");
+        qWarning("MediaTimer::setNumDigits: 位数最多 99");
         numDigits = 99;
     }
     if (numDigits < 0)
     {
-        qWarning("QLCDNumber::setNumDigits: Min 0 digits allowed");
+        qWarning("MediaTimer::setNumDigits: 位数不能少于 0");
         numDigits = 0;
     }
     if (digitStr.isNull())

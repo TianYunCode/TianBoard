@@ -28,12 +28,12 @@ void MetadataDcSubsetAdaptor::persist(DocumentProxy *proxy)
         return;
     }
     QString fileName = proxy->persistencePath() + "/" + metadataFilename;
-    qDebug() << "Persisting document; path is" << fileName;
+    qDebug() << "正在保存文档，路径是" << fileName;
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
-        qCritical() << "cannot open " << fileName << " for writing ...";
-        qCritical() << "error : " << file.errorString();
+        qCritical() << "文件打不开：" << fileName << "来写入";
+        qCritical() << "错误:" << file.errorString();
         return;
     }
 
@@ -93,7 +93,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
     {
         if (!file.open(QIODevice::ReadOnly))
         {
-            qWarning() << "Cannot open file " << fileName << " for reading ...";
+            qWarning() << "打不开文件" << fileName << "来读取";
             return metadata;
         }
 
@@ -149,7 +149,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
                     }
                     if (!ok)
                     {
-                        qDebug() << "Invalid document size:" << size;
+                        qDebug() << "文档尺寸无效:" << size;
                     }
 
                     sizeFound = true;
@@ -167,7 +167,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
 
             if (xml.hasError())
             {
-                qWarning() << "error parsing metadata.rdf file " << xml.errorString();
+                qWarning() << "解析 metadata.rdf 文件出错：" << xml.errorString();
             }
         }
 
@@ -183,7 +183,7 @@ QMap<QString, QVariant> MetadataDcSubsetAdaptor::load(QString pPath)
         QSize docSize                      = dw->screenGeometry(controlScreenIndex).size();
         docSize.setHeight(docSize.height() - 70); // 扣掉工具栏高度，避免页面被工具条遮住
 
-        qDebug() << "Document size not found, using default view size" << docSize;
+        qDebug() << "文档里没有尺寸，改用默认视图尺寸" << docSize;
 
         metadata.insert(Settings::documentSize, QVariant(docSize));
     }

@@ -104,7 +104,7 @@ void DownloadWidget::onFileAddedToDownload()
 void DownloadWidget::addCurrentDownloads()
 {
     QVector<sDownloadFileDesc> actualDL = DownloadManager::downloadManager()->currentDownloads();
-    qDebug() << "Actual downloads size: " << actualDL.size();
+    qDebug() << "实际的下载条数:" << actualDL.size();
     for (int i = 0; i < actualDL.size(); i++)
     {
         // 每个下载占两行：名称行保存任务 id，进度行保存当前/总字节数。

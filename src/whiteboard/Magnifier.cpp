@@ -194,7 +194,7 @@ qreal Magnifier::zoom() const
 
 void Magnifier::calculateButtonsPositions()
 {
-    qDebug() << "current widget size is " << size();
+    qDebug() << "放大镜当前控件尺寸:" << size();
 
     d->m_iButtonInterval           = 5;
     d->mResizeItemButtonRect       = QRect(size().width() - 1.5 * d->mResizeItem->width() - d->m_iButtonInterval,
